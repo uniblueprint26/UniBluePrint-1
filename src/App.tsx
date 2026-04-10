@@ -19,6 +19,17 @@ import SettingsPage from "@/pages/SettingsPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import NotFound from "@/pages/NotFound";
 
+// Phase 2 pages
+import FoundationServicesPage from "@/pages/foundation/FoundationServicesPage";
+import ServiceDetailPage from "@/pages/foundation/ServiceDetailPage";
+import SubmissionsPage from "@/pages/foundation/SubmissionsPage";
+import ElevationServicesPage from "@/pages/elevation/ElevationServicesPage";
+import LifestylePage from "@/pages/lifestyle/LifestylePage";
+import CampusPage from "@/pages/campus/CampusPage";
+import CourseConnectPage from "@/pages/connect/CourseConnectPage";
+import BudgetPage from "@/pages/budget/BudgetPage";
+import AdsPage from "@/pages/ads/AdsPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -42,21 +53,33 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/home" element={<HomePage />} />
               <Route path="/blueprint" element={<BlueprintPage />} />
-              <Route path="/foundation" element={<PlaceholderPage title="Foundation Blueprint" description="Build the essentials for your journey." />} />
-              <Route path="/foundation/*" element={<PlaceholderPage title="Foundation Blueprint" description="Build the essentials for your journey." />} />
-              <Route path="/elevation" element={<PlaceholderPage title="Elevation Blueprint" description="Take your Blueprint further." />} />
-              <Route path="/elevation/*" element={<PlaceholderPage title="Elevation Blueprint" description="Take your Blueprint further." />} />
+
+              {/* Foundation Blueprint */}
+              <Route path="/foundation" element={<FoundationServicesPage />} />
+              <Route path="/foundation/submissions" element={<SubmissionsPage />} />
+              <Route path="/foundation/:serviceId" element={<ServiceDetailPage />} />
+
+              {/* Elevation Blueprint */}
+              <Route path="/elevation" element={<ElevationServicesPage />} />
+              <Route path="/elevation/*" element={<PlaceholderPage title="Elevation Blueprint" description="Coach directory and engagement — coming soon." />} />
+
+              {/* Connect */}
               <Route path="/connect" element={<ConnectPage />} />
-              <Route path="/campus" element={<PlaceholderPage title="Campus Connect" description="Your campus community." />} />
-              <Route path="/campus/*" element={<PlaceholderPage title="Campus Connect" description="Your campus community." />} />
-              <Route path="/connect/course" element={<PlaceholderPage title="Course Connect" description="Course-specific groups and resources." />} />
-              <Route path="/lifestyle" element={<PlaceholderPage title="Lifestyle" description="Deals, experiences, and more." />} />
-              <Route path="/lifestyle/*" element={<PlaceholderPage title="Lifestyle" description="Deals, experiences, and more." />} />
+              <Route path="/campus" element={<CampusPage />} />
+              <Route path="/campus/*" element={<PlaceholderPage title="Campus Connect" description="Board content coming soon." />} />
+              <Route path="/connect/course" element={<CourseConnectPage />} />
+
+              {/* Lifestyle */}
+              <Route path="/lifestyle" element={<LifestylePage />} />
+              <Route path="/lifestyle/*" element={<PlaceholderPage title="Lifestyle Blueprint" description="Partner details coming soon." />} />
+
+              {/* More */}
               <Route path="/more" element={<MorePage />} />
-              <Route path="/budget" element={<PlaceholderPage title="Budgeting Tool" description="Spending Based · Saving Based · Balanced" />} />
-              <Route path="/budget/*" element={<PlaceholderPage title="Budgeting Tool" description="Spending Based · Saving Based · Balanced" />} />
-              <Route path="/ads" element={<PlaceholderPage title="Advertisement Board" description="Deals and opportunities for students." />} />
-              <Route path="/ads/*" element={<PlaceholderPage title="Advertisement Board" description="Deals and opportunities for students." />} />
+              <Route path="/budget" element={<BudgetPage />} />
+              <Route path="/budget/*" element={<PlaceholderPage title="Budgeting Tool" description="Additional budget features coming soon." />} />
+              <Route path="/ads" element={<AdsPage />} />
+              <Route path="/ads/*" element={<PlaceholderPage title="Advertisement Board" description="Ad management coming soon." />} />
+
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/settings/*" element={<PlaceholderPage title="Settings" description="Manage your Blueprint." />} />
             </Route>
