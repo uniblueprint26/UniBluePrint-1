@@ -6,11 +6,11 @@ import { FileText, TrendingUp, Users, BookOpen, Sparkles, Calculator, Megaphone 
 const categories = [
   { label: 'Foundation Blueprint', icon: FileText, path: '/foundation', color: 'bg-primary/10 text-primary' },
   { label: 'Elevation Blueprint', icon: TrendingUp, path: '/elevation', color: 'bg-accent/10 text-accent' },
-  { label: 'Campus Connect', icon: Users, path: '/campus', color: 'bg-primary/10 text-primary' },
-  { label: 'Course Connect', icon: BookOpen, path: '/connect/course', color: 'bg-accent/10 text-accent' },
-  { label: 'Lifestyle', icon: Sparkles, path: '/lifestyle', color: 'bg-primary/10 text-primary' },
+  { label: 'Lifestyle Blueprint', icon: Sparkles, path: '/lifestyle', color: 'bg-primary/10 text-primary' },
+  { label: 'Campus Connect', icon: Users, path: '/campus', color: 'bg-accent/10 text-accent' },
+  { label: 'Course Connect', icon: BookOpen, path: '/connect/course', color: 'bg-primary/10 text-primary' },
   { label: 'Budgeting Tool', icon: Calculator, path: '/budget', color: 'bg-accent/10 text-accent' },
-  { label: 'Ad Board', icon: Megaphone, path: '/ads', color: 'bg-primary/10 text-primary' },
+  { label: 'Advertisement Board', icon: Megaphone, path: '/ads', color: 'bg-primary/10 text-primary' },
 ];
 
 const quickActions = [
@@ -78,7 +78,7 @@ const HomePage = () => {
             <button
               key={cat.label}
               onClick={() => navigate(cat.path)}
-              className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border text-left transition-colors hover:bg-secondary"
+              className="flex items-center gap-3 p-4 rounded-xl bg-card border-[1.5px] border-accent dark:border-white text-left transition-colors hover:bg-secondary"
             >
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${cat.color}`}>
                 <cat.icon className="h-5 w-5" />
