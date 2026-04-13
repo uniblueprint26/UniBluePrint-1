@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Users, Sparkles, MoreHorizontal } from 'lucide-react';
+import { Home, Compass, Users, ShoppingBag, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const tabs = [
