@@ -9,7 +9,7 @@ const ConnectPage = () => {
       <h1 className="text-2xl font-bold text-foreground tracking-tight">Connect</h1>
       <p className="text-sm text-muted-foreground">Your campus and course network.</p>
       <div className="space-y-3">
-        <button onClick={() => navigate('/campus')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
+        <button onClick={() => navigate('/campus')} className="w-full flex items-center gap-4 p-5 accent-card text-left hover:bg-secondary transition-colors">
           <div className="w-12 h-12 rounded-xl icon-chip">
             <UsersRound className="h-6 w-6" />
           </div>
@@ -18,7 +18,7 @@ const ConnectPage = () => {
             <p className="text-sm text-muted-foreground">Your campus community</p>
           </div>
         </button>
-        <button onClick={() => navigate('/connect/course')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
+        <button onClick={() => navigate('/connect/course')} className="w-full flex items-center gap-4 p-5 accent-card text-left hover:bg-secondary transition-colors">
           <div className="w-12 h-12 rounded-xl icon-chip">
             <Globe className="h-6 w-6" />
           </div>

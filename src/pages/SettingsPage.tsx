@@ -45,7 +45,7 @@ const SettingsPage = () => {
           <button
             key={card.title}
             onClick={() => navigate(card.path)}
-            className="w-full flex items-center gap-4 p-4 rounded-xl bg-card border border-border text-left transition-colors hover:bg-secondary"
+            className="w-full flex items-center gap-4 p-4 accent-card text-left transition-colors hover:bg-secondary"
           >
             <div className="w-10 h-10 icon-chip flex-shrink-0">
               <card.icon className="h-5 w-5" />

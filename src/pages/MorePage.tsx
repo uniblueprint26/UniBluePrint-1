@@ -9,7 +9,7 @@ const MorePage = () => {
       <h1 className="text-2xl font-bold text-foreground tracking-tight">More</h1>
       <p className="text-sm text-muted-foreground">Additional tools and features.</p>
       <div className="space-y-3">
-        <button onClick={() => navigate('/budget')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
+        <button onClick={() => navigate('/budget')} className="w-full flex items-center gap-4 p-5 accent-card text-left hover:bg-secondary transition-colors">
           <div className="w-12 h-12 rounded-xl icon-chip">
             <PieChart className="h-6 w-6" />
           </div>
@@ -18,7 +18,7 @@ const MorePage = () => {
             <p className="text-sm text-muted-foreground">Spending Based · Saving Based · Balanced</p>
           </div>
         </button>
-        <button onClick={() => navigate('/ads')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
+        <button onClick={() => navigate('/ads')} className="w-full flex items-center gap-4 p-5 accent-card text-left hover:bg-secondary transition-colors">
           <div className="w-12 h-12 rounded-xl icon-chip">
             <Megaphone className="h-6 w-6" />
           </div>

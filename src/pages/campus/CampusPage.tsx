@@ -1,4 +1,3 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { MessageSquare, Lightbulb, BookOpen, CreditCard, Star, Car, Search, MessageCircle, ArrowRight } from 'lucide-react';
 
 const boards = [
@@ -22,8 +21,8 @@ const CampusPage = () => {
 
       <section className="space-y-3">
         {boards.map((board) => (
-          <Card key={board.id} className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors cursor-pointer">
-            <CardContent className="p-4 flex items-center gap-4">
+          <div key={board.id} className="accent-card hover:bg-secondary transition-colors cursor-pointer">
+            <div className="p-4 flex items-center gap-4">
               <div className="w-11 h-11 icon-chip shrink-0">
                 <board.icon className="h-5 w-5" />
               </div>
@@ -32,8 +31,8 @@ const CampusPage = () => {
                 <p className="text-xs text-muted-foreground">{board.description}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </section>
 
