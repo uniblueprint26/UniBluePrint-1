@@ -24,8 +24,8 @@ const CampusPage = () => {
         {boards.map((board) => (
           <Card key={board.id} className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors cursor-pointer">
             <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <board.icon className="h-5 w-5 text-primary" />
+              <div className="w-11 h-11 icon-chip shrink-0">
+                <board.icon className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-foreground text-sm">{board.label}</p>

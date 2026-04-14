@@ -39,7 +39,6 @@ const LifestylePage = () => {
     fetchDeals();
   }, []);
 
-  // National shows all; campus would filter by campus field (not yet in deals table)
   const deals = scope === 'national' ? allDeals : [];
 
   return (
@@ -56,15 +55,14 @@ const LifestylePage = () => {
         </TabsList>
 
         <TabsContent value="national" className="mt-4 space-y-6">
-          {/* Categories */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Categories</h2>
             <div className="grid grid-cols-2 gap-3">
               {partnerCategories.map((cat) => (
                 <Card key={cat.id} className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <cat.icon className="h-4 w-4 text-primary" />
+                    <div className="w-9 h-9 icon-chip shrink-0">
+                      <cat.icon className="h-4 w-4" />
                     </div>
                     <span className="text-sm font-medium text-foreground">{cat.label}</span>
                   </CardContent>
@@ -73,7 +71,6 @@ const LifestylePage = () => {
             </div>
           </section>
 
-          {/* Featured deals */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Featured Deals</h2>
             {allDeals.length === 0 && (
@@ -83,8 +80,8 @@ const LifestylePage = () => {
               {allDeals.map((deal) => (
                 <Card key={deal.id} className="rounded-xl border-[1.5px] border-accent dark:border-white">
                   <CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                      <Ticket className="h-5 w-5 text-accent" />
+                    <div className="w-10 h-10 icon-chip shrink-0">
+                      <Ticket className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold text-foreground text-sm">{deal.title}</p>
@@ -105,11 +102,10 @@ const LifestylePage = () => {
             <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
               {profile?.university_or_field ? `${profile.university_or_field} Deals` : 'Campus Deals'}
             </h2>
-            {/* No campus-specific deals yet */}
             <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
               <CardContent className="p-6 text-center space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto">
-                  <Ticket className="h-6 w-6 text-primary" />
+                <div className="w-12 h-12 rounded-xl icon-chip mx-auto">
+                  <Ticket className="h-6 w-6" />
                 </div>
                 <p className="text-sm font-medium text-foreground">Partner deals are coming to your campus soon.</p>
                 <p className="text-xs text-muted-foreground">Check back after launch.</p>

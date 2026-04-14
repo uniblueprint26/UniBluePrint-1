@@ -1,23 +1,23 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileText, TrendingUp, Users, BookOpen, Sparkles, Calculator, Megaphone } from 'lucide-react';
+import { FileText, ArrowUp, UsersRound, Globe, ShoppingBag, PieChart, Megaphone, Calculator, Sparkles } from 'lucide-react';
 
 const categories = [
-  { label: 'Foundation Blueprint', icon: FileText, path: '/foundation', color: 'bg-primary/10 text-primary' },
-  { label: 'Elevation Blueprint', icon: TrendingUp, path: '/elevation', color: 'bg-accent/10 text-accent' },
-  { label: 'Lifestyle Blueprint', icon: Sparkles, path: '/lifestyle', color: 'bg-primary/10 text-primary' },
-  { label: 'Campus Connect', icon: Users, path: '/campus', color: 'bg-accent/10 text-accent' },
-  { label: 'Course Connect', icon: BookOpen, path: '/connect/course', color: 'bg-primary/10 text-primary' },
-  { label: 'Budgeting Tool', icon: Calculator, path: '/budget', color: 'bg-accent/10 text-accent' },
-  { label: 'Advertisement Board', icon: Megaphone, path: '/ads', color: 'bg-primary/10 text-primary' },
+  { label: 'Foundation Blueprint', icon: FileText, path: '/foundation' },
+  { label: 'Elevation Blueprint', icon: ArrowUp, path: '/elevation' },
+  { label: 'Lifestyle Blueprint', icon: ShoppingBag, path: '/lifestyle' },
+  { label: 'Campus Connect', icon: UsersRound, path: '/campus' },
+  { label: 'Course Connect', icon: Globe, path: '/connect/course' },
+  { label: 'Budgeting Tool', icon: PieChart, path: '/budget' },
+  { label: 'Advertisement Board', icon: Megaphone, path: '/ads' },
 ];
 
 const quickActions = [
   { label: 'New Blueprint', path: '/foundation', icon: FileText },
   { label: 'My Budget', path: '/budget', icon: Calculator },
-  { label: 'Campus', path: '/campus', icon: Users },
-  { label: 'Deals', path: '/lifestyle', icon: Sparkles },
+  { label: 'Campus', path: '/campus', icon: UsersRound },
+  { label: 'Deals', path: '/lifestyle', icon: ShoppingBag },
 ];
 
 const HomePage = () => {
@@ -80,7 +80,7 @@ const HomePage = () => {
               onClick={() => navigate(cat.path)}
               className="flex items-center gap-3 p-4 rounded-xl bg-card border-[1.5px] border-accent dark:border-white text-left transition-colors hover:bg-secondary"
             >
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${cat.color}`}>
+              <div className="w-10 h-10 icon-chip">
                 <cat.icon className="h-5 w-5" />
               </div>
               <span className="text-sm font-medium text-foreground">{cat.label}</span>

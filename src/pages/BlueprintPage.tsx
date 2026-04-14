@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, TrendingUp } from 'lucide-react';
+import { FileText, ArrowUp } from 'lucide-react';
 
 const BlueprintPage = () => {
   const navigate = useNavigate();
@@ -10,8 +10,8 @@ const BlueprintPage = () => {
       <p className="text-sm text-muted-foreground">Choose your path.</p>
       <div className="space-y-3">
         <button onClick={() => navigate('/foundation')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <FileText className="h-6 w-6 text-primary" />
+          <div className="w-12 h-12 rounded-xl icon-chip">
+            <FileText className="h-6 w-6" />
           </div>
           <div>
             <p className="font-semibold text-foreground">Foundation Blueprint</p>
@@ -19,8 +19,8 @@ const BlueprintPage = () => {
           </div>
         </button>
         <button onClick={() => navigate('/elevation')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
-          <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-            <TrendingUp className="h-6 w-6 text-accent" />
+          <div className="w-12 h-12 rounded-xl icon-chip">
+            <ArrowUp className="h-6 w-6" />
           </div>
           <div>
             <p className="font-semibold text-foreground">Elevation Blueprint</p>
