@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -122,8 +121,8 @@ const AdsPage = () => {
       </Button>
 
       {showCreate && (
-        <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
-          <CardContent className="p-5 space-y-4">
+        <div className="accent-card">
+          <div className="p-5 space-y-4">
             <div className="space-y-1.5">
               <Label className="text-sm">Title</Label>
               <Input
@@ -212,8 +211,8 @@ const AdsPage = () => {
               <Button variant="ghost" onClick={() => setShowCreate(false)} className="rounded-xl">Cancel</Button>
             </div>
             <p className="text-xs text-muted-foreground">Free tier. Paid promoted listings coming soon.</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       <div className="space-y-3">
@@ -221,8 +220,8 @@ const AdsPage = () => {
           <p className="text-sm text-muted-foreground text-center py-8">No ads posted yet. Be the first!</p>
         )}
         {ads.map((ad) => (
-          <Card key={ad.id} className="rounded-xl border-[1.5px] border-accent dark:border-white">
-            <CardContent className="p-4">
+          <div key={ad.id} className="accent-card">
+            <div className="p-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 icon-chip shrink-0">
                   <Megaphone className="h-5 w-5" />
@@ -237,8 +236,8 @@ const AdsPage = () => {
                   </a>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     </div>

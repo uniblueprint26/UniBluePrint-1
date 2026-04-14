@@ -9,7 +9,7 @@ const BlueprintPage = () => {
       <h1 className="text-2xl font-bold text-foreground tracking-tight">Blueprint</h1>
       <p className="text-sm text-muted-foreground">Choose your path.</p>
       <div className="space-y-3">
-        <button onClick={() => navigate('/foundation')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
+        <button onClick={() => navigate('/foundation')} className="w-full flex items-center gap-4 p-5 accent-card text-left hover:bg-secondary transition-colors">
           <div className="w-12 h-12 rounded-xl icon-chip">
             <FileText className="h-6 w-6" />
           </div>
@@ -18,7 +18,7 @@ const BlueprintPage = () => {
             <p className="text-sm text-muted-foreground">Build the essentials</p>
           </div>
         </button>
-        <button onClick={() => navigate('/elevation')} className="w-full flex items-center gap-4 p-5 rounded-xl bg-card border border-border text-left hover:bg-secondary transition-colors">
+        <button onClick={() => navigate('/elevation')} className="w-full flex items-center gap-4 p-5 accent-card text-left hover:bg-secondary transition-colors">
           <div className="w-12 h-12 rounded-xl icon-chip">
             <ArrowUp className="h-6 w-6" />
           </div>

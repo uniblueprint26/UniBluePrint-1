@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dumbbell, Car, UtensilsCrossed, Scissors, Heart, Tag, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,14 +58,14 @@ const LifestylePage = () => {
             <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Categories</h2>
             <div className="grid grid-cols-2 gap-3">
               {partnerCategories.map((cat) => (
-                <Card key={cat.id} className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors cursor-pointer">
-                  <CardContent className="p-4 flex items-center gap-3">
+                <div key={cat.id} className="accent-card hover:bg-secondary transition-colors cursor-pointer">
+                  <div className="p-4 flex items-center gap-3">
                     <div className="w-9 h-9 icon-chip shrink-0">
                       <cat.icon className="h-4 w-4" />
                     </div>
                     <span className="text-sm font-medium text-foreground">{cat.label}</span>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           </section>
@@ -78,8 +77,8 @@ const LifestylePage = () => {
             )}
             <div className="space-y-3">
               {allDeals.map((deal) => (
-                <Card key={deal.id} className="rounded-xl border-[1.5px] border-accent dark:border-white">
-                  <CardContent className="p-4 flex items-center gap-3">
+                <div key={deal.id} className="accent-card">
+                  <div className="p-4 flex items-center gap-3">
                     <div className="w-10 h-10 icon-chip shrink-0">
                       <Ticket className="h-5 w-5" />
                     </div>
@@ -90,8 +89,8 @@ const LifestylePage = () => {
                     {deal.discount_percent && (
                       <span className="text-sm font-bold text-primary">{deal.discount_percent}% off</span>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           </section>
@@ -102,15 +101,15 @@ const LifestylePage = () => {
             <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
               {profile?.university_or_field ? `${profile.university_or_field} Deals` : 'Campus Deals'}
             </h2>
-            <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
-              <CardContent className="p-6 text-center space-y-3">
+            <div className="accent-card">
+              <div className="p-6 text-center space-y-3">
                 <div className="w-12 h-12 rounded-xl icon-chip mx-auto">
                   <Ticket className="h-6 w-6" />
                 </div>
                 <p className="text-sm font-medium text-foreground">Partner deals are coming to your campus soon.</p>
                 <p className="text-xs text-muted-foreground">Check back after launch.</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </section>
         </TabsContent>
       </Tabs>

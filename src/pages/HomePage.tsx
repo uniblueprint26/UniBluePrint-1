@@ -1,17 +1,18 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileText, ArrowUp, UsersRound, Globe, ShoppingBag, PieChart, Megaphone, Calculator, Sparkles } from 'lucide-react';
+import { FileText, ArrowUp, UsersRound, Globe, ShoppingBag, PieChart, Megaphone, Calculator, Sparkles, Ticket } from 'lucide-react';
 
 const categories = [
   { label: 'Foundation Blueprint', icon: FileText, path: '/foundation' },
   { label: 'Elevation Blueprint', icon: ArrowUp, path: '/elevation' },
-  { label: 'Lifestyle Blueprint', icon: ShoppingBag, path: '/lifestyle' },
+  { label: 'Lifestyle Blueprint', icon: Ticket, path: '/lifestyle' },
   { label: 'Campus Connect', icon: UsersRound, path: '/campus' },
   { label: 'Course Connect', icon: Globe, path: '/connect/course' },
   { label: 'Budgeting Tool', icon: PieChart, path: '/budget' },
-  { label: 'Advertisement Board', icon: Megaphone, path: '/ads' },
 ];
+
+const adsCard = { label: 'Advertisement Board', icon: Megaphone, path: '/ads' };
 
 const quickActions = [
   { label: 'New Blueprint', path: '/foundation', icon: FileText },
@@ -28,7 +29,6 @@ const HomePage = () => {
 
   return (
     <div className="px-5 py-6 space-y-8">
-      {/* Hero Greeting */}
       <section>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Welcome back, {firstName}
@@ -36,7 +36,6 @@ const HomePage = () => {
         <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
       </section>
 
-      {/* Quick Actions */}
       <section>
         <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
           {quickActions.map((action) => (
@@ -52,25 +51,23 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured Deals Strip */}
       <section>
         <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Featured Deals</h2>
         <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="min-w-[200px] rounded-xl border-border">
-              <CardContent className="p-4">
+            <div key={i} className="min-w-[200px] accent-card">
+              <div className="p-4">
                 <div className="h-20 rounded-lg bg-muted mb-3 flex items-center justify-center">
                   <Sparkles className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-sm font-medium text-foreground">Featured Deal {i}</p>
                 <p className="text-xs text-muted-foreground mt-1">Exclusive student offer</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Categories Grid */}
       <section>
         <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Explore</h2>
         <div className="grid grid-cols-2 gap-3">
@@ -78,7 +75,7 @@ const HomePage = () => {
             <button
               key={cat.label}
               onClick={() => navigate(cat.path)}
-              className="flex items-center gap-3 p-4 rounded-xl bg-card border-[1.5px] border-accent dark:border-white text-left transition-colors hover:bg-secondary"
+              className="flex items-center gap-3 p-4 accent-card text-left transition-colors hover:bg-secondary"
             >
               <div className="w-10 h-10 icon-chip">
                 <cat.icon className="h-5 w-5" />
@@ -86,17 +83,26 @@ const HomePage = () => {
               <span className="text-sm font-medium text-foreground">{cat.label}</span>
             </button>
           ))}
+          {/* Full-width Advertisement Board */}
+          <button
+            onClick={() => navigate(adsCard.path)}
+            className="col-span-2 flex items-center gap-3 p-4 accent-card text-left transition-colors hover:bg-secondary"
+          >
+            <div className="w-10 h-10 icon-chip">
+              <adsCard.icon className="h-5 w-5" />
+            </div>
+            <span className="text-sm font-medium text-foreground">{adsCard.label}</span>
+          </button>
         </div>
       </section>
 
-      {/* Recent Activity / Suggested */}
       <section>
         <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
           {profile?.onboarding_completed ? 'Recent Activity' : 'Suggested For You'}
         </h2>
         {!profile?.onboarding_completed && (
-          <Card className="rounded-xl border-border">
-            <CardContent className="p-5">
+          <div className="accent-card">
+            <div className="p-5">
               <h3 className="font-semibold text-foreground mb-1">Getting Started</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 Complete your profile to unlock your full Blueprint experience.
@@ -107,16 +113,14 @@ const HomePage = () => {
               >
                 Continue Setup →
               </button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
         {profile?.onboarding_completed && (
-          <div className="space-y-3">
-            <Card className="rounded-xl border-border">
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">No recent activity yet. Start exploring your Blueprint.</p>
-              </CardContent>
-            </Card>
+          <div className="accent-card">
+            <div className="p-4">
+              <p className="text-sm text-muted-foreground">No recent activity yet. Start exploring your Blueprint.</p>
+            </div>
           </div>
         )}
       </section>
