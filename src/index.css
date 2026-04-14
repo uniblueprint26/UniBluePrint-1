@@ -95,3 +95,16 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 }
+
+@layer components {
+  .icon-chip {
+    @apply flex items-center justify-center rounded-lg;
+    background-color: #1E3A5F;
+    color: #FFFFFF;
+  }
+
+  .dark .icon-chip {
+    background-color: #F5F0E8;
+    color: #1E3A5F;
+  }
+}

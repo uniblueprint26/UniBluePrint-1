@@ -97,7 +97,6 @@ const AdsPage = () => {
         <p className="text-sm text-muted-foreground mt-1">Deals and opportunities for students.</p>
       </section>
 
-      {/* Filter bar */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
         {AD_CATEGORIES.map((cat) => (
           <button
@@ -217,7 +216,6 @@ const AdsPage = () => {
         </Card>
       )}
 
-      {/* Ads list */}
       <div className="space-y-3">
         {ads.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">No ads posted yet. Be the first!</p>
@@ -226,8 +224,8 @@ const AdsPage = () => {
           <Card key={ad.id} className="rounded-xl border-[1.5px] border-accent dark:border-white">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Megaphone className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 icon-chip shrink-0">
+                  <Megaphone className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm">{ad.title}</p>

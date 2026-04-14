@@ -31,8 +31,8 @@ const FoundationServicesPage = () => {
           >
             <Card className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors">
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <service.icon className="h-5 w-5 text-primary" />
+                <div className="w-11 h-11 icon-chip shrink-0">
+                  <service.icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-foreground text-sm">{service.label}</p>
@@ -46,7 +46,6 @@ const FoundationServicesPage = () => {
         ))}
       </section>
 
-      {/* My Submissions link */}
       <button
         onClick={() => navigate('/foundation/submissions')}
         className="w-full px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
