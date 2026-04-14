@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { FileText, Linkedin, Mail, ClipboardList, Mic, Search, GraduationCap, ArrowRight } from 'lucide-react';
 
 const services = [
@@ -29,8 +28,8 @@ const FoundationServicesPage = () => {
             onClick={() => navigate(`/foundation/${service.id}`)}
             className="w-full"
           >
-            <Card className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors">
-              <CardContent className="p-4 flex items-center gap-4">
+            <div className="accent-card hover:bg-secondary transition-colors">
+              <div className="p-4 flex items-center gap-4">
                 <div className="w-11 h-11 icon-chip shrink-0">
                   <service.icon className="h-5 w-5" />
                 </div>
@@ -40,8 +39,8 @@ const FoundationServicesPage = () => {
                 </div>
                 <span className="text-sm font-semibold text-primary shrink-0">{service.price}</span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </button>
         ))}
       </section>
