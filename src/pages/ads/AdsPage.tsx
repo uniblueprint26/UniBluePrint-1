@@ -8,9 +8,10 @@ import { Megaphone, Plus, ExternalLink, Image, Paperclip } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import FilterButton from '@/components/FilterButton';
 
 const AD_CATEGORIES = [
-  'All', 'My Campus', 'All Ireland', 'Jobs', 'Social', 'Sport',
+  'My Campus', 'All Ireland', 'Jobs', 'Social', 'Sport',
   'Course Specific', 'Services', 'Second Hand', 'Events', 'Other',
 ];
 
@@ -32,7 +33,7 @@ interface Ad {
 
 const AdsPage = () => {
   const { user } = useAuth();
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newAd, setNewAd] = useState({
@@ -89,32 +90,25 @@ const AdsPage = () => {
     setSubmitting(false);
   };
 
+  const filterOptions = AD_CATEGORIES.map((c) => ({ label: c, value: c }));
+
   return (
     <div className="px-5 py-6 space-y-5">
-      <section>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Advertisement Board</h1>
-        <p className="text-sm text-muted-foreground mt-1">Deals and opportunities for students.</p>
+      <section className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Advertisement Board</h1>
+          <p className="text-sm text-muted-foreground mt-1">Deals and opportunities for students.</p>
+        </div>
+        <FilterButton
+          options={filterOptions}
+          selected={activeFilters}
+          onSelectionChange={setActiveFilters}
+          title="Filter Ads"
+        />
       </section>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-        {AD_CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveFilter(cat)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-              activeFilter === cat
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-background text-muted-foreground border-accent dark:border-white hover:bg-secondary'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       <Button
-        variant="outline"
-        className="w-full rounded-xl border-[1.5px] border-accent dark:border-white"
+        className="w-full rounded-xl bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90"
         onClick={() => setShowCreate(!showCreate)}
       >
         <Plus className="h-4 w-4 mr-2" /> Post an Ad
@@ -139,7 +133,7 @@ const AdsPage = () => {
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {AD_CATEGORIES.filter(c => c !== 'All').map((cat) => (
+                  {AD_CATEGORIES.map((cat) => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
                 </SelectContent>
@@ -181,7 +175,7 @@ const AdsPage = () => {
 
             <div className="space-y-1.5">
               <Label className="text-sm">Photos (up to 5, max 10MB each)</Label>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground border border-dashed border-accent dark:border-white rounded-xl p-4 justify-center">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground border border-dashed border-border rounded-xl p-4 justify-center">
                 <Image className="h-4 w-4" />
                 <span>Photo uploads — coming soon</span>
               </div>
@@ -198,14 +192,14 @@ const AdsPage = () => {
 
             <div className="space-y-1.5">
               <Label className="text-sm">File Attachment (optional)</Label>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground border border-dashed border-accent dark:border-white rounded-xl p-4 justify-center">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground border border-dashed border-border rounded-xl p-4 justify-center">
                 <Paperclip className="h-4 w-4" />
                 <span>File attachments — coming soon</span>
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleCreate} disabled={submitting} className="flex-1 rounded-xl">
+              <Button onClick={handleCreate} disabled={submitting} className="flex-1 rounded-xl bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90">
                 {submitting ? 'Submitting...' : 'Submit Ad'}
               </Button>
               <Button variant="ghost" onClick={() => setShowCreate(false)} className="rounded-xl">Cancel</Button>

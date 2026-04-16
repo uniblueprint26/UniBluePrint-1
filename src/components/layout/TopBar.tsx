@@ -48,8 +48,8 @@ const TopBar = () => {
       </button>
 
       <button onClick={() => navigate('/settings')} className="focus:outline-none">
-        <Avatar className="h-9 w-9 border-2 border-border">
-          <AvatarFallback className="bg-secondary text-secondary-foreground text-sm font-medium">
+        <Avatar className="h-9 w-9 border-2 border-[#1E3A5F]">
+          <AvatarFallback className="bg-[#1E3A5F] text-white text-sm font-medium">
             {initials}
           </AvatarFallback>
         </Avatar>

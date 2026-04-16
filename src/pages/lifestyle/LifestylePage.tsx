@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dumbbell, Car, UtensilsCrossed, Scissors, Heart, Tag, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import FilterButton from '@/components/FilterButton';
 
 const partnerCategories = [
   { id: 'gym', label: 'Gyms & Fitness', icon: Dumbbell },
@@ -24,6 +25,7 @@ const LifestylePage = () => {
   const { profile } = useAuth();
   const [scope, setScope] = useState<'national' | 'campus'>('national');
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchDeals = async () => {
@@ -38,13 +40,21 @@ const LifestylePage = () => {
     fetchDeals();
   }, []);
 
-  const deals = scope === 'national' ? allDeals : [];
+  const filterOptions = partnerCategories.map((c) => ({ label: c.label, value: c.id }));
 
   return (
     <div className="px-5 py-6 space-y-6">
-      <section>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Lifestyle Blueprint</h1>
-        <p className="text-sm text-muted-foreground mt-1">Deals, experiences, and more.</p>
+      <section className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Lifestyle Blueprint</h1>
+          <p className="text-sm text-muted-foreground mt-1">Deals, experiences, and more.</p>
+        </div>
+        <FilterButton
+          options={filterOptions}
+          selected={activeFilters}
+          onSelectionChange={setActiveFilters}
+          title="Filter Categories"
+        />
       </section>
 
       <Tabs value={scope} onValueChange={(v) => setScope(v as 'national' | 'campus')}>
