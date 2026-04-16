@@ -1,12 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Users, ShoppingBag, MoreHorizontal } from 'lucide-react';
+import { Home, Compass, Users, Tag, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const tabs = [
   { label: 'Home', icon: Home, path: '/home' },
   { label: 'Blueprint', icon: Compass, path: '/blueprint' },
   { label: 'Connect', icon: Users, path: '/connect' },
-  { label: 'Lifestyle', icon: ShoppingBag, path: '/lifestyle' },
+  { label: 'Lifestyle', icon: Tag, path: '/lifestyle' },
   { label: 'More', icon: MoreHorizontal, path: '/more' },
 ];
 

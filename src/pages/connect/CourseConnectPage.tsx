@@ -1,4 +1,3 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { Users, Briefcase, BookOpen, MessageSquare, Calendar, Star, ArrowRight } from 'lucide-react';
 
 const sections = [
@@ -20,18 +19,18 @@ const CourseConnectPage = () => {
 
       <section className="space-y-3">
         {sections.map((section) => (
-          <Card key={section.id} className="rounded-xl border-[1.5px] border-accent dark:border-white hover:bg-secondary transition-colors cursor-pointer">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                <section.icon className="h-5 w-5 text-accent" />
+          <div key={section.id} className="accent-card hover:bg-secondary transition-colors cursor-pointer">
+            <div className="p-4 flex items-center gap-4">
+              <div className="w-11 h-11 icon-chip shrink-0">
+                <section.icon className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-foreground text-sm">{section.label}</p>
                 <p className="text-xs text-muted-foreground">{section.description}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </section>
 

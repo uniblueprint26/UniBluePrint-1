@@ -1,6 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { FileText, ArrowUp, UsersRound, Globe, ShoppingBag, PieChart, Megaphone, Calculator, Sparkles, Ticket } from 'lucide-react';
 
 const categories = [
@@ -42,7 +41,7 @@ const HomePage = () => {
             <button
               key={action.label}
               onClick={() => navigate(action.path)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#1E3A5F] text-white text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-90"
             >
               <action.icon className="h-4 w-4" />
               {action.label}
@@ -57,7 +56,7 @@ const HomePage = () => {
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="min-w-[200px] accent-card">
               <div className="p-4">
-                <div className="h-20 rounded-lg bg-muted mb-3 flex items-center justify-center">
+                <div className="h-20 rounded-lg bg-[#F5F0E8] mb-3 flex items-center justify-center">
                   <Sparkles className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-sm font-medium text-foreground">Featured Deal {i}</p>
@@ -83,7 +82,6 @@ const HomePage = () => {
               <span className="text-sm font-medium text-foreground">{cat.label}</span>
             </button>
           ))}
-          {/* Full-width Advertisement Board */}
           <button
             onClick={() => navigate(adsCard.path)}
             className="col-span-2 flex items-center gap-3 p-4 accent-card text-left transition-colors hover:bg-secondary"
