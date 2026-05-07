@@ -59,8 +59,21 @@ const HomePage = () => {
                 <div className="h-20 rounded-lg bg-[#F5F0E8] mb-3 flex items-center justify-center">
                   <Sparkles className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <p className="text-sm font-medium text-foreground">Featured Deal {i}</p>
-                <p className="text-xs text-muted-foreground mt-1">Exclusive student offer</p>
+                {i === 1 ? (
+                  <>
+                    <div className="mb-2 px-2 py-1 rounded-md bg-[#1E3A5F] border border-[#F5F0E8] text-white text-xs font-bold text-center">
+                      50% OFF
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Your Blueprint. Half the price. The whole of September.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium text-foreground">Featured Deal {i}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Exclusive student offer</p>
+                  </>
+                )}
               </div>
             </div>
           ))}
