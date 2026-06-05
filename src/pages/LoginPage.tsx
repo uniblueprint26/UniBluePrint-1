@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ubpLogo from '@/assets/ubp-logo-transparent.png';
 
 const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -41,15 +42,16 @@ const LoginPage = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5">
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center mx-auto">
-            <span className="text-primary-foreground font-bold text-xl">UB</span>
+        <div className="text-center space-y-3">
+          <img src={ubpLogo} alt="UniBluePrint" className="h-16 w-auto mx-auto" />
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">UniBluePrint</h1>
+            <p className="text-sm text-muted-foreground">The Structure Behind Your Success</p>
           </div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">UniBluePrint</h1>
-          <p className="text-sm text-muted-foreground">The Structure Behind Your Success</p>
         </div>
 
-        {/* Form */}
+        {/* Card */}
+        <div className="bg-card rounded-xl shadow-sm border border-border/60 p-6 space-y-5">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">Email</Label>
@@ -98,6 +100,7 @@ const LoginPage = () => {
           >
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
           </button>
+        </div>
         </div>
       </div>
     </div>
