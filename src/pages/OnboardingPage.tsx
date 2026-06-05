@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const userTypes = [
@@ -160,13 +161,14 @@ const OnboardingPage = () => {
                   key={type}
                   onClick={() => setUserType(type)}
                   className={cn(
-                    "p-4 rounded-xl border text-left transition-all text-sm font-medium",
+                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all text-sm font-medium",
                     userType === type
                       ? "border-primary bg-primary/5 text-primary"
                       : "border-border bg-card text-foreground hover:border-primary/30"
                   )}
                 >
-                  {type}
+                  <span>{type}</span>
+                  {userType === type && <Check className="h-4 w-4 shrink-0" />}
                 </button>
               ))}
             </div>
@@ -235,14 +237,26 @@ const OnboardingPage = () => {
                   key={cat.key}
                   onClick={() => setNotifications(prev => ({ ...prev, [cat.key]: !prev[cat.key] }))}
                   className={cn(
-                    "w-full p-4 rounded-xl border text-left transition-all",
+                    "w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all",
                     notifications[cat.key]
                       ? "border-primary bg-primary/5"
                       : "border-border bg-card"
                   )}
                 >
-                  <p className="text-sm font-medium text-foreground">{cat.label}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{cat.desc}</p>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{cat.desc}</p>
+                  </div>
+                  <span
+                    className={cn(
+                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors",
+                      notifications[cat.key]
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "border-border"
+                    )}
+                  >
+                    {notifications[cat.key] && <Check className="h-3 w-3" />}
+                  </span>
                 </button>
               ))}
             </div>
