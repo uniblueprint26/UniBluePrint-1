@@ -10,7 +10,7 @@ const settingsCards = [
   { title: 'My Alerts', subtitle: 'Stay informed, stay ahead', icon: Bell, path: '/settings/alerts' },
   { title: 'My Privacy', subtitle: 'Your data, your control', icon: ShieldCheck, path: '/settings/privacy' },
   { title: 'My Security', subtitle: 'Keep your Blueprint safe', icon: Lock, path: '/settings/security' },
-  { title: 'My Finances', subtitle: 'Your payments and billing', icon: CreditCard, path: '/settings/finances' },
+  { title: 'My Subscription', subtitle: 'UniBluePrint Pro, payments & billing', icon: CreditCard, path: '/upgrade' },
   { title: 'My Blueprint History', subtitle: 'Everything you have built', icon: Clock, path: '/settings/history' },
   { title: 'My Display', subtitle: 'Make it yours', icon: SlidersHorizontal, path: '/settings/display' },
   { title: 'Blueprint Support', subtitle: 'We are here when you need us', icon: Headset, path: '/settings/support' },
