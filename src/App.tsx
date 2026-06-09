@@ -10,6 +10,7 @@ import PortalLayout from "@/components/layout/PortalLayout";
 import OperationsLayout from "@/components/layout/OperationsLayout";
 
 import LoginPage from "@/pages/LoginPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import HomePage from "@/pages/HomePage";
 import BlueprintPage from "@/pages/BlueprintPage";
@@ -42,6 +43,7 @@ const App = () => (
           <Routes>
             {/* Public */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/" element={<Navigate to="/home" replace />} />
 
             {/* Onboarding */}
