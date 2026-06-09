@@ -36,7 +36,7 @@ const CampusPage = () => {
         ))}
       </section>
 
-      <p className="text-xs text-muted-foreground text-center">Board feeds and post creation — coming in Phase 3</p>
+      <p className="text-xs text-muted-foreground text-center">Board feeds and post creation — coming soon</p>
     </div>
   );
 };
