@@ -108,7 +108,7 @@ const AdsPage = () => {
       </section>
 
       <Button
-        className="w-full rounded-xl bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90"
+        className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
         onClick={() => setShowCreate(!showCreate)}
       >
         <Plus className="h-4 w-4 mr-2" /> Post an Ad
@@ -199,7 +199,7 @@ const AdsPage = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleCreate} disabled={submitting} className="flex-1 rounded-xl bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90">
+              <Button onClick={handleCreate} disabled={submitting} className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
                 {submitting ? 'Submitting...' : 'Submit Ad'}
               </Button>
               <Button variant="ghost" onClick={() => setShowCreate(false)} className="rounded-xl">Cancel</Button>
