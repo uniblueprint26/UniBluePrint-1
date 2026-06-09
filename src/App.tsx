@@ -29,6 +29,7 @@ import LifestylePage from "@/pages/lifestyle/LifestylePage";
 import CampusPage from "@/pages/campus/CampusPage";
 import CampusBoardPage from "@/pages/campus/CampusBoardPage";
 import CourseConnectPage from "@/pages/connect/CourseConnectPage";
+import CourseBoardPage from "@/pages/connect/CourseBoardPage";
 import BudgetPage from "@/pages/budget/BudgetPage";
 import AdsPage from "@/pages/ads/AdsPage";
 
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/campus" element={<CampusPage />} />
               <Route path="/campus/:boardType" element={<CampusBoardPage />} />
               <Route path="/connect/course" element={<CourseConnectPage />} />
+              <Route path="/connect/course/:boardType" element={<CourseBoardPage />} />
 
               {/* Lifestyle */}
               <Route path="/lifestyle" element={<LifestylePage />} />
