@@ -50,7 +50,7 @@ const FoundationServicesPage = () => {
             className="w-full"
           >
             <div className="accent-card hover:bg-secondary transition-colors relative">
-              <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1E3A5F] text-white border border-[#F5F0E8] z-10">
+              <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground border border-background z-10">
                 50% OFF
               </span>
               <div className="p-4 flex items-center gap-4">

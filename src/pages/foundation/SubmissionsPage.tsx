@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, CheckCircle2, Clock, Users, Eye, Package } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Users, Eye, Package } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -146,9 +146,10 @@ const SubmissionsPage = () => {
             <p className="text-sm text-muted-foreground">No submissions yet.</p>
             <button
               onClick={() => navigate('/foundation')}
-              className="text-sm font-medium text-primary hover:underline mt-2"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline mt-2"
             >
-              Browse services →
+              Browse services
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </CardContent>
         </Card>
