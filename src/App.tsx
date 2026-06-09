@@ -17,6 +17,7 @@ import BlueprintPage from "@/pages/BlueprintPage";
 import ConnectPage from "@/pages/ConnectPage";
 import MorePage from "@/pages/MorePage";
 import SettingsPage from "@/pages/SettingsPage";
+import NotificationsPage from "@/pages/NotificationsPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import NotFound from "@/pages/NotFound";
 
@@ -57,6 +58,7 @@ const App = () => (
             {/* Student App */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/home" element={<HomePage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/blueprint" element={<BlueprintPage />} />
 
               {/* Foundation Blueprint */}
