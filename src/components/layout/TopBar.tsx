@@ -1,19 +1,44 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Bell } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import ubpLogoTransparent from '@/assets/ubp-logo-transparent.png';
 import ubpLogoCream from '@/assets/ubp-logo-cream.png';
 
 const TopBar = () => {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [animating, setAnimating] = useState(false);
+  const [unread, setUnread] = useState(0);
   const underlineRef = useRef<HTMLSpanElement>(null);
 
   const initials = profile?.full_name
     ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchUnread = async () => {
+      const { count } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('read', false);
+      setUnread(count || 0);
+    };
+    fetchUnread();
+    const channel = supabase
+      .channel(`notif-bell:${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        fetchUnread
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const handleLogoTap = () => {
     setAnimating(true);
@@ -47,13 +72,28 @@ const TopBar = () => {
         )}
       </button>
 
-      <button onClick={() => navigate('/settings')} className="focus:outline-none">
-        <Avatar className="h-9 w-9 border-2 border-primary">
-          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate('/notifications')}
+          className="relative focus:outline-none"
+          aria-label="Notifications"
+        >
+          <Bell className="h-5 w-5 text-foreground" />
+          {unread > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              {unread > 9 ? '9+' : unread}
+            </span>
+          )}
+        </button>
+
+        <button onClick={() => navigate('/settings')} className="focus:outline-none">
+          <Avatar className="h-9 w-9 border-2 border-primary">
+            <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      </div>
     </header>
   );
 };
