@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, CreditCard, Plus, Trash2, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CreditCard, Plus, Trash2, Check, Clock, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { priceCents, isProRate, euro, type Tier } from '@/config/pricing';
 import { toast } from 'sonner';
 
 const serviceInfo: Record<string, { label: string; description: string; price: number }> = {
@@ -20,6 +21,40 @@ const serviceInfo: Record<string, { label: string; description: string; price: n
   'interview-prep': { label: 'Interview Prep', description: 'Mock interview and feedback', price: 3400 },
   'job-search': { label: 'Job Search', description: 'Personalised job search strategy', price: 2400 },
   'cao-support': { label: 'CAO Support', description: 'CAO application guidance', price: 2900 },
+};
+
+const TierSelector = ({ serviceId, tier, setTier, isPro }: { serviceId: string; tier: Tier; setTier: (t: Tier) => void; isPro: boolean }) => {
+  const options: { id: Tier; label: string; delivery: string; icon: typeof Clock }[] = [
+    { id: 'standard', label: 'Standard', delivery: '48-hour delivery', icon: Clock },
+    { id: 'premium', label: 'Premium', delivery: 'Same-day delivery', icon: Zap },
+  ];
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm text-foreground">Choose your tier</Label>
+      <div className="grid grid-cols-2 gap-3">
+        {options.map((o) => {
+          const cents = priceCents(serviceId, o.id, isPro);
+          const active = tier === o.id;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => setTier(o.id)}
+              className={`p-3 rounded-xl border text-left transition-all ${active ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/30'}`}
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <o.icon className="h-3.5 w-3.5 text-primary" />
+                <span className="text-sm font-semibold text-foreground">{o.label}</span>
+              </div>
+              <p className="text-base font-bold text-foreground">{cents != null ? euro(cents) : '—'}</p>
+              {isProRate(serviceId, o.id, isPro) && <p className="text-[10px] font-semibold text-primary">Pro rate</p>}
+              <p className="text-[11px] text-muted-foreground mt-0.5">{o.delivery}</p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 interface ExperienceEntry {
@@ -50,8 +85,9 @@ const STORAGE_KEY = 'unibp_cv_draft';
 const ServiceDetailPage = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [tier, setTier] = useState<Tier>('standard');
   const [currentSection, setCurrentSection] = useState(0);
   const [showReview, setShowReview] = useState(false);
 
@@ -198,6 +234,8 @@ const ServiceDetailPage = () => {
         stage: 'submitted',
         submitted_at: new Date().toISOString(),
         notes,
+        tier,
+        amount_cents: priceCents(serviceId!, tier, isPro),
       });
 
       if (error) throw error;
@@ -230,7 +268,7 @@ const ServiceDetailPage = () => {
       <section>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">{service.label} Optimisation</h1>
         <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
-        <p className="text-lg font-semibold text-primary mt-2">€{(service.price / 100).toFixed(2)}</p>
+        <p className="text-lg font-semibold text-primary mt-2">From {euro(priceCents(serviceId!, 'standard', isPro) ?? 0)}</p>
       </section>
 
       {/* Progress */}
@@ -248,7 +286,10 @@ const ServiceDetailPage = () => {
           onEdit={(section: number) => { setShowReview(false); setCurrentSection(section); }}
           onSubmit={handleSubmit}
           submitting={submitting}
-          price={service.price}
+          serviceId={serviceId!}
+          tier={tier}
+          setTier={setTier}
+          isPro={isPro}
         />
       ) : (
         <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
@@ -410,7 +451,8 @@ const SelectField = ({ label, value, onChange, options, placeholder }: { label: 
 );
 
 // Review screen
-const ReviewScreen = ({ data, onEdit, onSubmit, submitting, price }: { data: any; onEdit: (s: number) => void; onSubmit: () => void; submitting: boolean; price: number }) => {
+const ReviewScreen = ({ data, onEdit, onSubmit, submitting, serviceId, tier, setTier, isPro }: { data: any; onEdit: (s: number) => void; onSubmit: () => void; submitting: boolean; serviceId: string; tier: Tier; setTier: (t: Tier) => void; isPro: boolean }) => {
+  const amount = priceCents(serviceId, tier, isPro) ?? 0;
   const sections = [
     { title: 'Personal Info', items: [['Name', data.fullName], ['Phone', data.phone], ['Location', data.location], ['LinkedIn', data.linkedinUrl]] },
     { title: 'Target Role', items: [['Job Title', data.targetTitle], ['Industry', data.targetIndustry], ['Companies', data.targetCompanies?.filter(Boolean).join(', ')], ['Level', data.careerLevel]] },
@@ -445,6 +487,12 @@ const ReviewScreen = ({ data, onEdit, onSubmit, submitting, price }: { data: any
 
       <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
         <CardContent className="p-5">
+          <TierSelector serviceId={serviceId} tier={tier} setTier={setTier} isPro={isPro} />
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
+        <CardContent className="p-5">
           <div className="flex items-center gap-3">
             <CreditCard className="h-5 w-5 text-primary" />
             <div>
@@ -452,13 +500,13 @@ const ReviewScreen = ({ data, onEdit, onSubmit, submitting, price }: { data: any
               <p className="text-xs text-muted-foreground">All payments processed securely via UniBluePrint</p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">Stripe Elements integration — coming in Phase 5</p>
+          <p className="text-xs text-muted-foreground mt-3">Card payment — coming soon (Stripe)</p>
         </CardContent>
       </Card>
 
       <Button onClick={onSubmit} disabled={submitting} className="w-full py-3 rounded-xl font-medium">
         <Check className="h-4 w-4 mr-2" />
-        {submitting ? 'Submitting...' : `Submit & Pay €${(price / 100).toFixed(2)}`}
+        {submitting ? 'Submitting...' : `Submit & Pay ${euro(amount)}`}
       </Button>
     </div>
   );
@@ -467,9 +515,11 @@ const ReviewScreen = ({ data, onEdit, onSubmit, submitting, price }: { data: any
 // Simple form for non-CV services
 const SimpleServiceForm = ({ service, serviceId }: { service: { label: string; description: string; price: number }; serviceId: string }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const [notes, setNotes] = useState('');
+  const [tier, setTier] = useState<Tier>('standard');
   const [submitting, setSubmitting] = useState(false);
+  const amount = priceCents(serviceId, tier, isPro) ?? 0;
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -488,6 +538,8 @@ const SimpleServiceForm = ({ service, serviceId }: { service: { label: string; d
         stage: 'submitted',
         submitted_at: new Date().toISOString(),
         notes,
+        tier,
+        amount_cents: amount,
       });
 
       if (error) throw error;
@@ -508,7 +560,7 @@ const SimpleServiceForm = ({ service, serviceId }: { service: { label: string; d
       <section>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">{service.label}</h1>
         <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
-        <p className="text-lg font-semibold text-primary mt-2">€{(service.price / 100).toFixed(2)}</p>
+        <p className="text-lg font-semibold text-primary mt-2">From {euro(priceCents(serviceId, 'standard', isPro) ?? 0)}</p>
       </section>
       <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
         <CardContent className="p-5 space-y-4">
@@ -517,17 +569,22 @@ const SimpleServiceForm = ({ service, serviceId }: { service: { label: string; d
       </Card>
       <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
         <CardContent className="p-5">
+          <TierSelector serviceId={serviceId} tier={tier} setTier={setTier} isPro={isPro} />
+        </CardContent>
+      </Card>
+      <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
+        <CardContent className="p-5">
           <div className="flex items-center gap-3">
             <CreditCard className="h-5 w-5 text-primary" />
             <div>
               <p className="font-semibold text-foreground text-sm">Payment</p>
-              <p className="text-xs text-muted-foreground">Stripe Elements — coming in Phase 5</p>
+              <p className="text-xs text-muted-foreground">Card payment — coming soon (Stripe)</p>
             </div>
           </div>
         </CardContent>
       </Card>
       <Button onClick={handleSubmit} disabled={submitting} className="w-full py-3 rounded-xl font-medium">
-        {submitting ? 'Submitting...' : `Submit & Pay €${(service.price / 100).toFixed(2)}`}
+        {submitting ? 'Submitting...' : `Submit & Pay ${euro(amount)}`}
       </Button>
     </div>
   );
