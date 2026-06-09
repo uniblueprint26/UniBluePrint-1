@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Lightbulb, BookOpen, CreditCard, Star, Car, Search, MessageCircle, ArrowRight } from 'lucide-react';
 
 const boards = [
@@ -12,6 +13,7 @@ const boards = [
 ];
 
 const CampusPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="px-5 py-6 space-y-6">
       <section>
@@ -21,7 +23,11 @@ const CampusPage = () => {
 
       <section className="space-y-3">
         {boards.map((board) => (
-          <div key={board.id} className="accent-card hover:bg-secondary transition-colors cursor-pointer">
+          <button
+            key={board.id}
+            onClick={() => navigate(`/campus/${board.id}`)}
+            className="w-full accent-card hover:bg-secondary transition-colors text-left"
+          >
             <div className="p-4 flex items-center gap-4">
               <div className="w-11 h-11 icon-chip shrink-0">
                 <board.icon className="h-5 w-5" />
@@ -32,11 +38,9 @@ const CampusPage = () => {
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
             </div>
-          </div>
+          </button>
         ))}
       </section>
-
-      <p className="text-xs text-muted-foreground text-center">Board feeds and post creation — coming soon</p>
     </div>
   );
 };
