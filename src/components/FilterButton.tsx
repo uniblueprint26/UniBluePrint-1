@@ -49,7 +49,7 @@ const FilterButton = ({ options, selected, onSelectionChange, title = 'Filters' 
               onClick={() => toggle(opt.value)}
               className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 selected.includes(opt.value)
-                  ? 'bg-[#1E3A5F] text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-foreground hover:bg-muted'
               }`}
             >

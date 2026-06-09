@@ -26,7 +26,7 @@ const TopBar = () => {
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between px-5 py-3 bg-background/95 backdrop-blur-sm border-b border-border">
       <button onClick={handleLogoTap} className="flex items-center gap-2 relative">
-        <div className="h-8 rounded-md border border-[#1E3A5F] bg-[#F5F0E8] flex items-center justify-center px-1.5">
+        <div className="h-8 rounded-md border border-primary bg-background flex items-center justify-center px-1.5">
           <img
             src={ubpLogoTransparent}
             alt="UniBluePrint"
@@ -48,8 +48,8 @@ const TopBar = () => {
       </button>
 
       <button onClick={() => navigate('/settings')} className="focus:outline-none">
-        <Avatar className="h-9 w-9 border-2 border-[#1E3A5F]">
-          <AvatarFallback className="bg-[#1E3A5F] text-white text-sm font-medium">
+        <Avatar className="h-9 w-9 border-2 border-primary">
+          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
             {initials}
           </AvatarFallback>
         </Avatar>
