@@ -26,6 +26,7 @@ import ServiceDetailPage from "@/pages/foundation/ServiceDetailPage";
 import SubmissionsPage from "@/pages/foundation/SubmissionsPage";
 import ElevationServicesPage from "@/pages/elevation/ElevationServicesPage";
 import LifestylePage from "@/pages/lifestyle/LifestylePage";
+import PartnerDetailPage from "@/pages/lifestyle/PartnerDetailPage";
 import CampusPage from "@/pages/campus/CampusPage";
 import CampusBoardPage from "@/pages/campus/CampusBoardPage";
 import CourseConnectPage from "@/pages/connect/CourseConnectPage";
@@ -76,6 +77,7 @@ const App = () => (
 
               {/* Lifestyle */}
               <Route path="/lifestyle" element={<LifestylePage />} />
+              <Route path="/lifestyle/partner/:partnerId" element={<PartnerDetailPage />} />
               <Route path="/lifestyle/*" element={<PlaceholderPage title="Lifestyle Blueprint" description="Partner details coming soon." />} />
 
               {/* More */}
