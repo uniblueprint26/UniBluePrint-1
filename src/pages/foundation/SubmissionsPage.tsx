@@ -19,6 +19,8 @@ interface Submission {
   delivered_at: string | null;
   created_at: string | null;
   service_id: string | null;
+  tier: string | null;
+  amount_cents: number | null;
 }
 
 const stages: { key: SubmissionStage; label: string; icon: React.ElementType }[] = [
@@ -44,10 +46,21 @@ const SubmissionTracker = ({ submission }: { submission: Submission }) => {
   return (
     <Card className="rounded-xl border-[1.5px] border-accent dark:border-white">
       <CardContent className="p-5">
-        {/* Parse service name from notes */}
-        <h3 className="font-semibold text-foreground text-sm mb-4">
-          Submission #{submission.id.slice(0, 8)}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-foreground text-sm">
+            Submission #{submission.id.slice(0, 8)}
+          </h3>
+          <div className="flex items-center gap-2">
+            {submission.tier && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary text-foreground capitalize">
+                {submission.tier}
+              </span>
+            )}
+            {submission.amount_cents != null && (
+              <span className="text-xs font-bold text-primary">€{(submission.amount_cents / 100).toFixed(2)}</span>
+            )}
+          </div>
+        </div>
 
         <div className="space-y-0">
           {stages.map((stage, idx) => {

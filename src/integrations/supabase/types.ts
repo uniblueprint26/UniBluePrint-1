@@ -694,6 +694,7 @@ export type Database = {
       }
       submissions: {
         Row: {
+          amount_cents: number | null
           assigned_at: string | null
           created_at: string | null
           delivered_at: string | null
@@ -702,12 +703,15 @@ export type Database = {
           in_queue_at: string | null
           in_review_at: string | null
           notes: string | null
+          paid: boolean
           service_id: string | null
           stage: Database["public"]["Enums"]["submission_stage"] | null
           submitted_at: string | null
+          tier: string | null
           user_id: string
         }
         Insert: {
+          amount_cents?: number | null
           assigned_at?: string | null
           created_at?: string | null
           delivered_at?: string | null
@@ -716,12 +720,15 @@ export type Database = {
           in_queue_at?: string | null
           in_review_at?: string | null
           notes?: string | null
+          paid?: boolean
           service_id?: string | null
           stage?: Database["public"]["Enums"]["submission_stage"] | null
           submitted_at?: string | null
+          tier?: string | null
           user_id: string
         }
         Update: {
+          amount_cents?: number | null
           assigned_at?: string | null
           created_at?: string | null
           delivered_at?: string | null
@@ -730,9 +737,11 @@ export type Database = {
           in_queue_at?: string | null
           in_review_at?: string | null
           notes?: string | null
+          paid?: boolean
           service_id?: string | null
           stage?: Database["public"]["Enums"]["submission_stage"] | null
           submitted_at?: string | null
+          tier?: string | null
           user_id?: string
         }
         Relationships: [
