@@ -501,6 +501,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          author_name: string | null
           board_id: string | null
           content: string
           created_at: string | null
@@ -509,6 +510,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          author_name?: string | null
           board_id?: string | null
           content: string
           created_at?: string | null
@@ -517,6 +519,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          author_name?: string | null
           board_id?: string | null
           content?: string
           created_at?: string | null

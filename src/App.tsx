@@ -27,6 +27,7 @@ import SubmissionsPage from "@/pages/foundation/SubmissionsPage";
 import ElevationServicesPage from "@/pages/elevation/ElevationServicesPage";
 import LifestylePage from "@/pages/lifestyle/LifestylePage";
 import CampusPage from "@/pages/campus/CampusPage";
+import CampusBoardPage from "@/pages/campus/CampusBoardPage";
 import CourseConnectPage from "@/pages/connect/CourseConnectPage";
 import BudgetPage from "@/pages/budget/BudgetPage";
 import AdsPage from "@/pages/ads/AdsPage";
@@ -68,7 +69,7 @@ const App = () => (
               {/* Connect */}
               <Route path="/connect" element={<ConnectPage />} />
               <Route path="/campus" element={<CampusPage />} />
-              <Route path="/campus/*" element={<PlaceholderPage title="Campus Connect" description="Board content coming soon." />} />
+              <Route path="/campus/:boardType" element={<CampusBoardPage />} />
               <Route path="/connect/course" element={<CourseConnectPage />} />
 
               {/* Lifestyle */}
