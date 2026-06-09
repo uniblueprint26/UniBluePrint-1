@@ -109,9 +109,9 @@ const BudgetPage = () => {
       {/* Mode selector */}
       <Tabs value={mode} onValueChange={(v) => setMode(v as BudgetMode)}>
         <TabsList className="w-full grid grid-cols-3 bg-secondary">
-          <TabsTrigger value="spending" className="data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white">Spending</TabsTrigger>
-          <TabsTrigger value="saving" className="data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white">Saving</TabsTrigger>
-          <TabsTrigger value="balanced" className="data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white">Balanced</TabsTrigger>
+          <TabsTrigger value="spending" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Spending</TabsTrigger>
+          <TabsTrigger value="saving" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Saving</TabsTrigger>
+          <TabsTrigger value="balanced" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Balanced</TabsTrigger>
         </TabsList>
         <TabsContent value={mode}>
           <p className="text-xs text-muted-foreground mt-2">{modeDescriptions[mode]}</p>
@@ -152,7 +152,7 @@ const BudgetPage = () => {
         <div className="accent-card">
           <div className="p-4">
             <div className="flex items-center gap-2 mb-1">
-              <PiggyBank className="h-4 w-4 text-accent" />
+              <PiggyBank className="h-4 w-4 text-primary" />
               <span className="text-xs text-muted-foreground">This Week</span>
             </div>
             <p className="text-lg font-bold text-foreground">€{(weeklyExpense / 100).toFixed(2)}</p>
@@ -162,7 +162,7 @@ const BudgetPage = () => {
 
       {/* Add entry */}
       {!showAdd ? (
-        <Button onClick={() => setShowAdd(true)} className="w-full rounded-xl bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90">
+        <Button onClick={() => setShowAdd(true)} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" /> Add Entry
         </Button>
       ) : (
@@ -171,7 +171,7 @@ const BudgetPage = () => {
             <div className="flex gap-2">
               <Button
                 size="sm"
-                className={newEntry.type === 'income' ? 'bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90' : ''}
+                className={newEntry.type === 'income' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
                 variant={newEntry.type === 'income' ? 'default' : 'outline'}
                 onClick={() => setNewEntry((p) => ({ ...p, type: 'income' }))}
               >
@@ -179,7 +179,7 @@ const BudgetPage = () => {
               </Button>
               <Button
                 size="sm"
-                className={newEntry.type === 'expense' ? 'bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90' : ''}
+                className={newEntry.type === 'expense' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
                 variant={newEntry.type === 'expense' ? 'default' : 'outline'}
                 onClick={() => setNewEntry((p) => ({ ...p, type: 'expense' }))}
               >
@@ -222,7 +222,7 @@ const BudgetPage = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleAdd} className="flex-1 rounded-xl bg-[#1E3A5F] text-white hover:bg-[#1E3A5F]/90">Save</Button>
+              <Button onClick={handleAdd} className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">Save</Button>
               <Button variant="ghost" onClick={() => setShowAdd(false)} className="rounded-xl">Cancel</Button>
             </div>
           </div>
