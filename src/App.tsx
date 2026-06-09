@@ -18,6 +18,7 @@ import ConnectPage from "@/pages/ConnectPage";
 import MorePage from "@/pages/MorePage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotificationsPage from "@/pages/NotificationsPage";
+import UpgradePage from "@/pages/UpgradePage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import NotFound from "@/pages/NotFound";
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/home" element={<HomePage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/upgrade" element={<UpgradePage />} />
               <Route path="/blueprint" element={<BlueprintPage />} />
 
               {/* Foundation Blueprint */}

@@ -17,6 +17,12 @@ interface Profile {
   created_at: string;
 }
 
+interface Subscription {
+  tier: string;
+  status: string;
+  current_period_end: string | null;
+}
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
@@ -29,6 +35,9 @@ interface AuthContextType {
   resendConfirmation: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
   refreshProfile: () => Promise<void>;
+  subscription: Subscription | null;
+  isPro: boolean;
+  refreshSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
@@ -48,8 +58,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(data);
   };
 
+  const fetchSubscription = async (userId: string) => {
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('tier,status,current_period_end')
+      .eq('user_id', userId)
+      .maybeSingle();
+    setSubscription(data as Subscription | null);
+  };
+
   const refreshProfile = async () => {
     if (user) await fetchProfile(user.id);
+  };
+
+  const refreshSubscription = async () => {
+    if (user) await fetchSubscription(user.id);
   };
 
   useEffect(() => {
@@ -58,9 +81,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setTimeout(() => { fetchProfile(session.user.id); fetchSubscription(session.user.id); }, 0);
         } else {
           setProfile(null);
+          setSubscription(null);
         }
         setLoading(false);
       }
@@ -71,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
+        fetchSubscription(session.user.id);
       }
       setLoading(false);
     });
@@ -95,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setSubscription(null);
   };
 
   const resetPassword = async (email: string) => {
@@ -118,8 +144,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const isPro = !!subscription
+    && subscription.status === 'active'
+    && (!subscription.current_period_end || new Date(subscription.current_period_end) > new Date());
+
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, signUp, signIn, signOut, resetPassword, resendConfirmation, updatePassword, refreshProfile }}>
+    <AuthContext.Provider value={{ session, user, profile, loading, signUp, signIn, signOut, resetPassword, resendConfirmation, updatePassword, refreshProfile, subscription, isPro, refreshSubscription }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { User, Network, Briefcase, Users, Mic2, GraduationCap, ArrowRight } from 'lucide-react';
+import { User, Network, Briefcase, Users, Mic2, GraduationCap, ArrowRight, Crown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ServiceDef {
   id: string;
@@ -33,6 +34,7 @@ const PriceBlock = ({ original, trial }: { original: string; trial: string }) =>
 
 const ElevationServicesPage = () => {
   const navigate = useNavigate();
+  const { isPro } = useAuth();
 
   return (
     <div className="px-5 py-6 space-y-6">
@@ -40,6 +42,22 @@ const ElevationServicesPage = () => {
         <h1 className="text-2xl font-bold text-foreground tracking-tight">Elevation Blueprint</h1>
         <p className="text-sm text-muted-foreground mt-1">Take your Blueprint further.</p>
       </section>
+
+      {!isPro && (
+        <button
+          onClick={() => navigate('/upgrade')}
+          className="w-full bg-card rounded-xl shadow-sm border border-border/60 p-4 flex items-center gap-3 text-left hover:bg-secondary transition-colors"
+        >
+          <div className="w-10 h-10 rounded-lg icon-chip shrink-0">
+            <Crown className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">Elevation is a Pro feature</p>
+            <p className="text-xs text-muted-foreground">Upgrade to access coaches, mentorship &amp; more.</p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+        </button>
+      )}
 
       <section className="space-y-3">
         {services.map((service) => (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Ticket, Heart, Dumbbell, Car, UtensilsCrossed, Scissors, Tag } from 'lucide-react';
@@ -31,6 +32,7 @@ interface Deal {
 const PartnerDetailPage = () => {
   const { partnerId } = useParams<{ partnerId: string }>();
   const navigate = useNavigate();
+  const { isPro } = useAuth();
   const [partner, setPartner] = useState<Partner | null>(null);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,8 +71,11 @@ const PartnerDetailPage = () => {
   const handleClaim = () => {
     if (isFree) {
       toast.success('This service is free — booking opens at launch.');
+    } else if (!isPro) {
+      toast('Upgrade to Pro to claim this deal.');
+      navigate('/upgrade');
     } else {
-      toast('Included with Pro — manage your subscription on the UniBluePrint website.');
+      toast.success('Claimed — redemption opens at launch.');
     }
   };
 
@@ -152,7 +157,7 @@ const PartnerDetailPage = () => {
           </section>
 
           <Button onClick={handleClaim} className="w-full rounded-xl h-11 font-semibold">
-            {isFree ? 'Book — Free' : 'Claim with Pro'}
+            {isFree ? 'Book — Free' : isPro ? 'Claim with Pro' : 'Upgrade to Pro to claim'}
           </Button>
         </>
       )}
