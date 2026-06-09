@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FileText, ArrowUp, UsersRound, Globe, ShoppingBag, PieChart, Megaphone, Calculator, Sparkles, Ticket } from 'lucide-react';
+import { FileText, ArrowUp, UsersRound, Globe, PieChart, Megaphone, Sparkles, Ticket, ArrowRight } from 'lucide-react';
 
 const categories = [
   { label: 'Foundation Blueprint', icon: FileText, path: '/foundation' },
@@ -15,9 +15,9 @@ const adsCard = { label: 'Advertisement Board', icon: Megaphone, path: '/ads' };
 
 const quickActions = [
   { label: 'New Blueprint', path: '/foundation', icon: FileText },
-  { label: 'My Budget', path: '/budget', icon: Calculator },
+  { label: 'My Budget', path: '/budget', icon: PieChart },
   { label: 'Campus', path: '/campus', icon: UsersRound },
-  { label: 'Deals', path: '/lifestyle', icon: ShoppingBag },
+  { label: 'Deals', path: '/lifestyle', icon: Ticket },
 ];
 
 const HomePage = () => {
@@ -41,7 +41,7 @@ const HomePage = () => {
             <button
               key={action.label}
               onClick={() => navigate(action.path)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#1E3A5F] text-white text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-90"
             >
               <action.icon className="h-4 w-4" />
               {action.label}
@@ -56,12 +56,12 @@ const HomePage = () => {
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="min-w-[200px] accent-card">
               <div className="p-4">
-                <div className="h-20 rounded-lg bg-[#F5F0E8] mb-3 flex items-center justify-center">
+                <div className="h-20 rounded-lg bg-background mb-3 flex items-center justify-center">
                   <Sparkles className="h-6 w-6 text-muted-foreground" />
                 </div>
                 {i === 1 ? (
                   <>
-                    <div className="mb-2 px-2 py-1 rounded-md bg-[#1E3A5F] border border-[#F5F0E8] text-white text-xs font-bold text-center">
+                    <div className="mb-2 px-2 py-1 rounded-lg bg-primary border border-background text-primary-foreground text-xs font-bold text-center">
                       50% OFF
                     </div>
                     <p className="text-[11px] text-muted-foreground">
@@ -120,9 +120,10 @@ const HomePage = () => {
               </p>
               <button
                 onClick={() => navigate('/onboarding')}
-                className="text-sm font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
-                Continue Setup →
+                Continue Setup
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
