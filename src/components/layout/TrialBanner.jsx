@@ -25,7 +25,10 @@ export default function TrialBanner() {
       role="banner"
       style={{
         background: '#1E3A5F',
-        padding: '12px 56px',
+        paddingTop: 'max(12px, env(safe-area-inset-top, 12px))',
+        paddingBottom: '12px',
+        paddingLeft: '56px',
+        paddingRight: '56px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

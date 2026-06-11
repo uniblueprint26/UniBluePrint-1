@@ -58,6 +58,9 @@ function NavLink({ to, children }) {
         textDecoration: 'none',
         transition: 'opacity 150ms',
         whiteSpace: 'nowrap',
+        display: 'inline-flex',
+        alignItems: 'center',
+        minHeight: '44px',
       }}
       onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
       onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -275,11 +278,12 @@ export default function Navbar() {
       style={{
         background: '#ffffff',
         boxShadow: '0px 1px 4px rgba(30,58,95,0.06)',
-        height: '72px',
+        minHeight: '72px',
         position: 'sticky', top: 0, zIndex: 100,
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 32px',
+        paddingLeft: '32px', paddingRight: '32px',
+        paddingBottom: '0',
         gap: '24px',
       }}
     >
@@ -476,11 +480,12 @@ export default function Navbar() {
       style={{
         background: '#ffffff',
         boxShadow: '0px 1px 4px rgba(30,58,95,0.06)',
-        height: '56px',
+        minHeight: '56px',
         position: 'sticky', top: 0, zIndex: 100,
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 16px',
+        paddingLeft: '16px', paddingRight: '16px',
+        paddingBottom: '0',
       }}
     >
       <Link to="/" aria-label="Uniblueprint home">

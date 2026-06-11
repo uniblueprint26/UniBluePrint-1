@@ -47,15 +47,16 @@ function CountdownTimer() {
       }}
     >
       {units.map(({ value, label }) => (
-        <div key={label} style={{
+        <div key={label} className="countdown-card" style={{
           background: '#FFFFFF', borderRadius: '8px',
-          width: '72px', padding: '12px 8px', textAlign: 'center', flexShrink: 0,
+          textAlign: 'center', flexShrink: 0,
         }}>
           <p
             aria-label={`${value} ${label}`}
+            className="countdown-value"
             style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: '36px', color: '#1E3A5F', lineHeight: 1,
+              color: '#1E3A5F', lineHeight: 1,
             }}
           >
             <span aria-hidden="true">{String(value).padStart(2, '0')}</span>
@@ -262,7 +263,7 @@ export default function SeptemberTrialPage() {
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
       <section style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         background: '#F5F0E8',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',

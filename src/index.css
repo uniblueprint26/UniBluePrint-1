@@ -37,6 +37,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   color: #1E3A5F;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 
 h1, h2, h3, h4 {
@@ -60,7 +61,62 @@ button {
 
 input, textarea, select {
   font-family: 'DM Sans', sans-serif;
-  font-size: 16px;
+  font-size: 16px; /* 16px minimum prevents iOS Safari auto-zoom on focus */
+}
+
+/* ─── iOS tap highlight removal ──────────────────────────────────────────── */
+a, button, [role="button"], input, select, textarea, label,
+[type="submit"], [type="button"], [type="reset"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── Minimum touch targets ──────────────────────────────────────────────── */
+/* Nav links (desktop) — full 44px tappable row height */
+nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ─── Safe area insets (requires viewport-fit=cover in meta) ─────────────── */
+/* Sticky header: override inline height so safe area top adds extra height */
+header.desktop-nav-only,
+header.mobile-nav-only {
+  height: auto !important;
+  min-height: 72px;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+header.mobile-nav-only {
+  min-height: 56px;
+}
+/* Footer bottom safe area */
+footer {
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+
+/* ─── dvh utility (fixes iOS Safari address bar 100vh issue) ─────────────── */
+.hero-full { min-height: 100dvh; }
+
+/* ─── Countdown timer — responsive cards ─────────────────────────────────── */
+.countdown-card  { width: 72px; padding: 12px 8px; }
+.countdown-value { font-size: 36px; }
+
+@media (max-width: 360px) {
+  .countdown-card  { width: 56px; padding: 8px 4px; }
+  .countdown-value { font-size: 28px; }
+  .sept-hero-heading { font-size: 44px; }
+  .sept-hero-sub     { font-size: 22px; }
+}
+
+/* ─── Landscape mobile (0–767px) ─────────────────────────────────────────── */
+@media (max-width: 767px) and (orientation: landscape) {
+  .hero-full         { min-height: 70dvh; }
+  .sept-hero-heading { font-size: 56px; }
+  .sept-hero-sub     { font-size: 22px; }
+  .sept-cta-heading  { font-size: 32px; }
+  .trial-heading     { font-size: 48px; }
+  .countdown-card    { width: 60px; padding: 8px 4px; }
+  .countdown-value   { font-size: 28px; }
 }
 
 /* Global focus ring — replaces browser default only with custom style */
@@ -137,17 +193,17 @@ input, textarea, select {
 }
 .dropdown-link:hover { background: #F5F0E8; }
 
-/* Footer grid */
+/* Footer grid — 4-col desktop, 2-col 480–767px, 1-col <480px */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
   margin-top: 40px;
 }
-@media (max-width: 768px) {
-  .footer-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 767px) {
+  .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
 }
-@media (max-width: 480px) {
+@media (max-width: 479px) {
   .footer-grid { grid-template-columns: 1fr; }
 }
 
@@ -334,15 +390,16 @@ input, textarea, select {
 }
 
 /* ─── Services grid (Foundation / Elevation Blueprint pages) ─────────── */
+/* 3-col desktop, 2-col tablet, 1-col mobile */
 .services-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .services-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 480px) {
+@media (max-width: 767px) {
   .services-grid { grid-template-columns: 1fr; }
 }
 
@@ -352,7 +409,18 @@ input, textarea, select {
   gap: 16px;
   align-items: stretch;
 }
-@media (max-width: 768px) {
+/* Tablet: horizontal scroll so all three cards remain accessible */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .pricing-plans-grid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+  }
+  .pricing-plans-grid > * { min-width: 280px; flex-shrink: 0; }
+}
+/* Mobile: vertical stack */
+@media (max-width: 767px) {
   .pricing-plans-grid { flex-direction: column; }
 }
 
@@ -362,10 +430,10 @@ input, textarea, select {
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .blog-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 560px) {
+@media (max-width: 767px) {
   .blog-grid { grid-template-columns: 1fr; }
 }
 

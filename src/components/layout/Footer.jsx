@@ -69,12 +69,13 @@ const colHeaderStyle = {
 }
 
 const colLinkStyle = {
-  display: 'block',
+  display: 'flex',
+  alignItems: 'center',
+  minHeight: '44px',
   fontFamily: "'DM Sans', sans-serif",
   fontSize: '14px',
   color: 'rgba(245, 240, 232, 0.7)',
   textDecoration: 'none',
-  marginBottom: '10px',
   transition: 'color 150ms',
 }
 
@@ -105,7 +106,7 @@ function SocialButton({ href, label, children }) {
       rel="noopener noreferrer"
       aria-label={label}
       style={{
-        width: '40px', height: '40px',
+        width: '44px', height: '44px',
         borderRadius: '50%',
         background: 'rgba(255,255,255,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -144,7 +145,7 @@ function AppButton({ label }) {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 export default function Footer() {
   return (
-    <footer style={{ background: '#1E3A5F', padding: '64px 0 0' }}>
+    <footer style={{ background: '#1E3A5F', paddingTop: '64px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px' }}>
 
         {/* Logo + tagline */}
@@ -227,7 +228,7 @@ export default function Footer() {
           borderTop: '1px solid rgba(255,255,255,0.1)',
           marginTop: '40px',
           paddingTop: '24px',
-          paddingBottom: '32px',
+          paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))',
         }}>
           <div className="footer-bottom">
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>

@@ -47,13 +47,13 @@ function CountdownTimer() {
       flexWrap: 'wrap', marginTop: '32px',
     }}>
       {units.map(({ value, label }) => (
-        <div key={label} style={{
+        <div key={label} className="countdown-card" style={{
           background: '#FFFFFF', borderRadius: '8px',
-          width: '72px', padding: '12px 8px', textAlign: 'center', flexShrink: 0,
+          textAlign: 'center', flexShrink: 0,
         }}>
-          <p style={{
+          <p className="countdown-value" style={{
             fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F', lineHeight: 1,
+            color: '#1E3A5F', lineHeight: 1,
           }}>
             {String(value).padStart(2, '0')}
           </p>
@@ -240,7 +240,7 @@ export default function HomePage() {
 
       {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
       <section style={{
-        minHeight: '90vh',
+        minHeight: '90dvh',
         background: '#F5F0E8',
         padding: '80px 24px',
         display: 'flex',
