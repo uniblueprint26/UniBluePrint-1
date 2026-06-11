@@ -9,6 +9,51 @@
     <title>Uniblueprint</title>
     <meta name="description" content="The structure behind your success — Ireland's student platform." />
     <meta name="author" content="Uniblueprint" />
+    <!-- Organisation structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Uniblueprint",
+      "url": "https://uniblueprint.com",
+      "logo": "https://uniblueprint.com/og-image.png",
+      "description": "The all-in-one platform for Irish students — Foundation Blueprint, Elevation Blueprint, Campus Connect, and more.",
+      "foundingLocation": { "@type": "Country", "name": "Ireland" },
+      "sameAs": []
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Uniblueprint",
+      "url": "https://uniblueprint.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": "https://uniblueprint.com/blog?q={search_term_string}" },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <!-- Conditional GA4 load — only fires after cookie consent -->
+    <script>
+      (function () {
+        var GA_ID = 'GA_MEASUREMENT_ID'; // TODO: Replace with real GA4 measurement ID
+        try {
+          if (localStorage.getItem('ubp_cookie_consent') === 'accepted') {
+            var s = document.createElement('script');
+            s.id = 'ga-script';
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+            s.async = true;
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { window.dataLayer.push(arguments); };
+            window.gtag('js', new Date());
+            window.gtag('config', GA_ID);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>

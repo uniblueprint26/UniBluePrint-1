@@ -67,6 +67,9 @@ export default function DownloadPage() {
         <img
           src={logo}
           alt="Uniblueprint"
+          width="80"
+          height="80"
+          loading="lazy"
           style={{ height: '48px', width: 'auto', display: 'block', margin: '0 auto 24px' }}
         />
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F' }}>

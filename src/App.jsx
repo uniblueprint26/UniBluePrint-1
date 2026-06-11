@@ -1,52 +1,55 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useScrollToTop } from './hooks/useScrollToTop'
+import { useUTMCapture } from './hooks/useUTMCapture'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import PageLoader from './components/layout/PageLoader'
 
-import HomePage from './pages/HomePage'
-import AboutPage from './pages/AboutPage'
-import HowItWorksPage from './pages/HowItWorksPage'
-import FoundationBlueprintPage from './pages/FoundationBlueprintPage'
-import ElevationBlueprintPage from './pages/ElevationBlueprintPage'
-import LifestyleBlueprintPage from './pages/LifestyleBlueprintPage'
-import CampusConnectPage from './pages/CampusConnectPage'
-import CourseConnectPage from './pages/CourseConnectPage'
-import PricingPage from './pages/PricingPage'
-import SeptemberTrialPage from './pages/SeptemberTrialPage'
-import ForUniversitiesPage from './pages/ForUniversitiesPage'
-import ForBusinessesPage from './pages/ForBusinessesPage'
-import AmbassadorsPage from './pages/AmbassadorsPage'
-import FAQsPage from './pages/FAQsPage'
-import ContactPage from './pages/ContactPage'
-import HelpPage from './pages/HelpPage'
-import DownloadPage from './pages/DownloadPage'
-import ComingSoonPage from './pages/ComingSoonPage'
-import SubscriptionSuccessPage from './pages/SubscriptionSuccessPage'
-import SubscriptionManagementPage from './pages/SubscriptionManagementPage'
-import NotFoundPage from './pages/NotFoundPage'
+const HomePage = lazy(() => import('./pages/HomePage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'))
+const FoundationBlueprintPage = lazy(() => import('./pages/FoundationBlueprintPage'))
+const ElevationBlueprintPage = lazy(() => import('./pages/ElevationBlueprintPage'))
+const LifestyleBlueprintPage = lazy(() => import('./pages/LifestyleBlueprintPage'))
+const CampusConnectPage = lazy(() => import('./pages/CampusConnectPage'))
+const CourseConnectPage = lazy(() => import('./pages/CourseConnectPage'))
+const PricingPage = lazy(() => import('./pages/PricingPage'))
+const SeptemberTrialPage = lazy(() => import('./pages/SeptemberTrialPage'))
+const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
+const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
+const AmbassadorsPage = lazy(() => import('./pages/AmbassadorsPage'))
+const FAQsPage = lazy(() => import('./pages/FAQsPage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const HelpPage = lazy(() => import('./pages/HelpPage'))
+const DownloadPage = lazy(() => import('./pages/DownloadPage'))
+const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'))
+const SubscriptionSuccessPage = lazy(() => import('./pages/SubscriptionSuccessPage'))
+const SubscriptionManagementPage = lazy(() => import('./pages/SubscriptionManagementPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const ServerErrorPage = lazy(() => import('./pages/ServerErrorPage'))
 
-import JoinHandlerPage from './pages/join/JoinHandlerPage'
-import JoinCoachPage from './pages/join/JoinCoachPage'
+const JoinHandlerPage = lazy(() => import('./pages/join/JoinHandlerPage'))
+const JoinCoachPage = lazy(() => import('./pages/join/JoinCoachPage'))
 
-import ServerErrorPage from './pages/ServerErrorPage'
+const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
+const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'))
+const CookiesPage = lazy(() => import('./pages/legal/CookiesPage'))
+const RefundPolicyPage = lazy(() => import('./pages/legal/RefundPolicyPage'))
+const AccessibilityPage = lazy(() => import('./pages/legal/AccessibilityPage'))
 
-import TermsPage from './pages/legal/TermsPage'
-import PrivacyPage from './pages/legal/PrivacyPage'
-import CookiesPage from './pages/legal/CookiesPage'
-import RefundPolicyPage from './pages/legal/RefundPolicyPage'
-import AccessibilityPage from './pages/legal/AccessibilityPage'
+const BlogPage = lazy(() => import('./pages/blog/BlogPage'))
+const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'))
 
-import BlogPage from './pages/blog/BlogPage'
-import BlogPostPage from './pages/blog/BlogPostPage'
+const SignUpPage = lazy(() => import('./pages/auth/SignUpPage'))
+const SignInPage = lazy(() => import('./pages/auth/SignInPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'))
+const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
 
-import SignUpPage from './pages/auth/SignUpPage'
-import SignInPage from './pages/auth/SignInPage'
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
-import ResetPasswordPage from './pages/auth/ResetPasswordPage'
-import VerifyEmailPage from './pages/auth/VerifyEmailPage'
-
-export default function App() {
+function AppRoutes() {
   useScrollToTop()
+  useUTMCapture()
 
   return (
     <Routes>
@@ -103,5 +106,13 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+  )
+}
+
+export default function App() {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <AppRoutes />
+    </Suspense>
   )
 }

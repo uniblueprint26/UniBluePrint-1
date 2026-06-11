@@ -153,6 +153,9 @@ export default function Footer() {
             <img
               src={logo}
               alt="Uniblueprint"
+              width="80"
+              height="80"
+              loading="lazy"
               style={{ height: '40px', width: 'auto', filter: 'brightness(0) invert(1)', display: 'block' }}
             />
           </Link>

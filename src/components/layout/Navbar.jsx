@@ -280,7 +280,7 @@ export default function Navbar() {
     >
       {/* Logo */}
       <Link to="/" aria-label="Uniblueprint home" style={{ flexShrink: 0 }}>
-        <img src={logo} alt="Uniblueprint" style={{ height: '36px', width: 'auto', display: 'block' }} />
+        <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto', display: 'block' }} />
       </Link>
 
       {/* Centre nav */}
@@ -413,7 +413,7 @@ export default function Navbar() {
       }}
     >
       <Link to="/" aria-label="Uniblueprint home">
-        <img src={logo} alt="Uniblueprint" style={{ height: '32px', width: 'auto', display: 'block' }} />
+        <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ height: '32px', width: 'auto', display: 'block' }} />
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -519,7 +519,7 @@ export default function Navbar() {
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '16px 16px 0' }}>
           <Link to="/" onClick={closeMenu} aria-label="Uniblueprint home">
-            <img src={logo} alt="Uniblueprint" style={{ height: '36px', width: 'auto' }} />
+            <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto' }} />
           </Link>
           <button
             onClick={closeMenu}
