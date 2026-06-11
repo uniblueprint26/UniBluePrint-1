@@ -245,3 +245,57 @@ input, textarea, select {
 @media (max-width: 480px) {
   .about-team-grid { grid-template-columns: 1fr; }
 }
+
+/* ─── How It Works page ──────────────────────────────────────────────── */
+
+/* Step block: content left, visual right on desktop; stacked on mobile */
+.hiw-step-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+/* Alternate: visual left on even steps (reverse) */
+.hiw-step-reverse { direction: rtl; }
+.hiw-step-reverse > * { direction: ltr; }
+
+@media (max-width: 768px) {
+  .hiw-step-block,
+  .hiw-step-reverse {
+    grid-template-columns: 1fr;
+    direction: ltr;
+  }
+}
+
+/* Foundation vs Elevation two-column */
+.hiw-blueprints-grid {
+  display: flex;
+  gap: 16px;
+  max-width: 900px;
+  margin: 40px auto 0;
+}
+@media (max-width: 768px) {
+  .hiw-blueprints-grid { flex-direction: column; }
+}
+
+/* Standard vs Premium tiers */
+.hiw-tiers-grid {
+  display: flex;
+  gap: 16px;
+  max-width: 700px;
+  margin: 40px auto 0;
+}
+@media (max-width: 600px) {
+  .hiw-tiers-grid { flex-direction: column; }
+}
+
+/* Quality control row */
+.hiw-quality-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .hiw-quality-row { flex-direction: column; }
+  .hiw-quality-arrow { transform: rotate(90deg); }
+}
