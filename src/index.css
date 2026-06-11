@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: only light;
   --color-background: #F5F0E8;
   --color-card: #FFFFFF;
   --color-primary: #1E3A5F;
@@ -458,4 +459,61 @@ footer {
 }
 @media (max-width: 640px) {
   .sept-services-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* ─── Back to top — hidden on mobile ─────────────────────────────────── */
+@media (max-width: 639px) {
+  .back-to-top { display: none !important; }
+}
+
+/* ─── Print stylesheet ────────────────────────────────────────────────── */
+@media print {
+  header,
+  footer,
+  .no-print,
+  .back-to-top {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  a {
+    color: #000000 !important;
+    text-decoration: underline !important;
+  }
+
+  a[href^="http"]:not([href*="uniblueprint.com"])::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #444444;
+  }
+
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+    color: #000000 !important;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+
+  .route-fade {
+    animation: none !important;
+  }
 }

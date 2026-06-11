@@ -4,7 +4,7 @@ import {
   Menu, X, ChevronDown, LogIn, UserCircle,
   FileText, Mail, Award, BookOpen, Star, Pen,
   Target, Mic, TrendingUp, Briefcase, Users, Calendar,
-  Instagram,
+  Instagram, Search,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -112,7 +112,7 @@ function DropdownTrigger({ id, controls, label, isOpen, onClick, onFocus, onMous
 
 // ─── Main component ────────────────────────────────────────────────────────────
 
-export default function Navbar() {
+export default function Navbar({ onSearchOpen }) {
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -392,6 +392,29 @@ export default function Navbar() {
 
       {/* Right section */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
+        {/* Search */}
+        <button
+          onClick={onSearchOpen}
+          aria-label="Search"
+          style={{
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#9CA3AF',
+            transition: 'color 150ms',
+            flexShrink: 0,
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
+        >
+          <Search size={20} aria-hidden="true" />
+        </button>
+
         <Link
           to="/for-universities"
           style={{

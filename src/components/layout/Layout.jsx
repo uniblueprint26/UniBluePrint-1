@@ -1,15 +1,20 @@
+import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import TrialBanner from './TrialBanner'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import CookieBanner from './CookieBanner'
+import BackToTop from '../ui/BackToTop'
+import Breadcrumbs from '../ui/Breadcrumbs'
+import SearchModal from '../ui/SearchModal'
 
 const SITE_URL = 'https://uniblueprint.com'
 
 export default function Layout() {
   const location = useLocation()
   const canonical = `${SITE_URL}${location.pathname}`
+  const [searchOpen, setSearchOpen] = useState(false)
 
   return (
     <>
@@ -28,15 +33,18 @@ export default function Layout() {
         <meta name="twitter:description" content="The structure behind your success — Foundation Blueprint, Elevation Blueprint, Campus Connect, and more." />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
-      <TrialBanner />
-      <Navbar />
+      <div className="no-print"><TrialBanner /></div>
+      <Navbar onSearchOpen={() => setSearchOpen(true)} />
+      <Breadcrumbs />
       <main id="main-content">
         <div key={location.pathname} className="route-fade">
           <Outlet />
         </div>
       </main>
       <Footer />
-      <CookieBanner />
+      <div className="no-print"><CookieBanner /></div>
+      <BackToTop />
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   )
 }
