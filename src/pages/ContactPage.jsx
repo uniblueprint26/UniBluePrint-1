@@ -4,12 +4,9 @@ import { Helmet } from 'react-helmet-async'
 import { MessageSquare, Handshake, Users } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea, SelectInput,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../components/forms/FormUI'
-
-// TODO: Add rate limiting to contact form submissions — max 3 per IP per hour.
-// Implement via Supabase Edge Function or middleware before going live.
+  FormCard, FormField, FormInput, FormTextarea, FormSelect,
+  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+} from '../components/ui/Form'
 
 /*
   TODO: Create Supabase tables:
@@ -17,40 +14,57 @@ import {
   create table general_enquiries (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz default now(),
-    full_name text not null,
+    name text not null,
     email text not null,
     subject text not null,
     message text not null,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table general_enquiries enable row level security;
+  create policy "anon_insert" on general_enquiries for insert to anon with check (true);
 
   create table partnership_enquiries (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz default now(),
-    organisation_name text not null,
+    organisation text not null,
     contact_name text not null,
     email text not null,
-    phone text,
-    partnership_type text not null,
+    type text not null,
     message text not null,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table partnership_enquiries enable row level security;
+  create policy "anon_insert" on partnership_enquiries for insert to anon with check (true);
 
   create table team_applications (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz default now(),
-    full_name text not null,
+    name text not null,
     email text not null,
-    linkedin_url text,
-    area_of_interest text not null,
+    role text not null,
+    university text,
     message text not null,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table team_applications enable row level security;
+  create policy "anon_insert" on team_applications for insert to anon with check (true);
 */
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when any
 // contact form is submitted. Email should confirm receipt and set expectations
 // on response time (2 business days).
+
+// TODO: Add rate limiting to contact form submissions — max 3 per IP per hour.
+// Implement via Supabase Edge Function or middleware before going live.
 
 const SUBJECTS = [
   'General question',
@@ -70,7 +84,7 @@ const PARTNERSHIP_TYPES = [
   'Other',
 ]
 
-const TEAM_AREAS = [
+const TEAM_ROLES = [
   'Tech & Development',
   'Marketing',
   'Outreach',
@@ -80,15 +94,15 @@ const TEAM_AREAS = [
 ]
 
 const TABS = [
-  { id: 'general', label: 'General enquiry', icon: MessageSquare },
-  { id: 'partnership', label: 'Partnership', icon: Handshake },
-  { id: 'team', label: 'Join the team', icon: Users },
+  { id: 'general',     label: 'General enquiry', icon: MessageSquare },
+  { id: 'partnership', label: 'Partnership',      icon: Handshake },
+  { id: 'team',        label: 'Join the team',    icon: Users },
 ]
 
 // ─── General Enquiry Form ──────────────────────────────────────────────────────
 
 function GeneralForm() {
-  const [form, setForm] = useState({ full_name: '', email: '', subject: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -97,10 +111,17 @@ function GeneralForm() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
+    if (honeypot) { setSuccess(true); return }
     setLoading(true); setError(null)
-    const { error: dbError } = await supabase.from('general_enquiries').insert([{ ...form, status: 'pending' }])
-    if (dbError) { setError('Something went wrong. Please try again.'); setLoading(false) }
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('general_enquiries').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
     else setSuccess(true)
   }
 
@@ -111,20 +132,20 @@ function GeneralForm() {
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <FormField label="Your name">
-          <TextInput value={form.full_name} onChange={set('full_name')} placeholder="Aoife Murphy" required />
+          <FormInput value={form.name} onChange={set('name')} placeholder="Aoife Murphy" required />
         </FormField>
         <FormField label="Email">
-          <TextInput type="email" value={form.email} onChange={set('email')} placeholder="aoife@example.ie" required />
+          <FormInput type="email" value={form.email} onChange={set('email')} placeholder="aoife@example.ie" required />
         </FormField>
       </div>
       <FormField label="Subject">
-        <SelectInput value={form.subject} onChange={set('subject')} required>
+        <FormSelect value={form.subject} onChange={set('subject')} required>
           <option value="">Select a subject</option>
           {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-        </SelectInput>
+        </FormSelect>
       </FormField>
       <FormField label="Message">
-        <TextArea value={form.message} onChange={set('message')} placeholder="How can we help?" rows={5} required />
+        <FormTextarea value={form.message} onChange={set('message')} placeholder="How can we help?" rows={5} required />
       </FormField>
       <SubmitButton loading={loading} label="Send message" />
     </form>
@@ -134,7 +155,7 @@ function GeneralForm() {
 // ─── Partnership Enquiry Form ──────────────────────────────────────────────────
 
 function PartnershipForm() {
-  const [form, setForm] = useState({ organisation_name: '', contact_name: '', email: '', phone: '', partnership_type: '', message: '' })
+  const [form, setForm] = useState({ organisation: '', contact_name: '', email: '', type: '', message: '' })
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -143,10 +164,17 @@ function PartnershipForm() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
+    if (honeypot) { setSuccess(true); return }
     setLoading(true); setError(null)
-    const { error: dbError } = await supabase.from('partnership_enquiries').insert([{ ...form, status: 'pending' }])
-    if (dbError) { setError('Something went wrong. Please try again.'); setLoading(false) }
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('partnership_enquiries').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
     else setSuccess(true)
   }
 
@@ -157,28 +185,23 @@ function PartnershipForm() {
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <FormField label="Organisation name">
-          <TextInput value={form.organisation_name} onChange={set('organisation_name')} placeholder="Acme Ltd." required />
+          <FormInput value={form.organisation} onChange={set('organisation')} placeholder="Acme Ltd." required />
         </FormField>
         <FormField label="Your name">
-          <TextInput value={form.contact_name} onChange={set('contact_name')} placeholder="John Smith" required />
+          <FormInput value={form.contact_name} onChange={set('contact_name')} placeholder="John Smith" required />
         </FormField>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <FormField label="Email">
-          <TextInput type="email" value={form.email} onChange={set('email')} placeholder="john@acme.ie" required />
-        </FormField>
-        <FormField label="Phone (optional)">
-          <TextInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
-        </FormField>
-      </div>
+      <FormField label="Email">
+        <FormInput type="email" value={form.email} onChange={set('email')} placeholder="john@acme.ie" required />
+      </FormField>
       <FormField label="Partnership type">
-        <SelectInput value={form.partnership_type} onChange={set('partnership_type')} required>
+        <FormSelect value={form.type} onChange={set('type')} required>
           <option value="">Select type</option>
           {PARTNERSHIP_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
-        </SelectInput>
+        </FormSelect>
       </FormField>
       <FormField label="Message">
-        <TextArea value={form.message} onChange={set('message')} placeholder="Tell us about your partnership interest..." rows={5} required />
+        <FormTextarea value={form.message} onChange={set('message')} placeholder="Tell us about your partnership interest..." rows={5} required />
       </FormField>
       <SubmitButton loading={loading} label="Send enquiry" />
     </form>
@@ -188,7 +211,7 @@ function PartnershipForm() {
 // ─── Team Application Form ─────────────────────────────────────────────────────
 
 function TeamForm() {
-  const [form, setForm] = useState({ full_name: '', email: '', linkedin_url: '', area_of_interest: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', role: '', university: '', message: '' })
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -197,10 +220,17 @@ function TeamForm() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
+    if (honeypot) { setSuccess(true); return }
     setLoading(true); setError(null)
-    const { error: dbError } = await supabase.from('team_applications').insert([{ ...form, status: 'pending' }])
-    if (dbError) { setError('Something went wrong. Please try again.'); setLoading(false) }
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('team_applications').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
     else setSuccess(true)
   }
 
@@ -211,23 +241,25 @@ function TeamForm() {
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <FormField label="Full name">
-          <TextInput value={form.full_name} onChange={set('full_name')} placeholder="Ciarán Kelly" required />
+          <FormInput value={form.name} onChange={set('name')} placeholder="Ciarán Kelly" required />
         </FormField>
         <FormField label="Email">
-          <TextInput type="email" value={form.email} onChange={set('email')} placeholder="ciaran@example.ie" required />
+          <FormInput type="email" value={form.email} onChange={set('email')} placeholder="ciaran@example.ie" required />
         </FormField>
       </div>
-      <FormField label="LinkedIn URL (optional)">
-        <TextInput value={form.linkedin_url} onChange={set('linkedin_url')} placeholder="https://linkedin.com/in/yourname" />
-      </FormField>
-      <FormField label="Area of interest">
-        <SelectInput value={form.area_of_interest} onChange={set('area_of_interest')} required>
-          <option value="">Select area</option>
-          {TEAM_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-        </SelectInput>
-      </FormField>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <FormField label="Area of interest">
+          <FormSelect value={form.role} onChange={set('role')} required>
+            <option value="">Select area</option>
+            {TEAM_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+          </FormSelect>
+        </FormField>
+        <FormField label="University (optional)">
+          <FormInput value={form.university} onChange={set('university')} placeholder="University College Dublin" />
+        </FormField>
+      </div>
       <FormField label="Tell us about yourself" hint="Why do you want to work with Uniblueprint?">
-        <TextArea value={form.message} onChange={set('message')} placeholder="I would love to contribute to..." rows={5} required />
+        <FormTextarea value={form.message} onChange={set('message')} placeholder="I would love to contribute to..." rows={5} required />
       </FormField>
       <SubmitButton loading={loading} label="Submit application" />
     </form>
@@ -297,12 +329,12 @@ export default function ContactPage() {
           {/* Form card */}
           <FormCard
             title={
-              activeTab === 'general' ? 'General enquiry' :
+              activeTab === 'general'     ? 'General enquiry' :
               activeTab === 'partnership' ? 'Partnership enquiry' :
               'Join the team'
             }
             subtitle={
-              activeTab === 'general' ? 'Ask us anything — we read every message.' :
+              activeTab === 'general'     ? 'Ask us anything — we read every message.' :
               activeTab === 'partnership' ? 'Tell us about your organisation and what you have in mind.' :
               "Interested in working with Uniblueprint? Tell us about yourself."
             }

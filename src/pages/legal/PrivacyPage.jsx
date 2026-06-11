@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { supabase } from '../../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea, SelectInput,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../../components/forms/FormUI'
+  FormCard, FormField, FormInput, FormTextarea, FormSelect,
+  SubmitButton, SuccessCard, ErrorBanner, parseDbError,
+} from '../../components/ui/Form'
 
 // TODO: Manual processing workflow for GDPR requests:
 // 1. New row inserted into gdpr_requests with status 'pending'
@@ -26,6 +26,8 @@ import {
     message text,
     status text default 'pending'
   );
+  alter table gdpr_requests enable row level security;
+  create policy "anon_insert" on gdpr_requests for insert to anon with check (true);
 */
 
 const REQUEST_TYPES = [
@@ -50,17 +52,17 @@ function Section({ title, children }) {
 function GdprForm() {
   const [form, setForm] = useState({ name: '', email: '', request_type: '', message: '' })
   const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
+    if (honeypot) { setSuccess(true); return }
     setLoading(true); setError(null)
     const { error: dbError } = await supabase.from('gdpr_requests').insert([{ ...form, status: 'pending' }])
-    if (dbError) { setError('Something went wrong. Please try again.'); setLoading(false) }
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
     else setSuccess(true)
   }
 
@@ -71,20 +73,20 @@ function GdprForm() {
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <FormField label="Full name">
-          <TextInput value={form.name} onChange={set('name')} placeholder="Your name" required />
+          <FormInput value={form.name} onChange={set('name')} placeholder="Your name" required />
         </FormField>
         <FormField label="Email">
-          <TextInput type="email" value={form.email} onChange={set('email')} placeholder="you@example.ie" required />
+          <FormInput type="email" value={form.email} onChange={set('email')} placeholder="you@example.ie" required />
         </FormField>
       </div>
       <FormField label="Request type">
-        <SelectInput value={form.request_type} onChange={set('request_type')} required>
+        <FormSelect value={form.request_type} onChange={set('request_type')} required>
           <option value="">Select request type</option>
           {REQUEST_TYPES.map(r => <option key={r} value={r}>{r}</option>)}
-        </SelectInput>
+        </FormSelect>
       </FormField>
       <FormField label="Message" hint="Tell us more about your request (optional).">
-        <TextArea value={form.message} onChange={set('message')} placeholder="Additional details..." rows={4} />
+        <FormTextarea value={form.message} onChange={set('message')} placeholder="Additional details..." rows={4} />
       </FormField>
       <SubmitButton loading={loading} label="Submit request" />
     </form>

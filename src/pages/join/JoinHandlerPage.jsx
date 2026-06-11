@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async'
 import { UserCheck, Clock, Award, BookOpen } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea, SelectInput,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../../components/forms/FormUI'
+  FormCard, FormField, FormInput, FormTextarea, FormSelect,
+  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+} from '../../components/ui/Form'
 
 /*
   TODO: Create Supabase table:
@@ -14,19 +14,22 @@ import {
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz default now(),
     full_name text not null,
-    email text not null,
     university text not null,
     course text not null,
-    year_of_study text not null,
-    availability_hours text not null,
-    linkedin_url text,
+    year text not null,
+    email text not null,
     why_apply text not null,
+    availability text not null,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table handler_applications enable row level security;
+  create policy "anon_insert" on handler_applications for insert to anon with check (true);
 */
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
-// Email should confirm receipt and set expectations on response time.
 
 const BENEFITS = [
   {
@@ -67,7 +70,7 @@ const UNIVERSITIES = [
   'Other',
 ]
 
-const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Postgraduate', 'Mature Student']
+const YEARS        = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Postgraduate', 'Mature Student']
 const AVAILABILITY = ['2–4 hours/week', '4–6 hours/week', '6–8 hours/week', '8+ hours/week']
 
 export default function JoinHandlerPage() {
@@ -76,32 +79,31 @@ export default function JoinHandlerPage() {
     email: '',
     university: '',
     course: '',
-    year_of_study: '',
-    availability_hours: '',
-    linkedin_url: '',
+    year: '',
+    availability: '',
     why_apply: '',
   })
   const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
 
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
-    setLoading(true)
-    setError(null)
-    const { error: dbError } = await supabase
-      .from('handler_applications')
-      .insert([{ ...form, status: 'pending' }])
-    if (dbError) {
-      setError('Something went wrong. Please try again.')
-      setLoading(false)
-    } else {
-      setSuccess(true)
-    }
+    if (honeypot) { setSuccess(true); return }
+    setLoading(true); setError(null)
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('handler_applications').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
+    else setSuccess(true)
   }
 
   return (
@@ -194,57 +196,49 @@ export default function JoinHandlerPage() {
 
         <FormCard subtitle="Applications are reviewed on a rolling basis. We'll be in touch within 2 business days.">
           {success ? (
-            <SuccessCard title="Application received" />
+            <SuccessCard title="Application received" subtitle="We'll review your application and be in touch within 2 business days." />
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input
-                type="text"
-                name="website"
-                value={honeypot}
+                type="text" name="website" value={honeypot}
                 onChange={e => setHoneypot(e.target.value)}
-                style={{ display: 'none' }}
-                tabIndex={-1}
-                autoComplete="off"
+                style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
               />
-
               {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Full name">
-                  <TextInput value={form.full_name} onChange={set('full_name')} placeholder="Aoife Murphy" required />
+                  <FormInput value={form.full_name} onChange={set('full_name')} placeholder="Aoife Murphy" required />
                 </FormField>
                 <FormField label="Email">
-                  <TextInput type="email" value={form.email} onChange={set('email')} placeholder="aoife@university.ie" required />
+                  <FormInput type="email" value={form.email} onChange={set('email')} placeholder="aoife@university.ie" required />
                 </FormField>
               </div>
               <FormField label="University">
-                <SelectInput value={form.university} onChange={set('university')} required>
+                <FormSelect value={form.university} onChange={set('university')} required>
                   <option value="">Select your university</option>
                   {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
-                </SelectInput>
+                </FormSelect>
               </FormField>
               <FormField label="Course">
-                <TextInput value={form.course} onChange={set('course')} placeholder="Business & Management" required />
+                <FormInput value={form.course} onChange={set('course')} placeholder="Business & Management" required />
               </FormField>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Year of study">
-                  <SelectInput value={form.year_of_study} onChange={set('year_of_study')} required>
+                  <FormSelect value={form.year} onChange={set('year')} required>
                     <option value="">Select year</option>
                     {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-                  </SelectInput>
+                  </FormSelect>
                 </FormField>
                 <FormField label="Availability per week">
-                  <SelectInput value={form.availability_hours} onChange={set('availability_hours')} required>
+                  <FormSelect value={form.availability} onChange={set('availability')} required>
                     <option value="">Select availability</option>
                     {AVAILABILITY.map(a => <option key={a} value={a}>{a}</option>)}
-                  </SelectInput>
+                  </FormSelect>
                 </FormField>
               </div>
-              <FormField label="LinkedIn URL (optional)">
-                <TextInput value={form.linkedin_url} onChange={set('linkedin_url')} placeholder="https://linkedin.com/in/yourname" />
-              </FormField>
               <FormField label="Why do you want to be a Campus Handler?" hint="Tell us what draws you to the role and any relevant experience.">
-                <TextArea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to..." rows={5} required />
+                <FormTextarea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to..." rows={5} required />
               </FormField>
 
               <SubmitButton loading={loading} label="Submit application" />

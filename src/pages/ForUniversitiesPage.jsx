@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async'
 import { GraduationCap, Users, BarChart3, Shield } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../components/forms/FormUI'
+  FormCard, FormField, FormInput, FormTextarea,
+  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+} from '../components/ui/Form'
 
 /*
   TODO: Create Supabase table:
@@ -19,12 +19,16 @@ import {
     email text not null,
     phone text,
     message text,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table university_enquiries enable row level security;
+  create policy "anon_insert" on university_enquiries for insert to anon with check (true);
 */
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
-// Email should confirm receipt and set expectations on response time.
 
 const VALUE_PROPS = [
   {
@@ -59,26 +63,26 @@ export default function ForUniversitiesPage() {
     message: '',
   })
   const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
 
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return // silent reject
-    setLoading(true)
-    setError(null)
-    const { error: dbError } = await supabase
-      .from('university_enquiries')
-      .insert([{ ...form, status: 'pending' }])
-    if (dbError) {
-      setError('Something went wrong. Please try again or email us directly.')
-      setLoading(false)
-    } else {
-      setSuccess(true)
-    }
+    if (honeypot) { setSuccess(true); return }
+    setLoading(true); setError(null)
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('university_enquiries').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
+    else setSuccess(true)
   }
 
   return (
@@ -164,43 +168,37 @@ export default function ForUniversitiesPage() {
 
         <FormCard subtitle="Tell us about your institution and what you're looking for — we'll be in touch within 2 business days.">
           {success ? (
-            <SuccessCard />
+            <SuccessCard subtitle="We'll be in touch within 2 business days." />
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Honeypot */}
               <input
-                type="text"
-                name="website"
-                value={honeypot}
+                type="text" name="website" value={honeypot}
                 onChange={e => setHoneypot(e.target.value)}
-                style={{ display: 'none' }}
-                tabIndex={-1}
-                autoComplete="off"
+                style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
               />
-
               {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
               <FormField label="Institution name">
-                <TextInput value={form.institution_name} onChange={set('institution_name')} placeholder="University College Dublin" required />
+                <FormInput value={form.institution_name} onChange={set('institution_name')} placeholder="University College Dublin" required />
               </FormField>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Your name">
-                  <TextInput value={form.contact_name} onChange={set('contact_name')} placeholder="Jane Smith" required />
+                  <FormInput value={form.contact_name} onChange={set('contact_name')} placeholder="Jane Smith" required />
                 </FormField>
                 <FormField label="Your role">
-                  <TextInput value={form.role} onChange={set('role')} placeholder="Head of Student Services" required />
+                  <FormInput value={form.role} onChange={set('role')} placeholder="Head of Student Services" required />
                 </FormField>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Email">
-                  <TextInput type="email" value={form.email} onChange={set('email')} placeholder="jane@university.ie" required />
+                  <FormInput type="email" value={form.email} onChange={set('email')} placeholder="jane@university.ie" required />
                 </FormField>
                 <FormField label="Phone (optional)">
-                  <TextInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
+                  <FormInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
                 </FormField>
               </div>
               <FormField label="Message" hint="Tell us what you're interested in — partnership, integration, or a general chat.">
-                <TextArea value={form.message} onChange={set('message')} placeholder="We would like to explore..." rows={5} />
+                <FormTextarea value={form.message} onChange={set('message')} placeholder="We would like to explore..." rows={5} />
               </FormField>
 
               <SubmitButton loading={loading} label="Send enquiry" />

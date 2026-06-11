@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async'
 import { Tag, TrendingUp, Users, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea, SelectInput,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../components/forms/FormUI'
+  FormCard, FormField, FormInput, FormTextarea, FormSelect,
+  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+} from '../components/ui/Form'
 
 /*
   TODO: Create Supabase table:
@@ -15,17 +15,21 @@ import {
     created_at timestamptz default now(),
     business_name text not null,
     contact_name text not null,
+    role text not null,
     email text not null,
     phone text,
-    category text not null,
-    deal_description text,
+    business_type text not null,
     message text,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table business_enquiries enable row level security;
+  create policy "anon_insert" on business_enquiries for insert to anon with check (true);
 */
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
-// Email should confirm receipt and set expectations on response time.
 
 const BENEFITS = [
   {
@@ -50,7 +54,7 @@ const BENEFITS = [
   },
 ]
 
-const CATEGORIES = [
+const BUSINESS_TYPES = [
   'Food & Drink',
   'Fitness',
   'Shopping',
@@ -65,33 +69,33 @@ export default function ForBusinessesPage() {
   const [form, setForm] = useState({
     business_name: '',
     contact_name: '',
+    role: '',
     email: '',
     phone: '',
-    category: '',
-    deal_description: '',
+    business_type: '',
     message: '',
   })
   const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
 
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
-    setLoading(true)
-    setError(null)
-    const { error: dbError } = await supabase
-      .from('business_enquiries')
-      .insert([{ ...form, status: 'pending' }])
-    if (dbError) {
-      setError('Something went wrong. Please try again or email us directly.')
-      setLoading(false)
-    } else {
-      setSuccess(true)
-    }
+    if (honeypot) { setSuccess(true); return }
+    setLoading(true); setError(null)
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('business_enquiries').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
+    else setSuccess(true)
   }
 
   return (
@@ -177,48 +181,45 @@ export default function ForBusinessesPage() {
 
         <FormCard subtitle="Tell us about your business and the deal you have in mind. We review every application before any listing goes live.">
           {success ? (
-            <SuccessCard />
+            <SuccessCard subtitle="We'll review your application and be in touch within 2 business days." />
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input
-                type="text"
-                name="website"
-                value={honeypot}
+                type="text" name="website" value={honeypot}
                 onChange={e => setHoneypot(e.target.value)}
-                style={{ display: 'none' }}
-                tabIndex={-1}
-                autoComplete="off"
+                style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
               />
-
               {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Business name">
-                  <TextInput value={form.business_name} onChange={set('business_name')} placeholder="Acme Coffee Co." required />
+                  <FormInput value={form.business_name} onChange={set('business_name')} placeholder="Acme Coffee Co." required />
                 </FormField>
                 <FormField label="Your name">
-                  <TextInput value={form.contact_name} onChange={set('contact_name')} placeholder="John Murphy" required />
+                  <FormInput value={form.contact_name} onChange={set('contact_name')} placeholder="John Murphy" required />
                 </FormField>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <FormField label="Email">
-                  <TextInput type="email" value={form.email} onChange={set('email')} placeholder="john@business.ie" required />
+                <FormField label="Your role">
+                  <FormInput value={form.role} onChange={set('role')} placeholder="Marketing Manager" required />
                 </FormField>
-                <FormField label="Phone (optional)">
-                  <TextInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
+                <FormField label="Email">
+                  <FormInput type="email" value={form.email} onChange={set('email')} placeholder="john@business.ie" required />
                 </FormField>
               </div>
-              <FormField label="Deal category">
-                <SelectInput value={form.category} onChange={set('category')} required>
-                  <option value="">Select a category</option>
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </SelectInput>
-              </FormField>
-              <FormField label="Deal description" hint="Describe the offer you would like to list for students.">
-                <TextArea value={form.deal_description} onChange={set('deal_description')} placeholder="10% off all orders for verified students..." rows={3} />
-              </FormField>
-              <FormField label="Anything else?">
-                <TextArea value={form.message} onChange={set('message')} placeholder="Any other information..." rows={3} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <FormField label="Phone (optional)">
+                  <FormInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
+                </FormField>
+                <FormField label="Business type">
+                  <FormSelect value={form.business_type} onChange={set('business_type')} required>
+                    <option value="">Select a category</option>
+                    {BUSINESS_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </FormSelect>
+                </FormField>
+              </div>
+              <FormField label="Tell us about your business and proposed deal" hint="Include details about the offer you'd like to list for students.">
+                <FormTextarea value={form.message} onChange={set('message')} placeholder="We'd like to offer 10% off all orders for verified students..." rows={5} />
               </FormField>
 
               <SubmitButton loading={loading} label="Submit application" />

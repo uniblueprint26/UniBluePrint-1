@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async'
 import { Award, Briefcase, Users, TrendingUp } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea, SelectInput,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../../components/forms/FormUI'
+  FormCard, FormField, FormInput, FormTextarea, FormSelect,
+  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+} from '../../components/ui/Form'
 
 /*
   TODO: Create Supabase table:
@@ -16,16 +16,18 @@ import {
     full_name text not null,
     email text not null,
     linkedin_url text not null,
-    area_of_expertise text not null,
-    years_experience text not null,
-    current_role text not null,
-    why_apply text not null,
+    specialisms text[] not null,
+    experience text not null,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table coach_applications enable row level security;
+  create policy "anon_insert" on coach_applications for insert to anon with check (true);
 */
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
-// Email should confirm receipt and set expectations on response time.
 
 const BENEFITS = [
   {
@@ -70,32 +72,34 @@ export default function JoinCoachPage() {
     full_name: '',
     email: '',
     linkedin_url: '',
-    area_of_expertise: '',
-    years_experience: '',
-    current_role: '',
-    why_apply: '',
+    specialisms: '',
+    experience: '',
   })
   const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
 
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
-    setLoading(true)
-    setError(null)
-    const { error: dbError } = await supabase
-      .from('coach_applications')
-      .insert([{ ...form, status: 'pending' }])
-    if (dbError) {
-      setError('Something went wrong. Please try again.')
-      setLoading(false)
-    } else {
-      setSuccess(true)
-    }
+    if (honeypot) { setSuccess(true); return }
+    setLoading(true); setError(null)
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('coach_applications').insert([{
+      full_name:    form.full_name,
+      email:        form.email,
+      linkedin_url: form.linkedin_url,
+      specialisms:  form.specialisms ? [form.specialisms] : [],
+      experience:   form.experience,
+      utm_source:   utm_source || null,
+      utm_medium:   utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
+    else setSuccess(true)
   }
 
   return (
@@ -188,52 +192,41 @@ export default function JoinCoachPage() {
 
         <FormCard subtitle="All applications are reviewed by our team. We will be in touch within 2 business days.">
           {success ? (
-            <SuccessCard title="Application received" />
+            <SuccessCard title="Application received" subtitle="We'll review your application and be in touch within 2 business days." />
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input
-                type="text"
-                name="website"
-                value={honeypot}
+                type="text" name="website" value={honeypot}
                 onChange={e => setHoneypot(e.target.value)}
-                style={{ display: 'none' }}
-                tabIndex={-1}
-                autoComplete="off"
+                style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
               />
-
               {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Full name">
-                  <TextInput value={form.full_name} onChange={set('full_name')} placeholder="Ciarán Kelly" required />
+                  <FormInput value={form.full_name} onChange={set('full_name')} placeholder="Ciarán Kelly" required />
                 </FormField>
                 <FormField label="Email">
-                  <TextInput type="email" value={form.email} onChange={set('email')} placeholder="ciaran@example.ie" required />
+                  <FormInput type="email" value={form.email} onChange={set('email')} placeholder="ciaran@example.ie" required />
                 </FormField>
               </div>
               <FormField label="LinkedIn URL">
-                <TextInput value={form.linkedin_url} onChange={set('linkedin_url')} placeholder="https://linkedin.com/in/yourname" required />
-              </FormField>
-              <FormField label="Current role">
-                <TextInput value={form.current_role} onChange={set('current_role')} placeholder="Senior Recruiter at XYZ" required />
+                <FormInput value={form.linkedin_url} onChange={set('linkedin_url')} placeholder="https://linkedin.com/in/yourname" required />
               </FormField>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <FormField label="Area of expertise">
-                  <SelectInput value={form.area_of_expertise} onChange={set('area_of_expertise')} required>
-                    <option value="">Select expertise</option>
+                <FormField label="Primary specialism">
+                  <FormSelect value={form.specialisms} onChange={set('specialisms')} required>
+                    <option value="">Select specialism</option>
                     {EXPERTISE_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-                  </SelectInput>
+                  </FormSelect>
                 </FormField>
                 <FormField label="Years of experience">
-                  <SelectInput value={form.years_experience} onChange={set('years_experience')} required>
+                  <FormSelect value={form.experience} onChange={set('experience')} required>
                     <option value="">Select range</option>
                     {EXPERIENCE.map(ex => <option key={ex} value={ex}>{ex}</option>)}
-                  </SelectInput>
+                  </FormSelect>
                 </FormField>
               </div>
-              <FormField label="Why do you want to be a Uni Coach?" hint="Tell us about your background and what you can offer students.">
-                <TextArea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to help students..." rows={5} required />
-              </FormField>
 
               <SubmitButton loading={loading} label="Submit application" />
             </form>

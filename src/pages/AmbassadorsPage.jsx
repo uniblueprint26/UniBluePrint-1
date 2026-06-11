@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async'
 import { Megaphone, Star, Users, Gift } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
-  FormCard, FormField, TextInput, TextArea, SelectInput,
-  SubmitButton, SuccessCard, ErrorBanner,
-} from '../components/forms/FormUI'
+  FormCard, FormField, FormInput, FormTextarea, FormSelect,
+  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+} from '../components/ui/Form'
 
 /*
   TODO: Create Supabase table:
@@ -14,18 +14,23 @@ import {
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz default now(),
     full_name text not null,
-    email text not null,
     university text not null,
-    year_of_study text not null,
+    course text not null,
+    year text not null,
+    email text not null,
     instagram_handle text,
-    tiktok_handle text,
     why_apply text not null,
+    how_promote text not null,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
     status text default 'pending'
   );
+  alter table ambassador_applications enable row level security;
+  create policy "anon_insert" on ambassador_applications for insert to anon with check (true);
 */
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
-// Email should confirm receipt and set expectations on response time.
 
 const BENEFITS = [
   {
@@ -73,32 +78,33 @@ export default function AmbassadorsPage() {
     full_name: '',
     email: '',
     university: '',
-    year_of_study: '',
+    course: '',
+    year: '',
     instagram_handle: '',
-    tiktok_handle: '',
     why_apply: '',
+    how_promote: '',
   })
   const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
 
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (honeypot) return
-    setLoading(true)
-    setError(null)
-    const { error: dbError } = await supabase
-      .from('ambassador_applications')
-      .insert([{ ...form, status: 'pending' }])
-    if (dbError) {
-      setError('Something went wrong. Please try again.')
-      setLoading(false)
-    } else {
-      setSuccess(true)
-    }
+    if (honeypot) { setSuccess(true); return }
+    setLoading(true); setError(null)
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('ambassador_applications').insert([{
+      ...form,
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      status: 'pending',
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
+    else setSuccess(true)
   }
 
   return (
@@ -191,51 +197,49 @@ export default function AmbassadorsPage() {
 
         <FormCard subtitle="We're selecting ambassadors campus by campus ahead of September 2026. We will be in touch within 2 business days.">
           {success ? (
-            <SuccessCard title="Application received" />
+            <SuccessCard title="Application received" subtitle="We'll review your application and be in touch within 2 business days." />
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input
-                type="text"
-                name="website"
-                value={honeypot}
+                type="text" name="website" value={honeypot}
                 onChange={e => setHoneypot(e.target.value)}
-                style={{ display: 'none' }}
-                tabIndex={-1}
-                autoComplete="off"
+                style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
               />
-
               {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <FormField label="Full name">
-                  <TextInput value={form.full_name} onChange={set('full_name')} placeholder="Siobhán Ryan" required />
+                  <FormInput value={form.full_name} onChange={set('full_name')} placeholder="Siobhán Ryan" required />
                 </FormField>
                 <FormField label="Email">
-                  <TextInput type="email" value={form.email} onChange={set('email')} placeholder="siobhan@university.ie" required />
+                  <FormInput type="email" value={form.email} onChange={set('email')} placeholder="siobhan@university.ie" required />
                 </FormField>
               </div>
               <FormField label="University">
-                <SelectInput value={form.university} onChange={set('university')} required>
+                <FormSelect value={form.university} onChange={set('university')} required>
                   <option value="">Select your university</option>
                   {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
-                </SelectInput>
-              </FormField>
-              <FormField label="Year of study">
-                <SelectInput value={form.year_of_study} onChange={set('year_of_study')} required>
-                  <option value="">Select year</option>
-                  {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-                </SelectInput>
+                </FormSelect>
               </FormField>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <FormField label="Instagram handle (optional)">
-                  <TextInput value={form.instagram_handle} onChange={set('instagram_handle')} placeholder="@yourhandle" />
+                <FormField label="Course">
+                  <FormInput value={form.course} onChange={set('course')} placeholder="Business & Management" required />
                 </FormField>
-                <FormField label="TikTok handle (optional)">
-                  <TextInput value={form.tiktok_handle} onChange={set('tiktok_handle')} placeholder="@yourhandle" />
+                <FormField label="Year of study">
+                  <FormSelect value={form.year} onChange={set('year')} required>
+                    <option value="">Select year</option>
+                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                  </FormSelect>
                 </FormField>
               </div>
+              <FormField label="Instagram handle (optional)">
+                <FormInput value={form.instagram_handle} onChange={set('instagram_handle')} placeholder="@yourhandle" />
+              </FormField>
               <FormField label="Why do you want to be a Uniblueprint ambassador?" hint="Tell us about yourself, your campus presence, and why this role suits you.">
-                <TextArea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to represent Uniblueprint because..." rows={5} required />
+                <FormTextarea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to represent Uniblueprint because..." rows={4} required />
+              </FormField>
+              <FormField label="How would you promote Uniblueprint on your campus?" hint="Think freshers week, social media, word of mouth, or events.">
+                <FormTextarea value={form.how_promote} onChange={set('how_promote')} placeholder="I would promote Uniblueprint by..." rows={4} required />
               </FormField>
 
               <SubmitButton loading={loading} label="Submit application" />

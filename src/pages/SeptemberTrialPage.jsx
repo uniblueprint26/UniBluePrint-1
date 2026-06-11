@@ -2,8 +2,29 @@ import { useState, useEffect, useId, useRef, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ChevronDown } from 'lucide-react'
+import { supabase } from '../lib/supabase'
+import {
+  FormField, FormInput, SubmitButton, SuccessCard, ErrorBanner,
+  getUTM, parseDbError,
+} from '../components/ui/Form'
 
-// ─── Countdown (same logic as HomePage) ───────────────────────────────────────
+/*
+  TODO: Create Supabase table:
+
+  create table early_access_signups (
+    id uuid primary key default gen_random_uuid(),
+    created_at timestamptz default now(),
+    email text unique not null,
+    source text,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text
+  );
+  alter table early_access_signups enable row level security;
+  create policy "anon_insert" on early_access_signups for insert to anon with check (true);
+*/
+
+// ─── Countdown ────────────────────────────────────────────────────────────────
 
 const TRIAL_END = new Date('2026-09-30T22:59:59Z') // 23:59:59 Irish Standard Time
 
@@ -70,6 +91,73 @@ function CountdownTimer() {
         </div>
       ))}
     </div>
+  )
+}
+
+// ─── Early Access Signup ───────────────────────────────────────────────────────
+
+function EarlyAccessForm() {
+  const [email, setEmail]       = useState('')
+  const [honeypot, setHoneypot] = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState(null)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (honeypot) { setSuccess(true); return }
+    setLoading(true); setError(null)
+    const { utm_source, utm_medium, utm_campaign } = getUTM()
+    const { error: dbError } = await supabase.from('early_access_signups').insert([{
+      email,
+      source:       'september_trial',
+      utm_source:   utm_source   || null,
+      utm_medium:   utm_medium   || null,
+      utm_campaign: utm_campaign || null,
+    }])
+    if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
+    else setSuccess(true)
+  }
+
+  if (success) {
+    return (
+      <SuccessCard
+        title="You're on the list"
+        subtitle="We'll let you know as soon as the September trial goes live."
+      />
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <input
+        type="text" name="website" value={honeypot}
+        onChange={e => setHoneypot(e.target.value)}
+        style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
+      />
+      {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
+      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <FormField style={{ flex: 1, minWidth: '240px' }}>
+          <FormInput
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="your@email.ie"
+            required
+          />
+        </FormField>
+        <div style={{ flexShrink: 0, minWidth: '160px' }}>
+          <SubmitButton loading={loading} label="Notify me" />
+        </div>
+      </div>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '12px', color: 'rgba(245,240,232,0.5)',
+        textAlign: 'center',
+      }}>
+        No spam. Unsubscribe any time.
+      </p>
+    </form>
   )
 }
 
@@ -187,7 +275,7 @@ function ServiceRow({ name, orig, trial }) {
 
 function AccordionItem({ question, answer }) {
   const [open, setOpen] = useState(false)
-  const panelId = useId()
+  const panelId   = useId()
   const triggerId = useId()
   return (
     <div style={{
@@ -475,21 +563,41 @@ export default function SeptemberTrialPage() {
         </AccordionGroup>
       </section>
 
-      {/* ── SECTION 6 — FINAL CTA ─────────────────────────────────────────── */}
+      {/* ── SECTION 6 — EARLY ACCESS SIGNUP ──────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
+        <h2 style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: '32px', color: '#F5F0E8',
+        }}>
+          Not ready yet? Join the waitlist.
+        </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '16px', color: 'rgba(245,240,232,0.7)',
+          marginTop: '8px',
+        }}>
+          We'll notify you when the September trial goes live.
+        </p>
+        <div style={{ maxWidth: '480px', margin: '32px auto 0' }}>
+          <EarlyAccessForm />
+        </div>
+      </section>
+
+      {/* ── SECTION 7 — FINAL CTA ─────────────────────────────────────────── */}
       <section style={{
-        background: '#1E3A5F',
+        background: '#F5F0E8',
         padding: '100px 24px',
         textAlign: 'center',
       }}>
         <h2
           className="sept-cta-heading"
-          style={{ fontFamily: "'DM Serif Display', serif", color: '#F5F0E8' }}
+          style={{ fontFamily: "'DM Serif Display', serif", color: '#1E3A5F' }}
         >
           Your Blueprint starts now
         </h2>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '18px', color: 'rgba(245,240,232,0.7)',
+          fontSize: '18px', color: '#6B7280',
           marginTop: '12px',
         }}>
           50% off everything — until 30 September
@@ -499,7 +607,7 @@ export default function SeptemberTrialPage() {
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             height: '60px', padding: '0 48px',
-            background: '#F5F0E8', color: '#1E3A5F',
+            background: '#1E3A5F', color: '#F5F0E8',
             borderRadius: '8px',
             fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: '700',
             textDecoration: 'none', marginTop: '32px',
