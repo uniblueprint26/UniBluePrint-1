@@ -299,3 +299,16 @@ input, textarea, select {
   .hiw-quality-row { flex-direction: column; }
   .hiw-quality-arrow { transform: rotate(90deg); }
 }
+
+/* ─── Services grid (Foundation / Elevation Blueprint pages) ─────────── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .services-grid { grid-template-columns: 1fr; }
+}
