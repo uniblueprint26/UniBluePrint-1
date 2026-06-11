@@ -67,12 +67,15 @@ function NavLink({ to, children }) {
   )
 }
 
-function DropdownTrigger({ label, isOpen, onClick, onMouseEnter, onMouseLeave }) {
+function DropdownTrigger({ id, controls, label, isOpen, onClick, onFocus, onMouseEnter, onMouseLeave }) {
   return (
     <button
+      id={id}
       aria-expanded={isOpen}
       aria-haspopup="true"
+      aria-controls={controls}
       onClick={onClick}
+      onFocus={onFocus}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
@@ -94,7 +97,7 @@ function DropdownTrigger({ label, isOpen, onClick, onMouseEnter, onMouseLeave })
     >
       {label}
       <ChevronDown
-        size={14}
+        size={14} aria-hidden="true"
         style={{
           transition: 'transform 150ms',
           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -121,6 +124,8 @@ export default function Navbar() {
   const joinTimer = useRef(null)
   const menuRef = useRef(null)
   const userRef = useRef(null)
+  const servicesRef = useRef(null)
+  const joinRef = useRef(null)
 
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name.charAt(0).toUpperCase()
@@ -280,7 +285,7 @@ export default function Navbar() {
     >
       {/* Logo */}
       <Link to="/" aria-label="Uniblueprint home" style={{ flexShrink: 0 }}>
-        <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto', display: 'block' }} />
+        <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto', display: 'block' }} />
       </Link>
 
       {/* Centre nav */}
@@ -293,36 +298,69 @@ export default function Navbar() {
 
         {/* Services mega dropdown */}
         <div
+          ref={servicesRef}
           style={{ position: 'relative' }}
           onMouseEnter={onServicesEnter}
           onMouseLeave={onServicesLeave}
+          onBlur={(e) => {
+            if (!servicesRef.current?.contains(e.relatedTarget)) setIsServicesOpen(false)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsServicesOpen(false)
+              document.getElementById('nav-services-trigger')?.focus()
+              return
+            }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault()
+              const links = Array.from(servicesRef.current?.querySelectorAll('a.dropdown-link') || [])
+              if (!links.length) return
+              const idx = links.indexOf(document.activeElement)
+              if (e.key === 'ArrowDown') links[idx < 0 ? 0 : (idx + 1) % links.length]?.focus()
+              else links[idx < 0 ? links.length - 1 : (idx - 1 + links.length) % links.length]?.focus()
+            }
+          }}
         >
-          <DropdownTrigger label="Services" isOpen={isServicesOpen} />
+          <DropdownTrigger
+            id="nav-services-trigger"
+            controls="nav-services-dropdown"
+            label="Services"
+            isOpen={isServicesOpen}
+            onClick={() => setIsServicesOpen(v => !v)}
+            onFocus={onServicesEnter}
+            onMouseEnter={onServicesEnter}
+            onMouseLeave={onServicesLeave}
+          />
 
           {isServicesOpen && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 20px)',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '600px',
-              background: '#ffffff',
-              borderRadius: '12px',
-              boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
-              padding: '24px',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '0 24px',
-              zIndex: 99,
-            }}>
+            <div
+              id="nav-services-dropdown"
+              role="navigation"
+              aria-label="Services menu"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 20px)',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '600px',
+                background: '#ffffff',
+                borderRadius: '12px',
+                boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
+                padding: '24px',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0 24px',
+                zIndex: 99,
+              }}
+            >
               {/* Foundation column */}
               <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
                   Foundation Blueprint
                 </p>
                 {FOUNDATION_SERVICES.map(({ label, icon: Icon, href }) => (
                   <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
-                    <Icon size={16} color="#1E3A5F" style={{ flexShrink: 0 }} />
+                    <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
                     {label}
                   </Link>
                 ))}
@@ -330,12 +368,12 @@ export default function Navbar() {
 
               {/* Elevation column */}
               <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
                   Elevation Blueprint
                 </p>
                 {ELEVATION_SERVICES.map(({ label, icon: Icon, href }) => (
                   <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
-                    <Icon size={16} color="#1E3A5F" style={{ flexShrink: 0 }} />
+                    <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
                     {label}
                   </Link>
                 ))}
@@ -365,24 +403,57 @@ export default function Navbar() {
 
         {/* Join the Team dropdown */}
         <div
+          ref={joinRef}
           style={{ position: 'relative' }}
           onMouseEnter={onJoinEnter}
           onMouseLeave={onJoinLeave}
+          onBlur={(e) => {
+            if (!joinRef.current?.contains(e.relatedTarget)) setIsJoinOpen(false)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsJoinOpen(false)
+              document.getElementById('nav-join-trigger')?.focus()
+              return
+            }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault()
+              const links = Array.from(joinRef.current?.querySelectorAll('a.dropdown-link') || [])
+              if (!links.length) return
+              const idx = links.indexOf(document.activeElement)
+              if (e.key === 'ArrowDown') links[idx < 0 ? 0 : (idx + 1) % links.length]?.focus()
+              else links[idx < 0 ? links.length - 1 : (idx - 1 + links.length) % links.length]?.focus()
+            }
+          }}
         >
-          <DropdownTrigger label="Join the Team" isOpen={isJoinOpen} />
+          <DropdownTrigger
+            id="nav-join-trigger"
+            controls="nav-join-dropdown"
+            label="Join the Team"
+            isOpen={isJoinOpen}
+            onClick={() => setIsJoinOpen(v => !v)}
+            onFocus={onJoinEnter}
+            onMouseEnter={onJoinEnter}
+            onMouseLeave={onJoinLeave}
+          />
 
           {isJoinOpen && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 20px)',
-              right: 0,
-              background: '#ffffff',
-              borderRadius: '10px',
-              boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
-              padding: '8px',
-              minWidth: '180px',
-              zIndex: 99,
-            }}>
+            <div
+              id="nav-join-dropdown"
+              role="navigation"
+              aria-label="Join the Team menu"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 20px)',
+                right: 0,
+                background: '#ffffff',
+                borderRadius: '10px',
+                boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
+                padding: '8px',
+                minWidth: '180px',
+                zIndex: 99,
+              }}
+            >
               {JOIN_LINKS.map(({ label, href }) => (
                 <Link key={label} to={href} className="dropdown-link" onClick={() => setIsJoinOpen(false)}>
                   {label}
@@ -413,7 +484,7 @@ export default function Navbar() {
       }}
     >
       <Link to="/" aria-label="Uniblueprint home">
-        <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ height: '32px', width: 'auto', display: 'block' }} />
+        <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ height: '32px', width: 'auto', display: 'block' }} />
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -447,9 +518,10 @@ export default function Navbar() {
           onClick={() => setIsMenuOpen(true)}
           aria-label="Open navigation menu"
           aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
           style={{ width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#1E3A5F' }}
         >
-          <Menu size={24} />
+          <Menu size={24} aria-hidden="true" />
         </button>
       </div>
     </header>
@@ -501,6 +573,7 @@ export default function Navbar() {
 
       {/* Menu panel */}
       <div
+        id="mobile-menu"
         ref={menuRef}
         role="dialog"
         aria-modal="true"
@@ -519,7 +592,7 @@ export default function Navbar() {
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '16px 16px 0' }}>
           <Link to="/" onClick={closeMenu} aria-label="Uniblueprint home">
-            <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto' }} />
+            <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto' }} />
           </Link>
           <button
             onClick={closeMenu}
@@ -545,18 +618,19 @@ export default function Navbar() {
             <button
               onClick={() => setMobileServicesOpen(v => !v)}
               aria-expanded={mobileServicesOpen}
+              aria-controls="mobile-services-panel"
               style={{ ...mobilePrimaryLinkStyle, borderBottom: mobileServicesOpen ? 'none' : '1px solid rgba(30,58,95,0.08)' }}
             >
               Services
-              <ChevronDown size={20} style={{ transition: 'transform 200ms', transform: mobileServicesOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
+              <ChevronDown size={20} aria-hidden="true" style={{ transition: 'transform 200ms', transform: mobileServicesOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
             </button>
-            {mobileServicesOpen && (
+            <div id="mobile-services-panel" hidden={!mobileServicesOpen}>
               <div style={{ borderBottom: '1px solid rgba(30,58,95,0.08)', paddingBottom: '8px' }}>
                 {MOBILE_SERVICE_LINKS.map(({ label, href }) => (
                   <Link key={label} to={href} onClick={closeMenu} style={mobileSubLinkStyle}>{label}</Link>
                 ))}
               </div>
-            )}
+            </div>
           </div>
 
           <Link to="/pricing" onClick={closeMenu} style={{ ...mobilePrimaryLinkStyle, borderBottom: '1px solid rgba(30,58,95,0.08)' }}>Pricing</Link>
@@ -568,18 +642,19 @@ export default function Navbar() {
             <button
               onClick={() => setMobileJoinOpen(v => !v)}
               aria-expanded={mobileJoinOpen}
+              aria-controls="mobile-join-panel"
               style={{ ...mobilePrimaryLinkStyle, borderBottom: mobileJoinOpen ? 'none' : '1px solid rgba(30,58,95,0.08)' }}
             >
               Join the Team
-              <ChevronDown size={20} style={{ transition: 'transform 200ms', transform: mobileJoinOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
+              <ChevronDown size={20} aria-hidden="true" style={{ transition: 'transform 200ms', transform: mobileJoinOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
             </button>
-            {mobileJoinOpen && (
+            <div id="mobile-join-panel" hidden={!mobileJoinOpen}>
               <div style={{ borderBottom: '1px solid rgba(30,58,95,0.08)', paddingBottom: '8px' }}>
                 {JOIN_LINKS.map(({ label, href }) => (
                   <Link key={label} to={href} onClick={closeMenu} style={mobileSubLinkStyle}>{label}</Link>
                 ))}
               </div>
-            )}
+            </div>
           </div>
         </nav>
 

@@ -66,7 +66,7 @@ export default function DownloadPage() {
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
         <img
           src={logo}
-          alt="Uniblueprint"
+          alt="Uniblueprint logo"
           width="80"
           height="80"
           loading="lazy"

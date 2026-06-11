@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
@@ -344,6 +344,8 @@ function CellValue({ value }) {
 
 function AccordionItem({ question, answer }) {
   const [open, setOpen] = useState(false)
+  const panelId = useId()
+  const triggerId = useId()
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
@@ -351,8 +353,11 @@ function AccordionItem({ question, answer }) {
       overflow: 'hidden',
     }}>
       <button
+        id={triggerId}
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
+        aria-controls={panelId}
+        data-accordion-trigger
         style={{
           width: '100%', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', gap: '16px',
@@ -367,11 +372,11 @@ function AccordionItem({ question, answer }) {
           {question}
         </span>
         <ChevronDown
-          size={18} color="#6B7280"
+          size={18} color="#6B7280" aria-hidden="true"
           style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
         />
       </button>
-      {open && (
+      <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!open}>
         <div style={{ padding: '0 24px 20px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
@@ -381,9 +386,23 @@ function AccordionItem({ question, answer }) {
             {answer}
           </p>
         </div>
-      )}
+      </div>
     </div>
   )
+}
+
+function AccordionGroup({ children }) {
+  const groupRef = useRef(null)
+  function handleKeyDown(e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+    const triggers = Array.from(groupRef.current?.querySelectorAll('[data-accordion-trigger]') || [])
+    const idx = triggers.indexOf(document.activeElement)
+    if (idx === -1) return
+    e.preventDefault()
+    if (e.key === 'ArrowDown') triggers[(idx + 1) % triggers.length]?.focus()
+    else triggers[(idx - 1 + triggers.length) % triggers.length]?.focus()
+  }
+  return <div ref={groupRef} onKeyDown={handleKeyDown}>{children}</div>
 }
 
 // ─── PricingPage ───────────────────────────────────────────────────────────────
@@ -706,14 +725,16 @@ export default function PricingPage() {
           Pricing questions
         </h2>
 
-        <div style={{
-          maxWidth: '700px', margin: '40px auto 0',
-          display: 'flex', flexDirection: 'column', gap: '12px',
-        }}>
-          {FAQS.map(({ q, a }) => (
-            <AccordionItem key={q} question={q} answer={a} />
-          ))}
-        </div>
+        <AccordionGroup>
+          <div style={{
+            maxWidth: '700px', margin: '40px auto 0',
+            display: 'flex', flexDirection: 'column', gap: '12px',
+          }}>
+            {FAQS.map(({ q, a }) => (
+              <AccordionItem key={q} question={q} answer={a} />
+            ))}
+          </div>
+        </AccordionGroup>
 
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <Link

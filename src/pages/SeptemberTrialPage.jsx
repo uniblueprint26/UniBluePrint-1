@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect, useId, useRef, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ChevronDown } from 'lucide-react'
@@ -37,22 +37,30 @@ function CountdownTimer() {
   ]
 
   return (
-    <div style={{
-      display: 'flex', gap: '8px', justifyContent: 'center',
-      flexWrap: 'wrap', marginTop: '32px',
-    }}>
+    <div
+      aria-label="Countdown to end of September trial"
+      aria-live="off"
+      role="timer"
+      style={{
+        display: 'flex', gap: '8px', justifyContent: 'center',
+        flexWrap: 'wrap', marginTop: '32px',
+      }}
+    >
       {units.map(({ value, label }) => (
         <div key={label} style={{
           background: '#FFFFFF', borderRadius: '8px',
           width: '72px', padding: '12px 8px', textAlign: 'center', flexShrink: 0,
         }}>
-          <p style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F', lineHeight: 1,
-          }}>
-            {String(value).padStart(2, '0')}
+          <p
+            aria-label={`${value} ${label}`}
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '36px', color: '#1E3A5F', lineHeight: 1,
+            }}
+          >
+            <span aria-hidden="true">{String(value).padStart(2, '0')}</span>
           </p>
-          <p style={{
+          <p aria-hidden="true" style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '11px', color: '#6B7280', marginTop: '4px',
           }}>
@@ -178,6 +186,8 @@ function ServiceRow({ name, orig, trial }) {
 
 function AccordionItem({ question, answer }) {
   const [open, setOpen] = useState(false)
+  const panelId = useId()
+  const triggerId = useId()
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
@@ -185,8 +195,11 @@ function AccordionItem({ question, answer }) {
       overflow: 'hidden',
     }}>
       <button
+        id={triggerId}
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
+        aria-controls={panelId}
+        data-accordion-trigger
         style={{
           width: '100%', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', gap: '16px',
@@ -201,11 +214,11 @@ function AccordionItem({ question, answer }) {
           {question}
         </span>
         <ChevronDown
-          size={18} color="#6B7280"
+          size={18} color="#6B7280" aria-hidden="true"
           style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }}
         />
       </button>
-      {open && (
+      <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!open}>
         <div style={{ padding: '0 24px 20px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
@@ -215,9 +228,23 @@ function AccordionItem({ question, answer }) {
             {answer}
           </p>
         </div>
-      )}
+      </div>
     </div>
   )
+}
+
+function AccordionGroup({ children }) {
+  const groupRef = useRef(null)
+  function handleKeyDown(e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+    const triggers = Array.from(groupRef.current?.querySelectorAll('[data-accordion-trigger]') || [])
+    const idx = triggers.indexOf(document.activeElement)
+    if (idx === -1) return
+    e.preventDefault()
+    if (e.key === 'ArrowDown') triggers[(idx + 1) % triggers.length]?.focus()
+    else triggers[(idx - 1 + triggers.length) % triggers.length]?.focus()
+  }
+  return <div ref={groupRef} onKeyDown={handleKeyDown}>{children}</div>
 }
 
 // ─── SeptemberTrialPage ────────────────────────────────────────────────────────
@@ -435,14 +462,16 @@ export default function SeptemberTrialPage() {
           September trial questions
         </h2>
 
-        <div style={{
-          maxWidth: '700px', margin: '40px auto 0',
-          display: 'flex', flexDirection: 'column', gap: '12px',
-        }}>
-          {FAQS.map(({ q, a }) => (
-            <AccordionItem key={q} question={q} answer={a} />
-          ))}
-        </div>
+        <AccordionGroup>
+          <div style={{
+            maxWidth: '700px', margin: '40px auto 0',
+            display: 'flex', flexDirection: 'column', gap: '12px',
+          }}>
+            {FAQS.map(({ q, a }) => (
+              <AccordionItem key={q} question={q} answer={a} />
+            ))}
+          </div>
+        </AccordionGroup>
       </section>
 
       {/* ── SECTION 6 — FINAL CTA ─────────────────────────────────────────── */}

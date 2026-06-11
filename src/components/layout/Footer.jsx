@@ -152,7 +152,7 @@ export default function Footer() {
           <Link to="/" aria-label="Uniblueprint home">
             <img
               src={logo}
-              alt="Uniblueprint"
+              alt="Uniblueprint logo"
               width="80"
               height="80"
               loading="lazy"

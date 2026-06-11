@@ -76,11 +76,11 @@ function PostCard({ slug, title, excerpt, category, date, sections }) {
             display: 'flex', alignItems: 'center', gap: '6px',
             marginTop: '16px',
           }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF' }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
               {formatDate(date)}
             </span>
-            <span style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF' }}>
+            <span aria-hidden="true" style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
               {readTime}
             </span>
           </div>

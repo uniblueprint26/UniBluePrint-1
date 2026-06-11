@@ -63,6 +63,24 @@ input, textarea, select {
   font-size: 16px;
 }
 
+/* Global focus ring — replaces browser default only with custom style */
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 2px solid #1E3A5F;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .skip-link {
   position: absolute;
   top: -100%;
@@ -75,7 +93,8 @@ input, textarea, select {
   transition: top 0.1s;
 }
 
-.skip-link:focus {
+.skip-link:focus,
+.skip-link:focus-visible {
   top: 0;
 }
 

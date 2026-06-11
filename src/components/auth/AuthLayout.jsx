@@ -13,7 +13,7 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center' }}>
           <Link to="/">
-            <img src={logo} alt="Uniblueprint" width="80" height="80" loading="lazy" style={{ width: '80px', height: '80px' }} />
+            <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ width: '80px', height: '80px' }} />
           </Link>
         </div>
 

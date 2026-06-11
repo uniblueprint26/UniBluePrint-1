@@ -5,6 +5,7 @@ export function SubmitButton({ loading, label = 'Submit', loadingLabel = 'Submit
     <button
       type="submit"
       disabled={loading}
+      aria-disabled={loading}
       style={{
         width: '100%', height: '52px',
         background: loading ? 'rgba(30,58,95,0.7)' : '#1E3A5F',
@@ -17,7 +18,7 @@ export function SubmitButton({ loading, label = 'Submit', loadingLabel = 'Submit
         transition: 'background 150ms',
       }}
     >
-      {loading && <Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} />}
+      {loading && <Loader2 size={18} aria-hidden="true" style={{ animation: 'spin 0.8s linear infinite' }} />}
       {loading ? loadingLabel : label}
     </button>
   )
@@ -25,8 +26,8 @@ export function SubmitButton({ loading, label = 'Submit', loadingLabel = 'Submit
 
 export function SuccessCard({ title = 'Submitted successfully', subtitle = 'We will be in touch within 2 business days.' }) {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-      <CheckCircle size={48} color="#16A34A" style={{ margin: '0 auto 16px', display: 'block' }} />
+    <div role="status" aria-live="polite" style={{ textAlign: 'center', padding: '48px 24px' }}>
+      <CheckCircle size={48} color="#16A34A" aria-hidden="true" style={{ margin: '0 auto 16px', display: 'block' }} />
       <p style={{
         fontFamily: "'DM Serif Display', serif",
         fontSize: '24px', color: '#1E3A5F',
@@ -46,12 +47,16 @@ export function SuccessCard({ title = 'Submitted successfully', subtitle = 'We w
 
 export function ErrorBanner({ message, onRetry }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-      gap: '12px',
-      background: '#FEF2F2', border: '1px solid #FCA5A5',
-      borderRadius: '8px', padding: '12px 16px', marginBottom: '16px',
-    }}>
+    <div
+      role="alert"
+      aria-live="assertive"
+      style={{
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        gap: '12px',
+        background: '#FEF2F2', border: '1px solid #FCA5A5',
+        borderRadius: '8px', padding: '12px 16px', marginBottom: '16px',
+      }}
+    >
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '14px', color: '#DC2626', lineHeight: 1.5,
@@ -75,23 +80,32 @@ export function ErrorBanner({ message, onRetry }) {
   )
 }
 
-export function FormField({ label, hint, error, children }) {
+export function FormField({ id, label, hint, error, required, children }) {
+  const errorId = id ? `${id}-error` : undefined
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '14px', fontWeight: '500', color: '#1E3A5F',
-      }}>
+      <label
+        htmlFor={id}
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '14px', fontWeight: '500', color: '#1E3A5F',
+        }}
+      >
         {label}
+        {required && <span aria-hidden="true" style={{ color: '#DC2626', marginLeft: '2px' }}>*</span>}
       </label>
       {hint && (
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '-2px' }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', marginTop: '-2px' }}>
           {hint}
         </p>
       )}
       {children}
       {error && (
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#DC2626', marginTop: '2px' }}>
+        <p
+          id={errorId}
+          role="alert"
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#DC2626', marginTop: '2px' }}
+        >
           {error}
         </p>
       )}
@@ -110,14 +124,17 @@ const inputBase = {
   boxSizing: 'border-box',
 }
 
-export function TextInput({ value, onChange, placeholder, type = 'text', required }) {
+export function TextInput({ id, value, onChange, placeholder, type = 'text', required, 'aria-describedby': describedBy }) {
   return (
     <input
+      id={id}
       type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
       required={required}
+      aria-required={required || undefined}
+      aria-describedby={describedBy}
       style={inputBase}
       onFocus={e => { e.target.style.borderColor = '#1E3A5F'; e.target.style.boxShadow = '0 0 0 3px rgba(30,58,95,0.1)' }}
       onBlur={e => { e.target.style.borderColor = 'rgba(30,58,95,0.2)'; e.target.style.boxShadow = 'none' }}
@@ -125,12 +142,15 @@ export function TextInput({ value, onChange, placeholder, type = 'text', require
   )
 }
 
-export function SelectInput({ value, onChange, children, required }) {
+export function SelectInput({ id, value, onChange, children, required, 'aria-describedby': describedBy }) {
   return (
     <select
+      id={id}
       value={value}
       onChange={onChange}
       required={required}
+      aria-required={required || undefined}
+      aria-describedby={describedBy}
       style={{ ...inputBase, cursor: 'pointer', appearance: 'auto' }}
       onFocus={e => { e.target.style.borderColor = '#1E3A5F'; e.target.style.boxShadow = '0 0 0 3px rgba(30,58,95,0.1)' }}
       onBlur={e => { e.target.style.borderColor = 'rgba(30,58,95,0.2)'; e.target.style.boxShadow = 'none' }}
@@ -140,14 +160,17 @@ export function SelectInput({ value, onChange, children, required }) {
   )
 }
 
-export function TextArea({ value, onChange, placeholder, rows = 4, required }) {
+export function TextArea({ id, value, onChange, placeholder, rows = 4, required, 'aria-describedby': describedBy }) {
   return (
     <textarea
+      id={id}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
       rows={rows}
       required={required}
+      aria-required={required || undefined}
+      aria-describedby={describedBy}
       style={{
         ...inputBase,
         height: 'auto', padding: '12px 14px',

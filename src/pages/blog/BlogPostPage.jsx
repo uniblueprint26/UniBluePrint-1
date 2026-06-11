@@ -213,11 +213,11 @@ export default function BlogPostPage() {
             to="/blog"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '4px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280',
               marginBottom: '24px',
             }}
             onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
           >
             <ChevronLeft size={14} /> Blog
           </Link>
@@ -242,15 +242,15 @@ export default function BlogPostPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: '8px', marginTop: '16px',
           }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF' }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
               {formatDate(post.date)}
             </span>
-            <span style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF' }}>
+            <span aria-hidden="true" style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
               {readTime}
             </span>
-            <span style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF' }}>
+            <span aria-hidden="true" style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
               Uniblueprint Team
             </span>
           </div>
