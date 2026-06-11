@@ -322,3 +322,26 @@ input, textarea, select {
 @media (max-width: 768px) {
   .pricing-plans-grid { flex-direction: column; }
 }
+
+/* ─── September Trial page ───────────────────────────────────────────── */
+
+.sept-hero-heading { font-size: 96px; }
+.sept-hero-sub     { font-size: 40px; }
+.sept-cta-heading  { font-size: 48px; }
+
+@media (max-width: 640px) {
+  .sept-hero-heading { font-size: 64px; }
+  .sept-hero-sub     { font-size: 28px; }
+  .sept-cta-heading  { font-size: 36px; }
+}
+
+/* Two-column services grid (Foundation / Elevation side by side) */
+.sept-services-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  text-align: left;
+}
+@media (max-width: 640px) {
+  .sept-services-grid { grid-template-columns: 1fr; gap: 32px; }
+}
