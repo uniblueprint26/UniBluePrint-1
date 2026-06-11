@@ -312,3 +312,13 @@ input, textarea, select {
 @media (max-width: 480px) {
   .services-grid { grid-template-columns: 1fr; }
 }
+
+/* ─── Pricing page ───────────────────────────────────────────────────── */
+.pricing-plans-grid {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+@media (max-width: 768px) {
+  .pricing-plans-grid { flex-direction: column; }
+}
