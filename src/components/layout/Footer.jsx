@@ -230,9 +230,17 @@ export default function Footer() {
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
               &copy; 2026 Uniblueprint Ltd. All rights reserved.
             </span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
-              Registered in Ireland — [TODO: Company Number]
-            </span>
+            <div className="footer-legal">
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
+                Registered in Ireland — [TODO: Company Number]
+              </span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
+                VAT: [TODO: VAT Number]
+              </span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
+                [TODO: Registered Address]
+              </span>
+            </div>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
               Made in Ireland 🇮🇪
             </span>

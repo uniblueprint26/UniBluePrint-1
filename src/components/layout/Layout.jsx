@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import TrialBanner from './TrialBanner'
 import Navbar from './Navbar'
 import Footer from './Footer'
+import CookieBanner from './CookieBanner'
 
 export default function Layout() {
   const location = useLocation()
@@ -16,6 +17,7 @@ export default function Layout() {
         </div>
       </main>
       <Footer />
+      <CookieBanner />
     </>
   )
 }

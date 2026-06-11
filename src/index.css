@@ -146,6 +146,20 @@ input, textarea, select {
   }
 }
 
+.footer-legal {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+@media (max-width: 640px) {
+  .footer-legal {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
 /* ─── Home page responsive ──────────────────────────────────────── */
 
 .hero-headline    { font-size: 56px; line-height: 1.1; }
