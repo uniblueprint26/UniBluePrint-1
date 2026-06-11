@@ -28,6 +28,8 @@ import NotFoundPage from './pages/NotFoundPage'
 import JoinHandlerPage from './pages/join/JoinHandlerPage'
 import JoinCoachPage from './pages/join/JoinCoachPage'
 
+import ServerErrorPage from './pages/ServerErrorPage'
+
 import TermsPage from './pages/legal/TermsPage'
 import PrivacyPage from './pages/legal/PrivacyPage'
 import CookiesPage from './pages/legal/CookiesPage'
@@ -97,6 +99,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/500" element={<ServerErrorPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

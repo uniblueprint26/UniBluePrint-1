@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 
-export default function NotFoundPage() {
+export default function ServerErrorPage() {
   return (
     <>
       <Helmet>
-        <title>Page Not Found | Uniblueprint</title>
+        <title>Something Went Wrong | Uniblueprint</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 
@@ -21,16 +21,16 @@ export default function NotFoundPage() {
             lineHeight: 1, marginBottom: '16px',
             opacity: 0.15,
           }}>
-            404
+            500
           </p>
           <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '40px', color: '#1E3A5F' }}>
-            Page not found
+            Something went wrong
           </h1>
           <p style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
             marginTop: '12px', lineHeight: 1.6,
           }}>
-            The page you are looking for does not exist or has been moved.
+            An unexpected error occurred. Please try again — if the problem persists, contact us.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
             <Link
@@ -47,7 +47,7 @@ export default function NotFoundPage() {
               Back to home
             </Link>
             <Link
-              to="/help"
+              to="/contact"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '48px', padding: '0 28px',
@@ -58,7 +58,7 @@ export default function NotFoundPage() {
                 textDecoration: 'none',
               }}
             >
-              Help Centre
+              Contact us
             </Link>
           </div>
         </div>
