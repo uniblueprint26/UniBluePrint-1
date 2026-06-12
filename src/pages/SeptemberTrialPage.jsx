@@ -364,6 +364,8 @@ export default function SeptemberTrialPage() {
           name="description"
           content="Every Uniblueprint service at 50% off. The whole of September. Your Blueprint. Half the price."
         />
+        <meta property="og:title" content="50% Off — September Trial | Uniblueprint" />
+        <meta property="og:description" content="Every Uniblueprint service at 50% off. The whole of September. Your Blueprint. Half the price." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

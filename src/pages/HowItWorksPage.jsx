@@ -375,6 +375,40 @@ export default function HowItWorksPage() {
           name="description"
           content="From download to delivered — your Blueprint in four simple steps. Foundation Blueprint and Elevation Blueprint explained."
         />
+        <meta property="og:title" content="How It Works | Uniblueprint" />
+        <meta property="og:description" content="From download to delivered — your Blueprint in four simple steps. Foundation Blueprint and Elevation Blueprint explained." />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: 'How to use Uniblueprint',
+          description: 'From download to delivered — your Blueprint in four simple steps.',
+          step: [
+            {
+              '@type': 'HowToStep',
+              position: 1,
+              name: 'Download and sign up',
+              text: 'Create your free account in under two minutes — no payment required, no credit card, no commitment.',
+            },
+            {
+              '@type': 'HowToStep',
+              position: 2,
+              name: 'Choose your service',
+              text: 'Browse the Foundation Blueprint or Elevation Blueprint. Select the specific service you need, choose Standard or Premium tier, and submit your materials.',
+            },
+            {
+              '@type': 'HowToStep',
+              position: 3,
+              name: 'Reviewed and refined',
+              text: 'Your submission goes to a real person — a trained Campus Handler or specialist Uni Coach — who reviews and quality-checks every output.',
+            },
+            {
+              '@type': 'HowToStep',
+              position: 4,
+              name: 'Delivered to you',
+              text: 'Your finished output arrives by email and in-app notification. Standard: within 48 hours. Premium: same day.',
+            },
+          ],
+        })}</script>
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

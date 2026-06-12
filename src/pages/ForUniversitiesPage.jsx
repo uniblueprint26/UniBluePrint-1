@@ -93,6 +93,8 @@ export default function ForUniversitiesPage() {
           name="description"
           content="Partner with Uniblueprint to give your students access to career support, campus community, and academic tools — launching September 2026."
         />
+        <meta property="og:title" content="For Universities | Uniblueprint" />
+        <meta property="og:description" content="Partner with Uniblueprint to give your students access to career support, campus community, and academic tools — launching September 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

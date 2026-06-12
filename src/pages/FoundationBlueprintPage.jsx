@@ -300,6 +300,8 @@ export default function FoundationBlueprintPage() {
           name="description"
           content="Professional CV, LinkedIn, cover letter, interview prep, and CAO support — reviewed by trained Campus Handlers before delivery."
         />
+        <meta property="og:title" content="Foundation Blueprint | Uniblueprint" />
+        <meta property="og:description" content="Professional CV, LinkedIn, cover letter, interview prep, and CAO support — reviewed by trained Campus Handlers before delivery." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

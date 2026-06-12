@@ -100,6 +100,8 @@ export default function PrivacyPage() {
       <Helmet>
         <title>Privacy Policy | Uniblueprint</title>
         <meta name="description" content="Uniblueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR." />
+        <meta property="og:title" content="Privacy Policy | Uniblueprint" />
+        <meta property="og:description" content="Uniblueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>

@@ -419,6 +419,8 @@ export default function PricingPage() {
           name="description"
           content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial."
         />
+        <meta property="og:title" content="Pricing | Uniblueprint" />
+        <meta property="og:description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial." />
       </Helmet>
 
       {showModal && <ComingSoonModal onClose={() => setShowModal(false)} />}

@@ -210,6 +210,8 @@ export default function AboutPage() {
           name="description"
           content="Uniblueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint."
         />
+        <meta property="og:title" content="About | Uniblueprint" />
+        <meta property="og:description" content="Uniblueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

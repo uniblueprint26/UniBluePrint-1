@@ -115,6 +115,8 @@ export default function AmbassadorsPage() {
           name="description"
           content="Become a Uniblueprint campus ambassador — represent us at your university, earn rewards, and help launch the platform in September 2026."
         />
+        <meta property="og:title" content="Ambassadors | Uniblueprint" />
+        <meta property="og:description" content="Become a Uniblueprint campus ambassador — represent us at your university, earn rewards, and help launch the platform in September 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

@@ -72,6 +72,8 @@ export default function CampusConnectPage() {
           name="description"
           content="Your campus community on Uniblueprint — groups, problems & solutions, deals, carpool, lost & found, and suggestions. Free for all users."
         />
+        <meta property="og:title" content="Campus Connect | Uniblueprint" />
+        <meta property="og:description" content="Your campus community on Uniblueprint — groups, problems & solutions, deals, carpool, lost & found, and suggestions. Free for all users." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

@@ -19,6 +19,8 @@ export default function AccessibilityPage() {
       <Helmet>
         <title>Accessibility | Uniblueprint</title>
         <meta name="description" content="Uniblueprint Accessibility Statement — our commitment to making the platform accessible to all users." />
+        <meta property="og:title" content="Accessibility | Uniblueprint" />
+        <meta property="og:description" content="Uniblueprint Accessibility Statement — our commitment to making the platform accessible to all users." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>

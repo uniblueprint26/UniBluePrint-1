@@ -282,6 +282,8 @@ export default function ContactPage() {
           name="description"
           content="Get in touch with the Uniblueprint team — general enquiries, partnership opportunities, or joining the team."
         />
+        <meta property="og:title" content="Contact | Uniblueprint" />
+        <meta property="og:description" content="Get in touch with the Uniblueprint team — general enquiries, partnership opportunities, or joining the team." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

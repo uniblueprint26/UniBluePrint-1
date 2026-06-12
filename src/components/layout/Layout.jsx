@@ -32,6 +32,7 @@ export default function Layout() {
         <meta name="twitter:title" content="Uniblueprint — Ireland's Student Platform" />
         <meta name="twitter:description" content="The structure behind your success — Foundation Blueprint, Elevation Blueprint, Campus Connect, and more." />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
+        <link rel="canonical" href={canonical} />
       </Helmet>
       <div className="no-print"><TrialBanner /></div>
       <Navbar onSearchOpen={() => setSearchOpen(true)} />

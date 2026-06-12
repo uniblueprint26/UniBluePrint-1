@@ -165,6 +165,8 @@ export default function CourseConnectPage() {
           name="description"
           content="Connect with students studying the same course across Irish universities. Course boards, study groups, resource sharing, and Q&A — free for all users."
         />
+        <meta property="og:title" content="Course Connect | Uniblueprint" />
+        <meta property="og:description" content="Connect with students studying the same course across Irish universities. Course boards, study groups, resource sharing, and Q&A — free for all users." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

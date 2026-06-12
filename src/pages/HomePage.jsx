@@ -232,10 +232,36 @@ export default function HomePage() {
         <title>Uniblueprint — The Structure Behind Your Success</title>
         <meta name="description" content="The all-in-one platform for Irish students and young people. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta property="og:title" content="Uniblueprint — The Structure Behind Your Success" />
-        <meta property="og:description" content="The all-in-one platform for Irish students and young people. Launching September 2026." />
-        <meta property="og:image" content="/og-image.png" />
-        <meta property="og:url" content="https://uniblueprint.com" />
+        <meta property="og:description" content="The all-in-one platform for Irish students and young people. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'Uniblueprint',
+          url: 'https://uniblueprint.com',
+          logo: 'https://uniblueprint.com/og-image.png',
+          description: 'The all-in-one platform for Irish students and young people.',
+          sameAs: [
+            'https://www.instagram.com/uniblueprint26',
+            'https://www.tiktok.com/@uniblueprint26',
+          ],
+          address: {
+            '@type': 'PostalAddress',
+            addressCountry: 'IE',
+          },
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Uniblueprint',
+          url: 'https://uniblueprint.com',
+          description: 'The Structure Behind Your Success',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: 'https://uniblueprint.com/?q={search_term_string}',
+            'query-input': 'required name=search_term_string',
+          },
+        })}</script>
       </Helmet>
 
       {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}

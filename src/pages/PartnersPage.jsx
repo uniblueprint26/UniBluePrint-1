@@ -103,6 +103,8 @@ export default function PartnersPage() {
           name="description"
           content="Uniblueprint partners with best-in-class platforms to give Irish students the tools they need. Meet CourseCompass — Ireland's AI-powered CAO course matching platform."
         />
+        <meta property="og:title" content="Partners | Uniblueprint" />
+        <meta property="og:description" content="Uniblueprint partners with best-in-class platforms to give Irish students the tools they need. Meet CourseCompass — Ireland's AI-powered CAO course matching platform." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

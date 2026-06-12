@@ -19,6 +19,8 @@ export default function TermsPage() {
       <Helmet>
         <title>Terms of Service | Uniblueprint</title>
         <meta name="description" content="Uniblueprint Terms of Service — the rules and conditions governing your use of the Uniblueprint platform." />
+        <meta property="og:title" content="Terms of Service | Uniblueprint" />
+        <meta property="og:description" content="Uniblueprint Terms of Service — the rules and conditions governing your use of the Uniblueprint platform." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>

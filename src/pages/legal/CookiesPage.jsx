@@ -46,6 +46,8 @@ export default function CookiesPage() {
       <Helmet>
         <title>Cookie Policy | Uniblueprint</title>
         <meta name="description" content="Uniblueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
+        <meta property="og:title" content="Cookie Policy | Uniblueprint" />
+        <meta property="og:description" content="Uniblueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>

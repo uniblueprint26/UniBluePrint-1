@@ -110,6 +110,8 @@ export default function JoinCoachPage() {
           name="description"
           content="Join Uniblueprint as a Uni Coach — deliver expert career coaching, personal branding, and mentorship to Irish students."
         />
+        <meta property="og:title" content="Become a Uni Coach | Uniblueprint" />
+        <meta property="og:description" content="Join Uniblueprint as a Uni Coach — deliver expert career coaching, personal branding, and mentorship to Irish students." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

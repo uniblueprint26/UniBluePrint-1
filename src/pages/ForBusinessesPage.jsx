@@ -106,6 +106,8 @@ export default function ForBusinessesPage() {
           name="description"
           content="Partner with Uniblueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026."
         />
+        <meta property="og:title" content="For Businesses | Uniblueprint" />
+        <meta property="og:description" content="Partner with Uniblueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

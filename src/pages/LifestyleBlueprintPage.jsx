@@ -247,6 +247,8 @@ export default function LifestyleBlueprintPage() {
           name="description"
           content="Exclusive deals and discounts for Irish students — Pro subscribers only. Mental health and wellbeing resources always free."
         />
+        <meta property="og:title" content="Lifestyle Blueprint | Uniblueprint" />
+        <meta property="og:description" content="Exclusive deals and discounts for Irish students — Pro subscribers only. Mental health and wellbeing resources always free." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

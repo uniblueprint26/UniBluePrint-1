@@ -230,6 +230,8 @@ export default function ElevationBlueprintPage() {
           name="description"
           content="Expert personal branding, mentorship, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches."
         />
+        <meta property="og:title" content="Elevation Blueprint | Uniblueprint" />
+        <meta property="og:description" content="Expert personal branding, mentorship, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

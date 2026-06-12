@@ -114,6 +114,8 @@ export default function JoinHandlerPage() {
           name="description"
           content="Join Uniblueprint as a Campus Handler — review student submissions, build your CV, and earn while you study."
         />
+        <meta property="og:title" content="Become a Campus Handler | Uniblueprint" />
+        <meta property="og:description" content="Join Uniblueprint as a Campus Handler — review student submissions, build your CV, and earn while you study." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
