@@ -71,14 +71,6 @@ function CountdownTimer() {
 
 // ─── Page data ─────────────────────────────────────────────────────────────────
 
-const UNIS = [
-  'University College Dublin',
-  'Trinity College Dublin',
-  'University College Cork',
-  'Dublin City University',
-  'University of Galway',
-]
-
 const STEPS = [
   {
     n: 1,
@@ -105,7 +97,7 @@ const STEPS = [
 const PILLARS = [
   {
     name: 'Foundation Blueprint',
-    description: 'Academic support from CV writing to college applications — reviewed by a real person.',
+    description: 'Academic support from CV writing to college applications — reviewed by a trained Campus Handler.',
     href: '/foundation-blueprint',
     icon: FileText,
     link: 'Learn more →',
@@ -350,23 +342,6 @@ export default function HomePage() {
           Launching September 2026 across Irish campuses
         </p>
 
-        {/* University name row */}
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: '24px',
-          justifyContent: 'center', marginTop: '16px',
-        }}>
-          {UNIS.map(uni => (
-            <span
-              key={uni}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px', color: '#9CA3AF', opacity: 0.6,
-              }}
-            >
-              {uni}
-            </span>
-          ))}
-        </div>
       </section>
 
       {/* ── SECTION 2 — SEPTEMBER TRIAL BANNER ────────────────────────────── */}
