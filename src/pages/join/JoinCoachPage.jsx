@@ -4,7 +4,7 @@ import { Award, Briefcase, Users, TrendingUp } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../../components/ui/Form'
 
 /*
@@ -228,6 +228,7 @@ export default function JoinCoachPage() {
                 </FormField>
               </div>
 
+              <FormConsent />
               <SubmitButton loading={loading} label="Submit application" />
             </form>
           )}

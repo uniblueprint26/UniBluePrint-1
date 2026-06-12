@@ -4,7 +4,7 @@ import { Tag, TrendingUp, Users, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../components/ui/Form'
 
 /*
@@ -222,6 +222,7 @@ export default function ForBusinessesPage() {
                 <FormTextarea value={form.message} onChange={set('message')} placeholder="We'd like to offer 10% off all orders for verified students..." rows={5} />
               </FormField>
 
+              <FormConsent />
               <SubmitButton loading={loading} label="Submit application" />
             </form>
           )}

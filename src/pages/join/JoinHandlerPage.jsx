@@ -4,7 +4,7 @@ import { UserCheck, Clock, Award, BookOpen } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../../components/ui/Form'
 
 /*
@@ -241,6 +241,7 @@ export default function JoinHandlerPage() {
                 <FormTextarea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to..." rows={5} required />
               </FormField>
 
+              <FormConsent />
               <SubmitButton loading={loading} label="Submit application" />
             </form>
           )}

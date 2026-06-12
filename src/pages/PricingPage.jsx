@@ -564,6 +564,14 @@ export default function PricingPage() {
             )
           }
         </div>
+        {/* TODO: Confirm VAT treatment with accountant before launch */}
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '11px', color: '#9CA3AF',
+          textAlign: 'center', marginTop: '16px',
+        }}>
+          *All prices include VAT where applicable.
+        </p>
       </section>
 
       {/* ── SECTION 3 — FEATURE COMPARISON TABLE ─────────────────────────── */}
@@ -640,6 +648,14 @@ export default function PricingPage() {
             </table>
           </div>
         </div>
+        {/* TODO: Confirm VAT treatment with accountant before launch */}
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '11px', color: '#9CA3AF',
+          textAlign: 'center', marginTop: '16px',
+        }}>
+          *All prices include VAT where applicable.
+        </p>
       </section>
 
       {/* ── SECTION 4 — FULL SERVICE PRICING TABLE ───────────────────────── */}
@@ -704,11 +720,19 @@ export default function PricingPage() {
               </tbody>
             </table>
           </div>
+          {/* TODO: Confirm VAT treatment with accountant before launch */}
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '11px', color: '#9CA3AF',
+            padding: '12px 24px 0',
+            borderTop: '1px solid rgba(30,58,95,0.06)',
+          }}>
+            *All prices include VAT where applicable.
+          </p>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '12px', color: '#9CA3AF',
-            padding: '14px 24px',
-            borderTop: '1px solid rgba(30,58,95,0.06)',
+            padding: '8px 24px 14px',
           }}>
             * September trial prices apply throughout September 2026 only. Standard prices resume from 1 October 2026. Pro subscription required to purchase services.
           </p>

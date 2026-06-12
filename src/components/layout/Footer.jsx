@@ -231,23 +231,28 @@ export default function Footer() {
           paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))',
         }}>
           <div className="footer-bottom">
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
+            {/* Left — copyright */}
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
               &copy; 2026 Uniblueprint Ltd. All rights reserved.
             </span>
-            <div className="footer-legal">
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
-                Registered in Ireland — [TODO: Company Number]
+
+            {/* Centre — registered territory only */}
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
+              {/* TODO: Insert company registration number when incorporated */}
+              Registered in Ireland — [TODO: Insert company registration number when incorporated]
+            </span>
+
+            {/* Right — VAT + address stacked */}
+            <div className="footer-legal-right">
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
+                {/* TODO: Insert VAT number when registered */}
+                VAT: [TODO: Insert VAT number when registered]
               </span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
-                VAT: [TODO: VAT Number]
-              </span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
-                [TODO: Registered Address]
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
+                {/* TODO: Insert registered address */}
+                [TODO: Insert registered address]
               </span>
             </div>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)' }}>
-              Made in Ireland 🇮🇪
-            </span>
           </div>
         </div>
 

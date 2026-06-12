@@ -114,6 +114,18 @@ export default function SignUpPage() {
           placeholder="••••••••"
         />
 
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', color: '#9CA3AF',
+          textAlign: 'center', marginTop: '8px', lineHeight: 1.6,
+        }}>
+          By creating an account you agree to our{' '}
+          <Link to="/terms" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Terms</Link>
+          {' '}and{' '}
+          <Link to="/privacy" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Privacy Policy</Link>
+          .
+        </p>
+
         <div style={{ marginTop: '8px' }}>
           <button
             type="submit"

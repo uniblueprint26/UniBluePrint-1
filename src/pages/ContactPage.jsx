@@ -5,7 +5,7 @@ import { MessageSquare, Handshake, Users } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../components/ui/Form'
 
 /*
@@ -147,6 +147,7 @@ function GeneralForm() {
       <FormField label="Message">
         <FormTextarea value={form.message} onChange={set('message')} placeholder="How can we help?" rows={5} required />
       </FormField>
+      <FormConsent />
       <SubmitButton loading={loading} label="Send message" />
     </form>
   )
@@ -203,6 +204,7 @@ function PartnershipForm() {
       <FormField label="Message">
         <FormTextarea value={form.message} onChange={set('message')} placeholder="Tell us about your partnership interest..." rows={5} required />
       </FormField>
+      <FormConsent />
       <SubmitButton loading={loading} label="Send enquiry" />
     </form>
   )
@@ -261,6 +263,7 @@ function TeamForm() {
       <FormField label="Tell us about yourself" hint="Why do you want to work with Uniblueprint?">
         <FormTextarea value={form.message} onChange={set('message')} placeholder="I would love to contribute to..." rows={5} required />
       </FormField>
+      <FormConsent />
       <SubmitButton loading={loading} label="Submit application" />
     </form>
   )

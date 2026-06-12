@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react'
 
 // ─── UTM helper ───────────────────────────────────────────────────────────────
@@ -284,6 +285,27 @@ export function FormCheckbox({ id, checked, onChange, label, required }) {
       />
       {label}
     </label>
+  )
+}
+
+// ─── FormConsent ──────────────────────────────────────────────────────────────
+
+export function FormConsent() {
+  return (
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: '12px',
+      color: '#9CA3AF',
+      textAlign: 'center',
+      margin: '0',
+      lineHeight: 1.6,
+    }}>
+      By submitting you agree to our{' '}
+      <Link to="/terms" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Terms</Link>
+      {' '}and{' '}
+      <Link to="/privacy" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Privacy Policy</Link>
+      .
+    </p>
   )
 }
 

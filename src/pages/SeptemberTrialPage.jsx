@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
-  FormField, FormInput, SubmitButton, SuccessCard, ErrorBanner,
+  FormField, FormInput, FormCheckbox, SubmitButton, SuccessCard, ErrorBanner,
   getUTM, parseDbError,
 } from '../components/ui/Form'
 
@@ -15,6 +15,7 @@ import {
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz default now(),
     email text unique not null,
+    age_confirmed boolean not null default false,
     source text,
     utm_source text,
     utm_medium text,
@@ -97,19 +98,23 @@ function CountdownTimer() {
 // ─── Early Access Signup ───────────────────────────────────────────────────────
 
 function EarlyAccessForm() {
-  const [email, setEmail]       = useState('')
-  const [honeypot, setHoneypot] = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [success, setSuccess]   = useState(false)
-  const [error, setError]       = useState(null)
+  const [email, setEmail]             = useState('')
+  const [honeypot, setHoneypot]       = useState('')
+  const [loading, setLoading]         = useState(false)
+  const [success, setSuccess]         = useState(false)
+  const [error, setError]             = useState(null)
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [ageError, setAgeError]       = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     if (honeypot) { setSuccess(true); return }
+    if (!ageConfirmed) { setAgeError(true); return }
     setLoading(true); setError(null)
     const { utm_source, utm_medium, utm_campaign } = getUTM()
     const { error: dbError } = await supabase.from('early_access_signups').insert([{
       email,
+      age_confirmed: ageConfirmed,
       source:       'september_trial',
       utm_source:   utm_source   || null,
       utm_medium:   utm_medium   || null,
@@ -136,6 +141,18 @@ function EarlyAccessForm() {
         style={{ display: 'none' }} tabIndex={-1} autoComplete="off"
       />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
+      <FormCheckbox
+        id="age-confirm-early"
+        checked={ageConfirmed}
+        onChange={e => { setAgeConfirmed(e.target.checked); setAgeError(false) }}
+        label="I confirm I am 16 or over, or have parental consent"
+        required
+      />
+      {ageError && (
+        <p role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#DC2626' }}>
+          Please confirm your age before submitting.
+        </p>
+      )}
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
         <FormField style={{ flex: 1, minWidth: '240px' }}>
           <FormInput

@@ -4,7 +4,7 @@ import { GraduationCap, Users, BarChart3, Shield } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea,
-  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../components/ui/Form'
 
 /*
@@ -201,6 +201,7 @@ export default function ForUniversitiesPage() {
                 <FormTextarea value={form.message} onChange={set('message')} placeholder="We would like to explore..." rows={5} />
               </FormField>
 
+              <FormConsent />
               <SubmitButton loading={loading} label="Send enquiry" />
             </form>
           )}

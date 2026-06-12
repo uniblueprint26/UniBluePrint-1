@@ -4,7 +4,7 @@ import { Megaphone, Star, Users, Gift } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../components/ui/Form'
 
 /*
@@ -242,6 +242,7 @@ export default function AmbassadorsPage() {
                 <FormTextarea value={form.how_promote} onChange={set('how_promote')} placeholder="I would promote Uniblueprint by..." rows={4} required />
               </FormField>
 
+              <FormConsent />
               <SubmitButton loading={loading} label="Submit application" />
             </form>
           )}

@@ -236,6 +236,16 @@ footer {
   }
 }
 
+.footer-legal-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+@media (max-width: 640px) {
+  .footer-legal-right { align-items: center; }
+}
+
 /* ─── Home page responsive ──────────────────────────────────────── */
 
 .hero-headline    { font-size: 56px; line-height: 1.1; }

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { supabase } from '../../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, parseDbError,
 } from '../../components/ui/Form'
 
 // TODO: Manual processing workflow for GDPR requests:
@@ -88,6 +88,7 @@ function GdprForm() {
       <FormField label="Message" hint="Tell us more about your request (optional).">
         <FormTextarea value={form.message} onChange={set('message')} placeholder="Additional details..." rows={4} />
       </FormField>
+      <FormConsent />
       <SubmitButton loading={loading} label="Submit request" />
     </form>
   )
