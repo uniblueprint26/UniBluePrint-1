@@ -6,7 +6,7 @@ import {
   BookOpen, GraduationCap, Award, Compass,
   UserCheck, Send, Bot,
   Check, X as XIcon,
-  Sparkles,
+  Sparkles, ExternalLink,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -84,7 +84,8 @@ const CAO_SERVICES = [
     icon: Compass,
     originalStandard: '€15', trialStandard: '€8',
     originalPremium: '€22', trialPremium: '€11',
-    badge: 'Powered by CourseCompass',
+    badge: 'CourseCompass',
+    courseCompass: true,
   },
 ]
 
@@ -149,7 +150,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, description, icon: Icon, originalStandard, trialStandard, badge }) {
+function ServiceCard({ name, description, icon: Icon, originalStandard, trialStandard, badge, courseCompass }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -195,12 +196,15 @@ function ServiceCard({ name, description, icon: Icon, originalStandard, trialSta
         {name}
       </p>
 
-      {/* CourseCompass badge */}
+      {/* CourseCompass small badge pill */}
       {badge && (
         <span style={{
-          display: 'inline-block', marginTop: '4px',
+          display: 'inline-block', marginTop: '6px',
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', color: '#6B7280',
+          fontSize: '10px', fontWeight: '600', color: '#1E3A5F',
+          background: 'rgba(30,58,95,0.07)',
+          borderRadius: '4px', padding: '2px 7px',
+          letterSpacing: '0.03em',
         }}>
           {badge}
         </span>
@@ -214,6 +218,28 @@ function ServiceCard({ name, description, icon: Icon, originalStandard, trialSta
       }}>
         {description}
       </p>
+
+      {/* CourseCompass partnership line */}
+      {courseCompass && (
+        // TODO: Replace with live CourseCompass URL when provided by Stephen McKeon
+        <a
+          href="TODO: Insert CourseCompass URL"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '4px',
+            marginTop: '8px',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', color: '#6B7280',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+        >
+          Powered in partnership with CourseCompass — Ireland's AI course matching platform
+          <ExternalLink size={12} aria-hidden="true" style={{ flexShrink: 0 }} />
+        </a>
+      )}
 
       {/* Prices */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '12px' }}>
@@ -323,6 +349,49 @@ export default function FoundationBlueprintPage() {
           <SubHeader>CAO &amp; College Applications</SubHeader>
           <div className="services-grid">
             {CAO_SERVICES.map(s => <ServiceCard key={s.name} {...s} />)}
+          </div>
+
+          {/* CourseCompass partnership callout */}
+          <div style={{
+            background: '#FFFFFF',
+            borderRadius: '12px',
+            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+            padding: '20px',
+            borderLeft: '3px solid #1E3A5F',
+            marginTop: '16px',
+          }}>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '12px', color: '#6B7280',
+              fontWeight: '600', textTransform: 'uppercase',
+              letterSpacing: '0.06em', marginBottom: '6px',
+            }}>
+              In partnership with CourseCompass
+            </p>
+            <p style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '16px', color: '#1E3A5F',
+              marginBottom: '12px',
+            }}>
+              AI-powered CAO course matching for Irish students
+            </p>
+            {/* TODO: Replace with live CourseCompass URL when provided by Stephen McKeon */}
+            <a
+              href="TODO: Insert CourseCompass URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px', color: '#1E3A5F',
+                textDecoration: 'none', fontWeight: '500',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              Find your perfect course →
+              <ExternalLink size={14} aria-hidden="true" />
+            </a>
           </div>
         </div>
       </section>

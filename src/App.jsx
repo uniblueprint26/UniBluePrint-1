@@ -18,6 +18,7 @@ const PricingPage = lazy(() => import('./pages/PricingPage'))
 const SeptemberTrialPage = lazy(() => import('./pages/SeptemberTrialPage'))
 const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
 const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
+const PartnersPage = lazy(() => import('./pages/PartnersPage'))
 const AmbassadorsPage = lazy(() => import('./pages/AmbassadorsPage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
@@ -66,6 +67,7 @@ function AppRoutes() {
         <Route path="/september-trial" element={<SeptemberTrialPage />} />
         <Route path="/for-universities" element={<ForUniversitiesPage />} />
         <Route path="/for-businesses" element={<ForBusinessesPage />} />
+        <Route path="/partners" element={<PartnersPage />} />
         <Route path="/join-handler" element={<JoinHandlerPage />} />
         <Route path="/join-coach" element={<JoinCoachPage />} />
         <Route path="/ambassadors" element={<AmbassadorsPage />} />

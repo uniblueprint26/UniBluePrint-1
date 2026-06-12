@@ -30,6 +30,7 @@ const COLUMNS = [
       { label: 'About',            href: '/about' },
       { label: 'How It Works',     href: '/how-it-works' },
       { label: 'Blog',             href: '/blog' },
+      { label: 'Partners',         href: '/partners' },
       { label: 'For Universities', href: '/for-universities' },
       { label: 'For Businesses',   href: '/for-businesses' },
     ],

@@ -21,7 +21,7 @@ const STEPS = [
     n: 2,
     title: 'Choose your service',
     description:
-      'Browse the Foundation Blueprint or Elevation Blueprint. Select the specific service you need, choose Standard or Premium tier, and submit your materials or brief.',
+      'Browse the Foundation Blueprint or Elevation Blueprint. Select the specific service you need, choose Standard or Premium tier, and submit your materials or brief. Use Course Selection Guidance — powered by our CourseCompass partnership — to find the right CAO course for you.',
     visual: 'Foundation Blueprint (academic) or Elevation Blueprint (career) → Standard 48hr or Premium same-day → submit your details.',
   },
   {
