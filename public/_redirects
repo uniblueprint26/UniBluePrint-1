@@ -1,0 +1,15 @@
+# SPA fallback — serve index.html for all routes
+/*    /index.html    200
+
+# TODO: Configure stripe-webhook Edge Function URL in Stripe dashboard
+# Webhook events to subscribe to:
+#   checkout.session.completed
+#   customer.subscription.created
+#   customer.subscription.deleted
+#   invoice.payment_succeeded
+#   invoice.payment_failed
+#
+# When Stripe is activated, add a redirect rule pointing the webhook path
+# to the Supabase Edge Function URL, e.g.:
+#
+# /api/stripe-webhook    https://<project>.supabase.co/functions/v1/stripe-webhook    200
