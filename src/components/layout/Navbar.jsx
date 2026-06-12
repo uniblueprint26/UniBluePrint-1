@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import logo from '../../assets/ubp-logo.png'
+import UBPLogo from '../ui/UBPLogo'
 
 // ─── Nav data ─────────────────────────────────────────────────────────────────
 
@@ -289,7 +289,7 @@ export default function Navbar({ onSearchOpen }) {
     >
       {/* Logo */}
       <Link to="/" aria-label="Uniblueprint home" style={{ flexShrink: 0 }}>
-        <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto', display: 'block' }} />
+        <UBPLogo height={36} />
       </Link>
 
       {/* Centre nav */}
@@ -512,7 +512,7 @@ export default function Navbar({ onSearchOpen }) {
       }}
     >
       <Link to="/" aria-label="Uniblueprint home">
-        <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ height: '32px', width: 'auto', display: 'block' }} />
+        <UBPLogo height={32} />
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -620,7 +620,7 @@ export default function Navbar({ onSearchOpen }) {
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '16px 16px 0' }}>
           <Link to="/" onClick={closeMenu} aria-label="Uniblueprint home">
-            <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ height: '36px', width: 'auto' }} />
+            <UBPLogo height={36} />
           </Link>
           <button
             onClick={closeMenu}
