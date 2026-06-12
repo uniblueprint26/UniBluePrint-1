@@ -1,6 +1,16 @@
 # Uniblueprint — Design Reference
+### App & Web visual identity spec
 
-Complete visual identity spec for the mobile app. Match these exactly.
+> **Important — colour note:** The original plan doc referenced `#0A1628`, `#1A3FBF`, `#4A6FE3`, and Inter font. These were superseded when the website was designed and approved. **Use the values in this document.** The website is the source of truth.
+
+---
+
+## Brand
+
+- **Product name:** Uniblueprint (lowercase p — never "UniBlueprint")
+- **Tagline:** "The Structure Behind Your Success"
+- **Tone:** Structured and premium. Never casual or hype. No "Hey [name], ready to level up?" — always measured, confident, purposeful.
+- **Market:** Irish students — university, 5th year, 6th year, apprentice, young worker, other young person
 
 ---
 
@@ -8,33 +18,35 @@ Complete visual identity spec for the mobile app. Match these exactly.
 
 | Token | Hex | Usage |
 |---|---|---|
-| Navy (Primary) | `#1E3A5F` | Headings, buttons, icons, borders, links |
-| Cream (Background) | `#F5F0E8` | Page backgrounds, section fills, hover states |
-| White (Card) | `#FFFFFF` | Cards, modals, inputs, navbar |
+| Navy (Primary) | `#1E3A5F` | Headings, buttons, icons, nav, borders, links |
+| Cream (Background) | `#F5F0E8` | Page/section backgrounds, hover fills, mobile menu |
+| White (Surface) | `#FFFFFF` | Cards, modals, inputs, navbar, alternate sections |
 | Text Secondary | `#6B7280` | Body copy, subtitles, descriptions |
-| Text Light | `#9CA3AF` | Hints, placeholders, metadata |
+| Text Light | `#9CA3AF` | Hints, placeholders, metadata, consent text |
 | Border | `rgba(30,58,95,0.12)` | Dividers, input borders (default state) |
 | Success | `#16A34A` | Success states, confirmation icons |
-| Error/Destructive | `#DC2626` | Error states, error banners, sign out |
+| Error / Destructive | `#DC2626` | Error banners, delete actions, sign out |
 
-### Background pattern
-Pages alternate between **Cream** and **White** sections:
-- Hero section → White
-- Content section → Cream
-- Next section → White
-- etc.
+### Section background pattern (web — mirror in app where appropriate)
+Pages alternate White → Cream → White:
+- Hero → `#FFFFFF`
+- Content → `#F5F0E8`
+- Next block → `#FFFFFF`
+- Dark CTA → `#1E3A5F` (text: `#F5F0E8`)
 
 ---
 
 ## Typography
 
 ### Fonts
-- **Headings:** `DM Serif Display` (Google Font — import from Google Fonts)
-- **Body / UI:** `DM Sans` (Google Font)
+- **Headings:** `DM Serif Display` — Google Font
+- **Body / UI:** `DM Sans` — Google Font
 
 ```
 https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap
 ```
+
+For the app use the same fonts via a font loading package, or the closest available system equivalents if bundle size is a constraint.
 
 ### Type scale
 
@@ -45,10 +57,10 @@ https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+San
 | Card heading | DM Serif Display | 22px | normal | `#1E3A5F` |
 | Form card heading | DM Serif Display | 28px | normal | `#1E3A5F` |
 | Body paragraph | DM Sans | 14–16px | 400 | `#6B7280` |
-| Body line-height | — | — | — | 1.7–1.8 |
-| Nav links | DM Sans | 14px | 500 | `#1E3A5F` |
+| Body line-height | — | 1.7–1.8 | — | — |
+| Nav / UI labels | DM Sans | 14px | 500 | `#1E3A5F` |
 | Button label | DM Sans | 14–15px | 600 | `#F5F0E8` |
-| Label (form) | DM Sans | 14px | 500 | `#1E3A5F` |
+| Form label | DM Sans | 14px | 500 | `#1E3A5F` |
 | Input text | DM Sans | 15–16px | 400 | `#1E3A5F` |
 | Hint / consent | DM Sans | 12px | 400 | `#9CA3AF` |
 | Section eyebrow | DM Sans | 12px | 600 | `#6B7280` — ALL CAPS, letter-spacing 0.06em |
@@ -60,13 +72,13 @@ https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+San
 
 | Token | Value | Usage |
 |---|---|---|
-| Section padding (desktop) | `80px 24px` | Top/bottom padding on each full-width section |
-| Section padding (mobile) | `64px 24px` | Reduce on smaller screens |
+| Section padding (desktop) | `80px 24px` | Full-width section top/bottom |
+| Section padding (mobile) | `64px 24px` | Scaled down |
 | Max content width | `900–1100px` | Centred via `margin: 0 auto` |
-| Card padding | `20px 24px` | Standard card inner padding |
-| Card padding (large) | `36px` — `48px 40px` | Form cards, legal content |
-| Card gap (grid) | `16px` | Between cards in a grid |
-| Section gap | `40px` | Between section header and content |
+| Card padding (standard) | `20px 24px` | Default card inner |
+| Card padding (large) | `36px` / `48px 40px` | Form cards, legal content |
+| Card gap (grid) | `16px` | Between cards |
+| Section gap | `40px` | Header → content within a section |
 
 ---
 
@@ -77,23 +89,23 @@ background:    #FFFFFF
 border-radius: 12px
 box-shadow:    0px 2px 12px rgba(30,58,95,0.08)
 
-hover shadow:  0px 4px 20px rgba(30,58,95,0.14)
+hover:         0px 4px 20px rgba(30,58,95,0.14)
 ```
 
 ---
 
 ## Buttons
 
-### Primary (CTA)
+### Primary (CTA / filled)
 ```
 background:    #1E3A5F
 color:         #F5F0E8
-height:        52px (forms) / 48px (smaller CTAs)
-padding:       0 32px (inline CTAs)
+height:        52px (forms) / 48px (inline CTAs)
+padding:       0 32px (inline)
 border-radius: 8px
 font:          DM Sans 15px 600
 transition:    background 150ms
-disabled:      rgba(30,58,95,0.7)
+disabled:      rgba(30,58,95,0.7), cursor not-allowed
 ```
 
 ### Secondary / Outlined
@@ -106,7 +118,7 @@ border-radius: 8px
 font:          DM Sans 14px 500
 ```
 
-### Ghost / Text button
+### Ghost / Text
 ```
 background:    none
 color:         #1E3A5F
@@ -116,13 +128,13 @@ opacity:       0.7 on hover
 
 ### Nav auth buttons
 ```
-Sign In:  outlined — border: 1px solid #1E3A5F, height: 36px, padding: 0 20px
-Sign Up:  filled   — background: #1E3A5F, color: #F5F0E8, height: 36px, padding: 0 20px
+Sign In: outlined — border 1px solid #1E3A5F, height 36px, padding 0 20px
+Sign Up: filled   — background #1E3A5F, color #F5F0E8, height 36px, padding 0 20px
 ```
 
 ---
 
-## Form inputs
+## Form Inputs
 
 ```
 height:        48px
@@ -137,149 +149,52 @@ focus border:  #1E3A5F
 focus shadow:  0 0 0 3px rgba(30,58,95,0.1)
 ```
 
-### Textarea
-Same as input but:
-```
-height:  auto
-padding: 12px 14px
-resize:  vertical
-```
+**Textarea:** same but `height: auto`, `padding: 12px 14px`, `resize: vertical`
 
-### Select
-Same as input + `cursor: pointer`
+**Select:** same as input + `cursor: pointer`
 
-### Checkbox
+**Checkbox:**
 ```
-size:         18x18px
+size:         18×18px
 accent-color: #1E3A5F
-label font:   DM Sans 14px, color #1E3A5F
+label:        DM Sans 14px, #1E3A5F
 ```
 
-### Error state
+**Error banner:**
 ```
-background: rgba(220,38,38,0.1)
+background:    rgba(220,38,38,0.1)
 border-radius: 8px
-padding: 12px 16px
-icon: AlertCircle, color #DC2626, size 18px
-text: DM Sans 14px, color #DC2626
+padding:       12px 16px
+icon:          AlertCircle, #DC2626, 18px
+text:          DM Sans 14px, #DC2626
 ```
 
-### Success state
+**Success state:**
 ```
-icon: CheckCircle, color #16A34A, size 56px, centred
-title: DM Serif Display 24px, #1E3A5F
+icon:     CheckCircle, #16A34A, 56px centred
+title:    DM Serif Display 24px, #1E3A5F
 subtitle: DM Sans 15px, #6B7280
-```
-
----
-
-## Navigation
-
-### Desktop navbar
-```
-background:  #FFFFFF
-height:      72px (min)
-position:    sticky, top 0
-box-shadow:  0px 1px 4px rgba(30,58,95,0.06)
-padding:     0 32px
-z-index:     100
-```
-
-### Mobile navbar
-```
-background:  #FFFFFF
-height:      56px (min)
-padding:     0 16px
-```
-
-### Logo
-```
-height: 36px (desktop) / 32px (mobile)
-width:  auto
-```
-
-### Dropdown panel
-```
-background:    #FFFFFF
-border-radius: 12px (services) / 10px (join)
-box-shadow:    0px 4px 20px rgba(30,58,95,0.14)
-padding:       24px (services mega) / 8px (small)
-z-index:       99
-```
-
-### Dropdown links
-```
-padding:       10px 14px
-border-radius: 8px
-font:          DM Sans 14px, #1E3A5F
-hover bg:      #F5F0E8
-transition:    background 150ms
-```
-
-### Mobile menu
-```
-background:       #F5F0E8
-width:            100%
-position:         fixed, right slide-in
-z-index:          200
-primary link:     DM Serif Display 24px, #1E3A5F, padding 20px 24px
-sub-link:         DM Sans 15px, #1E3A5F, opacity 0.8, padding 10px 24px 10px 32px
-divider:          1px solid rgba(30,58,95,0.08)
-transition:       translateX 300ms ease-out
-backdrop:         rgba(0,0,0,0.3)
-```
-
----
-
-## Badges / Pills
-
-### Section eyebrow label (above section headings)
-```
-font:             DM Sans 12px 600
-color:            #6B7280
-text-transform:   uppercase
-letter-spacing:   0.06em
-margin-bottom:    8px
-```
-
-### Service badge (e.g. "50% OFF")
-```
-background:    #1E3A5F
-color:         #F5F0E8
-font:          DM Sans 11px 600
-padding:       3px 8px
-border-radius: 20px
-```
-
-### Partner badge (e.g. "INTEGRATION PARTNER")
-```
-background:    rgba(30,58,95,0.08)
-color:         #1E3A5F
-font:          DM Sans 10px 700
-padding:       3px 8px
-border-radius: 4px
-letter-spacing: 0.04em
-text-transform: uppercase
 ```
 
 ---
 
 ## Icons
 
-Library: **Lucide React** (`lucide-react` on npm)
+Library: **Lucide** (web uses `lucide-react`; use `lucide-react-native` for the app)
 
 Standard sizes:
-- Nav icons: 16px
-- Card icons: 20px
-- Feature icons: 24px
-- Success/error: 56px (success), 18px (error inline)
+- Nav / UI: 16px
+- Card feature icons: 20px
+- Section / hero: 24px
+- Success state: 56px
+- Error inline: 18px
 
-Icon containers (circular):
+**Icon containers (circular):**
 ```
-width/height:  40px (standard) / 48px (large)
-border-radius: 50%
-background:    #F5F0E8 on white card / #FFFFFF on cream background
-icon colour:   #1E3A5F
+size:             40px (standard) / 48px (large)
+border-radius:    50%
+background:       #F5F0E8 on white card / #FFFFFF on cream bg
+icon colour:      #1E3A5F
 ```
 
 ---
@@ -288,33 +203,67 @@ icon colour:   #1E3A5F
 
 | Name | Value | Usage |
 |---|---|---|
-| Card | `0px 2px 12px rgba(30,58,95,0.08)` | Default card |
-| Card hover | `0px 4px 20px rgba(30,58,95,0.14)` | Elevated / hovered card |
-| Dropdown | `0px 4px 20px rgba(30,58,95,0.14)` | Dropdowns, modals |
+| Card | `0px 2px 12px rgba(30,58,95,0.08)` | Default cards |
+| Card hover / elevated | `0px 4px 20px rgba(30,58,95,0.14)` | Hovered cards, dropdowns |
 | Navbar | `0px 1px 4px rgba(30,58,95,0.06)` | Sticky header |
 
 ---
 
-## Border radius
+## Border Radius
 
 | Element | Radius |
 |---|---|
 | Cards | 12px |
 | Buttons | 8px |
 | Inputs | 8px |
-| Badges | 4–6px |
-| Pills | 20px (fully rounded) |
-| Avatar circle | 50% |
+| Dropdown panels | 10–12px |
+| Badges (standard) | 4–6px |
+| Pills (fully rounded) | 20px |
+| Avatar / circle | 50% |
 
 ---
 
-## Transitions
+## Badges & Pills
+
+**Section eyebrow** (above headings):
+```
+font:           DM Sans 12px 600
+color:          #6B7280
+text-transform: uppercase
+letter-spacing: 0.06em
+```
+
+**Service badge** (e.g. "50% OFF"):
+```
+background:    #1E3A5F
+color:         #F5F0E8
+font:          DM Sans 11px 600
+padding:       3px 8px
+border-radius: 20px
+```
+
+**Status / partner badge** (e.g. "INTEGRATION PARTNER", "IN QUEUE"):
+```
+background:     rgba(30,58,95,0.08)
+color:          #1E3A5F
+font:           DM Sans 10px 700
+padding:        3px 8px
+border-radius:  4px
+letter-spacing: 0.04em
+text-transform: uppercase
+```
+
+---
+
+## Transitions & Animation
 
 ```
-Standard UI:   150ms ease
-Mobile menu:   300ms ease-out (open), 250ms ease-in (close)
-Chevron rotate: 200ms
-Route fade-in:  150ms ease-in-out (opacity 0 → 1)
+Standard UI elements:  150ms ease
+Mobile menu open:      300ms ease-out (translateX)
+Mobile menu close:     250ms ease-in
+Chevron rotate:        200ms
+Route / screen fade:   150ms ease-in-out (opacity 0 → 1)
+Loading spinner:       spin 0.8s linear infinite
 ```
 
 ---
@@ -325,70 +274,229 @@ Route fade-in:  150ms ease-in-out (opacity 0 → 1)
 outline:        2px solid #1E3A5F
 outline-offset: 2px
 border-radius:  4px
-(only on :focus-visible, not :focus)
+trigger:        :focus-visible only (not :focus)
 ```
 
-Minimum touch target: **44×44px** for all interactive elements.
+Minimum touch target: **44×44px** for every interactive element.
+
+Input `font-size` minimum: **16px** (prevents iOS Safari zoom on focus).
 
 ---
 
-## Section layout pattern
+## Web Navigation
 
-Every page follows this alternating pattern:
-
+### Desktop navbar
 ```
-1. Hero       → background: #FFFFFF, padding: 80px 24px, text-align: center
-2. Content    → background: #F5F0E8, padding: 64–80px 24px
-3. Next block → background: #FFFFFF
-4. CTA/dark   → background: #1E3A5F (optional dark section, text: #F5F0E8)
+background:  #FFFFFF
+height:      72px min
+position:    sticky top 0
+box-shadow:  0px 1px 4px rgba(30,58,95,0.06)
+padding:     0 32px
+z-index:     100
+```
+
+### Mobile navbar
+```
+height:   56px min
+padding:  0 16px
+```
+
+### Dropdown panel
+```
+background:    #FFFFFF
+border-radius: 12px (mega) / 10px (small)
+box-shadow:    0px 4px 20px rgba(30,58,95,0.14)
+padding:       24px (mega) / 8px (compact)
+```
+
+### Dropdown links
+```
+padding:    10px 14px
+border-r:   8px
+font:       DM Sans 14px, #1E3A5F
+hover bg:   #F5F0E8
+transition: background 150ms
+```
+
+### Mobile menu
+```
+background: #F5F0E8
+width:      100%
+position:   fixed right, slide-in
+z-index:    200
+backdrop:   rgba(0,0,0,0.3), z-index 199
+
+primary link: DM Serif Display 24px, #1E3A5F, padding 20px 24px
+sub-link:     DM Sans 15px, #1E3A5F, opacity 0.8, padding 10px 24px 10px 32px
+divider:      1px solid rgba(30,58,95,0.08)
 ```
 
 ---
 
-## Dark CTA section
+## App Navigation (mobile-first)
 
-Used at the bottom of most pages:
+### Bottom nav bar
+Five tabs — always visible at the bottom of the app:
+
+| Tab | Sub-sections |
+|---|---|
+| Home | Dashboard |
+| Blueprint | Foundation Blueprint, Elevation Blueprint |
+| Connect | Campus Connect, Course Connect |
+| Lifestyle | Partner directory, Lifestyle Wallet |
+| More | Budgeting Tool, Advertisement Board |
+
+### Top bar
 ```
-background:  #1E3A5F
-padding:     80px 24px
-text-align:  center
-heading:     DM Serif Display 40px, color #F5F0E8
-body:        DM Sans 16px, color rgba(245,240,232,0.7)
-```
-
----
-
-## Announcement banner (top of page, above navbar)
-
-```
-background:  #1E3A5F
-color:       #F5F0E8
-padding:     10px 16px
-font:        DM Sans 13px 500
-text-align:  center
+Left:  Uniblueprint logo
+Right: Profile avatar (opens settings / account)
+       + Notification bell with unread count badge
 ```
 
----
-
-## Footer
-
+### Route structure
 ```
-background:         #1E3A5F
-padding:            64px 32px 32px
-column heading:     DM Sans 11px 600, #F5F0E8, uppercase, letter-spacing 0.06em
-column link:        DM Sans 13px, rgba(245,240,232,0.7) → #F5F0E8 on hover
-bottom bar font:    DM Sans 11px, rgba(245,240,232,0.4)
-social icon circle: 36×36px, border: 1px solid rgba(245,240,232,0.2), icon: rgba(245,240,232,0.7)
+Student app:       /
+Handler/Coach:     /portal/*
+Operations:        /operations/*
 ```
 
 ---
 
-## Global rules
+## App — Home Dashboard
 
-- `color-scheme: only light` — no dark mode, ever
+Elements in order:
+1. **Hero greeting** — "Welcome back, [First name]" (DM Serif Display), university + field shown below (DM Sans, `#6B7280`)
+2. **Quick action bar** — horizontal scroll row of shortcut chips to key services
+3. **Featured deals strip** — Lifestyle Blueprint partner deals (horizontal scroll)
+4. **Categories grid** — the 5 pillars as tappable cards
+5. **Recent activity** — latest submission updates, new posts, notifications
+
+Tone: never "Hey [name], ready to level up?" — always "Welcome back, [name]."
+
+---
+
+## App — Submission Tracker
+
+Foundation Blueprint submissions pass through **5 stages** in order:
+
+```
+Submitted → In Queue → Assigned → In Review → Delivered
+```
+
+Each stage shows a **timestamp**. Use a stepped progress indicator (not a progress bar). Active stage: Navy fill. Completed: Navy fill with tick. Upcoming: Cream/grey.
+
+---
+
+## App — Settings ("Your Blueprint")
+
+Settings page is structured as 12 named cards **in this exact order:**
+
+1. My Identity
+2. My Status
+3. My Connections
+4. My Alerts
+5. My Privacy
+6. My Security
+7. My Finances
+8. My Blueprint History
+9. My Display
+10. Blueprint Support
+11. Blueprint Terms
+12. My Account
+
+---
+
+## App — Notification Categories
+
+| Category | Triggers |
+|---|---|
+| Blueprint Alerts | Submission updates, deliveries, stage changes |
+| Budget Alerts | Spending limits hit, weekly summaries |
+| Ad Alerts | Ad status changes, expiry warnings |
+| Connect Alerts | Replies, mentions, board activity |
+| Promotional Alerts | Partner deals, new offers |
+| Security Alerts | Login, password changes, suspicious activity |
+
+---
+
+## App — User Types
+
+Six user types (set at sign-up, editable in settings):
+
+1. University student
+2. 5th year
+3. 6th year
+4. Apprentice
+5. Young worker
+6. Other young person
+
+User type is stored in the `profiles` table and controls which features/content are surfaced.
+
+---
+
+## Payment Architecture
+
+**All payments flow through the Uniblueprint company account first — never directly from student to handler, coach, or partner.**
+
+- Foundation Blueprint → one-off payment at submission
+- Elevation Blueprint → engagement-based payment at booking
+- Advertisement Board → paid tier at listing creation
+- Platform manages disbursements to Handlers, Coaches, and partners after delivery
+
+Use **Stripe Elements** (embedded, not hosted checkout).
+
+---
+
+## File Uploads
+
+**Cloudflare R2** for all user-uploaded files (CVs, portfolios, deliverables).
+Serve via **signed URLs** — never public direct links.
+
+---
+
+## Footer (web)
+
+```
+background:      #1E3A5F
+padding:         64px 32px 32px
+column heading:  DM Sans 11px 600, #F5F0E8, uppercase, letter-spacing 0.06em
+column link:     DM Sans 13px, rgba(245,240,232,0.7) → #F5F0E8 on hover
+bottom bar:      DM Sans 11px, rgba(245,240,232,0.4)
+social circles:  36×36px, border 1px solid rgba(245,240,232,0.2)
+```
+
+---
+
+## Announcement Banner (web — top of page)
+
+```
+background: #1E3A5F
+color:      #F5F0E8
+padding:    10px 16px
+font:       DM Sans 13px 500
+text-align: center
+```
+
+---
+
+## Dark CTA Section (web — bottom of most pages)
+
+```
+background: #1E3A5F
+padding:    80px 24px
+heading:    DM Serif Display 40px, #F5F0E8
+body:       DM Sans 16px, rgba(245,240,232,0.7)
+text-align: center
+```
+
+---
+
+## Global Rules
+
+- **No dark mode** — `color-scheme: only light`, always
 - `-webkit-font-smoothing: antialiased` on body
 - `box-sizing: border-box` on everything
 - `scroll-behavior: smooth`
 - `overscroll-behavior: none`
-- Input / textarea / select font-size minimum: **16px** (prevents iOS Safari zoom)
-- `-webkit-tap-highlight-color: transparent` on all interactive elements
+- All payments via Uniblueprint company account — never direct
+- Lucide icons throughout — consistent style, no mixed icon libraries
