@@ -2,8 +2,16 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ExternalLink, Handshake } from 'lucide-react'
 
-// TODO: Replace with live CourseCompass URL when provided by Stephen McKeon
-const COURSECOMPASS_URL = 'TODO: Insert CourseCompass URL'
+const COURSECOMPASS_URL = 'https://coursecompass.ie/course-compass'
+
+const CC_TOOLS = [
+  { name: 'Course Compass',         url: 'https://coursecompass.ie/course-compass' },
+  { name: 'Subject Interest Test',  url: 'https://coursecompass.ie/subject-interest-test' },
+  { name: 'Learning Style Test',    url: 'https://coursecompass.ie/learning-style-test' },
+  { name: 'PLC Compass',            url: 'https://coursecompass.ie/plc-compass-test' },
+  { name: 'Apprenticeship Compass', url: 'https://coursecompass.ie/apprentice-compass-test' },
+  { name: '5th & 6th Year Bundle',  url: 'https://coursecompass.ie/bundles/senior-cycle' },
+]
 
 function PartnerCard({ name, tagline, description, url, badgeLabel }) {
   return (
@@ -16,16 +24,22 @@ function PartnerCard({ name, tagline, description, url, badgeLabel }) {
       margin: '0 auto',
       borderTop: '3px solid #1E3A5F',
     }}>
-      {/* Logo placeholder */}
+      {/* Logo placeholder — 60px height */}
       <div style={{
-        width: '64px', height: '64px',
-        borderRadius: '12px',
-        background: '#F5F0E8',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '60px',
+        display: 'flex', alignItems: 'center',
         marginBottom: '20px',
       }}>
-        {/* TODO: Replace with actual CourseCompass logo when provided by Stephen McKeon */}
-        <Handshake size={28} color="#1E3A5F" aria-hidden="true" />
+        {/* TODO: Replace with actual CourseCompass logo image */}
+        <div style={{
+          height: '60px', width: 'auto', minWidth: '60px',
+          borderRadius: '8px',
+          background: '#F5F0E8',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '0 16px',
+        }}>
+          <Handshake size={28} color="#1E3A5F" aria-hidden="true" />
+        </div>
       </div>
 
       {/* Badge */}
@@ -44,8 +58,8 @@ function PartnerCard({ name, tagline, description, url, badgeLabel }) {
       {/* Name */}
       <h2 style={{
         fontFamily: "'DM Serif Display', serif",
-        fontSize: '28px', color: '#1E3A5F',
-        marginBottom: '8px',
+        fontSize: '20px', color: '#1E3A5F',
+        marginBottom: '6px',
       }}>
         {name}
       </h2>
@@ -53,7 +67,7 @@ function PartnerCard({ name, tagline, description, url, badgeLabel }) {
       {/* Tagline */}
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '15px', color: '#6B7280',
+        fontSize: '14px', color: '#6B7280',
         fontWeight: '500', marginBottom: '16px',
       }}>
         {tagline}
@@ -63,13 +77,12 @@ function PartnerCard({ name, tagline, description, url, badgeLabel }) {
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '15px', color: '#6B7280',
-        lineHeight: 1.7, marginBottom: '28px',
+        lineHeight: 1.7, marginBottom: '24px',
       }}>
         {description}
       </p>
 
-      {/* Link */}
-      {/* TODO: Replace with live CourseCompass URL when provided by Stephen McKeon */}
+      {/* Primary CTA */}
       <a
         href={url}
         target="_blank"
@@ -87,9 +100,46 @@ function PartnerCard({ name, tagline, description, url, badgeLabel }) {
         onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
         onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
       >
-        Visit CourseCompass
+        Visit CourseCompass →
         <ExternalLink size={16} aria-hidden="true" />
       </a>
+
+      {/* Tool links */}
+      <div style={{
+        marginTop: '24px',
+        borderTop: '1px solid rgba(30,58,95,0.08)',
+        paddingTop: '20px',
+      }}>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', fontWeight: '600', color: '#6B7280',
+          textTransform: 'uppercase', letterSpacing: '0.06em',
+          marginBottom: '12px',
+        }}>
+          CourseCompass Tools
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {CC_TOOLS.map(({ name: toolName, url: toolUrl }) => (
+            <a
+              key={toolName}
+              href={toolUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px', color: '#1E3A5F',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              {toolName}
+              <ExternalLink size={12} aria-hidden="true" style={{ flexShrink: 0 }} />
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

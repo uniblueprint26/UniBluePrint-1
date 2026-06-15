@@ -7,6 +7,7 @@ import {
   UserCheck, Send, Bot,
   Check, X as XIcon,
   Sparkles, ExternalLink,
+  Lightbulb, Map, Wrench, Package,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -217,7 +218,105 @@ const ALL_SERVICES = [
   ...CAO_SERVICES.map(s => ({ ...s, category: 'CAO' })),
 ]
 
+// CourseCompass tools — 4 pills for service card (Location 1)
+const CC_CARD_TOOLS = [
+  { name: 'Course Compass',      url: 'https://coursecompass.ie/course-compass' },
+  { name: 'Subject Interest Test', url: 'https://coursecompass.ie/subject-interest-test' },
+  { name: 'Learning Style Test', url: 'https://coursecompass.ie/learning-style-test' },
+  { name: '5th & 6th Year Bundle', url: 'https://coursecompass.ie/bundles/senior-cycle' },
+]
+
+// CourseCompass tools — all 6 pills for callout cards (Location 4 etc.)
+const CC_ALL_PILL_TOOLS = [
+  { name: 'Course Compass',          url: 'https://coursecompass.ie/course-compass' },
+  { name: 'Subject Interest Test',   url: 'https://coursecompass.ie/subject-interest-test' },
+  { name: 'Learning Style Test',     url: 'https://coursecompass.ie/learning-style-test' },
+  { name: 'PLC Compass',             url: 'https://coursecompass.ie/plc-compass-test' },
+  { name: 'Apprenticeship Compass',  url: 'https://coursecompass.ie/apprentice-compass-test' },
+  { name: '5th & 6th Year Bundle',   url: 'https://coursecompass.ie/bundles/senior-cycle' },
+]
+
+// CourseCompass tools — all 6 with icons for mini-card grid (Location 2)
+const CC_ALL_TOOLS = [
+  { name: 'Course Compass',         description: 'Find the right CAO course for you',         url: 'https://coursecompass.ie/course-compass',           icon: Compass },
+  { name: 'Subject Interest Test',  description: 'Discover what subjects you excel in',        url: 'https://coursecompass.ie/subject-interest-test',    icon: Lightbulb },
+  { name: 'Learning Style Test',    description: 'Understand how you learn best',              url: 'https://coursecompass.ie/learning-style-test',      icon: GraduationCap },
+  { name: 'PLC Compass',            description: 'Explore PLC pathway options',                url: 'https://coursecompass.ie/plc-compass-test',         icon: Map },
+  { name: 'Apprenticeship Compass', description: 'Find the right apprenticeship for you',     url: 'https://coursecompass.ie/apprentice-compass-test',  icon: Wrench },
+  { name: '5th & 6th Year Bundle',  description: 'Full senior cycle guidance suite',          url: 'https://coursecompass.ie/bundles/senior-cycle',     icon: Package },
+]
+
 // ─── Sub-components ────────────────────────────────────────────────────────────
+
+function CCPill({ name, url }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '8px',
+        background: '#FFFFFF',
+        border: '1.5px solid #1E3A5F',
+        borderRadius: '8px',
+        padding: '7px 12px',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '13px', color: '#1E3A5F',
+        textDecoration: 'none', whiteSpace: 'nowrap',
+        transition: 'background 150ms',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.background = '#F5F0E8')}
+      onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
+    >
+      {name}
+      <ExternalLink size={12} aria-hidden="true" style={{ flexShrink: 0 }} />
+    </a>
+  )
+}
+
+function CCMiniCard({ name, description, url, icon: Icon }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'flex', alignItems: 'flex-start', gap: '10px',
+        background: '#FFFFFF',
+        borderRadius: '12px',
+        boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+        padding: '14px',
+        textDecoration: 'none',
+        transition: 'box-shadow 150ms',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0px 4px 20px rgba(30,58,95,0.14)')}
+      onMouseLeave={e => (e.currentTarget.style.boxShadow = '0px 2px 12px rgba(30,58,95,0.08)')}
+    >
+      <div style={{
+        width: '36px', height: '36px', borderRadius: '8px',
+        background: '#F5F0E8', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon size={18} color="#1E3A5F" />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#1E3A5F' }}>
+          {name}
+        </p>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+          {description}
+        </p>
+      </div>
+      <span style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '13px', color: '#1E3A5F',
+        flexShrink: 0, alignSelf: 'center',
+      }}>
+        Open →
+      </span>
+    </a>
+  )
+}
 
 function TrialBadge() {
   return (
@@ -373,6 +472,23 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
         </div>
       )}
 
+      {/* CourseCompass tools section — Location 1 */}
+      {courseCompass && (
+        <div style={{ marginTop: '14px' }}>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', fontWeight: '600', color: '#6B7280',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+            marginBottom: '8px',
+          }}>
+            CourseCompass Tools
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {CC_CARD_TOOLS.map(t => <CCPill key={t.name} {...t} />)}
+          </div>
+        </div>
+      )}
+
       {/* Prices */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '12px' }}>
         <span style={{
@@ -485,46 +601,64 @@ export default function FoundationBlueprintPage() {
             {CAO_SERVICES.map(s => <ServiceCard key={s.name} {...s} />)}
           </div>
 
-          {/* CourseCompass partnership callout */}
+          {/* Location 4 — CAO discovery callout */}
+          <div style={{
+            background: '#FFFFFF',
+            borderRadius: '12px',
+            borderLeft: '3px solid #1E3A5F',
+            padding: '20px',
+            marginTop: '16px',
+          }}>
+            <p style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '18px', color: '#1E3A5F',
+              marginBottom: '8px',
+            }}>
+              Not sure which course to apply for?
+            </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px', color: '#6B7280',
+              marginBottom: '14px', lineHeight: 1.6,
+            }}>
+              Use CourseCompass to find the right match before you write your personal statement.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {CC_ALL_PILL_TOOLS.map(t => <CCPill key={t.name} {...t} />)}
+            </div>
+          </div>
+
+          {/* Location 2 — CourseCompass partnership callout with mini-card grid */}
           <div style={{
             background: '#FFFFFF',
             borderRadius: '12px',
             boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
             padding: '20px',
             borderLeft: '3px solid #1E3A5F',
-            marginTop: '16px',
+            marginTop: '12px',
           }}>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '12px', color: '#6B7280',
               fontWeight: '600', textTransform: 'uppercase',
-              letterSpacing: '0.06em', marginBottom: '6px',
+              letterSpacing: '0.06em', marginBottom: '8px',
             }}>
-              In partnership with CourseCompass
+              Powered in partnership with CourseCompass
             </p>
             <p style={{
               fontFamily: "'DM Serif Display', serif",
               fontSize: '16px', color: '#1E3A5F',
-              marginBottom: '12px',
+              marginBottom: '16px',
             }}>
-              AI-powered CAO course matching for students and young people in Ireland
+              AI-powered CAO course matching for Irish students
             </p>
-            <a
-              href="https://coursecompass.ie/course-compass"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#1E3A5F',
-                textDecoration: 'none', fontWeight: '500',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-            >
-              Find your perfect course →
-              <ExternalLink size={14} aria-hidden="true" />
-            </a>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '10px',
+            }}>
+              {CC_ALL_TOOLS.map(t => <CCMiniCard key={t.name} {...t} />)}
+            </div>
           </div>
         </div>
       </section>

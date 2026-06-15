@@ -21,8 +21,9 @@ const STEPS = [
     n: 2,
     title: 'Choose your service',
     description:
-      'Browse the Foundation Blueprint or Elevation Blueprint. Select the specific service you need, choose Standard or Premium tier, and submit your materials or brief. Use Course Selection Guidance — powered by our CourseCompass partnership — to find the right CAO course for you.',
+      'Browse the Foundation Blueprint or Elevation Blueprint. Select the specific service you need, choose Standard or Premium tier, and submit your materials or brief. Use Course Selection Guidance — powered by our CourseCompass partnership — to find the right CAO course or apprenticeship for you.',
     visual: 'Foundation Blueprint (academic) or Elevation Blueprint (career) → Standard 48hr or Premium same-day → submit your details.',
+    link: { label: 'Explore CourseCompass →', url: 'https://coursecompass.ie/course-compass' },
   },
   {
     n: 3,
@@ -116,6 +117,22 @@ function StepBlock({ step, reverse }) {
           }}>
             {step.description}
           </p>
+          {step.link && (
+            <a
+              href={step.link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                marginTop: '12px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
+                textDecoration: 'none',
+              }}
+            >
+              {step.link.label}
+            </a>
+          )}
         </div>
       </div>
 
