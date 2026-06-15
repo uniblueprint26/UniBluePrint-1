@@ -41,12 +41,16 @@ const STEPS = [
 ]
 
 const FOUNDATION_SERVICES = [
-  'Personal statement writing',
-  'CV review and rewrite',
-  'Cover letter writing',
-  'College application support',
-  'Scholarship application review',
-  'Academic essay review',
+  'CV Optimisation',
+  'LinkedIn Optimisation',
+  'Cover Letter Assistance',
+  'Application Form Assistance',
+  'Interview Preparation',
+  'Job Search Support',
+  'CAO Personal Statement',
+  'College Interview Preparation',
+  'Scholarship & Grants Application',
+  'Course Selection Guidance',
 ]
 
 const ELEVATION_SERVICES = [
@@ -450,7 +454,7 @@ export default function HowItWorksPage() {
           <BlueprintCard
             icon={FileText}
             name="Foundation Blueprint"
-            tagline="Academic and application support — reviewed by a trained Campus Handler."
+            tagline="CV, LinkedIn, cover letters, interview prep, CAO support, and more — every output reviewed by a trained Campus Handler before delivery."
             deliveredBy="Campus Handler"
             turnaround="48hr Standard · Same day Premium"
             services={FOUNDATION_SERVICES}

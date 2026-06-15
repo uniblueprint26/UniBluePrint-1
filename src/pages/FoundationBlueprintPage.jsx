@@ -14,42 +14,96 @@ import {
 const CAREER_SERVICES = [
   {
     name: 'CV Optimisation',
-    description: 'A full review and rewrite of your CV — formatted for the Irish and UK graduate market.',
+    tagline: 'A CV that opens doors — not one that gets ignored',
+    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV from scratch or transforms what you already have — structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
+    bullets: [
+      'Professionally structured CV tailored to your field and target role',
+      'ATS-optimised formatting — gets past automated screening systems',
+      'Powerful action-language rewrites on every bullet point',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
+    tierNote: {
+      standard: 'Full CV build or complete transformation, 48 hour delivery',
+      premium: 'Same day delivery plus cover letter ready formatting',
+    },
     icon: FileText,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
   },
   {
     name: 'LinkedIn Optimisation',
-    description: 'Headline, about section, and experience rewrite to position you for roles and opportunities.',
+    tagline: 'Turn your LinkedIn from invisible to irresistible',
+    description: 'Recruiters search LinkedIn every day. UniBlueprint optimises your entire profile — headline, about section, experience, skills, and featured section — so you show up in searches and make the right impression when you do. Every output reviewed by a Campus Handler.',
+    bullets: [
+      'Keyword-optimised headline that appears in recruiter searches',
+      'About section that tells your story and makes them want to know more',
+      'Experience section rewritten with impact and action language',
+      'Skills section optimised for your target industry',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
     icon: Linkedin,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
   },
   {
     name: 'Cover Letter Assistance',
-    description: 'A tailored cover letter written and reviewed for a specific role or employer.',
+    tagline: 'A cover letter that actually gets read',
+    description: 'Most cover letters are ignored because they are generic. UniBlueprint writes you a tailored, compelling cover letter for a specific role or company — one that adds to your CV rather than repeating it. Reviewed by a Campus Handler before delivery.',
+    bullets: [
+      'Tailored cover letter for a specific role and company',
+      'Opening that grabs attention immediately',
+      'Body that connects your experience to what they are looking for',
+      'Close with a confident, specific call to action',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
     icon: Mail,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
   },
   {
     name: 'Application Form Assistance',
-    description: 'Handler-reviewed responses to competency and motivation questions on application forms.',
+    tagline: 'Answer every question with confidence and clarity',
+    description: 'Competency questions, situational questions, motivation questions — application forms are where most candidates lose ground. UniBlueprint gives you structured, polished answers using the STAR method that demonstrate exactly what employers are looking for. Reviewed by a Campus Handler.',
+    bullets: [
+      'STAR-structured answers to competency and situational questions',
+      'Motivation and fit answers tailored to the specific organisation',
+      'Word count optimised — never too long, never too short',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
     icon: ClipboardList,
     originalStandard: 'From €20', trialStandard: 'From €10',
     originalPremium: 'From €30', trialPremium: 'From €15',
   },
   {
     name: 'Interview Preparation',
-    description: 'Question bank, answer frameworks, and written feedback from a trained Campus Handler.',
+    tagline: 'Walk in prepared. Walk out confident.',
+    description: 'UniBlueprint prepares you for the exact interview you are facing — predicted questions, model answers using STAR, company and role research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler so you can practise under real pressure before the real thing.',
+    standardBullets: [
+      'Predicted questions tailored to the role, company, and interview type',
+      'Model STAR answers for every competency question',
+      'Company and role research briefing',
+      'What to ask your interviewer — questions that impress',
+    ],
+    premiumBullets: [
+      'Live mock interview session with a Campus Handler',
+      'Real-time feedback on answers, delivery, and presence',
+      'Post-session improvement notes',
+    ],
     icon: MessageSquare,
     originalStandard: 'From €20', trialStandard: 'From €10',
     originalPremium: 'From €30', trialPremium: 'From €15',
   },
   {
     name: 'Job Search Support',
-    description: 'A structured job search plan with target roles, platforms, and outreach strategy.',
+    tagline: 'Stop applying blindly. Start searching strategically.',
+    description: 'UniBlueprint builds you a personalised job search strategy — the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year of study, and career goals. Less guessing, more results.',
+    bullets: [
+      'Personalised job search strategy for your field and goals',
+      'Platform guide — where to search and what to look for',
+      'LinkedIn outreach strategy for finding hidden opportunities',
+      'Action plan with weekly milestones',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
     icon: Search,
     originalStandard: '€15', trialStandard: '€8',
     originalPremium: '€22', trialPremium: '€11',
@@ -59,32 +113,62 @@ const CAREER_SERVICES = [
 const CAO_SERVICES = [
   {
     name: 'CAO Personal Statement',
-    description: 'Drafted and reviewed by a Campus Handler — structured, compelling, and tailored to your choices.',
+    tagline: 'Your story. Your voice. Your place.',
+    description: 'Your CAO personal statement is your only chance to speak directly to admissions. UniBlueprint helps you craft a compelling, authentic statement that goes beyond your grades — telling the story of who you are, what drives you, and why you belong on this course. Reviewed by a Campus Handler before delivery.',
+    bullets: [
+      'Compelling personal statement drafted from your input',
+      'Opens with impact — not the clichés admissions tutors have read a thousand times',
+      'Tells a coherent story connecting your background to your chosen course',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
     icon: BookOpen,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
   },
   {
     name: 'College Interview Preparation',
-    description: 'Preparation notes and practice questions for college admission interviews.',
+    tagline: 'Impress the panel. Secure your place.',
+    description: 'College interviews — for medicine, dentistry, law, and other competitive programmes — require a different kind of preparation. UniBlueprint prepares you with predicted questions, structured model answers, and the confidence to perform under pressure. Premium includes a live mock interview.',
+    standardBullets: [
+      'Predicted interview questions for your specific programme',
+      'Model answers structured for academic interview panels',
+      'Key themes and topics to know for your course area',
+    ],
+    premiumBullets: [
+      'Live mock interview with a Campus Handler',
+      'Real-time feedback and post-session notes',
+    ],
     icon: GraduationCap,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
   },
   {
-    name: 'Scholarship & Grants',
-    description: 'Application reviewed and refined for Irish scholarship and grant schemes.',
+    name: 'Scholarship & Grants Application',
+    tagline: 'The funding is out there. We help you get it.',
+    description: 'Scholarships and grants go unclaimed every year because applicants do not know how to present themselves effectively. UniBlueprint identifies relevant opportunities and helps you craft a strong, compelling application — personal statement, supporting evidence, and covering letter — reviewed by a Campus Handler before submission.',
+    bullets: [
+      'Scholarship and grant identification for your profile and field',
+      'Compelling application personal statement',
+      'Supporting evidence structure and presentation guidance',
+      'Reviewed by a trained Campus Handler before delivery',
+    ],
     icon: Award,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
   },
   {
     name: 'Course Selection Guidance',
-    description: 'Structured guidance on CAO course choices matched to your interests and career goals.',
+    tagline: 'Find the course that fits you — not just the one with the highest points',
+    description: "Choosing the right course is one of the most important decisions you will make. UniBlueprint combines personalised guidance with CourseCompass — Ireland's leading AI-powered CAO course matching platform — to help you find the course that matches your strengths, interests, and goals.",
+    bullets: [
+      'Personalised course matching using the CourseCompass platform',
+      'Subject interest and learning style assessments',
+      'PLC and apprenticeship pathway exploration if relevant',
+      'Guidance session with a Campus Handler',
+    ],
     icon: Compass,
     originalStandard: '€15', trialStandard: '€8',
     originalPremium: '€22', trialPremium: '€11',
-    badge: 'CourseCompass',
     courseCompass: true,
   },
 ]
@@ -150,7 +234,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, description, icon: Icon, originalStandard, trialStandard, badge, courseCompass }) {
+function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, tierNote, originalStandard, trialStandard, courseCompass }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -196,49 +280,97 @@ function ServiceCard({ name, description, icon: Icon, originalStandard, trialSta
         {name}
       </p>
 
-      {/* CourseCompass small badge pill */}
-      {badge && (
-        <span style={{
-          display: 'inline-block', marginTop: '6px',
+      {/* Tagline */}
+      {tagline && (
+        <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '10px', fontWeight: '600', color: '#1E3A5F',
-          background: 'rgba(30,58,95,0.07)',
-          borderRadius: '4px', padding: '2px 7px',
-          letterSpacing: '0.03em',
+          fontSize: '12px', color: '#1E3A5F', fontStyle: 'italic',
+          marginTop: '3px',
         }}>
-          {badge}
-        </span>
+          {tagline}
+        </p>
+      )}
+
+      {/* CourseCompass badge */}
+      {courseCompass && (
+        <a
+          href="https://coursecompass.ie/course-compass"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '3px',
+            marginTop: '6px',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '11px', color: '#6B7280',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+        >
+          Powered by CourseCompass
+          <ExternalLink size={10} aria-hidden="true" style={{ flexShrink: 0 }} />
+        </a>
       )}
 
       {/* Description */}
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#6B7280',
-        marginTop: '6px', lineHeight: 1.55,
+        marginTop: '10px', lineHeight: 1.55,
       }}>
         {description}
       </p>
 
-      {/* CourseCompass partnership line */}
-      {courseCompass && (
-        // TODO: Replace with live CourseCompass URL when provided by Stephen McKeon
-        <a
-          href="TODO: Insert CourseCompass URL"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '4px',
-            marginTop: '8px',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#6B7280',
-            textDecoration: 'none',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-        >
-          Powered in partnership with CourseCompass — Ireland's AI course matching platform
-          <ExternalLink size={12} aria-hidden="true" style={{ flexShrink: 0 }} />
-        </a>
+      {/* Flat bullets */}
+      {bullets && bullets.length > 0 && (
+        <ul style={{ marginTop: '10px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          {bullets.map(b => (
+            <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.45 }}>
+              <span style={{ color: '#1E3A5F', flexShrink: 0, marginTop: '1px' }}>✓</span>
+              {b}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Standard / Premium bullet groups (Interview-type services) */}
+      {standardBullets && (
+        <>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '10px' }}>
+            Standard includes
+          </p>
+          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {standardBullets.map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.45 }}>
+                <span style={{ color: '#1E3A5F', flexShrink: 0, marginTop: '1px' }}>✓</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '8px' }}>
+            Premium adds
+          </p>
+          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {premiumBullets.map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', lineHeight: 1.45 }}>
+                <span style={{ flexShrink: 0, marginTop: '1px' }}>+</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {/* Tier note (CV Optimisation) */}
+      {tierNote && (
+        <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>
+            <span style={{ fontWeight: '600' }}>Standard: </span>{tierNote.standard}
+          </p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>
+            <span style={{ fontWeight: '600' }}>Premium: </span>{tierNote.premium}
+          </p>
+        </div>
       )}
 
       {/* Prices */}
@@ -377,9 +509,8 @@ export default function FoundationBlueprintPage() {
             }}>
               AI-powered CAO course matching for students and young people in Ireland
             </p>
-            {/* TODO: Replace with live CourseCompass URL when provided by Stephen McKeon */}
             <a
-              href="TODO: Insert CourseCompass URL"
+              href="https://coursecompass.ie/course-compass"
               target="_blank"
               rel="noopener noreferrer"
               style={{

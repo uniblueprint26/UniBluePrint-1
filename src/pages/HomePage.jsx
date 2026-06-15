@@ -97,7 +97,7 @@ const STEPS = [
 const PILLARS = [
   {
     name: 'Foundation Blueprint',
-    description: 'Academic support from CV writing to college applications — reviewed by a trained Campus Handler.',
+    description: 'CV building, LinkedIn optimisation, cover letters, interview prep, and CAO support — every output reviewed by a trained Campus Handler before delivery.',
     href: '/foundation-blueprint',
     icon: FileText,
     link: 'Learn more →',
