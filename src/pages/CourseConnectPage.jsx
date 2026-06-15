@@ -160,12 +160,12 @@ export default function CourseConnectPage() {
   return (
     <>
       <Helmet>
-        <title>Course Connect | Uniblueprint</title>
+        <title>Course Connect | UniBlueprint</title>
         <meta
           name="description"
           content="Connect with students studying the same course across Irish universities. Course boards, study groups, resource sharing, and Q&A — free for all users."
         />
-        <meta property="og:title" content="Course Connect | Uniblueprint" />
+        <meta property="og:title" content="Course Connect | UniBlueprint" />
         <meta property="og:description" content="Connect with students studying the same course across Irish universities. Course boards, study groups, resource sharing, and Q&A — free for all users." />
       </Helmet>
 
@@ -387,7 +387,7 @@ export default function CourseConnectPage() {
           fontSize: '16px', color: 'rgba(245,240,232,0.7)',
           marginTop: '12px',
         }}>
-          Free for every Uniblueprint user. No upgrade required.
+          Free for every UniBlueprint user. No upgrade required.
         </p>
         <div style={{ marginTop: '32px' }}>
           <Link

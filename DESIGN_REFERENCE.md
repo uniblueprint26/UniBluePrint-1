@@ -1,4 +1,4 @@
-# Uniblueprint — Design Reference
+# UniBlueprint — Design Reference
 ### App & Web visual identity spec
 
 > **Important — colour note:** The original plan doc referenced `#0A1628`, `#1A3FBF`, `#4A6FE3`, and Inter font. These were superseded when the website was designed and approved. **Use the values in this document.** The website is the source of truth.
@@ -7,7 +7,7 @@
 
 ## Brand
 
-- **Product name:** Uniblueprint (lowercase p — never "UniBlueprint")
+- **Product name:** UniBlueprint (capital U, capital B, lowercase p)
 - **Tagline:** "The Structure Behind Your Success"
 - **Tone:** Structured and premium. Never casual or hype. No "Hey [name], ready to level up?" — always measured, confident, purposeful.
 - **Market:** Irish students — university, 5th year, 6th year, apprentice, young worker, other young person
@@ -348,7 +348,7 @@ Five tabs — always visible at the bottom of the app:
 
 ### Top bar
 ```
-Left:  Uniblueprint logo
+Left:  UniBlueprint logo
 Right: Profile avatar (opens settings / account)
        + Notification bell with unread count badge
 ```
@@ -436,7 +436,7 @@ User type is stored in the `profiles` table and controls which features/content 
 
 ## Payment Architecture
 
-**All payments flow through the Uniblueprint company account first — never directly from student to handler, coach, or partner.**
+**All payments flow through the UniBlueprint company account first — never directly from student to handler, coach, or partner.**
 
 - Foundation Blueprint → one-off payment at submission
 - Elevation Blueprint → engagement-based payment at booking
@@ -498,5 +498,5 @@ text-align: center
 - `box-sizing: border-box` on everything
 - `scroll-behavior: smooth`
 - `overscroll-behavior: none`
-- All payments via Uniblueprint company account — never direct
+- All payments via UniBlueprint company account — never direct
 - Lucide icons throughout — consistent style, no mixed icon libraries

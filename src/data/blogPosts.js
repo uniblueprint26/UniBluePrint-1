@@ -117,14 +117,14 @@ export const POSTS = [
     category: 'Platform',
     date: '2026-03-25',
     sections: [
-      { type: 'paragraph', text: 'Foundation Blueprint is Uniblueprint\'s academic and career support service. It covers the practical documents and applications that most students need at some point but rarely get real help with: CVs, cover letters, LinkedIn profiles, CAO personal statements, interview preparation, and more. Every submission is reviewed by a trained Campus Handler before delivery.' },
+      { type: 'paragraph', text: 'Foundation Blueprint is UniBlueprint\'s academic and career support service. It covers the practical documents and applications that most students need at some point but rarely get real help with: CVs, cover letters, LinkedIn profiles, CAO personal statements, interview preparation, and more. Every submission is reviewed by a trained Campus Handler before delivery.' },
       { type: 'heading', text: 'What Campus Handlers do' },
-      { type: 'paragraph', text: 'Campus Handlers are students — from the same universities as you — who have been trained and onboarded by the Uniblueprint team. They review every Foundation Blueprint submission against a quality checklist before it is delivered. They are not AI tools. They are people who understand the Irish student context, the courses you are applying for, and the employers you are targeting.' },
+      { type: 'paragraph', text: 'Campus Handlers are students — from the same universities as you — who have been trained and onboarded by the UniBlueprint team. They review every Foundation Blueprint submission against a quality checklist before it is delivered. They are not AI tools. They are people who understand the Irish student context, the courses you are applying for, and the employers you are targeting.' },
       { type: 'heading', text: 'Standard and Premium' },
       { type: 'paragraph', text: 'Foundation Blueprint services come in two tiers. Standard includes delivery within 48 hours and one revision request. Premium includes same-day delivery (subject to Handler availability), two revision requests, and priority queue. Both tiers are available to Pro subscribers at the listed service prices. During September 2026, all services are 50% off as part of the launch trial.' },
       { type: 'heading', text: 'How to submit a request' },
       { type: 'list', items: [
-        'Log in to your Uniblueprint account and navigate to Foundation Blueprint',
+        'Log in to your UniBlueprint account and navigate to Foundation Blueprint',
         'Select the service you need — CV, cover letter, LinkedIn, CAO, and more',
         'Complete the intake form with your background, target role, and any specific notes',
         'Choose Standard or Premium tier and confirm your order',
@@ -136,11 +136,11 @@ export const POSTS = [
   {
     slug: 'campus-connect-guide',
     title: 'Getting Started with Campus Connect',
-    excerpt: 'Campus Connect is the community layer of Uniblueprint. Here is everything you need to know about boards, groups, and how to get involved.',
+    excerpt: 'Campus Connect is the community layer of UniBlueprint. Here is everything you need to know about boards, groups, and how to get involved.',
     category: 'Campus Life',
     date: '2026-03-12',
     sections: [
-      { type: 'paragraph', text: 'Campus Connect is the community feature built into Uniblueprint for students on your campus. It is free for all users — no Pro subscription required. Think of it as a digital campus notice board that actually works: organised by topic, moderated against community standards, and available to students at your specific university.' },
+      { type: 'paragraph', text: 'Campus Connect is the community feature built into UniBlueprint for students on your campus. It is free for all users — no Pro subscription required. Think of it as a digital campus notice board that actually works: organised by topic, moderated against community standards, and available to students at your specific university.' },
       { type: 'heading', text: 'The boards' },
       { type: 'paragraph', text: 'Each campus has a set of boards covering common student needs. There is a General board for campus news and discussions, a Housing board for rentals and accommodation questions, a Carpool board for sharing lifts, a Lost and Found board, a Marketplace for buying and selling, and a Clubs and Societies board for campus groups to post updates and recruit members.' },
       { type: 'heading', text: 'Community standards' },
@@ -181,12 +181,12 @@ export const POSTS = [
   },
   {
     slug: 'uniblueprint-launches-september-2026',
-    title: 'Uniblueprint Launches Across Irish Universities in September 2026',
+    title: 'UniBlueprint Launches Across Irish Universities in September 2026',
     excerpt: 'Everything students, Campus Handlers, and Uni Coaches need to know ahead of the September 2026 freshers week launch.',
     category: 'Platform',
     date: '2026-06-01',
     sections: [
-      { type: 'paragraph', text: 'Uniblueprint launches at Irish universities and colleges during freshers week in September 2026. This is the announcement we have been building toward — and it marks the beginning of what we believe is a different kind of student platform. Not another social network. Not a generic career tool. A structured, practical resource built for the Irish student experience.' },
+      { type: 'paragraph', text: 'UniBlueprint launches at Irish universities and colleges during freshers week in September 2026. This is the announcement we have been building toward — and it marks the beginning of what we believe is a different kind of student platform. Not another social network. Not a generic career tool. A structured, practical resource built for the Irish student experience.' },
       { type: 'heading', text: 'What is available at launch' },
       { type: 'list', items: [
         'Foundation Blueprint: CV, cover letters, LinkedIn, CAO, interview prep — all reviewed by trained Campus Handlers',
@@ -199,7 +199,7 @@ export const POSTS = [
       { type: 'heading', text: 'September trial pricing' },
       { type: 'paragraph', text: 'To celebrate the launch, all Foundation Blueprint and Elevation Blueprint services are 50% off throughout September 2026. Pro subscription is €6.99 per month or €49.99 per year during the trial. Standard pricing resumes from 1 October 2026. If you sign up for Pro in September and stay subscribed, your rate is locked until the end of your first billing year.' },
       { type: 'heading', text: 'Get involved before launch' },
-      { type: 'paragraph', text: 'Campus Handler applications are now open. Uni Coach applications are open. Ambassador applications are open. If you want to be part of the team that brings Uniblueprint to your campus, apply now — onboarding happens throughout the summer ahead of the September launch. You can apply via the Join pages on this site.' },
+      { type: 'paragraph', text: 'Campus Handler applications are now open. Uni Coach applications are open. Ambassador applications are open. If you want to be part of the team that brings UniBlueprint to your campus, apply now — onboarding happens throughout the summer ahead of the September launch. You can apply via the Join pages on this site.' },
     ],
   },
 ]

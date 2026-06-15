@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { CheckCircle, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import UBPLogo from '../components/ui/UBPLogo'
 
 export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
@@ -48,12 +49,15 @@ export default function ComingSoonPage() {
   return (
     <>
       <Helmet>
-        <title>Coming Soon | Uniblueprint</title>
-        <meta name="description" content="Uniblueprint is coming to Irish universities in September 2026. Sign up for early access." />
+        <title>Coming Soon | UniBlueprint</title>
+        <meta name="description" content="UniBlueprint is coming to Irish universities in September 2026. Sign up for early access." />
       </Helmet>
 
       {/* HERO */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px', textAlign: 'center' }}>
+        <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block', marginBottom: '40px' }}>
+          <UBPLogo height={100} color="#F5F0E8" />
+        </Link>
         <p style={{
           fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
           color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em',
@@ -67,7 +71,7 @@ export default function ComingSoonPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: 'rgba(245,240,232,0.7)',
           margin: '16px auto 0', maxWidth: '480px', lineHeight: 1.6,
         }}>
-          Uniblueprint launches across Irish universities at freshers week. Be first to know.
+          UniBlueprint launches across Irish universities at freshers week. Be first to know.
         </p>
       </section>
 
@@ -92,7 +96,7 @@ export default function ComingSoonPage() {
               Get early access
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>
-              We will notify you when Uniblueprint launches at your university.
+              We will notify you when UniBlueprint launches at your university.
             </p>
 
             {success ? (

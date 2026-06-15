@@ -225,12 +225,12 @@ export default function ElevationBlueprintPage() {
   return (
     <>
       <Helmet>
-        <title>Elevation Blueprint | Uniblueprint</title>
+        <title>Elevation Blueprint | UniBlueprint</title>
         <meta
           name="description"
           content="Expert personal branding, mentorship, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches."
         />
-        <meta property="og:title" content="Elevation Blueprint | Uniblueprint" />
+        <meta property="og:title" content="Elevation Blueprint | UniBlueprint" />
         <meta property="og:description" content="Expert personal branding, mentorship, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches." />
       </Helmet>
 

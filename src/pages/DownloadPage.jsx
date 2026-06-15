@@ -5,7 +5,7 @@ import logo from '../assets/ubp-logo.png'
 const APP_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'MobileApplication',
-  name: 'Uniblueprint',
+  name: 'UniBlueprint',
   description: 'The all-in-one platform for Irish students',
   operatingSystem: 'iOS, Android',
   applicationCategory: 'EducationApplication',
@@ -57,8 +57,8 @@ export default function DownloadPage() {
   return (
     <>
       <Helmet>
-        <title>Download | Uniblueprint</title>
-        <meta name="description" content="Download the Uniblueprint app for iOS and Android — the all-in-one platform for Irish students, launching September 2026." />
+        <title>Download | UniBlueprint</title>
+        <meta name="description" content="Download the UniBlueprint app for iOS and Android — the all-in-one platform for Irish students, launching September 2026." />
         <script type="application/ld+json">{JSON.stringify(APP_JSON_LD)}</script>
       </Helmet>
 
@@ -66,14 +66,14 @@ export default function DownloadPage() {
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
         <img
           src={logo}
-          alt="Uniblueprint logo"
+          alt="UniBlueprint logo"
           width="80"
           height="80"
           loading="lazy"
           style={{ height: '48px', width: 'auto', display: 'block', margin: '0 auto 24px' }}
         />
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F' }}>
-          Download Uniblueprint
+          Download UniBlueprint
         </h1>
         <p style={{
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',

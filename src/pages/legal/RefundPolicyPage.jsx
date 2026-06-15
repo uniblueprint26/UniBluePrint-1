@@ -17,10 +17,10 @@ export default function RefundPolicyPage() {
   return (
     <>
       <Helmet>
-        <title>Refund Policy | Uniblueprint</title>
-        <meta name="description" content="Uniblueprint Refund Policy — how refunds work for Pro subscriptions and Blueprint services." />
-        <meta property="og:title" content="Refund Policy | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint Refund Policy — how refunds work for Pro subscriptions and Blueprint services." />
+        <title>Refund Policy | UniBlueprint</title>
+        <meta name="description" content="UniBlueprint Refund Policy — how refunds work for Pro subscriptions and Blueprint services." />
+        <meta property="og:title" content="Refund Policy | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint Refund Policy — how refunds work for Pro subscriptions and Blueprint services." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>

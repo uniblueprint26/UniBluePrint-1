@@ -68,7 +68,7 @@ const FAQS = [
     a: 'TODO: Insert answer — Campus Handlers are trained students who review Foundation outputs. Uni Coaches are specialists who deliver Elevation services.',
   },
   {
-    q: 'Can I use Uniblueprint if I am not a student?',
+    q: 'Can I use UniBlueprint if I am not a student?',
     a: 'TODO: Insert answer — platform is designed for students and young people in or recently out of education.',
   },
   {
@@ -370,17 +370,17 @@ export default function HowItWorksPage() {
   return (
     <>
       <Helmet>
-        <title>How It Works | Uniblueprint</title>
+        <title>How It Works | UniBlueprint</title>
         <meta
           name="description"
           content="From download to delivered — your Blueprint in four simple steps. Foundation Blueprint and Elevation Blueprint explained."
         />
-        <meta property="og:title" content="How It Works | Uniblueprint" />
+        <meta property="og:title" content="How It Works | UniBlueprint" />
         <meta property="og:description" content="From download to delivered — your Blueprint in four simple steps. Foundation Blueprint and Elevation Blueprint explained." />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'HowTo',
-          name: 'How to use Uniblueprint',
+          name: 'How to use UniBlueprint',
           description: 'From download to delivered — your Blueprint in four simple steps.',
           step: [
             {

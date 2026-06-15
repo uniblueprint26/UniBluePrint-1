@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import UBPLogo from '../components/ui/UBPLogo'
 
 export default function ServerErrorPage() {
   return (
     <>
       <Helmet>
-        <title>Something Went Wrong | Uniblueprint</title>
+        <title>Something Went Wrong | UniBlueprint</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 
@@ -15,6 +16,9 @@ export default function ServerErrorPage() {
         padding: '80px 24px', textAlign: 'center',
       }}>
         <div style={{ maxWidth: '480px' }}>
+          <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block', marginBottom: '32px' }}>
+            <UBPLogo height={80} />
+          </Link>
           <p style={{
             fontFamily: "'DM Serif Display', serif",
             fontSize: '96px', color: '#1E3A5F',

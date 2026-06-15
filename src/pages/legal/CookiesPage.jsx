@@ -44,10 +44,10 @@ export default function CookiesPage() {
   return (
     <>
       <Helmet>
-        <title>Cookie Policy | Uniblueprint</title>
-        <meta name="description" content="Uniblueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
-        <meta property="og:title" content="Cookie Policy | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
+        <title>Cookie Policy | UniBlueprint</title>
+        <meta name="description" content="UniBlueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
+        <meta property="og:title" content="Cookie Policy | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -100,15 +100,15 @@ export default function CookiesPage() {
 
             <Section title="6. Managing Your Preferences">
               <p style={P}>
-                TODO: When you first visit Uniblueprint, a cookie consent banner will appear at the bottom of the screen. You may choose "Accept All", "Manage Preferences", or "Reject All". You can change your preference at any time by clearing the{' '}
+                TODO: When you first visit UniBlueprint, a cookie consent banner will appear at the bottom of the screen. You may choose "Accept All", "Manage Preferences", or "Reject All". You can change your preference at any time by clearing the{' '}
                 <code style={{ background: '#F5F0E8', padding: '2px 6px', borderRadius: '4px', fontSize: '13px' }}>ubp_cookie_consent</code>
                 {' '}key from your browser's local storage and refreshing the page.
               </p>
-              <p style={P}>You may also disable cookies entirely through your browser settings. Note that disabling essential cookies will prevent you from signing in to Uniblueprint.</p>
+              <p style={P}>You may also disable cookies entirely through your browser settings. Note that disabling essential cookies will prevent you from signing in to UniBlueprint.</p>
             </Section>
 
             <Section title="7. Third-Party Cookies">
-              <p style={P}>TODO: Some cookies on Uniblueprint are set by third-party services — specifically Supabase (authentication) and Google Analytics (analytics, if accepted). These providers operate under their own cookie policies. We do not control third-party cookies beyond the access controls we configure.</p>
+              <p style={P}>TODO: Some cookies on UniBlueprint are set by third-party services — specifically Supabase (authentication) and Google Analytics (analytics, if accepted). These providers operate under their own cookie policies. We do not control third-party cookies beyond the access controls we configure.</p>
             </Section>
 
             <Section title="8. Contact Us">

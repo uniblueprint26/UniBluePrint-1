@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom'
-import logo from '../../assets/ubp-logo.png'
+import UBPLogo from '../ui/UBPLogo'
 
 export default function AuthLayout({ title, subtitle, children, footer }) {
   return (
@@ -12,9 +11,9 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
     }}>
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center' }}>
-          <Link to="/">
-            <img src={logo} alt="Uniblueprint logo" width="80" height="80" loading="lazy" style={{ width: '80px', height: '80px' }} />
-          </Link>
+          <a href="/" aria-label="UniBlueprint home" style={{ display: 'inline-block' }}>
+            <UBPLogo height={80} />
+          </a>
         </div>
 
         {title && (

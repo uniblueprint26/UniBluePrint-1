@@ -288,7 +288,7 @@ export default function Navbar({ onSearchOpen }) {
       }}
     >
       {/* Logo */}
-      <Link to="/" aria-label="Uniblueprint home" style={{ flexShrink: 0 }}>
+      <Link to="/" aria-label="UniBlueprint home" style={{ flexShrink: 0 }}>
         <UBPLogo height={36} />
       </Link>
 
@@ -511,7 +511,7 @@ export default function Navbar({ onSearchOpen }) {
         paddingBottom: '0',
       }}
     >
-      <Link to="/" aria-label="Uniblueprint home">
+      <Link to="/" aria-label="UniBlueprint home">
         <UBPLogo height={32} />
       </Link>
 
@@ -619,8 +619,8 @@ export default function Navbar({ onSearchOpen }) {
       >
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '16px 16px 0' }}>
-          <Link to="/" onClick={closeMenu} aria-label="Uniblueprint home">
-            <UBPLogo height={36} />
+          <Link to="/" onClick={closeMenu} aria-label="UniBlueprint home">
+            <UBPLogo height={48} />
           </Link>
           <button
             onClick={closeMenu}

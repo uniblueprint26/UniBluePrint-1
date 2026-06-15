@@ -260,7 +260,7 @@ function TeamForm() {
           <FormInput value={form.university} onChange={set('university')} placeholder="University College Dublin" />
         </FormField>
       </div>
-      <FormField label="Tell us about yourself" hint="Why do you want to work with Uniblueprint?">
+      <FormField label="Tell us about yourself" hint="Why do you want to work with UniBlueprint?">
         <FormTextarea value={form.message} onChange={set('message')} placeholder="I would love to contribute to..." rows={5} required />
       </FormField>
       <FormConsent />
@@ -277,13 +277,13 @@ export default function ContactPage() {
   return (
     <>
       <Helmet>
-        <title>Contact | Uniblueprint</title>
+        <title>Contact | UniBlueprint</title>
         <meta
           name="description"
-          content="Get in touch with the Uniblueprint team — general enquiries, partnership opportunities, or joining the team."
+          content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team."
         />
-        <meta property="og:title" content="Contact | Uniblueprint" />
-        <meta property="og:description" content="Get in touch with the Uniblueprint team — general enquiries, partnership opportunities, or joining the team." />
+        <meta property="og:title" content="Contact | UniBlueprint" />
+        <meta property="og:description" content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -341,7 +341,7 @@ export default function ContactPage() {
             subtitle={
               activeTab === 'general'     ? 'Ask us anything — we read every message.' :
               activeTab === 'partnership' ? 'Tell us about your organisation and what you have in mind.' :
-              "Interested in working with Uniblueprint? Tell us about yourself."
+              "Interested in working with UniBlueprint? Tell us about yourself."
             }
           >
             {activeTab === 'general'     && <GeneralForm />}

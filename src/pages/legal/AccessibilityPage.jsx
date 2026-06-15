@@ -17,10 +17,10 @@ export default function AccessibilityPage() {
   return (
     <>
       <Helmet>
-        <title>Accessibility | Uniblueprint</title>
-        <meta name="description" content="Uniblueprint Accessibility Statement — our commitment to making the platform accessible to all users." />
-        <meta property="og:title" content="Accessibility | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint Accessibility Statement — our commitment to making the platform accessible to all users." />
+        <title>Accessibility | UniBlueprint</title>
+        <meta name="description" content="UniBlueprint Accessibility Statement — our commitment to making the platform accessible to all users." />
+        <meta property="og:title" content="Accessibility | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint Accessibility Statement — our commitment to making the platform accessible to all users." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -40,8 +40,8 @@ export default function AccessibilityPage() {
             padding: '48px 40px',
           }}>
             <Section title="Our Commitment">
-              <p style={P}>TODO: Uniblueprint is committed to ensuring that our platform is accessible to all users, including those with disabilities. We believe that every student should be able to access the tools and services that help them succeed — regardless of how they interact with technology.</p>
-              <p style={P}>TODO: We are actively working to improve the accessibility of the Uniblueprint platform and to ensure that it meets recognised accessibility standards ahead of our September 2026 launch.</p>
+              <p style={P}>TODO: UniBlueprint is committed to ensuring that our platform is accessible to all users, including those with disabilities. We believe that every student should be able to access the tools and services that help them succeed — regardless of how they interact with technology.</p>
+              <p style={P}>TODO: We are actively working to improve the accessibility of the UniBlueprint platform and to ensure that it meets recognised accessibility standards ahead of our September 2026 launch.</p>
             </Section>
 
             <Section title="Standards We Aim to Meet">
@@ -67,7 +67,7 @@ export default function AccessibilityPage() {
             </Section>
 
             <Section title="Contact for Accessibility Issues">
-              <p style={P}>TODO: If you experience an accessibility barrier on the Uniblueprint platform, or have feedback on how we can improve, please contact us:</p>
+              <p style={P}>TODO: If you experience an accessibility barrier on the UniBlueprint platform, or have feedback on how we can improve, please contact us:</p>
               <p style={P}>
                 Email:{' '}
                 <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>

@@ -34,7 +34,7 @@ const VALUE_PROPS = [
   {
     icon: GraduationCap,
     title: 'Student success support',
-    description: 'Uniblueprint gives your students access to CV support, career coaching, and academic services — reducing the load on your careers office.',
+    description: 'UniBlueprint gives your students access to CV support, career coaching, and academic services — reducing the load on your careers office.',
   },
   {
     icon: Users,
@@ -88,13 +88,13 @@ export default function ForUniversitiesPage() {
   return (
     <>
       <Helmet>
-        <title>For Universities | Uniblueprint</title>
+        <title>For Universities | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with Uniblueprint to give your students access to career support, campus community, and academic tools — launching September 2026."
+          content="Partner with UniBlueprint to give your students access to career support, campus community, and academic tools — launching September 2026."
         />
-        <meta property="og:title" content="For Universities | Uniblueprint" />
-        <meta property="og:description" content="Partner with Uniblueprint to give your students access to career support, campus community, and academic tools — launching September 2026." />
+        <meta property="og:title" content="For Universities | UniBlueprint" />
+        <meta property="og:description" content="Partner with UniBlueprint to give your students access to career support, campus community, and academic tools — launching September 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -106,7 +106,7 @@ export default function ForUniversitiesPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Partner with Uniblueprint to give your students the tools, support, and community they need to succeed.
+          Partner with UniBlueprint to give your students the tools, support, and community they need to succeed.
         </p>
       </section>
 

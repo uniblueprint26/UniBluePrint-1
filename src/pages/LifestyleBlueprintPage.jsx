@@ -42,7 +42,7 @@ const CATEGORIES = [
   {
     icon: Heart,
     name: 'Mental Health',
-    description: 'Free resources, helplines, and wellbeing tools — available to every Uniblueprint user.',
+    description: 'Free resources, helplines, and wellbeing tools — available to every UniBlueprint user.',
     locked: false,
     green: true,
   },
@@ -242,12 +242,12 @@ export default function LifestyleBlueprintPage() {
   return (
     <>
       <Helmet>
-        <title>Lifestyle Blueprint | Uniblueprint</title>
+        <title>Lifestyle Blueprint | UniBlueprint</title>
         <meta
           name="description"
           content="Exclusive deals and discounts for Irish students — Pro subscribers only. Mental health and wellbeing resources always free."
         />
-        <meta property="og:title" content="Lifestyle Blueprint | Uniblueprint" />
+        <meta property="og:title" content="Lifestyle Blueprint | UniBlueprint" />
         <meta property="og:description" content="Exclusive deals and discounts for Irish students — Pro subscribers only. Mental health and wellbeing resources always free." />
       </Helmet>
 
@@ -301,7 +301,7 @@ export default function LifestyleBlueprintPage() {
                 fontSize: '14px', color: '#6B7280',
                 marginTop: '6px', lineHeight: 1.6,
               }}>
-                Access to mental health resources, helplines, and wellbeing tools is available to every Uniblueprint user — no subscription required, no paywall, ever.
+                Access to mental health resources, helplines, and wellbeing tools is available to every UniBlueprint user — no subscription required, no paywall, ever.
               </p>
             </div>
           </div>
@@ -423,7 +423,7 @@ export default function LifestyleBlueprintPage() {
           fontSize: '16px', color: 'rgba(245,240,232,0.7)',
           marginTop: '12px',
         }}>
-          Join Uniblueprint free. Upgrade to Pro when you're ready.
+          Join UniBlueprint free. Upgrade to Pro when you're ready.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link

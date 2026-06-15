@@ -221,15 +221,15 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Uniblueprint — The Structure Behind Your Success</title>
+        <title>UniBlueprint — The Structure Behind Your Success</title>
         <meta name="description" content="The all-in-one platform for Irish students and young people. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
-        <meta property="og:title" content="Uniblueprint — The Structure Behind Your Success" />
+        <meta property="og:title" content="UniBlueprint — The Structure Behind Your Success" />
         <meta property="og:description" content="The all-in-one platform for Irish students and young people. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Organization',
-          name: 'Uniblueprint',
+          name: 'UniBlueprint',
           url: 'https://uniblueprint.com',
           logo: 'https://uniblueprint.com/og-image.png',
           description: 'The all-in-one platform for Irish students and young people.',
@@ -245,7 +245,7 @@ export default function HomePage() {
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebSite',
-          name: 'Uniblueprint',
+          name: 'UniBlueprint',
           url: 'https://uniblueprint.com',
           description: 'The Structure Behind Your Success',
           potentialAction: {

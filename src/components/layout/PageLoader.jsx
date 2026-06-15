@@ -16,7 +16,7 @@ export default function PageLoader() {
     >
       <img
         src={logo}
-        alt="Uniblueprint logo"
+        alt="UniBlueprint logo"
         width="80"
         height="80"
         style={{ width: '80px', height: '80px' }}

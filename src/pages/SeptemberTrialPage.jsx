@@ -359,13 +359,13 @@ export default function SeptemberTrialPage() {
   return (
     <>
       <Helmet>
-        <title>50% Off — September Trial | Uniblueprint</title>
+        <title>50% Off — September Trial | UniBlueprint</title>
         <meta
           name="description"
-          content="Every Uniblueprint service at 50% off. The whole of September. Your Blueprint. Half the price."
+          content="Every UniBlueprint service at 50% off. The whole of September. Your Blueprint. Half the price."
         />
-        <meta property="og:title" content="50% Off — September Trial | Uniblueprint" />
-        <meta property="og:description" content="Every Uniblueprint service at 50% off. The whole of September. Your Blueprint. Half the price." />
+        <meta property="og:title" content="50% Off — September Trial | UniBlueprint" />
+        <meta property="og:description" content="Every UniBlueprint service at 50% off. The whole of September. Your Blueprint. Half the price." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}

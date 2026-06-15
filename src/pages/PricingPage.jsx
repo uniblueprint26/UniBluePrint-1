@@ -414,12 +414,12 @@ export default function PricingPage() {
   return (
     <>
       <Helmet>
-        <title>Pricing | Uniblueprint</title>
+        <title>Pricing | UniBlueprint</title>
         <meta
           name="description"
           content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial."
         />
-        <meta property="og:title" content="Pricing | Uniblueprint" />
+        <meta property="og:title" content="Pricing | UniBlueprint" />
         <meta property="og:description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial." />
       </Helmet>
 

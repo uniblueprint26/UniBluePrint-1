@@ -17,10 +17,10 @@ export default function TermsPage() {
   return (
     <>
       <Helmet>
-        <title>Terms of Service | Uniblueprint</title>
-        <meta name="description" content="Uniblueprint Terms of Service — the rules and conditions governing your use of the Uniblueprint platform." />
-        <meta property="og:title" content="Terms of Service | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint Terms of Service — the rules and conditions governing your use of the Uniblueprint platform." />
+        <title>Terms of Service | UniBlueprint</title>
+        <meta name="description" content="UniBlueprint Terms of Service — the rules and conditions governing your use of the UniBlueprint platform." />
+        <meta property="og:title" content="Terms of Service | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint Terms of Service — the rules and conditions governing your use of the UniBlueprint platform." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -40,19 +40,19 @@ export default function TermsPage() {
             padding: '48px 40px',
           }}>
             <Section title="1. Introduction">
-              <p style={P}>TODO: These Terms of Service govern your use of the Uniblueprint platform, website, and services. By creating an account or using any Uniblueprint service, you agree to be bound by these terms. Please read them carefully.</p>
+              <p style={P}>TODO: These Terms of Service govern your use of the UniBlueprint platform, website, and services. By creating an account or using any UniBlueprint service, you agree to be bound by these terms. Please read them carefully.</p>
             </Section>
 
             <Section title="2. Eligibility">
-              <p style={P}>TODO: You must be at least 18 years old, or the age of majority in your jurisdiction, to use Uniblueprint. By using the platform, you confirm that you meet this requirement. Uniblueprint is designed for students and recent graduates enrolled in or having completed third-level education in Ireland.</p>
+              <p style={P}>TODO: You must be at least 18 years old, or the age of majority in your jurisdiction, to use UniBlueprint. By using the platform, you confirm that you meet this requirement. UniBlueprint is designed for students and recent graduates enrolled in or having completed third-level education in Ireland.</p>
             </Section>
 
             <Section title="3. Account Registration">
-              <p style={P}>TODO: To access most Uniblueprint features, you must register for an account. You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate, current, and complete information during registration and keep it updated.</p>
+              <p style={P}>TODO: To access most UniBlueprint features, you must register for an account. You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate, current, and complete information during registration and keep it updated.</p>
             </Section>
 
             <Section title="4. Services and Pricing">
-              <p style={P}>TODO: Uniblueprint offers free and paid services. Free services include Campus Connect, Course Connect, and Mental Health resources. Paid services include Foundation Blueprint and Elevation Blueprint, which require a Pro subscription. All prices are displayed in Euro (€) inclusive of VAT where applicable.</p>
+              <p style={P}>TODO: UniBlueprint offers free and paid services. Free services include Campus Connect, Course Connect, and Mental Health resources. Paid services include Foundation Blueprint and Elevation Blueprint, which require a Pro subscription. All prices are displayed in Euro (€) inclusive of VAT where applicable.</p>
             </Section>
 
             <Section title="5. Pro Subscription">
@@ -72,27 +72,27 @@ export default function TermsPage() {
             </Section>
 
             <Section title="9. User Content">
-              <p style={P}>TODO: By submitting content to Uniblueprint — including posts, notes, messages, or application materials — you grant Uniblueprint a non-exclusive, royalty-free licence to use, store, and display that content as necessary to provide the service. You retain ownership of your content.</p>
+              <p style={P}>TODO: By submitting content to UniBlueprint — including posts, notes, messages, or application materials — you grant UniBlueprint a non-exclusive, royalty-free licence to use, store, and display that content as necessary to provide the service. You retain ownership of your content.</p>
             </Section>
 
             <Section title="10. Prohibited Conduct">
-              <p style={P}>TODO: You may not use Uniblueprint to: impersonate any person or entity; post illegal, harmful, or offensive content; scrape or harvest data; circumvent security measures; submit fraudulent service requests; or use the platform in any way that violates applicable Irish or EU law.</p>
+              <p style={P}>TODO: You may not use UniBlueprint to: impersonate any person or entity; post illegal, harmful, or offensive content; scrape or harvest data; circumvent security measures; submit fraudulent service requests; or use the platform in any way that violates applicable Irish or EU law.</p>
             </Section>
 
             <Section title="11. Intellectual Property">
-              <p style={P}>TODO: All intellectual property on the Uniblueprint platform — including the brand, design, software, and content created by Uniblueprint or its handlers and coaches — is owned by Uniblueprint Ltd or its licensors. Nothing in these terms grants you any rights to use Uniblueprint's intellectual property without express written permission.</p>
+              <p style={P}>TODO: All intellectual property on the UniBlueprint platform — including the brand, design, software, and content created by UniBlueprint or its handlers and coaches — is owned by UniBlueprint Ltd or its licensors. Nothing in these terms grants you any rights to use UniBlueprint's intellectual property without express written permission.</p>
             </Section>
 
             <Section title="12. Disclaimer of Warranties">
-              <p style={P}>TODO: Uniblueprint is provided on an "as is" and "as available" basis. To the fullest extent permitted by law, Uniblueprint disclaims all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+              <p style={P}>TODO: UniBlueprint is provided on an "as is" and "as available" basis. To the fullest extent permitted by law, UniBlueprint disclaims all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
             </Section>
 
             <Section title="13. Limitation of Liability">
-              <p style={P}>TODO: To the fullest extent permitted by applicable law, Uniblueprint Ltd shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the platform. Our total liability in any matter shall not exceed the total amount paid by you to Uniblueprint in the 12 months preceding the claim.</p>
+              <p style={P}>TODO: To the fullest extent permitted by applicable law, UniBlueprint Ltd shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the platform. Our total liability in any matter shall not exceed the total amount paid by you to UniBlueprint in the 12 months preceding the claim.</p>
             </Section>
 
             <Section title="14. Termination">
-              <p style={P}>TODO: Uniblueprint reserves the right to suspend or terminate your account at any time for breach of these terms, fraudulent activity, or any other reason at our sole discretion. You may delete your account at any time via account settings. On termination, your right to use the platform ceases immediately.</p>
+              <p style={P}>TODO: UniBlueprint reserves the right to suspend or terminate your account at any time for breach of these terms, fraudulent activity, or any other reason at our sole discretion. You may delete your account at any time via account settings. On termination, your right to use the platform ceases immediately.</p>
             </Section>
 
             <Section title="15. Governing Law">
@@ -100,7 +100,7 @@ export default function TermsPage() {
             </Section>
 
             <Section title="16. Changes to These Terms">
-              <p style={P}>TODO: We may update these Terms of Service from time to time. We will notify you of significant changes by email or in-app notification. Continued use of Uniblueprint after changes take effect constitutes acceptance of the revised terms.</p>
+              <p style={P}>TODO: We may update these Terms of Service from time to time. We will notify you of significant changes by email or in-app notification. Continued use of UniBlueprint after changes take effect constitutes acceptance of the revised terms.</p>
             </Section>
 
             <Section title="17. Contact Us">

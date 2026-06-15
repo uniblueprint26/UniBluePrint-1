@@ -98,13 +98,13 @@ export default function PartnersPage() {
   return (
     <>
       <Helmet>
-        <title>Partners | Uniblueprint</title>
+        <title>Partners | UniBlueprint</title>
         <meta
           name="description"
-          content="Uniblueprint partners with best-in-class platforms to give Irish students the tools they need. Meet CourseCompass — Ireland's AI-powered CAO course matching platform."
+          content="UniBlueprint partners with best-in-class platforms to give Irish students the tools they need. Meet CourseCompass — Ireland's AI-powered CAO course matching platform."
         />
-        <meta property="og:title" content="Partners | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint partners with best-in-class platforms to give Irish students the tools they need. Meet CourseCompass — Ireland's AI-powered CAO course matching platform." />
+        <meta property="og:title" content="Partners | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint partners with best-in-class platforms to give Irish students the tools they need. Meet CourseCompass — Ireland's AI-powered CAO course matching platform." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -130,7 +130,7 @@ export default function PartnersPage() {
           marginTop: '16px', maxWidth: '560px',
           margin: '16px auto 0', lineHeight: 1.7,
         }}>
-          Uniblueprint integrates with trusted platforms so students get the best guidance in one place.
+          UniBlueprint integrates with trusted platforms so students get the best guidance in one place.
         </p>
       </section>
 
@@ -141,7 +141,7 @@ export default function PartnersPage() {
             name="CourseCompass"
             badgeLabel="Integration Partner"
             tagline="Ireland's AI-powered CAO course matching platform"
-            description="CourseCompass, built by Stephen McKeon, helps Irish students find the right CAO course using AI-powered matching. Answer a few questions about your interests and goals, and CourseCompass surfaces the courses most likely to suit you — before you submit your CAO application. Uniblueprint integrates with CourseCompass directly in the app, so Course Selection Guidance is powered by real AI matching, not guesswork."
+            description="CourseCompass, built by Stephen McKeon, helps Irish students find the right CAO course using AI-powered matching. Answer a few questions about your interests and goals, and CourseCompass surfaces the courses most likely to suit you — before you submit your CAO application. UniBlueprint integrates with CourseCompass directly in the app, so Course Selection Guidance is powered by real AI matching, not guesswork."
             url={COURSECOMPASS_URL}
           />
         </div>
@@ -153,7 +153,7 @@ export default function PartnersPage() {
           fontFamily: "'DM Serif Display', serif",
           fontSize: '32px', color: '#1E3A5F',
         }}>
-          Interested in partnering with Uniblueprint?
+          Interested in partnering with UniBlueprint?
         </h2>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",

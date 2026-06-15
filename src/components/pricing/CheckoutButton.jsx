@@ -146,7 +146,7 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
               lineHeight: 1.6,
               marginBottom: '28px',
             }}>
-              Download the app to get started with Uniblueprint.
+              Download the app to get started with UniBlueprint.
             </p>
 
             {/* CTA */}

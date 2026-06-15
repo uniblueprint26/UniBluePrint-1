@@ -38,7 +38,7 @@ const BENEFITS = [
   {
     icon: TrendingUp,
     title: 'Build your practice',
-    description: 'Uniblueprint connects you with a pipeline of motivated students. Grow your coaching practice alongside your main career.',
+    description: 'UniBlueprint connects you with a pipeline of motivated students. Grow your coaching practice alongside your main career.',
   },
   {
     icon: Briefcase,
@@ -105,13 +105,13 @@ export default function JoinCoachPage() {
   return (
     <>
       <Helmet>
-        <title>Become a Uni Coach | Uniblueprint</title>
+        <title>Become a Uni Coach | UniBlueprint</title>
         <meta
           name="description"
-          content="Join Uniblueprint as a Uni Coach — deliver expert career coaching, personal branding, and mentorship to Irish students."
+          content="Join UniBlueprint as a Uni Coach — deliver expert career coaching, personal branding, and mentorship to Irish students."
         />
-        <meta property="og:title" content="Become a Uni Coach | Uniblueprint" />
-        <meta property="og:description" content="Join Uniblueprint as a Uni Coach — deliver expert career coaching, personal branding, and mentorship to Irish students." />
+        <meta property="og:title" content="Become a Uni Coach | UniBlueprint" />
+        <meta property="og:description" content="Join UniBlueprint as a Uni Coach — deliver expert career coaching, personal branding, and mentorship to Irish students." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -147,7 +147,7 @@ export default function JoinCoachPage() {
             fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
             textAlign: 'center', margin: '12px auto 0', maxWidth: '640px', lineHeight: 1.7,
           }}>
-            Uni Coaches deliver Elevation Blueprint services — career coaching, personal branding, interview preparation, portfolio review, pitch coaching, and mentorship. You bring the expertise; Uniblueprint brings the students.
+            Uni Coaches deliver Elevation Blueprint services — career coaching, personal branding, interview preparation, portfolio review, pitch coaching, and mentorship. You bring the expertise; UniBlueprint brings the students.
           </p>
           <div className="about-team-grid" style={{ marginTop: '40px' }}>
             {BENEFITS.map(b => (

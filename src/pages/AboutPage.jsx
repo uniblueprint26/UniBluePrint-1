@@ -32,7 +32,7 @@ const TEAM_AREAS = [
   },
   {
     title: 'Marketing',
-    description: 'Growing awareness across Irish campuses and positioning the Uniblueprint brand.',
+    description: 'Growing awareness across Irish campuses and positioning the UniBlueprint brand.',
   },
   {
     title: 'Outreach',
@@ -205,13 +205,13 @@ export default function AboutPage() {
   return (
     <>
       <Helmet>
-        <title>About | Uniblueprint</title>
+        <title>About | UniBlueprint</title>
         <meta
           name="description"
-          content="Uniblueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint."
+          content="UniBlueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint."
         />
-        <meta property="og:title" content="About | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint." />
+        <meta property="og:title" content="About | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
@@ -224,7 +224,7 @@ export default function AboutPage() {
           fontFamily: "'DM Serif Display', serif",
           fontSize: '48px', color: '#1E3A5F',
         }}>
-          About Uniblueprint
+          About UniBlueprint
         </h1>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
@@ -255,7 +255,7 @@ export default function AboutPage() {
               marginTop: '16px', lineHeight: 1.8,
             }}>
               {/* TODO: Replace with real mission statement copy */}
-              TODO: Insert mission statement — 3–4 sentences describing why Uniblueprint exists, what problem it solves for Irish students, and what the long-term vision looks like.
+              TODO: Insert mission statement — 3–4 sentences describing why UniBlueprint exists, what problem it solves for Irish students, and what the long-term vision looks like.
             </p>
           </div>
 

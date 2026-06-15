@@ -59,7 +59,7 @@ export default function SignInPage() {
       subtitle="Sign in to your Blueprint"
       footer={
         <p style={belowCardStyle}>
-          New to Uniblueprint?{' '}
+          New to UniBlueprint?{' '}
           <Link to="/sign-up" style={linkStyle}>Create account</Link>
         </p>
       }

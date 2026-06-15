@@ -106,7 +106,7 @@ export default function SearchModal({ isOpen, onClose }) {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Search pages, services, FAQs…"
-          aria-label="Search Uniblueprint"
+          aria-label="Search UniBlueprint"
           style={{
             width: '100%',
             height: '56px',

@@ -10,24 +10,24 @@ const FAQ_CATEGORIES = [
     category: 'General',
     items: [
       {
-        q: 'What is Uniblueprint?',
-        a: 'TODO: Answer — Uniblueprint is an all-in-one platform for Irish students and young people. It provides CV support, career coaching, campus community, course collaboration, lifestyle deals, and budgeting tools in one place.',
+        q: 'What is UniBlueprint?',
+        a: 'TODO: Answer — UniBlueprint is an all-in-one platform for Irish students and young people. It provides CV support, career coaching, campus community, course collaboration, lifestyle deals, and budgeting tools in one place.',
       },
       {
-        q: 'Is Uniblueprint free to use?',
+        q: 'Is UniBlueprint free to use?',
         a: 'TODO: Answer — Yes. Creating an account is free. Campus Connect, Course Connect, and Mental Health resources are free for all users. Foundation and Elevation Blueprint services require a Pro subscription plus per-service fees.',
       },
       {
-        q: 'When does Uniblueprint launch?',
-        a: 'TODO: Answer — Uniblueprint launches at Irish universities and colleges during freshers week in September 2026.',
+        q: 'When does UniBlueprint launch?',
+        a: 'TODO: Answer — UniBlueprint launches at Irish universities and colleges during freshers week in September 2026.',
       },
       {
         q: 'Which universities are included at launch?',
-        a: 'TODO: Answer — Uniblueprint launches across Irish universities including UCD, TCD, UCC, DCU, University of Galway, UL, Maynooth, and TUD. More campuses will be added after launch.',
+        a: 'TODO: Answer — UniBlueprint launches across Irish universities including UCD, TCD, UCC, DCU, University of Galway, UL, Maynooth, and TUD. More campuses will be added after launch.',
       },
       {
-        q: 'Do I need to be a student to use Uniblueprint?',
-        a: 'TODO: Answer — Uniblueprint is designed for students and recent graduates. Some services are open to young people who have recently completed education.',
+        q: 'Do I need to be a student to use UniBlueprint?',
+        a: 'TODO: Answer — UniBlueprint is designed for students and recent graduates. Some services are open to young people who have recently completed education.',
       },
     ],
   },
@@ -69,7 +69,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'Who reviews my submission?',
-        a: 'TODO: Answer — Every Foundation Blueprint output is reviewed by a trained Campus Handler before delivery. Handlers are students who have been trained and onboarded by the Uniblueprint team.',
+        a: 'TODO: Answer — Every Foundation Blueprint output is reviewed by a trained Campus Handler before delivery. Handlers are students who have been trained and onboarded by the UniBlueprint team.',
       },
       {
         q: 'What if I am not happy with the output?',
@@ -90,7 +90,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'Who are Uni Coaches?',
-        a: 'TODO: Answer — Uni Coaches are professionals, postgraduates, and specialists who have been vetted and onboarded by the Uniblueprint team. Each Coach brings real expertise in their area.',
+        a: 'TODO: Answer — Uni Coaches are professionals, postgraduates, and specialists who have been vetted and onboarded by the UniBlueprint team. Each Coach brings real expertise in their area.',
       },
       {
         q: 'Is mentorship matching really free?',
@@ -107,11 +107,11 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'Is Campus Connect free?',
-        a: 'TODO: Answer — Yes. Campus Connect is free for all Uniblueprint users. No Pro subscription required.',
+        a: 'TODO: Answer — Yes. Campus Connect is free for all UniBlueprint users. No Pro subscription required.',
       },
       {
         q: 'Is Course Connect free?',
-        a: 'TODO: Answer — Yes. Course Connect is free for all Uniblueprint users.',
+        a: 'TODO: Answer — Yes. Course Connect is free for all UniBlueprint users.',
       },
       {
         q: 'How is the community moderated?',
@@ -250,10 +250,10 @@ export default function FAQsPage() {
   return (
     <>
       <Helmet>
-        <title>FAQs | Uniblueprint</title>
+        <title>FAQs | UniBlueprint</title>
         <meta
           name="description"
-          content="Answers to the most common questions about Uniblueprint — pricing, services, Campus Handlers, Uni Coaches, and more."
+          content="Answers to the most common questions about UniBlueprint — pricing, services, Campus Handlers, Uni Coaches, and more."
         />
         <script type="application/ld+json">
           {JSON.stringify(jsonLd)}
@@ -269,7 +269,7 @@ export default function FAQsPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.6,
         }}>
-          Everything you need to know about Uniblueprint.
+          Everything you need to know about UniBlueprint.
         </p>
 
         {/* Search */}

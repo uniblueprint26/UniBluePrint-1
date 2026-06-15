@@ -40,8 +40,8 @@ const BENEFITS = [
   },
   {
     icon: Megaphone,
-    title: 'Be the face of Uniblueprint on your campus',
-    description: 'Represent Uniblueprint at freshers week, campus events, and online. Build a real brand role.',
+    title: 'Be the face of UniBlueprint on your campus',
+    description: 'Represent UniBlueprint at freshers week, campus events, and online. Build a real brand role.',
   },
   {
     icon: Gift,
@@ -110,13 +110,13 @@ export default function AmbassadorsPage() {
   return (
     <>
       <Helmet>
-        <title>Ambassadors | Uniblueprint</title>
+        <title>Ambassadors | UniBlueprint</title>
         <meta
           name="description"
-          content="Become a Uniblueprint campus ambassador — represent us at your university, earn rewards, and help launch the platform in September 2026."
+          content="Become a UniBlueprint campus ambassador — represent us at your university, earn rewards, and help launch the platform in September 2026."
         />
-        <meta property="og:title" content="Ambassadors | Uniblueprint" />
-        <meta property="og:description" content="Become a Uniblueprint campus ambassador — represent us at your university, earn rewards, and help launch the platform in September 2026." />
+        <meta property="og:title" content="Ambassadors | UniBlueprint" />
+        <meta property="og:description" content="Become a UniBlueprint campus ambassador — represent us at your university, earn rewards, and help launch the platform in September 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -128,7 +128,7 @@ export default function AmbassadorsPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Represent Uniblueprint at your university. Help us launch. Earn rewards.
+          Represent UniBlueprint at your university. Help us launch. Earn rewards.
         </p>
       </section>
 
@@ -152,7 +152,7 @@ export default function AmbassadorsPage() {
             fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
             textAlign: 'center', margin: '12px auto 0', maxWidth: '640px', lineHeight: 1.7,
           }}>
-            Ambassadors are the face of Uniblueprint on campus. They spread the word at freshers week, create content, drive sign-ups, and give us ground-level feedback on what students actually need.
+            Ambassadors are the face of UniBlueprint on campus. They spread the word at freshers week, create content, drive sign-ups, and give us ground-level feedback on what students actually need.
           </p>
           <div className="about-team-grid" style={{ marginTop: '40px' }}>
             {BENEFITS.map(b => (
@@ -237,11 +237,11 @@ export default function AmbassadorsPage() {
               <FormField label="Instagram handle (optional)">
                 <FormInput value={form.instagram_handle} onChange={set('instagram_handle')} placeholder="@yourhandle" />
               </FormField>
-              <FormField label="Why do you want to be a Uniblueprint ambassador?" hint="Tell us about yourself, your campus presence, and why this role suits you.">
-                <FormTextarea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to represent Uniblueprint because..." rows={4} required />
+              <FormField label="Why do you want to be a UniBlueprint ambassador?" hint="Tell us about yourself, your campus presence, and why this role suits you.">
+                <FormTextarea value={form.why_apply} onChange={set('why_apply')} placeholder="I want to represent UniBlueprint because..." rows={4} required />
               </FormField>
-              <FormField label="How would you promote Uniblueprint on your campus?" hint="Think freshers week, social media, word of mouth, or events.">
-                <FormTextarea value={form.how_promote} onChange={set('how_promote')} placeholder="I would promote Uniblueprint by..." rows={4} required />
+              <FormField label="How would you promote UniBlueprint on your campus?" hint="Think freshers week, social media, word of mouth, or events.">
+                <FormTextarea value={form.how_promote} onChange={set('how_promote')} placeholder="I would promote UniBlueprint by..." rows={4} required />
               </FormField>
 
               <FormConsent />

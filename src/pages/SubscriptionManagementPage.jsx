@@ -40,7 +40,7 @@ export default function SubscriptionManagementPage() {
   return (
     <>
       <Helmet>
-        <title>Subscription | Uniblueprint</title>
+        <title>Subscription | UniBlueprint</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 

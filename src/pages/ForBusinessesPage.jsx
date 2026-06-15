@@ -35,7 +35,7 @@ const BENEFITS = [
   {
     icon: Users,
     title: 'Reach Irish students directly',
-    description: 'Uniblueprint launches at Irish universities during freshers week September 2026 — your deal in front of students from day one.',
+    description: 'UniBlueprint launches at Irish universities during freshers week September 2026 — your deal in front of students from day one.',
   },
   {
     icon: Tag,
@@ -45,12 +45,12 @@ const BENEFITS = [
   {
     icon: TrendingUp,
     title: 'Growing student audience',
-    description: 'As Uniblueprint grows, your deal reaches more students — no additional cost per impression.',
+    description: 'As UniBlueprint grows, your deal reaches more students — no additional cost per impression.',
   },
   {
     icon: Star,
     title: 'Quality-reviewed listing',
-    description: 'We review every deal before it goes live. Being listed on Uniblueprint signals genuine student value.',
+    description: 'We review every deal before it goes live. Being listed on UniBlueprint signals genuine student value.',
   },
 ]
 
@@ -101,13 +101,13 @@ export default function ForBusinessesPage() {
   return (
     <>
       <Helmet>
-        <title>For Businesses | Uniblueprint</title>
+        <title>For Businesses | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with Uniblueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026."
+          content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026."
         />
-        <meta property="og:title" content="For Businesses | Uniblueprint" />
-        <meta property="og:description" content="Partner with Uniblueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026." />
+        <meta property="og:title" content="For Businesses | UniBlueprint" />
+        <meta property="og:description" content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -119,7 +119,7 @@ export default function ForBusinessesPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Reach Irish students with exclusive deals in the Uniblueprint Lifestyle Blueprint.
+          Reach Irish students with exclusive deals in the UniBlueprint Lifestyle Blueprint.
         </p>
       </section>
 

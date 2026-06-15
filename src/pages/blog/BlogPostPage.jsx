@@ -152,7 +152,7 @@ export default function BlogPostPage() {
     return (
       <>
         <Helmet>
-          <title>Post Not Found | Uniblueprint</title>
+          <title>Post Not Found | UniBlueprint</title>
           <meta name="robots" content="noindex" />
         </Helmet>
         <section style={{
@@ -190,14 +190,14 @@ export default function BlogPostPage() {
     '@type': 'BlogPosting',
     headline: post.title,
     datePublished: post.date,
-    author: { '@type': 'Organization', name: 'Uniblueprint' },
+    author: { '@type': 'Organization', name: 'UniBlueprint' },
     url: `${SITE_URL}/blog/${post.slug}`,
   }
 
   return (
     <>
       <Helmet>
-        <title>{post.title} | Uniblueprint</title>
+        <title>{post.title} | UniBlueprint</title>
         <meta name="description" content={post.excerpt} />
         <link rel="canonical" href={`${SITE_URL}/blog/${post.slug}`} />
         <script type="application/ld+json">{JSON.stringify(postJsonLd)}</script>
@@ -251,7 +251,7 @@ export default function BlogPostPage() {
             </span>
             <span aria-hidden="true" style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
-              Uniblueprint Team
+              UniBlueprint Team
             </span>
           </div>
         </div>

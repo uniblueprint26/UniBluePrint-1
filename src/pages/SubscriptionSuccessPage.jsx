@@ -28,7 +28,7 @@ export default function SubscriptionSuccessPage() {
   return (
     <>
       <Helmet>
-        <title>Subscription Confirmed | Uniblueprint</title>
+        <title>Subscription Confirmed | UniBlueprint</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 

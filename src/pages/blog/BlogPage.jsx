@@ -11,7 +11,7 @@ const CATEGORIES = ['All', ...Array.from(new Set(POSTS.map(p => p.category)))]
 const BLOG_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'Blog',
-  name: 'Uniblueprint Insights',
+  name: 'UniBlueprint Insights',
   description: 'Career tips, platform updates, and guides for Irish students',
 }
 
@@ -114,8 +114,8 @@ export default function BlogPage() {
   return (
     <>
       <Helmet>
-        <title>{safePage > 1 ? `Blog — Page ${safePage} | Uniblueprint` : 'Blog | Uniblueprint'}</title>
-        <meta name="description" content="Career tips, platform updates, and guides for Irish students from the Uniblueprint team." />
+        <title>{safePage > 1 ? `Blog — Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
+        <meta name="description" content="Career tips, platform updates, and guides for Irish students from the UniBlueprint team." />
         <link rel="canonical" href={canonical} />
         {/* TODO: Uncomment before going live — adds noindex on paginated pages beyond page 1 to prevent duplicate content penalties */}
         {/* {safePage > 1 && <meta name="robots" content="noindex, follow" />} */}
@@ -128,7 +128,7 @@ export default function BlogPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
           color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em',
         }}>
-          Uniblueprint Insights
+          UniBlueprint Insights
         </p>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F', marginTop: '8px' }}>
           Blog

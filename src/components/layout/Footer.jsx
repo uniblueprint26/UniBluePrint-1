@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Instagram } from 'lucide-react'
-import logo from '../../assets/ubp-logo.png'
+import UBPLogo from '../ui/UBPLogo'
 
 // ─── TikTok SVG (not in lucide-react) ─────────────────────────────────────────
 function TikTokIcon({ size = 18 }) {
@@ -151,15 +151,8 @@ export default function Footer() {
 
         {/* Logo + tagline */}
         <div>
-          <Link to="/" aria-label="Uniblueprint home">
-            <img
-              src={logo}
-              alt="Uniblueprint logo"
-              width="80"
-              height="80"
-              loading="lazy"
-              style={{ height: '40px', width: 'auto', filter: 'brightness(0) invert(1)', display: 'block' }}
-            />
+          <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block' }}>
+            <UBPLogo height={40} color="#F5F0E8" />
           </Link>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
@@ -196,10 +189,10 @@ export default function Footer() {
             Follow us
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <SocialButton href="https://www.instagram.com/uniblueprint26" label="Uniblueprint on Instagram">
+            <SocialButton href="https://www.instagram.com/uniblueprint26" label="UniBlueprint on Instagram">
               <Instagram size={18} />
             </SocialButton>
-            <SocialButton href="https://www.tiktok.com/@uniblueprint26" label="Uniblueprint on TikTok">
+            <SocialButton href="https://www.tiktok.com/@uniblueprint26" label="UniBlueprint on TikTok">
               <TikTokIcon size={18} />
             </SocialButton>
           </div>
@@ -234,7 +227,7 @@ export default function Footer() {
           <div className="footer-bottom">
             {/* Left — copyright */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-              &copy; 2026 Uniblueprint Ltd. All rights reserved.
+              &copy; 2026 UniBlueprint Ltd. All rights reserved.
             </span>
 
             {/* Centre — registered territory only */}

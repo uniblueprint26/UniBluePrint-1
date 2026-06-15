@@ -98,10 +98,10 @@ export default function PrivacyPage() {
   return (
     <>
       <Helmet>
-        <title>Privacy Policy | Uniblueprint</title>
-        <meta name="description" content="Uniblueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR." />
-        <meta property="og:title" content="Privacy Policy | Uniblueprint" />
-        <meta property="og:description" content="Uniblueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR." />
+        <title>Privacy Policy | UniBlueprint</title>
+        <meta name="description" content="UniBlueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR." />
+        <meta property="og:title" content="Privacy Policy | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -121,7 +121,7 @@ export default function PrivacyPage() {
             padding: '48px 40px',
           }}>
             <Section title="1. Who We Are">
-              <p style={P}>TODO: Uniblueprint Ltd is the data controller for personal data collected through the Uniblueprint platform. We are registered in Ireland. Contact: hello@uniblueprint.com. [TODO: Data Protection Officer details if required.]</p>
+              <p style={P}>TODO: UniBlueprint Ltd is the data controller for personal data collected through the UniBlueprint platform. We are registered in Ireland. Contact: hello@uniblueprint.com. [TODO: Data Protection Officer details if required.]</p>
             </Section>
 
             <Section title="2. Data We Collect">
@@ -129,7 +129,7 @@ export default function PrivacyPage() {
             </Section>
 
             <Section title="3. How We Use Your Data">
-              <p style={P}>TODO: We use your data to: provide and improve Uniblueprint services; process payments via Stripe; deliver Foundation Blueprint and Elevation Blueprint outputs; operate Campus Connect and Course Connect communities; send transactional emails (order confirmations, password resets); send marketing communications where you have opted in; comply with legal obligations.</p>
+              <p style={P}>TODO: We use your data to: provide and improve UniBlueprint services; process payments via Stripe; deliver Foundation Blueprint and Elevation Blueprint outputs; operate Campus Connect and Course Connect communities; send transactional emails (order confirmations, password resets); send marketing communications where you have opted in; comply with legal obligations.</p>
             </Section>
 
             <Section title="4. Legal Basis for Processing">
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
             </Section>
 
             <Section title="9. Third-Party Services">
-              <p style={P}>TODO: Uniblueprint uses third-party services that may process your data in their own right. These include Stripe (payments), Supabase (infrastructure), Google Analytics (analytics, if accepted), and Resend (email). Each provider operates under their own privacy policy. Where applicable, we have data processing agreements in place.</p>
+              <p style={P}>TODO: UniBlueprint uses third-party services that may process your data in their own right. These include Stripe (payments), Supabase (infrastructure), Google Analytics (analytics, if accepted), and Resend (email). Each provider operates under their own privacy policy. Where applicable, we have data processing agreements in place.</p>
             </Section>
 
             <Section title="10. Security">

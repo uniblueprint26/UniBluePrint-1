@@ -67,13 +67,13 @@ export default function CampusConnectPage() {
   return (
     <>
       <Helmet>
-        <title>Campus Connect | Uniblueprint</title>
+        <title>Campus Connect | UniBlueprint</title>
         <meta
           name="description"
-          content="Your campus community on Uniblueprint — groups, problems & solutions, deals, carpool, lost & found, and suggestions. Free for all users."
+          content="Your campus community on UniBlueprint — groups, problems & solutions, deals, carpool, lost & found, and suggestions. Free for all users."
         />
-        <meta property="og:title" content="Campus Connect | Uniblueprint" />
-        <meta property="og:description" content="Your campus community on Uniblueprint — groups, problems & solutions, deals, carpool, lost & found, and suggestions. Free for all users." />
+        <meta property="og:title" content="Campus Connect | UniBlueprint" />
+        <meta property="og:description" content="Your campus community on UniBlueprint — groups, problems & solutions, deals, carpool, lost & found, and suggestions. Free for all users." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
@@ -262,7 +262,7 @@ export default function CampusConnectPage() {
           fontSize: '16px', color: 'rgba(245,240,232,0.7)',
           marginTop: '12px',
         }}>
-          Free for every Uniblueprint user. No upgrade required.
+          Free for every UniBlueprint user. No upgrade required.
         </p>
         <div style={{ marginTop: '32px' }}>
           <Link
