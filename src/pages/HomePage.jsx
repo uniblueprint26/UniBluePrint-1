@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  Sparkles,
+  Sparkles, Star,
   FileText, TrendingUp, Tag, Users, Globe, PiggyBank,
   UserCheck, Award,
 } from 'lucide-react'
@@ -139,11 +139,64 @@ const PILLARS = [
   },
 ]
 
-const STATS = [
-  { value: '5',    label: 'Platform Pillars' },
-  { value: '48hr', label: 'Standard Delivery' },
-  { value: 'Free', label: 'To Join' },
+const STUDENTS = [
+  { name: 'Abdullah', course: 'Business',           university: 'DCU',  quote: 'TODO: Add quote from Abdullah.' },
+  { name: 'Eman',     course: 'Engineering',         university: 'UCD',  quote: 'TODO: Add quote from Eman.' },
+  { name: 'Nicole',   course: 'Law',                 university: 'TCD',  quote: 'TODO: Add quote from Nicole.' },
+  { name: 'Siobhán',  course: 'TODO: Add course',    university: 'UCC',  quote: 'TODO: Add quote from Siobhán.' },
+  { name: 'Ciarán',   course: 'TODO: Add course',    university: 'UL',   quote: 'TODO: Add quote from Ciarán.' },
+  { name: 'Aoife',    course: 'TODO: Add course',    university: 'NUIG', quote: 'TODO: Add quote from Aoife.' },
 ]
+
+// ─── StudentCard ───────────────────────────────────────────────────────────────
+
+function StudentCard({ name, course, university, quote }) {
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '12px',
+      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+      padding: '24px', textAlign: 'left',
+    }}>
+      <div style={{
+        width: '52px', height: '52px', borderRadius: '50%',
+        background: '#1E3A5F',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+        <span style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: '20px', color: '#FFFFFF', lineHeight: 1,
+        }}>
+          {name.charAt(0)}
+        </span>
+      </div>
+      <p style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '17px', color: '#1E3A5F', marginTop: '10px',
+      }}>
+        {name}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '13px', color: '#6B7280', marginTop: '4px',
+      }}>
+        {course} · {university}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '14px', color: '#6B7280', fontStyle: 'italic',
+        marginTop: '12px', lineHeight: 1.6,
+      }}>
+        "{quote}"
+      </p>
+      <div style={{ display: 'flex', gap: '2px', marginTop: '12px' }}>
+        {[1,2,3,4,5].map(i => (
+          <Star key={i} size={14} color="#1E3A5F" fill="#1E3A5F" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
 
@@ -222,9 +275,9 @@ export default function HomePage() {
     <>
       <Helmet>
         <title>UniBlueprint — The Structure Behind Your Success</title>
-        <meta name="description" content="The all-in-one platform for Irish students and young people. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta name="description" content="The all-in-one platform for students, apprentices, and young people across Ireland. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta property="og:title" content="UniBlueprint — The Structure Behind Your Success" />
-        <meta property="og:description" content="The all-in-one platform for Irish students and young people. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta property="og:description" content="The all-in-one platform for students, apprentices, and young people across Ireland. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
@@ -232,7 +285,7 @@ export default function HomePage() {
           name: 'UniBlueprint',
           url: 'https://uniblueprint.com',
           logo: 'https://uniblueprint.com/og-image.png',
-          description: 'The all-in-one platform for Irish students and young people.',
+          description: 'The all-in-one platform for students, apprentices, and young people across Ireland.',
           sameAs: [
             'https://www.instagram.com/uniblueprint26',
             'https://www.tiktok.com/@uniblueprint26',
@@ -299,7 +352,7 @@ export default function HomePage() {
             marginTop: '16px', maxWidth: '560px', lineHeight: 1.65,
           }}
         >
-          The all-in-one platform for Irish students and young people — CV support, career coaching, campus community, and lifestyle deals. Built for you.
+          The all-in-one platform for students, apprentices, and young people across Ireland — CV support, career coaching, campus community, and lifestyle deals. Built for you.
         </p>
 
         {/* CTAs */}
@@ -462,35 +515,16 @@ export default function HomePage() {
       </section>
 
       {/* ── SECTION 5 — SOCIAL PROOF ───────────────────────────────────────── */}
-      <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
+      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
+          fontSize: '40px', color: '#1E3A5F',
         }}>
-          Built for every Irish student
+          Built for students, apprentices, and young people across Ireland
         </h2>
 
-        <div className="stats-grid">
-          {STATS.map(({ value, label }) => (
-            <div key={label} style={{
-              background: '#FFFFFF', borderRadius: '12px',
-              padding: '28px', textAlign: 'center', flex: 1,
-            }}>
-              <p style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '44px', color: '#1E3A5F',
-                fontWeight: '700', lineHeight: 1,
-              }}>
-                {value}
-              </p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#6B7280', marginTop: '8px',
-              }}>
-                {label}
-              </p>
-            </div>
-          ))}
+        <div className="testimonials-grid">
+          {STUDENTS.map(s => <StudentCard key={s.name} {...s} />)}
         </div>
       </section>
 

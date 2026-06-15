@@ -297,6 +297,28 @@ footer {
   .pillars-grid { grid-template-columns: 1fr; }
 }
 
+/* Testimonials / student card grid */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 1000px;
+  margin: 40px auto 0;
+}
+@media (max-width: 767px) {
+  .testimonials-grid {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+  .testimonials-grid > * {
+    min-width: 260px;
+    flex-shrink: 0;
+  }
+}
+
 /* Stats + handler/coach grids */
 .stats-grid,
 .handler-coach-grid {
