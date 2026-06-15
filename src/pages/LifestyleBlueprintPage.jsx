@@ -245,10 +245,10 @@ export default function LifestyleBlueprintPage() {
         <title>Lifestyle Blueprint | UniBlueprint</title>
         <meta
           name="description"
-          content="Exclusive deals and discounts for Irish students — Pro subscribers only. Mental health and wellbeing resources always free."
+          content="Exclusive deals and discounts for students and young people in Ireland — Pro subscribers only. Mental health and wellbeing resources always free."
         />
         <meta property="og:title" content="Lifestyle Blueprint | UniBlueprint" />
-        <meta property="og:description" content="Exclusive deals and discounts for Irish students — Pro subscribers only. Mental health and wellbeing resources always free." />
+        <meta property="og:description" content="Exclusive deals and discounts for students and young people in Ireland — Pro subscribers only. Mental health and wellbeing resources always free." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
@@ -264,7 +264,7 @@ export default function LifestyleBlueprintPage() {
           fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Exclusive deals and discounts for Irish students — Pro subscribers only
+          Exclusive deals and discounts for students and young people in Ireland — Pro subscribers only
         </p>
 
         {/* Mental Health callout */}

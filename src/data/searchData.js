@@ -3,7 +3,7 @@ export const SEARCH_DATA = [
   { id: 'home', type: 'page', title: 'Home', description: "Ireland's student platform — the structure behind your success.", path: '/' },
   { id: 'about', type: 'page', title: 'About', description: 'Learn about the UniBlueprint team and mission.', path: '/about' },
   { id: 'how-it-works', type: 'page', title: 'How It Works', description: 'How UniBlueprint works — from sign-up to delivery.', path: '/how-it-works' },
-  { id: 'pricing', type: 'page', title: 'Pricing', description: 'Free and Pro plans for Irish students.', path: '/pricing' },
+  { id: 'pricing', type: 'page', title: 'Pricing', description: 'Free and Pro plans for students and young people in Ireland.', path: '/pricing' },
   { id: 'september-trial', type: 'page', title: 'September Trial', description: 'Free Pro access for first-year students in September 2026.', path: '/september-trial' },
   { id: 'for-universities', type: 'page', title: 'For Universities', description: 'Partner with UniBlueprint to support your students.', path: '/for-universities' },
   { id: 'for-businesses', type: 'page', title: 'For Businesses', description: 'List exclusive student deals in the Lifestyle Blueprint.', path: '/for-businesses' },

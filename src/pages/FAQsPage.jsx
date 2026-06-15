@@ -11,7 +11,7 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'What is UniBlueprint?',
-        a: 'TODO: Answer — UniBlueprint is an all-in-one platform for Irish students and young people. It provides CV support, career coaching, campus community, course collaboration, lifestyle deals, and budgeting tools in one place.',
+        a: 'TODO: Answer — UniBlueprint is an all-in-one platform for students, apprentices, and young people across Ireland. It provides CV support, career coaching, campus community, course collaboration, lifestyle deals, and budgeting tools in one place.',
       },
       {
         q: 'Is UniBlueprint free to use?',

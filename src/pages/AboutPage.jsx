@@ -208,10 +208,10 @@ export default function AboutPage() {
         <title>About | UniBlueprint</title>
         <meta
           name="description"
-          content="UniBlueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint."
+          content="UniBlueprint — built for students, apprentices, and young people across Ireland. Our mission, our story, and the team behind the Blueprint."
         />
         <meta property="og:title" content="About | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint — built for Irish students and young people. Our mission, our story, and the team behind the Blueprint." />
+        <meta property="og:description" content="UniBlueprint — built for students, apprentices, and young people across Ireland. Our mission, our story, and the team behind the Blueprint." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
@@ -232,7 +232,7 @@ export default function AboutPage() {
           marginTop: '12px', maxWidth: '560px',
           margin: '12px auto 0', lineHeight: 1.6,
         }}>
-          Built for Irish students. By people who understand the journey.
+          Built for students and young people in Ireland. By people who understand the journey.
         </p>
       </section>
 
@@ -255,7 +255,7 @@ export default function AboutPage() {
               marginTop: '16px', lineHeight: 1.8,
             }}>
               {/* TODO: Replace with real mission statement copy */}
-              TODO: Insert mission statement — 3–4 sentences describing why UniBlueprint exists, what problem it solves for Irish students, and what the long-term vision looks like.
+              TODO: Insert mission statement — 3–4 sentences describing why UniBlueprint exists, what problem it solves for students and young people in Ireland, and what the long-term vision looks like.
             </p>
           </div>
 

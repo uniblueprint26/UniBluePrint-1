@@ -375,7 +375,7 @@ export default function FoundationBlueprintPage() {
               fontSize: '16px', color: '#1E3A5F',
               marginBottom: '12px',
             }}>
-              AI-powered CAO course matching for Irish students
+              AI-powered CAO course matching for students and young people in Ireland
             </p>
             {/* TODO: Replace with live CourseCompass URL when provided by Stephen McKeon */}
             <a

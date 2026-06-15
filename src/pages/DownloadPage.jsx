@@ -6,7 +6,7 @@ const APP_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'MobileApplication',
   name: 'UniBlueprint',
-  description: 'The all-in-one platform for Irish students',
+  description: 'The all-in-one platform for students and young people in Ireland',
   operatingSystem: 'iOS, Android',
   applicationCategory: 'EducationApplication',
 }
@@ -58,7 +58,7 @@ export default function DownloadPage() {
     <>
       <Helmet>
         <title>Download | UniBlueprint</title>
-        <meta name="description" content="Download the UniBlueprint app for iOS and Android — the all-in-one platform for Irish students, launching September 2026." />
+        <meta name="description" content="Download the UniBlueprint app for iOS and Android — the all-in-one platform for students and young people in Ireland, launching September 2026." />
         <script type="application/ld+json">{JSON.stringify(APP_JSON_LD)}</script>
       </Helmet>
 
