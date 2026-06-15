@@ -13,44 +13,112 @@ import {
 const ELEVATION_SERVICES = [
   {
     name: 'Personal Branding Support',
-    description: 'A full personal brand audit and strategy — positioning, messaging, and online presence built for your goals.',
+    tagline: 'Know who you are professionally. Make sure everyone else does too.',
+    description: 'Your personal brand is what people say about you when you are not in the room — and right now, most students do not have one. UniBlueprint works with you through a Uni Coach to define your professional identity, sharpen your positioning, and ensure every touchpoint — LinkedIn, CV, online presence — tells a consistent, compelling story about who you are and where you are going.',
+    standardBullets: [
+      'Personal brand audit across all touchpoints',
+      'Brand positioning statement — who you are, what you offer, who you serve',
+      'LinkedIn headline and about section aligned to your positioning',
+      'Visual identity guidance — photo, consistency, tone',
+    ],
+    premiumBullets: [
+      'Full personal brand strategy document',
+      '30-day implementation plan',
+      'Follow-up review session with your Uni Coach',
+    ],
     icon: Sparkles,
     originalStandard: '€40', trialStandard: '€20',
     originalPremium: '€55', trialPremium: '€28',
   },
   {
-    name: 'Network Assistance',
-    description: 'Targeted outreach strategy, LinkedIn connection templates, and guidance on building your professional network.',
+    name: 'Network Assistance and Strategic Linking',
+    tagline: 'Build the connections that build your career',
+    description: 'Who you know matters — but only if you know how to build and use your network strategically. A Uni Coach helps you identify the right people to connect with, craft outreach messages that actually get responses, and turn cold connections into warm relationships that open doors.',
+    standardBullets: [
+      'Network audit — who you know and who you need to know',
+      'Target connection list — specific people and companies to reach',
+      'Outreach message templates tailored to your goals',
+      'LinkedIn connection and engagement strategy',
+    ],
+    premiumBullets: [
+      'Full network strategy document',
+      'Personalised outreach sequence for top 10 target connections',
+      'Follow-up session with your Uni Coach after first outreach results',
+    ],
     icon: Network,
     originalStandard: '€30', trialStandard: '€15',
     originalPremium: '€46', trialPremium: '€23',
   },
   {
     name: 'Portfolio Building',
-    description: 'Structure, content strategy, and review for your professional or creative portfolio.',
+    tagline: 'Show your work. Show your thinking. Get noticed.',
+    description: 'For students in creative, tech, business, and other portfolio-relevant fields, your work needs to be visible and presented correctly. A Uni Coach guides you through choosing the right platform for your field, structuring your projects as compelling case studies, and building a portfolio that employers and clients actually engage with.',
+    standardBullets: [
+      'Platform recommendation for your specific field and audience',
+      'Portfolio structure and content strategy',
+      'Case study framework — how to present each project',
+      'Hero section and contact optimisation',
+    ],
+    premiumBullets: [
+      'Portfolio review session after you build — Coach reviews and gives specific feedback',
+      'Improvement recommendations before you share with employers or clients',
+    ],
     icon: Layout,
     originalStandard: '€30', trialStandard: '€15',
     originalPremium: '€46', trialPremium: '€23',
   },
   {
     name: 'Mentorship Matching',
-    description: 'Matched to a Uni Coach relevant to your goals. Matching is always free — pay only for sessions.',
+    tagline: 'One conversation with the right person changes everything',
+    description: 'UniBlueprint matches you with a professional or alumni from our curated mentorship network — someone who has navigated where you are trying to go. Matching is always free. You pay only for the session itself. A Uni Coach prepares you before the session so you get the most from every minute.',
+    bullets: [
+      'Personalised mentor match from the UniBlueprint network',
+      'Session preparation guide — specific questions, session structure, etiquette',
+      'One-to-one mentorship session by video call or in person',
+    ],
+    premiumBullets: [
+      'Structured follow-up notes from your Uni Coach after the session',
+      'Action items and next steps documented',
+    ],
     icon: Users,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€36', trialPremium: '€18',
     matchingFree: true,
   },
   {
-    name: 'Pitch & Presentation Coaching',
-    description: 'Coaching on structure, delivery, and confidence — written feedback or live coaching session.',
+    name: 'Pitch and Presentation Coaching',
+    tagline: 'Perform under pressure. Every time.',
+    description: 'Whether you are preparing for a pitch competition, a university presentation, an internship interview, or a graduate scheme assessment centre — UniBlueprint prepares you to perform when it matters. A Uni Coach reviews your materials, gives specific written feedback, and coaches you on delivery, structure, and Q&A handling. Premium includes a live rehearsal session.',
+    standardBullets: [
+      'Written feedback on your slides, script, or deck — slide by slide',
+      'Delivery coaching on the three skills that separate strong from weak presenters',
+      'Q&A preparation with predicted questions and how to handle them',
+      'Practice schedule based on days until your event',
+    ],
+    premiumBullets: [
+      'Live rehearsal session with your Uni Coach as the audience or panel',
+      'Scored across five dimensions with readiness rating',
+      'Targeted re-run on your lowest scoring area',
+    ],
     icon: Presentation,
     originalStandard: '€25', trialStandard: '€13',
     originalPremium: '€45', trialPremium: '€18',
-    priceNote: 'Written · Live session at Premium',
   },
   {
-    name: 'Personal Statement & Postgrad',
-    description: 'Expert review of postgraduate, scholarship, or professional programme personal statements.',
+    name: 'Personal Statement and Postgrad Support',
+    tagline: 'Your postgraduate application — built to stand out',
+    description: 'Applying for a Masters, PhD, or professional postgraduate programme is a different game from undergraduate applications. UniBlueprint generates a strong personal statement foundation — programme-specific, academically written, and built around your genuine strengths — which a Uni Coach then refines, adding specificity and ensuring it speaks directly to what the admissions committee is looking for.',
+    standardBullets: [
+      'Programme-specific personal statement draft — not a generic template',
+      'Coach refinement session — specificity, narrative, programme alignment',
+      'Delivered within 48 hours',
+    ],
+    premiumBullets: [
+      'Same day delivery',
+      'Follow-up revision round after your Coach session',
+      "Second pass incorporating your voice and the Coach's refinements",
+    ],
+    note: 'Covers Masters, PhD, MBA, law conversion, clinical programmes, and other professional postgraduate programmes.',
     icon: BookOpen,
     originalStandard: '€30', trialStandard: '€15',
     originalPremium: '€52', trialPremium: '€26',
@@ -113,7 +181,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, description, icon: Icon, originalStandard, trialStandard, matchingFree, priceNote }) {
+function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, note, originalStandard, trialStandard, matchingFree }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -159,23 +227,102 @@ function ServiceCard({ name, description, icon: Icon, originalStandard, trialSta
         {name}
       </p>
 
+      {/* Tagline */}
+      {tagline && (
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', color: '#1E3A5F', fontStyle: 'italic',
+          marginTop: '3px',
+        }}>
+          {tagline}
+        </p>
+      )}
+
       {/* Description */}
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#6B7280',
-        marginTop: '6px', lineHeight: 1.55,
+        marginTop: '10px', lineHeight: 1.55,
       }}>
         {description}
       </p>
 
-      {/* Matching free badge */}
+      {/* Flat bullets — "What you get" (Mentorship Matching) */}
+      {bullets && bullets.length > 0 && (
+        <ul style={{ marginTop: '10px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          {bullets.map(b => (
+            <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.45 }}>
+              <span style={{ color: '#1E3A5F', flexShrink: 0, marginTop: '1px' }}>✓</span>
+              {b}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Standard / Premium bullet groups */}
+      {standardBullets && (
+        <>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '10px' }}>
+            Standard includes
+          </p>
+          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {standardBullets.map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.45 }}>
+                <span style={{ color: '#1E3A5F', flexShrink: 0, marginTop: '1px' }}>✓</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '8px' }}>
+            Premium adds
+          </p>
+          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {premiumBullets.map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', lineHeight: 1.45 }}>
+                <span style={{ flexShrink: 0, marginTop: '1px' }}>+</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {/* Premium adds when base is flat bullets (Mentorship Matching) */}
+      {!standardBullets && premiumBullets && (
+        <>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '8px' }}>
+            Premium adds
+          </p>
+          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {premiumBullets.map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', lineHeight: 1.45 }}>
+                <span style={{ flexShrink: 0, marginTop: '1px' }}>+</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {/* Note (Postgrad) */}
+      {note && (
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '11px', color: '#9CA3AF', fontStyle: 'italic',
+          marginTop: '10px', lineHeight: 1.5,
+        }}>
+          {note}
+        </p>
+      )}
+
+      {/* Matching: Always Free badge */}
       {matchingFree && (
         <span style={{
-          display: 'inline-block', marginTop: '8px',
-          background: 'rgba(22,163,74,0.1)', color: '#16A34A',
+          display: 'inline-block', marginTop: '10px',
+          background: '#16A34A', color: '#FFFFFF',
           borderRadius: '4px', padding: '2px 8px',
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', fontWeight: '600',
+          fontSize: '11px', fontWeight: '700',
         }}>
           Matching: Always Free
         </span>
@@ -197,18 +344,9 @@ function ServiceCard({ name, description, icon: Icon, originalStandard, trialSta
           {trialStandard}
         </span>
       </div>
-      {priceNote
-        ? (
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
-            {priceNote}
-          </p>
-        )
-        : (
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
-            September trial price
-          </p>
-        )
-      }
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
+        September trial price
+      </p>
     </div>
   )
 }

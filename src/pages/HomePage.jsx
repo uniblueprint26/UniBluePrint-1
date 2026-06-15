@@ -104,7 +104,7 @@ const PILLARS = [
   },
   {
     name: 'Elevation Blueprint',
-    description: 'Career coaching, interview prep, LinkedIn optimisation, and mentorship from specialist coaches.',
+    description: 'Personal branding, network strategy, portfolio building, mentorship, pitch coaching, and postgrad support — delivered by specialist Uni Coaches.',
     href: '/elevation-blueprint',
     icon: TrendingUp,
     link: 'Learn more →',

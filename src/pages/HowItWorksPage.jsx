@@ -55,12 +55,12 @@ const FOUNDATION_SERVICES = [
 ]
 
 const ELEVATION_SERVICES = [
-  '1-to-1 career coaching session',
-  'Interview preparation and mock interview',
-  'LinkedIn profile optimisation',
-  'Graduate scheme application review',
-  'Internship application support',
-  'Career roadmap session',
+  'Personal Branding Support',
+  'Network Assistance and Strategic Linking',
+  'Portfolio Building',
+  'Mentorship Matching',
+  'Pitch and Presentation Coaching',
+  'Personal Statement and Postgrad Support',
 ]
 
 const FAQS = [
@@ -481,7 +481,7 @@ export default function HowItWorksPage() {
           <BlueprintCard
             icon={TrendingUp}
             name="Elevation Blueprint"
-            tagline="Career coaching and professional development — delivered by a specialist Uni Coach."
+            tagline="Personal branding, network strategy, portfolio building, mentorship, pitch coaching, and postgrad support — delivered by specialist Uni Coaches."
             deliveredBy="Uni Coach"
             turnaround="Agreed at booking"
             services={ELEVATION_SERVICES}
