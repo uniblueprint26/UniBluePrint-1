@@ -319,6 +319,16 @@ footer {
   }
 }
 
+/* Mental health service card grid */
+.mh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .mh-grid { grid-template-columns: 1fr; }
+}
+
 /* Stats + handler/coach grids */
 .stats-grid,
 .handler-coach-grid {

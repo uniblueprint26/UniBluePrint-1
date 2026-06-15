@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   Heart, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket,
-  Lock,
+  Lock, Phone, ExternalLink,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -45,6 +45,60 @@ const CATEGORIES = [
     description: 'Free resources, helplines, and wellbeing tools — available to every UniBlueprint user.',
     locked: false,
     green: true,
+  },
+]
+
+const MENTAL_HEALTH_SERVICES = [
+  {
+    name: 'Samaritans Ireland',
+    description: 'Free, confidential support for anyone struggling emotionally or having thoughts of suicide. Available 24 hours a day, 7 days a week.',
+    phone: { href: 'tel:116123', display: '116 123' },
+    website: 'https://www.samaritans.org/ireland',
+    badge: 'Free · 24/7',
+  },
+  {
+    name: 'Pieta House',
+    description: 'Specialist support for people experiencing suicidal ideation, self-harm, and emotional distress. Therapy appointments and crisis support available.',
+    phone: { href: 'tel:116123', display: '116 123 (Freephone)' },
+    text: 'Text HELP to 51444',
+    website: 'https://www.pieta.ie',
+    badge: 'Free · Crisis Support',
+  },
+  {
+    name: 'Jigsaw',
+    description: 'Free mental health support for young people aged 12 to 25 across Ireland. Online and in-person support from trained professionals.',
+    website: 'https://www.jigsaw.ie',
+    badge: 'Free · Ages 12–25',
+  },
+  {
+    name: 'Turn2Me',
+    description: 'Free online mental health support including peer support groups, self-help tools, and professional counselling sessions for people in Ireland.',
+    website: 'https://www.turn2me.ie',
+    badge: 'Free · Online',
+  },
+  {
+    name: 'SpunOut',
+    description: "Ireland's youth information platform covering mental health, relationships, money, and wellbeing — written by young people for young people.",
+    website: 'https://spunout.ie',
+    badge: 'Free · Information',
+  },
+  {
+    name: 'Niteline',
+    description: 'Free confidential listening service run by students for students. Available during term time, late night hours when other services may be closed.',
+    website: 'https://www.nightline.ie',
+    badge: 'Free · Student Run',
+  },
+  {
+    name: 'Student Counselling Services',
+    description: 'Every Irish university offers free counselling to enrolled students. Contact your college student services office to access support on campus.',
+    informational: true,
+    badge: 'Free · On Campus',
+  },
+  {
+    name: 'MyMind',
+    description: 'Affordable online counselling and psychotherapy for people across Ireland. Sliding scale pricing based on income.',
+    website: 'https://mymind.com',
+    badge: 'Low Cost · Online',
   },
 ]
 
@@ -132,6 +186,90 @@ function CategoryCard({ icon: Icon, name, description, locked, green }) {
           Pro subscribers only
         </p>
       )}
+    </div>
+  )
+}
+
+function MentalHealthCard({ name, description, phone, text, website, badge, informational }) {
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '12px',
+      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+      padding: '20px',
+      borderLeft: '3px solid #16A34A',
+    }}>
+      <p style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '18px', color: '#1E3A5F',
+      }}>
+        {name}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '14px', color: '#6B7280',
+        marginTop: '8px', lineHeight: 1.6,
+      }}>
+        {description}
+      </p>
+      <span style={{
+        display: 'inline-block', marginTop: '12px',
+        background: '#16A34A', color: '#FFFFFF',
+        borderRadius: '4px', padding: '2px 8px',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontWeight: '700',
+      }}>
+        {badge}
+      </span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px', alignItems: 'center' }}>
+        {phone && (
+          <a
+            href={phone.href}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
+              textDecoration: 'none',
+            }}
+          >
+            <Phone size={14} color="#1E3A5F" aria-hidden="true" />
+            {phone.display}
+          </a>
+        )}
+        {text && (
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
+          }}>
+            {text}
+          </span>
+        )}
+        {website && (
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            Visit {name}
+            <ExternalLink size={14} color="#1E3A5F" aria-hidden="true" />
+          </a>
+        )}
+        {informational && (
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
+          }}>
+            Find your campus counselling service
+          </span>
+        )}
+      </div>
     </div>
   )
 }
@@ -333,7 +471,76 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — HOW IT WORKS FOR PARTNERS ────────────────────────── */}
+      {/* ── SECTION 3 — MENTAL HEALTH & WELLBEING ───────────────────────── */}
+      <section style={{ background: '#FFFFFF' }}>
+
+        {/* Crisis banner — full width */}
+        <div style={{
+          background: '#16A34A',
+          padding: '12px 24px',
+          textAlign: 'center',
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px', color: '#FFFFFF',
+        }}>
+          In crisis right now? Call Samaritans free on 116 123 — available 24 hours a day, 7 days a week
+        </div>
+
+        <div style={{ padding: '64px 24px' }}>
+          {/* Section header */}
+          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '32px', color: '#1E3A5F',
+            }}>
+              Mental Health &amp; Wellbeing
+            </h2>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: '8px', marginTop: '8px',
+            }}>
+              <Heart size={24} color="#16A34A" aria-hidden="true" />
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '16px', color: '#16A34A', fontWeight: '600',
+              }}>
+                Always free. No subscription. No paywall. Ever.
+              </p>
+            </div>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '15px', color: '#6B7280',
+              marginTop: '8px', lineHeight: 1.6,
+            }}>
+              If you are struggling, these Irish services are here for you. Reaching out is the right move.
+            </p>
+          </div>
+
+          {/* Cards grid */}
+          <div className="mh-grid" style={{ maxWidth: '1000px', margin: '40px auto 0' }}>
+            {MENTAL_HEALTH_SERVICES.map(s => <MentalHealthCard key={s.name} {...s} />)}
+          </div>
+
+          {/* Disclaimer */}
+          <div style={{
+            maxWidth: '800px', margin: '40px auto 0',
+            background: '#FFFFFF',
+            borderTop: '3px solid #16A34A',
+            borderRadius: '8px',
+            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+            padding: '16px 24px',
+            textAlign: 'center',
+          }}>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '13px', color: '#6B7280',
+            }}>
+              UniBlueprint is not a counselling or crisis service. If you are in immediate danger, call 999 or go to your nearest emergency department.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4 — HOW IT WORKS FOR PARTNERS ────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
