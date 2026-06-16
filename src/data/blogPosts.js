@@ -202,4 +202,64 @@ export const POSTS = [
       { type: 'paragraph', text: 'Campus Handler applications are now open. Uni Coach applications are open. Ambassador applications are open. If you want to be part of the team that brings UniBlueprint to your campus, apply now — onboarding happens throughout the summer ahead of the September launch. You can apply via the Join pages on this site.' },
     ],
   },
+  {
+    slug: 'cao-2026-whats-changing',
+    title: 'CAO 2026 — What Is Changing and What Students Need to Know',
+    excerpt: 'The CAO application process is evolving. Here is everything Irish students need to know about changes to points, deadlines, and course offerings for 2026 entry.',
+    category: 'Irish Student Guides',
+    date: '2026-06-01',
+    sections: [
+      { type: 'paragraph', text: 'TODO — Cover: CAO round one offers date, key deadline reminders, changes to how subjects are weighted, tips for managing your CAO list, how UniBlueprint CAO Personal Statement service can help.' },
+    ],
+  },
+  {
+    slug: 'apprenticeship-ireland-2026',
+    title: 'Why More Irish Students Are Choosing Apprenticeships Over University in 2026',
+    excerpt: 'Apprenticeship numbers in Ireland are at a record high. We look at why, which programmes are growing, and what you need to know if you are considering an alternative to the traditional university route.',
+    category: 'Irish Student Guides',
+    date: '2026-05-01',
+    sections: [
+      { type: 'paragraph', text: 'TODO — Cover: SOLAS apprenticeship stats, most popular trades, new professional apprenticeships in accounting, insurance and ICT, earning while learning, how UniBlueprint Apprenticeship Compass via CourseCompass helps.' },
+    ],
+  },
+  {
+    slug: 'graduate-employment-ireland-2026',
+    title: 'Graduate Employment in Ireland 2026 — What the Data Says',
+    excerpt: 'Irish graduate employment rates remain strong but the landscape is shifting. Tech, healthcare, and professional services are growing while other sectors are tightening. Here is what you need to know going into the job market this year.',
+    category: 'Career Tips',
+    date: '2026-04-01',
+    sections: [
+      { type: 'paragraph', text: 'TODO — Cover: HEA graduate outcomes data, sectors hiring, salary expectations by field, the role of LinkedIn and professional presence, how Foundation Blueprint services help graduates stand out.' },
+    ],
+  },
+  {
+    slug: 'student-mental-health-ireland',
+    title: 'Student Mental Health in Ireland — The Real Picture and Where to Get Help',
+    excerpt: 'Student mental health in Ireland is a growing concern. We look at the data, the causes, and — most importantly — the free Irish services available to any student who needs support right now.',
+    category: 'Campus Life',
+    date: '2026-03-01',
+    sections: [
+      { type: 'paragraph', text: 'TODO — Cover: UCC and TCD student mental health survey data, common pressures, stigma, how to reach out, list of Irish services including Samaritans, Pieta, Jigsaw, Turn2Me, Niteline, UniBlueprint Mental Health section always free.' },
+    ],
+  },
+  {
+    slug: 'linkedin-for-students-ireland',
+    title: 'Why Irish Students Who Use LinkedIn Are Getting Jobs Faster',
+    excerpt: 'LinkedIn is the single most underused career tool among Irish students. Here is why that is changing — and how to make sure you are not left behind.',
+    category: 'Career Tips',
+    date: '2026-02-01',
+    sections: [
+      { type: 'paragraph', text: 'TODO — Cover: recruiter search behaviour, Irish graduate LinkedIn usage stats, what a strong profile looks like, common mistakes, how UniBlueprint LinkedIn Optimisation service helps.' },
+    ],
+  },
+  {
+    slug: 'uniblueprint-launching-september-2026',
+    title: 'UniBlueprint Is Launching Across Irish Campuses This September',
+    excerpt: 'UniBlueprint is coming to Irish universities and colleges during freshers week, September 2026. Here is what it is, what it offers, and how to get access before everyone else.',
+    category: 'UniBlueprint Updates',
+    date: '2026-01-01',
+    sections: [
+      { type: 'paragraph', text: 'TODO — Cover: what UniBlueprint is, five pillars overview, September trial details, how to download, what Campus Handlers do, call to action to sign up early.' },
+    ],
+  },
 ]
