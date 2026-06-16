@@ -11,23 +11,23 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'What is UniBlueprint?',
-        a: 'TODO: Answer — UniBlueprint is an all-in-one platform for students, apprentices, and young people across Ireland. It provides CV support, career coaching, campus community, course collaboration, lifestyle deals, and budgeting tools in one place.',
+        a: 'UniBlueprint is an all-in-one platform for students, apprentices, and young people across Ireland. It gives you access to professional career support through Foundation Blueprint, expert coaching and strategy through Elevation Blueprint, exclusive lifestyle deals through Lifestyle Blueprint, campus community features through Campus Connect, and cross-Ireland student networking through Course Connect. Everything in one place — built specifically for the Irish student and young person experience.',
       },
       {
-        q: 'Is UniBlueprint free to use?',
-        a: 'TODO: Answer — Yes. Creating an account is free. Campus Connect, Course Connect, and Mental Health resources are free for all users. Foundation and Elevation Blueprint services require a Pro subscription plus per-service fees.',
+        q: 'Who is UniBlueprint for?',
+        a: 'UniBlueprint is for university students, college students, apprentices, 5th and 6th year students, and young workers across Ireland. Whether you are preparing for your first job, applying to college, building your career, or just looking for student deals near your campus — UniBlueprint has something for you.',
       },
       {
-        q: 'When does UniBlueprint launch?',
-        a: 'TODO: Answer — UniBlueprint launches at Irish universities and colleges during freshers week in September 2026.',
+        q: 'Is UniBlueprint free?',
+        a: 'Yes — UniBlueprint has a genuinely useful free tier. Foundation Blueprint at Standard pricing, Campus Connect, Course Connect, the Budgeting Tool, and all Mental Health & Wellbeing resources are free for every user. Pro subscription unlocks same-day delivery, Premium tiers, and the full Lifestyle Blueprint.',
       },
       {
-        q: 'Which universities are included at launch?',
-        a: 'TODO: Answer — UniBlueprint launches across Irish universities including UCD, TCD, UCC, DCU, University of Galway, UL, Maynooth, and TUD. More campuses will be added after launch.',
+        q: 'Where is UniBlueprint available?',
+        a: 'UniBlueprint is live across Ireland. Campus Connect features are available at specific Irish universities and colleges — we are expanding throughout September 2026. Course Connect and all career services are available to every user regardless of location.',
       },
       {
-        q: 'Do I need to be a student to use UniBlueprint?',
-        a: 'TODO: Answer — UniBlueprint is designed for students and recent graduates. Some services are open to young people who have recently completed education.',
+        q: 'How do I get started?',
+        a: 'Download the UniBlueprint app, create a free account in under two minutes, and you are ready. No credit card required. No subscription needed to get started.',
       },
     ],
   },
@@ -36,23 +36,23 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'What does Pro cost?',
-        a: 'TODO: Answer — Pro is €6.99/month or €49.99/year during the September trial. Standard prices resume from 1 October 2026: €13.98/month or €99.98/year.',
+        a: 'Pro costs €6.99 per month or €49.99 per year. During the September 2026 trial period all services are available at 50% off. After 30 September standard pricing applies.',
       },
       {
-        q: 'What is included in the September trial?',
-        a: 'TODO: Answer — During September 2026, all Foundation and Elevation Blueprint services are 50% off, and the Pro subscription is 50% off.',
+        q: 'What does Pro include?',
+        a: 'Pro includes same-day delivery on Foundation Blueprint Premium services, access to all Elevation Blueprint services, the full Lifestyle Blueprint with exclusive partner deals, priority support, and all free tier features.',
       },
       {
-        q: 'Can I cancel Pro at any time?',
-        a: 'TODO: Answer — Yes. Cancel any time before your next billing date and your Pro access continues until the end of the billing period.',
+        q: 'How do I subscribe to Pro?',
+        a: 'Subscriptions are managed through the UniBlueprint website — not through the App Store or Google Play. When you choose to upgrade in the app you will be directed to the website to complete your subscription.',
       },
       {
-        q: 'Does Pro include unlimited service use?',
-        a: 'TODO: Answer — Pro unlocks access to purchase services at listed prices. Services are pay-per-use within the subscription — Pro is the access key, not an unlimited bundle.',
+        q: 'Can I cancel Pro?',
+        a: 'Yes — you can cancel your Pro subscription at any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service. See our Refund Policy for full details.',
       },
       {
-        q: 'What payment methods are accepted?',
-        a: 'TODO: Answer — Card, Apple Pay, and Google Pay. Payments are processed securely via Stripe.',
+        q: 'What is the September trial?',
+        a: 'The September 2026 trial gives every UniBlueprint user access to all services at 50% off standard pricing throughout September. The trial applies automatically — no code needed. Trial pricing ends on 30 September 2026 at midnight followed by a 7-day grace period ending 7 October 2026.',
       },
     ],
   },
@@ -60,24 +60,24 @@ const FAQ_CATEGORIES = [
     category: 'Foundation Blueprint',
     items: [
       {
-        q: 'What is the Foundation Blueprint?',
-        a: 'TODO: Answer — The Foundation Blueprint is the academic and career support pillar. It includes CV optimisation, LinkedIn optimisation, cover letter assistance, application form support, interview preparation, job search support, CAO services, and scholarship support — all reviewed by trained Campus Handlers.',
+        q: 'What is a Campus Handler?',
+        a: 'A Campus Handler is a trained university student who reviews every Foundation Blueprint output before it reaches you. They check the quality, accuracy, and relevance of the AI-generated foundation against a structured checklist. You never receive a raw AI output — a real student has reviewed it first.',
       },
       {
-        q: 'How long does delivery take?',
-        a: 'TODO: Answer — Standard delivery is within 48 hours. Premium is same-day.',
+        q: 'How long does Foundation Blueprint take?',
+        a: 'Standard tier is delivered within 48 hours of submission. Premium tier is delivered the same day. Submissions made after 11pm on Saturday night are delivered by end of day Monday on the Premium tier.',
       },
       {
-        q: 'Who reviews my submission?',
-        a: 'TODO: Answer — Every Foundation Blueprint output is reviewed by a trained Campus Handler before delivery. Handlers are students who have been trained and onboarded by the UniBlueprint team.',
+        q: 'What do I need to submit?',
+        a: 'Each service has a short input form in the app. You fill in the relevant information and submit. The more detail you provide the stronger the output. There is a minimum content threshold — very thin inputs are flagged before they enter the queue.',
       },
       {
-        q: 'What if I am not happy with the output?',
-        a: 'TODO: Answer — One revision request is included with Standard. Two with Premium. If the output does not meet our quality standard, raise it within 48 hours of delivery — see the Refund Policy for details.',
+        q: 'Can I request revisions?',
+        a: 'Yes. If you are not satisfied with your output contact support through the app. Campus Handlers review outputs against a quality checklist before delivery so revision requests are uncommon — but we will always work with you to get it right.',
       },
       {
-        q: 'Can I get a same-day turnaround?',
-        a: 'TODO: Answer — Yes. Premium tier includes same-day delivery, subject to Handler availability.',
+        q: 'Is my information kept confidential?',
+        a: 'Yes. All information you submit is treated as confidential. Campus Handlers see only the information needed to complete your specific ticket. Your data is stored securely in compliance with GDPR. See our Privacy Policy for full details.',
       },
     ],
   },
@@ -85,62 +85,118 @@ const FAQ_CATEGORIES = [
     category: 'Elevation Blueprint',
     items: [
       {
-        q: 'What is the Elevation Blueprint?',
-        a: 'TODO: Answer — The Elevation Blueprint is the career coaching and professional development pillar. Services include personal branding, network assistance, portfolio building, mentorship matching, pitch coaching, and postgraduate application support — delivered by specialist Uni Coaches.',
+        q: 'What is a Uni Coach?',
+        a: 'A Uni Coach is a verified specialist who delivers Elevation Blueprint services. They have relevant professional experience or expertise in their specialism — personal branding, mentorship, pitch coaching, portfolio, or postgrad support. They work with you directly over an engagement.',
       },
       {
-        q: 'Who are Uni Coaches?',
-        a: 'TODO: Answer — Uni Coaches are professionals, postgraduates, and specialists who have been vetted and onboarded by the UniBlueprint team. Each Coach brings real expertise in their area.',
+        q: 'How does Mentorship Matching work?',
+        a: 'Matching is always free. You fill in a profile with your field, career goals, and what you need guidance on. A Uni Coach identifies the best match from the UniBlueprint mentorship network and confirms it with you before booking. You pay only for the session itself.',
       },
       {
-        q: 'Is mentorship matching really free?',
-        a: 'TODO: Answer — Yes. Matching you to a relevant Uni Coach is always free. Sessions with your Coach are charged at the listed service price.',
-      },
-      {
-        q: 'How does the Elevation engagement model work?',
-        a: 'TODO: Answer — Standard includes one session or deliverable engagement plus one revision. Premium includes a session plus a follow-up review or written notes, priority Coach assignment, and two revisions.',
+        q: 'How is Elevation Blueprint different from Foundation Blueprint?',
+        a: 'Foundation Blueprint is career document and preparation support — CVs, cover letters, interview prep — reviewed by Campus Handlers and delivered in a defined turnaround. Elevation Blueprint is expert coaching and strategy delivered by specialist Uni Coaches over defined engagements. Both are valuable at different stages of your career journey.',
       },
     ],
   },
   {
-    category: 'Campus Connect & Course Connect',
+    category: 'Lifestyle Blueprint',
+    items: [
+      {
+        q: 'Is Mental Health & Wellbeing really always free?',
+        a: 'Yes. Always. Mental Health & Wellbeing on UniBlueprint is permanently free for every user — free tier, Pro subscriber, or not yet signed up. There is no paywall, no subscription required, and no exceptions.',
+      },
+      {
+        q: 'Which deals are available near me?',
+        a: 'Lifestyle Blueprint partner deals are available nationwide with some campus-specific deals. When you open the Lifestyle Blueprint deals are filtered by relevance to your campus and location. New partners are added regularly throughout September 2026.',
+      },
+      {
+        q: 'How do I redeem a deal?',
+        a: 'Each deal card in the app shows the redemption method — show your UniBlueprint Pro badge in person, use a unique code, or follow the partner link. Instructions are shown on each deal card.',
+      },
+    ],
+  },
+  {
+    category: 'Campus Connect',
     items: [
       {
         q: 'Is Campus Connect free?',
-        a: 'TODO: Answer — Yes. Campus Connect is free for all UniBlueprint users. No Pro subscription required.',
+        a: 'Yes. Campus Connect is free for all UniBlueprint users — no Pro subscription required.',
       },
       {
-        q: 'Is Course Connect free?',
-        a: 'TODO: Answer — Yes. Course Connect is free for all UniBlueprint users.',
+        q: 'Can I self-promote on Campus Connect?',
+        a: 'No. Campus Connect is a community space — not an advertising board. Posts promoting businesses, services, or external opportunities will be removed. Use the Advertisement Board instead — it is the dedicated space for listings and opportunities.',
       },
       {
-        q: 'How is the community moderated?',
-        a: 'TODO: Answer — Campus Connect boards are moderated against community standards. Content that violates the standards is removed. Repeat violations result in account restrictions.',
-      },
-      {
-        q: 'Can I connect with students at other universities?',
-        a: 'TODO: Answer — Course Connect allows students studying the same course to connect across campuses. Campus Connect is campus-specific.',
+        q: 'Is Campus Connect moderated?',
+        a: 'Yes. Campus Connect has community guidelines and automated moderation. Posts are checked before going live for new accounts. Three flags from different users within 24 hours auto-hides a post for Operations review.',
       },
     ],
   },
   {
-    category: 'Campus Handlers & Uni Coaches',
+    category: 'Course Connect',
+    items: [
+      {
+        q: 'Is Course Connect free?',
+        a: 'Yes. Course Connect is free for all UniBlueprint users.',
+      },
+      {
+        q: 'Who can I connect with on Course Connect?',
+        a: 'Any UniBlueprint user who has made their profile public. You can search by university, course, year, skills, and what they are open to — collaboration, networking, or mentorship. Course Connect covers every Irish university and college.',
+      },
+    ],
+  },
+  {
+    category: 'Handlers & Coaches',
     items: [
       {
         q: 'How do I become a Campus Handler?',
-        a: 'TODO: Answer — Apply via the Join Handler page. Applications are reviewed on a rolling basis. Handlers are onboarded ahead of the September 2026 launch.',
+        a: 'You must be a current university student in Ireland. Apply at uniblueprint.com/join. Applications for September 2026 are open now.',
+      },
+      {
+        q: 'How much do Campus Handlers earn?',
+        a: 'Handlers earn per completed ticket. Exact rates are confirmed during onboarding. Active Handlers also receive free Pro access for the duration of their active status.',
       },
       {
         q: 'How do I become a Uni Coach?',
-        a: 'TODO: Answer — Apply via the Join Coach page. Applications are reviewed by the team. Coaches are vetted for expertise before being approved.',
+        a: 'Apply at uniblueprint.com/join. You need relevant professional experience or expertise in one or more Elevation Blueprint service areas. Applications are reviewed by the UniBlueprint team.',
+      },
+    ],
+  },
+  {
+    category: 'Technical',
+    items: [
+      {
+        q: 'What devices does UniBlueprint work on?',
+        a: 'UniBlueprint is available on iOS and Android. The website works on all modern browsers on desktop and mobile.',
       },
       {
-        q: 'Are Campus Handlers paid?',
-        a: 'TODO: Answer — Yes. Handlers are compensated per submission reviewed. Payment details are provided during the onboarding process.',
+        q: 'I am having trouble with my account — what do I do?',
+        a: 'Contact support through the app or via the contact form at uniblueprint.com/contact. We typically respond within 2 business days.',
       },
       {
-        q: 'Are Uni Coaches paid?',
-        a: 'TODO: Answer — Yes. Coaches earn per engagement delivered. Rates are discussed during onboarding.',
+        q: 'I subscribed on the website but my app is not showing Pro — what do I do?',
+        a: 'Sign out and sign back in to the app. Your Pro status should update immediately. If not contact support with your email address and we will resolve it within 24 hours.',
+      },
+    ],
+  },
+  {
+    category: 'September Trial',
+    items: [
+      {
+        q: 'What exactly is the September trial?',
+        a: 'Every UniBlueprint service is available at 50% off standard pricing throughout September 2026. The discount is applied automatically — no code needed. It applies to all Foundation Blueprint and Elevation Blueprint services and to the Pro subscription itself.',
+      },
+      {
+        q: 'When does the September trial end?',
+        a: 'The trial ends on 30 September 2026 at midnight Irish time. A 7-day grace period runs until 7 October 2026. Standard pricing applies from 1 October 2026.',
+      },
+      {
+        q: 'Does the September trial apply to Pro?',
+        a: 'Yes. Pro is available at 50% off during September. After 30 September standard pricing of €6.99 per month or €49.99 per year applies.',
+      },
+      {
+        q: 'Do I need a code?',
+        a: 'No. The discount is applied automatically to every service and subscription during September 2026. Just sign up and use the platform.',
       },
     ],
   },

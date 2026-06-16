@@ -66,23 +66,23 @@ const ELEVATION_SERVICES = [
 const FAQS = [
   {
     q: 'How long does delivery actually take?',
-    a: 'TODO: Insert answer — Standard 48hr, Premium same day, explain what happens if a Handler is unavailable.',
+    a: 'Standard tier is delivered within 48 hours of submission. Premium tier is delivered the same day. Submissions made after 11pm on Saturday night are delivered by end of day Monday on the Premium tier.',
   },
   {
     q: 'What is the difference between a Campus Handler and a Uni Coach?',
-    a: 'TODO: Insert answer — Campus Handlers are trained students who review Foundation outputs. Uni Coaches are specialists who deliver Elevation services.',
+    a: 'Campus Handlers are trained university students who review every Foundation Blueprint output before it reaches you. Uni Coaches are verified specialists who deliver Elevation Blueprint services — coaching, mentorship, and strategy — over a defined engagement.',
   },
   {
     q: 'Can I use UniBlueprint if I am not a student?',
-    a: 'TODO: Insert answer — platform is designed for students and young people in or recently out of education.',
+    a: 'UniBlueprint is for university students, college students, apprentices, 5th and 6th year students, and young workers across Ireland. Whether you are preparing for your first job, applying to college, building your career, or just looking for student deals near your campus — UniBlueprint has something for you.',
   },
   {
     q: 'Is my information kept private?',
-    a: 'TODO: Insert answer — data handling, GDPR compliance, how submitted documents are stored and deleted.',
+    a: 'Yes. All information you submit is treated as confidential. Campus Handlers see only the information needed to complete your specific ticket. Your data is stored securely in compliance with GDPR. See our Privacy Policy for full details.',
   },
   {
     q: 'What happens if I am not happy with the output?',
-    a: 'TODO: Insert answer — revision policy, refund policy, how to raise a concern.',
+    a: 'Contact support through the app. Campus Handlers review outputs against a quality checklist before delivery so revision requests are uncommon — but we will always work with you to get it right.',
   },
 ]
 

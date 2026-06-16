@@ -223,23 +223,23 @@ const HOW_STEPS = [
 const FAQS = [
   {
     q: 'When does the September trial end?',
-    a: 'TODO: Answer — trial ends at midnight Irish Standard Time on 30 September 2026. Standard prices resume from 1 October 2026.',
+    a: 'The trial ends on 30 September 2026 at midnight Irish time. A 7-day grace period runs until 7 October 2026. Standard pricing applies from 1 October 2026.',
   },
   {
     q: 'Does the 50% discount apply to the Pro subscription?',
-    a: 'TODO: Answer — yes, the Pro monthly subscription is €6.99 (normally €13.98) throughout September 2026.',
+    a: 'Yes — Pro is available at 50% off throughout September 2026. After 30 September, standard pricing of €6.99 per month or €49.99 per year applies.',
   },
   {
     q: 'Does it apply to all services?',
-    a: 'TODO: Answer — yes, every Foundation Blueprint and Elevation Blueprint service is 50% off throughout September. Mentorship matching remains free.',
+    a: 'Yes — every Foundation Blueprint and Elevation Blueprint service is 50% off throughout September 2026, along with the Pro subscription itself. Mentorship matching remains free, as it always is.',
   },
   {
     q: 'What happens after September?',
-    a: 'TODO: Answer — standard prices resume on 1 October 2026. If you subscribed to Pro during the trial, your next billing will be at the standard Pro price unless you cancel first.',
+    a: 'Standard pricing resumes from 1 October 2026, following a 7-day grace period ending 7 October 2026. If you subscribed to Pro during the trial, your next billing will be at the standard Pro price unless you cancel first.',
   },
   {
     q: 'Can I cancel Pro after the trial month?',
-    a: 'TODO: Answer — yes, cancel any time before your next billing date. You keep Pro access until the end of the billing period.',
+    a: 'Yes — cancel any time before your next billing date. You keep Pro access until the end of the billing period.',
   },
 ]
 

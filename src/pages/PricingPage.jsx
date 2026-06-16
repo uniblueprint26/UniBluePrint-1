@@ -104,14 +104,14 @@ const PRICING_ROWS = {
 }
 
 const FAQS = [
-  { q: 'What does the Free plan actually include?', a: 'TODO: Full answer — Campus Connect, Course Connect, mental health resources, basic profile. No service purchases on Free.' },
-  { q: 'Do I need Pro to use Foundation or Elevation Blueprint services?', a: 'TODO: Full answer — yes, Pro subscription required to access and purchase Blueprint services.' },
-  { q: 'What is the September trial price?', a: 'TODO: Full answer — 50% off all services and Pro subscription throughout September 2026 only.' },
-  { q: 'Can I cancel Pro at any time?', a: 'TODO: Full answer — yes, cancel any time, access continues until end of billing period.' },
-  { q: 'Is there a student discount on top of the trial price?', a: 'TODO: Full answer — September trial is already the discounted price. No additional stacking.' },
-  { q: 'What payment methods are accepted?', a: 'TODO: Full answer — card, Apple Pay, Google Pay. Handled via Stripe.' },
-  { q: 'Does Pro include unlimited service usage?', a: 'TODO: Full answer — Pro unlocks access to purchase services at listed prices. Services are pay-per-use within the subscription.' },
-  { q: 'Is there a refund policy?', a: 'TODO: Full answer — see Refund Policy page. Services covered within 48 hours of delivery if quality standard not met.' },
+  { q: 'What does the Free plan actually include?', a: 'Foundation Blueprint at Standard pricing, Campus Connect, Course Connect, the Budgeting Tool, and all Mental Health & Wellbeing resources are free for every user.' },
+  { q: 'Do I need Pro to use Foundation or Elevation Blueprint services?', a: 'Foundation Blueprint Standard is available on the free tier. Pro is required for Foundation Blueprint Premium (same-day delivery) and for all Elevation Blueprint services.' },
+  { q: 'What is the September trial price?', a: 'Every UniBlueprint service is available at 50% off standard pricing throughout September 2026. The discount is applied automatically — no code needed.' },
+  { q: 'Can I cancel Pro at any time?', a: 'Yes — cancel any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service.' },
+  { q: 'Is there a student discount on top of the trial price?', a: 'No. The September trial price is already the discounted rate — 50% off standard pricing. Discounts do not stack.' },
+  { q: 'What payment methods are accepted?', a: 'Card, Apple Pay, and Google Pay. Payments are processed securely via Stripe.' },
+  { q: 'Does Pro include unlimited service usage?', a: 'Pro unlocks access to purchase services at listed prices. Services are pay-per-use within the subscription — Pro is the access key, not an unlimited bundle.' },
+  { q: 'Is there a refund policy?', a: 'Yes — see our Refund Policy for full details. Annual Pro subscribers are entitled to a refund within 14 days of purchase if they have not used the service.' },
 ]
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
