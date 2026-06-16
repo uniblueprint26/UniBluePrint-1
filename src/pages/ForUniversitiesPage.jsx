@@ -149,6 +149,13 @@ export default function ForUniversitiesPage() {
               </div>
             ))}
           </div>
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
+            margin: '40px auto 0', maxWidth: '700px', lineHeight: 1.7, textAlign: 'center',
+          }}>
+            UniBlueprint is live and recruiting Campus Handlers from Irish university campuses right now. Your students can apply today at uniblueprint.com/join — earning money, getting Pro free, and building professional skills while they study.
+          </p>
         </div>
       </section>
 
@@ -204,7 +211,7 @@ export default function ForUniversitiesPage() {
               </FormField>
 
               <FormConsent />
-              <SubmitButton loading={loading} label="Send enquiry" />
+              <SubmitButton loading={loading} label="Get in touch about a partnership" />
             </form>
           )}
         </FormCard>
