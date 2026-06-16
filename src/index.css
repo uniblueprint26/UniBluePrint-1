@@ -481,6 +481,17 @@ footer {
   .services-grid { grid-template-columns: 1fr; }
 }
 
+/* ─── Partner tools grid (Partners page) ─────────────────────────────── */
+.partner-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  text-align: left;
+}
+@media (max-width: 640px) {
+  .partner-tools-grid { grid-template-columns: 1fr; }
+}
+
 /* ─── Pricing page ───────────────────────────────────────────────────── */
 .pricing-plans-grid {
   display: flex;

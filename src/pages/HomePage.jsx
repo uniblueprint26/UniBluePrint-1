@@ -526,6 +526,42 @@ export default function HomePage() {
         <div className="testimonials-grid">
           {STUDENTS.map(s => <StudentCard key={s.name} {...s} />)}
         </div>
+
+        {/* Partners strip */}
+        <div style={{ marginTop: '56px' }}>
+          <SectionLabel>Our Partners</SectionLabel>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexWrap: 'wrap', gap: '32px',
+            marginTop: '20px', filter: 'grayscale(1)', opacity: 0.6,
+          }}>
+            {['CourseCompass', 'Whip Wizards', 'JMC Fitness', 'Nyz3ditz'].map(name => (
+              <span key={name} style={{
+                display: 'inline-flex', alignItems: 'center',
+                height: '36px',
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: '16px', color: '#1E3A5F',
+              }}>
+                {name}
+              </span>
+            ))}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '36px' }}>
+              {[1,2,3].map(i => (
+                <span key={i} style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  background: '#9CA3AF', display: 'inline-block',
+                }} />
+              ))}
+            </span>
+          </div>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', color: '#9CA3AF',
+            marginTop: '8px',
+          }}>
+            And more coming
+          </p>
+        </div>
       </section>
 
       {/* ── SECTION 6 — HANDLER AND COACH CALLOUT ─────────────────────────── */}
