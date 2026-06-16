@@ -329,6 +329,41 @@ footer {
   .mh-grid { grid-template-columns: 1fr; }
 }
 
+/* Partner deal card grid */
+.partner-deals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 1000px;
+  margin: 40px auto 0;
+}
+@media (max-width: 767px) {
+  .partner-deals-grid {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+  .partner-deals-grid > * {
+    min-width: 260px;
+    flex-shrink: 0;
+  }
+}
+
+/* Coming soon partner slot grid */
+.coming-soon-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .coming-soon-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) {
+  .coming-soon-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* Stats + handler/coach grids */
 .stats-grid,
 .handler-coach-grid {

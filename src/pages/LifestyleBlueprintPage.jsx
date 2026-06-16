@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   Heart, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket,
-  Lock, Phone, ExternalLink,
+  Lock, Phone, ExternalLink, Megaphone, ArrowRight,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -47,6 +47,43 @@ const CATEGORIES = [
     green: true,
   },
 ]
+
+const PARTNER_DEALS = [
+  {
+    name: 'Whip Wizards',
+    initials: 'WW',
+    category: 'Food & Drink',
+    description: 'Exclusive student discount on food delivery from Whip Wizards. Show your UniBlueprint Pro badge to redeem.',
+    deal: '[TODO: Insert confirmed deal percentage]',
+  },
+  {
+    name: 'JMC Fitness',
+    initials: 'JF',
+    category: 'Fitness & Wellbeing',
+    description: 'Student membership rates and exclusive offers at JMC Fitness. Stay active during term time without breaking the budget.',
+    deal: '[TODO: Insert confirmed deal percentage]',
+  },
+  {
+    name: 'Nyz3ditz',
+    initials: 'NZ',
+    category: '[TODO: Confirm category with Des]',
+    description: '[TODO: Confirm description with Des]',
+    deal: '[TODO: Confirm deal with Des]',
+  },
+]
+
+const COMING_SOON_CATEGORIES = [
+  { icon: UtensilsCrossed, name: 'Food & Drink' },
+  { icon: Dumbbell, name: 'Fitness' },
+  { icon: ShoppingBag, name: 'Shopping' },
+  { icon: Plane, name: 'Travel' },
+  { icon: Ticket, name: 'Entertainment' },
+]
+
+const COMING_SOON_SLOTS = COMING_SOON_CATEGORIES.flatMap(c => [
+  { ...c, slot: 1 },
+  { ...c, slot: 2 },
+])
 
 const MENTAL_HEALTH_SERVICES = [
   {
@@ -186,6 +223,136 @@ function CategoryCard({ icon: Icon, name, description, locked, green }) {
           Pro subscribers only
         </p>
       )}
+    </div>
+  )
+}
+
+function PartnerDealCard({ name, initials, category, description, deal }) {
+  return (
+    <div style={{
+      position: 'relative',
+      background: '#FFFFFF', borderRadius: '12px',
+      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+      padding: '20px',
+      textAlign: 'center',
+    }}>
+      <span style={{
+        position: 'absolute', top: '12px', right: '12px',
+        background: '#1E3A5F', color: '#F5F0E8',
+        borderRadius: '4px', padding: '3px 8px',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '10px', fontWeight: '700',
+      }}>
+        Pro Deal
+      </span>
+
+      <div style={{
+        width: '56px', height: '56px', borderRadius: '50%',
+        background: '#F5F0E8',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto',
+      }}>
+        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>
+          {initials}
+        </span>
+      </div>
+
+      <p style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '18px', color: '#1E3A5F',
+        marginTop: '14px',
+      }}>
+        {name}
+      </p>
+
+      <span style={{
+        display: 'inline-block', marginTop: '8px',
+        background: '#F5F0E8', color: '#1E3A5F',
+        borderRadius: '6px', padding: '3px 10px',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px',
+      }}>
+        {category}
+      </span>
+
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '14px', color: '#6B7280',
+        marginTop: '12px', lineHeight: 1.6,
+      }}>
+        {description}
+      </p>
+
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '12px', color: '#9CA3AF',
+        marginTop: '10px',
+      }}>
+        {deal}
+      </p>
+
+      <a
+        href="#"
+        // TODO: Link to deal detail page when available
+        style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          height: '40px', padding: '0 20px', marginTop: '16px',
+          background: '#1E3A5F', color: '#F5F0E8',
+          borderRadius: '8px',
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px', fontWeight: '600',
+          textDecoration: 'none',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+      >
+        View Deal →
+      </a>
+    </div>
+  )
+}
+
+function ComingSoonCard({ icon: Icon }) {
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '12px',
+      border: '1.5px dashed rgba(30,58,95,0.3)',
+      padding: '20px',
+      textAlign: 'center',
+    }}>
+      <div style={{
+        width: '48px', height: '48px', borderRadius: '50%',
+        background: '#F5F0E8',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto',
+      }}>
+        <Icon size={28} color="#9CA3AF" aria-hidden="true" />
+      </div>
+      <p style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '16px', color: '#9CA3AF',
+        marginTop: '12px',
+      }}>
+        Coming Soon
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '13px', color: '#9CA3AF',
+        marginTop: '6px',
+      }}>
+        A new partner deal is on the way
+      </p>
+      <Link
+        to="/for-businesses"
+        style={{
+          display: 'block', marginTop: '12px',
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px', color: '#1E3A5F',
+          textDecoration: 'none',
+        }}
+      >
+        Are you a business?
+      </Link>
     </div>
   )
 }
@@ -383,10 +550,10 @@ export default function LifestyleBlueprintPage() {
         <title>Lifestyle Blueprint | UniBlueprint</title>
         <meta
           name="description"
-          content="Exclusive deals and discounts for students and young people in Ireland — Pro subscribers only. Mental health and wellbeing resources always free."
+          content="Exclusive deals, discounts, and wellbeing resources — for students, apprentices, and young people across Ireland. Pro subscribers unlock the full Lifestyle Blueprint. Mental Health & Wellbeing is always free for everyone."
         />
         <meta property="og:title" content="Lifestyle Blueprint | UniBlueprint" />
-        <meta property="og:description" content="Exclusive deals and discounts for students and young people in Ireland — Pro subscribers only. Mental health and wellbeing resources always free." />
+        <meta property="og:description" content="Exclusive deals, discounts, and wellbeing resources — for students, apprentices, and young people across Ireland. Pro subscribers unlock the full Lifestyle Blueprint. Mental Health & Wellbeing is always free for everyone." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
@@ -402,7 +569,7 @@ export default function LifestyleBlueprintPage() {
           fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Exclusive deals and discounts for students and young people in Ireland — Pro subscribers only
+          Exclusive deals and discounts curated for students, apprentices, and young people in Ireland. Pro subscribers only — from €6.99/month. Mental Health &amp; Wellbeing always free.
         </p>
 
         {/* Mental Health callout */}
@@ -471,7 +638,56 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — MENTAL HEALTH & WELLBEING ───────────────────────── */}
+      {/* ── SECTION 3 — PARTNER DEALS ────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', fontWeight: '600',
+            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
+            textAlign: 'center',
+          }}>
+            Live Now
+          </p>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: '36px', color: '#1E3A5F',
+            textAlign: 'center', marginTop: '8px',
+          }}>
+            Featured partner deals
+          </h2>
+
+          <div className="partner-deals-grid">
+            {PARTNER_DEALS.map(p => <PartnerDealCard key={p.name} {...p} />)}
+          </div>
+
+          <div style={{ marginTop: '64px' }}>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '12px', fontWeight: '600',
+              color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
+              textAlign: 'center',
+            }}>
+              Coming Soon
+            </p>
+            <h3 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '24px', color: '#1E3A5F',
+              textAlign: 'center', marginTop: '8px',
+            }}>
+              More partners joining soon
+            </h3>
+
+            <div className="coming-soon-grid" style={{ marginTop: '32px' }}>
+              {COMING_SOON_SLOTS.map((c, i) => (
+                <ComingSoonCard key={`${c.name}-${c.slot}-${i}`} icon={c.icon} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4 — MENTAL HEALTH & WELLBEING ───────────────────────── */}
       <section style={{ background: '#FFFFFF' }}>
 
         {/* Crisis banner — full width */}
@@ -540,7 +756,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — HOW IT WORKS FOR PARTNERS ────────────────────────── */}
+      {/* ── SECTION 5 — HOW IT WORKS FOR PARTNERS ────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
@@ -594,6 +810,50 @@ export default function LifestyleBlueprintPage() {
           ))}
         </div>
 
+        <div style={{
+          maxWidth: '640px', margin: '40px auto 0',
+          background: '#FFFFFF', borderRadius: '12px',
+          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+          padding: '20px', textAlign: 'left',
+          display: 'flex', alignItems: 'flex-start', gap: '16px',
+        }}>
+          <div style={{
+            width: '48px', height: '48px', borderRadius: '50%',
+            background: '#F5F0E8', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Megaphone size={24} color="#1E3A5F" aria-hidden="true" />
+          </div>
+          <div>
+            <p style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '16px', color: '#1E3A5F',
+            }}>
+              Want to promote your business or service?
+            </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px', color: '#6B7280',
+              marginTop: '8px', lineHeight: 1.6,
+            }}>
+              The Advertisement Board is the place for student-run promotions, services, and opportunities. Free to post.
+            </p>
+            <a
+              href="#"
+              // TODO: Link to Advertisement Board deep link in app when available
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px', fontWeight: '600', color: '#1E3A5F',
+                textDecoration: 'none',
+              }}
+            >
+              Visit the Advertisement Board
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+
         <div style={{ marginTop: '40px' }}>
           <Link
             to="/for-businesses"
@@ -608,12 +868,12 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — PRO CALCULATOR ───────────────────────────────────── */}
+      {/* ── SECTION 6 — PRO CALCULATOR ───────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
         <ProCalculator />
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────── */}
+      {/* ── SECTION 7 — CTA ──────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '80px 24px',
