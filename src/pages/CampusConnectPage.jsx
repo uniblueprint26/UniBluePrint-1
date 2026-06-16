@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   Users, MessageCircle, Star, Car, Search, Lightbulb,
+  BookOpen, Calendar, Map, AlertCircle,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -36,6 +37,27 @@ const FEATURES = [
     icon: Lightbulb,
     name: 'Suggestions',
     description: 'Submit ideas for your campus community — the best ones get acted on.',
+  },
+  {
+    icon: BookOpen,
+    name: 'Shared Notes Board',
+    description: 'Upload and access lecture notes, study guides, and revision materials shared by students on your campus.',
+  },
+  {
+    icon: Users,
+    name: 'Study Groups',
+    description: 'Find or create study groups for your module or subject area. Set a time, place, and topic — others join from your campus.',
+  },
+  {
+    icon: Calendar,
+    name: 'Campus Events Board',
+    description: 'Find out what is happening on your campus — society events, career fairs, open days, and student-run events.',
+  },
+  {
+    icon: Map,
+    name: 'Campus Map',
+    description: 'Interactive map of your campus — rooms, buildings, facilities, and services.',
+    comingSoon: true,
   },
 ]
 
@@ -126,10 +148,22 @@ export default function CampusConnectPage() {
           <div className="services-grid" style={{ marginTop: '40px' }}>
             {FEATURES.map(f => (
               <div key={f.name} style={{
+                position: 'relative',
                 background: '#FFFFFF', borderRadius: '12px',
                 boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
                 padding: '24px',
               }}>
+                {f.comingSoon && (
+                  <span style={{
+                    position: 'absolute', top: '12px', right: '12px',
+                    background: 'rgba(156,163,175,0.15)', color: '#9CA3AF',
+                    borderRadius: '4px', padding: '3px 8px',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '11px', fontWeight: '700',
+                  }}>
+                    Coming Soon
+                  </span>
+                )}
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '50%',
                   background: '#F5F0E8',
@@ -201,6 +235,14 @@ export default function CampusConnectPage() {
             </div>
           ))}
         </div>
+
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px', color: '#9CA3AF', fontStyle: 'italic',
+          textAlign: 'center', margin: '24px auto 0', maxWidth: '560px',
+        }}>
+          UniBlueprint is launching across Irish campuses in September 2026. Confirmed institutions will be announced shortly.
+        </p>
       </section>
 
       {/* ── SECTION 4 — COMMUNITY STANDARDS ──────────────────────────────── */}
@@ -242,6 +284,49 @@ export default function CampusConnectPage() {
               </p>
             </div>
           ))}
+        </div>
+
+        <div style={{
+          maxWidth: '900px', margin: '24px auto 0',
+          background: '#FFFFFF', borderRadius: '12px',
+          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+          padding: '20px', textAlign: 'left',
+          display: 'flex', alignItems: 'flex-start', gap: '16px',
+        }}>
+          <div style={{
+            width: '48px', height: '48px', borderRadius: '50%',
+            background: '#F5F0E8', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <AlertCircle size={22} color="#1E3A5F" aria-hidden="true" />
+          </div>
+          <div>
+            <p style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '16px', color: '#1E3A5F',
+            }}>
+              No self-promotion in Campus Connect
+            </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px', color: '#6B7280',
+              marginTop: '8px', lineHeight: 1.6,
+            }}>
+              Campus Connect is a community space — not an advertising board. Posts promoting businesses, services, or products will be removed. Use the Advertisement Board instead.
+            </p>
+            <a
+              href="#"
+              // TODO: Link to Advertisement Board deep link in app when available
+              style={{
+                display: 'inline-block', marginTop: '12px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px', fontWeight: '600', color: '#1E3A5F',
+                textDecoration: 'none',
+              }}
+            >
+              Go to Advertisement Board →
+            </a>
+          </div>
         </div>
       </section>
 

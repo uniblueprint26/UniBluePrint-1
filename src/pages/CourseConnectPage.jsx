@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   BookOpen, MessageSquare, Upload, Users, Bell, FileText,
+  UserPlus, Briefcase, Globe, Award,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -37,6 +38,27 @@ const FEATURES = [
     name: 'Past Papers & Notes',
     description: 'A growing library of student-submitted notes and past exam papers, organised by course.',
   },
+  {
+    icon: UserPlus,
+    name: 'Mentorship Requests',
+    description: 'Post a request for informal peer mentorship — find a student two years ahead of you in your course who can share their experience.',
+  },
+  {
+    icon: Briefcase,
+    name: 'Internship & Placement Board',
+    description: 'Students share internship and placement opportunities, application tips, and employer reviews across Ireland.',
+  },
+  {
+    icon: Globe,
+    name: 'Study Abroad Board',
+    description: 'Connect with students who have studied abroad or are planning to. Share Erasmus experiences, partner universities, and advice.',
+  },
+  {
+    icon: Award,
+    name: 'Alumni Network',
+    description: 'Connect with graduates from your course and university. Ask for advice, request informational interviews, and build your professional network early.',
+    comingSoon: true,
+  },
 ]
 
 // University city coordinates on the SVG map (Ireland, approx 400×480 viewBox)
@@ -49,6 +71,9 @@ const MAP_DOTS = [
   { city: 'Athlone',   x: 185, y: 200, unis: ['ATU Athlone'] },
   { city: 'Maynooth',  x: 285, y: 185, unis: ['MU'] },
   { city: 'Sligo',     x: 130, y: 120, unis: ['ATU Sligo'] },
+  { city: 'Letterkenny', x: 150, y: 55,  unis: ['ATU Letterkenny'] },
+  { city: 'Tralee',    x: 130, y: 360, unis: ['MTU Kerry'] },
+  { city: 'Kilkenny',  x: 245, y: 320, unis: ['SETU Kilkenny'] },
 ]
 
 const MOCK_PROFILES = [
@@ -120,33 +145,24 @@ function IrelandMap() {
           strokeLinejoin="round"
         />
 
-        {/* University city dots */}
+        {/* University city dots — hover for city name */}
         {MAP_DOTS.map(dot => (
-          <g key={dot.city}>
+          <g key={dot.city} style={{ cursor: 'pointer' }}>
+            <title>{dot.city}</title>
             <circle
               cx={dot.x}
               cy={dot.y}
-              r="7"
-              fill="#1E3A5F"
-              opacity="0.85"
-            />
-            <circle
-              cx={dot.x}
-              cy={dot.y}
-              r="13"
+              r="9"
               fill="#1E3A5F"
               opacity="0.12"
             />
-            <text
-              x={dot.x + 16}
-              y={dot.y + 5}
-              fontFamily="'DM Sans', sans-serif"
-              fontSize="12"
+            <circle
+              cx={dot.x}
+              cy={dot.y}
+              r="4"
               fill="#1E3A5F"
-              opacity="0.8"
-            >
-              {dot.city}
-            </text>
+              opacity="0.85"
+            />
           </g>
         ))}
       </svg>
@@ -219,10 +235,22 @@ export default function CourseConnectPage() {
           <div className="services-grid" style={{ marginTop: '40px' }}>
             {FEATURES.map(f => (
               <div key={f.name} style={{
+                position: 'relative',
                 background: '#FFFFFF', borderRadius: '12px',
                 boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
                 padding: '24px',
               }}>
+                {f.comingSoon && (
+                  <span style={{
+                    position: 'absolute', top: '12px', right: '12px',
+                    background: 'rgba(156,163,175,0.15)', color: '#9CA3AF',
+                    borderRadius: '4px', padding: '3px 8px',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '11px', fontWeight: '700',
+                  }}>
+                    Coming Soon
+                  </span>
+                )}
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '50%',
                   background: '#F5F0E8',
