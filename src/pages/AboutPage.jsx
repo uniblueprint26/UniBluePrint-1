@@ -148,6 +148,21 @@ function TeamCard({ title, description }) {
       }}>
         {description}
       </p>
+      <Link
+        to="/join"
+        style={{
+          display: 'block', textAlign: 'center',
+          marginTop: '16px', height: '36px',
+          lineHeight: '36px',
+          background: 'none', color: '#1E3A5F',
+          border: '1.5px solid #1E3A5F',
+          borderRadius: '8px',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
+          textDecoration: 'none',
+        }}
+      >
+        Join Now →
+      </Link>
     </div>
   )
 }
@@ -317,6 +332,42 @@ export default function AboutPage() {
           {TEAM_AREAS.map(t => (
             <TeamCard key={t.title} {...t} />
           ))}
+        </div>
+
+        <div style={{
+          background: '#FFFFFF',
+          borderLeft: '3px solid #1E3A5F',
+          borderRadius: '12px',
+          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+          padding: '28px',
+          maxWidth: '800px', margin: '40px auto 0',
+        }}>
+          <h3 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: '24px', color: '#1E3A5F',
+          }}>
+            Want to be part of the team behind the Blueprint?
+          </h3>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#6B7280',
+            marginTop: '12px', lineHeight: 1.6,
+          }}>
+            UniBlueprint is building its founding team across all functions. Whether you want to work in tech, outreach, marketing, or operations — we want people who care about what we are building.
+          </p>
+          <Link
+            to="/join"
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: '52px', padding: '0 32px',
+              background: '#1E3A5F', color: '#F5F0E8',
+              borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              textDecoration: 'none', marginTop: '16px',
+            }}
+          >
+            Join the Team →
+          </Link>
         </div>
       </section>
 

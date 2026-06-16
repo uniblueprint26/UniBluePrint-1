@@ -26,20 +26,9 @@ export const BREADCRUMB_MAP = {
     { label: 'Services', path: null },
     { label: 'Course Connect', path: '/course-connect' },
   ],
-  '/join-handler': [
+  '/join': [
     { label: 'Home', path: '/' },
-    { label: 'Join the Team', path: null },
-    { label: 'Campus Handler', path: '/join-handler' },
-  ],
-  '/join-coach': [
-    { label: 'Home', path: '/' },
-    { label: 'Join the Team', path: null },
-    { label: 'Uni Coach', path: '/join-coach' },
-  ],
-  '/ambassadors': [
-    { label: 'Home', path: '/' },
-    { label: 'Join the Team', path: null },
-    { label: 'Campus Ambassadors', path: '/ambassadors' },
+    { label: 'Join the Team', path: '/join' },
   ],
   '/terms': [
     { label: 'Home', path: '/' },

@@ -573,7 +573,7 @@ export default function HomePage() {
               Campus Handlers are trained students who review Foundation Blueprint submissions — essays, CVs, and applications — ensuring every output meets our quality standard.
             </p>
             <Link
-              to="/join-handler"
+              to="/join#handler-form"
               style={{
                 display: 'inline-block', marginTop: '16px',
                 fontFamily: "'DM Sans', sans-serif",
@@ -613,7 +613,7 @@ export default function HomePage() {
               Uni Coaches are specialists who deliver Elevation Blueprint services — career coaching, interview preparation, and LinkedIn optimisation — for students ready to level up.
             </p>
             <Link
-              to="/join-coach"
+              to="/join#coach-form"
               style={{
                 display: 'inline-block', marginTop: '16px',
                 fontFamily: "'DM Sans', sans-serif",

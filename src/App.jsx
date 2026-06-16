@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useScrollToTop } from './hooks/useScrollToTop'
 import { useUTMCapture } from './hooks/useUTMCapture'
 import Layout from './components/layout/Layout'
@@ -19,7 +19,7 @@ const SeptemberTrialPage = lazy(() => import('./pages/SeptemberTrialPage'))
 const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
 const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
 const PartnersPage = lazy(() => import('./pages/PartnersPage'))
-const AmbassadorsPage = lazy(() => import('./pages/AmbassadorsPage'))
+const JoinPage = lazy(() => import('./pages/JoinPage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -29,9 +29,6 @@ const SubscriptionSuccessPage = lazy(() => import('./pages/SubscriptionSuccessPa
 const SubscriptionManagementPage = lazy(() => import('./pages/SubscriptionManagementPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('./pages/ServerErrorPage'))
-
-const JoinHandlerPage = lazy(() => import('./pages/join/JoinHandlerPage'))
-const JoinCoachPage = lazy(() => import('./pages/join/JoinCoachPage'))
 
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'))
@@ -68,9 +65,10 @@ function AppRoutes() {
         <Route path="/for-universities" element={<ForUniversitiesPage />} />
         <Route path="/for-businesses" element={<ForBusinessesPage />} />
         <Route path="/partners" element={<PartnersPage />} />
-        <Route path="/join-handler" element={<JoinHandlerPage />} />
-        <Route path="/join-coach" element={<JoinCoachPage />} />
-        <Route path="/ambassadors" element={<AmbassadorsPage />} />
+        <Route path="/join" element={<JoinPage />} />
+        <Route path="/join-handler" element={<Navigate to="/join#handler-form" replace />} />
+        <Route path="/join-coach" element={<Navigate to="/join#coach-form" replace />} />
+        <Route path="/ambassadors" element={<Navigate to="/join#ambassador-form" replace />} />
         <Route path="/faqs" element={<FAQsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/help" element={<HelpPage />} />
