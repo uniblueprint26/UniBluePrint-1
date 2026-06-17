@@ -31,6 +31,7 @@ const COLUMNS = [
       { label: 'How It Works',     href: '/how-it-works' },
       { label: 'Blog',             href: '/blog' },
       { label: 'Partners',         href: '/partners' },
+      { label: 'Our Coaches',      href: '/our-coaches' },
       { label: 'For Universities', href: '/for-universities' },
       { label: 'For Businesses',   href: '/for-businesses' },
     ],

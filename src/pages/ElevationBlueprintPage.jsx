@@ -5,7 +5,7 @@ import {
   Sparkles, Network, Layout, Users, Presentation, BookOpen,
   UserCheck, Send, Bot,
   Check, X as XIcon,
-  Award,
+  Award, Dumbbell,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -181,7 +181,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, note, originalStandard, trialStandard, matchingFree }) {
+function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, note, originalStandard, trialStandard, matchingFree, pricingTodo }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -198,17 +198,19 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
         transition: 'box-shadow 150ms ease, transform 150ms ease',
       }}
     >
-      {/* 50% OFF badge */}
-      <div style={{
-        position: 'absolute', top: '12px', right: '12px',
-        background: '#1E3A5F', color: '#F5F0E8',
-        borderRadius: '6px', padding: '3px 7px',
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '10px', fontWeight: '700',
-        letterSpacing: '0.02em',
-      }}>
-        50% OFF
-      </div>
+      {/* 50% OFF badge — shown only when pricing is confirmed */}
+      {!pricingTodo && (
+        <div style={{
+          position: 'absolute', top: '12px', right: '12px',
+          background: '#1E3A5F', color: '#F5F0E8',
+          borderRadius: '6px', padding: '3px 7px',
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '10px', fontWeight: '700',
+          letterSpacing: '0.02em',
+        }}>
+          50% OFF
+        </div>
+      )}
 
       {/* Icon */}
       <div style={{
@@ -329,24 +331,37 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
       )}
 
       {/* Prices */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-        <span style={{
+      {pricingTodo ? (
+        <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#9CA3AF',
-          textDecoration: 'line-through',
+          fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic',
+          marginTop: '14px',
         }}>
-          {originalStandard}
-        </span>
-        <span style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: '#1E3A5F', fontWeight: '700',
-        }}>
-          {trialStandard}
-        </span>
-      </div>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
-        September trial price
-      </p>
+          {/* TODO: confirm exact pricing for Fitness Coaching tier with Des before launch */}
+          Pricing to be confirmed — check back soon.
+        </p>
+      ) : (
+        <>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '13px', color: '#9CA3AF',
+              textDecoration: 'line-through',
+            }}>
+              {originalStandard}
+            </span>
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '16px', color: '#1E3A5F', fontWeight: '700',
+            }}>
+              {trialStandard}
+            </span>
+          </div>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
+            September trial price
+          </p>
+        </>
+      )}
     </div>
   )
 }
@@ -389,6 +404,65 @@ export default function ElevationBlueprintPage() {
         </p>
         <div style={{ marginTop: '20px' }}>
           <TrialBadge />
+        </div>
+      </section>
+
+      {/* ── SECTION 1.5 — FITNESS COACHING (NEW) ─────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '64px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '24px', color: '#1E3A5F', margin: 0,
+            }}>
+              Fitness Coaching
+            </h2>
+            <span style={{
+              background: '#16A34A', color: '#FFFFFF',
+              borderRadius: '6px', padding: '3px 9px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '10px', fontWeight: '700',
+              letterSpacing: '0.03em',
+            }}>
+              New
+            </span>
+          </div>
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#1E3A5F', fontStyle: 'italic',
+            textAlign: 'center', marginTop: '6px',
+          }}>
+            Train smarter. Perform better. Build the habits that last.
+          </p>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#6B7280',
+            textAlign: 'center', maxWidth: '620px',
+            margin: '12px auto 0', lineHeight: 1.65,
+          }}>
+            UniBlueprint connects you with verified Uni Coaches specialising in fitness, strength, and conditioning — built around your schedule as a student, apprentice, or young professional.
+          </p>
+
+          <div style={{ maxWidth: '480px', margin: '40px auto 0' }}>
+            <ServiceCard
+              icon={Dumbbell}
+              name="Fitness Coaching"
+              standardBullets={[
+                'Personalised training plan built around your schedule and goals',
+                'Form and technique guidance session',
+                'Nutrition basics aligned to your training',
+                'Weekly check-in structure',
+              ]}
+              premiumBullets={[
+                'Live coaching session with your Uni Coach',
+                'Progress review and plan adjustment',
+                'Direct access to your Coach for questions between sessions',
+              ]}
+              pricingTodo
+            />
+          </div>
         </div>
       </section>
 

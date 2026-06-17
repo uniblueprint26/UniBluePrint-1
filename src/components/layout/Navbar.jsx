@@ -4,7 +4,7 @@ import {
   Menu, X, ChevronDown, LogIn, UserCircle,
   FileText, Mail, Award, BookOpen, Star, Pen,
   Target, Mic, TrendingUp, Briefcase, Users, Calendar,
-  Instagram, Search,
+  Instagram, Search, UserCheck,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -28,6 +28,7 @@ const ELEVATION_SERVICES = [
   { label: 'Internship Applications', icon: Briefcase, href: '/elevation-blueprint' },
   { label: 'Career Planning', icon: Calendar, href: '/elevation-blueprint' },
   { label: 'Mentorship', icon: Users, href: '/elevation-blueprint' },
+  { label: 'Our Coaches', icon: UserCheck, href: '/our-coaches' },
 ]
 
 const JOIN_LINKS = [
@@ -39,6 +40,7 @@ const JOIN_LINKS = [
 const MOBILE_SERVICE_LINKS = [
   { label: 'Foundation Blueprint', href: '/foundation-blueprint' },
   { label: 'Elevation Blueprint', href: '/elevation-blueprint' },
+  { label: 'Our Coaches', href: '/our-coaches' },
   { label: 'Lifestyle Blueprint', href: '/lifestyle-blueprint' },
   { label: 'Campus Connect', href: '/campus-connect' },
   { label: 'Course Connect', href: '/course-connect' },
