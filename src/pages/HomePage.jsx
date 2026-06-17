@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  Sparkles, Star,
+  Sparkles,
   FileText, TrendingUp, Tag, Users, Globe, PiggyBank,
   UserCheck, Award,
 } from 'lucide-react'
@@ -140,17 +140,17 @@ const PILLARS = [
 ]
 
 const STUDENTS = [
-  { name: 'Abdullah', course: 'Business',           university: 'DCU',  quote: 'TODO: Add quote from Abdullah.' },
-  { name: 'Eman',     course: 'Engineering',         university: 'UCD',  quote: 'TODO: Add quote from Eman.' },
-  { name: 'Nicole',   course: 'Law',                 university: 'TCD',  quote: 'TODO: Add quote from Nicole.' },
-  { name: 'Siobhán',  course: 'TODO: Add course',    university: 'UCC',  quote: 'TODO: Add quote from Siobhán.' },
-  { name: 'Ciarán',   course: 'TODO: Add course',    university: 'UL',   quote: 'TODO: Add quote from Ciarán.' },
-  { name: 'Aoife',    course: 'TODO: Add course',    university: 'NUIG', quote: 'TODO: Add quote from Aoife.' },
+  { name: 'Abdullah', course: 'Business',              university: 'ATU Galway',          cao: 'AU601' },
+  { name: 'Eman',     course: 'Engineering',            university: 'UCD',                 cao: 'DN150' },
+  { name: 'Emily',    course: 'Accounting and Finance', university: 'DCU',                 cao: 'DC115' },
+  { name: 'Siofra',   course: 'Arts',                   university: 'UCC',                 cao: 'CK111' },
+  { name: 'Ciarán',   course: 'Computer Science',       university: 'UL',                  cao: 'LM121' },
+  { name: 'Nicole',   course: 'Nursing',                university: 'Maynooth University', cao: 'MH701' },
 ]
 
 // ─── StudentCard ───────────────────────────────────────────────────────────────
 
-function StudentCard({ name, course, university, quote }) {
+function StudentCard({ name, course, university, cao }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
@@ -184,16 +184,11 @@ function StudentCard({ name, course, university, quote }) {
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '14px', color: '#6B7280', fontStyle: 'italic',
-        marginTop: '12px', lineHeight: 1.6,
+        fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
+        marginTop: '12px',
       }}>
-        "{quote}"
+        CAO Code: {cao}
       </p>
-      <div style={{ display: 'flex', gap: '2px', marginTop: '12px' }}>
-        {[1,2,3,4,5].map(i => (
-          <Star key={i} size={14} color="#1E3A5F" fill="#1E3A5F" />
-        ))}
-      </div>
     </div>
   )
 }
