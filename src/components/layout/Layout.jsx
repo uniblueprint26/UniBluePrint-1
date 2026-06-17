@@ -34,6 +34,7 @@ export default function Layout() {
         <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
         <link rel="canonical" href={canonical} />
       </Helmet>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <div className="no-print"><TrialBanner /></div>
       <Navbar onSearchOpen={() => setSearchOpen(true)} />
       <Breadcrumbs />
