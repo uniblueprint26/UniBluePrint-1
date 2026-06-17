@@ -16,6 +16,7 @@ export default function UBPLogo({ height = 36, color = '#1E3A5F' }) {
         fontFamily="'DM Serif Display', serif"
         fontSize="68"
         fill={color}
+        style={{ fontFamily: "'DM Serif Display', serif" }}
       >
         UBP
       </text>

@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Zap, Star, BookOpen, Heart } from 'lucide-react'
-import logo from '../assets/ubp-logo.png'
+import UBPLogo from '../components/ui/UBPLogo'
 
 const APP_JSON_LD = {
   '@context': 'https://schema.org',
@@ -64,14 +64,9 @@ export default function DownloadPage() {
 
       {/* HERO */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <img
-          src={logo}
-          alt="UniBlueprint logo"
-          width="80"
-          height="80"
-          loading="lazy"
-          style={{ height: '48px', width: 'auto', display: 'block', margin: '0 auto 24px' }}
-        />
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+          <UBPLogo height={48} />
+        </div>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F' }}>
           Download UniBlueprint
         </h1>

@@ -19,7 +19,7 @@ export default function PageLoader() {
         alt="UniBlueprint logo"
         width="80"
         height="80"
-        style={{ width: '80px', height: '80px' }}
+        style={{ width: '160px', height: 'auto', display: 'block', objectFit: 'contain' }}
       />
       <div
         style={{
