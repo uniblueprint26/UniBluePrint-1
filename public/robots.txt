@@ -12,3 +12,12 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /subscription-management
+Disallow: /subscription-success
+
+Sitemap: https://uniblueprint.com/sitemap.xml
