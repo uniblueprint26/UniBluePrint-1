@@ -77,17 +77,11 @@ const MAP_DOTS = [
 ]
 
 const STUDENT_PROFILES = [
-  { name: 'Abdullah', course: 'Business',                   university: 'ATU Galway',          cao: 'AU601' },
-  { name: 'Eman',     course: 'Engineering',                 university: 'UCD',                 cao: 'DN150' },
-  { name: 'Emily',    course: 'Accounting and Finance',      university: 'DCU',                 cao: 'DC115' },
-  { name: 'Siofra',   course: 'Arts',                        university: 'UCC',                 cao: 'CK111' },
-  { name: 'Ciarán',   course: 'Computer Science',            university: 'UL',                  cao: 'LM121' },
-  { name: 'Nicole',   course: 'Nursing',                     university: 'Maynooth University', cao: 'MH701' },
-  { name: 'Sienna',   course: 'Nursing',                     university: 'SETU Waterford',      cao: 'SE915' },
-  { name: 'Basmali',  course: 'Computing',                   university: 'MTU',                 cao: 'MT803' },
-  { name: 'Ethan',    course: 'Sports Science and Health',   university: 'TU Dublin',           cao: 'TU936' },
-  { name: 'Alex',     course: 'Digital Marketing',           university: 'TUS Athlone',         cao: 'US844' },
-  { name: 'Fiza',     course: 'Psychology',                  university: 'University of Galway', cao: 'GY104' },
+  { name: 'Sienna',  course: 'Nursing',                   university: 'SETU Waterford',       cao: 'SE915' },
+  { name: 'Basmali', course: 'Computing',                 university: 'MTU',                  cao: 'MT803' },
+  { name: 'Ethan',   course: 'Sports Science and Health', university: 'TU Dublin',            cao: 'TU936' },
+  { name: 'Alex',    course: 'Digital Marketing',         university: 'TUS Athlone',          cao: 'US844' },
+  { name: 'Fiza',    course: 'Psychology',                university: 'University of Galway', cao: 'GY104' },
 ]
 
 const COLLAB_POINTS = [
