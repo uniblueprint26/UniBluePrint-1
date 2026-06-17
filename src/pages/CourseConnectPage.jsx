@@ -76,28 +76,18 @@ const MAP_DOTS = [
   { city: 'Kilkenny',  x: 245, y: 320, unis: ['SETU Kilkenny'] },
 ]
 
-const MOCK_PROFILES = [
-  {
-    initials: 'SR',
-    name: 'Siobhán R.',
-    course: 'Business & Finance',
-    uni: 'UCD',
-    modules: ['FIN2020', 'ECO2010', 'MGT3010'],
-  },
-  {
-    initials: 'CO',
-    name: 'Ciarán O.',
-    course: 'Computer Science',
-    uni: 'TCD',
-    modules: ['CS3012', 'CS3021', 'CS2010'],
-  },
-  {
-    initials: 'AM',
-    name: 'Aoife M.',
-    course: 'Medicine',
-    uni: 'UCC',
-    modules: ['MED2001', 'MED2002', 'PHY2010'],
-  },
+const STUDENT_PROFILES = [
+  { name: 'Abdullah', course: 'Business',                   university: 'ATU Galway',          cao: 'AU601' },
+  { name: 'Eman',     course: 'Engineering',                 university: 'UCD',                 cao: 'DN150' },
+  { name: 'Emily',    course: 'Accounting and Finance',      university: 'DCU',                 cao: 'DC115' },
+  { name: 'Siofra',   course: 'Arts',                        university: 'UCC',                 cao: 'CK111' },
+  { name: 'Ciarán',   course: 'Computer Science',            university: 'UL',                  cao: 'LM121' },
+  { name: 'Nicole',   course: 'Nursing',                     university: 'Maynooth University', cao: 'MH701' },
+  { name: 'Sienna',   course: 'Nursing',                     university: 'SETU Waterford',      cao: 'SE915' },
+  { name: 'Basmali',  course: 'Computing',                   university: 'MTU',                 cao: 'MT803' },
+  { name: 'Ethan',    course: 'Sports Science and Health',   university: 'TU Dublin',           cao: 'TU936' },
+  { name: 'Alex',     course: 'Digital Marketing',           university: 'TUS Athlone',         cao: 'US844' },
+  { name: 'Fiza',     course: 'Psychology',                  university: 'University of Galway', cao: 'GY104' },
 ]
 
 const COLLAB_POINTS = [
@@ -294,23 +284,24 @@ export default function CourseConnectPage() {
           Connect with students on the same course — across campuses, across Ireland.
         </p>
 
-        <div className="about-diff-grid" style={{ maxWidth: '900px', margin: '40px auto 0' }}>
-          {MOCK_PROFILES.map(p => (
+        <div className="testimonials-grid" style={{ maxWidth: '1000px', margin: '40px auto 0' }}>
+          {STUDENT_PROFILES.map(p => (
             <div key={p.name} style={{
-              background: '#F5F0E8', borderRadius: '12px',
-              padding: '24px',
+              background: '#FFFFFF', borderRadius: '12px',
+              boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+              padding: '24px', textAlign: 'left',
             }}>
-              {/* Avatar */}
               <div style={{
-                width: '48px', height: '48px', borderRadius: '50%',
+                width: '52px', height: '52px', borderRadius: '50%',
                 background: '#1E3A5F',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
               }}>
                 <span style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '16px', fontWeight: '700', color: '#F5F0E8',
+                  fontFamily: "'DM Serif Display', serif",
+                  fontSize: '20px', color: '#FFFFFF', lineHeight: 1,
                 }}>
-                  {p.initials}
+                  {p.name.charAt(0)}
                 </span>
               </div>
               <p style={{
@@ -321,22 +312,17 @@ export default function CourseConnectPage() {
               </p>
               <p style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px', color: '#6B7280', marginTop: '2px',
+                fontSize: '13px', color: '#6B7280', marginTop: '4px',
               }}>
-                {p.course} · {p.uni}
+                {p.course} · {p.university}
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
-                {p.modules.map(m => (
-                  <span key={m} style={{
-                    background: 'rgba(30,58,95,0.08)',
-                    borderRadius: '4px', padding: '3px 8px',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '11px', color: '#1E3A5F', fontWeight: '500',
-                  }}>
-                    {m}
-                  </span>
-                ))}
-              </div>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
+                marginTop: '12px',
+              }}>
+                CAO Code: {p.cao}
+              </p>
             </div>
           ))}
         </div>
