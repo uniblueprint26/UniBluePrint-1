@@ -8,63 +8,6 @@ import {
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../components/ui/Form'
 
-/*
-  TODO: Create Supabase table:
-
-  create table handler_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    full_name text not null,
-    university text not null,
-    course text not null,
-    year text not null,
-    email text not null,
-    why_apply text not null,
-    hours_per_week text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table handler_applications enable row level security;
-  create policy "anon_insert" on handler_applications for insert to anon with check (true);
-
-  create table coach_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    full_name text not null,
-    email text not null,
-    linkedin_url text not null,
-    specialisms text[] not null,
-    experience text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table coach_applications enable row level security;
-  create policy "anon_insert" on coach_applications for insert to anon with check (true);
-
-  create table ambassador_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    full_name text not null,
-    university text not null,
-    course text not null,
-    year text not null,
-    email text not null,
-    instagram_handle text,
-    why_apply text not null,
-    how_promote text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table ambassador_applications enable row level security;
-  create policy "anon_insert" on ambassador_applications for insert to anon with check (true);
-*/
-
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const ROLES = [
