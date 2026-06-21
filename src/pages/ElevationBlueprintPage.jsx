@@ -5,7 +5,7 @@ import {
   Sparkles, Network, Layout, Users, Presentation, BookOpen,
   UserCheck, Send, Bot,
   Check, X as XIcon,
-  Award, Dumbbell,
+  Award, Dumbbell, User, MapPin,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -124,6 +124,131 @@ const ELEVATION_SERVICES = [
     originalPremium: '€52', trialPremium: '€26',
   },
 ]
+
+// ─── Coaches section data ──────────────────────────────────────────────────────
+
+const COACHES = [
+  { id: 1, category: 'Fitness Coaching',   location: 'Dublin',   services: ['Training Plans', 'Nutrition Basics', 'Form Coaching'] },
+  { id: 2, category: 'Fitness Coaching',   location: 'Cork',     services: ['Strength & Conditioning', 'Weekly Check-ins'] },
+  { id: 3, category: 'Fitness Coaching',   location: 'Galway',   services: ['Training Plans', 'Progress Reviews'] },
+  { id: 4, category: 'Personal Branding',  location: 'Dublin',   services: ['LinkedIn Optimisation', 'Brand Strategy'] },
+  { id: 5, category: 'Mentorship',         location: 'Limerick', services: ['Career Guidance', 'Session Prep'] },
+  { id: 6, category: 'Portfolio Building', location: 'Dublin',   services: ['Portfolio Strategy', 'Case Study Frameworks'] },
+  { id: 7, category: 'Pitch Coaching',     location: 'Cork',     services: ['Pitch Feedback', 'Live Rehearsal', 'Q&A Prep'] },
+  { id: 8, category: 'Network Assistance', location: 'Galway',   services: ['Outreach Templates', 'Network Audit'] },
+  { id: 9, category: 'Postgrad Support',   location: 'Dublin',   services: ['Personal Statement', 'Programme Research'] },
+]
+
+const COACH_FILTER_CATEGORIES = [
+  'All',
+  'Fitness Coaching',
+  'Personal Branding',
+  'Network Assistance',
+  'Portfolio Building',
+  'Mentorship',
+  'Pitch Coaching',
+  'Postgrad Support',
+]
+
+const STARTING_FROM = {
+  'Fitness Coaching':   'Pricing TBC',
+  'Personal Branding':  'Starting from €40',
+  'Network Assistance': 'Starting from €30',
+  'Portfolio Building': 'Starting from €30',
+  'Mentorship':         'Starting from €20',
+  'Pitch Coaching':     'Starting from €25',
+  'Postgrad Support':   'Starting from €30',
+}
+
+const coachActivePill = {
+  background: '#1E3A5F', color: '#F5F0E8',
+  borderRadius: '20px', padding: '7px 16px',
+  fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '500',
+  whiteSpace: 'nowrap', cursor: 'pointer', border: 'none',
+  transition: 'background 150ms, color 150ms',
+}
+
+const coachInactivePill = {
+  background: '#FFFFFF', color: '#6B7280',
+  border: '1px solid rgba(30,58,95,0.15)',
+  borderRadius: '20px', padding: '7px 16px',
+  fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '500',
+  whiteSpace: 'nowrap', cursor: 'pointer',
+  transition: 'background 150ms, color 150ms',
+}
+
+function ElevationCoachCard({ category, location, services }) {
+  const [hovered, setHovered] = useState(false)
+  const price = STARTING_FROM[category] || 'Starting from €20'
+  const isTBC = price === 'Pricing TBC'
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: '#FFFFFF', borderRadius: '12px',
+        boxShadow: hovered ? '0px 8px 28px rgba(30,58,95,0.14)' : '0px 2px 12px rgba(30,58,95,0.08)',
+        overflow: 'hidden',
+        transform: hovered ? 'scale(1.01)' : 'scale(1)',
+        transition: 'box-shadow 150ms ease, transform 150ms ease',
+      }}
+    >
+      <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <User size={40} color="#9CA3AF" style={{ opacity: 0.5 }} />
+        <span style={{
+          position: 'absolute', top: '12px', left: '12px',
+          background: '#1E3A5F', color: '#F5F0E8',
+          borderRadius: '6px', padding: '4px 10px',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '700',
+        }}>
+          {category}
+        </span>
+      </div>
+      <div style={{ padding: '20px' }}>
+        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', margin: 0 }}>
+          Coach Name
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+          <MapPin size={14} color="#9CA3AF" style={{ flexShrink: 0 }} />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>{location}</span>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+          {services.map(s => (
+            <span key={s} style={{ background: '#F5F0E8', color: '#1E3A5F', borderRadius: '6px', padding: '4px 10px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px' }}>
+              {s}
+            </span>
+          ))}
+        </div>
+        <div style={{ borderTop: '1px solid rgba(30,58,95,0.1)', marginTop: '16px', paddingTop: '14px' }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
+            color: isTBC ? '#9CA3AF' : '#1E3A5F',
+            fontWeight: isTBC ? '400' : '600',
+            fontStyle: isTBC ? 'italic' : 'normal',
+          }}>
+            {price}
+          </span>
+        </div>
+        <Link
+          to="/our-coaches"
+          style={{
+            display: 'block', width: '100%', marginTop: '16px', height: '44px',
+            borderRadius: '8px', background: 'none',
+            border: '1.5px solid #1E3A5F',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
+            color: '#1E3A5F', textDecoration: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          View Profile
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 
 const COMPARISON_ROWS = [
   {
@@ -375,6 +500,9 @@ function BoolCell({ value }) {
 // ─── ElevationBlueprintPage ────────────────────────────────────────────────────
 
 export default function ElevationBlueprintPage() {
+  const [activeFilter, setActiveFilter] = useState('All')
+  const visibleCoaches = activeFilter === 'All' ? COACHES : COACHES.filter(c => c.category === activeFilter)
+
   return (
     <>
       <Helmet>
@@ -767,6 +895,61 @@ export default function ElevationBlueprintPage() {
           }}>
             * September trial prices apply throughout September 2026 only. Standard prices resume from 1 October 2026. Mentorship matching is always free regardless of trial period.
           </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 5.5 — MEET OUR COACHES ──────────────────────────────── */}
+      <style>{`
+        .elevation-coaches-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        @media (max-width: 1023px) { .elevation-coaches-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 767px)  { .elevation-coaches-grid { grid-template-columns: 1fr; } }
+      `}</style>
+
+      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>
+            Verified Specialists
+          </p>
+          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
+            Meet Our Coaches
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', textAlign: 'center', maxWidth: '540px', margin: '12px auto 0', lineHeight: 1.65 }}>
+            Every Uni Coach is vetted and onboarded before they take on engagements. Browse by specialism below.
+          </p>
+
+          {/* Filter pills */}
+          <div style={{ overflowX: 'auto', display: 'flex', gap: '8px', paddingBottom: '4px', marginTop: '32px' }}>
+            {COACH_FILTER_CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                style={cat === activeFilter ? coachActivePill : coachInactivePill}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Coach cards */}
+          <div className="elevation-coaches-grid" style={{ marginTop: '24px' }}>
+            {visibleCoaches.map(c => (
+              <ElevationCoachCard key={c.id} {...c} />
+            ))}
+          </div>
+
+          {/* See all link */}
+          <div style={{ textAlign: 'center', marginTop: '40px' }}>
+            <Link
+              to="/our-coaches"
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                color: '#1E3A5F', textDecoration: 'none',
+                borderBottom: '1.5px solid #1E3A5F', paddingBottom: '2px',
+              }}
+            >
+              See all coaches →
+            </Link>
+          </div>
         </div>
       </section>
 

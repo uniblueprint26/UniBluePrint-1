@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { UserCheck, Award, Megaphone } from 'lucide-react'
+import { UserCheck, Award, Megaphone, User, MapPin } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
@@ -66,6 +66,12 @@ import {
 */
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
+
+const FEATURED_COACHES = [
+  { id: 4, category: 'Personal Branding',  location: 'Dublin' },
+  { id: 7, category: 'Pitch Coaching',     location: 'Cork' },
+  { id: 9, category: 'Postgrad Support',   location: 'Dublin' },
+]
 
 const ROLES = [
   {
@@ -484,6 +490,77 @@ export default function JoinPage() {
           }}>
             Campus Handlers. Uni Coaches. Ambassadors. Three ways to be part of something building across Ireland.
           </p>
+        </section>
+
+        {/* ── SECTION 1.5 — FEATURED COACHES ──────────────────────────────── */}
+        <section style={{ background: '#F5F0E8', padding: '64px 24px' }}>
+          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>
+              Our Uni Coaches
+            </p>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '32px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
+              Meet some of the coaches you&apos;d be joining
+            </h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', maxWidth: '480px', margin: '12px auto 0', lineHeight: 1.65 }}>
+              As a Uni Coach you become part of a vetted network of specialists delivering Elevation Blueprint services across Ireland.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '36px' }}
+              className="featured-coaches-grid">
+              <style>{`
+                @media (max-width: 767px) { .featured-coaches-grid { grid-template-columns: 1fr !important; } }
+              `}</style>
+              {FEATURED_COACHES.map(({ id, category, location }) => (
+                <div key={id} style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <User size={40} color="#9CA3AF" style={{ opacity: 0.5 }} />
+                    <span style={{
+                      position: 'absolute', top: '12px', left: '12px',
+                      background: '#1E3A5F', color: '#F5F0E8',
+                      borderRadius: '6px', padding: '4px 10px',
+                      fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '700',
+                    }}>
+                      {category}
+                    </span>
+                  </div>
+                  <div style={{ padding: '16px 20px 20px' }}>
+                    <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', margin: 0 }}>
+                      Coach Name
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                      <MapPin size={13} color="#9CA3AF" style={{ flexShrink: 0 }} />
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>{location}</span>
+                    </div>
+                    <Link
+                      to="/our-coaches"
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        marginTop: '14px', height: '40px',
+                        border: '1.5px solid #1E3A5F', borderRadius: '8px',
+                        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
+                        color: '#1E3A5F', textDecoration: 'none',
+                      }}
+                    >
+                      View Profile
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '32px' }}>
+              <Link
+                to="/our-coaches"
+                style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                  color: '#1E3A5F', textDecoration: 'none',
+                  borderBottom: '1.5px solid #1E3A5F', paddingBottom: '2px',
+                }}
+              >
+                See all coaches →
+              </Link>
+            </div>
+          </div>
         </section>
 
         {/* ── SECTION 2 — ROLE CARDS ───────────────────────────────────────── */}
