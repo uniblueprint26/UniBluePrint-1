@@ -17,19 +17,18 @@ const CAREER_SERVICES = [
     name: 'CV Optimisation',
     tagline: 'A CV that opens doors — not one that gets ignored',
     description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV from scratch or transforms what you already have — structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
-    bullets: [
+    standardBullets: [
       'Professionally structured CV tailored to your field and target role',
       'ATS-optimised formatting — gets past automated screening systems',
       'Powerful action-language rewrites on every bullet point',
       'Reviewed by a trained Campus Handler before delivery',
     ],
-    tierNote: {
-      standard: 'Full CV build or complete transformation, 48 hour delivery',
-      premium: 'Same day delivery plus cover letter ready formatting',
-    },
+    premiumBullets: [
+      'Same day delivery plus cover letter ready formatting',
+    ],
     icon: FileText,
     originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€30', trialPremium: '€15',
+    originalPremium: '€35', trialPremium: '€18',
   },
   {
     name: 'LinkedIn Optimisation',
@@ -44,7 +43,7 @@ const CAREER_SERVICES = [
     ],
     icon: Linkedin,
     originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€30', trialPremium: '€15',
+    originalPremium: '€35', trialPremium: '€18',
   },
   {
     name: 'Cover Letter Assistance',
@@ -58,8 +57,8 @@ const CAREER_SERVICES = [
       'Reviewed by a trained Campus Handler before delivery',
     ],
     icon: Mail,
-    originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€30', trialPremium: '€15',
+    originalStandard: '€15', trialStandard: '€8',
+    originalPremium: '€25', trialPremium: '€13',
   },
   {
     name: 'Application Form Assistance',
@@ -72,8 +71,8 @@ const CAREER_SERVICES = [
       'Reviewed by a trained Campus Handler before delivery',
     ],
     icon: ClipboardList,
-    originalStandard: 'From €20', trialStandard: 'From €10',
-    originalPremium: 'From €30', trialPremium: 'From €15',
+    originalStandard: '€20', trialStandard: '€10',
+    originalPremium: '€35', trialPremium: '€18',
   },
   {
     name: 'Interview Preparation',
@@ -91,13 +90,13 @@ const CAREER_SERVICES = [
       'Post-session improvement notes',
     ],
     icon: MessageSquare,
-    originalStandard: 'From €20', trialStandard: 'From €10',
-    originalPremium: 'From €30', trialPremium: 'From €15',
+    originalStandard: '€20', trialStandard: '€10',
+    originalPremium: '€35', trialPremium: '€18',
   },
   {
     name: 'Job Search Support',
     tagline: 'Stop applying blindly. Start searching strategically.',
-    description: 'UniBlueprint builds you a personalised job search strategy — the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year of study, and career goals. Less guessing, more results.',
+    description: 'UniBlueprint builds you a personalised job search strategy — the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year of study, and career goals.',
     bullets: [
       'Personalised job search strategy for your field and goals',
       'Platform guide — where to search and what to look for',
@@ -107,7 +106,7 @@ const CAREER_SERVICES = [
     ],
     icon: Search,
     originalStandard: '€15', trialStandard: '€8',
-    originalPremium: '€22', trialPremium: '€11',
+    originalPremium: '€25', trialPremium: '€13',
   },
 ]
 
@@ -123,8 +122,8 @@ const CAO_SERVICES = [
       'Reviewed by a trained Campus Handler before delivery',
     ],
     icon: BookOpen,
-    originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€30', trialPremium: '€15',
+    originalStandard: '€25', trialStandard: '€13',
+    originalPremium: '€40', trialPremium: '€20',
   },
   {
     name: 'College Interview Preparation',
@@ -140,13 +139,13 @@ const CAO_SERVICES = [
       'Real-time feedback and post-session notes',
     ],
     icon: GraduationCap,
-    originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€30', trialPremium: '€15',
+    originalStandard: '€25', trialStandard: '€13',
+    originalPremium: '€40', trialPremium: '€20',
   },
   {
     name: 'Scholarship & Grants Application',
     tagline: 'The funding is out there. We help you get it.',
-    description: 'Scholarships and grants go unclaimed every year because applicants do not know how to present themselves effectively. UniBlueprint identifies relevant opportunities and helps you craft a strong, compelling application — personal statement, supporting evidence, and covering letter — reviewed by a Campus Handler before submission.',
+    description: 'Scholarships and grants go unclaimed every year because applicants do not know how to present themselves effectively. UniBlueprint identifies relevant opportunities and helps you craft a strong, compelling application — reviewed by a Campus Handler before submission.',
     bullets: [
       'Scholarship and grant identification for your profile and field',
       'Compelling application personal statement',
@@ -154,8 +153,8 @@ const CAO_SERVICES = [
       'Reviewed by a trained Campus Handler before delivery',
     ],
     icon: Award,
-    originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€30', trialPremium: '€15',
+    originalStandard: '€25', trialStandard: '€13',
+    originalPremium: '€40', trialPremium: '€20',
   },
   {
     name: 'Course Selection Guidance',
@@ -169,7 +168,7 @@ const CAO_SERVICES = [
     ],
     icon: Compass,
     originalStandard: '€15', trialStandard: '€8',
-    originalPremium: '€22', trialPremium: '€11',
+    originalPremium: '€25', trialPremium: '€13',
     courseCompass: true,
   },
 ]
@@ -628,7 +627,7 @@ export default function FoundationBlueprintPage() {
             </div>
           </div>
 
-          {/* Location 2 — CourseCompass partnership callout with mini-card grid */}
+          {/* CourseCompass partnership callout */}
           <div style={{
             background: '#FFFFFF',
             borderRadius: '12px',
@@ -652,12 +651,8 @@ export default function FoundationBlueprintPage() {
             }}>
               AI-powered CAO course matching for students and young people in Ireland
             </p>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '10px',
-            }}>
-              {CC_ALL_TOOLS.map(t => <CCMiniCard key={t.name} {...t} />)}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {CC_ALL_PILL_TOOLS.map(t => <CCPill key={t.name} {...t} />)}
             </div>
           </div>
         </div>
