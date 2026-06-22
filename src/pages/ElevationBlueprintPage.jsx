@@ -14,7 +14,7 @@ const ELEVATION_SERVICES = [
   {
     name: 'Personal Branding Support',
     tagline: 'Know who you are professionally. Make sure everyone else does too.',
-    description: 'Your personal brand is what people say about you when you are not in the room — and right now, most students do not have one. UniBlueprint works with you through a Uni Coach to define your professional identity, sharpen your positioning, and ensure every touchpoint — LinkedIn, CV, online presence — tells a consistent, compelling story about who you are and where you are going.',
+    description: 'Your personal brand is what people say about you when you are not in the room — and right now, most students do not have one. UniBlueprint works with you through a Uni Coach to define your professional identity, sharpen your positioning, and ensure every touchpoint tells a consistent, compelling story about who you are and where you are going.',
     standardBullets: [
       'Personal brand audit across all touchpoints',
       'Brand positioning statement — who you are, what you offer, who you serve',
@@ -52,7 +52,7 @@ const ELEVATION_SERVICES = [
   {
     name: 'Portfolio Building',
     tagline: 'Show your work. Show your thinking. Get noticed.',
-    description: 'For students in creative, tech, business, and other portfolio-relevant fields, your work needs to be visible and presented correctly. A Uni Coach guides you through choosing the right platform for your field, structuring your projects as compelling case studies, and building a portfolio that employers and clients actually engage with.',
+    description: 'For students in creative, tech, business, and other portfolio-relevant fields, your work needs to be visible and presented correctly. A Uni Coach guides you through choosing the right platform, structuring your projects as compelling case studies, and building a portfolio that employers and clients actually engage with.',
     standardBullets: [
       'Platform recommendation for your specific field and audience',
       'Portfolio structure and content strategy',
@@ -442,7 +442,7 @@ export default function ElevationBlueprintPage() {
             textAlign: 'center', maxWidth: '620px',
             margin: '12px auto 0', lineHeight: 1.65,
           }}>
-            UniBlueprint connects you with verified Uni Coaches specialising in fitness, strength, and conditioning — built around your schedule as a student, apprentice, or young professional.
+            UniBlueprint connects you with verified Uni Coaches specialising in fitness, strength, and conditioning — built around your schedule as a student, apprentice, or young professional. Whether you are training for performance, building consistency, or just starting out, a Fitness Uni Coach gives you a structured plan and accountability that generic apps cannot.
           </p>
 
           <div style={{ maxWidth: '480px', margin: '40px auto 0' }}>
