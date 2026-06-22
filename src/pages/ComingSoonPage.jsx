@@ -56,7 +56,7 @@ export default function ComingSoonPage() {
       {/* HERO */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px', textAlign: 'center' }}>
         <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block', marginBottom: '40px' }}>
-          <UBPLogo height={100} color="#F5F0E8" />
+          <UBPLogo height={100} inverted={true} />
         </Link>
         <p style={{
           fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',

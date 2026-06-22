@@ -153,7 +153,7 @@ export default function Footer() {
         {/* Logo + tagline */}
         <div>
           <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block' }}>
-            <UBPLogo height={40} color="#F5F0E8" />
+            <UBPLogo height={40} inverted={true} />
           </Link>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
