@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  ExternalLink, Handshake,
+  ExternalLink,
   UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Sparkles,
 } from 'lucide-react'
 
@@ -267,16 +267,6 @@ export default function PartnersPage() {
             padding: '28px',
             maxWidth: '800px', margin: '24px auto 0',
           }}>
-            <div style={{
-              width: '60px', height: '60px', borderRadius: '50%',
-              background: '#F5F0E8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto',
-            }}>
-              {/* TODO: Replace with actual CourseCompass logo image */}
-              <Handshake size={28} color="#1E3A5F" aria-hidden="true" />
-            </div>
-
             <h2 style={{
               fontFamily: "'DM Serif Display', serif",
               fontSize: '22px', color: '#1E3A5F',
@@ -301,7 +291,7 @@ export default function PartnersPage() {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '12px', fontWeight: '600',
             }}>
-              Powered by CourseCompass
+              INTEGRATION PARTNER
             </span>
 
             <div className="partner-tools-grid" style={{ marginTop: '24px' }}>

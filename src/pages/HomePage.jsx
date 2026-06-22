@@ -129,6 +129,7 @@ const PILLARS = [
     href: '/course-connect',
     icon: Globe,
     link: 'Learn more →',
+    courseCompassNote: 'Powered in partnership with CourseCompass',
   },
   {
     name: 'Budgeting Tool',
@@ -195,7 +196,7 @@ function StudentCard({ name, course, university, cao }) {
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
 
-function PillarCard({ name, description, href, icon: Icon, link }) {
+function PillarCard({ name, description, href, icon: Icon, link, courseCompassNote }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -236,6 +237,15 @@ function PillarCard({ name, description, href, icon: Icon, link }) {
       }}>
         {description}
       </p>
+      {courseCompassNote && (
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '11px', color: '#9CA3AF',
+          marginTop: '6px',
+        }}>
+          {courseCompassNote}
+        </p>
+      )}
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#1E3A5F', fontWeight: '600',

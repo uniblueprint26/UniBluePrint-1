@@ -2,8 +2,17 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   BookOpen, MessageSquare, Upload, Users, Bell, FileText,
-  UserPlus, Briefcase, Globe, Award,
+  UserPlus, Briefcase, Globe, Award, ExternalLink,
 } from 'lucide-react'
+
+const CC_TOOLS = [
+  { name: 'Course Compass',         description: 'Find your ideal CAO course with AI matching.',     url: 'https://coursecompass.ie/course-compass' },
+  { name: 'Subject Interest Test',  description: 'Identify subjects that match your strengths.',     url: 'https://coursecompass.ie/subject-interest-test' },
+  { name: 'Learning Style Test',    description: 'Discover how you learn best.',                     url: 'https://coursecompass.ie/learning-style-test' },
+  { name: 'PLC Compass',            description: 'Match with the right PLC course.',                 url: 'https://coursecompass.ie/plc-compass-test' },
+  { name: 'Apprenticeship Compass', description: 'Find the right apprenticeship pathway.',            url: 'https://coursecompass.ie/apprentice-compass-test' },
+  { name: '5th & 6th Year Bundle',  description: 'Senior cycle tools, bundled together.',             url: 'https://coursecompass.ie/bundles/senior-cycle' },
+]
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -359,7 +368,82 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — IRELAND MAP ───────────────────────────────────────── */}
+      {/* ── SECTION 5 — COURSECOMPASS INTEGRATION ────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', fontWeight: '600',
+            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
+            textAlign: 'center',
+          }}>
+            Powered in partnership with CourseCompass
+          </p>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#6B7280',
+            textAlign: 'center', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.65,
+          }}>
+            Ireland's AI-powered CAO course matching platform — helping students find the right course, pathway, and career direction.
+          </p>
+
+          <div className="partner-tools-grid" style={{ marginTop: '32px' }}>
+            {CC_TOOLS.map(t => (
+              <a
+                key={t.name}
+                href={t.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'block',
+                  background: '#FFFFFF', borderRadius: '12px',
+                  boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+                  padding: '14px',
+                  textDecoration: 'none',
+                  transition: 'opacity 150ms',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#1E3A5F' }}>
+                  {t.name}
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', marginTop: '4px', lineHeight: 1.5 }}>
+                  {t.description}
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1E3A5F', marginTop: '8px', textAlign: 'right' }}>
+                  Open →
+                </p>
+              </a>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '28px' }}>
+            <a
+              href="https://coursecompass.ie/course-compass"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                height: '48px', padding: '0 24px',
+                background: '#1E3A5F', color: '#F5F0E8',
+                borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '15px', fontWeight: '600',
+                textDecoration: 'none',
+                transition: 'opacity 150ms',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              Visit CourseCompass →
+              <ExternalLink size={16} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 6 — IRELAND MAP ───────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <IrelandMap />
         <h2 style={{
@@ -378,7 +462,7 @@ export default function CourseConnectPage() {
         </p>
       </section>
 
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────── */}
+      {/* ── SECTION 7 — CTA ──────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '80px 24px',
