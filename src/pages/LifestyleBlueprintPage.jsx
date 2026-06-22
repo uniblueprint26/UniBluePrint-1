@@ -569,7 +569,7 @@ export default function LifestyleBlueprintPage() {
           fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Exclusive deals and discounts curated for students, apprentices, and young people in Ireland. Pro subscribers only — from €6.99/month. Mental Health &amp; Wellbeing always free.
+          Exclusive deals, discounts, and wellbeing resources — for students, apprentices, and young people across Ireland. Pro subscribers unlock the full Lifestyle Blueprint. Mental Health &amp; Wellbeing is always free for everyone.
         </p>
 
         {/* Mental Health callout */}
@@ -776,7 +776,7 @@ export default function LifestyleBlueprintPage() {
           fontSize: '16px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7,
         }}>
-          We partner with businesses and brands that want to reach Irish students. Every deal is reviewed before going live — only genuine value is listed.
+          We partner with businesses and brands that want to reach students and young people in Ireland. Every deal is reviewed before going live — only genuine value is listed.
         </p>
 
         <div className="steps-row" style={{ maxWidth: '800px', margin: '40px auto 0' }}>

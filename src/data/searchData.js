@@ -1,6 +1,6 @@
 export const SEARCH_DATA = [
   // Pages
-  { id: 'home', type: 'page', title: 'Home', description: "Ireland's student platform — the structure behind your success.", path: '/' },
+  { id: 'home', type: 'page', title: 'Home', description: "Ireland's platform for students, apprentices, and young people — the structure behind your success.", path: '/' },
   { id: 'about', type: 'page', title: 'About', description: 'Learn about the UniBlueprint team and mission.', path: '/about' },
   { id: 'how-it-works', type: 'page', title: 'How It Works', description: 'How UniBlueprint works — from sign-up to delivery.', path: '/how-it-works' },
   { id: 'pricing', type: 'page', title: 'Pricing', description: 'Free and Pro plans for students and young people in Ireland.', path: '/pricing' },
@@ -40,7 +40,7 @@ export const SEARCH_DATA = [
   { id: 'elevation-mentorship', type: 'service', title: 'Mentorship', description: 'Mentorship matching with industry professionals via Elevation Blueprint.', path: '/elevation-blueprint' },
 
   // FAQs
-  { id: 'faq-what-is', type: 'faq', title: 'What is UniBlueprint?', description: "UniBlueprint is Ireland's student platform providing academic and career support.", path: '/faqs' },
+  { id: 'faq-what-is', type: 'faq', title: 'What is UniBlueprint?', description: "UniBlueprint is Ireland's platform for students, apprentices, and young people providing academic and career support.", path: '/faqs' },
   { id: 'faq-free', type: 'faq', title: 'Is UniBlueprint free to use?', description: 'UniBlueprint has a free tier and a Pro subscription.', path: '/faqs' },
   { id: 'faq-launch', type: 'faq', title: 'When does UniBlueprint launch?', description: 'UniBlueprint launches in September 2026 at Irish universities during freshers week.', path: '/faqs' },
   { id: 'faq-universities', type: 'faq', title: 'Which universities are included at launch?', description: 'UniBlueprint launches across Irish universities and colleges in September 2026.', path: '/faqs' },

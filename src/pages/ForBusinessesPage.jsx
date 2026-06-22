@@ -126,10 +126,10 @@ export default function ForBusinessesPage() {
         <title>For Businesses | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026."
+          content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach students and young people in Ireland from freshers week 2026."
         />
         <meta property="og:title" content="For Businesses | UniBlueprint" />
-        <meta property="og:description" content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026." />
+        <meta property="og:description" content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach students and young people in Ireland from freshers week 2026." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -354,7 +354,7 @@ export default function ForBusinessesPage() {
           Launching September 2026
         </h2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.7)', marginTop: '12px' }}>
-          Get your deal in front of Irish students from freshers week.
+          Get your deal in front of students and young people in Ireland from freshers week.
         </p>
       </section>
     </>

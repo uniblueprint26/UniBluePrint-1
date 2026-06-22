@@ -650,7 +650,7 @@ export default function FoundationBlueprintPage() {
               fontSize: '16px', color: '#1E3A5F',
               marginBottom: '16px',
             }}>
-              AI-powered CAO course matching for Irish students
+              AI-powered CAO course matching for students and young people in Ireland
             </p>
             <div style={{
               display: 'grid',
