@@ -86,11 +86,17 @@ const MAP_DOTS = [
 ]
 
 const STUDENT_PROFILES = [
-  { name: 'Sienna',  course: 'Nursing',                   university: 'SETU Waterford',       cao: 'SE915' },
-  { name: 'Basmali', course: 'Computing',                 university: 'MTU',                  cao: 'MT803' },
-  { name: 'Ethan',   course: 'Sports Science and Health', university: 'TU Dublin',            cao: 'TU936' },
-  { name: 'Alex',    course: 'Digital Marketing',         university: 'TUS Athlone',          cao: 'US844' },
-  { name: 'Fiza',    course: 'Psychology',                university: 'University of Galway', cao: 'GY104' },
+  { name: 'Abdullah', course: 'Business',                  university: 'ATU Galway',           cao: 'AU601' },
+  { name: 'Eman',     course: 'Engineering',               university: 'UCD',                  cao: 'DN150' },
+  { name: 'Emily',    course: 'Accounting and Finance',    university: 'DCU',                  cao: 'DC115' },
+  { name: 'Siofra',   course: 'Arts',                      university: 'UCC',                  cao: 'CK111' },
+  { name: 'Ciarán',   course: 'Computer Science',          university: 'UL',                   cao: 'LM121' },
+  { name: 'Nicole',   course: 'Nursing',                   university: 'Maynooth University',  cao: 'MH701' },
+  { name: 'Sienna',   course: 'Nursing',                   university: 'SETU Waterford',       cao: 'SE915' },
+  { name: 'Basmali',  course: 'Computing',                 university: 'MTU',                  cao: 'MT803' },
+  { name: 'Ethan',    course: 'Sports Science and Health', university: 'TU Dublin',            cao: 'TU936' },
+  { name: 'Alex',     course: 'Digital Marketing',         university: 'TUS Athlone',          cao: 'US844' },
+  { name: 'Fiza',     course: 'Psychology',                university: 'University of Galway', cao: 'GY104' },
 ]
 
 const COLLAB_POINTS = [
@@ -287,7 +293,7 @@ export default function CourseConnectPage() {
           Connect with students on the same course — across campuses, across Ireland.
         </p>
 
-        <div className="testimonials-grid" style={{ maxWidth: '1000px', margin: '40px auto 0' }}>
+        <div className="services-grid" style={{ maxWidth: '1000px', margin: '40px auto 0' }}>
           {STUDENT_PROFILES.map(p => (
             <div key={p.name} style={{
               background: '#FFFFFF', borderRadius: '12px',
@@ -322,7 +328,7 @@ export default function CourseConnectPage() {
               <p style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
-                marginTop: '12px',
+                marginTop: '4px',
               }}>
                 CAO Code: {p.cao}
               </p>

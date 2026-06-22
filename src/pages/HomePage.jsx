@@ -186,7 +186,7 @@ function StudentCard({ name, course, university, cao }) {
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
-        marginTop: '12px',
+        marginTop: '4px',
       }}>
         CAO Code: {cao}
       </p>

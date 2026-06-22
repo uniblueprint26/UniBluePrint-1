@@ -83,6 +83,20 @@ const STANDARDS = [
   { title: 'Protect privacy', description: 'Do not share personal information about others without their consent.' },
 ]
 
+const STUDENT_PROFILES = [
+  { name: 'Abdullah', course: 'Business',                  university: 'ATU Galway',           cao: 'AU601' },
+  { name: 'Eman',     course: 'Engineering',               university: 'UCD',                  cao: 'DN150' },
+  { name: 'Emily',    course: 'Accounting and Finance',    university: 'DCU',                  cao: 'DC115' },
+  { name: 'Siofra',   course: 'Arts',                      university: 'UCC',                  cao: 'CK111' },
+  { name: 'Ciarán',   course: 'Computer Science',          university: 'UL',                   cao: 'LM121' },
+  { name: 'Nicole',   course: 'Nursing',                   university: 'Maynooth University',  cao: 'MH701' },
+  { name: 'Sienna',   course: 'Nursing',                   university: 'SETU Waterford',       cao: 'SE915' },
+  { name: 'Basmali',  course: 'Computing',                 university: 'MTU',                  cao: 'MT803' },
+  { name: 'Ethan',    course: 'Sports Science and Health', university: 'TU Dublin',            cao: 'TU936' },
+  { name: 'Alex',     course: 'Digital Marketing',         university: 'TUS Athlone',          cao: 'US844' },
+  { name: 'Fiza',     course: 'Psychology',                university: 'University of Galway', cao: 'GY104' },
+]
+
 // ─── CampusConnectPage ─────────────────────────────────────────────────────────
 
 export default function CampusConnectPage() {
@@ -243,6 +257,67 @@ export default function CampusConnectPage() {
         }}>
           UniBlueprint is launching across Irish campuses in September 2026. Confirmed institutions will be announced shortly.
         </p>
+      </section>
+
+      {/* ── SECTION 3b — STUDENTS ALREADY STUDYING LIKE THIS ───────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <h2 style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: '36px', color: '#1E3A5F',
+          textAlign: 'center',
+        }}>
+          Students already studying like this
+        </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '16px', color: '#6B7280',
+          textAlign: 'center', margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.7,
+        }}>
+          Connect with students on your campus and across Ireland — find your community.
+        </p>
+
+        <div className="services-grid" style={{ maxWidth: '1000px', margin: '40px auto 0' }}>
+          {STUDENT_PROFILES.map(p => (
+            <div key={p.name} style={{
+              background: '#FFFFFF', borderRadius: '12px',
+              boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+              padding: '24px', textAlign: 'left',
+            }}>
+              <div style={{
+                width: '52px', height: '52px', borderRadius: '50%',
+                background: '#1E3A5F',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <span style={{
+                  fontFamily: "'DM Serif Display', serif",
+                  fontSize: '20px', color: '#FFFFFF', lineHeight: 1,
+                }}>
+                  {p.name.charAt(0)}
+                </span>
+              </div>
+              <p style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: '17px', color: '#1E3A5F', marginTop: '10px',
+              }}>
+                {p.name}
+              </p>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px', color: '#6B7280', marginTop: '4px',
+              }}>
+                {p.course} · {p.university}
+              </p>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
+                marginTop: '4px',
+              }}>
+                CAO Code: {p.cao}
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ── SECTION 4 — COMMUNITY STANDARDS ──────────────────────────────── */}
