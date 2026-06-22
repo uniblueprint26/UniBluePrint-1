@@ -23,36 +23,11 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'Where is UniBlueprint available?',
-        a: 'UniBlueprint is live across Ireland. Campus Connect features are available at specific Irish universities and colleges — we are expanding throughout September 2026. Course Connect and all career services are available to every user regardless of location.',
+        a: 'UniBlueprint is live across Ireland. Campus Connect features are available at specific Irish universities and colleges — expanding throughout September 2026. Course Connect and all career services are available to every user regardless of location.',
       },
       {
         q: 'How do I get started?',
         a: 'Download the UniBlueprint app, create a free account in under two minutes, and you are ready. No credit card required. No subscription needed to get started.',
-      },
-    ],
-  },
-  {
-    category: 'Pricing & Subscription',
-    items: [
-      {
-        q: 'What does Pro cost?',
-        a: 'Pro costs €6.99 per month or €49.99 per year. During the September 2026 trial period all services are available at 50% off. After 30 September standard pricing applies.',
-      },
-      {
-        q: 'What does Pro include?',
-        a: 'Pro includes same-day delivery on Foundation Blueprint Premium services, access to all Elevation Blueprint services, the full Lifestyle Blueprint with exclusive partner deals, priority support, and all free tier features.',
-      },
-      {
-        q: 'How do I subscribe to Pro?',
-        a: 'Subscriptions are managed through the UniBlueprint website — not through the App Store or Google Play. When you choose to upgrade in the app you will be directed to the website to complete your subscription.',
-      },
-      {
-        q: 'Can I cancel Pro?',
-        a: 'Yes — you can cancel your Pro subscription at any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service. See our Refund Policy for full details.',
-      },
-      {
-        q: 'What is the September trial?',
-        a: 'The September 2026 trial gives every UniBlueprint user access to all services at 50% off standard pricing throughout September. The trial applies automatically — no code needed. Trial pricing ends on 30 September 2026 at midnight followed by a 7-day grace period ending 7 October 2026.',
       },
     ],
   },
@@ -90,28 +65,11 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'How does Mentorship Matching work?',
-        a: 'Matching is always free. You fill in a profile with your field, career goals, and what you need guidance on. A Uni Coach identifies the best match from the UniBlueprint mentorship network and confirms it with you before booking. You pay only for the session itself.',
+        a: 'Matching is always free. You fill in a profile with your field, career goals, and what you need guidance on. A Uni Coach identifies the best match from the UniBlueprint network and confirms it with you before booking. You pay only for the session itself.',
       },
       {
         q: 'How is Elevation Blueprint different from Foundation Blueprint?',
         a: 'Foundation Blueprint is career document and preparation support — CVs, cover letters, interview prep — reviewed by Campus Handlers and delivered in a defined turnaround. Elevation Blueprint is expert coaching and strategy delivered by specialist Uni Coaches over defined engagements. Both are valuable at different stages of your career journey.',
-      },
-    ],
-  },
-  {
-    category: 'Lifestyle Blueprint',
-    items: [
-      {
-        q: 'Is Mental Health & Wellbeing really always free?',
-        a: 'Yes. Always. Mental Health & Wellbeing on UniBlueprint is permanently free for every user — free tier, Pro subscriber, or not yet signed up. There is no paywall, no subscription required, and no exceptions.',
-      },
-      {
-        q: 'Which deals are available near me?',
-        a: 'Lifestyle Blueprint partner deals are available nationwide with some campus-specific deals. When you open the Lifestyle Blueprint deals are filtered by relevance to your campus and location. New partners are added regularly throughout September 2026.',
-      },
-      {
-        q: 'How do I redeem a deal?',
-        a: 'Each deal card in the app shows the redemption method — show your UniBlueprint Pro badge in person, use a unique code, or follow the partner link. Instructions are shown on each deal card.',
       },
     ],
   },
@@ -143,10 +101,56 @@ const FAQ_CATEGORIES = [
         q: 'Who can I connect with on Course Connect?',
         a: 'Any UniBlueprint user who has made their profile public. You can search by university, course, year, skills, and what they are open to — collaboration, networking, or mentorship. Course Connect covers every Irish university and college.',
       },
+      {
+        q: 'Does Course Connect work across different universities?',
+        a: 'Yes — that is the point. Course Connect is designed for cross-Ireland networking, not just your own campus. Connect with students studying similar subjects at different universities, form cross-campus study groups, or find collaboration partners for projects.',
+      },
     ],
   },
   {
-    category: 'Handlers & Coaches',
+    category: 'Lifestyle Blueprint',
+    items: [
+      {
+        q: 'Is Mental Health and Wellbeing really always free?',
+        a: 'Yes. Always. Mental Health & Wellbeing on UniBlueprint is permanently free for every user — free tier, Pro subscriber, or not yet signed up. There is no paywall, no subscription required, and no exceptions.',
+      },
+      {
+        q: 'Which deals are available near me?',
+        a: 'Lifestyle Blueprint partner deals are available nationwide with some campus-specific deals. When you open the Lifestyle Blueprint deals are filtered by relevance to your campus and location. New partners are added regularly throughout September 2026.',
+      },
+      {
+        q: 'How do I redeem a deal?',
+        a: 'Each deal card in the app shows the redemption method — show your UniBlueprint Pro badge in person, use a unique code, or follow the partner link. Instructions are shown on each deal card.',
+      },
+    ],
+  },
+  {
+    category: 'Pricing and Subscriptions',
+    items: [
+      {
+        q: 'What does Pro cost?',
+        a: 'Pro costs €6.99 per month or €49.99 per year. During the September 2026 trial period all services are available at 50% off. After 30 September standard pricing applies.',
+      },
+      {
+        q: 'What does Pro include?',
+        a: 'Pro includes same-day delivery on Foundation Blueprint Premium services, access to all Elevation Blueprint services, the full Lifestyle Blueprint with exclusive partner deals, priority support, and all free tier features.',
+      },
+      {
+        q: 'How do I subscribe to Pro?',
+        a: 'Subscriptions are managed through the UniBlueprint website — not through the App Store or Google Play. When you choose to upgrade in the app you will be directed to the website to complete your subscription.',
+      },
+      {
+        q: 'Can I cancel Pro?',
+        a: 'Yes — you can cancel at any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service. See our Refund Policy for full details.',
+      },
+      {
+        q: 'What is the September trial?',
+        a: 'The September 2026 trial gives every UniBlueprint user access to all services at 50% off standard pricing throughout September. The trial applies automatically — no code needed. Trial pricing ends on 30 September 2026 at midnight followed by a 7-day grace period ending 7 October 2026.',
+      },
+    ],
+  },
+  {
+    category: 'Campus Handlers and Coaches',
     items: [
       {
         q: 'How do I become a Campus Handler?',
@@ -160,43 +164,26 @@ const FAQ_CATEGORIES = [
         q: 'How do I become a Uni Coach?',
         a: 'Apply at uniblueprint.com/join. You need relevant professional experience or expertise in one or more Elevation Blueprint service areas. Applications are reviewed by the UniBlueprint team.',
       },
-    ],
-  },
-  {
-    category: 'Technical',
-    items: [
       {
-        q: 'What devices does UniBlueprint work on?',
-        a: 'UniBlueprint is available on iOS and Android. The website works on all modern browsers on desktop and mobile.',
-      },
-      {
-        q: 'I am having trouble with my account — what do I do?',
-        a: 'Contact support through the app or via the contact form at uniblueprint.com/contact. We typically respond within 2 business days.',
-      },
-      {
-        q: 'I subscribed on the website but my app is not showing Pro — what do I do?',
-        a: 'Sign out and sign back in to the app. Your Pro status should update immediately. If not contact support with your email address and we will resolve it within 24 hours.',
+        q: 'What is Active Member Pro Access?',
+        a: 'Active Campus Handlers and Uni Coaches receive free Pro access for the full duration of their active status on the platform. This means full access to all Foundation Blueprint, Elevation Blueprint, and Lifestyle Blueprint features at no cost while you are active.',
       },
     ],
   },
   {
-    category: 'September Trial',
+    category: 'Privacy and Data',
     items: [
       {
-        q: 'What exactly is the September trial?',
-        a: 'Every UniBlueprint service is available at 50% off standard pricing throughout September 2026. The discount is applied automatically — no code needed. It applies to all Foundation Blueprint and Elevation Blueprint services and to the Pro subscription itself.',
+        q: 'What data does UniBlueprint collect?',
+        a: 'UniBlueprint collects the information you provide when signing up — name, email, and usage data. For service submissions we collect the details you submit. All data is stored securely in compliance with GDPR. See our full Privacy Policy at uniblueprint.com/privacy.',
       },
       {
-        q: 'When does the September trial end?',
-        a: 'The trial ends on 30 September 2026 at midnight Irish time. A 7-day grace period runs until 7 October 2026. Standard pricing applies from 1 October 2026.',
+        q: 'How do I delete my account?',
+        a: 'You can request account deletion through the Privacy Policy page at uniblueprint.com/privacy or by contacting us at hello@uniblueprint.com. We process all deletion requests within 30 days in line with GDPR Article 17.',
       },
       {
-        q: 'Does the September trial apply to Pro?',
-        a: 'Yes. Pro is available at 50% off during September. After 30 September standard pricing of €6.99 per month or €49.99 per year applies.',
-      },
-      {
-        q: 'Do I need a code?',
-        a: 'No. The discount is applied automatically to every service and subscription during September 2026. Just sign up and use the platform.',
+        q: 'Is my submitted service content kept private?',
+        a: 'Yes. Your submission content is only visible to you, the Campus Handler or Uni Coach assigned to your ticket, and UniBlueprint Operations. It is never shared publicly or with third parties.',
       },
     ],
   },
