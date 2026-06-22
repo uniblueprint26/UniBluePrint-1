@@ -88,7 +88,7 @@ function ToolCard({ name, description, url }) {
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '12px', fontWeight: '600', color: '#1E3A5F',
+        fontSize: '13px', fontWeight: '600', color: '#1E3A5F',
         marginTop: '8px', textAlign: 'right',
       }}>
         Open →
@@ -119,7 +119,7 @@ function LifestylePartnerCard({ name, initials, category, description }) {
       </span>
 
       <div style={{
-        width: '56px', height: '56px', borderRadius: '12px',
+        width: '56px', height: '56px', borderRadius: '50%',
         background: '#F5F0E8',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         margin: '0 auto',
@@ -286,7 +286,7 @@ export default function PartnersPage() {
 
             <span style={{
               display: 'inline-block', marginTop: '16px',
-              background: '#F5F0E8', color: '#1E3A5F',
+              background: '#1E3A5F', color: '#F5F0E8',
               borderRadius: '6px', padding: '4px 12px',
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '12px', fontWeight: '600',
@@ -369,7 +369,7 @@ export default function PartnersPage() {
             fontSize: '16px', color: 'rgba(245,240,232,0.7)',
             margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.7,
           }}>
-            Reach students, apprentices, and young people across Ireland. UniBlueprint Pro subscribers are actively looking for the right deals.
+            Reach students, apprentices, and young people across Ireland.
           </p>
           <Link
             to="/for-businesses"
