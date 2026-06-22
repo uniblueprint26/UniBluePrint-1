@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  Heart, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket,
+  Heart, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Sparkles,
   Lock, Phone, ExternalLink, Megaphone, ArrowRight,
 } from 'lucide-react'
 
@@ -54,36 +54,25 @@ const PARTNER_DEALS = [
     initials: 'WW',
     category: 'Food & Drink',
     description: 'Exclusive student discount on food delivery from Whip Wizards. Show your UniBlueprint Pro badge to redeem.',
-    deal: '[TODO: Insert confirmed deal percentage]',
+    deal: 'TODO: Add confirmed deal percentage',
   },
   {
     name: 'JMC Fitness',
     initials: 'JF',
     category: 'Fitness & Wellbeing',
     description: 'Student membership rates and exclusive offers at JMC Fitness. Stay active during term time without breaking the budget.',
-    deal: '[TODO: Insert confirmed deal percentage]',
+    deal: 'TODO: Add confirmed deal percentage',
   },
   {
     name: 'Nyz3ditz',
     initials: 'NZ',
-    category: '[TODO: Confirm category with Des]',
-    description: '[TODO: Confirm description with Des]',
-    deal: '[TODO: Confirm deal with Des]',
+    category: 'TODO — confirm category with Des',
+    description: 'TODO — confirm description with Des',
+    deal: 'TODO: Add confirmed deal percentage',
   },
 ]
 
-const COMING_SOON_CATEGORIES = [
-  { icon: UtensilsCrossed, name: 'Food & Drink' },
-  { icon: Dumbbell, name: 'Fitness' },
-  { icon: ShoppingBag, name: 'Shopping' },
-  { icon: Plane, name: 'Travel' },
-  { icon: Ticket, name: 'Entertainment' },
-]
-
-const COMING_SOON_SLOTS = COMING_SOON_CATEGORIES.flatMap(c => [
-  { ...c, slot: 1 },
-  { ...c, slot: 2 },
-])
+const COMING_SOON_ICONS = [UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Sparkles]
 
 const MENTAL_HEALTH_SERVICES = [
   {
@@ -679,8 +668,8 @@ export default function LifestyleBlueprintPage() {
             </h3>
 
             <div className="coming-soon-grid" style={{ marginTop: '32px' }}>
-              {COMING_SOON_SLOTS.map((c, i) => (
-                <ComingSoonCard key={`${c.name}-${c.slot}-${i}`} icon={c.icon} />
+              {COMING_SOON_ICONS.map((Icon, i) => (
+                <ComingSoonCard key={i} icon={Icon} />
               ))}
             </div>
           </div>
