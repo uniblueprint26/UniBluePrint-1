@@ -116,6 +116,8 @@ export default function BlogPage() {
       <Helmet>
         <title>{safePage > 1 ? `Blog — Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
         <meta name="description" content="Career tips, platform updates, and guides for students and young people in Ireland from the UniBlueprint team." />
+        <meta property="og:title" content="Blog | UniBlueprint" />
+        <meta property="og:description" content="Career tips, platform updates, and guides for students and young people in Ireland from the UniBlueprint team." />
         <link rel="canonical" href={canonical} />
         {/* TODO: Uncomment before going live — adds noindex on paginated pages beyond page 1 to prevent duplicate content penalties */}
         {/* {safePage > 1 && <meta name="robots" content="noindex, follow" />} */}

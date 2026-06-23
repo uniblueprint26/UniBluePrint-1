@@ -67,6 +67,8 @@ export default function HelpPage() {
       <Helmet>
         <title>Help Centre | UniBlueprint</title>
         <meta name="description" content="UniBlueprint Help Centre — guides and answers for Foundation Blueprint, Elevation Blueprint, billing, accounts, and campus features." />
+        <meta property="og:title" content="Help Centre | UniBlueprint" />
+        <meta property="og:description" content="UniBlueprint Help Centre — guides and answers for Foundation Blueprint, Elevation Blueprint, billing, accounts, and campus features." />
       </Helmet>
 
       {/* HERO */}

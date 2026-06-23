@@ -109,6 +109,8 @@ export default function ComingSoonPage() {
       <Helmet>
         <title>Coming Soon | UniBlueprint</title>
         <meta name="description" content="The UniBlueprint Budgeting Tool is coming soon. Track your income, expenses, and savings as a student in Ireland." />
+        <meta property="og:title" content="Coming Soon | UniBlueprint" />
+        <meta property="og:description" content="The UniBlueprint Budgeting Tool is coming soon. Track your income, expenses, and savings as a student in Ireland." />
       </Helmet>
 
       {/* HERO */}

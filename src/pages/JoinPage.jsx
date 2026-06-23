@@ -522,10 +522,9 @@ export default function JoinPage() {
     <>
       <Helmet>
         <title>Join the Team | UniBlueprint</title>
-        <meta
-          name="description"
-          content="Join the team behind the Blueprint. Apply to become a Campus Handler, Uni Coach, or UniBlueprint Ambassador."
-        />
+        <meta name="description" content="Join the team behind the Blueprint. Apply to become a Campus Handler, Uni Coach, or UniBlueprint Ambassador." />
+        <meta property="og:title" content="Join the Team | UniBlueprint" />
+        <meta property="og:description" content="Join the team behind the Blueprint. Apply to become a Campus Handler, Uni Coach, or UniBlueprint Ambassador." />
       </Helmet>
 
       <div style={{ background: '#F5F0E8' }}>
