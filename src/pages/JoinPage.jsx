@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { UserCheck, Award, Megaphone } from 'lucide-react'
+import { UserCheck, Award, Megaphone, User, MapPin } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
@@ -124,7 +124,67 @@ const SPECIALISMS = [
   'Postgrad Support',
 ]
 
+const COACH_PREVIEWS = [
+  { category: 'Personal Branding', name: 'Coach Name', location: 'Dublin' },
+  { category: 'Pitch Coaching',    name: 'Coach Name', location: 'Cork' },
+  { category: 'Postgrad Support',  name: 'Coach Name', location: 'Dublin' },
+]
+
 // ─── Sub-components ────────────────────────────────────────────────────────────
+
+function CoachPreviewCard({ category, name, location }) {
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '12px',
+      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+      padding: '20px',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+    }}>
+      <div style={{
+        width: '80px', height: '80px', borderRadius: '50%',
+        background: '#F5F0E8',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative',
+      }}>
+        <User size={36} color="#1E3A5F" />
+      </div>
+      <span style={{
+        background: '#1E3A5F', color: '#F5F0E8',
+        borderRadius: '20px', padding: '3px 10px',
+        fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
+        marginTop: '12px',
+      }}>
+        {category}
+      </span>
+      <p style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '17px', color: '#1E3A5F', marginTop: '8px',
+      }}>
+        {name}
+      </p>
+      <p style={{
+        display: 'flex', alignItems: 'center', gap: '4px',
+        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280',
+        marginTop: '4px',
+      }}>
+        <MapPin size={13} color="#6B7280" /> {location}
+      </p>
+      <Link
+        to="/our-coaches"
+        style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          height: '36px', padding: '0 20px',
+          background: 'none', color: '#1E3A5F',
+          border: '1.5px solid #1E3A5F', borderRadius: '8px',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
+          textDecoration: 'none', marginTop: '14px',
+        }}
+      >
+        View Profile
+      </Link>
+    </div>
+  )
+}
 
 function RoleCard({ id, icon: Icon, title, description, pills, requirement, cta }) {
   return (
@@ -486,7 +546,42 @@ export default function JoinPage() {
           </p>
         </section>
 
-        {/* ── SECTION 2 — ROLE CARDS ───────────────────────────────────────── */}
+        {/* ── SECTION 2 — COACH PREVIEWS ──────────────────────────────────── */}
+        <section style={{ background: '#F5F0E8', padding: '80px 24px', textAlign: 'center' }}>
+          <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '36px', color: '#1E3A5F',
+            }}>
+              Meet some of the coaches you would be joining
+            </h2>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '16px', color: '#6B7280',
+              margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.6,
+            }}>
+              As a Uni Coach you become part of a vetted network of specialists delivering Elevation Blueprint services across Ireland.
+            </p>
+            <div className="about-diff-grid" style={{ maxWidth: '900px', margin: '40px auto 0', gap: '16px' }}>
+              {COACH_PREVIEWS.map(c => (
+                <CoachPreviewCard key={c.category} {...c} />
+              ))}
+            </div>
+            <Link
+              to="/our-coaches"
+              style={{
+                display: 'inline-block',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                color: '#1E3A5F', textDecoration: 'none',
+                marginTop: '24px',
+              }}
+            >
+              See all coaches →
+            </Link>
+          </div>
+        </section>
+
+        {/* ── SECTION 3 — ROLE CARDS ───────────────────────────────────────── */}
         <section style={{ padding: '80px 24px 0' }}>
           <div className="about-diff-grid" style={{ maxWidth: '1100px', margin: '40px auto 0', gap: '16px' }}>
             {ROLES.map(r => (
@@ -495,7 +590,7 @@ export default function JoinPage() {
           </div>
         </section>
 
-        {/* ── SECTION 3 — APPLICATION FORMS ────────────────────────────────── */}
+        {/* ── SECTION 4 — APPLICATION FORMS ────────────────────────────────── */}
         <section style={{ padding: '80px 24px' }}>
           <div id="handler-form" style={{ maxWidth: '640px', margin: '0 auto' }}>
             <HandlerForm />
@@ -508,7 +603,7 @@ export default function JoinPage() {
           </div>
         </section>
 
-        {/* ── SECTION 4 — GENERAL CTA ──────────────────────────────────────── */}
+        {/* ── SECTION 5 — GENERAL CTA ──────────────────────────────────────── */}
         <section style={{ background: '#1E3A5F', padding: '64px 24px', textAlign: 'center' }}>
           <h2 style={{
             fontFamily: "'DM Serif Display', serif",
@@ -534,7 +629,7 @@ export default function JoinPage() {
               textDecoration: 'none', marginTop: '24px',
             }}
           >
-            Contact Us →
+            Get in touch →
           </Link>
         </section>
       </div>
