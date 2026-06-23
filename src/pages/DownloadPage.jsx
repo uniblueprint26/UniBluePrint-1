@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { Zap, Star, BookOpen, Heart } from 'lucide-react'
+import { FileText, TrendingUp, Tag, Users } from 'lucide-react'
 import UBPLogo from '../components/ui/UBPLogo'
 
 const APP_JSON_LD = {
@@ -13,45 +14,26 @@ const APP_JSON_LD = {
 
 const FEATURES = [
   {
-    icon: Zap,
-    title: 'Foundation & Elevation Blueprint',
-    desc: 'CV, cover letters, coaching, and mentorship — reviewed by trained handlers and coaches.',
+    icon: FileText,
+    title: 'Foundation Blueprint',
+    desc: 'Professional career support — reviewed by Campus Handlers.',
   },
   {
-    icon: Star,
-    title: 'Campus Connect',
-    desc: 'Connect with your campus community. Boards for lost and found, carpooling, events, and more.',
+    icon: TrendingUp,
+    title: 'Elevation Blueprint',
+    desc: 'Expert coaching from Uni Coaches.',
   },
   {
-    icon: BookOpen,
-    title: 'Course Connect',
-    desc: 'Find course mates, share notes, form study groups, and search by module code.',
-  },
-  {
-    icon: Heart,
+    icon: Tag,
     title: 'Lifestyle Blueprint',
-    desc: 'Student discounts, mental health resources, budgeting tools, and lifestyle deals.',
+    desc: 'Exclusive deals for Pro subscribers.',
+  },
+  {
+    icon: Users,
+    title: 'Campus Connect',
+    desc: 'Your campus community online.',
   },
 ]
-
-// TODO: Replace with real App Store and Google Play links when live
-function StoreButton({ label, light }) {
-  return (
-    <button
-      style={{
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        height: '52px', padding: '0 28px',
-        background: light ? '#F5F0E8' : '#1E3A5F',
-        color: light ? '#1E3A5F' : '#F5F0E8',
-        border: 'none', borderRadius: '10px',
-        fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-        cursor: 'pointer', whiteSpace: 'nowrap',
-      }}
-    >
-      {label}
-    </button>
-  )
-}
 
 export default function DownloadPage() {
   return (
@@ -65,7 +47,7 @@ export default function DownloadPage() {
       {/* HERO */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-          <UBPLogo height={48} />
+          <UBPLogo height={80} />
         </div>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F' }}>
           Download UniBlueprint
@@ -74,11 +56,37 @@ export default function DownloadPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '480px', lineHeight: 1.6,
         }}>
-          Everything you need to succeed at university — in one app. Launching September 2026.
+          Free to download. Free to join. Launching September 2026 across Irish campuses.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
-          <StoreButton label="App Store" />
-          <StoreButton label="Google Play" />
+          {/* TODO: Replace href with real App Store link when live */}
+          <a
+            href="#"
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: '52px', padding: '0 28px',
+              background: '#1E3A5F', color: '#F5F0E8',
+              border: 'none', borderRadius: '10px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              textDecoration: 'none', whiteSpace: 'nowrap',
+            }}
+          >
+            Download on the App Store
+          </a>
+          {/* TODO: Replace href with real Google Play link when live */}
+          <a
+            href="#"
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: '52px', padding: '0 28px',
+              background: '#F5F0E8', color: '#1E3A5F',
+              border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '10px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              textDecoration: 'none', whiteSpace: 'nowrap',
+            }}
+          >
+            Get it on Google Play
+          </a>
         </div>
       </section>
 
@@ -121,15 +129,24 @@ export default function DownloadPage() {
       {/* CTA */}
       <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
         <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '40px', color: '#F5F0E8' }}>
-          Launching September 2026
+          Sign up for early access
         </h2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.7)', marginTop: '12px' }}>
-          Sign up for early access and be first on your campus.
+          Create your free account and be ready to go when we launch.
         </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
-          <StoreButton label="App Store" light />
-          <StoreButton label="Google Play" light />
-        </div>
+        <Link
+          to="/sign-up"
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            height: '52px', padding: '0 36px',
+            background: '#F5F0E8', color: '#1E3A5F',
+            borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none', marginTop: '28px',
+          }}
+        >
+          Create account →
+        </Link>
       </section>
     </>
   )

@@ -12,12 +12,70 @@
   );
 */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { CheckCircle, Mail } from 'lucide-react'
+import { CheckCircle, Mail, Instagram } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import UBPLogo from '../components/ui/UBPLogo'
+
+// ─── Countdown to 1 September 2026 ────────────────────────────────────────────
+
+const LAUNCH_DATE = new Date('2026-09-01T00:00:00+01:00')
+
+function calcTimeLeft() {
+  const diff = Math.max(0, LAUNCH_DATE.getTime() - Date.now())
+  return {
+    days:    Math.floor(diff / 86400000),
+    hours:   Math.floor((diff % 86400000) / 3600000),
+    minutes: Math.floor((diff % 3600000)  / 60000),
+    seconds: Math.floor((diff % 60000)    / 1000),
+  }
+}
+
+function CountdownTimer() {
+  const [time, setTime] = useState(calcTimeLeft)
+  useEffect(() => {
+    const id = setInterval(() => setTime(calcTimeLeft()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const units = [
+    { value: time.days,    label: 'Days' },
+    { value: time.hours,   label: 'Hours' },
+    { value: time.minutes, label: 'Minutes' },
+    { value: time.seconds, label: 'Seconds' },
+  ]
+
+  return (
+    <div style={{
+      display: 'flex', gap: '8px', justifyContent: 'center',
+      flexWrap: 'wrap', marginTop: '32px',
+    }}>
+      {units.map(({ value, label }) => (
+        <div key={label} className="countdown-card" style={{
+          background: 'rgba(255,255,255,0.12)', borderRadius: '8px',
+          textAlign: 'center', flexShrink: 0,
+        }}>
+          <p className="countdown-value" style={{
+            fontFamily: "'DM Serif Display', serif",
+            color: '#F5F0E8', lineHeight: 1,
+          }}>
+            {String(value).padStart(2, '0')}
+          </p>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '11px', color: 'rgba(245,240,232,0.6)', marginTop: '4px',
+          }}>
+            {label}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── ComingSoonPage ────────────────────────────────────────────────────────────
 
 export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
@@ -50,7 +108,7 @@ export default function ComingSoonPage() {
     <>
       <Helmet>
         <title>Coming Soon | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint is coming to Irish universities in September 2026. Sign up for early access." />
+        <meta name="description" content="The UniBlueprint Budgeting Tool is coming soon. Track your income, expenses, and savings as a student in Ireland." />
       </Helmet>
 
       {/* HERO */}
@@ -58,21 +116,16 @@ export default function ComingSoonPage() {
         <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block', marginBottom: '40px' }}>
           <UBPLogo height={100} color="#F5F0E8" />
         </Link>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-          color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em',
-        }}>
-          September 2026
-        </p>
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '56px', color: '#F5F0E8', marginTop: '8px', lineHeight: 1.1 }}>
-          Something big<br />is coming
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '56px', color: '#F5F0E8', lineHeight: 1.1 }}>
+          Coming Soon
         </h1>
         <p style={{
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: 'rgba(245,240,232,0.7)',
           margin: '16px auto 0', maxWidth: '480px', lineHeight: 1.6,
         }}>
-          UniBlueprint launches across Irish universities at freshers week. Be first to know.
+          The UniBlueprint Budgeting Tool is in development. Track your income, expenses, and savings as a student in Ireland.
         </p>
+        <CountdownTimer />
       </section>
 
       {/* EMAIL CAPTURE */}
@@ -131,7 +184,7 @@ export default function ComingSoonPage() {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="your@university.ie"
+                  placeholder="Enter your email for early access"
                   required
                   aria-label="Email address"
                   style={{
@@ -166,15 +219,50 @@ export default function ComingSoonPage() {
         </div>
       </section>
 
-      {/* LINKS */}
+      {/* SOCIAL + FOOTER */}
       <section style={{ background: '#FFFFFF', padding: '48px 24px', textAlign: 'center' }}>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
-          Want to know more?{' '}
-          <Link to="/how-it-works" style={{ color: '#1E3A5F', fontWeight: '600' }}>How it works</Link>
-          {' · '}
-          <Link to="/pricing" style={{ color: '#1E3A5F', fontWeight: '600' }}>Pricing</Link>
-          {' · '}
-          <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '600' }}>Contact us</Link>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginBottom: '16px' }}>
+          Follow us for updates
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a
+            href="https://www.instagram.com/uniblueprint26"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              height: '40px', padding: '0 16px',
+              border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
+              color: '#1E3A5F', textDecoration: 'none',
+            }}
+          >
+            <Instagram size={16} color="#1E3A5F" />
+            @uniblueprint26
+          </a>
+          <a
+            href="https://www.tiktok.com/@uniblueprint26"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              height: '40px', padding: '0 16px',
+              border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
+              color: '#1E3A5F', textDecoration: 'none',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1E3A5F" aria-hidden="true">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.79 1.52V6.76a4.85 4.85 0 0 1-1.02-.07z"/>
+            </svg>
+            @uniblueprint26
+          </a>
+        </div>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF',
+          marginTop: '32px',
+        }}>
+          The Structure Behind Your Success
         </p>
       </section>
     </>
