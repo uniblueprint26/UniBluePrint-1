@@ -22,12 +22,12 @@ export default function NotFoundPage() {
           <p style={{
             fontFamily: "'DM Serif Display', serif",
             fontSize: '96px', color: '#1E3A5F',
-            lineHeight: 1, marginBottom: '16px',
-            opacity: 0.15,
+            lineHeight: 1, marginBottom: '8px',
+            opacity: 0.2,
           }}>
             404
           </p>
-          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '40px', color: '#1E3A5F' }}>
+          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>
             Page not found
           </h1>
           <p style={{
@@ -48,10 +48,10 @@ export default function NotFoundPage() {
                 textDecoration: 'none',
               }}
             >
-              Back to home
+              Go Home
             </Link>
             <Link
-              to="/help"
+              to="/"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '48px', padding: '0 28px',
@@ -62,7 +62,7 @@ export default function NotFoundPage() {
                 textDecoration: 'none',
               }}
             >
-              Help Centre
+              Browse Services
             </Link>
           </div>
         </div>

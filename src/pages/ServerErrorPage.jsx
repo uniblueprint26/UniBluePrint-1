@@ -22,36 +22,36 @@ export default function ServerErrorPage() {
           <p style={{
             fontFamily: "'DM Serif Display', serif",
             fontSize: '96px', color: '#1E3A5F',
-            lineHeight: 1, marginBottom: '16px',
-            opacity: 0.15,
+            lineHeight: 1, marginBottom: '8px',
+            opacity: 0.2,
           }}>
             500
           </p>
-          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '40px', color: '#1E3A5F' }}>
+          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>
             Something went wrong
           </h1>
           <p style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
             marginTop: '12px', lineHeight: 1.6,
           }}>
-            An unexpected error occurred. Please try again — if the problem persists, contact us.
+            We are working on fixing this — please try again shortly.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
-            <Link
-              to="/"
+            <button
+              onClick={() => window.location.reload()}
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '48px', padding: '0 28px',
                 background: '#1E3A5F', color: '#F5F0E8',
-                borderRadius: '8px',
+                border: 'none', borderRadius: '8px',
                 fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-                textDecoration: 'none',
+                cursor: 'pointer',
               }}
             >
-              Back to home
-            </Link>
+              Reload page
+            </button>
             <Link
-              to="/contact"
+              to="/"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '48px', padding: '0 28px',
@@ -62,9 +62,20 @@ export default function ServerErrorPage() {
                 textDecoration: 'none',
               }}
             >
-              Contact us
+              Go Home
             </Link>
           </div>
+          <p style={{ marginTop: '20px' }}>
+            <Link
+              to="/contact"
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
+                color: '#1E3A5F', textDecoration: 'none',
+              }}
+            >
+              Contact support
+            </Link>
+          </p>
         </div>
       </section>
     </>
