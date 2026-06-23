@@ -16,31 +16,6 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
           </a>
         </div>
 
-        {title && (
-          <h1 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '32px',
-            color: '#1E3A5F',
-            textAlign: 'center',
-            marginTop: '8px',
-            lineHeight: 1.2,
-          }}>
-            {title}
-          </h1>
-        )}
-
-        {subtitle && (
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '15px',
-            color: '#6B7280',
-            textAlign: 'center',
-            marginTop: '8px',
-          }}>
-            {subtitle}
-          </p>
-        )}
-
         <div style={{
           background: '#FFFFFF',
           borderRadius: '12px',
@@ -48,6 +23,33 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
           padding: '32px',
           marginTop: '24px',
         }}>
+          {title && (
+            <h1 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '32px',
+              color: '#1E3A5F',
+              textAlign: 'center',
+              marginTop: '0',
+              marginBottom: '0',
+              lineHeight: 1.2,
+            }}>
+              {title}
+            </h1>
+          )}
+
+          {subtitle && (
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '15px',
+              color: '#6B7280',
+              textAlign: 'center',
+              marginTop: '8px',
+              marginBottom: '24px',
+            }}>
+              {subtitle}
+            </p>
+          )}
+
           {children}
         </div>
 

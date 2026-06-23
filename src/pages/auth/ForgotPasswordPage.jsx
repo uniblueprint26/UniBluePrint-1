@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
             color: '#6B7280',
             marginBottom: '24px',
           }}>
-            Reset link sent to <strong style={{ color: '#1E3A5F' }}>{email}</strong>
+            Reset link sent — check your inbox
           </p>
           <Link
             to="/sign-in"

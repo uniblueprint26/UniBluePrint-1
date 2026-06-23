@@ -40,7 +40,7 @@ export default function VerifyEmailPage() {
           justifyContent: 'center',
           margin: '0 auto 20px',
         }}>
-          <Mail size={52} color="#1E3A5F" />
+          <Mail size={64} color="#1E3A5F" />
         </div>
 
         <h2 style={{
