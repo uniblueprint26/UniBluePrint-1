@@ -71,11 +71,6 @@ const BENEFITS = [
     title: 'Partner page listing',
     description: 'Featured on uniblueprint.com/partners.',
   },
-  {
-    icon: TrendingUp,
-    title: 'Student reach data',
-    description: 'TODO: add analytics dashboard when available.',
-  },
 ]
 
 const BUSINESS_TYPES = [
