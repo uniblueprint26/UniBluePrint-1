@@ -205,18 +205,18 @@ const ELEVATION_SERVICES = [
 const HOW_STEPS = [
   {
     n: 1,
-    title: 'Download the app',
-    description: 'Available on iOS, Android, and web. Free — no payment required.',
+    title: 'Download the app and create your free account',
+    description: 'Available on iOS, Android, and web. No payment required.',
   },
   {
     n: 2,
-    title: 'Create your account',
-    description: 'Sign up in under two minutes. No credit card, no commitment.',
+    title: 'Choose any service — trial pricing is applied automatically',
+    description: 'No code needed. The 50% discount is applied at checkout.',
   },
   {
     n: 3,
-    title: 'Use any service',
-    description: 'Choose what you need from the Foundation or Elevation Blueprint. The discount is automatic.',
+    title: 'Receive your completed Blueprint output within your chosen timeframe',
+    description: 'Delivered to your inbox, reviewed by a real Campus Handler or Uni Coach.',
   },
 ]
 
@@ -226,8 +226,8 @@ const FAQS = [
     a: 'The trial ends on 30 September 2026 at midnight Irish time. A 7-day grace period runs until 7 October 2026. Standard pricing applies from 1 October 2026.',
   },
   {
-    q: 'Does the 50% discount apply to the Pro subscription?',
-    a: 'Yes — Pro is available at 50% off throughout September 2026. After 30 September, standard pricing of €6.99 per month or €49.99 per year applies.',
+    q: 'Does it apply to Pro subscription?',
+    a: 'Yes. Pro is available at 50% off during September — €3.49 per month or €24.99 per year.',
   },
   {
     q: 'Does it apply to all services?',
@@ -238,8 +238,8 @@ const FAQS = [
     a: 'Standard pricing resumes from 1 October 2026, following a 7-day grace period ending 7 October 2026. If you subscribed to Pro during the trial, your next billing will be at the standard Pro price unless you cancel first.',
   },
   {
-    q: 'Can I cancel Pro after the trial month?',
-    a: 'Yes — cancel any time before your next billing date. You keep Pro access until the end of the billing period.',
+    q: 'Do I need a code?',
+    a: 'No. The discount is applied automatically. Just sign up and use the platform — the trial price is what you see.',
   },
 ]
 
@@ -464,7 +464,7 @@ export default function SeptemberTrialPage() {
           fontSize: '13px', color: '#9CA3AF',
           marginTop: '24px',
         }}>
-          Pro subscription also 50% off — €6.99/month (normally €13.98) throughout September.
+          50% OFF applies automatically — no code needed
         </p>
       </section>
 
@@ -487,8 +487,8 @@ export default function SeptemberTrialPage() {
             fontSize: '16px', color: '#6B7280',
             marginTop: '16px', lineHeight: 1.8,
           }}>
-            {/* TODO: Replace with real founder message */}
-            TODO: Insert founder message — why the September trial exists, what the goal is, what it means for students launching in September 2026, and the commitment to making the platform genuinely accessible.
+            {/* TODO: Replace with real founder message before launch */}
+            A personal message from the UniBlueprint team — coming soon.
           </p>
         </div>
       </section>

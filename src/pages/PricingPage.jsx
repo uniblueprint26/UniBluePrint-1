@@ -8,20 +8,21 @@ import {
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FREE_FEATURES = [
-  'Campus Connect (all boards)',
-  'Course Connect (all boards)',
+  'Foundation Blueprint — Standard tier',
+  'Campus Connect — all boards',
+  'Course Connect — full access',
+  'Budgeting Tool',
   'Mental Health & Wellbeing resources',
-  'Basic profile and account',
-  'View Lifestyle Blueprint deals',
+  'Blog and guides',
 ]
 
 const PRO_FEATURES = [
   'Everything in Free',
-  'Foundation Blueprint (all services)',
-  'Elevation Blueprint (all services)',
-  'Lifestyle Blueprint deals access',
-  'Priority Handler & Coach assignment',
-  'Discount on service bundles',
+  'Foundation Blueprint — Premium tier (same day delivery)',
+  'Elevation Blueprint — all 6 services plus Fitness Coaching',
+  'Lifestyle Blueprint — full partner deals access',
+  'Priority Campus Handler assignment',
+  'Priority Uni Coach matching',
 ]
 
 const COMPARISON_SECTIONS = [
@@ -573,6 +574,13 @@ export default function PricingPage() {
           textAlign: 'center', marginTop: '16px',
         }}>
           *All prices include VAT where applicable.
+        </p>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px', color: '#9CA3AF',
+          textAlign: 'center', marginTop: '8px',
+        }}>
+          All prices shown are September 2026 trial prices — 50% off until 30 September 2026. Standard pricing applies from 1 October 2026.
         </p>
       </section>
 
