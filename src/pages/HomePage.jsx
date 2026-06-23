@@ -129,6 +129,7 @@ const PILLARS = [
     href: '/course-connect',
     icon: Globe,
     link: 'Learn more →',
+    note: 'Powered in partnership with CourseCompass',
   },
   {
     name: 'Budgeting Tool',
@@ -195,7 +196,7 @@ function StudentCard({ name, course, university, cao }) {
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
 
-function PillarCard({ name, description, href, icon: Icon, link }) {
+function PillarCard({ name, description, href, icon: Icon, link, note }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -236,6 +237,15 @@ function PillarCard({ name, description, href, icon: Icon, link }) {
       }}>
         {description}
       </p>
+      {note && (
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '11px', color: '#9CA3AF',
+          marginTop: '8px',
+        }}>
+          {note}
+        </p>
+      )}
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
@@ -347,7 +357,7 @@ export default function HomePage() {
             marginTop: '16px', maxWidth: '560px', lineHeight: 1.65,
           }}
         >
-          The all-in-one platform for students, apprentices, and young people across Ireland — CV support, career coaching, campus community, and lifestyle deals. Built for you.
+          UniBlueprint is the all-in-one platform for students, apprentices, and young people across Ireland — Foundation Blueprint, Elevation Blueprint, Campus Connect, Course Connect, and Lifestyle Blueprint. Everything in one place.
         </p>
 
         {/* CTAs */}
@@ -377,7 +387,7 @@ export default function HomePage() {
               textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
-            See How It Works
+            How It Works
           </Link>
         </div>
 
@@ -674,7 +684,7 @@ export default function HomePage() {
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '16px', color: '#6B7280', marginTop: '12px',
         }}>
-          Free to join. No credit card required. September trial — 50% off everything.
+          Free to join. No credit card required. September trial — 50% off everything until 30 September 2026.
         </p>
 
         <Link
@@ -689,6 +699,21 @@ export default function HomePage() {
           }}
         >
           Download the App
+        </Link>
+
+        <Link
+          to="/sign-up"
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            height: '52px', padding: '0 36px', minWidth: '200px',
+            background: 'transparent', color: '#1E3A5F',
+            border: '1.5px solid #1E3A5F',
+            borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none', marginTop: '12px',
+          }}
+        >
+          Sign up free
         </Link>
 
         {/* TODO: Replace with real store links */}
