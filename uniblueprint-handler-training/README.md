@@ -1,32 +1,71 @@
-# React + TypeScript + Vite
+# Blueprint Studio — Campus Handler Training Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A standalone React + Vite application for training UniBlueprint Campus Handlers. Completely
+separate from the main UniBlueprint app — its own package.json, its own Supabase project, its
+own deploy.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+React, Vite, Tailwind CSS v4, Supabase JS client, React Router, Lucide icons.
 
-## React Compiler
+## One-time Supabase setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Open your Supabase project → **SQL Editor** → **New query**.
+2. Paste the contents of `supabase/migrations/0001_init.sql` and run it. This creates
+   `training_users`, `training_progress`, `quiz_attempts`, `handler_commitments`, and their RLS
+   policies.
+3. In Supabase → **Authentication → Providers**, no changes needed — this app does not use
+   Supabase Auth, only the `anon` key against the tables above.
+4. Create at least one Operations account by inserting a row into `training_users` with
+   `role = 'operations'` (via the SQL editor or Table editor), so you can log in and use
+   `/operations` to add Handlers from the UI afterwards.
 
-## Expanding the Oxlint configuration
+### A note on security
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+This portal authenticates with a simple email + access code check against `training_users`,
+not Supabase Auth. Because there's no `auth.uid()` to scope Row Level Security to, the RLS
+policies are permissive for the `anon` role (the same key the browser uses) — row-level
+isolation between handlers is enforced in the app, not the database. Treat the anon key as
+semi-trusted, the same as any client-only Supabase app without Auth.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Local development
+
+```bash
+npm install
+cp .env.example .env   # fill in your Supabase URL + anon key
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Build
+
+```bash
+npm run build
+```
+
+Outputs to `dist/`.
+
+## Deploying to Netlify
+
+1. Run `npm run build`.
+2. Go to [netlify.com/drop](https://app.netlify.com/drop) and drag the `dist` folder onto the
+   page.
+3. The portal is live at a Netlify URL immediately — no configuration needed.
+
+Note: `dist/` is a static build with the Supabase URL and anon key baked in at build time (via
+`.env`), so make sure `.env` is set correctly before running `npm run build`.
+
+## Routes
+
+| Route | Description |
+| --- | --- |
+| `/` | Login (email + access code) |
+| `/dashboard` | Handler dashboard — 6 training modules |
+| `/module/1` … `/module/6` | Module content |
+| `/quiz/2`, `/quiz/3`, `/quiz/5` | Module quizzes |
+| `/operations` | Operations dashboard (role = `operations` only) |
+
+## Content
+
+Module body content (`src/pages/ModulePage.tsx`) currently uses placeholder copy. Quiz
+questions for modules 2, 3, and 5 are hardcoded in `src/data/quizzes.ts` with the placeholder
+question sets — swap in the real ones there.
