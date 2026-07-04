@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   Users, MessageCircle, Star, Car, Search, Lightbulb,
-  BookOpen, Calendar, Map, AlertCircle,
+  BookOpen, Calendar, Map, AlertCircle, GitMerge,
 } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -47,6 +47,11 @@ const FEATURES = [
     icon: Users,
     name: 'Study Groups',
     description: 'Find or create study groups for your module or subject area. Set a time, place, and topic — others join from your campus.',
+  },
+  {
+    icon: GitMerge,
+    name: 'Project Collaboration',
+    description: 'Post a project idea, find teammates across any discipline, and build something real — from apps and startups to research and creative work.',
   },
   {
     icon: Calendar,
