@@ -21,7 +21,7 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@expo-google-fonts/dm-serif-display": "^0.2.3",
     "@expo-google-fonts/dm-sans": "^0.2.3",
-    "lucide-react-native": "^0.468.0"
+    "lucide-react-native": "^0.503.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0"
