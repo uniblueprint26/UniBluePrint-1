@@ -1,39 +1,35 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Bell, UserCircle } from 'lucide-react-native'
+import { Bell, User } from 'lucide-react-native'
 import { colors, fonts } from '../../constants/theme'
 
 export default function TopBar({ notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
-      {/* Logo text */}
+    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <Text style={styles.logo}>UniBlueprint</Text>
-
-      {/* Right icons */}
       <View style={styles.right}>
         <TouchableOpacity
           onPress={onBellPress}
           style={styles.iconButton}
+          activeOpacity={0.7}
           accessibilityLabel="Notifications"
         >
-          <Bell size={22} color={colors.navy} />
+          <Bell size={20} color={colors.cream} />
           {notificationCount > 0 && (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {notificationCount > 9 ? '9+' : notificationCount}
-              </Text>
+              <Text style={styles.badgeText}>{notificationCount > 9 ? '9+' : notificationCount}</Text>
             </View>
           )}
         </TouchableOpacity>
-
         <TouchableOpacity
           onPress={onProfilePress}
-          style={styles.iconButton}
+          style={styles.avatarBtn}
+          activeOpacity={0.7}
           accessibilityLabel="Profile"
         >
-          <UserCircle size={22} color={colors.navy} />
+          <User size={17} color={colors.navy} />
         </TouchableOpacity>
       </View>
     </View>
@@ -42,47 +38,32 @@ export default function TopBar({ notificationCount = 0, onProfilePress, onBellPr
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.navy,
     paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(30,58,95,0.06)',
   },
-  logo: {
-    fontFamily: fonts.serif,
-    fontSize: 20,
-    color: colors.navy,
-  },
-  right: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
+  logo: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
+    position: 'relative', width: 40, height: 40,
+    alignItems: 'center', justifyContent: 'center',
   },
   badge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    backgroundColor: colors.destructive,
-    borderRadius: 9999,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute', top: 8, right: 8,
+    backgroundColor: '#F59E0B', borderRadius: 9999,
+    minWidth: 16, height: 16,
+    alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 3,
+    borderWidth: 1.5, borderColor: colors.navy,
   },
-  badgeText: {
-    fontFamily: fonts.sansBold,
-    fontSize: 9,
-    color: colors.white,
+  badgeText: { fontFamily: fonts.sansBold, fontSize: 9, color: colors.white },
+  avatarBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: 'rgba(245,240,232,0.15)',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: 'rgba(245,240,232,0.25)',
   },
 })

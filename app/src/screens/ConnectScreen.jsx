@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, TextInput, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import {
   Users, BookOpen, Car, CalendarDays, FileText,
   MessageSquare, BookMarked, Search, ChevronRight,
@@ -263,9 +263,9 @@ export default function ConnectScreen() {
   const [tab, setTab] = useState('campus')
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <TopBar />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         {/* Hero */}
         <View style={styles.hero}>
@@ -299,7 +299,7 @@ export default function ConnectScreen() {
         </View>
 
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 

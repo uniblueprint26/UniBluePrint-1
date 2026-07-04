@@ -1,4 +1,5 @@
 import { View, ActivityIndicator } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
 import {
   DMSerifDisplay_400Regular,
   DMSerifDisplay_400Regular_Italic,
@@ -35,6 +36,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar style="light" backgroundColor={colors.navy} />
       <NavigationContainer>
         <RootNavigator />
       </NavigationContainer>
