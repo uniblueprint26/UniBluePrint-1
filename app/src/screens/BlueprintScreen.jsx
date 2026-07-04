@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native'
 import { FileText, Target, Award, Linkedin, User, MapPin, ChevronRight, Clock } from 'lucide-react-native'
-import Svg, { Path, Polygon } from 'react-native-svg'
+
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -284,9 +284,7 @@ function ElevationTab() {
                   </View>
                 </View>
                 <View style={styles.ratingRow}>
-                  <Svg width={13} height={13} viewBox="0 0 24 24">
-                    <Polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#F59E0B" stroke="#F59E0B" strokeWidth={1} />
-                  </Svg>
+                  <Text style={{ fontSize: 12, color: '#F59E0B' }}>★</Text>
                   <Text style={styles.ratingText}>{coach.rating}</Text>
                   <Text style={styles.ratingCount}>({coach.reviews} reviews)</Text>
                 </View>
