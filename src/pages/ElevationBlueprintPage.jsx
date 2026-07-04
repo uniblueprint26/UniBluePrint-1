@@ -128,36 +128,51 @@ const ELEVATION_SERVICES = [
 // ─── Coaches section data ──────────────────────────────────────────────────────
 
 const COACHES = [
-  { id: 1, category: 'Fitness Coaching',   location: 'Dublin',   services: ['Training Plans', 'Nutrition Basics', 'Form Coaching'] },
-  { id: 2, category: 'Fitness Coaching',   location: 'Cork',     services: ['Strength & Conditioning', 'Weekly Check-ins'] },
-  { id: 3, category: 'Fitness Coaching',   location: 'Galway',   services: ['Training Plans', 'Progress Reviews'] },
-  { id: 4, category: 'Personal Branding',  location: 'Dublin',   services: ['LinkedIn Optimisation', 'Brand Strategy'] },
-  { id: 5, category: 'Mentorship',         location: 'Limerick', services: ['Career Guidance', 'Session Prep'] },
-  { id: 6, category: 'Portfolio Building', location: 'Dublin',   services: ['Portfolio Strategy', 'Case Study Frameworks'] },
-  { id: 7, category: 'Pitch Coaching',     location: 'Cork',     services: ['Pitch Feedback', 'Live Rehearsal', 'Q&A Prep'] },
-  { id: 8, category: 'Network Assistance', location: 'Galway',   services: ['Outreach Templates', 'Network Audit'] },
-  { id: 9, category: 'Postgrad Support',   location: 'Dublin',   services: ['Personal Statement', 'Programme Research'] },
+  { id: 1,  name: 'Emmanuel Fasanmi', category: 'Maths Grinds',             location: 'Ireland', services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'] },
+  { id: 2,  name: 'Daniel Gough',     category: 'Trading & Finance',         location: 'Ireland', services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'] },
+  { id: 3,  name: 'Ali',              category: 'Fitness Coaching',          location: 'Ireland', services: ['Personal Training', 'Training Plans', 'Form Coaching'] },
+  { id: 4,  name: 'Emmanuel Tolic',   category: 'Online Coaching',           location: 'Remote',  services: ['Online Coaching', 'Goal Setting', 'Weekly Check-ins'] },
+  { id: 5,  name: 'Nathan Yanzo',     category: 'Videography & Photography', location: 'Ireland', services: ['1-to-1 Video Sessions', 'Photo Editing', 'Creative Direction'] },
+  { id: 6,  name: 'Shauna Rogers',    category: 'Fitness Coaching',          location: 'Ireland', services: ['Fitness Coaching', 'Training Plans', 'Lifestyle Support'] },
+  { id: 7,  name: 'Alex Leva',        category: 'Digital Marketing',         location: 'Ireland', services: ['Social Media Strategy', 'Content Creation', 'Brand Building'] },
+  { id: 8,  name: 'Ethan Henry',      category: 'Guitar Lessons',            location: 'Ireland', services: ['Beginner Guitar', 'Music Theory', '1-to-1 Lessons'] },
+  { id: 9,  name: 'Nikola Jurek',     category: 'Personal Branding',         location: 'Ireland', services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'] },
+  { id: 10, name: 'Fayed',            category: 'Network Assistance',        location: 'Ireland', services: ['Network Audit', 'Outreach Templates', 'Connection Strategy'] },
+  { id: 11, name: 'Milan',            category: 'Fitness Coaching',          location: 'Ireland', services: ['Strength Programming', 'Powerlifting', 'Progressive Overload'] },
+  { id: 12, name: 'Jayden Reynolds',  category: 'Nutrition',                 location: 'Ireland', services: ['Nutrition Plans', 'Meal Prep Guidance', 'Sports Nutrition'] },
+  { id: 13, name: 'Stephen McKeown',  category: 'Career Guidance',           location: 'Ireland', services: ['Career Planning', 'Interview Prep', 'Graduate Pathways'] },
+  { id: 14, name: 'JMC Fitness',      category: 'Sports Coaching',           location: 'Ireland', services: ['Online Coaching', 'Dietary Guidance', 'Football Coaching', 'Agent Connections', '1-to-1 Training', 'Analysis & Consultation'] },
 ]
 
 const COACH_FILTER_CATEGORIES = [
   'All',
   'Fitness Coaching',
+  'Nutrition',
+  'Maths Grinds',
+  'Trading & Finance',
   'Personal Branding',
+  'Digital Marketing',
   'Network Assistance',
-  'Portfolio Building',
-  'Mentorship',
-  'Pitch Coaching',
-  'Postgrad Support',
+  'Career Guidance',
+  'Videography & Photography',
+  'Guitar Lessons',
+  'Sports Coaching',
+  'Online Coaching',
 ]
 
 const STARTING_FROM = {
-  'Fitness Coaching':   'Pricing TBC',
-  'Personal Branding':  'Starting from €40',
-  'Network Assistance': 'Starting from €30',
-  'Portfolio Building': 'Starting from €30',
-  'Mentorship':         'Starting from €20',
-  'Pitch Coaching':     'Starting from €25',
-  'Postgrad Support':   'Starting from €30',
+  'Fitness Coaching':            'From €30',
+  'Nutrition':                   'From €30',
+  'Maths Grinds':               'From €30',
+  'Trading & Finance':           'From €40',
+  'Personal Branding':           'From €40',
+  'Digital Marketing':           'From €40',
+  'Network Assistance':          'From €30',
+  'Career Guidance':             'From €25',
+  'Videography & Photography':   'From €45',
+  'Guitar Lessons':              'From €25',
+  'Sports Coaching':             'From €35',
+  'Online Coaching':             'From €20',
 }
 
 const coachActivePill = {
@@ -177,7 +192,7 @@ const coachInactivePill = {
   transition: 'background 150ms, color 150ms',
 }
 
-function ElevationCoachCard({ category, location, services }) {
+function ElevationCoachCard({ name, category, location, services }) {
   const [hovered, setHovered] = useState(false)
   const price = STARTING_FROM[category] || 'Starting from €20'
   const isTBC = price === 'Pricing TBC'
@@ -207,7 +222,7 @@ function ElevationCoachCard({ category, location, services }) {
       </div>
       <div style={{ padding: '20px' }}>
         <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', margin: 0 }}>
-          Coach Name
+          {name}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
           <MapPin size={14} color="#9CA3AF" style={{ flexShrink: 0 }} />

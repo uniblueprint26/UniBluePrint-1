@@ -6,12 +6,16 @@ import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
 const DEALS = [
-  { brand: 'Student Beans', discount: 'Up to 30% off', category: 'Multi-brand', color: '#EFF6FF' },
-  { brand: 'ASOS',          discount: '20% off',       category: 'Fashion',    color: '#FDF4FF' },
-  { brand: 'Spotify',       discount: '50% off',       category: 'Music',      color: '#F0FDF4' },
-  { brand: 'Deliveroo',     discount: '€5 off first',  category: 'Food',       color: '#FFF7ED' },
-  { brand: 'Penneys',       discount: '10% off',       category: 'Fashion',    color: '#FEF9C3' },
-  { brand: 'Apple Music',   discount: '50% off',       category: 'Music',      color: '#F0F9FF' },
+  { brand: 'Whip Wizards',    discount: 'Student Deal',    category: 'Car Sales',          color: '#EFF6FF' },
+  { brand: 'The Oat Goat',    discount: 'Student Offer',   category: 'Food & Drink',       color: '#F0FDF4' },
+  { brand: "Jordan's Kitchen",discount: 'Student Offer',   category: 'Food & Drink',       color: '#FFF7ED' },
+  { brand: 'NYZ Editz',       discount: 'Student Rate',    category: 'Video & Photo',      color: '#FDF4FF' },
+  { brand: 'Energie Fitness', discount: 'Reduced Membership', category: 'Gym & Fitness',  color: '#F0F9FF' },
+  { brand: 'ROM Sligo',       discount: 'Student Rate',    category: 'Sports Centre',      color: '#FEF9C3' },
+  { brand: 'Leva Media',      discount: 'Student Package', category: 'Digital Marketing',  color: '#EFF6FF' },
+  { brand: 'HB Detailing',    discount: 'Student Price',   category: 'Car Detailing',      color: '#F0FDF4' },
+  { brand: 'Course Compass',  discount: 'Free Guidance',   category: 'CAO & Education',    color: '#FFF7ED' },
+  { brand: 'Jenny Glow',      discount: 'Student Discount',category: 'Fragrance & Beauty', color: '#FDF4FF' },
 ]
 
 const WELLBEING_RESOURCES = [
@@ -34,12 +38,14 @@ const BUDGET_TOOLS = [
 ]
 
 const DISCOUNT_CATEGORIES = [
-  { label: 'Food & Drink', count: 24, color: '#FFF7ED', icon: '🍕' },
-  { label: 'Fashion',      count: 18, color: '#FDF4FF', icon: '👗' },
-  { label: 'Tech',         count: 12, color: '#EFF6FF', icon: '💻' },
-  { label: 'Travel',       count: 9,  color: '#F0FDF4', icon: '✈️' },
-  { label: 'Fitness',      count: 15, color: '#FEF9C3', icon: '🏋️' },
-  { label: 'Entertainment',count: 21, color: '#F0F9FF', icon: '🎬' },
+  { label: 'Food & Drink',    count: 3,  color: '#FFF7ED', icon: '🍕' },
+  { label: 'Fitness & Sport', count: 2,  color: '#FEF9C3', icon: '🏋️' },
+  { label: 'Creative',        count: 1,  color: '#FDF4FF', icon: '🎬' },
+  { label: 'Car Services',    count: 2,  color: '#EFF6FF', icon: '🚗' },
+  { label: 'Marketing',       count: 1,  color: '#F0FDF4', icon: '📱' },
+  { label: 'Education',       count: 1,  color: '#F0F9FF', icon: '📚' },
+  { label: 'Beauty',          count: 1,  color: '#FDF4FF', icon: '✨' },
+  { label: 'More coming',     count: null, color: '#F5F0E8', icon: '🔒' },
 ]
 
 export default function LifestyleScreen() {

@@ -3,26 +3,32 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Home, BookOpen, Users, Heart, MoreHorizontal } from 'lucide-react-native'
 import { Platform } from 'react-native'
 
+import { useAuth } from '../context/AuthContext'
+
 import HomeScreen from '../screens/HomeScreen'
 import BlueprintScreen from '../screens/BlueprintScreen'
 import ConnectScreen from '../screens/ConnectScreen'
 import LifestyleScreen from '../screens/LifestyleScreen'
 import MoreScreen from '../screens/MoreScreen'
 
+import WelcomeScreen from '../screens/auth/WelcomeScreen'
+import SignInScreen from '../screens/auth/SignInScreen'
+import SignUpScreen from '../screens/auth/SignUpScreen'
+
 import { colors, fonts } from '../constants/theme'
 
 const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
 
-const screenOptions = { headerShown: false, animation: 'slide_from_right' }
+const noHeader = { headerShown: false, animation: 'slide_from_right' }
 
-function HomeStack()      { return <Stack.Navigator screenOptions={screenOptions}><Stack.Screen name="HomeMain" component={HomeScreen} /></Stack.Navigator> }
-function BlueprintStack() { return <Stack.Navigator screenOptions={screenOptions}><Stack.Screen name="BlueprintMain" component={BlueprintScreen} /></Stack.Navigator> }
-function ConnectStack()   { return <Stack.Navigator screenOptions={screenOptions}><Stack.Screen name="ConnectMain" component={ConnectScreen} /></Stack.Navigator> }
-function LifestyleStack() { return <Stack.Navigator screenOptions={screenOptions}><Stack.Screen name="LifestyleMain" component={LifestyleScreen} /></Stack.Navigator> }
-function MoreStack()      { return <Stack.Navigator screenOptions={screenOptions}><Stack.Screen name="MoreMain" component={MoreScreen} /></Stack.Navigator> }
+function HomeStack()      { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="HomeMain"      component={HomeScreen}      /></Stack.Navigator> }
+function BlueprintStack() { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="BlueprintMain" component={BlueprintScreen} /></Stack.Navigator> }
+function ConnectStack()   { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="ConnectMain"   component={ConnectScreen}   /></Stack.Navigator> }
+function LifestyleStack() { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="LifestyleMain" component={LifestyleScreen} /></Stack.Navigator> }
+function MoreStack()      { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="MoreMain"      component={MoreScreen}      /></Stack.Navigator> }
 
-export default function RootNavigator() {
+function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -37,18 +43,29 @@ export default function RootNavigator() {
         },
         tabBarActiveTintColor: colors.navy,
         tabBarInactiveTintColor: colors.light,
-        tabBarLabelStyle: {
-          fontFamily: fonts.sansMedium,
-          fontSize: 11,
-          marginTop: 2,
-        },
+        tabBarLabelStyle: { fontFamily: fonts.sansMedium, fontSize: 11, marginTop: 2 },
       }}
     >
-      <Tab.Screen name="Home"      component={HomeStack}      options={{ tabBarIcon: ({ color }) => <Home      size={22} color={color} />, tabBarLabel: 'Home' }} />
-      <Tab.Screen name="Blueprint" component={BlueprintStack} options={{ tabBarIcon: ({ color }) => <BookOpen  size={22} color={color} />, tabBarLabel: 'Blueprint' }} />
-      <Tab.Screen name="Connect"   component={ConnectStack}   options={{ tabBarIcon: ({ color }) => <Users     size={22} color={color} />, tabBarLabel: 'Connect' }} />
-      <Tab.Screen name="Lifestyle" component={LifestyleStack} options={{ tabBarIcon: ({ color }) => <Heart     size={22} color={color} />, tabBarLabel: 'Lifestyle' }} />
+      <Tab.Screen name="Home"      component={HomeStack}      options={{ tabBarIcon: ({ color }) => <Home          size={22} color={color} />, tabBarLabel: 'Home' }} />
+      <Tab.Screen name="Blueprint" component={BlueprintStack} options={{ tabBarIcon: ({ color }) => <BookOpen      size={22} color={color} />, tabBarLabel: 'Blueprint' }} />
+      <Tab.Screen name="Connect"   component={ConnectStack}   options={{ tabBarIcon: ({ color }) => <Users         size={22} color={color} />, tabBarLabel: 'Connect' }} />
+      <Tab.Screen name="Lifestyle" component={LifestyleStack} options={{ tabBarIcon: ({ color }) => <Heart         size={22} color={color} />, tabBarLabel: 'Lifestyle' }} />
       <Tab.Screen name="More"      component={MoreStack}      options={{ tabBarIcon: ({ color }) => <MoreHorizontal size={22} color={color} />, tabBarLabel: 'More' }} />
     </Tab.Navigator>
   )
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="SignIn"  component={SignInScreen}  options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="SignUp"  component={SignUpScreen}  options={{ animation: 'slide_from_right' }} />
+    </Stack.Navigator>
+  )
+}
+
+export default function RootNavigator() {
+  const { authed } = useAuth()
+  return authed ? <MainTabs /> : <AuthStack />
 }

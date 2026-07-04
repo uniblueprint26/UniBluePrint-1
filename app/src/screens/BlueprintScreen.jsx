@@ -52,50 +52,92 @@ const FOUNDATION_SERVICES = [
 ]
 
 // ─── Elevation Blueprint data ─────────────────────────────────────────────────
-const FILTER_PILLS = ['All', 'Mentorship', 'Fitness', 'Branding', 'Portfolio', 'Pitch', 'Network', 'Postgrad']
+const FILTER_PILLS = ['All', 'Fitness', 'Nutrition', 'Grinds', 'Trading', 'Branding', 'Marketing', 'Career', 'Network', 'Creative', 'Sports', 'Music', 'Postgrad']
 
 const COACHES = [
   {
-    id: 1, name: 'Uni Coach', category: 'Fitness Coaching', filter: 'Fitness',
-    location: 'Dublin', rating: '4.9', reviews: 18, from: 'Pricing TBC',
-    services: ['Training Plans', 'Nutrition Basics', 'Form Coaching'],
-    bio: 'Certified personal trainer helping students build sustainable fitness habits around college life.',
+    id: 1, name: 'Emmanuel Fasanmi', category: 'Maths Grinds', filter: 'Grinds',
+    location: 'Ireland', rating: '4.9', reviews: 24, from: 'From €30',
+    services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'],
+    bio: 'Specialist maths tutor helping students build real confidence and hit their CAO points target.',
   },
   {
-    id: 2, name: 'Uni Coach', category: 'Personal Branding', filter: 'Branding',
-    location: 'Dublin', rating: '4.8', reviews: 23, from: 'From €40',
+    id: 2, name: 'Daniel Gough', category: 'Trading & Finance', filter: 'Trading',
+    location: 'Ireland', rating: '4.8', reviews: 17, from: 'From €40',
+    services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'],
+    bio: 'Active trader breaking down markets and investment strategy for students starting their financial journey.',
+  },
+  {
+    id: 3, name: 'Ali', category: 'Personal Training', filter: 'Fitness',
+    location: 'Ireland', rating: '4.9', reviews: 31, from: 'From €35',
+    services: ['Personal Training', 'Training Plans', 'Form Coaching'],
+    bio: 'Certified personal trainer building strength, fitness, and consistency into student lifestyle.',
+  },
+  {
+    id: 4, name: 'Emmanuel Tolic', category: 'Online Coaching', filter: 'Fitness',
+    location: 'Remote', rating: '5.0', reviews: 22, from: 'From €20',
+    services: ['Online Coaching', 'Goal Setting', 'Weekly Check-ins'],
+    bio: 'Results-driven online coach helping students build structure, accountability, and momentum.',
+  },
+  {
+    id: 5, name: 'Nathan Yanzo', category: 'Videography & Photography', filter: 'Creative',
+    location: 'Ireland', rating: '4.9', reviews: 19, from: 'From €45',
+    services: ['1-to-1 Video Sessions', 'Photo Editing', 'Creative Direction'],
+    bio: 'Professional videographer and editor offering 1-to-1 sessions for students building creative skills.',
+  },
+  {
+    id: 6, name: 'Shauna Rogers', category: 'Fitness Coaching', filter: 'Fitness',
+    location: 'Ireland', rating: '4.8', reviews: 28, from: 'From €30',
+    services: ['Fitness Coaching', 'Training Plans', 'Lifestyle Support'],
+    bio: 'Fitness coach specialising in helping students build sustainable habits around college life.',
+  },
+  {
+    id: 7, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
+    location: 'Ireland', rating: '4.9', reviews: 35, from: 'From €40',
+    services: ['Social Media Strategy', 'Content Creation', 'Brand Building'],
+    bio: 'Digital marketing specialist helping students and early-stage founders grow their presence online.',
+  },
+  {
+    id: 8, name: 'Ethan Henry', category: 'Guitar Lessons', filter: 'Music',
+    location: 'Ireland', rating: '5.0', reviews: 14, from: 'From €25',
+    services: ['Beginner Guitar', 'Music Theory', '1-to-1 Lessons'],
+    bio: 'Experienced guitarist offering structured lessons for beginners through to intermediate players.',
+  },
+  {
+    id: 9, name: 'Nikola Jurek', category: 'Personal Branding', filter: 'Branding',
+    location: 'Ireland', rating: '4.8', reviews: 21, from: 'From €40',
     services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],
-    bio: 'Marketing professional specialising in building authentic personal brands for graduates.',
+    bio: 'Personal branding coach helping students define and communicate their professional identity with confidence.',
   },
   {
-    id: 3, name: 'Uni Coach', category: 'Mentorship', filter: 'Mentorship',
-    location: 'Limerick', rating: '5.0', reviews: 31, from: 'From €20',
-    services: ['Career Guidance', 'Session Prep', 'Goal Setting'],
-    bio: 'Senior professional with 10+ years mentoring students into top graduate roles across Ireland.',
+    id: 10, name: 'Fayed', category: 'Strategic Networking', filter: 'Network',
+    location: 'Ireland', rating: '4.7', reviews: 13, from: 'From €30',
+    services: ['Network Audit', 'Outreach Templates', 'Connection Strategy'],
+    bio: 'Strategic networking specialist helping students build genuine professional connections that open doors.',
   },
   {
-    id: 4, name: 'Uni Coach', category: 'Portfolio Building', filter: 'Portfolio',
-    location: 'Dublin', rating: '4.7', reviews: 14, from: 'From €30',
-    services: ['Portfolio Strategy', 'Case Study Frameworks', 'Design Review'],
-    bio: 'UX designer and creative director helping students build portfolios that get interviews.',
+    id: 11, name: 'Milan', category: 'Strength Coaching', filter: 'Fitness',
+    location: 'Ireland', rating: '4.9', reviews: 26, from: 'From €35',
+    services: ['Strength Programming', 'Powerlifting', 'Progressive Overload'],
+    bio: 'Strength coach building progressive training programmes for students serious about performance gains.',
   },
   {
-    id: 5, name: 'Uni Coach', category: 'Pitch Coaching', filter: 'Pitch',
-    location: 'Cork', rating: '4.9', reviews: 27, from: 'From €25',
-    services: ['Pitch Feedback', 'Live Rehearsal', 'Q&A Prep'],
-    bio: 'Former startup founder and pitch competition judge coaching students to communicate with confidence.',
+    id: 12, name: 'Jayden Reynolds', category: 'Nutrition', filter: 'Nutrition',
+    location: 'Ireland', rating: '4.8', reviews: 18, from: 'From €30',
+    services: ['Nutrition Plans', 'Meal Prep Guidance', 'Sports Nutrition'],
+    bio: 'Certified nutritionist creating practical, student-friendly plans that fuel performance without breaking the bank.',
   },
   {
-    id: 6, name: 'Uni Coach', category: 'Network Assistance', filter: 'Network',
-    location: 'Galway', rating: '4.6', reviews: 11, from: 'From €30',
-    services: ['Outreach Templates', 'Network Audit', 'LinkedIn Connections'],
-    bio: 'Talent acquisition specialist helping students build genuine professional networks from day one.',
+    id: 13, name: 'Stephen McKeown', category: 'Career Guidance', filter: 'Career',
+    location: 'Ireland', rating: '4.9', reviews: 32, from: 'From €25',
+    services: ['Career Planning', 'Interview Prep', 'Graduate Pathways'],
+    bio: 'Career advisor with extensive experience guiding students from final year into graduate roles across Ireland.',
   },
   {
-    id: 7, name: 'Uni Coach', category: 'Postgrad Support', filter: 'Postgrad',
-    location: 'Dublin', rating: '4.8', reviews: 19, from: 'From €30',
-    services: ['Personal Statement', 'Programme Research', 'Interview Prep'],
-    bio: 'Academic advisor with experience guiding students into top postgrad programmes across Europe.',
+    id: 14, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Sports',
+    location: 'Ireland', rating: '5.0', reviews: 41, from: 'From €35',
+    services: ['Online Coaching', 'Dietary Guidance', 'Football Coaching', 'Agent Connections', '1-to-1 Training', 'Analysis & Consultation'],
+    bio: 'Elite sports coaching offering online and in-person training, dietary guidance, specialist football coaching, and connections to professional agents.',
   },
 ]
 
