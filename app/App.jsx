@@ -10,7 +10,7 @@ import RootNavigator from './src/navigation'
 import { colors } from './src/constants/theme'
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     DMSerifDisplay_400Regular,
     DMSerifDisplay_400Regular_Italic,
     DMSans_400Regular,
@@ -19,7 +19,7 @@ export default function App() {
     DMSans_700Bold,
   })
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded && !fontError) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.cream }}>
         <ActivityIndicator size="large" color={colors.navy} />
