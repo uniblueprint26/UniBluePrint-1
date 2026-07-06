@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { User, MapPin } from 'lucide-react'
 
 const COACHES = [
-  { id: 1,  name: 'Emmanuel Fasanmi', category: 'Maths Grinds',            location: 'Ireland', services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'] },
+  { id: 1,  name: 'Emmanuel Fasanmi', category: 'Academic Grinds',         location: 'Ireland', services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'] },
   { id: 2,  name: 'Daniel Gough',     category: 'Trading & Finance',        location: 'Ireland', services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'] },
   { id: 3,  name: 'Ali',              category: 'Fitness Coaching',         location: 'Ireland', services: ['Personal Training', 'Training Plans', 'Form Coaching'] },
   { id: 4,  name: 'Emmanuel Tolic',   category: 'Online Coaching',          location: 'Remote',  services: ['Online Coaching', 'Goal Setting', 'Weekly Check-ins'] },
@@ -24,7 +24,7 @@ const FILTER_CATEGORIES = [
   'All',
   'Fitness Coaching',
   'Nutrition',
-  'Maths Grinds',
+  'Academic Grinds',
   'Trading & Finance',
   'Personal Branding',
   'Digital Marketing',

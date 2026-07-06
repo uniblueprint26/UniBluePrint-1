@@ -128,7 +128,7 @@ const ELEVATION_SERVICES = [
 // ─── Coaches section data ──────────────────────────────────────────────────────
 
 const COACHES = [
-  { id: 1,  name: 'Emmanuel Fasanmi', category: 'Maths Grinds',             location: 'Ireland', services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'] },
+  { id: 1,  name: 'Emmanuel Fasanmi', category: 'Academic Grinds',           location: 'Ireland', services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'] },
   { id: 2,  name: 'Daniel Gough',     category: 'Trading & Finance',         location: 'Ireland', services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'] },
   { id: 3,  name: 'Ali',              category: 'Fitness Coaching',          location: 'Ireland', services: ['Personal Training', 'Training Plans', 'Form Coaching'] },
   { id: 4,  name: 'Emmanuel Tolic',   category: 'Online Coaching',           location: 'Remote',  services: ['Online Coaching', 'Goal Setting', 'Weekly Check-ins'] },
@@ -148,7 +148,7 @@ const COACH_FILTER_CATEGORIES = [
   'All',
   'Fitness Coaching',
   'Nutrition',
-  'Maths Grinds',
+  'Academic Grinds',
   'Trading & Finance',
   'Personal Branding',
   'Digital Marketing',
@@ -163,7 +163,7 @@ const COACH_FILTER_CATEGORIES = [
 const STARTING_FROM = {
   'Fitness Coaching':            'From €30',
   'Nutrition':                   'From €30',
-  'Maths Grinds':               'From €30',
+  'Academic Grinds':             'Pricing TBC',
   'Trading & Finance':           'From €40',
   'Personal Branding':           'From €40',
   'Digital Marketing':           'From €40',
@@ -248,7 +248,7 @@ function ElevationCoachCard({ name, category, location, services }) {
         <Link
           to="/our-coaches"
           style={{
-            display: 'block', width: '100%', marginTop: '16px', height: '44px',
+            width: '100%', marginTop: '16px', height: '44px',
             borderRadius: '8px', background: 'none',
             border: '1.5px solid #1E3A5F',
             fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
@@ -602,6 +602,49 @@ export default function ElevationBlueprintPage() {
                 'Live coaching session with your Uni Coach',
                 'Progress review and plan adjustment',
                 'Direct access to your Coach for questions between sessions',
+              ]}
+              pricingTodo
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 1.75 — ACADEMIC GRINDS (NEW) ────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '64px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F', margin: 0 }}>
+              Academic Grinds
+            </h2>
+            <span style={{
+              background: '#16A34A', color: '#FFFFFF',
+              borderRadius: '6px', padding: '3px 9px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '10px', fontWeight: '700', letterSpacing: '0.03em',
+            }}>
+              New
+            </span>
+          </div>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#1E3A5F', fontStyle: 'italic', textAlign: 'center', marginTop: '6px' }}>
+            One-to-one academic support — from Junior Cert to final year.
+          </p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', maxWidth: '620px', margin: '12px auto 0', lineHeight: 1.65 }}>
+            UniBlueprint connects you with verified Uni Coaches who offer 1-to-1 grinds and academic coaching — covering Junior Cert, Leaving Cert, and third-level modules across Ireland.
+          </p>
+          <div style={{ maxWidth: '480px', margin: '40px auto 0' }}>
+            <ServiceCard
+              icon={BookOpen}
+              name="Academic Grinds"
+              standardBullets={[
+                'Personalised sessions tailored to your subject and exam level',
+                'Junior Cert and Leaving Cert subject support',
+                'Third-level module assistance and assignment guidance',
+                'Past paper practice and exam technique coaching',
+              ]}
+              premiumBullets={[
+                'Extended sessions with a structured study plan',
+                'Ongoing support across multiple weeks',
+                'Progress tracking with session notes delivered after each session',
               ]}
               pricingTodo
             />

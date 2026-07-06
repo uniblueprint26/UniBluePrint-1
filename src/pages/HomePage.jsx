@@ -140,12 +140,51 @@ const PILLARS = [
 ]
 
 const STUDENTS = [
-  { name: 'Abdullah', course: 'Business',              university: 'ATU Galway',          cao: 'AU601' },
-  { name: 'Eman',     course: 'Engineering',            university: 'UCD',                 cao: 'DN150' },
-  { name: 'Emily',    course: 'Accounting and Finance', university: 'DCU',                 cao: 'DC115' },
-  { name: 'Siofra',   course: 'Arts',                   university: 'UCC',                 cao: 'CK111' },
-  { name: 'Ciarán',   course: 'Computer Science',       university: 'UL',                  cao: 'LM121' },
-  { name: 'Nicole',   course: 'Nursing',                university: 'Maynooth University', cao: 'MH701' },
+  { name: 'Abdullah', course: 'Business',              university: 'ATU Galway',           cao: 'AU601' },
+  { name: 'Eman',     course: 'Engineering',            university: 'UCD',                  cao: 'DN150' },
+  { name: 'Emily',    course: 'Accounting and Finance', university: 'DCU',                  cao: 'DC115' },
+  { name: 'Siofra',   course: 'Arts',                   university: 'UCC',                  cao: 'CK111' },
+  { name: 'Ciarán',   course: 'Computer Science',       university: 'UL',                   cao: 'LM121' },
+  { name: 'Nicole',   course: 'Nursing',                university: 'Maynooth University',  cao: 'MH701' },
+  { name: 'Sienna',   course: 'Nursing',                university: 'SETU Waterford',       cao: 'SE915' },
+  { name: 'Basmali',  course: 'Computing',              university: 'MTU',                  cao: 'MT803' },
+  { name: 'Ethan',    course: 'Sports Science',         university: 'TU Dublin',            cao: 'TU936' },
+  { name: 'Alex',     course: 'Digital Marketing',      university: 'TUS Athlone',          cao: 'US844' },
+  { name: 'Fiza',     course: 'Psychology',             university: 'University of Galway', cao: 'GY104' },
+  { name: 'Gigi',     course: 'Law',                    university: 'UCD',                  cao: 'DN030' },
+  { name: 'Wami',     course: 'Medicine',               university: 'RCSI',                 cao: 'RC850' },
+  { name: 'Daniel',   course: 'Architecture',           university: 'UCD',                  cao: 'DN060' },
+  { name: 'Sam',      course: 'Civil Engineering',      university: 'TU Dublin',            cao: 'TU001' },
+  { name: 'Harry',    course: 'Business and Law',       university: 'UCD',                  cao: 'DN700' },
+  { name: 'Elizabeth',course: 'Pharmacy',               university: 'TCD',                  cao: 'TR073' },
+  { name: 'Zafir',    course: 'Computer Science',       university: 'DCU',                  cao: 'DC182' },
+  { name: 'Sean',     course: 'Agricultural Science',   university: 'UCD',                  cao: 'DN200' },
+  { name: 'Seamus',   course: 'Early Childhood Education', university: 'ATU Galway',        cao: 'AU511' },
+  { name: 'Sinead',   course: 'Social Work',            university: 'UCC',                  cao: 'CK320' },
+  { name: 'Mairead',  course: 'Film and Television',    university: 'DCU',                  cao: 'DC231' },
+  { name: 'Emma',     course: 'Psychology',             university: 'UL',                   cao: 'LM120' },
+  { name: 'Mohammed', course: 'International Business', university: 'DCU',                  cao: 'DC217' },
+  { name: 'Ahmed',    course: 'Electronic Engineering', university: 'UL',                   cao: 'LM043' },
+  { name: 'Billy',    course: 'Sports Science',         university: 'ATU Galway',           cao: 'AU801' },
+  { name: 'Fatima',   course: 'Radiography',            university: 'TCD',                  cao: 'TR058' },
+  { name: 'Aoife',    course: 'Music',                  university: 'University of Galway', cao: 'GY200' },
+  { name: 'Roisin',   course: 'Environmental Science',  university: 'UCC',                  cao: 'CK723' },
+  { name: 'Kofi',     course: 'Marketing',              university: 'DCU',                  cao: 'DC222' },
+  { name: 'Amara',    course: 'Criminology',            university: 'UCC',                  cao: 'CK590' },
+  { name: 'James',    course: 'Mechanical Engineering', university: 'TU Dublin',            cao: 'TU003' },
+  { name: 'Priya',    course: 'Dentistry',              university: 'TCD',                  cao: 'TR005' },
+  { name: 'Luca',     course: 'Software Engineering',   university: 'UCD',                  cao: 'DN206' },
+  { name: 'Sofia',    course: 'International Relations', university: 'DCU',                 cao: 'DC203' },
+]
+
+const AD_BOARD_POSTS = [
+  { name: 'Aoife', university: 'University of Galway', title: 'Piano & Music Lessons', description: '1-to-1 lessons from a 3rd year Music student. All levels welcome.', tag: 'Lessons', price: 'From €20/hr' },
+  { name: 'Luca',  university: 'UCD',                  title: 'Graphic Design Services', description: 'Logos, social media content, and branding for student projects.', tag: 'Design', price: 'From €50' },
+  { name: 'Zafir', university: 'DCU',                  title: 'Maths & Stats Grinds', description: 'Leaving Cert and 1st year college maths. Past papers and exam prep.', tag: 'Grinds', price: '€25/hr' },
+  { name: 'Sam',   university: 'TU Dublin',            title: 'Car Washing & Detailing', description: 'Full exterior wash, interior clean, and polish. Sligo & Dublin.', tag: 'Service', price: 'From €40' },
+  { name: 'Emma',  university: 'UL',                   title: 'Essay Proofreading', description: 'Academic proofreading and feedback. 24hr turnaround available.', tag: 'Academic', price: 'From €15' },
+  { name: 'Kofi',  university: 'DCU',                  title: 'Social Media Management', description: 'Instagram and TikTok strategy, posting, and growth for small businesses.', tag: 'Marketing', price: 'From €80/mo' },
+  { name: 'Fatima', university: 'TCD',                 title: 'Photography & Content', description: 'Events, portraits, and content creation for social media.', tag: 'Creative', price: 'From €60' },
 ]
 
 // ─── StudentCard ───────────────────────────────────────────────────────────────
@@ -519,7 +558,7 @@ export default function HomePage() {
         </h2>
 
         <div className="testimonials-grid">
-          {STUDENTS.map(s => <StudentCard key={s.name} {...s} />)}
+          {STUDENTS.slice(0, 6).map(s => <StudentCard key={s.name} {...s} />)}
         </div>
 
         {/* Partners strip */}
@@ -556,6 +595,108 @@ export default function HomePage() {
           }}>
             And more coming
           </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 5.5 — ADVERTISEMENT BOARD PREVIEW ─────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', fontWeight: '600', color: '#6B7280',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+            textAlign: 'center',
+          }}>
+            Advertisement Board
+          </p>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: '36px', color: '#1E3A5F',
+            textAlign: 'center', marginTop: '8px',
+          }}>
+            Students helping students
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '16px', color: '#6B7280',
+            textAlign: 'center', margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.65,
+          }}>
+            The Advertisement Board lets students post services, gigs, and opportunities — from grinds to graphic design. Free to post.
+          </p>
+
+          {/* Mock content banner */}
+          <div style={{
+            background: '#FFFFFF', borderRadius: '12px',
+            borderLeft: '3px solid #1E3A5F',
+            padding: '20px', margin: '32px 0 0',
+            display: 'flex', alignItems: 'flex-start', gap: '16px',
+          }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '50%',
+              background: '#F5F0E8', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Sparkles size={20} color="#1E3A5F" />
+            </div>
+            <div>
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>
+                You are looking at example content
+              </p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.5 }}>
+                These are sample posts to show what the Advertisement Board looks like in the app. Real posts are created by students.
+              </p>
+            </div>
+          </div>
+
+          {/* Ad cards — horizontal scroll */}
+          <div style={{
+            display: 'flex', gap: '16px',
+            overflowX: 'auto', paddingBottom: '8px',
+            marginTop: '24px',
+            scrollbarWidth: 'thin',
+          }}>
+            {AD_BOARD_POSTS.map(ad => (
+              <div key={ad.title} style={{
+                flexShrink: 0, width: '280px', minHeight: '200px',
+                background: '#FFFFFF', borderRadius: '12px',
+                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+                padding: '20px',
+                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+              }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <div style={{
+                      width: '36px', height: '36px', borderRadius: '50%',
+                      background: '#1E3A5F', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#FFFFFF' }}>
+                        {ad.name.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1E3A5F', fontWeight: '600', margin: 0 }}>{ad.name}</p>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{ad.university}</p>
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>{ad.title}</p>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.45 }}>{ad.description}</p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                  <span style={{
+                    background: '#F5F0E8', color: '#1E3A5F',
+                    borderRadius: '6px', padding: '3px 10px',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '11px',
+                  }}>
+                    {ad.tag}
+                  </span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1E3A5F', fontWeight: '600' }}>
+                    {ad.price}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

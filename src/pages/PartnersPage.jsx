@@ -4,6 +4,10 @@ import {
   ExternalLink, Handshake,
   UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Sparkles,
 } from 'lucide-react'
+import whipWizardzLogo from '../assets/whip-wizardz-logo.png.png'
+import jmcFitnessLogo from '../assets/jmc-fitness-logo.png.jpeg'
+import energieFitnessLogo from '../assets/energie-fitness-logo.png.jpeg'
+import nyz3ditzLogo from '../assets/nyz3ditz-logo.png.jpeg'
 
 const COURSECOMPASS_URL = 'https://coursecompass.ie/course-compass'
 
@@ -18,22 +22,40 @@ const CC_TOOLS = [
 
 const LIFESTYLE_PARTNERS = [
   {
-    name: 'Whip Wizards',
-    initials: 'WW',
-    category: 'Food & Drink',
-    description: 'Exclusive student discount for UniBlueprint Pro subscribers.',
+    name: 'Whip Wizardz',
+    logo: whipWizardzLogo,
+    category: 'Automotive & Transport',
+    description: 'Exclusive student rates on car sales and sourcing. Show your UniBlueprint Pro badge to redeem.',
+  },
+  {
+    name: 'The Nail Nurse',
+    tnn: true,
+    category: 'Beauty & Wellness',
+    description: 'Exclusive student discount on professional nail services for UniBlueprint Pro subscribers.',
   },
   {
     name: 'JMC Fitness',
-    initials: 'JF',
+    logo: jmcFitnessLogo,
     category: 'Fitness & Wellbeing',
-    description: 'Student membership rates and exclusive offers for UniBlueprint Pro subscribers.',
+    description: 'Student membership rates and exclusive coaching offers for UniBlueprint Pro subscribers.',
   },
   {
-    name: 'Nyz3ditz',
-    initials: 'NZ',
-    category: 'TODO — confirm with Des',
-    description: 'TODO — confirm with Des',
+    name: 'NYZ3DITZ Studio',
+    logo: nyz3ditzLogo,
+    category: 'Creative & Media',
+    description: 'Student rates on professional video editing and photography for content creators and personal projects.',
+  },
+  {
+    name: 'Energie Fitness',
+    logo: energieFitnessLogo,
+    category: 'Fitness & Wellbeing',
+    description: 'Reduced student membership rates at Energie Fitness gyms across Ireland.',
+  },
+  {
+    name: 'Emmanuel Fasanmi Grinds',
+    initials: 'EF',
+    category: 'Education & Coaching',
+    description: 'Junior and Leaving Cert grinds and academic coaching. One-to-one sessions, exam prep, and structured study support.',
   },
 ]
 
@@ -99,7 +121,7 @@ function ToolCard({ name, description, url }) {
 
 // ─── LifestylePartnerCard ────────────────────────────────────────────────────
 
-function LifestylePartnerCard({ name, initials, category, description }) {
+function LifestylePartnerCard({ name, initials, category, description, logo, tnn }) {
   return (
     <div style={{
       position: 'relative',
@@ -120,13 +142,18 @@ function LifestylePartnerCard({ name, initials, category, description }) {
 
       <div style={{
         width: '56px', height: '56px', borderRadius: '12px',
-        background: '#F5F0E8',
+        background: tnn ? '#B8860B' : '#F5F0E8',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         margin: '0 auto',
+        overflow: 'hidden',
       }}>
-        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>
-          {initials}
-        </span>
+        {logo ? (
+          <img src={logo} alt={name} style={{ width: '56px', height: '56px', objectFit: 'contain' }} />
+        ) : tnn ? (
+          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#FFFFFF' }}>TNN</span>
+        ) : (
+          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>{initials}</span>
+        )}
       </div>
 
       <p style={{

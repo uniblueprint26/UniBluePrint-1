@@ -5,6 +5,10 @@ import {
   Heart, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket,
   Lock, Phone, ExternalLink, Megaphone, ArrowRight,
 } from 'lucide-react'
+import whipWizardzLogo from '../assets/whip-wizardz-logo.png.png'
+import jmcFitnessLogo from '../assets/jmc-fitness-logo.png.jpeg'
+import energieFitnessLogo from '../assets/energie-fitness-logo.png.jpeg'
+import nyz3ditzLogo from '../assets/nyz3ditz-logo.png.jpeg'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -50,74 +54,46 @@ const CATEGORIES = [
 
 const PARTNER_DEALS = [
   {
-    name: 'Whip Wizards',
-    initials: 'WW',
-    category: 'Car Sales',
-    description: 'Exclusive student rates on car sales and sourcing from Whip Wizards. Show your UniBlueprint Pro badge to redeem.',
+    name: 'Whip Wizardz',
+    logo: whipWizardzLogo,
+    category: 'Automotive & Transport',
+    description: 'Exclusive student rates on car sales and sourcing from Whip Wizardz. Show your UniBlueprint Pro badge to redeem.',
     deal: 'Student Deal — contact to redeem',
   },
   {
-    name: 'The Oat Goat',
-    initials: 'OG',
-    category: 'Food & Drink',
-    description: 'Student offer at The Oat Goat — fresh, quality food built for the student lifestyle. Show your UniBlueprint Pro badge in store.',
-    deal: 'Student Offer — badge required',
+    name: 'The Nail Nurse',
+    tnn: true,
+    category: 'Beauty & Wellness',
+    description: 'Exclusive student discount on professional nail services from The Nail Nurse. Show your UniBlueprint Pro badge to redeem.',
+    deal: 'Student Deal — badge required',
   },
   {
-    name: "Jordan's Kitchen",
-    initials: 'JK',
-    category: 'Food & Drink',
-    description: "Exclusive student discount at Jordan's Kitchen. Great food at a price that works for student budgets.",
-    deal: 'Student Discount — badge required',
+    name: 'JMC Fitness',
+    logo: jmcFitnessLogo,
+    category: 'Fitness & Wellbeing',
+    description: 'Student membership rates and exclusive coaching offers for UniBlueprint Pro subscribers from JMC Fitness.',
+    deal: 'Student Rate — badge required',
   },
   {
-    name: 'NYZ Editz',
-    initials: 'NE',
-    category: 'Videography & Editing',
-    description: 'Student rates on professional video editing and photography from NYZ Editz. Perfect for content creators and personal projects.',
+    name: 'NYZ3DITZ Studio',
+    logo: nyz3ditzLogo,
+    category: 'Creative & Media',
+    description: 'Student rates on professional video editing and photography from NYZ3DITZ Studio. Perfect for content creators and personal projects.',
     deal: 'Student Rate — contact to redeem',
   },
   {
     name: 'Energie Fitness',
-    initials: 'EF',
-    category: 'Gym & Fitness',
+    logo: energieFitnessLogo,
+    category: 'Fitness & Wellbeing',
     description: 'Reduced student membership rates at Energie Fitness gyms. Stay active throughout the academic year without the full-price cost.',
     deal: 'Reduced Membership — badge required',
   },
   {
-    name: 'ROM Sligo',
-    initials: 'RS',
-    category: 'Sports Centre',
-    description: 'Student rates at ROM Sligo sports centre. Access facilities, courts, and classes at a student-friendly price.',
-    deal: 'Student Rate — badge required',
-  },
-  {
-    name: 'Leva Media',
-    initials: 'LM',
-    category: 'Digital Marketing',
-    description: 'Student packages on digital marketing services from Leva Media. Ideal for student entrepreneurs and early-stage projects.',
-    deal: 'Student Package — contact to book',
-  },
-  {
-    name: 'HB Detailing',
-    initials: 'HB',
-    category: 'Car Detailing',
-    description: 'Student price on professional car detailing from HB Detailing. Keep your car looking its best without paying full price.',
-    deal: 'Student Price — badge required',
-  },
-  {
-    name: 'Course Compass',
-    initials: 'CC',
-    category: 'CAO Guidance',
-    description: 'Free CAO guidance and course research support from Course Compass — helping students make the right decisions before they apply.',
-    deal: 'Free for UniBlueprint users',
-  },
-  {
-    name: 'Jenny Glow',
-    initials: 'JG',
-    category: 'Fragrance & Beauty',
-    description: 'Student discount on Jenny Glow fragrances and beauty products. Premium scents at student-friendly prices.',
-    deal: 'Student Discount — badge required',
+    name: 'Emmanuel Fasanmi Grinds',
+    initials: 'EF',
+    category: 'Education & Coaching',
+    description: 'Junior and Leaving Cert grinds and academic coaching from Emmanuel Fasanmi. One-to-one sessions, exam prep, and structured study support.',
+    deal: 'Student Rate — book through app',
   },
 ]
 
@@ -276,7 +252,7 @@ function CategoryCard({ icon: Icon, name, description, locked, green }) {
   )
 }
 
-function PartnerDealCard({ name, initials, category, description, deal }) {
+function PartnerDealCard({ name, initials, category, description, deal, logo, tnn }) {
   return (
     <div style={{
       position: 'relative',
@@ -297,13 +273,18 @@ function PartnerDealCard({ name, initials, category, description, deal }) {
 
       <div style={{
         width: '56px', height: '56px', borderRadius: '50%',
-        background: '#F5F0E8',
+        background: tnn ? '#B8860B' : logo ? '#F5F0E8' : '#F5F0E8',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         margin: '0 auto',
+        overflow: 'hidden',
       }}>
-        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>
-          {initials}
-        </span>
+        {logo ? (
+          <img src={logo} alt={name} style={{ width: '56px', height: '56px', objectFit: 'contain', borderRadius: '50%' }} />
+        ) : tnn ? (
+          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#FFFFFF' }}>TNN</span>
+        ) : (
+          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>{initials}</span>
+        )}
       </div>
 
       <p style={{
