@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Platform, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Zap, ChevronRight, Bell, User } from 'lucide-react-native'
 import Card from '../components/ui/Card'
@@ -27,10 +27,22 @@ const ACTIVITY = [
 ]
 
 const DEALS = [
-  { brand: 'Student Beans', discount: 'Up to 30% off', color: '#EFF6FF' },
-  { brand: 'ASOS',          discount: '20% off',        color: '#FDF4FF' },
-  { brand: 'Spotify',       discount: '50% off',        color: '#F0FDF4' },
-  { brand: 'Deliveroo',     discount: '€5 off first',   color: '#FFF7ED' },
+  { brand: 'Whip Wizardz',     discount: 'Student Deal',        color: '#EFF6FF', logo: require('../../assets/whip-wizardz-logo.png.png') },
+  { brand: 'JMC Fitness',      discount: 'Reduced Membership',  color: '#F0FDF4', logo: require('../../assets/jmc-fitness-logo.png.jpeg') },
+  { brand: 'Energie Fitness',  discount: 'Reduced Membership',  color: '#F0F9FF', logo: require('../../assets/energie-fitness-logo.png.jpeg') },
+  { brand: 'NYZ3DITZ Studio',  discount: 'Student Rate',        color: '#FFF7ED', logo: require('../../assets/nyz3ditz-logo.png.jpeg') },
+  { brand: 'The Nail Nurse',   discount: 'Student Rate',        color: '#FDF4FF', logo: null, tnn: true },
+  { brand: 'Emmanuel Fasanmi', discount: 'Pricing TBC',         color: '#FEF9C3', logo: null },
+]
+
+const AD_BOARD = [
+  { title: 'Room Available — Smithfield', detail: '€650/month · June–Aug · 1 bed shared house', tag: 'Accommodation', color: '#EFF6FF', emoji: '🏠' },
+  { title: 'Guitar Lessons — All Levels', detail: 'In-person or online · €25/session · Dublin', tag: 'Tutoring', color: '#FDF4FF', emoji: '🎸' },
+  { title: 'Photography — Events & Portraits', detail: 'Student rate available · Contact for quote', tag: 'Creative', color: '#FFF7ED', emoji: '📸' },
+  { title: 'VW Polo 2015 For Sale', detail: '€5,500 · 95k km · NCT Sept 2025 · Galway', tag: 'Marketplace', color: '#F0FDF4', emoji: '🚗' },
+  { title: 'Final Year Law Study Group', detail: 'TCD · Weekly sessions · Spots available now', tag: 'Study', color: '#F0F9FF', emoji: '📚' },
+  { title: 'Marketing Intern Wanted', detail: 'Paid opportunity · Flexible hours · Cork', tag: 'Opportunity', color: '#FEF9C3', emoji: '💼' },
+  { title: 'Room Near UCD — Available Aug', detail: '€600/month · Bills included · 2 min walk', tag: 'Accommodation', color: '#EFF6FF', emoji: '🏠' },
 ]
 
 export default function HomeScreen() {
@@ -112,10 +124,18 @@ export default function HomeScreen() {
             {DEALS.map(deal => (
               <TouchableOpacity key={deal.brand} activeOpacity={0.8}>
                 <View style={[styles.dealCard, { backgroundColor: deal.color }]}>
-                  <View style={styles.dealInitial}>
-                    <Text style={styles.dealInitialText}>{deal.brand.charAt(0)}</Text>
-                  </View>
-                  <Text style={styles.dealBrand} numberOfLines={1}>{deal.brand}</Text>
+                  {deal.logo ? (
+                    <Image source={deal.logo} style={styles.dealLogoImg} resizeMode="contain" />
+                  ) : deal.tnn ? (
+                    <View style={[styles.dealInitial, { backgroundColor: '#B8860B' }]}>
+                      <Text style={[styles.dealInitialText, { color: '#FFFFFF', fontSize: 12 }]}>TNN</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.dealInitial}>
+                      <User size={18} color={colors.navy} />
+                    </View>
+                  )}
+                  <Text style={styles.dealBrand} numberOfLines={2}>{deal.brand}</Text>
                   <Text style={styles.dealDiscount}>{deal.discount}</Text>
                 </View>
               </TouchableOpacity>
@@ -142,6 +162,35 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+
+        {/* Advertisement Board */}
+        <View style={styles.section}>
+          <View style={styles.sectionRow}>
+            <Text style={styles.eyebrow}>Advertisement Board</Text>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={styles.seeAll}>Post an ad →</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.rowScroll}
+            contentContainerStyle={{ paddingRight: spacing.md }}
+          >
+            {AD_BOARD.map((ad, i) => (
+              <TouchableOpacity key={i} activeOpacity={0.8}>
+                <View style={[styles.adCard, { backgroundColor: ad.color }]}>
+                  <Text style={styles.adEmoji}>{ad.emoji}</Text>
+                  <View style={styles.adTag}>
+                    <Text style={styles.adTagText}>{ad.tag}</Text>
+                  </View>
+                  <Text style={styles.adTitle} numberOfLines={2}>{ad.title}</Text>
+                  <Text style={styles.adDetail} numberOfLines={2}>{ad.detail}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {/* Recent activity */}
@@ -248,7 +297,7 @@ const styles = StyleSheet.create({
   chipLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
 
   dealCard: {
-    width: 110, borderRadius: radius.card,
+    width: 118, borderRadius: radius.card,
     padding: 14, marginRight: 12, alignItems: 'center',
   },
   dealInitial: {
@@ -256,9 +305,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(30,58,95,0.1)',
     alignItems: 'center', justifyContent: 'center', marginBottom: 8,
   },
-  dealInitialText: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy },
-  dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, textAlign: 'center' },
-  dealDiscount: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.navy, marginTop: 3, textAlign: 'center' },
+  dealLogoImg: { width: 44, height: 38, marginBottom: 8 },
+  dealInitialText: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
+  dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, textAlign: 'center', lineHeight: 16 },
+  dealDiscount: { fontFamily: fonts.sansBold, fontSize: 12, color: colors.navy, marginTop: 3, textAlign: 'center' },
+
+  adCard: {
+    width: 240, borderRadius: radius.card,
+    padding: 16, marginRight: 12,
+    justifyContent: 'flex-end', minHeight: 160,
+  },
+  adEmoji: { fontSize: 28, marginBottom: 10 },
+  adTag: {
+    backgroundColor: 'rgba(30,58,95,0.1)', borderRadius: 4,
+    paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 8,
+  },
+  adTagText: { fontFamily: fonts.sans, fontSize: 10, color: colors.navy },
+  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, lineHeight: 20 },
+  adDetail: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 17 },
 
   pillarCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
   pillarIcon: {

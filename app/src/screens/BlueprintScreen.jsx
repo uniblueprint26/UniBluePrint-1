@@ -52,14 +52,14 @@ const FOUNDATION_SERVICES = [
 ]
 
 // ─── Elevation Blueprint data ─────────────────────────────────────────────────
-const FILTER_PILLS = ['All', 'Fitness', 'Nutrition', 'Grinds', 'Trading', 'Branding', 'Marketing', 'Career', 'Network', 'Creative', 'Sports', 'Music', 'Postgrad']
+const FILTER_PILLS = ['All', 'Fitness', 'Nutrition', 'Academic Grinds', 'Trading', 'Branding', 'Marketing', 'Career', 'Network', 'Creative', 'Sports', 'Music', 'Postgrad']
 
 const COACHES = [
   {
-    id: 1, name: 'Emmanuel Fasanmi', category: 'Maths Grinds', filter: 'Grinds',
-    location: 'Ireland', rating: '4.9', reviews: 24, from: 'From €30',
-    services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'],
-    bio: 'Specialist maths tutor helping students build real confidence and hit their CAO points target.',
+    id: 1, name: 'Emmanuel Fasanmi', category: 'Academic Grinds', filter: 'Academic Grinds',
+    location: 'Dublin, Ireland', rating: '4.9', reviews: 24, from: 'Pricing TBC',
+    services: ['Maths Grinds', 'Physics Grinds', 'Biology Grinds'],
+    bio: 'Emmanuel offers one-to-one and small group grinds in Maths, Physics, and Biology for Leaving Certificate and university students across Dublin. Sessions are structured, focused, and built around where you actually need to improve.',
   },
   {
     id: 2, name: 'Daniel Gough', category: 'Trading & Finance', filter: 'Trading',
@@ -257,6 +257,21 @@ function ElevationTab() {
 
       {/* Results count */}
       <Text style={styles.resultsCount}>{visible.length} coach{visible.length !== 1 ? 'es' : ''} available</Text>
+
+      {/* Academic Grinds — featured section banner */}
+      {(active === 'All' || active === 'Academic Grinds') && (
+        <View style={styles.academicBanner}>
+          <View style={styles.academicBannerLeft}>
+            <View style={styles.newBadgeInline}>
+              <Text style={styles.newBadgeInlineText}>NEW</Text>
+            </View>
+            <Text style={styles.academicBannerTitle}>Academic Grinds</Text>
+          </View>
+          <Text style={styles.academicBannerSub}>
+            One-to-one Leaving Cert &amp; university grinds now available through Elevation Blueprint.
+          </Text>
+        </View>
+      )}
 
       {/* Coach profile cards */}
       <View style={{ gap: 16, marginTop: spacing.sm }}>
@@ -464,6 +479,16 @@ const styles = StyleSheet.create({
   pillTextActive: { color: colors.cream },
 
   resultsCount: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 8 },
+
+  academicBanner: {
+    backgroundColor: '#FEF9C3', borderRadius: radius.card,
+    padding: 14, marginTop: 14, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+  },
+  academicBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  academicBannerTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  academicBannerSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
+  newBadgeInline: { backgroundColor: '#7C3AED', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  newBadgeInlineText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#FFFFFF', letterSpacing: 0.5 },
 
   // Coach cards
   coachCard: { padding: 18 },

@@ -3,11 +3,12 @@ import { ScrollView, View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboa
 import {
   Users, BookOpen, Car, CalendarDays, FileText,
   MessageSquare, BookMarked, Search, ChevronRight,
-  MapPin, Lightbulb, Plus,
+  MapPin, Lightbulb, Plus, AlertCircle, User,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
+import MockContentBanner from '../components/ui/MockContentBanner'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
 // ─── Campus Connect data ──────────────────────────────────────────────────────
@@ -37,6 +38,87 @@ const CAMPUS_FEATURES = [
     count: '11 open projects',
     isNew: true,
   },
+]
+
+const BOARDS_DATA = [
+  {
+    title: 'Accommodation',
+    icon: '🏠',
+    color: '#EFF6FF',
+    postCount: 14,
+    posts: [
+      { text: 'Room available near UCD — €600/month, bills included. Available from August.', time: '2h ago' },
+      { text: 'Looking for 2 flatmates in Smithfield. Modern apt, €750pp. DM for info.', time: '5h ago' },
+    ],
+  },
+  {
+    title: 'Marketplace',
+    icon: '🛒',
+    color: '#F0FDF4',
+    postCount: 21,
+    posts: [
+      { text: 'Selling all 2nd year Business textbooks — €15 each or €50 bundle.', time: '1h ago' },
+      { text: 'MacBook Pro 2020 — excellent condition — €900. DM for photos.', time: '3h ago' },
+    ],
+  },
+  {
+    title: 'Events',
+    icon: '🎉',
+    color: '#FDF4FF',
+    postCount: 8,
+    posts: [
+      { text: 'UCD Law Society mixer this Thursday — free entry with student card.', time: '30m ago' },
+      { text: 'TCD Drama Society auditions — Monday 7pm — all welcome.', time: '4h ago' },
+    ],
+  },
+  {
+    title: 'Lost & Found',
+    icon: '🔍',
+    color: '#FFF7ED',
+    postCount: 5,
+    posts: [
+      { text: 'Found: Blue North Face jacket in Library. Posted to security desk.', time: '6h ago' },
+      { text: 'Lost: AirPods Pro near Arts building — please DM if found.', time: '1d ago' },
+    ],
+  },
+  {
+    title: 'Societies',
+    icon: '🤝',
+    color: '#F0F9FF',
+    postCount: 9,
+    posts: [
+      { text: 'Chess Society looking for new members — all levels welcome!', time: '2h ago' },
+      { text: 'St. Vincent de Paul UCC — volunteering every Tuesday evening.', time: '1d ago' },
+    ],
+  },
+  {
+    title: 'Opportunities',
+    icon: '💼',
+    color: '#FEF9C3',
+    postCount: 12,
+    posts: [
+      { text: 'Part-time barista role — €13.50/hr — 3 mins from UCD. Apply now.', time: '45m ago' },
+      { text: 'Marketing intern wanted by Dublin startup — 20 hrs/week, paid.', time: '3h ago' },
+    ],
+  },
+  {
+    title: 'Student Ads',
+    icon: '📢',
+    color: '#F5F0E8',
+    postCount: 7,
+    posts: [
+      { text: 'Guitar lessons available — €25/session, Dublin. Beginners welcome.', time: '1h ago' },
+      { text: 'Professional CV & cover letter service — €25. Fast turnaround.', time: '2h ago' },
+    ],
+  },
+]
+
+const CAMPUS_AD_POSTS = [
+  { title: 'Room — Smithfield', detail: '€650/month · June–Aug', tag: 'Accommodation', color: '#EFF6FF', emoji: '🏠' },
+  { title: 'Guitar Lessons', detail: '€25/session · Dublin', tag: 'Tutoring', color: '#FDF4FF', emoji: '🎸' },
+  { title: 'Textbooks For Sale', detail: '2nd yr Business · €15 each', tag: 'Marketplace', color: '#F0FDF4', emoji: '📚' },
+  { title: 'CV Writing Help', detail: '€25 · Fast turnaround', tag: 'Services', color: '#FFF7ED', emoji: '✏️' },
+  { title: 'Photography Services', detail: 'Student rate available', tag: 'Creative', color: '#FEF9C3', emoji: '📸' },
 ]
 
 const CARPOOL_POSTS = [
@@ -76,6 +158,50 @@ const RECENT_NOTES = [
   { module: 'CS2001', title: 'Data Structures — Linked Lists & Trees', university: 'UCD', views: 98, saved: 22 },
   { module: 'LA1102', title: 'Contract Law — Offer & Acceptance Notes', university: 'TCD', views: 203, saved: 61 },
   { module: 'AC3010', title: 'Financial Accounting — Ratio Analysis', university: 'UCC', views: 87, saved: 19 },
+]
+
+const STUDENT_PROFILES = [
+  { name: 'Aoife Murphy',    uni: 'UCD',  course: 'Business & Finance', year: '3rd Year', skills: ['Excel', 'Marketing'],  initials: 'AM', color: '#EFF6FF' },
+  { name: 'Cian O\'Brien',  uni: 'TCD',  course: 'Computer Science',    year: '4th Year', skills: ['React', 'Python'],     initials: 'CO', color: '#F0FDF4' },
+  { name: 'Saoirse Kelly',  uni: 'UCC',  course: 'Law',                 year: '2nd Year', skills: ['Research', 'Writing'], initials: 'SK', color: '#FDF4FF' },
+  { name: 'Darragh Walsh',  uni: 'UL',   course: 'Engineering',         year: '3rd Year', skills: ['CAD', 'Matlab'],       initials: 'DW', color: '#FFF7ED' },
+  { name: 'Niamh Brennan',  uni: 'DCU',  course: 'Communications',      year: '2nd Year', skills: ['PR', 'Content'],       initials: 'NB', color: '#F0F9FF' },
+  { name: 'Oisín Connolly', uni: 'NUIG', course: 'Arts',                year: '1st Year', skills: ['Writing', 'Research'], initials: 'OC', color: '#FEF9C3' },
+]
+
+const DISCUSSIONS = [
+  {
+    module: 'CS2001',
+    question: 'What\'s the best way to approach Big O notation for the upcoming exam?',
+    replies: 14, university: 'UCD', time: '2h ago',
+  },
+  {
+    module: 'MG4021',
+    question: 'Looking for Week 6 lecture notes for Consumer Behaviour — anyone have them?',
+    replies: 7, university: 'UL', time: '5h ago',
+  },
+  {
+    module: 'LA1102',
+    question: 'Can anyone explain the difference between void and voidable contracts?',
+    replies: 22, university: 'TCD', time: '1d ago',
+  },
+]
+
+const MENTORS = [
+  {
+    name: 'Ciara Nolan',
+    role: 'Graduate — KPMG Dublin',
+    background: 'Business & Finance, UCD 2023',
+    areas: ['Career Advice', 'Graduate Applications', 'Finance'],
+    color: '#EFF6FF',
+  },
+  {
+    name: 'James Healy',
+    role: 'Software Engineer — Stripe',
+    background: 'Computer Science, TCD 2022',
+    areas: ['Tech Careers', 'Interview Prep', 'CS Projects'],
+    color: '#F0FDF4',
+  },
 ]
 
 // ─── Campus tab ───────────────────────────────────────────────────────────────
@@ -123,6 +249,39 @@ function CampusTab() {
         ))}
       </View>
 
+      {/* Campus Boards preview */}
+      <SectionHeader eyebrow="Community Boards" title="Campus Boards" style={{ marginTop: spacing.xl }} />
+      <MockContentBanner
+        title="Campus Boards — Live Soon"
+        subtitle="7 community boards launching when your campus goes live. Post notices, find rooms, sell textbooks, and more."
+      />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.rowScroll}
+        contentContainerStyle={{ paddingRight: spacing.md }}
+      >
+        {BOARDS_DATA.map(board => (
+          <TouchableOpacity key={board.title} activeOpacity={0.8}>
+            <View style={[styles.boardCard, { backgroundColor: board.color }]}>
+              <View style={styles.boardHeader}>
+                <Text style={styles.boardEmoji}>{board.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.boardTitle}>{board.title}</Text>
+                  <Text style={styles.boardCount}>{board.postCount} posts</Text>
+                </View>
+              </View>
+              {board.posts.map((post, i) => (
+                <View key={i} style={[styles.boardPost, i > 0 && { marginTop: 8 }]}>
+                  <Text style={styles.boardPostText} numberOfLines={2}>{post.text}</Text>
+                  <Text style={styles.boardPostTime}>{post.time}</Text>
+                </View>
+              ))}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       {/* Project Collaboration — open projects */}
       <SectionHeader eyebrow="Project Collaboration" title="Open Projects" style={{ marginTop: spacing.xl }} />
       <View style={{ gap: 12 }}>
@@ -156,7 +315,16 @@ function CampusTab() {
 
       {/* Carpooling */}
       <SectionHeader eyebrow="Active Routes" title="Carpooling" style={{ marginTop: spacing.xl }} />
-      <View style={{ gap: 10 }}>
+
+      {/* Safety banner */}
+      <View style={styles.safetyBanner}>
+        <AlertCircle size={15} color='#92400E' />
+        <Text style={styles.safetyBannerText}>
+          Always verify carpool drivers through your campus student services before travelling.
+        </Text>
+      </View>
+
+      <View style={{ gap: 10, marginTop: spacing.sm }}>
         {CARPOOL_POSTS.map((post, i) => (
           <Card key={i} style={styles.carpoolCard}>
             <View style={styles.carpoolRouteRow}>
@@ -174,6 +342,23 @@ function CampusTab() {
               </View>
             </View>
           </Card>
+        ))}
+      </View>
+
+      {/* Campus Advertisement Board */}
+      <SectionHeader eyebrow="Student Ads" title="Advertisement Board" style={{ marginTop: spacing.xl }} />
+      <View style={styles.adsGrid}>
+        {CAMPUS_AD_POSTS.map((ad, i) => (
+          <TouchableOpacity key={i} activeOpacity={0.8} style={styles.adsCell}>
+            <Card style={[styles.adGridCard, { backgroundColor: ad.color }]}>
+              <Text style={styles.adGridEmoji}>{ad.emoji}</Text>
+              <View style={styles.adGridTag}>
+                <Text style={styles.adGridTagText}>{ad.tag}</Text>
+              </View>
+              <Text style={styles.adGridTitle} numberOfLines={2}>{ad.title}</Text>
+              <Text style={styles.adGridDetail} numberOfLines={2}>{ad.detail}</Text>
+            </Card>
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -246,6 +431,99 @@ function CourseTab() {
               </View>
             </View>
             <ChevronRight size={14} color={colors.light} style={{ alignSelf: 'center' }} />
+          </Card>
+        ))}
+      </View>
+
+      {/* Student Database */}
+      <SectionHeader eyebrow="Student Network" title="Student Database" style={{ marginTop: spacing.xl }} />
+      <MockContentBanner
+        title="Full database coming soon"
+        subtitle="Connect with students across Irish universities. Filter by course, year, and skills."
+      />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.rowScroll}
+        contentContainerStyle={{ paddingRight: spacing.md }}
+      >
+        {STUDENT_PROFILES.map((s, i) => (
+          <TouchableOpacity key={i} activeOpacity={0.8}>
+            <View style={[styles.studentCard, { backgroundColor: s.color }]}>
+              <View style={styles.studentAvatar}>
+                <Text style={styles.studentInitials}>{s.initials}</Text>
+              </View>
+              <Text style={styles.studentName} numberOfLines={1}>{s.name}</Text>
+              <Text style={styles.studentUni}>{s.uni}</Text>
+              <Text style={styles.studentCourse} numberOfLines={2}>{s.course}</Text>
+              <View style={styles.studentSkills}>
+                {s.skills.slice(0, 2).map(sk => (
+                  <View key={sk} style={styles.skillPill}>
+                    <Text style={styles.skillPillText}>{sk}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Discussions */}
+      <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
+      <MockContentBanner
+        title="Discussions — Building Now"
+        subtitle="Module-specific Q&A threads launching with Course Connect. Ask questions, share answers."
+      />
+      <View style={{ gap: 10 }}>
+        {DISCUSSIONS.map((d, i) => (
+          <TouchableOpacity key={i} activeOpacity={0.8}>
+            <Card style={styles.discussionCard}>
+              <View style={styles.discussionTop}>
+                <View style={styles.noteModuleBadge}>
+                  <Text style={styles.noteModuleText}>{d.module}</Text>
+                </View>
+                <Text style={styles.discussionTime}>{d.time}</Text>
+              </View>
+              <Text style={styles.discussionQuestion} numberOfLines={2}>{d.question}</Text>
+              <View style={styles.discussionMeta}>
+                <MessageSquare size={12} color={colors.muted} />
+                <Text style={styles.discussionReplies}>{d.replies} replies</Text>
+                <Text style={styles.discussionUni}>{d.university}</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Mentorship */}
+      <SectionHeader eyebrow="Graduate Mentors" title="Mentorship" style={{ marginTop: spacing.xl }} />
+      <MockContentBanner
+        title="Mentorship Programme — Coming Soon"
+        subtitle="Get matched with graduates in your field for career guidance and industry insights."
+      />
+      <View style={{ gap: 12 }}>
+        {MENTORS.map((m, i) => (
+          <Card key={i} style={[styles.mentorCard, { backgroundColor: m.color }]}>
+            <View style={styles.mentorTop}>
+              <View style={styles.mentorAvatar}>
+                <User size={22} color={colors.navy} />
+              </View>
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Text style={styles.mentorName}>{m.name}</Text>
+                <Text style={styles.mentorRole}>{m.role}</Text>
+                <Text style={styles.mentorBackground}>{m.background}</Text>
+              </View>
+            </View>
+            <View style={styles.mentorAreas}>
+              {m.areas.map(a => (
+                <View key={a} style={styles.mentorAreaPill}>
+                  <Text style={styles.mentorAreaText}>{a}</Text>
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity style={styles.joinBtn} activeOpacity={0.8}>
+              <Text style={styles.joinBtnText}>Request Mentor</Text>
+            </TouchableOpacity>
           </Card>
         ))}
       </View>
@@ -348,6 +626,24 @@ const styles = StyleSheet.create({
   newBadge: { backgroundColor: '#7C3AED', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   newBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#FFFFFF', letterSpacing: 0.5 },
 
+  rowScroll: { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
+
+  // Campus Boards
+  boardCard: {
+    width: 220, borderRadius: radius.card,
+    padding: 14, marginRight: 12,
+  },
+  boardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  boardEmoji: { fontSize: 22 },
+  boardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  boardCount: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
+  boardPost: {
+    backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 6, padding: 8,
+  },
+  boardPostText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy, lineHeight: 16 },
+  boardPostTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 3 },
+
+  // Projects
   projectCard: { padding: 16 },
   projectTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, lineHeight: 21 },
   projectTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
@@ -362,6 +658,15 @@ const styles = StyleSheet.create({
   },
   joinBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
+  // Safety banner
+  safetyBanner: {
+    backgroundColor: '#FEF3C7', borderRadius: radius.button,
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+    padding: 12, marginBottom: 4,
+    borderWidth: 1, borderColor: 'rgba(146,64,14,0.2)',
+  },
+  safetyBannerText: { fontFamily: fonts.sans, fontSize: 12, color: '#92400E', flex: 1, lineHeight: 18 },
+
   carpoolCard: { padding: 14 },
   carpoolRouteRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   carpoolDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.navy },
@@ -371,6 +676,16 @@ const styles = StyleSheet.create({
   carpoolTime: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
   seatBadge: { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   seatBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+
+  // Campus Ads Grid
+  adsGrid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -6 },
+  adsCell: { width: '50%', padding: 6 },
+  adGridCard: { padding: 14, borderRadius: radius.card, minHeight: 120 },
+  adGridEmoji: { fontSize: 22, marginBottom: 8 },
+  adGridTag: { backgroundColor: 'rgba(30,58,95,0.1)', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 2, alignSelf: 'flex-start', marginBottom: 6 },
+  adGridTagText: { fontFamily: fonts.sans, fontSize: 10, color: colors.navy },
+  adGridTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, lineHeight: 18 },
+  adGridDetail: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3, lineHeight: 16 },
 
   statsBanner: {
     flexDirection: 'row', backgroundColor: colors.navy,
@@ -390,6 +705,45 @@ const styles = StyleSheet.create({
   noteTitle: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, lineHeight: 18 },
   noteMeta: { flexDirection: 'row', gap: 5, marginTop: 3 },
   noteMetaText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
+
+  // Student profiles
+  studentCard: { width: 140, borderRadius: radius.card, padding: 14, marginRight: 12, alignItems: 'center' },
+  studentAvatar: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: 'rgba(30,58,95,0.1)',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 10,
+  },
+  studentInitials: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
+  studentName: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textAlign: 'center' },
+  studentUni: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, opacity: 0.5, marginTop: 2 },
+  studentCourse: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, textAlign: 'center', marginTop: 3, lineHeight: 15 },
+  studentSkills: { flexDirection: 'row', gap: 4, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' },
+  skillPill: { backgroundColor: 'rgba(30,58,95,0.1)', borderRadius: radius.badge, paddingHorizontal: 7, paddingVertical: 3 },
+  skillPillText: { fontFamily: fonts.sans, fontSize: 10, color: colors.navy },
+
+  // Discussions
+  discussionCard: { padding: 14 },
+  discussionTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  discussionTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
+  discussionQuestion: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, lineHeight: 19 },
+  discussionMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
+  discussionReplies: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, flex: 1 },
+  discussionUni: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, opacity: 0.6 },
+
+  // Mentors
+  mentorCard: { padding: 16, borderRadius: radius.card },
+  mentorTop: { flexDirection: 'row', alignItems: 'flex-start' },
+  mentorAvatar: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: 'rgba(30,58,95,0.1)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  mentorName: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  mentorRole: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.75, marginTop: 1 },
+  mentorBackground: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
+  mentorAreas: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+  mentorAreaPill: { backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
+  mentorAreaText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
 
   primaryBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
