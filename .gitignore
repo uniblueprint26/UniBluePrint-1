@@ -19,6 +19,9 @@ dist-ssr
 *.local
 .vite
 
+# Expo
+app/.expo/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
