@@ -42,70 +42,49 @@ const CAMPUS_FEATURES = [
 
 const BOARDS_DATA = [
   {
-    title: 'Accommodation',
-    icon: '🏠',
-    color: '#EFF6FF',
-    postCount: 14,
+    title: 'Accommodation', icon: '🏠', color: '#EFF6FF', postCount: 14,
     posts: [
       { text: 'Room available near UCD — €600/month, bills included. Available from August.', time: '2h ago' },
       { text: 'Looking for 2 flatmates in Smithfield. Modern apt, €750pp. DM for info.', time: '5h ago' },
     ],
   },
   {
-    title: 'Marketplace',
-    icon: '🛒',
-    color: '#F0FDF4',
-    postCount: 21,
+    title: 'Marketplace', icon: '🛒', color: '#F0FDF4', postCount: 21,
     posts: [
       { text: 'Selling all 2nd year Business textbooks — €15 each or €50 bundle.', time: '1h ago' },
       { text: 'MacBook Pro 2020 — excellent condition — €900. DM for photos.', time: '3h ago' },
     ],
   },
   {
-    title: 'Events',
-    icon: '🎉',
-    color: '#FDF4FF',
-    postCount: 8,
+    title: 'Events', icon: '🎉', color: '#FDF4FF', postCount: 8,
     posts: [
       { text: 'UCD Law Society mixer this Thursday — free entry with student card.', time: '30m ago' },
       { text: 'TCD Drama Society auditions — Monday 7pm — all welcome.', time: '4h ago' },
     ],
   },
   {
-    title: 'Lost & Found',
-    icon: '🔍',
-    color: '#FFF7ED',
-    postCount: 5,
+    title: 'Lost & Found', icon: '🔍', color: '#FFF7ED', postCount: 5,
     posts: [
       { text: 'Found: Blue North Face jacket in Library. Posted to security desk.', time: '6h ago' },
       { text: 'Lost: AirPods Pro near Arts building — please DM if found.', time: '1d ago' },
     ],
   },
   {
-    title: 'Societies',
-    icon: '🤝',
-    color: '#F0F9FF',
-    postCount: 9,
+    title: 'Societies', icon: '🤝', color: '#F0F9FF', postCount: 9,
     posts: [
       { text: 'Chess Society looking for new members — all levels welcome!', time: '2h ago' },
       { text: 'St. Vincent de Paul UCC — volunteering every Tuesday evening.', time: '1d ago' },
     ],
   },
   {
-    title: 'Opportunities',
-    icon: '💼',
-    color: '#FEF9C3',
-    postCount: 12,
+    title: 'Opportunities', icon: '💼', color: '#FEF9C3', postCount: 12,
     posts: [
       { text: 'Part-time barista role — €13.50/hr — 3 mins from UCD. Apply now.', time: '45m ago' },
       { text: 'Marketing intern wanted by Dublin startup — 20 hrs/week, paid.', time: '3h ago' },
     ],
   },
   {
-    title: 'Student Ads',
-    icon: '📢',
-    color: '#F5F0E8',
-    postCount: 7,
+    title: 'Student Ads', icon: '📢', color: '#F5F0E8', postCount: 7,
     posts: [
       { text: 'Guitar lessons available — €25/session, Dublin. Beginners welcome.', time: '1h ago' },
       { text: 'Professional CV & cover letter service — €25. Fast turnaround.', time: '2h ago' },
@@ -122,27 +101,15 @@ const CAMPUS_AD_POSTS = [
 ]
 
 const CARPOOL_POSTS = [
-  { from: 'Limerick City', to: 'UL Campus', time: 'Mon–Fri · 8:30am', seats: 2, daysLeft: 'Ongoing' },
-  { from: 'Cork City Centre', to: 'UCC Main Gate', time: 'Mon/Wed/Fri · 9:00am', seats: 3, daysLeft: 'Ongoing' },
-  { from: 'Galway City', to: 'NUIG Concourse', time: 'Daily · 8:00am', seats: 1, daysLeft: 'Ongoing' },
+  { from: 'Limerick City', to: 'UL Campus', time: 'Mon–Fri · 8:30am', seats: 2 },
+  { from: 'Cork City Centre', to: 'UCC Main Gate', time: 'Mon/Wed/Fri · 9:00am', seats: 3 },
+  { from: 'Galway City', to: 'NUIG Concourse', time: 'Daily · 8:00am', seats: 1 },
 ]
 
 const PROJECTS = [
-  {
-    title: 'Campus Sustainability App',
-    tags: ['Mobile Dev', 'UI/UX', 'Sustainability'],
-    team: 2, need: 2, university: 'UCD',
-  },
-  {
-    title: 'AI Study Planner — Final Year Project',
-    tags: ['AI/ML', 'Python', 'React'],
-    team: 1, need: 3, university: 'TCD',
-  },
-  {
-    title: 'Student Budget Tracker',
-    tags: ['Finance', 'App Dev', 'Open to All'],
-    team: 3, need: 1, university: 'UL',
-  },
+  { title: 'Campus Sustainability App', tags: ['Mobile Dev', 'UI/UX', 'Sustainability'], team: 2, need: 2, university: 'UCD' },
+  { title: 'AI Study Planner — Final Year Project', tags: ['AI/ML', 'Python', 'React'], team: 1, need: 3, university: 'TCD' },
+  { title: 'Student Budget Tracker', tags: ['Finance', 'App Dev', 'Open to All'], team: 3, need: 1, university: 'UL' },
 ]
 
 // ─── Course Connect data ──────────────────────────────────────────────────────
@@ -160,31 +127,41 @@ const RECENT_NOTES = [
   { module: 'AC3010', title: 'Financial Accounting — Ratio Analysis', university: 'UCC', views: 87, saved: 19 },
 ]
 
+// All 27 team member names — each with university, course, CAO number
 const STUDENT_PROFILES = [
-  { name: 'Aoife Murphy',    uni: 'UCD',  course: 'Business & Finance', year: '3rd Year', skills: ['Excel', 'Marketing'],  initials: 'AM', color: '#EFF6FF' },
-  { name: 'Cian O\'Brien',  uni: 'TCD',  course: 'Computer Science',    year: '4th Year', skills: ['React', 'Python'],     initials: 'CO', color: '#F0FDF4' },
-  { name: 'Saoirse Kelly',  uni: 'UCC',  course: 'Law',                 year: '2nd Year', skills: ['Research', 'Writing'], initials: 'SK', color: '#FDF4FF' },
-  { name: 'Darragh Walsh',  uni: 'UL',   course: 'Engineering',         year: '3rd Year', skills: ['CAD', 'Matlab'],       initials: 'DW', color: '#FFF7ED' },
-  { name: 'Niamh Brennan',  uni: 'DCU',  course: 'Communications',      year: '2nd Year', skills: ['PR', 'Content'],       initials: 'NB', color: '#F0F9FF' },
-  { name: 'Oisín Connolly', uni: 'NUIG', course: 'Arts',                year: '1st Year', skills: ['Writing', 'Research'], initials: 'OC', color: '#FEF9C3' },
+  { name: 'Ethan',    uni: 'UCD',  course: 'Computer Science',           cao: 'DN110', year: '3rd Year', skills: ['React', 'Python'],     initials: 'ET', color: '#EFF6FF' },
+  { name: 'Fiza',     uni: 'TCD',  course: 'Law',                        cao: 'TR010', year: '2nd Year', skills: ['Research', 'Writing'],  initials: 'FZ', color: '#F0FDF4' },
+  { name: 'Nicole',   uni: 'UCC',  course: 'Medicine',                   cao: 'CK101', year: '1st Year', skills: ['Biology', 'Chemistry'], initials: 'NL', color: '#FDF4FF' },
+  { name: 'Eman',     uni: 'DCU',  course: 'Communications',             cao: 'DC116', year: '2nd Year', skills: ['PR', 'Content'],        initials: 'EN', color: '#FFF7ED' },
+  { name: 'Gigi',     uni: 'NUIG', course: 'Business',                   cao: 'GY101', year: '3rd Year', skills: ['Marketing', 'Excel'],   initials: 'GG', color: '#F0F9FF' },
+  { name: 'Mohammed', uni: 'UCD',  course: 'Engineering',                cao: 'DN150', year: '2nd Year', skills: ['CAD', 'Matlab'],        initials: 'MH', color: '#FEF9C3' },
+  { name: 'Wami',     uni: 'TCD',  course: 'Business & Economics',       cao: 'TR004', year: '3rd Year', skills: ['Finance', 'Excel'],     initials: 'WM', color: '#EFF6FF' },
+  { name: 'Abdullah', uni: 'UCC',  course: 'Computer Science',           cao: 'CK401', year: '4th Year', skills: ['Java', 'React'],        initials: 'AB', color: '#F0FDF4' },
+  { name: 'Siobhan',  uni: 'UL',   course: 'Nursing',                    cao: 'LM116', year: '2nd Year', skills: ['Biology', 'Health'],    initials: 'SB', color: '#FDF4FF' },
+  { name: 'Ciaran',   uni: 'MTU',  course: 'Civil Engineering',          cao: 'CK600', year: '3rd Year', skills: ['AutoCAD', 'Surveying'], initials: 'CI', color: '#FFF7ED' },
+  { name: 'Aoife',    uni: 'UCD',  course: 'Arts',                       cao: 'DN001', year: '1st Year', skills: ['Writing', 'History'],   initials: 'AF', color: '#F0F9FF' },
+  { name: 'Emily',    uni: 'DCU',  course: 'Journalism',                 cao: 'DC118', year: '2nd Year', skills: ['Writing', 'Social'],    initials: 'EM', color: '#FEF9C3' },
+  { name: 'Zafur',    uni: 'TCD',  course: 'Computer Science',           cao: 'TR064', year: '3rd Year', skills: ['Python', 'AI/ML'],      initials: 'ZF', color: '#EFF6FF' },
+  { name: 'Maura',    uni: 'UCC',  course: 'Law',                        cao: 'CK200', year: '4th Year', skills: ['Research', 'Advocacy'], initials: 'MR', color: '#F0FDF4' },
+  { name: 'Billy',    uni: 'UL',   course: 'Sports Science',             cao: 'LM051', year: '2nd Year', skills: ['Fitness', 'Coaching'],  initials: 'BL', color: '#FDF4FF' },
+  { name: 'Oisin',    uni: 'NUIG', course: 'Marine Science',             cao: 'GY301', year: '3rd Year', skills: ['Research', 'Data'],     initials: 'OS', color: '#FFF7ED' },
+  { name: 'Sinead',   uni: 'UCD',  course: 'Psychology',                 cao: 'DN200', year: '2nd Year', skills: ['Research', 'Stats'],    initials: 'SD', color: '#F0F9FF' },
+  { name: 'Kofi',     uni: 'TCD',  course: 'Engineering',                cao: 'TR008', year: '3rd Year', skills: ['Circuits', 'Python'],   initials: 'KF', color: '#FEF9C3' },
+  { name: 'Seamus',   uni: 'ATU',  course: 'Business',                   cao: 'GA201', year: '1st Year', skills: ['Sales', 'Marketing'],   initials: 'SM', color: '#EFF6FF' },
+  { name: 'Sean',     uni: 'UCC',  course: 'Business & French',          cao: 'CK218', year: '2nd Year', skills: ['French', 'Finance'],    initials: 'SN', color: '#F0FDF4' },
+  { name: 'David',    uni: 'UCD',  course: 'Finance',                    cao: 'DN155', year: '3rd Year', skills: ['Excel', 'Bloomberg'],   initials: 'DV', color: '#FDF4FF' },
+  { name: 'Isaac',    uni: 'DCU',  course: 'International Business',     cao: 'DC200', year: '2nd Year', skills: ['Languages', 'Trade'],   initials: 'IC', color: '#FFF7ED' },
+  { name: 'Basmali',  uni: 'TCD',  course: 'Pharmacy',                   cao: 'TR251', year: '3rd Year', skills: ['Chemistry', 'Science'], initials: 'BM', color: '#F0F9FF' },
+  { name: 'Fatima',   uni: 'UCC',  course: 'Social Work',                cao: 'CK730', year: '1st Year', skills: ['Empathy', 'Policy'],    initials: 'FT', color: '#FEF9C3' },
+  { name: 'Sienna',   uni: 'NUIG', course: 'Marketing',                  cao: 'GY201', year: '2nd Year', skills: ['Branding', 'Content'],  initials: 'SI', color: '#EFF6FF' },
+  { name: 'Alex',     uni: 'UL',   course: 'Architecture',               cao: 'LM085', year: '4th Year', skills: ['Revit', 'SketchUp'],   initials: 'AX', color: '#F0FDF4' },
+  { name: 'Daniel',   uni: 'UCD',  course: 'Commerce',                   cao: 'DN130', year: '2nd Year', skills: ['Accounting', 'Law'],    initials: 'DN', color: '#FDF4FF' },
 ]
 
 const DISCUSSIONS = [
-  {
-    module: 'CS2001',
-    question: 'What\'s the best way to approach Big O notation for the upcoming exam?',
-    replies: 14, university: 'UCD', time: '2h ago',
-  },
-  {
-    module: 'MG4021',
-    question: 'Looking for Week 6 lecture notes for Consumer Behaviour — anyone have them?',
-    replies: 7, university: 'UL', time: '5h ago',
-  },
-  {
-    module: 'LA1102',
-    question: 'Can anyone explain the difference between void and voidable contracts?',
-    replies: 22, university: 'TCD', time: '1d ago',
-  },
+  { module: 'CS2001', question: "What's the best way to approach Big O notation for the upcoming exam?", replies: 14, university: 'UCD', time: '2h ago' },
+  { module: 'MG4021', question: 'Looking for Week 6 lecture notes for Consumer Behaviour — anyone have them?', replies: 7, university: 'UL', time: '5h ago' },
+  { module: 'LA1102', question: 'Can anyone explain the difference between void and voidable contracts?', replies: 22, university: 'TCD', time: '1d ago' },
 ]
 
 const MENTORS = [
@@ -210,7 +187,6 @@ function CampusTab() {
 
   return (
     <View>
-      {/* University search */}
       <View style={styles.searchWrap}>
         <Search size={16} color={colors.muted} />
         <TextInput
@@ -222,7 +198,6 @@ function CampusTab() {
         />
       </View>
 
-      {/* Feature tiles */}
       <SectionHeader eyebrow="What's Available" title="Campus Features" style={{ marginTop: spacing.lg }} />
       <View style={{ gap: 12 }}>
         {CAMPUS_FEATURES.map(({ icon: Icon, color, title, sub, count, isNew }) => (
@@ -249,7 +224,6 @@ function CampusTab() {
         ))}
       </View>
 
-      {/* Campus Boards preview */}
       <SectionHeader eyebrow="Community Boards" title="Campus Boards" style={{ marginTop: spacing.xl }} />
       <MockContentBanner
         title="Campus Boards — Live Soon"
@@ -282,7 +256,6 @@ function CampusTab() {
         ))}
       </ScrollView>
 
-      {/* Project Collaboration — open projects */}
       <SectionHeader eyebrow="Project Collaboration" title="Open Projects" style={{ marginTop: spacing.xl }} />
       <View style={{ gap: 12 }}>
         {PROJECTS.map((p, i) => (
@@ -313,17 +286,13 @@ function CampusTab() {
         ))}
       </View>
 
-      {/* Carpooling */}
       <SectionHeader eyebrow="Active Routes" title="Carpooling" style={{ marginTop: spacing.xl }} />
-
-      {/* Safety banner */}
       <View style={styles.safetyBanner}>
         <AlertCircle size={15} color='#92400E' />
         <Text style={styles.safetyBannerText}>
           Always verify carpool drivers through your campus student services before travelling.
         </Text>
       </View>
-
       <View style={{ gap: 10, marginTop: spacing.sm }}>
         {CARPOOL_POSTS.map((post, i) => (
           <Card key={i} style={styles.carpoolCard}>
@@ -345,7 +314,6 @@ function CampusTab() {
         ))}
       </View>
 
-      {/* Campus Advertisement Board */}
       <SectionHeader eyebrow="Student Ads" title="Advertisement Board" style={{ marginTop: spacing.xl }} />
       <View style={styles.adsGrid}>
         {CAMPUS_AD_POSTS.map((ad, i) => (
@@ -374,7 +342,6 @@ function CampusTab() {
 function CourseTab() {
   return (
     <View>
-      {/* Stats bar */}
       <View style={styles.statsBanner}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>1,200+</Text>
@@ -392,7 +359,6 @@ function CourseTab() {
         </View>
       </View>
 
-      {/* Feature tiles */}
       <SectionHeader eyebrow="Academic Support" title="Course Tools" style={{ marginTop: spacing.lg }} />
       <View style={{ gap: 12 }}>
         {COURSE_FEATURES.map(({ icon: Icon, color, title, sub, count }) => (
@@ -412,7 +378,6 @@ function CourseTab() {
         ))}
       </View>
 
-      {/* Popular notes */}
       <SectionHeader eyebrow="Recently Shared" title="Popular Notes" style={{ marginTop: spacing.xl }} />
       <View style={{ gap: 10 }}>
         {RECENT_NOTES.map((note, i) => (
@@ -435,7 +400,7 @@ function CourseTab() {
         ))}
       </View>
 
-      {/* Student Database */}
+      {/* Student Database — all 27 names */}
       <SectionHeader eyebrow="Student Network" title="Student Database" style={{ marginTop: spacing.xl }} />
       <MockContentBanner
         title="Full database coming soon"
@@ -455,6 +420,7 @@ function CourseTab() {
               </View>
               <Text style={styles.studentName} numberOfLines={1}>{s.name}</Text>
               <Text style={styles.studentUni}>{s.uni}</Text>
+              <Text style={styles.studentCao}>{s.cao}</Text>
               <Text style={styles.studentCourse} numberOfLines={2}>{s.course}</Text>
               <View style={styles.studentSkills}>
                 {s.skills.slice(0, 2).map(sk => (
@@ -468,7 +434,6 @@ function CourseTab() {
         ))}
       </ScrollView>
 
-      {/* Discussions */}
       <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
       <MockContentBanner
         title="Discussions — Building Now"
@@ -495,7 +460,6 @@ function CourseTab() {
         ))}
       </View>
 
-      {/* Mentorship */}
       <SectionHeader eyebrow="Graduate Mentors" title="Mentorship" style={{ marginTop: spacing.xl }} />
       <MockContentBanner
         title="Mentorship Programme — Coming Soon"
@@ -545,7 +509,6 @@ export default function ConnectScreen() {
       <TopBar />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
-        {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroEyebrow}>COMMUNITY</Text>
           <Text style={styles.heroTitle}>Connect</Text>
@@ -554,7 +517,6 @@ export default function ConnectScreen() {
           </Text>
         </View>
 
-        {/* Tab switcher */}
         <View style={styles.tabRow}>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'campus' && styles.tabBtnActive]}
@@ -628,22 +590,15 @@ const styles = StyleSheet.create({
 
   rowScroll: { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
 
-  // Campus Boards
-  boardCard: {
-    width: 220, borderRadius: radius.card,
-    padding: 14, marginRight: 12,
-  },
+  boardCard: { width: 220, borderRadius: radius.card, padding: 14, marginRight: 12 },
   boardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   boardEmoji: { fontSize: 22 },
   boardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   boardCount: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
-  boardPost: {
-    backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 6, padding: 8,
-  },
+  boardPost: { backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 6, padding: 8 },
   boardPostText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy, lineHeight: 16 },
   boardPostTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 3 },
 
-  // Projects
   projectCard: { padding: 16 },
   projectTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, lineHeight: 21 },
   projectTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
@@ -652,13 +607,9 @@ const styles = StyleSheet.create({
   projectFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 },
   projectMeta: { flexDirection: 'row', gap: 5, alignItems: 'center' },
   projectMetaText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  joinBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
-    paddingHorizontal: 18, paddingVertical: 8,
-  },
+  joinBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 18, paddingVertical: 8 },
   joinBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
-  // Safety banner
   safetyBanner: {
     backgroundColor: '#FEF3C7', borderRadius: radius.button,
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
@@ -677,7 +628,6 @@ const styles = StyleSheet.create({
   seatBadge: { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   seatBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
 
-  // Campus Ads Grid
   adsGrid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -6 },
   adsCell: { width: '50%', padding: 6 },
   adGridCard: { padding: 14, borderRadius: radius.card, minHeight: 120 },
@@ -697,31 +647,27 @@ const styles = StyleSheet.create({
   statDivider: { width: 1, height: 32, backgroundColor: 'rgba(245,240,232,0.15)' },
 
   noteCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
-  noteModuleBadge: {
-    backgroundColor: colors.navy, borderRadius: radius.badge,
-    paddingHorizontal: 8, paddingVertical: 5, flexShrink: 0,
-  },
+  noteModuleBadge: { backgroundColor: colors.navy, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 5, flexShrink: 0 },
   noteModuleText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.cream },
   noteTitle: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, lineHeight: 18 },
   noteMeta: { flexDirection: 'row', gap: 5, marginTop: 3 },
   noteMetaText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
 
-  // Student profiles
-  studentCard: { width: 140, borderRadius: radius.card, padding: 14, marginRight: 12, alignItems: 'center' },
+  studentCard: { width: 148, borderRadius: radius.card, padding: 14, marginRight: 12, alignItems: 'center' },
   studentAvatar: {
     width: 48, height: 48, borderRadius: 24,
-    backgroundColor: 'rgba(30,58,95,0.1)',
+    backgroundColor: 'rgba(30,58,95,0.12)',
     alignItems: 'center', justifyContent: 'center', marginBottom: 10,
   },
   studentInitials: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
   studentName: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textAlign: 'center' },
   studentUni: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, opacity: 0.5, marginTop: 2 },
+  studentCao: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 1 },
   studentCourse: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, textAlign: 'center', marginTop: 3, lineHeight: 15 },
   studentSkills: { flexDirection: 'row', gap: 4, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' },
   skillPill: { backgroundColor: 'rgba(30,58,95,0.1)', borderRadius: radius.badge, paddingHorizontal: 7, paddingVertical: 3 },
   skillPillText: { fontFamily: fonts.sans, fontSize: 10, color: colors.navy },
 
-  // Discussions
   discussionCard: { padding: 14 },
   discussionTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   discussionTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
@@ -730,7 +676,6 @@ const styles = StyleSheet.create({
   discussionReplies: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, flex: 1 },
   discussionUni: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, opacity: 0.6 },
 
-  // Mentors
   mentorCard: { padding: 16, borderRadius: radius.card },
   mentorTop: { flexDirection: 'row', alignItems: 'flex-start' },
   mentorAvatar: {

@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 
 const { width } = Dimensions.get('window')
+const ubpLogo = require('../../../assets/ubp-logo.png')
 
 const SLIDES = [
   {
@@ -50,14 +51,17 @@ export default function WelcomeScreen({ navigation }) {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
 
-      {/* Skip */}
-      <TouchableOpacity
-        style={styles.skipBtn}
-        activeOpacity={0.7}
-        onPress={() => navigation.navigate('SignIn')}
-      >
-        <Text style={styles.skipText}>Sign in</Text>
-      </TouchableOpacity>
+      {/* Logo header */}
+      <View style={styles.logoHeader}>
+        <Image source={ubpLogo} style={styles.headerLogo} resizeMode="contain" />
+        <TouchableOpacity
+          style={styles.skipBtn}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('SignIn')}
+        >
+          <Text style={styles.skipText}>Sign in</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Slides */}
       <ScrollView
@@ -121,7 +125,16 @@ export default function WelcomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
-  skipBtn: { alignSelf: 'flex-end', paddingHorizontal: spacing.md, paddingVertical: 12 },
+
+  logoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 8,
+  },
+  headerLogo: { width: 130, height: 36 },
+  skipBtn: { paddingVertical: 12 },
   skipText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
 
   slide: {

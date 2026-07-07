@@ -1,14 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Bell, User } from 'lucide-react-native'
 import { colors, fonts } from '../../constants/theme'
+
+const ubpLogo = require('../../../assets/ubp-logo.png')
 
 export default function TopBar({ notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
-      <Text style={styles.logo}>UniBlueprint</Text>
+      <Image source={ubpLogo} style={styles.logo} resizeMode="contain" />
       <View style={styles.right}>
         <TouchableOpacity
           onPress={onBellPress}
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  logo: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  logo: { width: 120, height: 32 },
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconButton: {
     position: 'relative', width: 40, height: 40,

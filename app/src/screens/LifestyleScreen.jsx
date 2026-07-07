@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native'
-import { Heart, ShoppingBag, PiggyBank, Tag, ChevronRight, X, User } from 'lucide-react-native'
+import { Heart, ShoppingBag, PiggyBank, Tag, ChevronRight, X, ExternalLink } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -10,64 +10,101 @@ const PARTNERS = [
   {
     brand: 'Whip Wizardz',
     logo: require('../../assets/whip-wizardz-logo.png.png'),
+    initials: 'WW', initBg: '#1E3A5F',
     discount: 'Student Deal',
-    category: 'Car Sales',
+    category: 'Automotive',
     color: '#EFF6FF',
-    description: 'Premium car sales and finance services tailored for students and young drivers. Whip Wizardz offer competitive student pricing on quality used vehicles, with flexible finance options to suit your budget.',
-    contact: 'whipwizardz.ie',
-    deal: 'Show your student ID in-store for exclusive student pricing on all vehicles.',
+    description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Whip Wizardz offers vehicle sales, sourcing, inspections, repairs, bodywork, detailing, import services, and consignment — everything automotive in one place.',
+    dealText: 'Book via WhatsApp, phone, or social media for your appointment. Student-friendly pricing across all services.',
+    contact: 'WhatsApp / Phone / Social Media',
+    services: ['Vehicle Sales & Sourcing', 'Inspections', 'Repairs & Bodywork', 'Detailing', 'Import & Consignment'],
   },
   {
     brand: 'The Nail Nurse',
     logo: null,
-    tnn: true,
-    discount: 'Student Rate',
+    initials: 'TNN', initBg: '#B8860B',
+    discount: 'Student Discount',
     category: 'Nail & Beauty',
     color: '#FDF4FF',
-    description: 'Professional nail and beauty treatments with exclusive student rates. Expert nail technician offering gel, acrylic, and nail art services with premium products and a relaxed studio experience.',
-    contact: 'Book via Instagram @thenailnurse',
-    deal: 'Mention UniBlueprint when booking for your student rate on all treatments.',
+    description: 'Professional nail technician based in Galway. The Nail Nurse (@theenailnurse__) offers a full range of nail treatments at student-friendly prices. Student discount available with valid student ID.',
+    dealText: 'Show your valid student ID when booking for your student discount across all treatments. DM on Instagram to book your appointment.',
+    contact: '@theenailnurse__ · Instagram · Galway',
+    pricelist: [
+      { label: 'Acrylic Full Set', price: '€25–€35' },
+      { label: 'Infill / Rebalance', price: '€20–€30' },
+      { label: 'Gel Polish (hands)', price: '€20–€25' },
+      { label: 'Gel Polish (toes)', price: '€20–€21' },
+      { label: 'Gel Polish removal', price: '€6–€8' },
+      { label: 'Basic Manicure', price: '€15' },
+      { label: 'Luxury Manicure', price: '€20–€21' },
+      { label: 'Nail Art (per nail)', price: '€3.50+' },
+      { label: 'Nail Art (full set add-on)', price: '€10+' },
+    ],
+    services: ['Acrylic Nails', 'Gel Polish', 'Manicures', 'Nail Art', 'Student Discount'],
   },
   {
-    brand: 'JMC Fitness',
-    logo: require('../../assets/jmc-fitness-logo.png.jpeg'),
-    discount: 'Reduced Membership',
-    category: 'Fitness & Coaching',
-    color: '#F0FDF4',
-    description: 'Elite sports coaching offering online and in-person training, dietary guidance, specialist football coaching, and connections to professional agents. Fully tailored programmes for student athletes.',
-    contact: 'jmcfitness.ie',
-    deal: 'Student reduced membership and discounted 1-to-1 sessions available. Contact JMC directly with your student details.',
-  },
-  {
-    brand: 'NYZ3DITZ Studio',
+    brand: 'Nyz3ditz',
     logo: require('../../assets/nyz3ditz-logo.png.jpeg'),
-    discount: 'Student Rate',
+    initials: 'N3', initBg: '#C2410C',
+    discount: 'From €55/month',
     category: 'Photography & Video',
     color: '#FFF7ED',
-    description: 'Professional photography and videography services at student-friendly rates. Portrait sessions, event coverage, content creation packages, and editing services available.',
-    contact: 'nyz3ditz.com',
-    deal: 'Student rate applies to portrait sessions and content creation packages. Book in advance to secure your slot.',
+    description: 'Nathan Yanzo (@Nyz3ditz) is a professional photographer and videographer offering mentorship and 1-1 shoot sessions for students building their creative skills. Monthly subscription includes Zoom calls and editing guidance.',
+    dealText: 'Monthly subscription €55/month — includes Zoom calls and editing guidance. 1-1 shoot session €90 covering lighting and composition. WhatsApp +353 85 7272 875 or DM @Nyz3ditz to book.',
+    contact: '@Nyz3ditz · WhatsApp +353 85 7272 875',
+    pricelist: [
+      { label: 'Monthly Subscription', price: '€55/month' },
+      { label: '1-1 Shoot Session', price: '€90' },
+    ],
+    services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Editing Guidance', 'Lighting & Composition'],
   },
   {
     brand: 'Energie Fitness',
     logo: require('../../assets/energie-fitness-logo.png.jpeg'),
-    discount: 'Reduced Membership',
+    initials: 'EF', initBg: '#0369A1',
+    discount: '€37.99/month',
     category: 'Gym & Fitness',
     color: '#F0F9FF',
-    description: 'Join Energie Fitness with an exclusive reduced student membership. Access full gym facilities, group fitness classes, and wellness programmes at special student pricing across Irish locations.',
-    contact: 'energiefitness.ie',
-    deal: 'Show your student ID at any Energie Fitness location to access student membership pricing.',
+    description: 'Join Energie Fitness with an exclusive student membership at €37.99/month — compared to the standard rate of €39.99–€44.99/month. Joining fee is €15 (normally €30). Setup must be done in person at the gym.',
+    dealText: 'Student membership: €37.99/month (normal €39.99–€44.99). Student joining fee: €15 (normal €30). Must be set up in person. Open Mon–Fri 6am–10pm, Sat–Sun 9am–5pm.',
+    contact: 'Set up in-person at your nearest Energie Fitness location',
+    pricelist: [
+      { label: 'Student Monthly', price: '€37.99/month' },
+      { label: 'Student Joining Fee', price: '€15' },
+      { label: 'Standard Monthly', price: '€39.99–€44.99' },
+      { label: 'Standard Joining Fee', price: '€30' },
+    ],
+    services: ['Full Gym Access', 'Group Classes', 'Wellness Programmes', 'Student Rate'],
+    hours: 'Mon–Fri 6am–10pm · Sat–Sun 9am–5pm',
+  },
+  {
+    brand: 'JMC Fitness',
+    logo: require('../../assets/jmc-fitness-logo.png.jpeg'),
+    initials: 'JMC', initBg: '#15803D',
+    discount: 'From €50/hr',
+    category: 'Sports Coaching',
+    color: '#F0FDF4',
+    description: 'Elite sports coaching offering fully personalised programmes. JMC Fitness provides online coaching, in-person training sessions on North Dublin 4G Astro, dietary guidance, specialist football coaching, and connections to professional agents.',
+    dealText: 'Book directly through the Elevation Blueprint section. 12-week online plan at €300. In-person sessions €50/hr. Analytics breakdown €100.',
+    contact: 'Book via Elevation Blueprint',
+    pricelist: [
+      { label: '12-Week Online Plan', price: '€300' },
+      { label: 'In-Person Session (1hr)', price: '€50' },
+      { label: 'Analytics Breakdown', price: '€100' },
+    ],
+    services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics', 'Dietary Guidance', 'Agent Connections'],
   },
   {
     brand: 'Emmanuel Fasanmi',
     logo: null,
-    userIcon: true,
+    initials: 'EF', initBg: '#7C3AED',
     discount: 'Pricing TBC',
     category: 'Academic Grinds',
     color: '#FEF9C3',
     description: 'One-to-one and small group grinds in Maths, Physics, and Biology for Leaving Certificate and university students across Dublin. Sessions are structured, focused, and built around where you actually need to improve.',
+    dealText: 'Contact Emmanuel through the Elevation Blueprint section to discuss your needs and book sessions. Pricing to be confirmed.',
     contact: 'Book via Elevation Blueprint',
-    deal: 'Contact Emmanuel through the Elevation Blueprint section to discuss your needs and book sessions.',
+    services: ['Maths Grinds', 'Physics Grinds', 'Biology Grinds'],
   },
 ]
 
@@ -94,7 +131,7 @@ const DISCOUNT_CATEGORIES = [
   { label: 'Food & Drink', count: 3, color: '#FFF7ED', icon: '🍕' },
   { label: 'Fitness & Sport', count: 2, color: '#FEF9C3', icon: '🏋️' },
   { label: 'Creative', count: 1, color: '#FDF4FF', icon: '🎬' },
-  { label: 'Car Services', count: 2, color: '#EFF6FF', icon: '🚗' },
+  { label: 'Car Services', count: 1, color: '#EFF6FF', icon: '🚗' },
   { label: 'Marketing', count: 1, color: '#F0FDF4', icon: '📱' },
   { label: 'Education', count: 1, color: '#F0F9FF', icon: '📚' },
   { label: 'Beauty', count: 1, color: '#FDF4FF', icon: '✨' },
@@ -106,21 +143,17 @@ function PartnerLogo({ partner, size = 56 }) {
     return (
       <Image
         source={partner.logo}
-        style={{ width: size, height: size - 8, marginBottom: 10 }}
-        resizeMode="contain"
+        style={{ width: size, height: size, borderRadius: size / 2, marginBottom: 10 }}
+        resizeMode="cover"
       />
     )
   }
-  if (partner.tnn) {
-    return (
-      <View style={[styles.partnerLogoCircle, { width: size, height: size, borderRadius: size / 2, backgroundColor: '#B8860B', marginBottom: 10 }]}>
-        <Text style={styles.tnnText}>TNN</Text>
-      </View>
-    )
-  }
   return (
-    <View style={[styles.partnerLogoCircle, { width: size, height: size, borderRadius: size / 2, backgroundColor: 'rgba(30,58,95,0.1)', marginBottom: 10 }]}>
-      <User size={size * 0.4} color={colors.navy} />
+    <View style={[
+      styles.partnerInitialsCircle,
+      { width: size, height: size, borderRadius: size / 2, backgroundColor: partner.initBg, marginBottom: 10 },
+    ]}>
+      <Text style={[styles.partnerInitialsText, { fontSize: size > 48 ? 14 : 11 }]}>{partner.initials}</Text>
     </View>
   )
 }
@@ -133,7 +166,6 @@ export default function LifestyleScreen() {
       <TopBar />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroEyebrow}>LIFESTYLE</Text>
           <Text style={styles.heroTitle}>Lifestyle Blueprint</Text>
@@ -279,7 +311,7 @@ export default function LifestyleScreen() {
         >
           <View style={styles.modalSheet} onStartShouldSetResponder={() => true}>
             {selectedPartner && (
-              <>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.modalHandle} />
                 <View style={styles.modalHeader}>
                   <PartnerLogo partner={selectedPartner} size={52} />
@@ -299,9 +331,43 @@ export default function LifestyleScreen() {
                 <Text style={styles.modalSectionLabel}>ABOUT</Text>
                 <Text style={styles.modalDescription}>{selectedPartner.description}</Text>
 
+                {/* Service tags */}
+                {selectedPartner.services && (
+                  <View style={styles.modalServices}>
+                    {selectedPartner.services.map(s => (
+                      <View key={s} style={styles.modalServicePill}>
+                        <Text style={styles.modalServicePillText}>{s}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {/* Pricelist if available */}
+                {selectedPartner.pricelist && (
+                  <>
+                    <Text style={[styles.modalSectionLabel, { marginTop: 16 }]}>PRICING</Text>
+                    <View style={styles.modalPricelist}>
+                      {selectedPartner.pricelist.map(p => (
+                        <View key={p.label} style={styles.modalPriceRow}>
+                          <Text style={styles.modalPriceLabel}>{p.label}</Text>
+                          <Text style={styles.modalPriceValue}>{p.price}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </>
+                )}
+
+                {/* Hours if available */}
+                {selectedPartner.hours && (
+                  <View style={styles.modalHoursRow}>
+                    <Text style={styles.modalSectionLabel}>OPENING HOURS</Text>
+                    <Text style={styles.modalHoursText}>{selectedPartner.hours}</Text>
+                  </View>
+                )}
+
                 <View style={[styles.modalDealBox, { backgroundColor: selectedPartner.color }]}>
                   <Text style={styles.modalDealLabel}>STUDENT DEAL</Text>
-                  <Text style={styles.modalDealText}>{selectedPartner.deal}</Text>
+                  <Text style={styles.modalDealText}>{selectedPartner.dealText}</Text>
                 </View>
 
                 <View style={styles.modalContactRow}>
@@ -312,7 +378,7 @@ export default function LifestyleScreen() {
                 <TouchableOpacity style={styles.modalCta} activeOpacity={0.8} onPress={() => setSelectedPartner(null)}>
                   <Text style={styles.modalCtaText}>Got It</Text>
                 </TouchableOpacity>
-              </>
+              </ScrollView>
             )}
           </View>
         </TouchableOpacity>
@@ -339,11 +405,11 @@ const styles = StyleSheet.create({
   rowScroll: { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
 
   dealCard: {
-    width: 148, borderRadius: radius.card,
+    width: 152, borderRadius: radius.card,
     padding: 14, marginRight: 12, alignItems: 'center',
   },
-  partnerLogoCircle: { alignItems: 'center', justifyContent: 'center' },
-  tnnText: { fontFamily: fonts.serif, fontSize: 18, color: '#FFFFFF' },
+  partnerInitialsCircle: { alignItems: 'center', justifyContent: 'center' },
+  partnerInitialsText: { fontFamily: fonts.sansBold, color: '#FFFFFF' },
   dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textAlign: 'center', lineHeight: 18 },
   dealDiscount: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.navy, marginTop: 4, textAlign: 'center' },
   dealCategoryBadge: {
@@ -402,7 +468,7 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
   modalSheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: spacing.md, paddingBottom: 36,
+    padding: spacing.md, paddingBottom: 36, maxHeight: '90%',
   },
   modalHandle: {
     width: 36, height: 4, backgroundColor: 'rgba(30,58,95,0.15)',
@@ -422,6 +488,28 @@ const styles = StyleSheet.create({
   modalDivider: { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: 16 },
   modalSectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, marginBottom: 8 },
   modalDescription: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 22 },
+
+  modalServices: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+  modalServicePill: {
+    backgroundColor: colors.cream, borderRadius: radius.badge,
+    paddingHorizontal: 10, paddingVertical: 4,
+  },
+  modalServicePillText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
+
+  modalPricelist: {
+    backgroundColor: colors.cream, borderRadius: radius.button, overflow: 'hidden',
+  },
+  modalPriceRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 14, paddingVertical: 10,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)',
+  },
+  modalPriceLabel: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
+  modalPriceValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+
+  modalHoursRow: { marginTop: 16 },
+  modalHoursText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
+
   modalDealBox: { borderRadius: radius.card, padding: 14, marginTop: 16 },
   modalDealLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, letterSpacing: 0.8, opacity: 0.6, marginBottom: 6 },
   modalDealText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy, lineHeight: 20 },
@@ -430,7 +518,7 @@ const styles = StyleSheet.create({
     marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
   },
   modalContactLabel: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
-  modalContactValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  modalContactValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, flex: 1, textAlign: 'right', marginLeft: 8 },
   modalCta: {
     backgroundColor: colors.navy, borderRadius: radius.button,
     height: 50, alignItems: 'center', justifyContent: 'center', marginTop: 16,
