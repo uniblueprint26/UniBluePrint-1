@@ -48,4 +48,5 @@ export interface SessionUser {
   full_name: string
   university: string | null
   role: Role
+  access_code: string
 }

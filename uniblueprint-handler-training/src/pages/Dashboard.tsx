@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle, Circle, Clock, Lock, XCircle } from 'lucide-react'
 import Header from '../components/Header'
+import LoginDetailsCard from '../components/LoginDetailsCard'
 import { useAuth } from '../context/AuthContext'
 import { MODULES } from '../data/modules'
 import { fetchProgress, isUnlocked, statusFor } from '../lib/progress'
@@ -83,6 +84,14 @@ export default function Dashboard() {
         <p className="mt-2 text-[16px] text-muted">
           Complete all 6 modules to become an active Campus Handler.
         </p>
+      </div>
+
+      <div className="mx-4 mt-4">
+        <LoginDetailsCard
+          email={user.email}
+          accessCode={user.access_code}
+          className="bg-card shadow-card"
+        />
       </div>
 
       <div className="bg-card rounded-card shadow-card p-5 mx-4 mt-4">

@@ -53,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       full_name: data.full_name,
       university: data.university,
       role: data.role,
+      access_code: data.access_code,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionUser))
     setUser(sessionUser)
