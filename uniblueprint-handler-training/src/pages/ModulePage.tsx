@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
@@ -57,8 +57,7 @@ export default function ModulePage() {
   }, [user, moduleId])
 
   if (!moduleMeta || !Number.isFinite(moduleId)) {
-    navigate('/dashboard', { replace: true })
-    return null
+    return <Navigate to="/dashboard" replace />
   }
 
   if (loadError) {
@@ -81,8 +80,7 @@ export default function ModulePage() {
   }
 
   if (!isUnlocked(moduleId, progress)) {
-    navigate('/dashboard', { replace: true })
-    return null
+    return <Navigate to="/dashboard" replace />
   }
 
   const status = statusFor(moduleId, progress)

@@ -308,6 +308,21 @@ export const MODULE_CONTENT: Record<number, ReactNode> = {
         after you. Take the extra thirty seconds before you click Approve.
       </Callout>
 
+      <h2>After Delivery: Feedback & Ratings</h2>
+      <p>
+        The ticket doesn't end for you the moment you click Approve. Students can leave feedback
+        and a rating on the service they received — and that feedback is attached to your review.
+      </p>
+      <Callout type="warning">
+        Check back on your feedback and ratings regularly. Don't deliver a ticket and forget about
+        it — following up is part of the job, not optional.
+      </Callout>
+      <p>
+        If a rating comes back low, read the feedback properly before reacting. It's there to help
+        you improve, the same way a rejected flag from Operations is (Module 5). If a pattern shows
+        up across multiple tickets, that's exactly the kind of thing worth adjusting for next time.
+      </p>
+
       <h2>Timestamps Matter</h2>
       <p>
         Every stage change is timestamped and visible to Operations. This is how your speed and
@@ -417,6 +432,10 @@ export const MODULE_CONTENT: Record<number, ReactNode> = {
         Every review you approve carries your judgement. If something goes wrong after delivery,
         Operations will look at what was approved and why.
       </Callout>
+      <p>
+        That includes student feedback and ratings, covered in Module 4 — checking back on them
+        isn't a courtesy, it's part of how your work as a Handler is measured.
+      </p>
 
       <h2>The Standard</h2>
       <Callout type="success">

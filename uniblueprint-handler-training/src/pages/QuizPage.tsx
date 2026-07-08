@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { CheckCircle, XCircle } from 'lucide-react'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
@@ -34,8 +34,7 @@ export default function QuizPage() {
   }, [user])
 
   if (!moduleMeta || !questions) {
-    navigate('/dashboard', { replace: true })
-    return null
+    return <Navigate to="/dashboard" replace />
   }
 
   if (loadError) {
@@ -58,8 +57,7 @@ export default function QuizPage() {
   }
 
   if (!isUnlocked(moduleId, progress)) {
-    navigate('/dashboard', { replace: true })
-    return null
+    return <Navigate to="/dashboard" replace />
   }
 
   const question = questions[index]
