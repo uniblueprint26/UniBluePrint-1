@@ -51,6 +51,13 @@ Outputs to `dist/`.
    page.
 3. The portal is live at a Netlify URL immediately — no configuration needed.
 
+Note: a drag-and-drop deploy without a Netlify account is temporary (live for 1 hour, and
+password-protected). To keep it live permanently with no password, sign up for a free Netlify
+account and claim the deploy (a "Save to your team" prompt appears right after dropping the
+folder), or redo the drag-and-drop while logged in via **Add new site → Deploy manually**.
+
+**Current live deploy:** https://sweet-crumble-b6ae02.netlify.app/
+
 Note: `dist/` is a static build with the Supabase URL and anon key baked in at build time (via
 `.env`), so make sure `.env` is set correctly before running `npm run build`.
 
@@ -66,6 +73,5 @@ Note: `dist/` is a static build with the Supabase URL and anon key baked in at b
 
 ## Content
 
-Module body content (`src/pages/ModulePage.tsx`) currently uses placeholder copy. Quiz
-questions for modules 2, 3, and 5 are hardcoded in `src/data/quizzes.ts` with the placeholder
-question sets — swap in the real ones there.
+Module body content lives in `src/data/moduleContent.tsx` (one entry per module, 1–6), rendered
+inside `ModulePage.tsx`. Quiz questions for modules 2, 3, and 5 are in `src/data/quizzes.ts`.
