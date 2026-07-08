@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { BookOpen, CheckCircle } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import { getModule, MODULES } from '../data/modules'
+import { MODULE_CONTENT } from '../data/moduleContent'
 import { fetchProgress, isUnlocked, statusFor, upsertProgress } from '../lib/progress'
 import { supabase } from '../lib/supabase'
 import type { TrainingProgress } from '../lib/types'
@@ -19,6 +20,27 @@ export default function ModulePage() {
   const [completing, setCompleting] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
   const [loadError, setLoadError] = useState(false)
+  const [hasReachedEnd, setHasReachedEnd] = useState(false)
+  const endRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = endRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasReachedEnd(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+    // `progress` becomes non-null once the module's real content (and the
+    // sentinel div below) actually mounts, replacing the loading placeholder —
+    // the observer must be (re-)attached at that point, not just on first mount.
+  }, [moduleId, progress])
 
   useEffect(() => {
     if (!user) return
@@ -97,15 +119,16 @@ export default function ModulePage() {
 
       <div className="bg-card rounded-card shadow-card p-8 mx-4 mt-4">
         <div className="module-content">
-          <div className="callout callout-warning !mt-0">
-            <BookOpen size={22} className="text-navy shrink-0 mt-0.5" />
-            <p className="!mt-0 text-[15px] text-muted">
-              Module {moduleId} content loading — content will be added shortly.
-            </p>
-          </div>
+          {MODULE_CONTENT[moduleId]}
+          <div ref={endRef} className="h-px w-full" />
         </div>
 
         <div className="mt-8 pt-6 border-t border-navy/10">
+          {!hasReachedEnd && !isPassed && (
+            <p className="text-center text-[13px] text-faint mb-3">
+              Scroll to the end of the module to continue.
+            </p>
+          )}
           {moduleMeta.hasQuiz ? (
             isPassed ? (
               <div className="flex flex-col items-center gap-4">
@@ -125,7 +148,8 @@ export default function ModulePage() {
             ) : (
               <button
                 onClick={() => navigate(`/quiz/${moduleId}`)}
-                className="w-full h-[52px] rounded-lg bg-navy text-cream font-semibold text-[15px]"
+                disabled={!hasReachedEnd}
+                className="w-full h-[52px] rounded-lg bg-navy text-cream font-semibold text-[15px] disabled:opacity-50"
               >
                 Proceed to Quiz
               </button>
@@ -155,8 +179,8 @@ export default function ModulePage() {
           ) : (
             <button
               onClick={handleComplete}
-              disabled={completing}
-              className="w-full h-[52px] rounded-lg bg-navy text-cream font-semibold text-[15px] disabled:opacity-70"
+              disabled={completing || !hasReachedEnd}
+              className="w-full h-[52px] rounded-lg bg-navy text-cream font-semibold text-[15px] disabled:opacity-50"
             >
               {completing ? 'Saving...' : 'I have read and understood this module'}
             </button>

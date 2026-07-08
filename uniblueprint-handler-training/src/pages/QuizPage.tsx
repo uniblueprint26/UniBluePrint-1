@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CheckCircle, XCircle } from 'lucide-react'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import { getModule, MODULES } from '../data/modules'
 import { QUIZZES } from '../data/quizzes'
-import { upsertProgress } from '../lib/progress'
+import { fetchProgress, isUnlocked, upsertProgress } from '../lib/progress'
 import { supabase } from '../lib/supabase'
+import type { TrainingProgress } from '../lib/types'
 
 const PASS_THRESHOLD = 80
 
@@ -22,8 +23,41 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null)
+  const [progress, setProgress] = useState<TrainingProgress[] | null>(null)
+  const [loadError, setLoadError] = useState(false)
+
+  useEffect(() => {
+    if (!user) return
+    fetchProgress(user.id)
+      .then(setProgress)
+      .catch(() => setLoadError(true))
+  }, [user])
 
   if (!moduleMeta || !questions) {
+    navigate('/dashboard', { replace: true })
+    return null
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-svh bg-cream">
+        <Header backTo={`/module/${moduleId}`} />
+        <div className="mx-4 mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-[13px]">
+          Couldn't load this quiz. Check your connection and refresh the page.
+        </div>
+      </div>
+    )
+  }
+
+  if (!user || progress === null) {
+    return (
+      <div className="min-h-svh bg-cream">
+        <Header backTo={`/module/${moduleId}`} />
+      </div>
+    )
+  }
+
+  if (!isUnlocked(moduleId, progress)) {
     navigate('/dashboard', { replace: true })
     return null
   }
@@ -37,7 +71,7 @@ export default function QuizPage() {
   }
 
   const handleSubmit = async () => {
-    if (!user) return
+    if (!user || submitting) return
     setSubmitting(true)
     try {
       const correct = questions.reduce(
