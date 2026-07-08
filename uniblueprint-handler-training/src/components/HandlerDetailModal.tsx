@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { Check, Copy, X } from 'lucide-react'
 import { MODULES } from '../data/modules'
 import { supabase } from '../lib/supabase'
 import type { QuizAttempt, TrainingProgress, TrainingUser } from '../lib/types'
@@ -41,6 +41,15 @@ export default function HandlerDetailModal({
   const [notes, setNotes] = useState(handler.notes ?? '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [codeCopied, setCodeCopied] = useState(false)
+
+  const handleCopyLoginDetails = async () => {
+    await navigator.clipboard.writeText(
+      `Email: ${handler.email}\nAccess code: ${handler.access_code}`,
+    )
+    setCodeCopied(true)
+    setTimeout(() => setCodeCopied(false), 1500)
+  }
 
   useEffect(() => {
     supabase
@@ -80,6 +89,23 @@ export default function HandlerDetailModal({
         <p className="text-[13px] text-muted mt-1">
           {handler.email} {handler.university ? `· ${handler.university}` : ''}
         </p>
+
+        <div className="mt-4 flex items-center justify-between gap-4 rounded-lg bg-cream px-4 py-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-faint">
+              Login details
+            </p>
+            <p className="text-[14px] text-navy mt-1">{handler.email}</p>
+            <p className="text-[14px] text-navy font-mono tracking-wider">{handler.access_code}</p>
+          </div>
+          <button
+            onClick={handleCopyLoginDetails}
+            className="h-[36px] px-3 rounded-lg border border-navy/20 flex items-center gap-1.5 text-[13px] text-navy shrink-0"
+          >
+            {codeCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+            {codeCopied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
 
         <h3 className="text-[13px] font-semibold uppercase tracking-[0.05em] text-muted mt-6">
           Module progress
