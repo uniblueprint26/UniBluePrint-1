@@ -119,11 +119,7 @@ export default function SignUpPage() {
           fontSize: '12px', color: '#9CA3AF',
           textAlign: 'center', marginTop: '8px', lineHeight: 1.6,
         }}>
-          By creating an account you agree to UniBlueprint's{' '}
-          <a href="https://uniblueprint.com/terms" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Terms</a>
-          {' '}and{' '}
-          <a href="https://uniblueprint.com/privacy" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Privacy Policy</a>
-          .
+          By creating an account you agree to UniBlueprint's Terms and Privacy Policy.
         </p>
 
         <div style={{ marginTop: '8px' }}>

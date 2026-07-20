@@ -3,11 +3,10 @@ import { Helmet } from 'react-helmet-async'
 import Navbar from './Navbar'
 import Footer from './Footer'
 
-const SITE_URL = 'https://contributors.uniblueprint.com'
-
 export default function Layout() {
   const location = useLocation()
-  const canonical = `${SITE_URL}${location.pathname}`
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const canonical = `${siteUrl}${location.pathname}`
 
   return (
     <>

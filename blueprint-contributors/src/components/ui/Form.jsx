@@ -299,11 +299,7 @@ export function FormConsent() {
       margin: '0',
       lineHeight: 1.6,
     }}>
-      By submitting you agree to UniBlueprint's{' '}
-      <a href="https://uniblueprint.com/terms" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Terms</a>
-      {' '}and{' '}
-      <a href="https://uniblueprint.com/privacy" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Privacy Policy</a>
-      .
+      By submitting you agree to UniBlueprint's Terms and Privacy Policy.
     </p>
   )
 }

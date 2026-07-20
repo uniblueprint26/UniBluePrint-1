@@ -112,19 +112,7 @@ export default function SignInPage() {
           placeholder="••••••••"
         />
 
-        <div style={{ textAlign: 'right', marginTop: '-8px', marginBottom: '20px' }}>
-          <a
-            href="https://uniblueprint.com/forgot-password"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              color: '#1E3A5F',
-              fontWeight: '500',
-            }}
-          >
-            Forgot your password?
-          </a>
-        </div>
+        <div style={{ marginBottom: '20px' }} />
 
         <button
           type="submit"

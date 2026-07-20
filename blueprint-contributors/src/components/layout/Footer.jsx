@@ -20,15 +20,6 @@ const COLUMNS = [
       { label: 'FAQ', href: '/#faq' },
     ],
   },
-  {
-    title: 'UniBlueprint',
-    links: [
-      { label: 'Main site', href: 'https://uniblueprint.com' },
-      { label: 'About UniBlueprint', href: 'https://uniblueprint.com/about' },
-      { label: 'Terms', href: 'https://uniblueprint.com/terms' },
-      { label: 'Privacy Policy', href: 'https://uniblueprint.com/privacy' },
-    ],
-  },
 ]
 
 const colHeaderStyle = {
@@ -99,7 +90,7 @@ export default function Footer() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '32px', marginTop: '40px', maxWidth: '480px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'max-content', gap: '32px', marginTop: '40px' }}>
           {COLUMNS.map(col => <FooterColumn key={col.title} title={col.title} links={col.links} />)}
         </div>
 

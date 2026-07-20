@@ -146,14 +146,6 @@ export default function Navbar() {
       </nav>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
-        <a
-          href="https://uniblueprint.com"
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', textDecoration: 'none', whiteSpace: 'nowrap' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-        >
-          uniblueprint.com
-        </a>
         {desktopAuthSection}
       </div>
     </header>
@@ -264,9 +256,6 @@ export default function Navbar() {
           {NAV_LINKS.map(({ label, href }) => (
             <a key={label} href={href} onClick={closeMenu} style={mobilePrimaryLinkStyle}>{label}</a>
           ))}
-          <a href="https://uniblueprint.com" style={{ ...mobilePrimaryLinkStyle, fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280' }}>
-            uniblueprint.com
-          </a>
         </nav>
 
         <div style={{ padding: '24px 24px 40px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
