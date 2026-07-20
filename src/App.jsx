@@ -21,6 +21,9 @@ const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
 const PartnersPage = lazy(() => import('./pages/PartnersPage'))
 const OurCoachesPage = lazy(() => import('./pages/OurCoachesPage'))
 const JoinPage = lazy(() => import('./pages/JoinPage'))
+const ContributorsLandingPage = lazy(() => import('./pages/contributors/ContributorsLandingPage'))
+const ContributorDashboardPage = lazy(() => import('./pages/contributors/ContributorDashboardPage'))
+const ContributorUploadPage = lazy(() => import('./pages/contributors/ContributorUploadPage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -68,6 +71,23 @@ function AppRoutes() {
         <Route path="/partners" element={<PartnersPage />} />
         <Route path="/our-coaches" element={<OurCoachesPage />} />
         <Route path="/join" element={<JoinPage />} />
+        <Route path="/contributors" element={<ContributorsLandingPage />} />
+        <Route
+          path="/contributors/dashboard"
+          element={
+            <ProtectedRoute>
+              <ContributorDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contributors/upload"
+          element={
+            <ProtectedRoute>
+              <ContributorUploadPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/join-handler" element={<Navigate to="/join#handler-form" replace />} />
         <Route path="/join-coach" element={<Navigate to="/join#coach-form" replace />} />
         <Route path="/ambassadors" element={<Navigate to="/join#ambassador-form" replace />} />

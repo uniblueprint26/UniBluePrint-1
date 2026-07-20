@@ -42,6 +42,7 @@ const COLUMNS = [
       { label: 'Campus Handler', href: '/join#handler-form' },
       { label: 'Uni Coach',      href: '/join#coach-form' },
       { label: 'Ambassador',     href: '/join#ambassador-form' },
+      { label: 'Blueprint Contributor', href: '/contributors' },
       { label: 'Contact',        href: '/contact' },
     ],
   },
