@@ -1,27 +1,28 @@
 export default function UBPLogo({ height = 36, color = '#1E3A5F' }) {
-  const width = Math.round(height * 1.1)
+  const width = Math.round(height * 1.15)
   return (
     <svg
       height={height}
       width={width}
-      viewBox="0 0 110 100"
+      viewBox="0 0 120 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
       <text
-        x="55"
-        y="72"
+        x="60"
+        y="68"
         textAnchor="middle"
-        fontFamily="'DM Serif Display', serif"
-        fontSize="68"
+        fontFamily="'Playfair Display', serif"
+        fontWeight="700"
+        fontSize="58"
+        letterSpacing="2"
         fill={color}
-        style={{ fontFamily: "'DM Serif Display', serif" }}
+        style={{ fontFamily: "'Playfair Display', serif" }}
       >
         UBP
       </text>
-      <rect x="6" y="82" width="98" height="2" fill={color} />
-      <rect x="6" y="90" width="98" height="2" fill={color} />
+      <rect x="10" y="80" width="100" height="3" fill={color} />
     </svg>
   )
 }
