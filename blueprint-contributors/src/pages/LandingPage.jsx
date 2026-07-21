@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   ChevronDown, Trophy, Medal, Sparkles, CheckCircle2, GraduationCap,
-  Library, Users, Briefcase, Instagram,
+  Library, Users, Briefcase, Instagram, FileText, ChevronRight,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { CONTRIBUTOR_CATEGORIES, CATEGORY_GROUPS } from '../data/contributorCategories'
@@ -77,6 +77,19 @@ const GROUP_ICONS = {
   'careers': Briefcase,
 }
 
+const RESOURCE_PREVIEW_ITEMS = [
+  { badge: 'Notes', author: 'Emily', title: 'Financial Reporting — Full Summary Notes', description: 'Covers all lecture content + past paper answers. 28 pages.' },
+  { badge: 'Past Paper', author: 'Zafir', title: 'Algorithms Exam 2023 — Worked Solutions', description: 'Full solutions with complexity analysis for every question.' },
+  { badge: 'Mind Map', author: 'Fiza', title: 'Cognitive Psychology — Chapter 3 Mind Map', description: 'Visual breakdown of cognitive biases and memory models.' },
+]
+
+const COURSE_CONNECT_PREVIEW_ITEMS = [
+  { code: 'MG4021', title: 'Consumer Behaviour — Week 7 Summary', meta: 'UL · 142 views · 38 saves' },
+  { code: 'CS2001', title: 'Data Structures — Linked Lists & Trees', meta: 'UCD · 98 views · 22 saves' },
+  { code: 'LA1102', title: 'Contract Law — Offer & Acceptance Notes', meta: 'TCD · 203 views · 61 saves' },
+  { code: 'AC3010', title: 'Financial Accounting — Ratio Analysis', meta: 'UCC · 87 views · 19 saves' },
+]
+
 const HOW_IT_WORKS_STEPS = [
   { n: 1, title: 'Create your account', description: 'Sign up free and set up your Blueprint Contributor profile in under two minutes.' },
   { n: 2, title: 'Upload valuable content', description: 'Choose a category in the Upload Centre and submit notes, reviews, resources or opportunities.' },
@@ -126,6 +139,94 @@ function SectionLabel({ children }) {
     <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
       {children}
     </p>
+  )
+}
+
+function PreviewPanel({ icon: Icon, title, children }) {
+  return (
+    <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <Icon size={20} color="#1E3A5F" aria-hidden="true" />
+        <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>{title}</h3>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function ResourcesPreview() {
+  return (
+    <PreviewPanel icon={FileText} title="Resources">
+      <div>
+        {RESOURCE_PREVIEW_ITEMS.map((item, i) => (
+          <div
+            key={item.title}
+            style={{
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px',
+              padding: '16px 0',
+              borderTop: i > 0 ? '1px solid rgba(30,58,95,0.08)' : 'none',
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{
+                  background: '#F5F0E8', color: '#1E3A5F', borderRadius: '6px', padding: '3px 10px',
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+                }}>
+                  {item.badge}
+                </span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF' }}>
+                  by {item.author}
+                </span>
+              </div>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '700', color: '#1E3A5F' }}>
+                {item.title}
+              </p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '4px', lineHeight: 1.5 }}>
+                {item.description}
+              </p>
+            </div>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              View →
+            </span>
+          </div>
+        ))}
+      </div>
+    </PreviewPanel>
+  )
+}
+
+function CourseConnectPreview() {
+  return (
+    <PreviewPanel icon={Library} title="Course Connect">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {COURSE_CONNECT_PREVIEW_ITEMS.map(item => (
+          <div
+            key={item.code}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '16px',
+              background: '#F5F0E8', borderRadius: '10px', padding: '16px',
+            }}
+          >
+            <span style={{
+              background: '#1E3A5F', color: '#F5F0E8', borderRadius: '6px', padding: '6px 10px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '700', flexShrink: 0,
+            }}>
+              {item.code}
+            </span>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '700', color: '#1E3A5F' }}>
+                {item.title}
+              </p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                {item.meta}
+              </p>
+            </div>
+            <ChevronRight size={18} color="#9CA3AF" aria-hidden="true" style={{ flexShrink: 0 }} />
+          </div>
+        ))}
+      </div>
+    </PreviewPanel>
   )
 }
 
@@ -445,6 +546,25 @@ export default function ContributorsLandingPage() {
               </div>
             )
           })}
+        </div>
+      </section>
+
+      {/* ── SECTION 4B — PRODUCT PREVIEW ─────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center' }}>
+            <SectionLabel>See it in the app</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', marginTop: '8px' }}>
+              What your contributions become
+            </h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
+              Approved submissions appear across UniBlueprint exactly like this — browsed, saved and used by real students from day one.
+            </p>
+          </div>
+          <div className="product-preview-grid">
+            <ResourcesPreview />
+            <CourseConnectPreview />
+          </div>
         </div>
       </section>
 

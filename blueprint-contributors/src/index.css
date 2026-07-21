@@ -390,6 +390,18 @@ footer {
   .about-mission-grid { grid-template-columns: 1fr; }
 }
 
+/* Product preview: two-column desktop, stacked mobile */
+.product-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 40px;
+}
+@media (max-width: 768px) {
+  .product-preview-grid { grid-template-columns: 1fr; }
+}
+
 /* Differentiators: three-column desktop, stacked mobile */
 .about-diff-grid {
   display: grid;
