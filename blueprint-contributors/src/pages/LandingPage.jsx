@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   ChevronDown, Trophy, Medal, Sparkles, CheckCircle2, GraduationCap,
-  Library, Users, Briefcase,
+  Library, Users, Briefcase, Instagram,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { CONTRIBUTOR_CATEGORIES, CATEGORY_GROUPS } from '../data/contributorCategories'
@@ -96,6 +96,10 @@ const FAQS = [
   {
     q: 'How is the €100 winner chosen?',
     a: 'Judging is based on quality, usefulness, accuracy, originality, variety, and overall impact — not purely on quantity. A small number of highly valuable contributions can outweigh hundreds of low-quality uploads.',
+  },
+  {
+    q: 'Do I need to follow UniBlueprint on Instagram to enter?',
+    a: 'Yes — you must be following @uniblueprint26 on Instagram to be eligible for the €100 prize and Top 10 recognition. This is checked before prizes are awarded.',
   },
   {
     q: 'What content is accepted?',
@@ -266,34 +270,65 @@ export default function ContributorsLandingPage() {
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div className="about-mission-grid">
             <div>
-              <SectionLabel>What is a Blueprint Contributor?</SectionLabel>
+              <SectionLabel>What is UniBlueprint?</SectionLabel>
               <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', marginTop: '8px' }}>
-                A mission, not a task list
+                The Structure Behind Your Success
               </h2>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '16px', lineHeight: 1.8 }}>
-                Blueprint Contributors are students who share real knowledge — Leaving Cert notes, course reviews, campus tips, career opportunities — before UniBlueprint officially launches in September 2026.
+                UniBlueprint is a platform designed to bring together the information, opportunities and support that students and young people need throughout their education and early careers.
               </p>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.8 }}>
-                Every contribution helps build a content library that supports students from Leaving Certificate through CAO decisions, college, apprenticeships and careers — so the next student who joins UniBlueprint has real, useful, student-made resources from the very first day.
+                Whether you're preparing for the Leaving Certificate, applying through the CAO, starting an apprenticeship, beginning university or taking the next step in your career, UniBlueprint is built to help you navigate every stage with confidence.
               </p>
             </div>
             <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '32px' }}>
               <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>
-                Why it matters
+                Our platform is built around five core pillars
               </h3>
               <ul style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px', listStyle: 'none' }}>
                 {[
-                  'Students launching in September see real value immediately — not an empty platform.',
-                  'Your notes, reviews and advice genuinely help the next student behind you.',
-                  'You get recognised for the impact you make, not just the amount you upload.',
-                ].map(text => (
-                  <li key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  ['Foundation Blueprint', 'Practical support including CV reviews, LinkedIn optimisation, application guidance, interview preparation and career resources.'],
+                  ['Elevation Blueprint', 'Direct access to experienced coaches, mentors and industry professionals who can provide personalised guidance, answer questions and help you take the next step with confidence.'],
+                  ['Lifestyle Blueprint', 'Exclusive student discounts, offers, experiences and perks from trusted brands and partners.'],
+                  ['Course Connect', 'A community hub where students can access course-specific notes, revision resources, reviews and insights shared by others studying the same subject.'],
+                  ['Campus Connect', 'A dedicated space for each campus to discover events, societies, opportunities, local recommendations and connect with their university community.'],
+                ].map(([name, description]) => (
+                  <li key={name} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                     <CheckCircle2 size={18} color="#16A34A" aria-hidden="true" style={{ flexShrink: 0, marginTop: '2px' }} />
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', lineHeight: 1.6 }}>{text}</span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', lineHeight: 1.6 }}>
+                      <strong>{name}</strong> – {description}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
+          </div>
+
+          <div style={{
+            marginTop: '40px', maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto',
+            textAlign: 'center',
+          }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', lineHeight: 1.8 }}>
+              Rather than replacing what's already available, UniBlueprint brings trusted information, practical support and real student experiences together in one accessible platform — making it easier to find what you need, when you need it.
+            </p>
+
+            <a
+              href="https://www.instagram.com/uniblueprint26"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '10px',
+                marginTop: '24px', background: '#FFFFFF',
+                borderRadius: '20px', padding: '12px 24px',
+                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+                textDecoration: 'none',
+              }}
+            >
+              <Instagram size={18} color="#1E3A5F" aria-hidden="true" />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600', color: '#1E3A5F' }}>
+                Follow @uniblueprint26 for launch updates
+              </span>
+            </a>
           </div>
         </div>
       </section>
@@ -322,6 +357,23 @@ export default function ContributorsLandingPage() {
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: 'rgba(245,240,232,0.6)', marginTop: '16px' }}>
               Deadline: 31 August 2026, 11:59 PM
             </p>
+
+            <a
+              href="https://www.instagram.com/uniblueprint26"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                marginTop: '20px', background: 'rgba(245,240,232,0.12)',
+                border: '1px solid rgba(245,240,232,0.25)', borderRadius: '20px',
+                padding: '8px 16px', textDecoration: 'none',
+              }}
+            >
+              <Instagram size={14} color="#F5F0E8" aria-hidden="true" />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#F5F0E8' }}>
+                Entry requirement: follow @uniblueprint26 on Instagram
+              </span>
+            </a>
           </div>
 
           {/* Judging criteria */}
