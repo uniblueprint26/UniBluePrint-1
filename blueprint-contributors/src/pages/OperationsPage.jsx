@@ -80,12 +80,14 @@ function SubmissionRow({ submission, submitterName, onUpdateStatus, updating }) 
   const category = getCategory(submission.category)
   const date = new Date(submission.created_at).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
 
-  async function handleViewFile() {
+  async function handleViewFile(path) {
     const { data, error } = await supabase.storage
       .from('contributor-uploads')
-      .createSignedUrl(submission.file_path, 60)
+      .createSignedUrl(path, 60)
     if (!error && data?.signedUrl) window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
   }
+
+  const filePaths = submission.file_paths || []
 
   return (
     <div style={{
@@ -124,14 +126,15 @@ function SubmissionRow({ submission, submitterName, onUpdateStatus, updating }) 
                 <Link2 size={14} aria-hidden="true" /> View link
               </a>
             )}
-            {submission.file_path && (
+            {filePaths.map((path, i) => (
               <button
-                onClick={handleViewFile}
+                key={path}
+                onClick={() => handleViewFile(path)}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}
               >
-                <Paperclip size={14} aria-hidden="true" /> View file
+                <Paperclip size={14} aria-hidden="true" /> {filePaths.length > 1 ? `File ${i + 1}` : 'View file'}
               </button>
-            )}
+            ))}
           </div>
         </div>
 

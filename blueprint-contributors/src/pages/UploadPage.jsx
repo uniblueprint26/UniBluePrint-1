@@ -12,6 +12,7 @@ import {
 
 const KNOWN_COLUMNS = ['subject', 'university', 'course', 'module_name', 'module_code', 'year_group']
 const MAX_FILE_BYTES = 10 * 1024 * 1024
+const MAX_FILES = 6
 
 const GROUP_ICONS = {
   'leaving-cert': GraduationCap,
@@ -89,7 +90,7 @@ function UploadForm({ category, onBack }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [linkUrl, setLinkUrl] = useState('')
-  const [file, setFile] = useState(null)
+  const [files, setFiles] = useState([])
   const [fileError, setFileError] = useState(null)
   const [fieldValues, setFieldValues] = useState({})
   const [loading, setLoading] = useState(false)
@@ -99,14 +100,22 @@ function UploadForm({ category, onBack }) {
   const setField = key => e => setFieldValues(v => ({ ...v, [key]: e.target.value }))
 
   function handleFileChange(e) {
-    const selected = e.target.files?.[0] || null
-    if (selected && selected.size > MAX_FILE_BYTES) {
-      setFileError('File must be smaller than 10MB.')
-      setFile(null)
-      return
+    let selected = Array.from(e.target.files || [])
+    const messages = []
+
+    if (selected.length > MAX_FILES) {
+      messages.push(`Only the first ${MAX_FILES} files were kept (max ${MAX_FILES} per submission).`)
+      selected = selected.slice(0, MAX_FILES)
     }
-    setFileError(null)
-    setFile(selected)
+
+    const oversized = selected.filter(f => f.size > MAX_FILE_BYTES)
+    if (oversized.length) {
+      messages.push(`${oversized.length} file${oversized.length > 1 ? 's were' : ' was'} over 10MB and skipped.`)
+      selected = selected.filter(f => f.size <= MAX_FILE_BYTES)
+    }
+
+    setFileError(messages.length ? messages.join(' ') : null)
+    setFiles(selected)
   }
 
   async function handleSubmit(e) {
@@ -114,16 +123,17 @@ function UploadForm({ category, onBack }) {
     setLoading(true)
     setError(null)
 
-    let file_path = null
-    if (file) {
-      const path = `${user.id}/${Date.now()}-${file.name}`
-      const { error: uploadError } = await supabase.storage.from('contributor-uploads').upload(path, file)
+    const file_paths = []
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i]
+      const path = `${user.id}/${Date.now()}-${i}-${f.name}`
+      const { error: uploadError } = await supabase.storage.from('contributor-uploads').upload(path, f)
       if (uploadError) {
         setError('File upload failed. Please try again.')
         setLoading(false)
         return
       }
-      file_path = path
+      file_paths.push(path)
     }
 
     const row = {
@@ -132,7 +142,7 @@ function UploadForm({ category, onBack }) {
       title,
       description: description || null,
       link_url: linkUrl || null,
-      file_path,
+      file_paths,
     }
     const details = {}
     category.fields.forEach(f => {
@@ -231,7 +241,7 @@ function UploadForm({ category, onBack }) {
             <FormInput type="url" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://" />
           </FormField>
 
-          <FormField label="Attach a file (optional)" hint="PDF, image, or document — max 10MB." error={fileError}>
+          <FormField label="Attach files (optional)" hint={`Photos, PDFs, or documents — up to ${MAX_FILES} files, max 10MB each.`} error={fileError}>
             <label style={{
               position: 'relative',
               display: 'flex', alignItems: 'center', gap: '10px',
@@ -241,10 +251,28 @@ function UploadForm({ category, onBack }) {
             }}>
               <Paperclip size={16} aria-hidden="true" style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {file ? file.name : 'Choose a file'}
+                {files.length > 0 ? `${files.length} file${files.length > 1 ? 's' : ''} selected` : 'Choose files'}
               </span>
-              <input type="file" onChange={handleFileChange} style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0 }} />
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0 }}
+              />
             </label>
+            {files.length > 0 && (
+              <ul style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px', listStyle: 'none' }}>
+                {files.map((f, i) => (
+                  <li key={`${f.name}-${i}`} style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {f.name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </FormField>
 
           <FormConsent />
