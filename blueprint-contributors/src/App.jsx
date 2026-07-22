@@ -10,7 +10,6 @@ const UploadPage = lazy(() => import('./pages/UploadPage'))
 const OperationsPage = lazy(() => import('./pages/OperationsPage'))
 const SignUpPage = lazy(() => import('./pages/auth/SignUpPage'))
 const SignInPage = lazy(() => import('./pages/auth/SignInPage'))
-const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function AppRoutes() {
@@ -44,7 +43,6 @@ function AppRoutes() {
         />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -47,7 +47,7 @@ export default function SignUpPage() {
         options: { data: { full_name: form.fullName } },
       })
       if (err) throw err
-      navigate('/verify-email', { state: { email: form.email } })
+      navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
