@@ -1,12 +1,13 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
-import ProtectedRoute from './components/auth/ProtectedRoute'
+import RoleRoute from './components/auth/RoleRoute'
 import PageLoader from './components/layout/PageLoader'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const UploadPage = lazy(() => import('./pages/UploadPage'))
+const OperationsPage = lazy(() => import('./pages/OperationsPage'))
 const SignUpPage = lazy(() => import('./pages/auth/SignUpPage'))
 const SignInPage = lazy(() => import('./pages/auth/SignInPage'))
 const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
@@ -20,17 +21,25 @@ function AppRoutes() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <RoleRoute allow={['contributor']}>
               <DashboardPage />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/upload"
           element={
-            <ProtectedRoute>
+            <RoleRoute allow={['contributor']}>
               <UploadPage />
-            </ProtectedRoute>
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/operations"
+          element={
+            <RoleRoute allow={['operations']}>
+              <OperationsPage />
+            </RoleRoute>
           }
         />
         <Route path="/sign-up" element={<SignUpPage />} />

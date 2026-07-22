@@ -32,10 +32,14 @@ function NavLink({ to, children }) {
 }
 
 export default function Navbar() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef(null)
+
+  const isOperations = profile?.role === 'operations'
+  const homeHref = isOperations ? '/operations' : '/dashboard'
+  const homeLabel = isOperations ? 'Operations' : 'Dashboard'
 
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name.charAt(0).toUpperCase()
@@ -64,7 +68,7 @@ export default function Navbar() {
   const desktopAuthSection = user ? (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '8px' }}>
       <Link
-        to="/dashboard"
+        to={homeHref}
         style={{
           fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '500',
           color: '#1E3A5F', border: '1px solid #1E3A5F', borderRadius: '8px',
@@ -72,7 +76,7 @@ export default function Navbar() {
           display: 'inline-flex', alignItems: 'center', textDecoration: 'none', whiteSpace: 'nowrap',
         }}
       >
-        Dashboard
+        {homeLabel}
       </Link>
       <div style={{
         width: '36px', height: '36px', borderRadius: '50%',
@@ -262,7 +266,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link
-                to="/dashboard"
+                to={homeHref}
                 onClick={closeMenu}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -271,7 +275,7 @@ export default function Navbar() {
                   color: '#1E3A5F', textDecoration: 'none',
                 }}
               >
-                Dashboard
+                {homeLabel}
               </Link>
               <button
                 onClick={handleSignOut}
