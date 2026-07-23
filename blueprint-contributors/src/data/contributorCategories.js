@@ -13,11 +13,32 @@ export const LC_SUBJECTS = [
 ]
 
 export const UNIVERSITIES = [
-  'University College Dublin', 'Trinity College Dublin', 'University College Cork',
-  'Dublin City University', 'University of Galway', 'University of Limerick',
-  'Maynooth University', 'Technological University Dublin', 'RCSI University',
-  'Atlantic Technological University', 'South East Technological University',
-  'Dundalk Institute of Technology', 'Other',
+  // Universities
+  'Trinity College Dublin (TCD)',
+  'University College Dublin (UCD)',
+  'University College Cork (UCC)',
+  'Dublin City University (DCU)',
+  'University of Galway (UG)',
+  'University of Limerick (UL)',
+  'Maynooth University (MU)',
+  // Technological Universities
+  'Technological University Dublin (TU Dublin)',
+  'Munster Technological University (MTU)',
+  'Technological University of the Shannon (TUS)',
+  'Atlantic Technological University (ATU)',
+  'South East Technological University (SETU)',
+  // Institutes of Technology
+  'Dundalk Institute of Technology (DkIT)',
+  'Dún Laoghaire Institute of Art, Design and Technology (IADT)',
+  // Specialist colleges
+  'Royal College of Surgeons in Ireland (RCSI)',
+  'National College of Ireland (NCI)',
+  'Mary Immaculate College (MIC)',
+  'Marino Institute of Education (MIE)',
+  'Griffith College',
+  'Dublin Business School (DBS)',
+  'National College of Art and Design (NCAD)',
+  'Other',
 ]
 
 export const LC_YEAR_GROUPS = ['Junior Cycle', '3rd Year', '4th Year (TY)', '5th Year', '6th Year']

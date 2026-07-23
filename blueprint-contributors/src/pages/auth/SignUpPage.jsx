@@ -4,6 +4,8 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import AuthLayout from '../../components/auth/AuthLayout'
 import AuthInput from '../../components/auth/AuthInput'
+import { FormField, FormSelect, FormInput } from '../../components/ui/Form'
+import { UNIVERSITIES } from '../../data/contributorCategories'
 import {
   submitButtonStyle,
   submitButtonDisabledStyle,
@@ -12,14 +14,36 @@ import {
   linkStyle,
 } from '../../styles/auth'
 
+const PATHWAYS = [
+  'College / University',
+  'PLC / Further Education',
+  'Apprenticeship',
+  'Gap Year',
+  'Straight Into Work',
+  'Repeating the Leaving Cert',
+  'Not sure yet',
+]
+
+const PATHWAY_DETAIL_LABEL = {
+  'PLC / Further Education': 'Where are you doing it?',
+  'Apprenticeship': 'Employer / trade',
+}
+
 export default function SignUpPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
+  const [pathway, setPathway] = useState('')
+  const [pathwayDetail, setPathwayDetail] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
+
+  const handlePathwayChange = (e) => {
+    setPathway(e.target.value)
+    setPathwayDetail('')
+  }
 
   const validate = () => {
     const errs = {}
@@ -41,12 +65,18 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
-      const { error: err } = await supabase.auth.signUp({
+      const { data, error: err } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
         options: { data: { full_name: form.fullName } },
       })
       if (err) throw err
+      if (pathway && data?.user?.id) {
+        await supabase
+          .from('profiles')
+          .update({ pathway, pathway_detail: pathwayDetail || null })
+          .eq('id', data.user.id)
+      }
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -113,6 +143,39 @@ export default function SignUpPage() {
           autoComplete="new-password"
           placeholder="••••••••"
         />
+
+        <div style={{ marginBottom: '16px' }}>
+          <FormField id="pathway" label="What are you doing after school? (optional)" hint="Helps us show you the most relevant content — every avenue is welcome here.">
+            <FormSelect id="pathway" value={pathway} onChange={handlePathwayChange}>
+              <option value="">Prefer not to say</option>
+              {PATHWAYS.map(p => <option key={p} value={p}>{p}</option>)}
+            </FormSelect>
+          </FormField>
+
+          {pathway === 'College / University' && (
+            <div style={{ marginTop: '12px' }}>
+              <FormField id="pathway-detail" label="Which college?">
+                <FormSelect id="pathway-detail" value={pathwayDetail} onChange={e => setPathwayDetail(e.target.value)}>
+                  <option value="">Select a college</option>
+                  {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
+                </FormSelect>
+              </FormField>
+            </div>
+          )}
+
+          {PATHWAY_DETAIL_LABEL[pathway] && (
+            <div style={{ marginTop: '12px' }}>
+              <FormField id="pathway-detail" label={PATHWAY_DETAIL_LABEL[pathway]}>
+                <FormInput
+                  id="pathway-detail"
+                  value={pathwayDetail}
+                  onChange={e => setPathwayDetail(e.target.value)}
+                  placeholder={pathway === 'Apprenticeship' ? 'e.g. ESB, Electrical' : 'e.g. City of Dublin PLC College'}
+                />
+              </FormField>
+            </div>
+          )}
+        </div>
 
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
