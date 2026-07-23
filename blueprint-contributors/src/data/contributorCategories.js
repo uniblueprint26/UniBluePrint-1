@@ -1,7 +1,7 @@
 import {
   BookOpen, Link2, MessageSquareQuote, Compass, FileStack, Library,
   GraduationCap, Layers, Users, Lightbulb, Home, Calendar,
-  Megaphone, Tag, Briefcase, Landmark, Hammer,
+  Megaphone, Tag, Briefcase, Landmark, Hammer, Building2, Plane,
 } from 'lucide-react'
 
 // ─── Shared option lists ───────────────────────────────────────────────────────
@@ -285,6 +285,32 @@ export const CONTRIBUTOR_CATEGORIES = [
       { key: 'year_of_apprenticeship', label: 'Year of apprenticeship', type: 'select', options: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Completed'] },
       { key: 'workload', label: 'Workload', type: 'select', options: RATING_5 },
       { key: 'advice', label: 'Advice for future apprentices', type: 'textarea', required: true },
+    ],
+  },
+  {
+    id: 'straight_into_work',
+    group: 'careers',
+    icon: Building2,
+    label: 'Straight Into Work',
+    description: 'Went straight into a job after school instead of college? Share your experience and advice for others considering the same path.',
+    fields: [
+      { key: 'role_title', label: 'Job title / role', type: 'text', required: true },
+      { key: 'industry', label: 'Industry / sector', type: 'text' },
+      { key: 'how_found_job', label: 'How did you find this job?', type: 'textarea' },
+      { key: 'advice', label: 'Advice for others considering this path', type: 'textarea', required: true },
+    ],
+  },
+  {
+    id: 'gap_year',
+    group: 'careers',
+    icon: Plane,
+    label: 'Gap Year',
+    description: 'Took a year out before college, a PLC, or work? Share what you did and advice for others considering a gap year.',
+    fields: [
+      { key: 'gap_year_type', label: 'What did you do?', type: 'select', options: ['Travel', 'Work', 'Volunteering', 'Combination', 'Other'], required: true },
+      { key: 'duration', label: 'Duration', type: 'text' },
+      { key: 'highlights', label: 'Highlights or key takeaways', type: 'textarea' },
+      { key: 'advice', label: 'Advice for students considering a gap year', type: 'textarea', required: true },
     ],
   },
 ]

@@ -34,7 +34,7 @@ function CategoryPicker({ onSelect }) {
           Choose a category to get started. Every submission is reviewed before it joins the UniBlueprint library.
         </p>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', maxWidth: '560px', margin: '10px auto 0', lineHeight: 1.6 }}>
-          Not going to college? The <strong style={{ color: '#6B7280' }}>PLC &amp; Further Education</strong> and <strong style={{ color: '#6B7280' }}>Apprenticeships</strong> categories are for every school-leaver avenue.
+          Not going to college? <strong style={{ color: '#6B7280' }}>PLC &amp; Further Education</strong>, <strong style={{ color: '#6B7280' }}>Apprenticeships</strong>, <strong style={{ color: '#6B7280' }}>Straight Into Work</strong> and <strong style={{ color: '#6B7280' }}>Gap Year</strong> are all here too.
         </p>
       </div>
 

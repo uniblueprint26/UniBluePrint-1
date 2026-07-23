@@ -116,7 +116,7 @@ const FAQS = [
   },
   {
     q: 'What content is accepted?',
-    a: "Notes, resources, reviews, experiences, events, opportunities and more — across every school-leaver avenue, not just university. That includes PLC and further education courses, apprenticeships, college, and career opportunities. Every submission is reviewed before it goes live.",
+    a: "Notes, resources, reviews, experiences, events, opportunities and more — across every school-leaver avenue, not just university. That includes college, PLC and further education courses, apprenticeships, gap years, and going straight into work, alongside career opportunities. Every submission is reviewed before it goes live.",
   },
   {
     q: 'Can I upload anonymously?',
@@ -379,7 +379,7 @@ export default function ContributorsLandingPage() {
                 UniBlueprint is a platform designed to bring together the information, opportunities and support that students and young people need throughout their education and early careers.
               </p>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.8 }}>
-                Whether you're preparing for the Leaving Certificate, applying through the CAO, starting an apprenticeship, beginning university or taking the next step in your career, UniBlueprint is built to help you navigate every stage with confidence.
+                Whether you're preparing for the Leaving Certificate, applying through the CAO, starting an apprenticeship, choosing a PLC course, beginning university, taking a gap year or heading straight into work, UniBlueprint is built to help you navigate every stage with confidence.
               </p>
             </div>
             <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '32px' }}>
@@ -533,8 +533,8 @@ export default function ContributorsLandingPage() {
             padding: '20px 24px', textAlign: 'center',
           }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', lineHeight: 1.7 }}>
-              <strong>Not going to college straight away?</strong> This isn't just for university students — the{' '}
-              <strong>PLC &amp; Further Education</strong> and <strong>Apprenticeships</strong> categories below are there for every school-leaver avenue, not just college.
+              <strong>Not going to college straight away?</strong> This isn't just for university students — <strong>PLC &amp; Further Education</strong>,{' '}
+              <strong>Apprenticeships</strong>, <strong>Straight Into Work</strong> and <strong>Gap Year</strong> all have their own categories below. There's a place for every school-leaver avenue.
             </p>
           </div>
 
