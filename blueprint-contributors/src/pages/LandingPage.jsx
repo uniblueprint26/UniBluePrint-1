@@ -116,7 +116,7 @@ const FAQS = [
   },
   {
     q: 'What content is accepted?',
-    a: 'Notes, resources, reviews, experiences, events, opportunities and more — across the Leaving Cert Hub, Course Connect, Campus Life, and Careers categories. Every submission is reviewed before it goes live.',
+    a: "Notes, resources, reviews, experiences, events, opportunities and more — across every school-leaver avenue, not just university. That includes PLC and further education courses, apprenticeships, college, and career opportunities. Every submission is reviewed before it goes live.",
   },
   {
     q: 'Can I upload anonymously?',
@@ -524,6 +524,17 @@ export default function ContributorsLandingPage() {
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.7 }}>
               From Leaving Cert revision to career opportunities — every category supports a different stage of the student journey.
+            </p>
+          </div>
+
+          <div style={{
+            marginTop: '32px', maxWidth: '760px', marginLeft: 'auto', marginRight: 'auto',
+            background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+            padding: '20px 24px', textAlign: 'center',
+          }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', lineHeight: 1.7 }}>
+              <strong>Not going to college straight away?</strong> This isn't just for university students — the{' '}
+              <strong>PLC &amp; Further Education</strong> and <strong>Apprenticeships</strong> categories below are there for every school-leaver avenue, not just college.
             </p>
           </div>
 

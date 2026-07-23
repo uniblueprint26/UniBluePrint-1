@@ -1,7 +1,7 @@
 import {
   BookOpen, Link2, MessageSquareQuote, Compass, FileStack, Library,
   GraduationCap, Layers, Users, Lightbulb, Home, Calendar,
-  Megaphone, Tag, Briefcase,
+  Megaphone, Tag, Briefcase, Landmark, Hammer,
 } from 'lucide-react'
 
 // ─── Shared option lists ───────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ const RATING_5 = ['1 — Very low', '2 — Low', '3 — Moderate', '4 — High',
 
 export const CATEGORY_GROUPS = [
   { id: 'leaving-cert', label: 'Leaving Cert Hub' },
-  { id: 'notes-course', label: 'Shared Notes & Course Connect' },
+  { id: 'notes-course', label: 'Notes, Courses & Further Education' },
   { id: 'campus', label: 'Campus Life' },
   { id: 'careers', label: 'Careers & Community' },
 ]
@@ -165,6 +165,20 @@ export const CONTRIBUTOR_CATEGORIES = [
     ],
   },
   {
+    id: 'plc_further_education',
+    group: 'notes-course',
+    icon: Landmark,
+    label: 'PLC & Further Education',
+    description: 'Not everyone goes to college straight away — share notes, reviews and advice for PLC, QQI and further education courses.',
+    fields: [
+      { key: 'university', label: 'College / Institution', type: 'text', required: true },
+      { key: 'course', label: 'Course / Programme', type: 'text', required: true },
+      { key: 'qqi_level', label: 'QQI level', type: 'select', options: ['Level 5', 'Level 6', 'Other'], required: true },
+      { key: 'workload', label: 'Workload', type: 'select', options: RATING_5 },
+      { key: 'advice', label: 'Advice for future students', type: 'textarea', required: true },
+    ],
+  },
+  {
     id: 'campus_connect',
     group: 'campus',
     icon: Users,
@@ -257,6 +271,20 @@ export const CONTRIBUTOR_CATEGORIES = [
         'Internship', 'Placement', 'Graduate role', 'Apprenticeship', 'Work experience', 'Volunteering',
       ] },
       { key: 'application_deadline', label: 'Application deadline', type: 'date' },
+    ],
+  },
+  {
+    id: 'apprenticeship_insights',
+    group: 'careers',
+    icon: Hammer,
+    label: 'Apprenticeships',
+    description: 'Real insights from apprentices — trade, employer, workload and advice for anyone considering an apprenticeship.',
+    fields: [
+      { key: 'trade', label: 'Trade / sector', type: 'text', required: true },
+      { key: 'employer_provider', label: 'Employer / training provider', type: 'text' },
+      { key: 'year_of_apprenticeship', label: 'Year of apprenticeship', type: 'select', options: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Completed'] },
+      { key: 'workload', label: 'Workload', type: 'select', options: RATING_5 },
+      { key: 'advice', label: 'Advice for future apprentices', type: 'textarea', required: true },
     ],
   },
 ]
