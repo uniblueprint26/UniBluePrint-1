@@ -27,6 +27,13 @@ const ContributorUploadPage = lazy(() => import('./pages/contributors/Contributo
 const CvBuilderPage = lazy(() => import('./pages/foundation/CvBuilderPage'))
 const CvReviewPage = lazy(() => import('./pages/foundation/CvReviewPage'))
 const JobSearchSupportPage = lazy(() => import('./pages/foundation/JobSearchSupportPage'))
+const LinkedInOptimisationPage = lazy(() => import('./pages/foundation/LinkedInOptimisationPage'))
+const CoverLetterBuilderPage = lazy(() => import('./pages/foundation/CoverLetterBuilderPage'))
+const CoverLetterReviewPage = lazy(() => import('./pages/foundation/CoverLetterReviewPage'))
+const ApplicationFormPage = lazy(() => import('./pages/foundation/ApplicationFormPage'))
+const InterviewPrepPage = lazy(() => import('./pages/foundation/InterviewPrepPage'))
+const PersonalStatementPage = lazy(() => import('./pages/foundation/PersonalStatementPage'))
+const PortfolioBuildingPage = lazy(() => import('./pages/foundation/PortfolioBuildingPage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -112,6 +119,62 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <JobSearchSupportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/linkedin-optimisation"
+          element={
+            <ProtectedRoute>
+              <LinkedInOptimisationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cover-letter"
+          element={
+            <ProtectedRoute>
+              <CoverLetterBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cover-letter-review"
+          element={
+            <ProtectedRoute>
+              <CoverLetterReviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/application-form-assistance"
+          element={
+            <ProtectedRoute>
+              <ApplicationFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/interview-preparation"
+          element={
+            <ProtectedRoute>
+              <InterviewPrepPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/personal-statement"
+          element={
+            <ProtectedRoute>
+              <PersonalStatementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/portfolio-building"
+          element={
+            <ProtectedRoute>
+              <PortfolioBuildingPage />
             </ProtectedRoute>
           }
         />

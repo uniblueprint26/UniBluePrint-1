@@ -66,6 +66,7 @@ const ELEVATION_SERVICES = [
     icon: Layout,
     originalStandard: '€30', trialStandard: '€15',
     originalPremium: '€46', trialPremium: '€23',
+    ctaHref: '/foundation/portfolio-building', ctaLabel: 'Get my portfolio plan',
   },
   {
     name: 'Mentorship Matching',
@@ -122,6 +123,7 @@ const ELEVATION_SERVICES = [
     icon: BookOpen,
     originalStandard: '€30', trialStandard: '€15',
     originalPremium: '€52', trialPremium: '€26',
+    ctaHref: '/foundation/personal-statement', ctaLabel: 'Write my statement',
   },
 ]
 
@@ -181,7 +183,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, note, originalStandard, trialStandard, matchingFree, pricingTodo }) {
+function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, note, originalStandard, trialStandard, matchingFree, pricingTodo, ctaHref, ctaLabel }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -361,6 +363,20 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
             September trial price
           </p>
         </>
+      )}
+
+      {ctaHref && (
+        <Link
+          to={ctaHref}
+          style={{
+            display: 'inline-block', marginTop: '14px',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '13px', fontWeight: '600', color: '#1E3A5F',
+            textDecoration: 'underline', textUnderlineOffset: '3px',
+          }}
+        >
+          {ctaLabel || 'Try it now'} →
+        </Link>
       )}
     </div>
   )

@@ -47,6 +47,7 @@ const CAREER_SERVICES = [
     icon: Linkedin,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/linkedin-optimisation', ctaLabel: 'Optimise my profile',
   },
   {
     name: 'Cover Letter Assistance',
@@ -62,6 +63,8 @@ const CAREER_SERVICES = [
     icon: Mail,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/cover-letter', ctaLabel: 'Write my cover letter',
+    secondaryCtaHref: '/foundation/cover-letter-review', secondaryCtaLabel: 'or review one you already have',
   },
   {
     name: 'Application Form Assistance',
@@ -76,6 +79,7 @@ const CAREER_SERVICES = [
     icon: ClipboardList,
     originalStandard: 'From €20', trialStandard: 'From €10',
     originalPremium: 'From €30', trialPremium: 'From €15',
+    ctaHref: '/foundation/application-form-assistance', ctaLabel: 'Answer my form',
   },
   {
     name: 'Interview Preparation',
@@ -95,6 +99,7 @@ const CAREER_SERVICES = [
     icon: MessageSquare,
     originalStandard: 'From €20', trialStandard: 'From €10',
     originalPremium: 'From €30', trialPremium: 'From €15',
+    ctaHref: '/foundation/interview-preparation', ctaLabel: 'Build my prep pack',
   },
   {
     name: 'Job Search Support',
@@ -128,6 +133,7 @@ const CAO_SERVICES = [
     icon: BookOpen,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/personal-statement', ctaLabel: 'Write my statement',
   },
   {
     name: 'College Interview Preparation',
