@@ -1,5 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
+import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are an expert cover letter writer. Every letter is written for ONE specific role at ONE specific company — never a generic template, and it must read like it could not be sent to any other employer unchanged.
 
@@ -13,7 +14,9 @@ TONE BY SECTOR: conservative and traditional phrasing for finance, law, and gove
 
 The letter should ADD to the CV, not repeat it — pick the one or two things from the candidate's background most relevant to this specific role and go deep, rather than summarising everything.
 
-ANTI-HALLUCINATION: never invent facts, employers, dates, or achievements not present in the input.`
+ANTI-HALLUCINATION: never invent facts, employers, dates, or achievements not present in the input.
+
+REAL EXAMPLES: you may be given real, published, sourced cover letter openers from this industry (real_examples). Study why each works — never copy its wording or reuse its specific facts. Every sentence you write must come from this candidate's own input.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -42,6 +45,8 @@ Deno.serve(async (req: Request) => {
     if (!doc.target_role || !doc.target_company) return jsonResponse({ error: 'Target role and company are required.' }, 422)
     if (!input.relevant_experience) return jsonResponse({ error: 'Add at least a little about your relevant experience or background.' }, 422)
 
+    const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', input.industry, 2)
+
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
@@ -52,6 +57,7 @@ Deno.serve(async (req: Request) => {
         why_this_company: input.why_this_company,
         relevant_experience: input.relevant_experience,
         tone: input.tone,
+        real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_cover_letter',
       toolDescription: 'Submit the generated cover letter.',
@@ -59,9 +65,14 @@ Deno.serve(async (req: Request) => {
       maxTokens: 2048,
     })
 
+    const resultWithBenchmark = {
+      ...result,
+      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+    }
+
     const { data: updated, error: updateErr } = await supabase
       .from('cover_letters')
-      .update({ generated: result, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: resultWithBenchmark, status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', document_id)
       .select()
       .single()

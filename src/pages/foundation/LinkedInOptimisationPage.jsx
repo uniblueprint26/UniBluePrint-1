@@ -5,6 +5,7 @@ import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 const initialInput = {
   current_status: '', key_skills: '', notable_achievements: '', target_connections: '', tone: 'balanced',
@@ -140,6 +141,7 @@ export default function LinkedInOptimisationPage() {
           </FormCard>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <BenchmarkNote sources={cvDoc.generated?.benchmarked_against} />
             <CopyableCard title="Headline" text={cvDoc.generated.headline} />
             {cvDoc.generated.headline_alternatives?.map((h, i) => (
               <CopyableCard key={i} title={`Alternative ${i + 1}`} text={h} muted />

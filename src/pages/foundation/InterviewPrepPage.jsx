@@ -5,6 +5,7 @@ import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 const TYPE_LABELS = { behavioural: 'Behavioural', technical: 'Technical', strengths_based: 'Strengths-based' }
 
@@ -115,6 +116,7 @@ export default function InterviewPrepPage() {
           </FormCard>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <BenchmarkNote sources={pack.generated?.benchmarked_against} />
             <FormCard>
               <h2 style={sectionHeading}>Company research to do</h2>
               <ul style={{ margin: '10px 0 0', paddingLeft: '18px' }}>

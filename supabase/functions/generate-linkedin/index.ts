@@ -1,5 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
+import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are an expert LinkedIn profile writer combining a recruiter's search behaviour with a copywriter's ear for how people actually talk.
 
@@ -20,7 +21,9 @@ EXPERIENCE REWRITES: for each role given, rewrite the description with impact la
 
 SKILLS: recommend skills to add/prioritise for the target industry, grounded in what recruiters in that field actually search — don't just repeat back what the user typed, add genuinely relevant adjacent skills they may not have thought to list, clearly marked as suggestions.
 
-FEATURED SECTION: 2-4 concrete ideas for what to pin (a project, a certificate, a post, a portfolio link) based on what the user actually has — not generic advice like "pin your best work".`
+FEATURED SECTION: 2-4 concrete ideas for what to pin (a project, a certificate, a post, a portfolio link) based on what the user actually has — not generic advice like "pin your best work".
+
+REAL EXAMPLES: you'll be given real, published, sourced headline and About-section examples from this person's industry (real_examples). Use them to calibrate what genuinely effective, specific writing looks like in this field — never copy wording, numbers, or structure. Everything you write must come from this person's own input.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -59,6 +62,12 @@ Deno.serve(async (req: Request) => {
     const skillCount = (input.key_skills || []).length
     if (skillCount < 3) return jsonResponse({ error: 'List at least 3 key skills.' }, 422)
 
+    const [headlineExamples, aboutExamples] = await Promise.all([
+      fetchIndustryExamples(supabase, 'linkedin_headline', doc.target_industry, 2),
+      fetchIndustryExamples(supabase, 'linkedin_about', doc.target_industry, 1),
+    ])
+    const examples = [...headlineExamples, ...aboutExamples]
+
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
@@ -70,6 +79,7 @@ Deno.serve(async (req: Request) => {
         target_connections: input.target_connections,
         experience: input.experience,
         tone: input.tone,
+        real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_linkedin_profile',
       toolDescription: 'Submit the generated LinkedIn profile content.',
@@ -77,9 +87,14 @@ Deno.serve(async (req: Request) => {
       maxTokens: 3072,
     })
 
+    const resultWithBenchmark = {
+      ...result,
+      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+    }
+
     const { data: updated, error: updateErr } = await supabase
       .from('linkedin_documents')
-      .update({ generated: result, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: resultWithBenchmark, status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', document_id)
       .select()
       .single()

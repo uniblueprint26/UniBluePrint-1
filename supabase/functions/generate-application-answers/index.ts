@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, CIVIL_SERVICE_CAPABILITIES, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
+import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are drafting answers to graduate scheme / internship / apprenticeship application form questions, using the candidate's own evidence bank of real STAR stories — never inventing a story that isn't in the bank.
 
@@ -11,7 +12,9 @@ METHOD:
 4. If the question has a word limit, hit it — do not pad or ramble to fill space, and do not overrun it.
 5. Write in first person, natural language — never robotic "Situation: ... Task: ..." labelling in the final answer text; the STAR structure should be invisible in the prose, just present in how it's built.
 
-ANTI-HALLUCINATION: only use facts present in the evidence bank stories provided. Never invent an employer, metric, or outcome not in the source story.`
+ANTI-HALLUCINATION: only use facts present in the evidence bank stories provided. Never invent an employer, metric, or outcome not in the source story.
+
+REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services, purely to calibrate what a well-built STAR answer looks like — the level of specificity, how the Action section carries the weight, how Result closes the loop. These are NOT the candidate's stories — never use their content in an answer, only learn the pattern from them.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -56,6 +59,8 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'Add at least one story to your evidence bank first — Application Form Assistance drafts answers from your real experience, it does not invent one.' }, 422)
     }
 
+    const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3)
+
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
@@ -63,6 +68,7 @@ Deno.serve(async (req: Request) => {
         target_role: form.target_role,
         questions,
         evidence_bank: stories,
+        real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_application_answers',
       toolDescription: 'Submit the drafted answers.',
@@ -70,9 +76,14 @@ Deno.serve(async (req: Request) => {
       maxTokens: 4096,
     })
 
+    const resultWithBenchmark = {
+      ...result,
+      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+    }
+
     const { data: updated, error: updateErr } = await supabase
       .from('application_forms')
-      .update({ generated: result, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: resultWithBenchmark, status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', form_id)
       .select()
       .single()

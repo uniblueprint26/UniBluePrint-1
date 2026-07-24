@@ -5,11 +5,13 @@ import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 export default function CoverLetterBuilderPage() {
   const { user } = useAuth()
   const [targetRole, setTargetRole] = useState('')
   const [targetCompany, setTargetCompany] = useState('')
+  const [industry, setIndustry] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [backgroundSummary, setBackgroundSummary] = useState('')
   const [whyCompany, setWhyCompany] = useState('')
@@ -35,7 +37,7 @@ export default function CoverLetterBuilderPage() {
         .from('cover_letters')
         .insert([{
           user_id: user.id, target_role: targetRole, target_company: targetCompany, job_description: jobDescription || null,
-          input: { background_summary: backgroundSummary, why_this_company: whyCompany, relevant_experience: relevantExperience, tone },
+          input: { background_summary: backgroundSummary, why_this_company: whyCompany, relevant_experience: relevantExperience, tone, industry },
         }])
         .select()
         .single()
@@ -99,6 +101,7 @@ export default function CoverLetterBuilderPage() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <FormField id="target_role" label="Role you're applying for" required><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} required /></FormField>
               <FormField id="target_company" label="Company" required><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} required /></FormField>
+              <FormField id="industry" label="Industry" hint="Optional — helps us benchmark against real examples from your field"><FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} /></FormField>
               <FormField id="job_description" label="Paste the job description" hint="Optional — sharpens relevance"><FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={5} /></FormField>
               <FormField id="background_summary" label="A little about your background" hint="Optional"><FormTextarea id="background_summary" value={backgroundSummary} onChange={(e) => setBackgroundSummary(e.target.value)} rows={3} /></FormField>
               <FormField id="relevant_experience" label="Your most relevant experience for this role" required><FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={4} required /></FormField>
@@ -128,6 +131,7 @@ export default function CoverLetterBuilderPage() {
           </FormCard>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <BenchmarkNote sources={letter.generated?.benchmarked_against} />
             <FormCard>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>Your letter ({letter.generated.word_count} words)</h2>

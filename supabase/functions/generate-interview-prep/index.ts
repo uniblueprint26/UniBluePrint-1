@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, STRENGTHS_BASED_FORMAT_NOTE, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
+import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.
 
@@ -16,7 +17,9 @@ COMPANY RESEARCH: give the candidate specific things to actually go find out (re
 
 ANTI-HALLUCINATION: never invent a fact about the company, never invent a metric or story not in the evidence bank.
 
-HANDLER MOCK RUBRIC: produce a three-criterion scoring rubric (First impression / Poise & delivery / Content) for the Handler to use in a live mock session, mirroring how university career-services offices actually score mock interviews — 1/3/5 scale per criterion, with a one-line description of what's assessed.`
+HANDLER MOCK RUBRIC: produce a three-criterion scoring rubric (First impression / Poise & delivery / Content) for the Handler to use in a live mock session, mirroring how university career-services offices actually score mock interviews — 1/3/5 scale per criterion, with a one-line description of what's assessed.
+
+REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services — reference material for what a well-built answer looks like, never content to reuse. Only the candidate's own evidence bank stories may be used as the substance of a model answer.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -66,6 +69,8 @@ Deno.serve(async (req: Request) => {
       .select('title, situation, task, action, result, competency_tags')
       .eq('user_id', user.id)
 
+    const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3)
+
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
@@ -74,6 +79,7 @@ Deno.serve(async (req: Request) => {
         interview_type: pack.interview_type,
         background_summary: (pack.input || {}).background_summary,
         evidence_bank: stories || [],
+        real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_interview_prep',
       toolDescription: 'Submit the interview preparation pack.',
@@ -81,9 +87,14 @@ Deno.serve(async (req: Request) => {
       maxTokens: 4096,
     })
 
+    const resultWithBenchmark = {
+      ...result,
+      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+    }
+
     const { data: updated, error: updateErr } = await supabase
       .from('interview_prep_packs')
-      .update({ generated: result, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: resultWithBenchmark, status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', pack_id)
       .select()
       .single()

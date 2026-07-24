@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
+import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
 
@@ -18,7 +19,9 @@ TARGETING — if target_role, target_industry, target_company, or job_descriptio
 
 TONE & LENGTH — respect the user's stated tone (formal / balanced / modern) and length preference (one page / two page) by how much you include and how you phrase it — formal is more conservative and traditional in phrasing, modern allows slightly more personality while staying professional.
 
-Never produce anything a recruiter would immediately flag as "obviously AI" — generic, interchangeable phrasing. Every output must sound like it was written by someone who actually knows this specific person's background.`
+Never produce anything a recruiter would immediately flag as "obviously AI" — generic, interchangeable phrasing. Every output must sound like it was written by someone who actually knows this specific person's background.
+
+REAL EXAMPLES — you will be given a small set of real, published, sourced bullet examples from this person's industry (real_examples in the input). These exist so you understand what genuinely effective writing looks like in this specific field — the level of specificity, what kind of results actually get named, how numbers get used. Study why each one works. NEVER copy an example's wording, numbers, or structure into the output — every bullet you write must be built entirely from this specific person's own input.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -89,6 +92,8 @@ Deno.serve(async (req: Request) => {
     const validationError = validateInput(input)
     if (validationError) return jsonResponse({ error: validationError }, 422)
 
+    const examples = await fetchIndustryExamples(supabase, 'cv_bullet', doc.target_industry, 3)
+
     const userContent = JSON.stringify({
       personal_info: input.personal_info,
       target: {
@@ -104,6 +109,7 @@ Deno.serve(async (req: Request) => {
       skills: input.skills,
       achievements: input.achievements,
       style: { tone: input.tone, length: input.length, specific_requests: input.specific_requests },
+      real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
     })
 
     const result = await callClaudeForStructuredOutput({
@@ -116,10 +122,14 @@ Deno.serve(async (req: Request) => {
     })
 
     const atsReport = computeAtsReport(result, doc.target_industry, doc.target_role, doc.job_description)
+    const resultWithBenchmark = {
+      ...result,
+      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+    }
 
     const { data: updated, error: updateErr } = await supabase
       .from('cv_documents')
-      .update({ generated: result, ats_report: atsReport, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: resultWithBenchmark, ats_report: atsReport, status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', document_id)
       .select()
       .single()

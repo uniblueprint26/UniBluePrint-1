@@ -5,6 +5,7 @@ import { Loader2, ArrowLeft, Plus, Trash2, Send, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 const COMPETENCY_TAGS = ['Teamwork', 'Leadership', 'Problem Solving', 'Communication', 'Initiative', 'Resilience', 'Client / Stakeholder Focus', 'Adaptability']
 
@@ -243,6 +244,7 @@ function AnswerFormTab({ userId }) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {error && <ErrorBanner message={error} />}
+        <BenchmarkNote sources={result.generated?.benchmarked_against} />
         {result.generated.answers.map((a, i) => (
           <FormCard key={i}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#9C6B26', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{a.competency_identified}</p>

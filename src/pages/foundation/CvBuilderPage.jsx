@@ -10,6 +10,7 @@ import {
 } from '../../components/ui/Form'
 import ScoreGauge from '../../components/foundation/ScoreGauge'
 import CvPreview from '../../components/foundation/CvPreview'
+import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 const STEPS = ['Personal', 'Target role', 'Education', 'Experience', 'Skills', 'Achievements', 'Style', 'Review']
 
@@ -446,6 +447,9 @@ function ReviewStep({ cvDoc, submitted, submitting, onSubmitForReview, onStartOv
 
   return (
     <div>
+      <div style={{ marginBottom: '20px' }}>
+        <BenchmarkNote sources={cvDoc.generated?.benchmarked_against} />
+      </div>
       {cvDoc.ats_report && (
         <FormCard>
           <h2 style={sectionHeading}>ATS Report</h2>
