@@ -24,6 +24,9 @@ const JoinPage = lazy(() => import('./pages/JoinPage'))
 const ContributorsLandingPage = lazy(() => import('./pages/contributors/ContributorsLandingPage'))
 const ContributorDashboardPage = lazy(() => import('./pages/contributors/ContributorDashboardPage'))
 const ContributorUploadPage = lazy(() => import('./pages/contributors/ContributorUploadPage'))
+const CvBuilderPage = lazy(() => import('./pages/foundation/CvBuilderPage'))
+const CvReviewPage = lazy(() => import('./pages/foundation/CvReviewPage'))
+const JobSearchSupportPage = lazy(() => import('./pages/foundation/JobSearchSupportPage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -85,6 +88,30 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ContributorUploadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cv-builder"
+          element={
+            <ProtectedRoute>
+              <CvBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cv-review"
+          element={
+            <ProtectedRoute>
+              <CvReviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/job-search-support"
+          element={
+            <ProtectedRoute>
+              <JobSearchSupportPage />
             </ProtectedRoute>
           }
         />

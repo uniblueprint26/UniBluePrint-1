@@ -30,6 +30,8 @@ const CAREER_SERVICES = [
     icon: FileText,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/cv-builder', ctaLabel: 'Build my CV',
+    secondaryCtaHref: '/foundation/cv-review', secondaryCtaLabel: 'or review a CV you already have',
   },
   {
     name: 'LinkedIn Optimisation',
@@ -108,6 +110,7 @@ const CAREER_SERVICES = [
     icon: Search,
     originalStandard: '€15', trialStandard: '€8',
     originalPremium: '€22', trialPremium: '€11',
+    ctaHref: '/foundation/job-search-support', ctaLabel: 'Get my strategy',
   },
 ]
 
@@ -333,7 +336,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, tierNote, originalStandard, trialStandard, courseCompass }) {
+function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, tierNote, originalStandard, trialStandard, courseCompass, ctaHref, ctaLabel, secondaryCtaHref, secondaryCtaLabel }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -511,6 +514,33 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
       }}>
         September trial price
       </p>
+
+      {ctaHref && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '14px' }}>
+          <Link
+            to={ctaHref}
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '13px', fontWeight: '600', color: '#1E3A5F',
+              textDecoration: 'underline', textUnderlineOffset: '3px',
+            }}
+          >
+            {ctaLabel || 'Try it now'} →
+          </Link>
+          {secondaryCtaHref && (
+            <Link
+              to={secondaryCtaHref}
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '12px', color: '#6B7280',
+                textDecoration: 'underline', textUnderlineOffset: '3px',
+              }}
+            >
+              {secondaryCtaLabel}
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   )
 }
