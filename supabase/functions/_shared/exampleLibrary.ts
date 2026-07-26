@@ -63,3 +63,30 @@ export async function fetchCompetencyExamples(
     .limit(limit)
   return (data as LibraryExample[]) || []
 }
+
+export interface IndustryIntel {
+  dimension: 'screening_mechanism' | 'must_have' | 'wording_convention' | 'red_flag' | 'real_entity'
+  content: string
+  source_name: string
+  source_url: string
+}
+
+/**
+ * How this industry actually screens candidates — ATS/recruiter mechanics,
+ * required credentials, wording convention, and instant-reject red flags.
+ * Different question from fetchIndustryExamples: that answers "what does good
+ * look like", this answers "what gets an application filtered out".
+ */
+export async function fetchIndustryIntelligence(
+  supabase: SupabaseClient,
+  industry: string | null | undefined,
+  limit = 8,
+): Promise<IndustryIntel[]> {
+  if (!industry) return []
+  const { data } = await supabase
+    .from('industry_intelligence')
+    .select('dimension, content, source_name, source_url')
+    .ilike('industry', `%${industry}%`)
+    .limit(limit)
+  return (data as IndustryIntel[]) || []
+}

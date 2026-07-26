@@ -5,10 +5,12 @@ import { Loader2, ArrowLeft, AlertTriangle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner } from '../../components/ui/Form'
 import ScoreGauge from '../../components/foundation/ScoreGauge'
+import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 export default function CvReviewPage() {
   const [rawText, setRawText] = useState('')
   const [targetRole, setTargetRole] = useState('')
+  const [industry, setIndustry] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,7 +23,7 @@ export default function CvReviewPage() {
     setLoading(true)
     try {
       const { data, error: fnError } = await supabase.functions.invoke('review-cv', {
-        body: { raw_text: rawText, target_role: targetRole || null, job_description: jobDescription || null },
+        body: { raw_text: rawText, target_role: targetRole || null, industry: industry || null, job_description: jobDescription || null },
       })
       if (fnError) throw fnError
       if (data?.error) throw new Error(data.error)
@@ -56,6 +58,9 @@ export default function CvReviewPage() {
               <FormField id="target_role" label="Target role" hint="Optional, but strongly recommended">
                 <FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
               </FormField>
+              <FormField id="industry" label="Industry" hint="Optional — unlocks industry-specific red-flag checks (e.g. tech, law, healthcare, finance)">
+                <FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} />
+              </FormField>
               <FormField id="job_description" label="Paste a job description" hint="Optional — the most accurate way to score keyword match">
                 <FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={6} />
               </FormField>
@@ -80,6 +85,7 @@ function ReviewResult({ review, onReset }) {
   const r = review.report
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <BenchmarkNote sources={review.report?.benchmarked_against} />
       <FormCard>
         <h2 style={sectionHeading}>ATS Report</h2>
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '16px' }}>
@@ -108,6 +114,7 @@ function ReviewResult({ review, onReset }) {
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#374151', marginTop: '10px', lineHeight: 1.65 }}>{r.overall_summary}</p>
       </FormCard>
 
+      <FindingsCard title="Industry-specific red flags" items={r.industry_red_flags} color="#DC2626" icon />
       <FindingsCard title="Strengths" items={r.strengths} color="#16A34A" />
       <FindingsCard title="Weaknesses" items={r.weaknesses} color="#DC2626" />
       <FindingsCard title="Duty vs. achievement flags" items={r.duty_vs_achievement_flags} color="#DC2626" icon />

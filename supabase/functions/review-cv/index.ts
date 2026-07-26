@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
+import { fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV reviewer combining the judgement of a recruiter, an ATS specialist, and a university careers advisor. You are reviewing a CV someone already has — not writing one from scratch.
 
@@ -14,7 +15,9 @@ STRUCTURE — give specific, actionable findings tied to actual text in the CV, 
 
 If a target role or job description was provided, assess tailoring against it specifically. If not, assess general CV quality and flag that keyword-gap analysis needs a target role/JD to be meaningful.
 
-Never fabricate a numeric score without ties to what you actually found — every score must be justified by the findings you list.`
+Never fabricate a numeric score without ties to what you actually found — every score must be justified by the findings you list.
+
+INDUSTRY INTELLIGENCE — you may be given industry_intelligence: real findings on how this specific industry actually screens candidates, sourced from that industry's own recruiters or professional bodies. Check the CV against every red_flag entry specifically and name any that apply in industry_red_flags, quoting the exact offending text. Check must_have / real_entity entries too — if the CV is missing a credential this industry specifically expects (and the person plausibly should have it, e.g. applying to law without ever mentioning FE-1/PPC status), flag it.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -25,9 +28,10 @@ const OUTPUT_SCHEMA = {
     generic_language_flags: { type: 'array', items: { type: 'string' }, description: 'Bullets or phrases that read as generic/templated rather than specific to this person' },
     duty_vs_achievement_flags: { type: 'array', items: { type: 'string' }, description: 'Bullets that describe a responsibility rather than a quantified/concrete achievement' },
     spelling_grammar_issues: { type: 'array', items: { type: 'string' } },
+    industry_red_flags: { type: 'array', items: { type: 'string' }, description: "Specific matches against this industry's known red flags, quoting the offending text — empty if none found or no industry given" },
     overall_summary: { type: 'string', description: '2-3 sentence overall verdict' },
   },
-  required: ['strengths', 'weaknesses', 'formatting_issues', 'generic_language_flags', 'duty_vs_achievement_flags', 'spelling_grammar_issues', 'overall_summary'],
+  required: ['strengths', 'weaknesses', 'formatting_issues', 'generic_language_flags', 'duty_vs_achievement_flags', 'spelling_grammar_issues', 'industry_red_flags', 'overall_summary'],
 }
 
 Deno.serve(async (req: Request) => {
@@ -35,16 +39,22 @@ Deno.serve(async (req: Request) => {
 
   try {
     const { supabase, user } = await requireUser(req)
-    const { raw_text, target_role, job_description } = await req.json()
+    const { raw_text, target_role, job_description, industry } = await req.json()
     if (!raw_text || raw_text.trim().length < 50) {
       return jsonResponse({ error: 'Paste the full text of your CV (at least a few sentences) to review.' }, 422)
     }
 
-    const industryGuess = target_role || null
+    const industryGuess = industry || target_role || null
+    const intelligence = await fetchIndustryIntelligence(supabase, industry, 8)
 
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
-      userContent: JSON.stringify({ cv_text: raw_text, target_role: target_role || null, job_description: job_description || null }),
+      userContent: JSON.stringify({
+        cv_text: raw_text,
+        target_role: target_role || null,
+        job_description: job_description || null,
+        industry_intelligence: intelligence.map(i => ({ dimension: i.dimension, content: i.content })),
+      }),
       toolName: 'submit_cv_review',
       toolDescription: 'Submit the structured CV review findings.',
       inputSchema: OUTPUT_SCHEMA,
@@ -76,6 +86,7 @@ Deno.serve(async (req: Request) => {
 
     const report = {
       ...result,
+      benchmarked_against: intelligence.map(i => ({ source_name: i.source_name, source_url: i.source_url })),
       ats_report: {
         overall_score: overall,
         keyword_match_score: keywordScore,

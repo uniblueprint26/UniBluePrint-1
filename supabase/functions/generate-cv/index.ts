@@ -1,7 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
-import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
+import { fetchIndustryExamples, fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
 
@@ -21,7 +21,13 @@ TONE & LENGTH — respect the user's stated tone (formal / balanced / modern) an
 
 Never produce anything a recruiter would immediately flag as "obviously AI" — generic, interchangeable phrasing. Every output must sound like it was written by someone who actually knows this specific person's background.
 
-REAL EXAMPLES — you will be given a small set of real, published, sourced bullet examples from this person's industry (real_examples in the input). These exist so you understand what genuinely effective writing looks like in this specific field — the level of specificity, what kind of results actually get named, how numbers get used. Study why each one works. NEVER copy an example's wording, numbers, or structure into the output — every bullet you write must be built entirely from this specific person's own input.`
+REAL EXAMPLES — you will be given a small set of real, published, sourced bullet examples from this person's industry (real_examples in the input). These exist so you understand what genuinely effective writing looks like in this specific field — the level of specificity, what kind of results actually get named, how numbers get used. Study why each one works. NEVER copy an example's wording, numbers, or structure into the output — every bullet you write must be built entirely from this specific person's own input.
+
+INDUSTRY INTELLIGENCE — you may also be given industry_intelligence: real findings on how THIS specific industry actually screens candidates, sourced from that industry's own recruiters, professional bodies, or hiring communities.
+  - red_flag entries are things you must actively AVOID — if a red_flag names specific words or patterns (e.g. certain buzzwords, or listing basic tools as skills), do not let them appear anywhere in the output.
+  - must_have / real_entity entries name real credentials, exams, or qualifying bodies for this field — if the user's own input indicates they have one of these (e.g. they mention FE-1 exams for law, or a Critical Skills Employment Permit for tech), reference it correctly and precisely; never invent that the user holds a credential they didn't tell you about.
+  - wording_convention entries describe how this field actually expects a CV to read (e.g. clauses vs sentences) — follow it.
+  - screening_mechanism entries are context for you, not something to write into the CV.`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -92,7 +98,10 @@ Deno.serve(async (req: Request) => {
     const validationError = validateInput(input)
     if (validationError) return jsonResponse({ error: validationError }, 422)
 
-    const examples = await fetchIndustryExamples(supabase, 'cv_bullet', doc.target_industry, 3)
+    const [examples, intelligence] = await Promise.all([
+      fetchIndustryExamples(supabase, 'cv_bullet', doc.target_industry, 3),
+      fetchIndustryIntelligence(supabase, doc.target_industry, 8),
+    ])
 
     const userContent = JSON.stringify({
       personal_info: input.personal_info,
@@ -110,6 +119,7 @@ Deno.serve(async (req: Request) => {
       achievements: input.achievements,
       style: { tone: input.tone, length: input.length, specific_requests: input.specific_requests },
       real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
+      industry_intelligence: intelligence.map(i => ({ dimension: i.dimension, content: i.content })),
     })
 
     const result = await callClaudeForStructuredOutput({
@@ -122,9 +132,10 @@ Deno.serve(async (req: Request) => {
     })
 
     const atsReport = computeAtsReport(result, doc.target_industry, doc.target_role, doc.job_description)
+    const allSources = [...examples, ...intelligence]
     const resultWithBenchmark = {
       ...result,
-      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+      benchmarked_against: allSources.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
     }
 
     const { data: updated, error: updateErr } = await supabase
