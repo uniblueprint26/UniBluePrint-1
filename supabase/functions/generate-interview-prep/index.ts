@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, STRENGTHS_BASED_FORMAT_NOTE, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.
 
@@ -19,7 +20,9 @@ ANTI-HALLUCINATION: never invent a fact about the company, never invent a metric
 
 HANDLER MOCK RUBRIC: produce a three-criterion scoring rubric (First impression / Poise & delivery / Content) for the Handler to use in a live mock session, mirroring how university career-services offices actually score mock interviews — 1/3/5 scale per criterion, with a one-line description of what's assessed.
 
-REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services — reference material for what a well-built answer looks like, never content to reuse. Only the candidate's own evidence bank stories may be used as the substance of a model answer.`
+REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services — reference material for what a well-built answer looks like, never content to reuse. Only the candidate's own evidence bank stories may be used as the substance of a model answer.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

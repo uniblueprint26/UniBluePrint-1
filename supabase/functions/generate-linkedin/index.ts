@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 
 const SYSTEM_PROMPT = `You are an expert LinkedIn profile writer combining a recruiter's search behaviour with a copywriter's ear for how people actually talk.
 
@@ -23,7 +24,9 @@ SKILLS: recommend skills to add/prioritise for the target industry, grounded in 
 
 FEATURED SECTION: 2-4 concrete ideas for what to pin (a project, a certificate, a post, a portfolio link) based on what the user actually has — not generic advice like "pin your best work".
 
-REAL EXAMPLES: you'll be given real, published, sourced headline and About-section examples from this person's industry (real_examples). Use them to calibrate what genuinely effective, specific writing looks like in this field — never copy wording, numbers, or structure. Everything you write must come from this person's own input.`
+REAL EXAMPLES: you'll be given real, published, sourced headline and About-section examples from this person's industry (real_examples). Use them to calibrate what genuinely effective, specific writing looks like in this field — never copy wording, numbers, or structure. Everything you write must come from this person's own input.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

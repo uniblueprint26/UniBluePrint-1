@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, CIVIL_SERVICE_CAPABILITIES, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 
 const SYSTEM_PROMPT = `You are drafting answers to graduate scheme / internship / apprenticeship application form questions, using the candidate's own evidence bank of real STAR stories — never inventing a story that isn't in the bank.
 
@@ -14,7 +15,9 @@ METHOD:
 
 ANTI-HALLUCINATION: only use facts present in the evidence bank stories provided. Never invent an employer, metric, or outcome not in the source story.
 
-REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services, purely to calibrate what a well-built STAR answer looks like — the level of specificity, how the Action section carries the weight, how Result closes the loop. These are NOT the candidate's stories — never use their content in an answer, only learn the pattern from them.`
+REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services, purely to calibrate what a well-built STAR answer looks like — the level of specificity, how the Action section carries the weight, how Result closes the loop. These are NOT the candidate's stories — never use their content in an answer, only learn the pattern from them.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

@@ -1,13 +1,14 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 
 const SYSTEM_PROMPT = `You are an expert cover letter writer. Every letter is written for ONE specific role at ONE specific company — never a generic template, and it must read like it could not be sent to any other employer unchanged.
 
 STRUCTURE — real four-part hook/proof/motivation/close pattern, 250-400 words total, 3-4 paragraphs:
   1. HOOK — a specific opening that connects the candidate to this role in the first 1-2 sentences. NEVER start with "I am writing to apply for..." or "I am excited to apply for the position of...". Lead with a concrete proof point, a specific connection to the company, or the company's actual work — not a restatement of the job title.
   2. PROOF — the strongest piece of evidence connecting the candidate's actual background to what this role needs. Only use what's in the input — never invent an achievement, employer, or metric.
-  3. MOTIVATION — why THIS company specifically, using anything genuine the user told you about them (not generic flattery like "your company's excellent reputation").
+  3. MOTIVATION — why THIS company specifically. The test: reference something specific and true the user told you about the company or the role — a real project, a real thing they do, a real reason it fits this person — never a generic compliment like "your company's excellent reputation" or "your innovative culture" that could be pasted into a letter for any employer. If the user gave you nothing specific about the company, write around it honestly rather than manufacturing false specificity.
   4. CLOSE — confident, specific call to action (e.g. "I'd welcome the chance to talk through how I could contribute to X" rather than a generic "Thank you for your consideration").
 
 TONE BY SECTOR: conservative and traditional phrasing for finance, law, and government roles. More personality and voice is appropriate — even rewarded — for tech, startup, and creative roles. Match the tone to the target_industry/target_role given.
@@ -16,7 +17,9 @@ The letter should ADD to the CV, not repeat it — pick the one or two things fr
 
 ANTI-HALLUCINATION: never invent facts, employers, dates, or achievements not present in the input.
 
-REAL EXAMPLES: you may be given real, published, sourced cover letter openers from this industry (real_examples). Study why each works — never copy its wording or reuse its specific facts. Every sentence you write must come from this candidate's own input.`
+REAL EXAMPLES: you may be given real, published, sourced cover letter openers from this industry (real_examples). Study why each works — never copy its wording or reuse its specific facts. Every sentence you write must come from this candidate's own input.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

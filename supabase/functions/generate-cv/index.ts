@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
 import { fetchIndustryExamples, fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
 
@@ -27,7 +28,9 @@ INDUSTRY INTELLIGENCE — you may also be given industry_intelligence: real find
   - red_flag entries are things you must actively AVOID — if a red_flag names specific words or patterns (e.g. certain buzzwords, or listing basic tools as skills), do not let them appear anywhere in the output.
   - must_have / real_entity entries name real credentials, exams, or qualifying bodies for this field — if the user's own input indicates they have one of these (e.g. they mention FE-1 exams for law, or a Critical Skills Employment Permit for tech), reference it correctly and precisely; never invent that the user holds a credential they didn't tell you about.
   - wording_convention entries describe how this field actually expects a CV to read (e.g. clauses vs sentences) — follow it.
-  - screening_mechanism entries are context for you, not something to write into the CV.`
+  - screening_mechanism entries are context for you, not something to write into the CV.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

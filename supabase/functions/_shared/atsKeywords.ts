@@ -53,22 +53,56 @@ export function bankForIndustry(industry: string | null | undefined): string[] {
   return match ? [...ATS_KEYWORD_BANKS[match], ...ATS_KEYWORD_BANKS.general] : ATS_KEYWORD_BANKS.general
 }
 
+export interface WeightedKeyword {
+  term: string
+  weight: number
+}
+
 // Naive but dependency-free keyword extraction from a pasted job description:
-// pulls candidate terms from the known banks that literally appear in the JD text,
-// plus any capitalised multi-word tool/platform-looking tokens. Deliberately
-// conservative — false negatives are safer than inventing keywords that aren't there.
-export function extractJdKeywords(jobDescription: string, industry: string | null | undefined): string[] {
+// pulls candidate terms from the known banks that literally appear in the JD text.
+// Weighted by how many times each term actually appears in the JD — real 2026
+// ATS/tailoring guidance treats a term repeated five times in a posting as a
+// stronger signal than one mentioned once, and frequency is the one part of
+// that signal a simple text search can measure honestly (semantic relevance,
+// the other half of how modern ATS score, isn't something a keyword-count
+// function can claim to do — that's left to the model's own judgement, not
+// faked here). Weight is capped so one very-repeated term can't dominate the
+// whole score. Deliberately conservative on extraction — false negatives are
+// safer than inventing keywords that aren't there.
+export function extractJdKeywords(jobDescription: string, industry: string | null | undefined): WeightedKeyword[] {
   const text = jobDescription.toLowerCase()
   const candidateBank = [...bankForIndustry(industry), ...Object.values(ATS_KEYWORD_BANKS).flat()]
   const unique = Array.from(new Set(candidateBank))
-  return unique.filter(term => text.includes(term.toLowerCase()))
+  return unique
+    .map(term => ({ term, count: countOccurrences(text, term.toLowerCase()) }))
+    .filter(({ count }) => count > 0)
+    .map(({ term, count }) => ({ term, weight: Math.min(count, 5) }))
 }
 
-export function scoreKeywordMatch(generatedText: string, keywords: string[]): { score: number; matched: string[]; missing: string[] } {
-  if (keywords.length === 0) return { score: 0, matched: [], missing: [] }
+function countOccurrences(haystack: string, needle: string): number {
+  let count = 0
+  let pos = haystack.indexOf(needle)
+  while (pos !== -1) {
+    count++
+    pos = haystack.indexOf(needle, pos + needle.length)
+  }
+  return count
+}
+
+export function scoreKeywordMatch(
+  generatedText: string,
+  keywords: WeightedKeyword[] | string[],
+): { score: number; matched: string[]; missing: string[] } {
+  const weighted: WeightedKeyword[] = keywords.length > 0 && typeof keywords[0] === 'string'
+    ? (keywords as string[]).map(term => ({ term, weight: 1 }))
+    : (keywords as WeightedKeyword[])
+
+  if (weighted.length === 0) return { score: 0, matched: [], missing: [] }
   const text = generatedText.toLowerCase()
-  const matched = keywords.filter(k => text.includes(k.toLowerCase()))
-  const missing = keywords.filter(k => !matched.includes(k))
-  const score = Math.round((matched.length / keywords.length) * 100)
-  return { score, matched, missing }
+  const matchedKw = weighted.filter(k => text.includes(k.term.toLowerCase()))
+  const missingKw = weighted.filter(k => !matchedKw.includes(k)).sort((a, b) => b.weight - a.weight)
+  const totalWeight = weighted.reduce((s, k) => s + k.weight, 0)
+  const matchedWeight = matchedKw.reduce((s, k) => s + k.weight, 0)
+  const score = Math.round((matchedWeight / totalWeight) * 100)
+  return { score, matched: matchedKw.map(k => k.term), missing: missingKw.map(k => k.term) }
 }

@@ -1,5 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 
 const PATHWAY_PROMPTS: Record<string, string> = {
   ucas: `UCAS PATHWAY — 2026 entry onwards uses a NEW three-question structured format, not a single free-form essay. Produce exactly three answers:
@@ -20,7 +21,9 @@ const SYSTEM_PROMPT_BASE = `You are writing a personal statement for a specific 
 
 ANTI-HALLUCINATION: only use facts, experiences, and achievements the applicant actually gave you. Never invent an experience, grade, or accomplishment.
 
-BUZZWORD RULE: never write "passionate about", "always dreamed of", "since I was young I have loved" unless the applicant's own input gives you something specific and true to say instead of a cliché opener.`
+BUZZWORD RULE: never write "passionate about", "always dreamed of", "since I was young I have loved" unless the applicant's own input gives you something specific and true to say instead of a cliché opener.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',
