@@ -1,6 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
-import { ANTI_HALLUCINATION_RULE } from '../_shared/coreRules.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps
 // found, 6 confirmed critical, all applied. See the Foundation Blueprint research
@@ -25,9 +25,22 @@ You produce TWO separate outputs:
 
 6. NON-UNIVERSITY USERS. If the student is an apprentice, young worker, or 5th/6th year student (not a university student), the standard graduate-focused platform directory does not apply. Apprentices: SOLAS apprenticeship portal, trade union job boards, Construction Industry Federation. Young workers seeking progression: internal promotion strategy, Skillnet/SOLAS upskilling, professional body membership. 5th/6th year students: Transition Year placement sourcing, part-time retail/hospitality, Gaisce, speculative emails to local businesses.
 
+7. FIRST-EVER JOB SEARCH vs NEXT-ROLE SEARCH. Read has_no_experience. These are two genuinely different strategies, not the same strategy with the confidence turned down — and this check reshapes BOTH outputs (handler_guide and student_strategy), not just the student document.
+
+   If has_no_experience is TRUE, the person has no work history to leverage. That changes the mechanics:
+   - CHANNEL PRIORITY INVERTS. Recruitment agencies (channel 2) drop to LAST — agencies place people against a track record and will realistically deprioritise a candidate with none. Say this honestly rather than sending them to register with six agencies that won't call back. The college/university careers service becomes the single highest-leverage channel available to them and must be named explicitly and ranked first or second: Irish and UK institutions run employer partnerships, on-campus recruitment, CV clinics, and placement/internship pipelines that never appear on public job boards, and access is already paid for by their fees. Speculative applications (channel 5) rise in priority for SMEs and local employers, where a first-timer's application is judged on motivation rather than CV length.
+   - INTERNSHIPS AND PLACEMENTS ARE THE TARGET, NOT A DETOUR. For someone with no work history, an internship, placement, or first part-time role IS the objective — it is the thing that creates the track record everything else depends on. Never frame it as a lesser consolation or a stepping stone to "the real search".
+   - GETTING NOTICED WITHOUT A TRACK RECORD. Concrete tactics that genuinely work at this stage and should appear in the plan where relevant: a LinkedIn profile that leads with what they're studying and building (it is the one place they can show evidence at all); informational interviews / coffee chats, where being a student is a genuine advantage — professionals respond warmly to "I'm a student trying to understand this field" in a way they do not respond to a stranger asking for a job; the institution's alumni network, a warm channel only students and graduates have; and college projects, society roles, and volunteering used as real talking points, not filler.
+   - NEVER imply they have professional experience to draw on. Do not write "leverage your professional network", "reach out to former colleagues", or "highlight your industry experience" — they have none of these, and advice that assumes otherwise is unusable and tells them the strategy wasn't written for them.
+   - HANDLER GUIDE SHIFTS TOO. diagnostic_opening_questions should establish what they've actually got and what they've already tried at this level — for example whether they have used their college careers service at all (many students never do, and it is the fastest available win) — rather than asking about previous roles. talking_points and channel_priorities must reflect the inverted priority above.
+
+   If has_no_experience is FALSE, the standard strategy applies: past roles are real leverage for tailoring and for direct applications, referrals and existing professional contacts are a live channel, and recruitment agencies are worth real effort because there is a track record to place.
+
 ═══ CONTENT RULES ═══
 
-${ANTI_HALLUCINATION_RULE} For this service specifically: never invent or imply a specific current job posting exists at a specific company. The job market changes daily and you cannot know what's open right now. Cover WHERE to look and HOW to search — never WHAT is currently available.
+${ANTI_HALLUCINATION_RULE} For this service specifically: never invent or imply a specific current job posting exists at a specific company. The job market changes daily and you cannot know what's open right now. Cover WHERE to look and HOW to search — never WHAT is currently available. Equally, never invent a work history the person does not have, or write strategy that assumes one.
+
+${NON_TRADITIONAL_EVIDENCE_RULE}
 
 REAL IRISH PLATFORM DIRECTORY — use only these, matched to relevance: GradIreland (graduate schemes/internships), IrishJobs.ie and Indeed Ireland (general), LinkedIn (networking + direct applications — used in a large share of Irish hires), Glassdoor Ireland (company research), Jobs.ie, PublicJobs.ie (public sector/civil service — mandatory route, no alternative), RecruitIreland.com (SME-focused), recruitment agencies (Hays, CPL, Sigmar, Morgan McKinley, Brightwater, Manpower — most useful for temp/contract, less so for structured graduate schemes which go direct), sector boards (HSE.ie for healthcare, Courts.ie for legal, IDA Ireland / Enterprise Ireland for FDI and indigenous business). Mark any employer-specific or time-sensitive entry (e.g. named graduate scheme intake windows) with verify_before_use = true, since intake timing changes annually and you cannot confirm it's still accurate.
 
@@ -136,6 +149,10 @@ Deno.serve(async (req: Request) => {
     const userContent = JSON.stringify({
       today: new Date().toISOString().slice(0, 10),
       ...input,
+      // Coerced explicitly rather than relying on the spread: sessions created
+      // before this field existed would otherwise arrive as undefined, and the
+      // first-job branch must resolve to a definite true/false.
+      has_no_experience: !!input.has_no_experience,
     })
 
     const result = await callClaudeForStructuredOutput({

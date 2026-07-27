@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner } from '../../components/ui/Form'
+import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner } from '../../components/ui/Form'
 
 const OPPORTUNITY_TYPES = [
   ['graduate_scheme', 'Graduate scheme'],
@@ -19,6 +19,7 @@ const initialInput = {
   urgency: 'longer_runway', cv_status: '', linkedin_status: '',
   applications_so_far: '', interview_conversion: 'no_responses',
   professional_registration_status: '', non_university_type: '',
+  has_no_experience: false,
 }
 
 export default function JobSearchSupportPage() {
@@ -29,7 +30,10 @@ export default function JobSearchSupportPage() {
   const [session, setSession] = useState(null)
   const [handlerGuide, setHandlerGuide] = useState(null)
 
-  const set = (key) => (e) => setInput((f) => ({ ...f, [key]: e.target.value }))
+  const set = (key) => (e) => setInput((f) => ({
+    ...f,
+    [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+  }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -95,6 +99,17 @@ export default function JobSearchSupportPage() {
                   {OPPORTUNITY_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </FormSelect>
               </FormField>
+              <FormCheckbox
+                id="has_no_experience"
+                checked={input.has_no_experience}
+                onChange={set('has_no_experience')}
+                label="This would be my first ever job — I have no formal work experience yet"
+              />
+              {input.has_no_experience && (
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6, marginTop: '-6px' }}>
+                  Good to know — searching for a first role works differently. Your strategy will lead on your college careers service, speculative applications, and building visibility, rather than assuming a work history you don't have yet.
+                </p>
+              )}
               <FormField id="location" label="Preferred location" hint="e.g. Dublin, Cork, open to relocate">
                 <FormInput id="location" value={input.location} onChange={set('location')} />
               </FormField>
