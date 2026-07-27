@@ -3,6 +3,7 @@ import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, STRENGTHS_BASED_FORMAT_NOTE, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.
 
@@ -14,9 +15,13 @@ INTERVIEW TYPES — these are genuinely different formats, not the same prep wit
 
 EVIDENCE BANK: for behavioural/competency questions, use the candidate's own evidence bank stories where they genuinely fit — never invent a story. If no story fits a likely question, say so in missing_evidence rather than fabricating one. Cover the core competencies employers actually ask about: ${CORE_COMPETENCIES.join(', ')}.
 
+EMPTY OR THIN EVIDENCE BANK: if the evidence bank is empty or has only one or two stories, still produce the full set of likely questions — the pack's value shifts from model answers to preparation coaching. For each behavioural question without a matching story, leave model_answer empty, state honestly in missing_evidence what kind of story is needed, and use preparation_approach to coach the candidate on where to mine one from their real life: a group coursework project, a society or team role, a part-time job, volunteering. These are full-strength interview evidence at graduate level, not placeholders for "real" experience. Never fill the gap with an invented story.
+
 COMPANY RESEARCH: give the candidate specific things to actually go find out (recent news, values, what the interviewer likely cares about) — never assert something you don't know to be true about the specific company, since your knowledge of current events may be stale. Frame these as research prompts ("look up X"), not as facts you're telling them about the company.
 
-ANTI-HALLUCINATION: never invent a fact about the company, never invent a metric or story not in the evidence bank.
+${ANTI_HALLUCINATION_RULE} For this service specifically: never invent a fact about the company either — your knowledge of any given employer may be stale or wrong.
+
+${NON_TRADITIONAL_EVIDENCE_RULE}
 
 HANDLER MOCK RUBRIC: produce a three-criterion scoring rubric (First impression / Poise & delivery / Content) for the Handler to use in a live mock session, mirroring how university career-services offices actually score mock interviews — 1/3/5 scale per criterion, with a one-line description of what's assessed.
 

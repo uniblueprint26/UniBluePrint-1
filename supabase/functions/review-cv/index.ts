@@ -73,6 +73,11 @@ Deno.serve(async (req: Request) => {
       ? null // genuinely can't score alignment to a role that wasn't given
       : Math.round((roleTerms.filter((t: string) => raw_text.toLowerCase().includes(t)).length / roleTerms.length) * 100)
 
+    // Unlike generate-cv — which validates its own render template structurally via
+    // _shared/atsFormat.ts — a pasted CV arrives as plain text with its original
+    // layout already stripped. We genuinely cannot inspect whether the source
+    // document used tables or columns, so this score is derived from what the model
+    // can actually detect in the text, and nothing is claimed beyond that.
     const formattingPenalty = (result.formatting_issues as unknown[] || []).length * 15
     const formattingScore = Math.max(0, 100 - formattingPenalty)
 

@@ -104,6 +104,9 @@ function EvidenceBankTab({ userId }) {
 
       <FormCard>
         <h2 style={sectionHeading}>Add a story</h2>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.6 }}>
+          No formal work experience needed — stories from college projects, societies, sport, volunteering, and part-time jobs all count. Graduate employers expect exactly these.
+        </p>
         <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
           <FormField id="story_title" label="Short title" required><FormInput id="story_title" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required /></FormField>
           <FormField id="story_situation" label="Situation" required><FormTextarea id="story_situation" value={form.situation} onChange={(e) => setForm((f) => ({ ...f, situation: e.target.value }))} rows={2} required /></FormField>

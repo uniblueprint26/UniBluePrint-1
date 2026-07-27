@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useNavigate } from 'react-router-dom'
-import { Loader2, Plus, Trash2, Download, Send, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'
+import { Loader2, Plus, Trash2, Download, Send, ArrowLeft, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import {
@@ -152,8 +152,7 @@ export default function CvBuilderPage() {
     setSubmitting(true)
     setError('')
     try {
-      const serviceName = form.style === 'modern' ? 'CV Optimisation — Standard' : 'CV Optimisation — Standard'
-      const { data: service } = await supabase.from('services').select('id').eq('name', serviceName).single()
+      const { data: service } = await supabase.from('services').select('id').eq('name', 'CV Optimisation — Standard').single()
 
       const { data: submission, error: subErr } = await supabase
         .from('submissions')
@@ -418,10 +417,10 @@ function StyleStep({ form, set }) {
           <option value="two_page">Two page</option>
         </FormSelect>
       </FormField>
-      <FormField id="style" label="Template">
+      <FormField id="style" label="Template" hint="Both templates are equally ATS-safe — single column, no tables, standard section names. They differ only in visual tone.">
         <FormSelect id="style" value={form.style} onChange={set('style')}>
-          <option value="classic_ats">Classic — most ATS-safe, best for finance/law/healthcare/government</option>
-          <option value="modern">Modern — acceptable for tech/startups</option>
+          <option value="classic_ats">Classic — serif, traditional. Expected in finance, law, healthcare, government</option>
+          <option value="modern">Modern — sans-serif, cleaner. Common in tech, startups, creative</option>
         </FormSelect>
       </FormField>
       <FormField id="specific_requests" label="Any specific requests?" hint="Optional"><FormTextarea id="specific_requests" value={form.specific_requests} onChange={set('specific_requests')} rows={3} /></FormField>
@@ -467,6 +466,21 @@ function ReviewStep({ cvDoc, submitted, submitting, onSubmitForReview, onStartOv
                   <span key={k} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', background: 'rgba(30,58,95,0.06)', padding: '4px 9px', borderRadius: '4px' }}>{k}</span>
                 ))}
               </div>
+            </div>
+          )}
+          {cvDoc.ats_report.formatting_checks?.length > 0 && (
+            <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(30,58,95,0.1)' }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#1E3A5F', marginBottom: '10px' }}>Parseability checks</p>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                {cvDoc.ats_report.formatting_checks.map((c) => (
+                  <li key={c.check} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                    {c.passed
+                      ? <CheckCircle size={14} color="#16A34A" style={{ marginTop: '2px', flexShrink: 0 }} aria-hidden="true" />
+                      : <AlertTriangle size={14} color="#DC2626" style={{ marginTop: '2px', flexShrink: 0 }} aria-hidden="true" />}
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: c.passed ? '#6B7280' : '#374151', lineHeight: 1.55 }}>{c.detail}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </FormCard>

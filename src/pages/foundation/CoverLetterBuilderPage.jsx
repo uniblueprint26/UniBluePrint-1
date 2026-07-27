@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 export default function CoverLetterBuilderPage() {
@@ -16,6 +16,7 @@ export default function CoverLetterBuilderPage() {
   const [backgroundSummary, setBackgroundSummary] = useState('')
   const [whyCompany, setWhyCompany] = useState('')
   const [relevantExperience, setRelevantExperience] = useState('')
+  const [hasNoExperience, setHasNoExperience] = useState(false)
   const [tone, setTone] = useState('balanced')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -37,7 +38,7 @@ export default function CoverLetterBuilderPage() {
         .from('cover_letters')
         .insert([{
           user_id: user.id, target_role: targetRole, target_company: targetCompany, job_description: jobDescription || null,
-          input: { background_summary: backgroundSummary, why_this_company: whyCompany, relevant_experience: relevantExperience, tone, industry },
+          input: { background_summary: backgroundSummary, why_this_company: whyCompany, relevant_experience: relevantExperience, has_no_experience: hasNoExperience, tone, industry },
         }])
         .select()
         .single()
@@ -104,7 +105,20 @@ export default function CoverLetterBuilderPage() {
               <FormField id="industry" label="Industry" hint="Optional — helps us benchmark against real examples from your field"><FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} /></FormField>
               <FormField id="job_description" label="Paste the job description" hint="Optional — sharpens relevance"><FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={5} /></FormField>
               <FormField id="background_summary" label="A little about your background" hint="Optional"><FormTextarea id="background_summary" value={backgroundSummary} onChange={(e) => setBackgroundSummary(e.target.value)} rows={3} /></FormField>
-              <FormField id="relevant_experience" label="Your most relevant experience for this role" required><FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={4} required /></FormField>
+              <FormCheckbox
+                id="has_no_experience"
+                checked={hasNoExperience}
+                onChange={(e) => setHasNoExperience(e.target.checked)}
+                label="I have no formal work experience yet"
+              />
+              <FormField
+                id="relevant_experience"
+                label={hasNoExperience ? 'Your most relevant projects, coursework, or activities for this role' : 'Your most relevant experience for this role'}
+                required
+                hint={hasNoExperience ? 'College projects, societies, volunteering, and part-time work all count — this is the real evidence your letter will be built on.' : undefined}
+              >
+                <FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={4} required />
+              </FormField>
               <FormField id="why_company" label="Why this company specifically?" hint="Optional, but makes the letter much stronger"><FormTextarea id="why_company" value={whyCompany} onChange={(e) => setWhyCompany(e.target.value)} rows={3} /></FormField>
               <FormField id="tone" label="Tone">
                 <FormSelect id="tone" value={tone} onChange={(e) => setTone(e.target.value)}>

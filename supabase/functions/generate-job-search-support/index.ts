@@ -1,5 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
+import { ANTI_HALLUCINATION_RULE } from '../_shared/coreRules.ts'
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps
 // found, 6 confirmed critical, all applied. See the Foundation Blueprint research
@@ -26,7 +27,7 @@ You produce TWO separate outputs:
 
 ═══ CONTENT RULES ═══
 
-ANTI-HALLUCINATION: Never invent or imply a specific current job posting exists at a specific company. The job market changes daily and you cannot know what's open right now. Cover WHERE to look and HOW to search — never WHAT is currently available.
+${ANTI_HALLUCINATION_RULE} For this service specifically: never invent or imply a specific current job posting exists at a specific company. The job market changes daily and you cannot know what's open right now. Cover WHERE to look and HOW to search — never WHAT is currently available.
 
 REAL IRISH PLATFORM DIRECTORY — use only these, matched to relevance: GradIreland (graduate schemes/internships), IrishJobs.ie and Indeed Ireland (general), LinkedIn (networking + direct applications — used in a large share of Irish hires), Glassdoor Ireland (company research), Jobs.ie, PublicJobs.ie (public sector/civil service — mandatory route, no alternative), RecruitIreland.com (SME-focused), recruitment agencies (Hays, CPL, Sigmar, Morgan McKinley, Brightwater, Manpower — most useful for temp/contract, less so for structured graduate schemes which go direct), sector boards (HSE.ie for healthcare, Courts.ie for legal, IDA Ireland / Enterprise Ireland for FDI and indigenous business). Mark any employer-specific or time-sensitive entry (e.g. named graduate scheme intake windows) with verify_before_use = true, since intake timing changes annually and you cannot confirm it's still accurate.
 

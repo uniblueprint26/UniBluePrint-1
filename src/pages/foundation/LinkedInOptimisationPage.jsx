@@ -4,17 +4,18 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import { FormCard, FormField, FormInput, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 const initialInput = {
-  current_status: '', key_skills: '', notable_achievements: '', target_connections: '', tone: 'balanced',
+  current_status: '', key_skills: '', notable_achievements: '', target_connections: '', experience: '', tone: 'balanced',
 }
 
 export default function LinkedInOptimisationPage() {
   const { user } = useAuth()
   const [targetIndustry, setTargetIndustry] = useState('')
   const [targetRole, setTargetRole] = useState('')
+  const [hasNoExperience, setHasNoExperience] = useState(false)
   const [input, setInput] = useState(initialInput)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -45,6 +46,8 @@ export default function LinkedInOptimisationPage() {
             key_skills: skills,
             notable_achievements: input.notable_achievements,
             target_connections: input.target_connections,
+            experience: hasNoExperience ? '' : input.experience,
+            has_no_experience: hasNoExperience,
             tone: input.tone,
           },
         }])
@@ -117,6 +120,21 @@ export default function LinkedInOptimisationPage() {
               <FormField id="key_skills" label="Key skills" required hint="At least 3, comma separated">
                 <FormInput id="key_skills" value={input.key_skills} onChange={set('key_skills')} />
               </FormField>
+              <FormCheckbox
+                id="has_no_experience"
+                checked={hasNoExperience}
+                onChange={(e) => setHasNoExperience(e.target.checked)}
+                label="I have no formal work experience yet"
+              />
+              {hasNoExperience ? (
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6 }}>
+                  No problem — a student profile built on your About section, education, and projects is exactly what recruiters searching for graduate talent expect to find.
+                </p>
+              ) : (
+                <FormField id="experience" label="Roles you've held" hint="Optional — job title, where, and roughly what you did, one per line">
+                  <FormTextarea id="experience" value={input.experience} onChange={set('experience')} rows={4} />
+                </FormField>
+              )}
               <FormField id="notable_achievements" label="Notable achievements" hint="Optional">
                 <FormTextarea id="notable_achievements" value={input.notable_achievements} onChange={set('notable_achievements')} rows={3} />
               </FormField>

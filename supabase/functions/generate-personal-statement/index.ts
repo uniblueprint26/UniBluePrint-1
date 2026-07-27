@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 
 const PATHWAY_PROMPTS: Record<string, string> = {
   ucas: `UCAS PATHWAY — 2026 entry onwards uses a NEW three-question structured format, not a single free-form essay. Produce exactly three answers:
@@ -19,9 +20,13 @@ Each answer must be a minimum of 350 characters, and the three combined must not
 
 const SYSTEM_PROMPT_BASE = `You are writing a personal statement for a specific applicant, course, and institution. Never write anything generic enough to be resubmitted unchanged elsewhere.
 
-ANTI-HALLUCINATION: only use facts, experiences, and achievements the applicant actually gave you. Never invent an experience, grade, or accomplishment.
+${ANTI_HALLUCINATION_RULE}
 
 BUZZWORD RULE: never write "passionate about", "always dreamed of", "since I was young I have loved" unless the applicant's own input gives you something specific and true to say instead of a cliché opener.
+
+NO FORMAL WORK EXPERIENCE IS THE NORM here — most applicants are school leavers, and admissions readers know it. Where a section invites experience outside education (especially the UCAS "what else have you done" question), school activities, hobbies, independent reading, sport, family or caring responsibilities, volunteering, and part-time work are all legitimate answers at full strength. If the applicant genuinely gave you little for such a section, write a shorter, honest answer built on what's real — never pad it with invented experiences or inflate a small activity into something it wasn't.
+
+${NON_TRADITIONAL_EVIDENCE_RULE}
 
 ${ANTI_GENERIC_RULE}`
 

@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 
 const SYSTEM_PROMPT = `You are an expert LinkedIn profile writer combining a recruiter's search behaviour with a copywriter's ear for how people actually talk.
 
@@ -14,11 +15,15 @@ ABOUT SECTION — real 4-part structure that outperforms generic "results-driven
   4. A clear call to action — what you want the reader to do next (1-2 lines)
 Written in FIRST PERSON ("I", "my") — never third person. Conversational, not corporate-bio. Target 1,500-2,000 characters (LinkedIn allows up to 2,600). The first sentence must stand alone and hook, since it's the only part visible before "see more".
 
-ANTI-HALLUCINATION: never invent a number, employer, or achievement not in the input. If no metric was given for something, write about the substance and impact in words instead of fabricating a statistic.
+${ANTI_HALLUCINATION_RULE}
 
 BUZZWORD RULE: never write "passionate", "hardworking", "results-driven", "team player", "dynamic professional" unless the input gives you a specific fact that actually demonstrates it.
 
 EXPERIENCE REWRITES: for each role given, rewrite the description with impact language (not duty lists), consistent with the headline/About tone.
+
+NO FORMAL WORK EXPERIENCE — if has_no_experience is true, the About section and Education/Projects carry the profile, and that is a legitimate, recruiter-recognised shape for a student profile — not a deficient one. The HEADLINE leads honestly with who they are and where they're headed ("Final-year Computer Science student at UCD | ...") — a real student headline outperforms a manufactured professional one, and recruiters searching for graduate talent search for exactly these terms. Return experience_rewrites as an empty array rather than inventing roles. FEATURED SECTION ideas should draw from coursework projects, society work, or anything real they've built. Never pad the profile to look more senior than it is.
+
+${NON_TRADITIONAL_EVIDENCE_RULE}
 
 SKILLS: recommend skills to add/prioritise for the target industry, grounded in what recruiters in that field actually search — don't just repeat back what the user typed, add genuinely relevant adjacent skills they may not have thought to list, clearly marked as suggestions.
 
@@ -81,6 +86,7 @@ Deno.serve(async (req: Request) => {
         notable_achievements: input.notable_achievements,
         target_connections: input.target_connections,
         experience: input.experience,
+        has_no_experience: !!input.has_no_experience,
         tone: input.tone,
         real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),

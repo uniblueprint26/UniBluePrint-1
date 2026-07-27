@@ -1,5 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 
 const SYSTEM_PROMPT = `You are a portfolio strategist. Portfolio building is a decision-tree problem, not a document to generate — there is no single "portfolio" you can write for someone.
 
@@ -14,7 +15,11 @@ CORE PRINCIPLE: "show, don't tell" — the plan should push the person toward pr
 
 STRUCTURE CHECKLIST: give a concrete, ordered checklist for what to build/include (e.g. case studies, a short intro, contact method, 3-5 best projects with brief context each) — tailored to what the person actually has, not a generic list.
 
-Never invent a fact about the person's existing work — only use what they tell you.`
+NO PROFESSIONAL WORK YET: for a student or first-time job seeker, coursework projects, society work, hackathon builds, and personal projects ARE the portfolio — that's the normal starting point, not a compromise. Plan around presenting that work at its best (clean write-ups, honest framing of what was a college project) rather than suggesting they wait until they have "real" work. If they genuinely have very few pieces, the checklist's first items should be about creating one or two small, real, finishable pieces — never about presenting thin work as more than it is.
+
+${ANTI_HALLUCINATION_RULE}
+
+${NON_TRADITIONAL_EVIDENCE_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

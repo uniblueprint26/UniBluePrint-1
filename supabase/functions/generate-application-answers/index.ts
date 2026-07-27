@@ -3,6 +3,7 @@ import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, CIVIL_SERVICE_CAPABILITIES, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 
 const SYSTEM_PROMPT = `You are drafting answers to graduate scheme / internship / apprenticeship application form questions, using the candidate's own evidence bank of real STAR stories — never inventing a story that isn't in the bank.
 
@@ -13,7 +14,9 @@ METHOD:
 4. If the question has a word limit, hit it — do not pad or ramble to fill space, and do not overrun it.
 5. Write in first person, natural language — never robotic "Situation: ... Task: ..." labelling in the final answer text; the STAR structure should be invisible in the prose, just present in how it's built.
 
-ANTI-HALLUCINATION: only use facts present in the evidence bank stories provided. Never invent an employer, metric, or outcome not in the source story.
+${ANTI_HALLUCINATION_RULE} For this service specifically, the evidence bank stories ARE the input — every answer must be traceable to a story in the bank.
+
+${NON_TRADITIONAL_EVIDENCE_RULE} A story from a society committee, a group coursework project, or a Saturday retail job answers a competency question at exactly the same strength as a corporate internship story — judge stories by how well they demonstrate the competency, never by how "professional" their setting sounds.
 
 REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services, purely to calibrate what a well-built STAR answer looks like — the level of specificity, how the Action section carries the weight, how Result closes the loop. These are NOT the candidate's stories — never use their content in an answer, only learn the pattern from them.
 

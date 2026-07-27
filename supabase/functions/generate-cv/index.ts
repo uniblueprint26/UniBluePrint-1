@@ -3,6 +3,8 @@ import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
 import { fetchIndustryExamples, fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { computeFormattingScore } from '../_shared/atsFormat.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
 
@@ -10,11 +12,13 @@ METHOD — every experience, project, or achievement bullet follows the Harvard 
   action verb + what you did + quantified result + why it mattered
 Write phrases, not full sentences. Never start a bullet with "I" or use personal pronouns.
 
-ABSOLUTE RULE — NEVER INVENT FACTS. Only use information the user actually provided. If the user did not give you a number, do not invent one — sharpen the action and result language instead of fabricating a metric. A CV with an invented statistic is worse than one with none, because it can be caught and destroys trust.
+${ANTI_HALLUCINATION_RULE}
 
 BUZZWORD RULE — never write "passionate", "hardworking", "results-driven", "team player", "motivated individual", or similar unsupported claims unless the user's own input gives you a specific fact that actually demonstrates it. If they haven't given you evidence, don't claim the trait.
 
 NO WORK EXPERIENCE FALLBACK — if has_no_experience is true, do NOT write an empty or padded Experience section. Restructure the CV to lead with Education (including relevant modules and achievements), then Projects, then Skills, then any Achievements & Extras (societies, volunteering, publications). This is a completely different, equally strong structure for first-years and students entering the workforce for the first time — not a lesser version of the standard CV.
+
+${NON_TRADITIONAL_EVIDENCE_RULE}
 
 TARGETING — if target_role, target_industry, target_company, or job_description are provided, tailor language and emphasis toward them, and naturally work in relevant terminology for that field without keyword-stuffing. If they are blank, produce a strong general-purpose CV for the stated industry only.
 
@@ -134,7 +138,7 @@ Deno.serve(async (req: Request) => {
       maxTokens: 4096,
     })
 
-    const atsReport = computeAtsReport(result, doc.target_industry, doc.target_role, doc.job_description)
+    const atsReport = computeAtsReport(result, input, doc.target_industry, doc.target_role, doc.job_description)
     const allSources = [...examples, ...intelligence]
     const resultWithBenchmark = {
       ...result,
@@ -183,6 +187,7 @@ function validateInput(input: Record<string, unknown>): string | null {
 
 function computeAtsReport(
   generated: Record<string, unknown>,
+  input: Record<string, unknown>,
   targetIndustry: string | null,
   targetRole: string | null,
   jobDescription: string | null,
@@ -199,8 +204,10 @@ function computeAtsReport(
     ? 70 // no target role given — neutral score, can't measure alignment to nothing
     : Math.round((roleTerms.filter(t => generatedText.includes(t)).length / roleTerms.length) * 100)
 
-  // Formatting is guaranteed by our own single-column, standard-section template.
-  const formattingScore = 95
+  const { score: formattingScore, checks: formattingChecks } = computeFormattingScore(
+    generated,
+    (input.personal_info || {}) as Record<string, string>,
+  )
 
   const overall = Math.round(keywordScore * 0.4 + roleAlignmentScore * 0.35 + formattingScore * 0.25)
 
@@ -209,6 +216,7 @@ function computeAtsReport(
     keyword_match_score: keywordScore,
     role_alignment_score: roleAlignmentScore,
     formatting_score: formattingScore,
+    formatting_checks: formattingChecks,
     matched_keywords: matched,
     missing_keywords: missing.slice(0, 12),
     scored_against: jobDescription ? 'job_description' : 'industry_baseline',
