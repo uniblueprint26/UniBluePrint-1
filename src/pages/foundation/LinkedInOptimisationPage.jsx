@@ -4,6 +4,10 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
@@ -12,6 +16,7 @@ const initialInput = {
 }
 
 export default function LinkedInOptimisationPage() {
+  const { runLocked } = useSubmitLock()
   const { user } = useAuth()
   const [targetIndustry, setTargetIndustry] = useState('')
   const [targetRole, setTargetRole] = useState('')
@@ -25,11 +30,11 @@ export default function LinkedInOptimisationPage() {
 
   const set = (key) => (e) => setInput((f) => ({ ...f, [key]: e.target.value }))
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
     const skills = input.key_skills.split(',').map((s) => s.trim()).filter(Boolean)
-    if (!targetIndustry || !input.current_status || skills.length < 3) {
+    if (!targetIndustry.trim() || !input.current_status.trim() || skills.length < 3) {
       setError('Industry, current status, and at least 3 key skills are required.')
       return
     }
@@ -55,41 +60,28 @@ export default function LinkedInOptimisationPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-linkedin', { body: { document_id: inserted.id } })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-linkedin', { document_id: inserted.id })
       setDocument(data.document)
     } catch (err) {
       setError(err.message || parseDbError(err) || 'Generation failed. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!cvDoc) return
     setSubmitting(true)
     setError('')
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'LinkedIn Optimisation — Standard').single()
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: user.id, service_id: service?.id ?? null, notes: 'LinkedIn Optimisation' }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-      const { error: updateErr } = await supabase
-        .from('linkedin_documents')
-        .update({ submission_id: submission.id, status: 'submitted' })
-        .eq('id', cvDoc.id)
-      if (updateErr) throw updateErr
-      setSubmitted(true)
+      await submitForReview('linkedin_documents', cvDoc.id, 'LinkedIn Optimisation — Standard', 'LinkedIn Optimisation')
+            setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   return (
     <>
@@ -109,16 +101,16 @@ export default function LinkedInOptimisationPage() {
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <FormField id="target_industry" label="Target industry / field" required>
-                <FormInput id="target_industry" value={targetIndustry} onChange={(e) => setTargetIndustry(e.target.value)} required />
+                <FormInput id="target_industry" value={targetIndustry} onChange={(e) => setTargetIndustry(e.target.value)} required maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="target_role" label="Title you want to be found for" hint="Optional">
-                <FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
+                <FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="current_status" label="Current status" required hint="e.g. Final year Computer Science student at UCD">
-                <FormInput id="current_status" value={input.current_status} onChange={set('current_status')} required />
+                <FormInput id="current_status" value={input.current_status} onChange={set('current_status')} required maxLength={LIMITS.MEDIUM} />
               </FormField>
               <FormField id="key_skills" label="Key skills" required hint="At least 3, comma separated">
-                <FormInput id="key_skills" value={input.key_skills} onChange={set('key_skills')} />
+                <FormInput id="key_skills" value={input.key_skills} onChange={set('key_skills')} maxLength={LIMITS.MEDIUM} />
               </FormField>
               <FormCheckbox
                 id="has_no_experience"
@@ -132,14 +124,14 @@ export default function LinkedInOptimisationPage() {
                 </p>
               ) : (
                 <FormField id="experience" label="Roles you've held" hint="Optional — job title, where, and roughly what you did, one per line">
-                  <FormTextarea id="experience" value={input.experience} onChange={set('experience')} rows={4} />
+                  <FormTextarea id="experience" value={input.experience} onChange={set('experience')} rows={4} maxLength={LIMITS.LONG} />
                 </FormField>
               )}
               <FormField id="notable_achievements" label="Notable achievements" hint="Optional">
-                <FormTextarea id="notable_achievements" value={input.notable_achievements} onChange={set('notable_achievements')} rows={3} />
+                <FormTextarea id="notable_achievements" value={input.notable_achievements} onChange={set('notable_achievements')} rows={3} maxLength={LIMITS.LONG} />
               </FormField>
               <FormField id="target_connections" label="What kind of connections do you want to attract?" hint="Optional — e.g. recruiters, clients, peers in your field">
-                <FormInput id="target_connections" value={input.target_connections} onChange={set('target_connections')} />
+                <FormInput id="target_connections" value={input.target_connections} onChange={set('target_connections')} maxLength={LIMITS.MEDIUM} />
               </FormField>
               <button
                 type="submit" disabled={loading}

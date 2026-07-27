@@ -2,7 +2,11 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import {
+  ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
+  buzzwordRule, realExamplesRule, HANDLER_NOTES_DESCRIPTION,
+} from '../_shared/coreRules.ts'
+import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are an expert cover letter writer. Every letter is written for ONE specific role at ONE specific company — never a generic template, and it must read like it could not be sent to any other employer unchanged.
 
@@ -22,7 +26,9 @@ ${ANTI_HALLUCINATION_RULE}
 
 ${NON_TRADITIONAL_EVIDENCE_RULE}
 
-REAL EXAMPLES: you may be given real, published, sourced cover letter openers from this industry (real_examples). Study why each works — never copy its wording or reuse its specific facts. Every sentence you write must come from this candidate's own input.
+${buzzwordRule()}
+
+${realExamplesRule('real, published, sourced cover letter openers from this industry')}
 
 ${ANTI_GENERIC_RULE}`
 
@@ -34,7 +40,7 @@ const OUTPUT_SCHEMA = {
     closing: { type: 'string' },
     full_text: { type: 'string', description: 'The complete letter, ready to send, combining the hook/body/closing into proper paragraphs' },
     word_count: { type: 'integer' },
-    handler_notes: { type: 'array', items: { type: 'string' } },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
   required: ['opening_hook', 'body_paragraphs', 'closing', 'full_text', 'word_count', 'handler_notes'],
 }
@@ -50,8 +56,23 @@ Deno.serve(async (req: Request) => {
     if (fetchErr || !doc) return jsonResponse({ error: 'Cover letter not found' }, 404)
 
     const input = doc.input || {}
-    if (!doc.target_role || !doc.target_company) return jsonResponse({ error: 'Target role and company are required.' }, 422)
-    if (!input.relevant_experience) return jsonResponse({ error: 'Add at least a little about your relevant experience or background.' }, 422)
+    const missing = checkRequired([
+      ['Target role', doc.target_role],
+      ['Target company', doc.target_company],
+      ['Relevant experience', input.relevant_experience],
+    ])
+    if (missing) return jsonResponse({ error: missing }, 422)
+
+    const lengthError = checkLengths([
+      ['Target role', doc.target_role, LIMITS.SHORT],
+      ['Target company', doc.target_company, LIMITS.SHORT],
+      ['Industry', input.industry, LIMITS.SHORT],
+      ['Job description', doc.job_description, LIMITS.PASTE_JD],
+      ['Background summary', input.background_summary, LIMITS.LONG],
+      ['Relevant experience', input.relevant_experience, LIMITS.LONG],
+      ['Why this company', input.why_this_company, LIMITS.LONG],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', input.industry, 2)
 

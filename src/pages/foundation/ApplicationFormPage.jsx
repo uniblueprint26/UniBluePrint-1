@@ -4,6 +4,10 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Plus, Trash2, Send, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
@@ -52,6 +56,7 @@ function TabButton({ active, onClick, label }) {
 }
 
 function EvidenceBankTab({ userId }) {
+  const { runLocked } = useSubmitLock()
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -73,10 +78,10 @@ function EvidenceBankTab({ userId }) {
     competency_tags: f.competency_tags.includes(tag) ? f.competency_tags.filter((t) => t !== tag) : [...f.competency_tags, tag],
   }))
 
-  const handleAdd = async (e) => {
-    e.preventDefault()
+  const handleAdd = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
-    if (!form.title || !form.situation || !form.task || !form.action || !form.result || form.competency_tags.length === 0) {
+    if (!form.title.trim() || !form.situation.trim() || !form.task.trim() || !form.action.trim() || !form.result.trim() || form.competency_tags.length === 0) {
       setError('Every field is required, and at least one competency tag.')
       return
     }
@@ -91,7 +96,7 @@ function EvidenceBankTab({ userId }) {
     } finally {
       setSaving(false)
     }
-  }
+  })
 
   const handleDelete = async (id) => {
     await supabase.from('evidence_bank_stories').delete().eq('id', id)
@@ -108,11 +113,11 @@ function EvidenceBankTab({ userId }) {
           No formal work experience needed — stories from college projects, societies, sport, volunteering, and part-time jobs all count. Graduate employers expect exactly these.
         </p>
         <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
-          <FormField id="story_title" label="Short title" required><FormInput id="story_title" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required /></FormField>
-          <FormField id="story_situation" label="Situation" required><FormTextarea id="story_situation" value={form.situation} onChange={(e) => setForm((f) => ({ ...f, situation: e.target.value }))} rows={2} required /></FormField>
-          <FormField id="story_task" label="Task" required><FormTextarea id="story_task" value={form.task} onChange={(e) => setForm((f) => ({ ...f, task: e.target.value }))} rows={2} required /></FormField>
-          <FormField id="story_action" label="Action" required hint="This is the bulk of the story — what did you specifically do?"><FormTextarea id="story_action" value={form.action} onChange={(e) => setForm((f) => ({ ...f, action: e.target.value }))} rows={3} required /></FormField>
-          <FormField id="story_result" label="Result" required><FormTextarea id="story_result" value={form.result} onChange={(e) => setForm((f) => ({ ...f, result: e.target.value }))} rows={2} required /></FormField>
+          <FormField id="story_title" label="Short title" required><FormInput id="story_title" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required maxLength={LIMITS.SHORT} /></FormField>
+          <FormField id="story_situation" label="Situation" required><FormTextarea id="story_situation" value={form.situation} onChange={(e) => setForm((f) => ({ ...f, situation: e.target.value }))} rows={2} required maxLength={LIMITS.LONG} /></FormField>
+          <FormField id="story_task" label="Task" required><FormTextarea id="story_task" value={form.task} onChange={(e) => setForm((f) => ({ ...f, task: e.target.value }))} rows={2} required maxLength={LIMITS.LONG} /></FormField>
+          <FormField id="story_action" label="Action" required hint="This is the bulk of the story — what did you specifically do?"><FormTextarea id="story_action" value={form.action} onChange={(e) => setForm((f) => ({ ...f, action: e.target.value }))} rows={3} required maxLength={LIMITS.LONG} /></FormField>
+          <FormField id="story_result" label="Result" required><FormTextarea id="story_result" value={form.result} onChange={(e) => setForm((f) => ({ ...f, result: e.target.value }))} rows={2} required maxLength={LIMITS.LONG} /></FormField>
           <div>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 500, color: '#1E3A5F', marginBottom: '8px' }}>Which competencies does this demonstrate? *</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -174,6 +179,7 @@ function emptyStory() {
 }
 
 function AnswerFormTab({ userId }) {
+  const { runLocked } = useSubmitLock()
   const [targetCompany, setTargetCompany] = useState('')
   const [targetRole, setTargetRole] = useState('')
   const [questions, setQuestions] = useState([{ question_text: '', word_limit: '' }])
@@ -187,8 +193,8 @@ function AnswerFormTab({ userId }) {
   const addQ = () => setQuestions((qs) => [...qs, { question_text: '', word_limit: '' }])
   const removeQ = (i) => setQuestions((qs) => qs.filter((_, idx) => idx !== i))
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
     const validQuestions = questions.filter((q) => q.question_text.trim())
     if (validQuestions.length === 0) { setError('Add at least one question.'); return }
@@ -201,36 +207,27 @@ function AnswerFormTab({ userId }) {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-application-answers', { body: { form_id: inserted.id } })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-application-answers', { form_id: inserted.id })
       setResult(data.form)
     } catch (err) {
       setError(err.message || parseDbError(err) || 'Generation failed.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!result) return
     setSubmitting(true)
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'Application Form Assistance — Standard').single()
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: userId, service_id: service?.id ?? null, notes: `Application Form — ${targetCompany || 'Untitled'}` }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-      await supabase.from('application_forms').update({ submission_id: submission.id, status: 'submitted' }).eq('id', result.id)
-      setSubmitted(true)
+      await submitForReview('application_forms', result.id, 'Application Form Assistance — Standard', `Application Form — ${targetCompany || 'Untitled'}`)
+            setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   if (submitted) {
     return (
@@ -277,18 +274,18 @@ function AnswerFormTab({ userId }) {
     <FormCard>
       {error && <ErrorBanner message={error} />}
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <FormField id="target_company" label="Company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} /></FormField>
-        <FormField id="target_role" label="Role" hint="Optional"><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} /></FormField>
+        <FormField id="target_company" label="Company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
+        <FormField id="target_role" label="Role" hint="Optional"><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
         {questions.map((q, i) => (
           <div key={i} style={{ position: 'relative', background: '#F5F0E8', borderRadius: '10px', padding: '16px' }}>
             {questions.length > 1 && (
               <button type="button" onClick={() => removeQ(i)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer' }} aria-label="Remove question"><Trash2 size={14} /></button>
             )}
             <FormField id={`q-${i}`} label={`Question ${i + 1}`} required>
-              <FormTextarea id={`q-${i}`} value={q.question_text} onChange={(e) => updateQ(i, 'question_text', e.target.value)} rows={2} required />
+              <FormTextarea id={`q-${i}`} value={q.question_text} onChange={(e) => updateQ(i, 'question_text', e.target.value)} rows={2} required maxLength={LIMITS.LONG} />
             </FormField>
             <div style={{ marginTop: '10px' }}>
-              <FormField id={`q-limit-${i}`} label="Word limit" hint="Optional"><FormInput id={`q-limit-${i}`} value={q.word_limit} onChange={(e) => updateQ(i, 'word_limit', e.target.value)} /></FormField>
+              <FormField id={`q-limit-${i}`} label="Word limit" hint="Optional"><FormInput id={`q-limit-${i}`} value={q.word_limit} onChange={(e) => updateQ(i, 'word_limit', e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
             </div>
           </div>
         ))}

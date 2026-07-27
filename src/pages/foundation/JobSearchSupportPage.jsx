@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { LIMITS } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner } from '../../components/ui/Form'
 
 const OPPORTUNITY_TYPES = [
@@ -23,6 +26,7 @@ const initialInput = {
 }
 
 export default function JobSearchSupportPage() {
+  const { runLocked } = useSubmitLock()
   const { user } = useAuth()
   const [input, setInput] = useState(initialInput)
   const [loading, setLoading] = useState(false)
@@ -35,10 +39,10 @@ export default function JobSearchSupportPage() {
     [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
   }))
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
-    if (!input.field_or_industry || !input.opportunity_type) {
+    if (!input.field_or_industry.trim() || !input.opportunity_type.trim()) {
       setError('Field/industry and target opportunity type are required — they\'re the minimum needed to build a personalised strategy.')
       return
     }
@@ -51,11 +55,7 @@ export default function JobSearchSupportPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-job-search-support', {
-        body: { session_id: inserted.id },
-      })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-job-search-support', { session_id: inserted.id })
       setSession(data.session)
 
       // Only returns data if this account holds the handler/operations role — RLS,
@@ -71,7 +71,7 @@ export default function JobSearchSupportPage() {
     } finally {
       setLoading(false)
     }
-  }
+  })
 
   return (
     <>
@@ -91,7 +91,7 @@ export default function JobSearchSupportPage() {
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <FormField id="field_or_industry" label="Field / industry" required>
-                <FormInput id="field_or_industry" value={input.field_or_industry} onChange={set('field_or_industry')} required />
+                <FormInput id="field_or_industry" value={input.field_or_industry} onChange={set('field_or_industry')} required maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="opportunity_type" label="Target opportunity type" required>
                 <FormSelect id="opportunity_type" value={input.opportunity_type} onChange={set('opportunity_type')} required>
@@ -111,10 +111,10 @@ export default function JobSearchSupportPage() {
                 </p>
               )}
               <FormField id="location" label="Preferred location" hint="e.g. Dublin, Cork, open to relocate">
-                <FormInput id="location" value={input.location} onChange={set('location')} />
+                <FormInput id="location" value={input.location} onChange={set('location')} maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="timeline" label="When do you want to start?" hint="e.g. September 2026, ASAP, flexible">
-                <FormInput id="timeline" value={input.timeline} onChange={set('timeline')} />
+                <FormInput id="timeline" value={input.timeline} onChange={set('timeline')} maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="urgency" label="How urgent is this?">
                 <FormSelect id="urgency" value={input.urgency} onChange={set('urgency')}>
@@ -123,7 +123,7 @@ export default function JobSearchSupportPage() {
                 </FormSelect>
               </FormField>
               <FormField id="applications_so_far" label="What have you tried so far?" hint="Optional">
-                <FormTextarea id="applications_so_far" value={input.applications_so_far} onChange={set('applications_so_far')} rows={3} />
+                <FormTextarea id="applications_so_far" value={input.applications_so_far} onChange={set('applications_so_far')} rows={3} maxLength={LIMITS.LONG} />
               </FormField>
               <FormField id="interview_conversion" label="Are your applications converting to interviews?">
                 <FormSelect id="interview_conversion" value={input.interview_conversion} onChange={set('interview_conversion')}>
@@ -149,7 +149,7 @@ export default function JobSearchSupportPage() {
                 </FormSelect>
               </FormField>
               <FormField id="professional_registration_status" label="Does your field require professional registration?" hint="e.g. NMBI, Teaching Council, CORU — optional">
-                <FormInput id="professional_registration_status" value={input.professional_registration_status} onChange={set('professional_registration_status')} />
+                <FormInput id="professional_registration_status" value={input.professional_registration_status} onChange={set('professional_registration_status')} maxLength={LIMITS.MEDIUM} />
               </FormField>
               <FormField id="non_university_type" label="If not a university student, what best describes you?" hint="Optional">
                 <FormSelect id="non_university_type" value={input.non_university_type} onChange={set('non_university_type')}>

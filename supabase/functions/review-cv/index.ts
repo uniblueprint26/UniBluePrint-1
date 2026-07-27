@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
 import { fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
+import { LIMITS, checkLengths } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV reviewer combining the judgement of a recruiter, an ATS specialist, and a university careers advisor. You are reviewing a CV someone already has — not writing one from scratch.
 
@@ -45,6 +46,14 @@ Deno.serve(async (req: Request) => {
     if (!raw_text || raw_text.trim().length < 50) {
       return jsonResponse({ error: 'Paste the full text of your CV (at least a few sentences) to review.' }, 422)
     }
+
+    const lengthError = checkLengths([
+      ['CV text', raw_text, LIMITS.PASTE_DOC],
+      ['Target role', target_role, LIMITS.SHORT],
+      ['Industry', industry, LIMITS.SHORT],
+      ['Job description', job_description, LIMITS.PASTE_JD],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const industryGuess = industry || target_role || null
     const intelligence = await fetchIndustryIntelligence(supabase, industry, 8)

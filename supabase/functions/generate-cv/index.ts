@@ -3,8 +3,12 @@ import { requireUser } from '../_shared/supabase.ts'
 import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
 import { fetchIndustryExamples, fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import {
+  ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
+  buzzwordRule, realExamplesRule, HANDLER_NOTES_DESCRIPTION,
+} from '../_shared/coreRules.ts'
 import { computeFormattingScore } from '../_shared/atsFormat.ts'
+import { LIMITS, checkLengths, checkRequired, isBlank } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
 
@@ -14,7 +18,7 @@ Write phrases, not full sentences. Never start a bullet with "I" or use personal
 
 ${ANTI_HALLUCINATION_RULE}
 
-BUZZWORD RULE — never write "passionate", "hardworking", "results-driven", "team player", "motivated individual", or similar unsupported claims unless the user's own input gives you a specific fact that actually demonstrates it. If they haven't given you evidence, don't claim the trait.
+${buzzwordRule()}
 
 NO WORK EXPERIENCE FALLBACK — if has_no_experience is true, do NOT write an empty or padded Experience section. Restructure the CV to lead with Education (including relevant modules and achievements), then Projects, then Skills, then any Achievements & Extras (societies, volunteering, publications). This is a completely different, equally strong structure for first-years and students entering the workforce for the first time — not a lesser version of the standard CV.
 
@@ -26,7 +30,7 @@ TONE & LENGTH — respect the user's stated tone (formal / balanced / modern) an
 
 Never produce anything a recruiter would immediately flag as "obviously AI" — generic, interchangeable phrasing. Every output must sound like it was written by someone who actually knows this specific person's background.
 
-REAL EXAMPLES — you will be given a small set of real, published, sourced bullet examples from this person's industry (real_examples in the input). These exist so you understand what genuinely effective writing looks like in this specific field — the level of specificity, what kind of results actually get named, how numbers get used. Study why each one works. NEVER copy an example's wording, numbers, or structure into the output — every bullet you write must be built entirely from this specific person's own input.
+${realExamplesRule("a small set of real, published, sourced CV bullet examples from this person's industry")}
 
 INDUSTRY INTELLIGENCE — you may also be given industry_intelligence: real findings on how THIS specific industry actually screens candidates, sourced from that industry's own recruiters, professional bodies, or hiring communities.
   - red_flag entries are things you must actively AVOID — if a red_flag names specific words or patterns (e.g. certain buzzwords, or listing basic tools as skills), do not let them appear anywhere in the output.
@@ -80,7 +84,7 @@ const OUTPUT_SCHEMA = {
     },
     achievements_section: { type: 'array', items: { type: 'string' } },
     section_order: { type: 'array', items: { type: 'string' }, description: 'Ordered list of section keys to render, e.g. ["summary","education","projects","skills","achievements"] for a no-experience CV, or ["summary","experience","education","skills","achievements"] for a standard one' },
-    handler_notes: { type: 'array', items: { type: 'string' }, description: 'Short notes for the reviewing Campus Handler — e.g. "No metrics were provided for the retail role; bullets sharpened without inventing numbers."' },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
   required: ['professional_summary', 'experience_section', 'education_section', 'projects_section', 'skills_section', 'achievements_section', 'section_order', 'handler_notes'],
 }
@@ -101,7 +105,18 @@ Deno.serve(async (req: Request) => {
     if (fetchErr || !doc) return jsonResponse({ error: 'CV document not found' }, 404)
 
     const input = doc.input || {}
-    if (!doc.target_industry) return jsonResponse({ error: 'Target industry/field is required.' }, 422)
+    if (isBlank(doc.target_industry)) return jsonResponse({ error: 'Target industry/field is required.' }, 422)
+
+    const lengthError = checkLengths([
+      ['Target industry', doc.target_industry, LIMITS.SHORT],
+      ['Target role', doc.target_role, LIMITS.SHORT],
+      ['Target company', doc.target_company, LIMITS.SHORT],
+      ['Job description', doc.job_description, LIMITS.PASTE_JD],
+      ['What you want emphasised', input.target_emphasis, LIMITS.LONG],
+      ['Specific requests', input.specific_requests, LIMITS.LONG],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
+
     const validationError = validateInput(input)
     if (validationError) return jsonResponse({ error: validationError }, 422)
 
@@ -162,26 +177,77 @@ Deno.serve(async (req: Request) => {
 
 function validateInput(input: Record<string, unknown>): string | null {
   const personal = (input.personal_info || {}) as Record<string, string>
-  if (!personal.full_name || !personal.email || !personal.phone || !personal.location) {
-    return 'Personal information is incomplete — name, email, phone, and location are required.'
-  }
-  const education = (input.education || []) as unknown[]
+  const personalMissing = checkRequired([
+    ['Full name', personal.full_name],
+    ['Email', personal.email],
+    ['Phone', personal.phone],
+    ['Location', personal.location],
+  ])
+  if (personalMissing) return `Personal information is incomplete — ${personalMissing.toLowerCase()}`
+
+  const personalTooLong = checkLengths([
+    ['Full name', personal.full_name, LIMITS.SHORT],
+    ['Email', personal.email, LIMITS.SHORT],
+    ['Phone', personal.phone, LIMITS.SHORT],
+    ['Location', personal.location, LIMITS.SHORT],
+    ['LinkedIn URL', personal.linkedin_url, LIMITS.MEDIUM],
+    ['Portfolio URL', personal.portfolio_url, LIMITS.MEDIUM],
+  ])
+  if (personalTooLong) return personalTooLong
+
+  const education = (input.education || []) as Record<string, string>[]
   if (education.length === 0) return 'At least one education entry is required.'
-  const edu0 = education[0] as Record<string, string>
-  if (!edu0?.institution || !edu0?.degree || !edu0?.year) {
+  const edu0 = education[0]
+  if (isBlank(edu0?.institution) || isBlank(edu0?.degree) || isBlank(edu0?.year)) {
     return 'Education entries need an institution, degree title, and year.'
   }
+  for (const e of education) {
+    const tooLong = checkLengths([
+      ['Institution', e.institution, LIMITS.SHORT],
+      ['Degree', e.degree, LIMITS.SHORT],
+      ['Year', e.year, LIMITS.SHORT],
+      ['Grade', e.grade, LIMITS.SHORT],
+      ['Relevant modules', e.modules, LIMITS.MEDIUM],
+      ['Academic achievements', e.awards, LIMITS.LONG],
+    ])
+    if (tooLong) return tooLong
+  }
+
   if (!input.has_no_experience) {
-    const experience = (input.experience || []) as unknown[]
-    if (experience.length === 0) {
-      return 'Add at least one role, or check "I have no formal work experience yet".'
+    const experience = (input.experience || []) as Record<string, string>[]
+    const hasValidRole = experience.some(
+      r => !isBlank(r?.job_title) && !isBlank(r?.company) && !isBlank(r?.dates),
+    )
+    if (!hasValidRole) {
+      return 'Add at least one role with a job title, company, and dates — or check "I have no formal work experience yet".'
+    }
+    for (const r of experience) {
+      const tooLong = checkLengths([
+        ['Job title', r.job_title, LIMITS.SHORT],
+        ['Company', r.company, LIMITS.SHORT],
+        ['Dates', r.dates, LIMITS.SHORT],
+        ['Responsibilities and achievements', r.responsibilities, LIMITS.LONG],
+      ])
+      if (tooLong) return tooLong
     }
   }
+
   const skills = (input.skills || {}) as Record<string, string[]>
   const skillCount = ['technical', 'soft', 'languages', 'tools']
-    .reduce((n, k) => n + (skills[k]?.length || 0), 0)
+    .reduce((n, k) => n + (skills[k] || []).filter(s => !isBlank(s)).length, 0)
   if (skillCount < 3) return 'At least 3 skills are required across the skills section.'
-  if (!input.tone || !input.length) return 'Tone and length preference are required.'
+
+  const achievements = (input.achievements || {}) as Record<string, string>
+  const achievementsTooLong = checkLengths([
+    ['Societies / clubs', achievements.societies, LIMITS.LONG],
+    ['Volunteering', achievements.volunteering, LIMITS.LONG],
+    ['Projects', achievements.projects, LIMITS.LONG],
+    ['Publications / competitions', achievements.publications, LIMITS.LONG],
+    ['Other achievements', achievements.other, LIMITS.LONG],
+  ])
+  if (achievementsTooLong) return achievementsTooLong
+
+  if (isBlank(input.tone) || isBlank(input.length)) return 'Tone and length preference are required.'
   return null
 }
 

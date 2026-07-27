@@ -3,6 +3,9 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner } from '../../components/ui/Form'
 
 const DIMENSIONS = [
@@ -11,6 +14,7 @@ const DIMENSIONS = [
 ]
 
 export default function CoverLetterReviewPage() {
+  const { runLocked } = useSubmitLock()
   const [rawText, setRawText] = useState('')
   const [targetRole, setTargetRole] = useState('')
   const [targetCompany, setTargetCompany] = useState('')
@@ -18,24 +22,22 @@ export default function CoverLetterReviewPage() {
   const [error, setError] = useState('')
   const [review, setReview] = useState(null)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
     if (rawText.trim().length < 50) { setError('Paste the full text of your cover letter to review.'); return }
+    const tooLong = checkLengths([['Your cover letter text', rawText, LIMITS.PASTE_DOC]])
+    if (tooLong) { setError(tooLong); return }
     setLoading(true)
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('review-cover-letter', {
-        body: { raw_text: rawText, target_role: targetRole || null, target_company: targetCompany || null },
-      })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('review-cover-letter', { raw_text: rawText, target_role: targetRole || null, target_company: targetCompany || null })
       setReview(data.review)
     } catch (err) {
       setError(err.message || 'Review failed. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
   return (
     <>
@@ -54,9 +56,9 @@ export default function CoverLetterReviewPage() {
         {!review ? (
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <FormField id="raw_text" label="Paste your cover letter" required><FormTextarea id="raw_text" value={rawText} onChange={(e) => setRawText(e.target.value)} rows={10} required /></FormField>
-              <FormField id="target_role" label="Target role" hint="Optional"><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} /></FormField>
-              <FormField id="target_company" label="Target company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} /></FormField>
+              <FormField id="raw_text" label="Paste your cover letter" required><FormTextarea id="raw_text" value={rawText} onChange={(e) => setRawText(e.target.value)} rows={10} required maxLength={LIMITS.PASTE_DOC} /></FormField>
+              <FormField id="target_role" label="Target role" hint="Optional"><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="target_company" label="Target company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
               <button
                 type="submit" disabled={loading}
                 style={{ height: '48px', background: loading ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}

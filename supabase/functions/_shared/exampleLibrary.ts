@@ -1,5 +1,15 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+/**
+ * Escapes LIKE metacharacters so free-text industry values match literally.
+ * Without this, a user typing "100% remote" produces the pattern
+ * `%100% remote%`, where the inner `%` is a wildcard and silently matches
+ * unintended rows. Backslash is escaped first so it can't double-escape.
+ */
+function escapeLike(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')
+}
+
 export interface LibraryExample {
   excerpt: string
   why_it_works: string
@@ -30,7 +40,7 @@ export async function fetchIndustryExamples(
       .from('example_library')
       .select(cols)
       .eq('category', category)
-      .ilike('industry', `%${industry}%`)
+      .ilike('industry', `%${escapeLike(industry)}%`)
       .limit(limit)
     if (data) results.push(...(data as LibraryExample[]))
   }
@@ -86,7 +96,7 @@ export async function fetchIndustryIntelligence(
   const { data } = await supabase
     .from('industry_intelligence')
     .select('dimension, content, source_name, source_url')
-    .ilike('industry', `%${industry}%`)
+    .ilike('industry', `%${escapeLike(industry)}%`)
     .limit(limit)
   return (data as IndustryIntel[]) || []
 }

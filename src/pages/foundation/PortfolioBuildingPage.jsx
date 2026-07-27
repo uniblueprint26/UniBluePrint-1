@@ -4,9 +4,14 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 
 export default function PortfolioBuildingPage() {
+  const { runLocked } = useSubmitLock()
   const { user } = useAuth()
   const [field, setField] = useState('')
   const [workType, setWorkType] = useState('')
@@ -18,10 +23,10 @@ export default function PortfolioBuildingPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
-    if (!field || !workType) { setError('Field and the kind of work you want to showcase are required.'); return }
+    if (!field.trim() || !workType.trim()) { setError('Field and the kind of work you want to showcase are required.'); return }
     setLoading(true)
     try {
       const { data: inserted, error: insertErr } = await supabase
@@ -31,36 +36,27 @@ export default function PortfolioBuildingPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-portfolio-plan', { body: { plan_id: inserted.id } })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-portfolio-plan', { plan_id: inserted.id })
       setPlan(data.plan)
     } catch (err) {
       setError(err.message || parseDbError(err) || 'Generation failed.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!plan) return
     setSubmitting(true)
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'Portfolio Building — Standard').single()
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: user.id, service_id: service?.id ?? null, notes: `Portfolio Building — ${field}` }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-      await supabase.from('portfolio_plans').update({ submission_id: submission.id, status: 'submitted' }).eq('id', plan.id)
-      setSubmitted(true)
+      await submitForReview('portfolio_plans', plan.id, 'Portfolio Building — Standard', `Portfolio Building — ${field}`)
+            setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   return (
     <>
@@ -79,13 +75,13 @@ export default function PortfolioBuildingPage() {
         {!plan ? (
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <FormField id="field" label="Field" required hint="e.g. Software development, Graphic design, Marketing"><FormInput id="field" value={field} onChange={(e) => setField(e.target.value)} required /></FormField>
-              <FormField id="work_type" label="What kind of work do you want to showcase?" required><FormTextarea id="work_type" value={workType} onChange={(e) => setWorkType(e.target.value)} rows={3} required /></FormField>
+              <FormField id="field" label="Field" required hint="e.g. Software development, Graphic design, Marketing"><FormInput id="field" value={field} onChange={(e) => setField(e.target.value)} required maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="work_type" label="What kind of work do you want to showcase?" required><FormTextarea id="work_type" value={workType} onChange={(e) => setWorkType(e.target.value)} rows={3} required maxLength={LIMITS.LONG} /></FormField>
               <FormField id="career_goal" label="What's this portfolio for?" hint="Optional — e.g. internship applications, freelance clients">
-                <FormInput id="career_goal" value={careerGoal} onChange={(e) => setCareerGoal(e.target.value)} />
+                <FormInput id="career_goal" value={careerGoal} onChange={(e) => setCareerGoal(e.target.value)} maxLength={LIMITS.MEDIUM} />
               </FormField>
               <FormField id="existing_presence" label="Do you already have anything online?" hint="Optional — GitHub, a site, social profiles">
-                <FormInput id="existing_presence" value={existingPresence} onChange={(e) => setExistingPresence(e.target.value)} />
+                <FormInput id="existing_presence" value={existingPresence} onChange={(e) => setExistingPresence(e.target.value)} maxLength={LIMITS.MEDIUM} />
               </FormField>
               <button
                 type="submit" disabled={loading}

@@ -4,10 +4,15 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 export default function CoverLetterBuilderPage() {
+  const { runLocked } = useSubmitLock()
   const { user } = useAuth()
   const [targetRole, setTargetRole] = useState('')
   const [targetCompany, setTargetCompany] = useState('')
@@ -25,13 +30,15 @@ export default function CoverLetterBuilderPage() {
   const [submitted, setSubmitted] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
-    if (!targetRole || !targetCompany || !relevantExperience) {
+    if (!targetRole.trim() || !targetCompany.trim() || !relevantExperience.trim()) {
       setError('Target role, company, and relevant experience are required.')
       return
     }
+    const tooLong = checkLengths([['The job description', jobDescription, LIMITS.PASTE_JD]])
+    if (tooLong) { setError(tooLong); return }
     setLoading(true)
     try {
       const { data: inserted, error: insertErr } = await supabase
@@ -44,38 +51,28 @@ export default function CoverLetterBuilderPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-cover-letter', { body: { document_id: inserted.id } })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-cover-letter', { document_id: inserted.id })
       setLetter(data.document)
     } catch (err) {
       setError(err.message || parseDbError(err) || 'Generation failed. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!letter) return
     setSubmitting(true)
     setError('')
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'Cover Letter Assistance — Standard').single()
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: user.id, service_id: service?.id ?? null, notes: `Cover Letter — ${targetRole} at ${targetCompany}` }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-      const { error: updateErr } = await supabase.from('cover_letters').update({ submission_id: submission.id, status: 'submitted' }).eq('id', letter.id)
-      if (updateErr) throw updateErr
-      setSubmitted(true)
+      await submitForReview('cover_letters', letter.id, 'Cover Letter Assistance — Standard', `Cover Letter — ${targetRole} at ${targetCompany}`)
+            setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(letter.generated.full_text)
@@ -100,11 +97,11 @@ export default function CoverLetterBuilderPage() {
         {!letter ? (
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <FormField id="target_role" label="Role you're applying for" required><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} required /></FormField>
-              <FormField id="target_company" label="Company" required><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} required /></FormField>
-              <FormField id="industry" label="Industry" hint="Optional — helps us benchmark against real examples from your field"><FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} /></FormField>
-              <FormField id="job_description" label="Paste the job description" hint="Optional — sharpens relevance"><FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={5} /></FormField>
-              <FormField id="background_summary" label="A little about your background" hint="Optional"><FormTextarea id="background_summary" value={backgroundSummary} onChange={(e) => setBackgroundSummary(e.target.value)} rows={3} /></FormField>
+              <FormField id="target_role" label="Role you're applying for" required><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} required maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="target_company" label="Company" required><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} required maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="industry" label="Industry" hint="Optional — helps us benchmark against real examples from your field"><FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="job_description" label="Paste the job description" hint="Optional — sharpens relevance"><FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={5} maxLength={LIMITS.PASTE_JD} /></FormField>
+              <FormField id="background_summary" label="A little about your background" hint="Optional"><FormTextarea id="background_summary" value={backgroundSummary} onChange={(e) => setBackgroundSummary(e.target.value)} rows={3} maxLength={LIMITS.LONG} /></FormField>
               <FormCheckbox
                 id="has_no_experience"
                 checked={hasNoExperience}
@@ -117,9 +114,9 @@ export default function CoverLetterBuilderPage() {
                 required
                 hint={hasNoExperience ? 'College projects, societies, volunteering, and part-time work all count — this is the real evidence your letter will be built on.' : undefined}
               >
-                <FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={4} required />
+                <FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={4} required maxLength={LIMITS.LONG} />
               </FormField>
-              <FormField id="why_company" label="Why this company specifically?" hint="Optional, but makes the letter much stronger"><FormTextarea id="why_company" value={whyCompany} onChange={(e) => setWhyCompany(e.target.value)} rows={3} /></FormField>
+              <FormField id="why_company" label="Why this company specifically?" hint="Optional, but makes the letter much stronger"><FormTextarea id="why_company" value={whyCompany} onChange={(e) => setWhyCompany(e.target.value)} rows={3} maxLength={LIMITS.LONG} /></FormField>
               <FormField id="tone" label="Tone">
                 <FormSelect id="tone" value={tone} onChange={(e) => setTone(e.target.value)}>
                   <option value="formal">Formal</option>

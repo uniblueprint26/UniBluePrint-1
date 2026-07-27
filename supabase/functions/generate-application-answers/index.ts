@@ -3,7 +3,8 @@ import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, CIVIL_SERVICE_CAPABILITIES, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule } from '../_shared/coreRules.ts'
+import { LIMITS, checkLengths, isBlank } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are drafting answers to graduate scheme / internship / apprenticeship application form questions, using the candidate's own evidence bank of real STAR stories — never inventing a story that isn't in the bank.
 
@@ -18,7 +19,7 @@ ${ANTI_HALLUCINATION_RULE} For this service specifically, the evidence bank stor
 
 ${NON_TRADITIONAL_EVIDENCE_RULE} A story from a society committee, a group coursework project, or a Saturday retail job answers a competency question at exactly the same strength as a corporate internship story — judge stories by how well they demonstrate the competency, never by how "professional" their setting sounds.
 
-REAL EXAMPLES: you'll be given real, published, sourced STAR answers (real_examples) from university career services, purely to calibrate what a well-built STAR answer looks like — the level of specificity, how the Action section carries the weight, how Result closes the loop. These are NOT the candidate's stories — never use their content in an answer, only learn the pattern from them.
+${realExamplesRule('real, published, sourced STAR answers from university career services — note especially how the Action section carries the weight and how Result closes the loop. These are NOT the candidate\'s stories')}
 
 ${ANTI_GENERIC_RULE}`
 
@@ -53,8 +54,16 @@ Deno.serve(async (req: Request) => {
     const { data: form, error: fetchErr } = await supabase.from('application_forms').select('*').eq('id', form_id).single()
     if (fetchErr || !form) return jsonResponse({ error: 'Application form not found' }, 404)
 
-    const questions = form.questions || []
-    if (questions.length === 0) return jsonResponse({ error: 'Add at least one question first.' }, 422)
+    const questions = (form.questions || []) as Record<string, string>[]
+    const answerable = questions.filter(q => !isBlank(q?.question_text))
+    if (answerable.length === 0) return jsonResponse({ error: 'Add at least one question first.' }, 422)
+
+    const lengthError = checkLengths([
+      ['Target company', form.target_company, LIMITS.SHORT],
+      ['Target role', form.target_role, LIMITS.SHORT],
+      ...answerable.map((q, i) => [`Question ${i + 1}`, q.question_text, LIMITS.LONG] as [string, unknown, number]),
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const { data: stories, error: storiesErr } = await supabase
       .from('evidence_bank_stories')
@@ -72,7 +81,7 @@ Deno.serve(async (req: Request) => {
       userContent: JSON.stringify({
         target_company: form.target_company,
         target_role: form.target_role,
-        questions,
+        questions: answerable,
         evidence_bank: stories,
         real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),

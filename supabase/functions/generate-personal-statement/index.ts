@@ -1,7 +1,11 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import {
+  ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
+  buzzwordRule, HANDLER_NOTES_DESCRIPTION,
+} from '../_shared/coreRules.ts'
+import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 
 const PATHWAY_PROMPTS: Record<string, string> = {
   ucas: `UCAS PATHWAY — 2026 entry onwards uses a NEW three-question structured format, not a single free-form essay. Produce exactly three answers:
@@ -22,7 +26,9 @@ const SYSTEM_PROMPT_BASE = `You are writing a personal statement for a specific 
 
 ${ANTI_HALLUCINATION_RULE}
 
-BUZZWORD RULE: never write "passionate about", "always dreamed of", "since I was young I have loved" unless the applicant's own input gives you something specific and true to say instead of a cliché opener.
+${buzzwordRule()}
+
+CLICHÉ OPENER RULE — specific to personal statements, and a distinct failure from the buzzwords above: never open with "I have always been passionate about", "since I was young I have loved", "from a young age I have dreamed of", or any variant. Admissions readers see these on a large share of statements and they signal nothing. Open with something only this applicant could write.
 
 NO FORMAL WORK EXPERIENCE IS THE NORM here — most applicants are school leavers, and admissions readers know it. Where a section invites experience outside education (especially the UCAS "what else have you done" question), school activities, hobbies, independent reading, sport, family or caring responsibilities, volunteering, and part-time work are all legitimate answers at full strength. If the applicant genuinely gave you little for such a section, write a shorter, honest answer built on what's real — never pad it with invented experiences or inflate a small activity into something it wasn't.
 
@@ -44,7 +50,7 @@ const OUTPUT_SCHEMA = {
     },
     single_statement: { type: 'string', description: 'Only for cao_mature and postgrad pathways' },
     word_count: { type: 'integer' },
-    handler_notes: { type: 'array', items: { type: 'string' } },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
   required: ['ucas_answers', 'single_statement', 'word_count', 'handler_notes'],
 }
@@ -58,10 +64,24 @@ Deno.serve(async (req: Request) => {
 
     const { data: doc, error: fetchErr } = await supabase.from('personal_statements').select('*').eq('id', document_id).single()
     if (fetchErr || !doc) return jsonResponse({ error: 'Personal statement not found' }, 404)
-    if (!doc.target_course || !doc.target_institution) return jsonResponse({ error: 'Course and institution are required.' }, 422)
-
     const input = doc.input || {}
-    if (!input.background_and_motivation) return jsonResponse({ error: 'Tell us about your background and motivation first.' }, 422)
+    const missing = checkRequired([
+      ['Course', doc.target_course],
+      ['Institution', doc.target_institution],
+      ['Background and motivation', input.background_and_motivation],
+    ])
+    if (missing) return jsonResponse({ error: missing }, 422)
+
+    const lengthError = checkLengths([
+      ['Course', doc.target_course, LIMITS.SHORT],
+      ['Institution', doc.target_institution, LIMITS.SHORT],
+      ['Background and motivation', input.background_and_motivation, LIMITS.LONG],
+      ['Relevant experience', input.relevant_experience, LIMITS.LONG],
+      ['Life / work experience', input.life_work_experience, LIMITS.LONG],
+      ['Goals', input.goals, LIMITS.LONG],
+      ['Weaknesses or gaps', input.weaknesses_or_gaps, LIMITS.LONG],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const pathwayPrompt = PATHWAY_PROMPTS[doc.pathway]
     if (!pathwayPrompt) return jsonResponse({ error: 'Unknown pathway' }, 422)

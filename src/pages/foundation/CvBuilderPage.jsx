@@ -4,6 +4,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Loader2, Plus, Trash2, Download, Send, ArrowLeft, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS, checkLengths } from '../../lib/fieldLimits'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
 import {
   FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox,
   SubmitButton, ErrorBanner, parseDbError,
@@ -32,6 +36,7 @@ const initialForm = {
 export default function CvBuilderPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { runLocked } = useSubmitLock()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(initialForm)
   const [error, setError] = useState('')
@@ -67,21 +72,21 @@ export default function CvBuilderPage() {
 
   const validateStep = () => {
     const p = form.personal_info
-    if (step === 0 && (!p.full_name || !p.email || !p.phone || !p.location)) return 'Full name, email, phone, and location are required.'
-    if (step === 1 && !form.target_industry) return 'Industry / field is required.'
+    if (step === 0 && (!p.full_name?.trim() || !p.email?.trim() || !p.phone?.trim() || !p.location?.trim())) return 'Full name, email, phone, and location are required.'
+    if (step === 1 && !form.target_industry?.trim()) return 'Industry / field is required.'
     if (step === 2) {
       const e0 = form.education[0]
-      if (!e0?.institution || !e0?.degree || !e0?.year) return 'The first education entry needs an institution, degree, and year.'
+      if (!e0?.institution?.trim() || !e0?.degree?.trim() || !e0?.year?.trim()) return 'The first education entry needs an institution, degree, and year.'
     }
     if (step === 3 && !form.has_no_experience) {
-      const hasValidRole = form.experience.some((r) => r.job_title && r.company && r.dates)
+      const hasValidRole = form.experience.some((r) => r.job_title?.trim() && r.company?.trim() && r.dates?.trim())
       if (!hasValidRole) return 'Add at least one role (title, company, dates), or check "I have no formal work experience yet".'
     }
     if (step === 4) {
       const skillCount = Object.values(form.skills).reduce((n, v) => n + (v ? v.split(',').filter((s) => s.trim()).length : 0), 0)
       if (skillCount < 3) return 'List at least 3 skills in total across the categories below.'
     }
-    if (step === 6 && (!form.tone || !form.length)) return 'Tone and length preference are required.'
+    if (step === 6 && (!form.tone?.trim() || !form.length?.trim())) return 'Tone and length preference are required.'
     return ''
   }
 
@@ -113,7 +118,9 @@ export default function CvBuilderPage() {
     specific_requests: form.specific_requests,
   })
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => runLocked(async () => {
+    const tooLong = checkLengths([['The job description', form.job_description, LIMITS.PASTE_JD]])
+    if (tooLong) { setError(tooLong); return }
     setGenerating(true)
     setError('')
     try {
@@ -133,11 +140,7 @@ export default function CvBuilderPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-cv', {
-        body: { document_id: inserted.id },
-      })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-cv', { document_id: inserted.id })
       setDocument(data.document)
       setStep(STEPS.length - 1)
     } catch (err) {
@@ -145,35 +148,21 @@ export default function CvBuilderPage() {
     } finally {
       setGenerating(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!cvDoc) return
     setSubmitting(true)
     setError('')
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'CV Optimisation — Standard').single()
-
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: user.id, service_id: service?.id ?? null, notes: `CV Builder — ${cvDoc.title}` }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-
-      const { error: updateErr } = await supabase
-        .from('cv_documents')
-        .update({ submission_id: submission.id, status: 'submitted' })
-        .eq('id', cvDoc.id)
-      if (updateErr) throw updateErr
-
+      await submitForReview('cv_documents', cvDoc.id, 'CV Optimisation — Standard', `CV Builder — ${cvDoc.title}`)
       setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review. Please try again.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   return (
     <>
@@ -282,12 +271,12 @@ function PersonalStep({ form, set }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       <h2 style={sectionHeading}>Personal information</h2>
-      <FormField id="full_name" label="Full name" required><FormInput id="full_name" value={p.full_name} onChange={set('personal_info.full_name')} required /></FormField>
-      <FormField id="email" label="Email address" required><FormInput id="email" type="email" value={p.email} onChange={set('personal_info.email')} required /></FormField>
-      <FormField id="phone" label="Phone number" required><FormInput id="phone" value={p.phone} onChange={set('personal_info.phone')} required /></FormField>
-      <FormField id="location" label="Location (city/county)" required><FormInput id="location" value={p.location} onChange={set('personal_info.location')} required /></FormField>
-      <FormField id="linkedin_url" label="LinkedIn URL" hint="Optional"><FormInput id="linkedin_url" value={p.linkedin_url} onChange={set('personal_info.linkedin_url')} /></FormField>
-      <FormField id="portfolio_url" label="Portfolio / website URL" hint="Optional"><FormInput id="portfolio_url" value={p.portfolio_url} onChange={set('personal_info.portfolio_url')} /></FormField>
+      <FormField id="full_name" label="Full name" required><FormInput id="full_name" value={p.full_name} onChange={set('personal_info.full_name')} required maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="email" label="Email address" required><FormInput id="email" type="email" value={p.email} onChange={set('personal_info.email')} required maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="phone" label="Phone number" required><FormInput id="phone" value={p.phone} onChange={set('personal_info.phone')} required maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="location" label="Location (city/county)" required><FormInput id="location" value={p.location} onChange={set('personal_info.location')} required maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="linkedin_url" label="LinkedIn URL" hint="Optional"><FormInput id="linkedin_url" value={p.linkedin_url} onChange={set('personal_info.linkedin_url')} maxLength={LIMITS.MEDIUM} /></FormField>
+      <FormField id="portfolio_url" label="Portfolio / website URL" hint="Optional"><FormInput id="portfolio_url" value={p.portfolio_url} onChange={set('personal_info.portfolio_url')} maxLength={LIMITS.MEDIUM} /></FormField>
     </div>
   )
 }
@@ -296,8 +285,8 @@ function TargetStep({ form, set }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       <h2 style={sectionHeading}>Target role</h2>
-      <FormField id="target_industry" label="Industry / field" required><FormInput id="target_industry" value={form.target_industry} onChange={set('target_industry')} placeholder="e.g. Technology, Healthcare, Finance" required /></FormField>
-      <FormField id="target_role" label="Job title / role" hint="Optional — leave blank for a general CV"><FormInput id="target_role" value={form.target_role} onChange={set('target_role')} /></FormField>
+      <FormField id="target_industry" label="Industry / field" required><FormInput id="target_industry" value={form.target_industry} onChange={set('target_industry')} placeholder="e.g. Technology, Healthcare, Finance" required maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="target_role" label="Job title / role" hint="Optional — leave blank for a general CV"><FormInput id="target_role" value={form.target_role} onChange={set('target_role')} maxLength={LIMITS.SHORT} /></FormField>
       <FormField id="opportunity_type" label="Type of opportunity" hint="Optional — leave blank for a general CV">
         <FormSelect id="opportunity_type" value={form.opportunity_type} onChange={set('opportunity_type')}>
           <option value="">Select…</option>
@@ -308,9 +297,9 @@ function TargetStep({ form, set }) {
           <option value="placement_year">Placement year</option>
         </FormSelect>
       </FormField>
-      <FormField id="target_company" label="Specific company" hint="Optional"><FormInput id="target_company" value={form.target_company} onChange={set('target_company')} /></FormField>
-      <FormField id="target_emphasis" label="Anything specific you want emphasised?" hint="Optional"><FormTextarea id="target_emphasis" value={form.target_emphasis} onChange={set('target_emphasis')} rows={3} /></FormField>
-      <FormField id="job_description" label="Paste a job description" hint="Optional — improves ATS keyword matching"><FormTextarea id="job_description" value={form.job_description} onChange={set('job_description')} rows={5} /></FormField>
+      <FormField id="target_company" label="Specific company" hint="Optional"><FormInput id="target_company" value={form.target_company} onChange={set('target_company')} maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="target_emphasis" label="Anything specific you want emphasised?" hint="Optional"><FormTextarea id="target_emphasis" value={form.target_emphasis} onChange={set('target_emphasis')} rows={3} maxLength={LIMITS.LONG} /></FormField>
+      <FormField id="job_description" label="Paste a job description" hint="Optional — improves ATS keyword matching"><FormTextarea id="job_description" value={form.job_description} onChange={set('job_description')} rows={5} maxLength={LIMITS.PASTE_JD} /></FormField>
     </div>
   )
 }
@@ -324,12 +313,12 @@ function EducationStep({ education, onChange, onAdd, onRemove }) {
           {education.length > 1 && (
             <button type="button" onClick={() => onRemove(i)} style={removeBtn} aria-label="Remove education entry"><Trash2 size={14} /></button>
           )}
-          <FormField id={`edu-inst-${i}`} label="University / college name" required={i === 0}><FormInput id={`edu-inst-${i}`} value={e.institution} onChange={(ev) => onChange(i, 'institution', ev.target.value)} required={i === 0} /></FormField>
-          <FormField id={`edu-degree-${i}`} label="Degree title" required={i === 0}><FormInput id={`edu-degree-${i}`} value={e.degree} onChange={(ev) => onChange(i, 'degree', ev.target.value)} required={i === 0} /></FormField>
-          <FormField id={`edu-year-${i}`} label="Year of study / expected graduation" required={i === 0}><FormInput id={`edu-year-${i}`} value={e.year} onChange={(ev) => onChange(i, 'year', ev.target.value)} required={i === 0} /></FormField>
-          <FormField id={`edu-grade-${i}`} label="Grade / GPA" hint="Optional"><FormInput id={`edu-grade-${i}`} value={e.grade} onChange={(ev) => onChange(i, 'grade', ev.target.value)} /></FormField>
-          <FormField id={`edu-modules-${i}`} label="Relevant modules" hint="Optional"><FormInput id={`edu-modules-${i}`} value={e.modules} onChange={(ev) => onChange(i, 'modules', ev.target.value)} /></FormField>
-          <FormField id={`edu-awards-${i}`} label="Academic achievements / awards" hint="Optional"><FormInput id={`edu-awards-${i}`} value={e.awards} onChange={(ev) => onChange(i, 'awards', ev.target.value)} /></FormField>
+          <FormField id={`edu-inst-${i}`} label="University / college name" required={i === 0}><FormInput id={`edu-inst-${i}`} value={e.institution} onChange={(ev) => onChange(i, 'institution', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
+          <FormField id={`edu-degree-${i}`} label="Degree title" required={i === 0}><FormInput id={`edu-degree-${i}`} value={e.degree} onChange={(ev) => onChange(i, 'degree', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
+          <FormField id={`edu-year-${i}`} label="Year of study / expected graduation" required={i === 0}><FormInput id={`edu-year-${i}`} value={e.year} onChange={(ev) => onChange(i, 'year', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
+          <FormField id={`edu-grade-${i}`} label="Grade / GPA" hint="Optional"><FormInput id={`edu-grade-${i}`} value={e.grade} onChange={(ev) => onChange(i, 'grade', ev.target.value)} maxLength={LIMITS.SHORT} /></FormField>
+          <FormField id={`edu-modules-${i}`} label="Relevant modules" hint="Optional"><FormInput id={`edu-modules-${i}`} value={e.modules} onChange={(ev) => onChange(i, 'modules', ev.target.value)} maxLength={LIMITS.MEDIUM} /></FormField>
+          <FormField id={`edu-awards-${i}`} label="Academic achievements / awards" hint="Optional"><FormInput id={`edu-awards-${i}`} value={e.awards} onChange={(ev) => onChange(i, 'awards', ev.target.value)} maxLength={LIMITS.LONG} /></FormField>
         </div>
       ))}
       <AddRowButton onClick={onAdd} label="Add another education entry" />
@@ -358,11 +347,11 @@ function ExperienceStep({ form, set, onChange, onAdd, onRemove }) {
               {form.experience.length > 1 && (
                 <button type="button" onClick={() => onRemove(i)} style={removeBtn} aria-label="Remove role"><Trash2 size={14} /></button>
               )}
-              <FormField id={`exp-title-${i}`} label="Job title" required={i === 0}><FormInput id={`exp-title-${i}`} value={r.job_title} onChange={(ev) => onChange(i, 'job_title', ev.target.value)} required={i === 0} /></FormField>
-              <FormField id={`exp-company-${i}`} label="Company name" required={i === 0}><FormInput id={`exp-company-${i}`} value={r.company} onChange={(ev) => onChange(i, 'company', ev.target.value)} required={i === 0} /></FormField>
-              <FormField id={`exp-dates-${i}`} label="Dates" required={i === 0}><FormInput id={`exp-dates-${i}`} value={r.dates} onChange={(ev) => onChange(i, 'dates', ev.target.value)} placeholder="e.g. Jun 2024 – Aug 2024" required={i === 0} /></FormField>
+              <FormField id={`exp-title-${i}`} label="Job title" required={i === 0}><FormInput id={`exp-title-${i}`} value={r.job_title} onChange={(ev) => onChange(i, 'job_title', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id={`exp-company-${i}`} label="Company name" required={i === 0}><FormInput id={`exp-company-${i}`} value={r.company} onChange={(ev) => onChange(i, 'company', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id={`exp-dates-${i}`} label="Dates" required={i === 0}><FormInput id={`exp-dates-${i}`} value={r.dates} onChange={(ev) => onChange(i, 'dates', ev.target.value)} placeholder="e.g. Jun 2024 – Aug 2024" required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
               <FormField id={`exp-resp-${i}`} label="Key responsibilities and achievements" required={i === 0} hint="Bullet points or a few sentences — we'll rewrite these properly">
-                <FormTextarea id={`exp-resp-${i}`} value={r.responsibilities} onChange={(ev) => onChange(i, 'responsibilities', ev.target.value)} rows={4} required={i === 0} />
+                <FormTextarea id={`exp-resp-${i}`} value={r.responsibilities} onChange={(ev) => onChange(i, 'responsibilities', ev.target.value)} rows={4} required={i === 0} maxLength={LIMITS.LONG} />
               </FormField>
             </div>
           ))}
@@ -378,10 +367,10 @@ function SkillsStep({ form, set }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       <h2 style={sectionHeading}>Skills</h2>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>At least 3 skills required in total. Separate with commas.</p>
-      <FormField id="skills_technical" label="Technical skills"><FormInput id="skills_technical" value={form.skills.technical} onChange={set('skills.technical')} placeholder="e.g. Excel, Python, Salesforce" /></FormField>
-      <FormField id="skills_soft" label="Soft skills"><FormInput id="skills_soft" value={form.skills.soft} onChange={set('skills.soft')} placeholder="e.g. Communication, Teamwork" /></FormField>
-      <FormField id="skills_languages" label="Languages"><FormInput id="skills_languages" value={form.skills.languages} onChange={set('skills.languages')} placeholder="e.g. Irish (fluent), French (B2)" /></FormField>
-      <FormField id="skills_tools" label="Tools and software"><FormInput id="skills_tools" value={form.skills.tools} onChange={set('skills.tools')} placeholder="e.g. Figma, SAP, Google Analytics" /></FormField>
+      <FormField id="skills_technical" label="Technical skills"><FormInput id="skills_technical" value={form.skills.technical} onChange={set('skills.technical')} placeholder="e.g. Excel, Python, Salesforce" maxLength={LIMITS.MEDIUM} /></FormField>
+      <FormField id="skills_soft" label="Soft skills"><FormInput id="skills_soft" value={form.skills.soft} onChange={set('skills.soft')} placeholder="e.g. Communication, Teamwork" maxLength={LIMITS.MEDIUM} /></FormField>
+      <FormField id="skills_languages" label="Languages"><FormInput id="skills_languages" value={form.skills.languages} onChange={set('skills.languages')} placeholder="e.g. Irish (fluent), French (B2)" maxLength={LIMITS.MEDIUM} /></FormField>
+      <FormField id="skills_tools" label="Tools and software"><FormInput id="skills_tools" value={form.skills.tools} onChange={set('skills.tools')} placeholder="e.g. Figma, SAP, Google Analytics" maxLength={LIMITS.MEDIUM} /></FormField>
     </div>
   )
 }
@@ -391,11 +380,11 @@ function AchievementsStep({ form, set }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       <h2 style={sectionHeading}>Achievements & extras</h2>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>All optional — but especially useful if you checked "no work experience yet".</p>
-      <FormField id="ach_societies" label="Societies / clubs" hint="Optional"><FormTextarea id="ach_societies" value={form.achievements.societies} onChange={set('achievements.societies')} rows={2} /></FormField>
-      <FormField id="ach_volunteering" label="Volunteering" hint="Optional"><FormTextarea id="ach_volunteering" value={form.achievements.volunteering} onChange={set('achievements.volunteering')} rows={2} /></FormField>
-      <FormField id="ach_projects" label="Projects" hint="Optional"><FormTextarea id="ach_projects" value={form.achievements.projects} onChange={set('achievements.projects')} rows={2} /></FormField>
-      <FormField id="ach_publications" label="Publications / competitions" hint="Optional"><FormTextarea id="ach_publications" value={form.achievements.publications} onChange={set('achievements.publications')} rows={2} /></FormField>
-      <FormField id="ach_other" label="Any other achievements" hint="Optional"><FormTextarea id="ach_other" value={form.achievements.other} onChange={set('achievements.other')} rows={2} /></FormField>
+      <FormField id="ach_societies" label="Societies / clubs" hint="Optional"><FormTextarea id="ach_societies" value={form.achievements.societies} onChange={set('achievements.societies')} rows={2} maxLength={LIMITS.LONG} /></FormField>
+      <FormField id="ach_volunteering" label="Volunteering" hint="Optional"><FormTextarea id="ach_volunteering" value={form.achievements.volunteering} onChange={set('achievements.volunteering')} rows={2} maxLength={LIMITS.LONG} /></FormField>
+      <FormField id="ach_projects" label="Projects" hint="Optional"><FormTextarea id="ach_projects" value={form.achievements.projects} onChange={set('achievements.projects')} rows={2} maxLength={LIMITS.LONG} /></FormField>
+      <FormField id="ach_publications" label="Publications / competitions" hint="Optional"><FormTextarea id="ach_publications" value={form.achievements.publications} onChange={set('achievements.publications')} rows={2} maxLength={LIMITS.LONG} /></FormField>
+      <FormField id="ach_other" label="Any other achievements" hint="Optional"><FormTextarea id="ach_other" value={form.achievements.other} onChange={set('achievements.other')} rows={2} maxLength={LIMITS.LONG} /></FormField>
     </div>
   )
 }
@@ -423,7 +412,7 @@ function StyleStep({ form, set }) {
           <option value="modern">Modern — sans-serif, cleaner. Common in tech, startups, creative</option>
         </FormSelect>
       </FormField>
-      <FormField id="specific_requests" label="Any specific requests?" hint="Optional"><FormTextarea id="specific_requests" value={form.specific_requests} onChange={set('specific_requests')} rows={3} /></FormField>
+      <FormField id="specific_requests" label="Any specific requests?" hint="Optional"><FormTextarea id="specific_requests" value={form.specific_requests} onChange={set('specific_requests')} rows={3} maxLength={LIMITS.LONG} /></FormField>
     </div>
   )
 }

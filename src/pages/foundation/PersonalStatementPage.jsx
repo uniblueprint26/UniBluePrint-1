@@ -4,6 +4,10 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 
 const PATHWAYS = [
@@ -13,6 +17,7 @@ const PATHWAYS = [
 ]
 
 export default function PersonalStatementPage() {
+  const { runLocked } = useSubmitLock()
   const { user } = useAuth()
   const [pathway, setPathway] = useState('')
   const [targetCourse, setTargetCourse] = useState('')
@@ -28,10 +33,10 @@ export default function PersonalStatementPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
-    if (!pathway || !targetCourse || !targetInstitution || !backgroundAndMotivation) {
+    if (!pathway || !targetCourse.trim() || !targetInstitution.trim() || !backgroundAndMotivation.trim()) {
       setError('Pathway, course, institution, and background/motivation are required.')
       return
     }
@@ -53,36 +58,27 @@ export default function PersonalStatementPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-personal-statement', { body: { document_id: inserted.id } })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-personal-statement', { document_id: inserted.id })
       setDoc(data.document)
     } catch (err) {
       setError(err.message || parseDbError(err) || 'Generation failed.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!doc) return
     setSubmitting(true)
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'Personal Statement — Standard').single()
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: user.id, service_id: service?.id ?? null, notes: `Personal Statement — ${targetCourse} at ${targetInstitution}` }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-      await supabase.from('personal_statements').update({ submission_id: submission.id, status: 'submitted' }).eq('id', doc.id)
-      setSubmitted(true)
+      await submitForReview('personal_statements', doc.id, 'Personal Statement — Standard', `Personal Statement — ${targetCourse} at ${targetInstitution}`)
+            setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   return (
     <>
@@ -119,25 +115,25 @@ export default function PersonalStatementPage() {
                   ))}
                 </div>
               </div>
-              <FormField id="target_course" label="Course" required><FormInput id="target_course" value={targetCourse} onChange={(e) => setTargetCourse(e.target.value)} required /></FormField>
-              <FormField id="target_institution" label="Institution" required><FormInput id="target_institution" value={targetInstitution} onChange={(e) => setTargetInstitution(e.target.value)} required /></FormField>
+              <FormField id="target_course" label="Course" required><FormInput id="target_course" value={targetCourse} onChange={(e) => setTargetCourse(e.target.value)} required maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="target_institution" label="Institution" required><FormInput id="target_institution" value={targetInstitution} onChange={(e) => setTargetInstitution(e.target.value)} required maxLength={LIMITS.SHORT} /></FormField>
               <FormField id="background" label="Background and motivation" required hint="Why this course? What draws you to it?">
-                <FormTextarea id="background" value={backgroundAndMotivation} onChange={(e) => setBackgroundAndMotivation(e.target.value)} rows={4} required />
+                <FormTextarea id="background" value={backgroundAndMotivation} onChange={(e) => setBackgroundAndMotivation(e.target.value)} rows={4} required maxLength={LIMITS.LONG} />
               </FormField>
               <FormField id="relevant_experience" label="Relevant academic experience / modules" hint="Optional">
-                <FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={3} />
+                <FormTextarea id="relevant_experience" value={relevantExperience} onChange={(e) => setRelevantExperience(e.target.value)} rows={3} maxLength={LIMITS.LONG} />
               </FormField>
               {pathway === 'cao_mature' && (
                 <FormField id="life_work_experience" label="Relevant life or work experience" hint="This carries real weight for a mature applicant statement">
-                  <FormTextarea id="life_work_experience" value={lifeWorkExperience} onChange={(e) => setLifeWorkExperience(e.target.value)} rows={4} />
+                  <FormTextarea id="life_work_experience" value={lifeWorkExperience} onChange={(e) => setLifeWorkExperience(e.target.value)} rows={4} maxLength={LIMITS.LONG} />
                 </FormField>
               )}
               <FormField id="goals" label="Goals" hint="Optional — what do you want this course to lead to?">
-                <FormTextarea id="goals" value={goals} onChange={(e) => setGoals(e.target.value)} rows={2} />
+                <FormTextarea id="goals" value={goals} onChange={(e) => setGoals(e.target.value)} rows={2} maxLength={LIMITS.LONG} />
               </FormField>
               {pathway === 'postgrad' && (
                 <FormField id="weaknesses" label="Anything you want addressed honestly?" hint="Optional — e.g. a lower grade or a gap. Leave blank if not relevant.">
-                  <FormTextarea id="weaknesses" value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} rows={2} />
+                  <FormTextarea id="weaknesses" value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} rows={2} maxLength={LIMITS.LONG} />
                 </FormField>
               )}
               <button

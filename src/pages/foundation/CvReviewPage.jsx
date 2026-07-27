@@ -3,11 +3,15 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, AlertTriangle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner } from '../../components/ui/Form'
 import ScoreGauge from '../../components/foundation/ScoreGauge'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 export default function CvReviewPage() {
+  const { runLocked } = useSubmitLock()
   const [rawText, setRawText] = useState('')
   const [targetRole, setTargetRole] = useState('')
   const [industry, setIndustry] = useState('')
@@ -16,24 +20,25 @@ export default function CvReviewPage() {
   const [error, setError] = useState('')
   const [review, setReview] = useState(null)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
     if (rawText.trim().length < 50) { setError('Paste the full text of your CV to review.'); return }
+    const tooLong = checkLengths([
+      ['Your CV text', rawText, LIMITS.PASTE_DOC],
+      ['The job description', jobDescription, LIMITS.PASTE_JD],
+    ])
+    if (tooLong) { setError(tooLong); return }
     setLoading(true)
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('review-cv', {
-        body: { raw_text: rawText, target_role: targetRole || null, industry: industry || null, job_description: jobDescription || null },
-      })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('review-cv', { raw_text: rawText, target_role: targetRole || null, industry: industry || null, job_description: jobDescription || null })
       setReview(data.review)
     } catch (err) {
       setError(err.message || 'Review failed. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
   return (
     <>
@@ -53,16 +58,16 @@ export default function CvReviewPage() {
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <FormField id="raw_text" label="Paste your CV text" required>
-                <FormTextarea id="raw_text" value={rawText} onChange={(e) => setRawText(e.target.value)} rows={12} required />
+                <FormTextarea id="raw_text" value={rawText} onChange={(e) => setRawText(e.target.value)} rows={12} required maxLength={LIMITS.PASTE_DOC} />
               </FormField>
               <FormField id="target_role" label="Target role" hint="Optional, but strongly recommended">
-                <FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
+                <FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="industry" label="Industry" hint="Optional — unlocks industry-specific red-flag checks (e.g. tech, law, healthcare, finance)">
-                <FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} />
+                <FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} maxLength={LIMITS.SHORT} />
               </FormField>
               <FormField id="job_description" label="Paste a job description" hint="Optional — the most accurate way to score keyword match">
-                <FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={6} />
+                <FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={6} maxLength={LIMITS.PASTE_JD} />
               </FormField>
               <button
                 type="submit" disabled={loading}

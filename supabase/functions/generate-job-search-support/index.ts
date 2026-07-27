@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps
 // found, 6 confirmed critical, all applied. See the Foundation Blueprint research
@@ -142,9 +143,22 @@ Deno.serve(async (req: Request) => {
     if (fetchErr || !session) return jsonResponse({ error: 'Session not found' }, 404)
 
     const input = session.input || {}
-    if (!input.field_or_industry || !input.opportunity_type) {
-      return jsonResponse({ error: 'Field/industry and target opportunity type are the minimum needed to build a personalised strategy — please fill those in first.' }, 422)
+    const missing = checkRequired([
+      ['Field / industry', input.field_or_industry],
+      ['Target opportunity type', input.opportunity_type],
+    ])
+    if (missing) {
+      return jsonResponse({ error: `${missing} These are the minimum needed to build a personalised strategy.` }, 422)
     }
+
+    const lengthError = checkLengths([
+      ['Field / industry', input.field_or_industry, LIMITS.SHORT],
+      ['Location', input.location, LIMITS.SHORT],
+      ['Timeline', input.timeline, LIMITS.SHORT],
+      ['Professional registration status', input.professional_registration_status, LIMITS.MEDIUM],
+      ['What you have tried so far', input.applications_so_far, LIMITS.LONG],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const userContent = JSON.stringify({
       today: new Date().toISOString().slice(0, 10),
@@ -171,24 +185,24 @@ Deno.serve(async (req: Request) => {
         : null,
     }
 
-    const { data: updatedSession, error: updateErr } = await supabase
-      .from('job_search_sessions')
-      .update({ student_strategy: studentStrategy, status: 'generated', updated_at: new Date().toISOString() })
-      .eq('id', session_id)
-      .select()
-      .single()
-    if (updateErr) throw updateErr
+    // Both writes go through one SECURITY DEFINER function so they commit
+    // together — previously a failure on the guide write left the session
+    // marked 'generated' with no guide behind it. The function also owns the
+    // guide write entirely, which is why the student no longer needs (or has)
+    // any write policy on job_search_handler_guides.
+    const { error: saveErr } = await supabase.rpc('save_job_search_generation', {
+      p_session_id: session_id,
+      p_student_strategy: studentStrategy,
+      p_handler_guide: result.handler_guide,
+    })
+    if (saveErr) throw saveErr
 
-    // Insert-only for the handler guide — RLS deliberately gives the session owner
-    // no SELECT policy on this table, so this insert succeeds but is not readable
-    // back by the student, even via this same request.
-    const { error: guideErr } = await supabase
-      .from('job_search_handler_guides')
-      .upsert(
-        { session_id, handler_guide: result.handler_guide },
-        { onConflict: 'session_id' },
-      )
-    if (guideErr) throw guideErr
+    const { data: updatedSession, error: refetchErr } = await supabase
+      .from('job_search_sessions')
+      .select()
+      .eq('id', session_id)
+      .single()
+    if (refetchErr) throw refetchErr
 
     return jsonResponse({ session: updatedSession })
   } catch (err) {

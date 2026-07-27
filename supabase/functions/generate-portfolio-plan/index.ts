@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are a portfolio strategist. Portfolio building is a decision-tree problem, not a document to generate — there is no single "portfolio" you can write for someone.
 
@@ -42,10 +43,20 @@ Deno.serve(async (req: Request) => {
 
     const { data: plan, error: fetchErr } = await supabase.from('portfolio_plans').select('*').eq('id', plan_id).single()
     if (fetchErr || !plan) return jsonResponse({ error: 'Portfolio plan not found' }, 404)
-    if (!plan.field) return jsonResponse({ error: 'Field is required.' }, 422)
-
     const input = plan.input || {}
-    if (!input.work_type) return jsonResponse({ error: 'Tell us what kind of work you want to showcase.' }, 422)
+    const missing = checkRequired([
+      ['Field', plan.field],
+      ['What kind of work you want to showcase', input.work_type],
+    ])
+    if (missing) return jsonResponse({ error: missing }, 422)
+
+    const lengthError = checkLengths([
+      ['Field', plan.field, LIMITS.SHORT],
+      ['Career goal', input.career_goal, LIMITS.MEDIUM],
+      ['Existing presence', input.existing_presence, LIMITS.MEDIUM],
+      ['Work type', input.work_type, LIMITS.LONG],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,

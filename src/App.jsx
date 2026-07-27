@@ -34,6 +34,7 @@ const ApplicationFormPage = lazy(() => import('./pages/foundation/ApplicationFor
 const InterviewPrepPage = lazy(() => import('./pages/foundation/InterviewPrepPage'))
 const PersonalStatementPage = lazy(() => import('./pages/foundation/PersonalStatementPage'))
 const PortfolioBuildingPage = lazy(() => import('./pages/foundation/PortfolioBuildingPage'))
+const MyDocumentsPage = lazy(() => import('./pages/foundation/MyDocumentsPage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -175,6 +176,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PortfolioBuildingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/my-documents"
+          element={
+            <ProtectedRoute>
+              <MyDocumentsPage />
             </ProtectedRoute>
           }
         />

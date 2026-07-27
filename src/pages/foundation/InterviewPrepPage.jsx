@@ -4,12 +4,17 @@ import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
+import { LIMITS } from '../../lib/fieldLimits'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 
 const TYPE_LABELS = { behavioural: 'Behavioural', technical: 'Technical', strengths_based: 'Strengths-based' }
 
 export default function InterviewPrepPage() {
+  const { runLocked } = useSubmitLock()
   const { user } = useAuth()
   const [targetRole, setTargetRole] = useState('')
   const [targetCompany, setTargetCompany] = useState('')
@@ -21,10 +26,10 @@ export default function InterviewPrepPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = (e) => runLocked(async () => {
+    e?.preventDefault?.()
     setError('')
-    if (!targetRole) { setError('Target role is required.'); return }
+    if (!targetRole.trim()) { setError('Target role is required.'); return }
     setLoading(true)
     try {
       const { data: inserted, error: insertErr } = await supabase
@@ -34,36 +39,27 @@ export default function InterviewPrepPage() {
         .single()
       if (insertErr) throw insertErr
 
-      const { data, error: fnError } = await supabase.functions.invoke('generate-interview-prep', { body: { pack_id: inserted.id } })
-      if (fnError) throw fnError
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeFunction('generate-interview-prep', { pack_id: inserted.id })
       setPack(data.pack)
     } catch (err) {
       setError(err.message || parseDbError(err) || 'Generation failed.')
     } finally {
       setLoading(false)
     }
-  }
+  })
 
-  const handleSubmitForReview = async () => {
+  const handleSubmitForReview = () => runLocked(async () => {
     if (!pack) return
     setSubmitting(true)
     try {
-      const { data: service } = await supabase.from('services').select('id').eq('name', 'Interview Preparation — Standard Pack').single()
-      const { data: submission, error: subErr } = await supabase
-        .from('submissions')
-        .insert([{ user_id: user.id, service_id: service?.id ?? null, notes: `Interview Prep — ${targetRole}` }])
-        .select()
-        .single()
-      if (subErr) throw subErr
-      await supabase.from('interview_prep_packs').update({ submission_id: submission.id, status: 'submitted' }).eq('id', pack.id)
-      setSubmitted(true)
+      await submitForReview('interview_prep_packs', pack.id, 'Interview Preparation — Standard Pack', `Interview Prep — ${targetRole}`)
+            setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
       setSubmitting(false)
     }
-  }
+  })
 
   return (
     <>
@@ -82,8 +78,8 @@ export default function InterviewPrepPage() {
         {!pack ? (
           <FormCard>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <FormField id="target_role" label="Role you're interviewing for" required><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} required /></FormField>
-              <FormField id="target_company" label="Company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} /></FormField>
+              <FormField id="target_role" label="Role you're interviewing for" required><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} required maxLength={LIMITS.SHORT} /></FormField>
+              <FormField id="target_company" label="Company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
               <FormField id="interview_type" label="Interview format" hint="Not sure? Blended covers all three.">
                 <FormSelect id="interview_type" value={interviewType} onChange={(e) => setInterviewType(e.target.value)}>
                   <option value="blended">Blended (behavioural + technical + strengths)</option>
@@ -93,7 +89,7 @@ export default function InterviewPrepPage() {
                 </FormSelect>
               </FormField>
               <FormField id="background_summary" label="Anything specific about your background or this interview?" hint="Optional">
-                <FormTextarea id="background_summary" value={backgroundSummary} onChange={(e) => setBackgroundSummary(e.target.value)} rows={3} />
+                <FormTextarea id="background_summary" value={backgroundSummary} onChange={(e) => setBackgroundSummary(e.target.value)} rows={3} maxLength={LIMITS.LONG} />
               </FormField>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#9CA3AF' }}>
                 Model answers draw on your <Link to="/foundation/application-form-assistance" style={{ color: '#1E3A5F' }}>evidence bank</Link> — add stories there first for the strongest results.

@@ -1,5 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
+import { LIMITS, checkLengths } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are an expert cover letter reviewer. Assess the pasted letter across exactly five dimensions — no more, no fewer, matching what a professional review actually checks:
 
@@ -34,6 +35,14 @@ Deno.serve(async (req: Request) => {
     if (!raw_text || raw_text.trim().length < 50) {
       return jsonResponse({ error: 'Paste the full text of your cover letter to review.' }, 422)
     }
+
+    const lengthError = checkLengths([
+      ['Cover letter text', raw_text, LIMITS.PASTE_DOC],
+      ['Target role', target_role, LIMITS.SHORT],
+      ['Target company', target_company, LIMITS.SHORT],
+      ['Job description', job_description, LIMITS.PASTE_JD],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,

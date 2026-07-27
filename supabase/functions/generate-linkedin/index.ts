@@ -2,7 +2,11 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import {
+  ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
+  buzzwordRule, realExamplesRule, HANDLER_NOTES_DESCRIPTION,
+} from '../_shared/coreRules.ts'
+import { LIMITS, checkLengths, checkRequired, isBlank } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are an expert LinkedIn profile writer combining a recruiter's search behaviour with a copywriter's ear for how people actually talk.
 
@@ -17,7 +21,7 @@ Written in FIRST PERSON ("I", "my") — never third person. Conversational, not 
 
 ${ANTI_HALLUCINATION_RULE}
 
-BUZZWORD RULE: never write "passionate", "hardworking", "results-driven", "team player", "dynamic professional" unless the input gives you a specific fact that actually demonstrates it.
+${buzzwordRule('"thought leader", "guru", "ninja", "rockstar"')}
 
 EXPERIENCE REWRITES: for each role given, rewrite the description with impact language (not duty lists), consistent with the headline/About tone.
 
@@ -29,7 +33,7 @@ SKILLS: recommend skills to add/prioritise for the target industry, grounded in 
 
 FEATURED SECTION: 2-4 concrete ideas for what to pin (a project, a certificate, a post, a portfolio link) based on what the user actually has — not generic advice like "pin your best work".
 
-REAL EXAMPLES: you'll be given real, published, sourced headline and About-section examples from this person's industry (real_examples). Use them to calibrate what genuinely effective, specific writing looks like in this field — never copy wording, numbers, or structure. Everything you write must come from this person's own input.
+${realExamplesRule("real, published, sourced LinkedIn headline and About-section examples from this person's industry")}
 
 ${ANTI_GENERIC_RULE}`
 
@@ -49,7 +53,7 @@ const OUTPUT_SCHEMA = {
     },
     skills_to_add: { type: 'array', items: { type: 'string' } },
     featured_section_ideas: { type: 'array', items: { type: 'string' } },
-    handler_notes: { type: 'array', items: { type: 'string' } },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
   required: ['headline', 'headline_alternatives', 'about_section', 'experience_rewrites', 'skills_to_add', 'featured_section_ideas', 'handler_notes'],
 }
@@ -65,9 +69,23 @@ Deno.serve(async (req: Request) => {
     if (fetchErr || !doc) return jsonResponse({ error: 'LinkedIn document not found' }, 404)
 
     const input = doc.input || {}
-    if (!doc.target_industry) return jsonResponse({ error: 'Target industry is required.' }, 422)
-    if (!input.current_status) return jsonResponse({ error: 'Current status (e.g. your year and course, or your role) is required.' }, 422)
-    const skillCount = (input.key_skills || []).length
+    const missing = checkRequired([
+      ['Target industry', doc.target_industry],
+      ['Current status (e.g. your year and course, or your role)', input.current_status],
+    ])
+    if (missing) return jsonResponse({ error: missing }, 422)
+
+    const lengthError = checkLengths([
+      ['Target industry', doc.target_industry, LIMITS.SHORT],
+      ['Target role', doc.target_role, LIMITS.SHORT],
+      ['Current status', input.current_status, LIMITS.MEDIUM],
+      ['Target connections', input.target_connections, LIMITS.MEDIUM],
+      ['Notable achievements', input.notable_achievements, LIMITS.LONG],
+      ['Experience', input.experience, LIMITS.LONG],
+    ])
+    if (lengthError) return jsonResponse({ error: lengthError }, 422)
+
+    const skillCount = ((input.key_skills || []) as string[]).filter(s => !isBlank(s)).length
     if (skillCount < 3) return jsonResponse({ error: 'List at least 3 key skills.' }, 422)
 
     const [headlineExamples, aboutExamples] = await Promise.all([

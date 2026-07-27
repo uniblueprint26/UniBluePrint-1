@@ -176,7 +176,7 @@ const focusOff = e => { e.target.style.borderColor = 'rgba(30,58,95,0.2)'; e.tar
 
 export function FormInput({
   id, value, onChange, placeholder,
-  type = 'text', required,
+  type = 'text', required, maxLength,
   'aria-describedby': describedBy,
 }) {
   return (
@@ -187,6 +187,7 @@ export function FormInput({
       onChange={onChange}
       placeholder={placeholder}
       required={required}
+      maxLength={maxLength}
       aria-required={required || undefined}
       aria-describedby={describedBy}
       style={inputBase}
@@ -229,7 +230,7 @@ export const SelectInput = FormSelect
 
 export function FormTextarea({
   id, value, onChange, placeholder,
-  rows = 4, required,
+  rows = 4, required, maxLength,
   'aria-describedby': describedBy,
 }) {
   return (
@@ -240,6 +241,7 @@ export function FormTextarea({
       placeholder={placeholder}
       rows={rows}
       required={required}
+      maxLength={maxLength}
       aria-required={required || undefined}
       aria-describedby={describedBy}
       style={{
