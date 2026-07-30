@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform, ScrollView,
+  StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native'
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 
@@ -13,13 +13,24 @@ export default function SignInScreen({ navigation }) {
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const insets = useSafeAreaInsets()
-  const { login } = useAuth()
+  const { signIn } = useAuth()
 
-  function handleSignIn() {
-    if (!email || !password) return
+  async function handleSignIn() {
+    if (!email || !password) {
+      setError('Please enter your email and password.')
+      return
+    }
+    setError('')
     setLoading(true)
-    setTimeout(() => { setLoading(false); login() }, 800)
+    try {
+      await signIn(email.trim(), password)
+    } catch (err) {
+      setError(err.message || 'Invalid email or password. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -32,7 +43,6 @@ export default function SignInScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
           <Text style={styles.logo}>UniBlueprint</Text>
         </View>
@@ -41,7 +51,13 @@ export default function SignInScreen({ navigation }) {
           <Text style={styles.title}>Welcome back.</Text>
           <Text style={styles.sub}>Sign in to your account to continue.</Text>
 
-          {/* Email */}
+          {!!error && (
+            <View style={styles.errorBanner}>
+              <AlertCircle size={15} color="#DC2626" />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+
           <View style={styles.field}>
             <Text style={styles.label}>Email address</Text>
             <View style={styles.inputWrap}>
@@ -59,11 +75,10 @@ export default function SignInScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Password */}
           <View style={styles.field}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>Password</Text>
-              <TouchableOpacity activeOpacity={0.7}>
+              <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ForgotPassword')}>
                 <Text style={styles.forgotLink}>Forgot password?</Text>
               </TouchableOpacity>
             </View>
@@ -86,7 +101,6 @@ export default function SignInScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Sign in */}
           <TouchableOpacity
             style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
             activeOpacity={0.85}
@@ -96,14 +110,12 @@ export default function SignInScreen({ navigation }) {
             <Text style={styles.primaryBtnText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
           </TouchableOpacity>
 
-          {/* Divider */}
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>or</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Sign up */}
           <TouchableOpacity
             style={styles.secondaryBtn}
             activeOpacity={0.8}
@@ -140,6 +152,14 @@ const styles = StyleSheet.create({
 
   title: { fontFamily: fonts.serif, fontSize: 34, color: colors.navy },
   sub: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, marginTop: 6, lineHeight: 22 },
+
+  errorBanner: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+    backgroundColor: '#FEF2F2', borderRadius: radius.button,
+    borderWidth: 1, borderColor: '#FCA5A5',
+    padding: 12, marginTop: spacing.md,
+  },
+  errorText: { fontFamily: fonts.sans, fontSize: 13, color: '#DC2626', flex: 1, lineHeight: 19 },
 
   field: { marginTop: spacing.lg },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 8 },

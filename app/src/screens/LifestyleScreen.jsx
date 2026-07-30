@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native'
-import { Heart, ShoppingBag, PiggyBank, Tag, ChevronRight, X, ExternalLink } from 'lucide-react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking } from 'react-native'
+import { Heart, ShoppingBag, PiggyBank, Tag, ChevronRight, X, ExternalLink, Phone } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -116,9 +116,14 @@ const WELLBEING_RESOURCES = [
 ]
 
 const SUPPORT_LINES = [
-  { name: 'Samaritans Ireland', number: '116 123', hours: '24/7', color: '#EFF6FF' },
-  { name: 'Niteline', number: '1800 793 793', hours: 'Term nights', color: '#F0FDF4' },
-  { name: 'SpunOut', number: 'spunout.ie', hours: 'Online', color: '#FFF7ED' },
+  { name: 'Samaritans Ireland', number: '116 123',        hours: '24/7',        color: '#EFF6FF', link: 'tel:116123' },
+  { name: 'Pieta House',        number: '116 123',        hours: '24/7',        color: '#FDF4FF', link: 'tel:116123' },
+  { name: 'Niteline',           number: '1800 793 793',   hours: 'Term nights', color: '#F0FDF4', link: 'tel:1800793793' },
+  { name: 'SpunOut',            number: 'spunout.ie',     hours: 'Online',      color: '#FFF7ED', link: 'https://spunout.ie' },
+  { name: 'Jigsaw',             number: 'jigsaw.ie',      hours: 'Online',      color: '#F0F9FF', link: 'https://jigsaw.ie' },
+  { name: 'Turn2Me',            number: 'turn2me.ie',     hours: 'Online',      color: '#FEF9C3', link: 'https://turn2me.ie' },
+  { name: 'MyMind',             number: '01 820 5277',    hours: 'Mon–Fri',     color: '#F5F0E8', link: 'tel:018205277' },
+  { name: 'Student Counselling',number: 'Your college',   hours: 'On campus',   color: '#FFF7ED', link: null },
 ]
 
 const BUDGET_TOOLS = [
@@ -218,13 +223,22 @@ export default function LifestyleScreen() {
 
           <View style={{ gap: 10, marginTop: spacing.md }}>
             {SUPPORT_LINES.map(line => (
-              <Card key={line.name} style={[styles.supportCard, { backgroundColor: line.color }]}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.supportName}>{line.name}</Text>
-                  <Text style={styles.supportHours}>{line.hours}</Text>
-                </View>
-                <Text style={styles.supportNumber}>{line.number}</Text>
-              </Card>
+              <TouchableOpacity
+                key={line.name}
+                activeOpacity={line.link ? 0.8 : 1}
+                onPress={() => line.link && Linking.openURL(line.link)}
+              >
+                <Card style={[styles.supportCard, { backgroundColor: line.color }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.supportName}>{line.name}</Text>
+                    <Text style={styles.supportHours}>{line.hours}</Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.supportNumber}>{line.number}</Text>
+                    {line.link && <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />}
+                  </View>
+                </Card>
+              </TouchableOpacity>
             ))}
           </View>
 

@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Zap, ChevronRight, Bell, User } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { useAuth } from '../context/AuthContext'
 
 const ubpLogo = require('../../assets/ubp-logo.png')
 
@@ -149,6 +150,14 @@ function DealLogo({ deal }) {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
+  const university = user?.user_metadata?.university || 'Your University'
+  const course = user?.user_metadata?.course || ''
+
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
     <View style={styles.screen}>
@@ -172,9 +181,9 @@ export default function HomeScreen() {
       >
         {/* Greeting */}
         <View style={styles.greeting}>
-          <Text style={styles.greetingPre}>Good morning,</Text>
-          <Text style={styles.greetingName}>Welcome back.</Text>
-          <Text style={styles.greetingSub}>University College Dublin · Business</Text>
+          <Text style={styles.greetingPre}>{greeting},</Text>
+          <Text style={styles.greetingName}>{displayName}.</Text>
+          <Text style={styles.greetingSub}>{university}{course ? ` · ${course}` : ''}</Text>
         </View>
 
         {/* Profile completion */}

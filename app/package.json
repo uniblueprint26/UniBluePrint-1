@@ -21,7 +21,9 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@expo-google-fonts/dm-serif-display": "^0.2.3",
     "@expo-google-fonts/dm-sans": "^0.2.3",
-    "lucide-react-native": "^0.503.0"
+    "lucide-react-native": "^0.503.0",
+    "@supabase/supabase-js": "^2.49.0",
+    "@react-native-async-storage/async-storage": "^2.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0"

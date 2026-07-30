@@ -1,4 +1,5 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native'
+import { useState } from 'react'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
@@ -8,28 +9,56 @@ import {
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
-
-const QUICK_LINKS = [
-  { icon: Users,    label: 'Our Coaches',       sub: 'Browse all verified Uni Coaches',   color: '#EFF6FF' },
-  { icon: Award,    label: 'Become a Coach',    sub: 'Apply to join the coaching panel',   color: '#F0FDF4' },
-  { icon: HelpCircle, label: 'FAQs',            sub: 'Common questions answered',          color: '#FFF7ED' },
-  { icon: Info,     label: 'About UniBlueprint', sub: 'Our mission and how it works',      color: '#FDF4FF' },
-]
-
-const ACCOUNT_LINKS = [
-  { icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders' },
-  { icon: Lock,     label: 'Privacy',         sub: 'Control your data and visibility' },
-  { icon: LifeBuoy, label: 'Help & Support',  sub: 'Get help from the team' },
-]
+import { useAuth } from '../context/AuthContext'
 
 const STATS = [
-  { value: '3',    label: 'CVs Submitted' },
-  { value: '1',    label: 'Session Booked' },
-  { value: '12',   label: 'Notes Saved' },
+  { value: '3',  label: 'CVs Submitted' },
+  { value: '1',  label: 'Session Booked' },
+  { value: '12', label: 'Notes Saved' },
 ]
 
-export default function MoreScreen() {
+export default function MoreScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { user, signOut } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
+  const university = user?.user_metadata?.university || 'Your University'
+  const course = user?.user_metadata?.course || ''
+
+  const QUICK_LINKS = [
+    { icon: Users,    label: 'Our Coaches',        sub: 'Browse all verified Uni Coaches',    color: '#EFF6FF', screen: null },
+    { icon: Award,    label: 'Become a Coach',     sub: 'Apply to join the coaching panel',   color: '#F0FDF4', screen: null },
+    { icon: HelpCircle, label: 'FAQs',             sub: 'Common questions answered',          color: '#FFF7ED', screen: 'FAQs' },
+    { icon: Info,     label: 'About UniBlueprint', sub: 'Our mission and how it works',       color: '#FDF4FF', screen: 'About' },
+  ]
+
+  const ACCOUNT_LINKS = [
+    { icon: Bell,     label: 'Notifications',  sub: 'Manage your alerts and reminders', screen: null },
+    { icon: Lock,     label: 'Privacy',        sub: 'Control your data and visibility',  screen: null },
+    { icon: LifeBuoy, label: 'Help & Support', sub: 'Get help from the team',            screen: 'Help' },
+  ]
+
+  async function handleSignOut() {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          setSigningOut(true)
+          try {
+            await signOut()
+          } catch (err) {
+            Alert.alert('Error', 'Could not sign out. Please try again.')
+          } finally {
+            setSigningOut(false)
+          }
+        },
+      },
+    ])
+  }
+
   return (
     <View style={styles.screen}>
       <TopBar />
@@ -43,10 +72,12 @@ export default function MoreScreen() {
             </View>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Student Name</Text>
+            <Text style={styles.profileName} numberOfLines={1}>{displayName}</Text>
             <View style={styles.profileBadgeRow}>
               <GraduationCap size={13} color="rgba(245,240,232,0.7)" />
-              <Text style={styles.profileUni}>University College Dublin · Business</Text>
+              <Text style={styles.profileUni} numberOfLines={1}>
+                {university}{course ? ` · ${course}` : ''}
+              </Text>
             </View>
           </View>
           <TouchableOpacity style={styles.editBtn} activeOpacity={0.8}>
@@ -80,8 +111,12 @@ export default function MoreScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionEyebrow}>EXPLORE</Text>
           <View style={{ gap: 12 }}>
-            {QUICK_LINKS.map(({ icon: Icon, label, sub, color }) => (
-              <TouchableOpacity key={label} activeOpacity={0.8}>
+            {QUICK_LINKS.map(({ icon: Icon, label, sub, color, screen }) => (
+              <TouchableOpacity
+                key={label}
+                activeOpacity={0.8}
+                onPress={() => screen && navigation.navigate(screen)}
+              >
                 <Card style={styles.linkCard}>
                   <View style={[styles.linkIcon, { backgroundColor: color }]}>
                     <Icon size={20} color={colors.navy} />
@@ -121,11 +156,12 @@ export default function MoreScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionEyebrow}>ACCOUNT</Text>
           <Card style={{ padding: 0 }}>
-            {ACCOUNT_LINKS.map(({ icon: Icon, label, sub }, i, arr) => (
+            {ACCOUNT_LINKS.map(({ icon: Icon, label, sub, screen }, i, arr) => (
               <TouchableOpacity
                 key={label}
                 activeOpacity={0.75}
                 style={[styles.settingsRow, i < arr.length - 1 && styles.actDivider]}
+                onPress={() => screen && navigation.navigate(screen)}
               >
                 <View style={styles.settingsIcon}>
                   <Icon size={18} color={colors.navy} />
@@ -142,9 +178,14 @@ export default function MoreScreen() {
 
         {/* Sign out */}
         <View style={[styles.section, { paddingBottom: 0 }]}>
-          <TouchableOpacity style={styles.signOutBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={[styles.signOutBtn, signingOut && { opacity: 0.7 }]}
+            activeOpacity={0.8}
+            onPress={handleSignOut}
+            disabled={signingOut}
+          >
             <LogOut size={16} color='#DC2626' />
-            <Text style={styles.signOutText}>Sign Out</Text>
+            <Text style={styles.signOutText}>{signingOut ? 'Signing out…' : 'Sign Out'}</Text>
           </TouchableOpacity>
 
           <Text style={styles.versionText}>UniBlueprint · v1.0.0</Text>
@@ -168,19 +209,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
   },
-  avatarWrap: {},
   avatar: {
-    width: 64, height: 64, borderRadius: radius.circle,
+    width: 64, height: 64, borderRadius: 32,
     backgroundColor: 'rgba(245,240,232,0.12)',
     borderWidth: 2, borderColor: 'rgba(245,240,232,0.25)',
     alignItems: 'center', justifyContent: 'center',
   },
-  profileInfo: { flex: 1 },
+  profileInfo: { flex: 1, minWidth: 0 },
   profileName: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
   profileBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 },
-  profileUni: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.65)' },
+  profileUni: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.65)', flex: 1 },
   editBtn: {
-    backgroundColor: 'rgba(245,240,232,0.12)', borderRadius: radius.button,
+    backgroundColor: 'rgba(245,240,232,0.12)', borderRadius: 20,
     borderWidth: 1, borderColor: 'rgba(245,240,232,0.25)',
     paddingHorizontal: 14, paddingVertical: 7,
   },
@@ -189,7 +229,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row', backgroundColor: colors.white,
     marginHorizontal: spacing.md, marginTop: -1,
-    borderRadius: radius.card, ...shadows.card,
+    borderRadius: 12, ...shadows.card,
   },
   statItem: { flex: 1, alignItems: 'center', paddingVertical: 16 },
   statBorder: { borderRightWidth: 1, borderRightColor: 'rgba(30,58,95,0.08)' },
@@ -198,14 +238,14 @@ const styles = StyleSheet.create({
 
   membershipCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#FFFBEB', borderRadius: radius.card,
+    backgroundColor: '#FFFBEB', borderRadius: 12,
     marginHorizontal: spacing.md, marginTop: spacing.md,
     padding: 14, borderWidth: 1, borderColor: '#FDE68A',
   },
   membershipTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   membershipSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, lineHeight: 16 },
   upgradeBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.navy, borderRadius: 20,
     paddingHorizontal: 14, paddingVertical: 7,
   },
   upgradeBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
@@ -235,7 +275,7 @@ const styles = StyleSheet.create({
 
   signOutBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    borderWidth: 1.5, borderColor: '#FCA5A5', borderRadius: radius.button,
+    borderWidth: 1.5, borderColor: '#FCA5A5', borderRadius: 12,
     height: 50, backgroundColor: '#FEF2F2',
   },
   signOutText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: '#DC2626' },

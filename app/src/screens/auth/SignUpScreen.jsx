@@ -5,7 +5,7 @@ import {
   ScrollView,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { User, Mail, Lock, GraduationCap, BookOpen, Eye, EyeOff } from 'lucide-react-native'
+import { User, Mail, Lock, GraduationCap, BookOpen, Eye, EyeOff, AlertCircle } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 
@@ -35,16 +35,42 @@ export default function SignUpScreen({ navigation }) {
   const [university, setUniversity] = useState('')
   const [course, setCourse] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
+  const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [showUniPicker, setShowUniPicker] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const insets = useSafeAreaInsets()
-  const { login } = useAuth()
+  const { signUp } = useAuth()
 
-  function handleSignUp() {
-    if (!name || !email || !password) return
+  function validate() {
+    if (!name.trim()) return 'Full name is required.'
+    if (!email) return 'Email address is required.'
+    if (!/\S+@\S+\.\S+/.test(email)) return 'Enter a valid email address.'
+    if (!password) return 'Password is required.'
+    if (password.length < 8) return 'Password must be at least 8 characters.'
+    if (password !== confirmPassword) return 'Passwords do not match.'
+    return null
+  }
+
+  async function handleSignUp() {
+    const validationError = validate()
+    if (validationError) { setError(validationError); return }
+    setError('')
     setLoading(true)
-    setTimeout(() => { setLoading(false); login() }, 800)
+    try {
+      await signUp(email.trim(), password, {
+        full_name: name.trim(),
+        university,
+        course,
+      })
+      navigation.navigate('VerifyEmail', { email: email.trim() })
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -57,7 +83,6 @@ export default function SignUpScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
           <Text style={styles.logo}>UniBlueprint</Text>
         </View>
@@ -65,6 +90,13 @@ export default function SignUpScreen({ navigation }) {
         <View style={styles.body}>
           <Text style={styles.title}>Create your account.</Text>
           <Text style={styles.sub}>Free to join. No credit card required.</Text>
+
+          {!!error && (
+            <View style={styles.errorBanner}>
+              <AlertCircle size={15} color="#DC2626" />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
 
           <Field label="Full Name" icon={User}>
             <TextInput
@@ -152,7 +184,27 @@ export default function SignUpScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Terms */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <View style={styles.inputWrap}>
+              <Lock size={16} color={colors.muted} style={{ marginRight: 10 }} />
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Re-enter your password"
+                placeholderTextColor={colors.light}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPw}
+                autoComplete="new-password"
+              />
+              <TouchableOpacity onPress={() => setShowConfirmPw(!showConfirmPw)} activeOpacity={0.7}>
+                {showConfirmPw
+                  ? <EyeOff size={16} color={colors.muted} />
+                  : <Eye size={16} color={colors.muted} />}
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <Text style={styles.terms}>
             By creating an account you agree to our{' '}
             <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
@@ -195,6 +247,14 @@ const styles = StyleSheet.create({
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
   title: { fontFamily: fonts.serif, fontSize: 34, color: colors.navy },
   sub: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, marginTop: 6, lineHeight: 22 },
+
+  errorBanner: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+    backgroundColor: '#FEF2F2', borderRadius: radius.button,
+    borderWidth: 1, borderColor: '#FCA5A5',
+    padding: 12, marginTop: spacing.md,
+  },
+  errorText: { fontFamily: fonts.sans, fontSize: 13, color: '#DC2626', flex: 1, lineHeight: 19 },
 
   field: { marginTop: spacing.lg },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 8 },

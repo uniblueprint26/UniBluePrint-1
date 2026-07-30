@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'r
 import {
   FileText, Target, Award, Linkedin, MessageSquare, Search,
   BookOpen, GraduationCap, Compass, Map, Wrench, Package,
-  User, MapPin, ChevronRight, Clock, Sparkles, ExternalLink,
+  User, Users, MapPin, ChevronRight, Clock, Sparkles, ExternalLink,
 } from 'lucide-react-native'
 
 import TopBar from '../components/layout/TopBar'
@@ -77,6 +77,46 @@ const CC_TOOLS = [
   { name: 'PLC Compass',            icon: Map,             url: 'https://coursecompass.ie/plc-compass-test',        desc: 'Explore PLC pathway options' },
   { name: 'Apprenticeship Compass', icon: Wrench,          url: 'https://coursecompass.ie/apprentice-compass-test', desc: 'Find the right apprenticeship' },
   { name: '5th & 6th Year Bundle',  icon: Package,         url: 'https://coursecompass.ie/bundles/senior-cycle',    desc: 'Full senior cycle guidance suite' },
+]
+
+// ─── Elevation Blueprint — Services ──────────────────────────────────────────
+const ELEVATION_SERVICES = [
+  {
+    icon: Sparkles,
+    title: 'Personal Branding Support',
+    desc: 'Build a consistent, professional online presence that gets you noticed. We help you define your story, optimise your LinkedIn, and communicate your value clearly across every platform.',
+    color: '#EFF6FF',
+  },
+  {
+    icon: Users,
+    title: 'Network Assistance',
+    desc: 'Strategic guidance on building and activating your professional network — outreach templates, connection strategy, and how to turn conversations into opportunities.',
+    color: '#F0FDF4',
+  },
+  {
+    icon: Package,
+    title: 'Portfolio Building',
+    desc: 'Showcase your projects, skills, and achievements in a format that employers and clients actually engage with. We help you build a portfolio that complements your CV.',
+    color: '#FFF7ED',
+  },
+  {
+    icon: Target,
+    title: 'Mentorship Matching',
+    desc: 'Get paired with an experienced professional or senior student in your field for ongoing guidance, accountability, and real-world perspective throughout your college journey.',
+    color: '#FDF4FF',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Pitch & Presentation Coaching',
+    desc: 'Whether it\'s a job interview, a startup pitch, or a college presentation — we help you structure your message, practise delivery, and walk in with confidence.',
+    color: '#F0F9FF',
+  },
+  {
+    icon: GraduationCap,
+    title: 'Postgrad Support',
+    desc: 'Thinking about a Master\'s, PhD, or professional qualification? We help you navigate applications, personal statements, funding options, and the decision itself.',
+    color: '#FEF9C3',
+  },
 ]
 
 // ─── Elevation Blueprint — Coaches ───────────────────────────────────────────
@@ -332,10 +372,48 @@ function FoundationTab() {
 // ─── Elevation tab ────────────────────────────────────────────────────────────
 function ElevationTab() {
   const [active, setActive] = useState('All')
+  const [selectedService, setSelectedService] = useState(null)
   const visible = active === 'All' ? COACHES : COACHES.filter(c => c.filter === active)
 
   return (
     <View>
+
+      {/* Elevation services */}
+      <Text style={styles.servicesSubHeader}>Elevation Services</Text>
+      <View style={{ gap: 12, marginBottom: spacing.lg }}>
+        {ELEVATION_SERVICES.map(({ icon: Icon, title, desc, color }) => (
+          <TouchableOpacity
+            key={title}
+            activeOpacity={0.88}
+            onPress={() => setSelectedService(selectedService === title ? null : title)}
+          >
+            <Card style={[styles.serviceCard, selectedService === title && styles.serviceCardActive]}>
+              <View style={styles.serviceCardTop}>
+                <View style={[styles.serviceIcon, { backgroundColor: color }]}>
+                  <Icon size={20} color={colors.navy} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.serviceTitle}>{title}</Text>
+                </View>
+                <ChevronRight
+                  size={16}
+                  color={colors.light}
+                  style={{ transform: [{ rotate: selectedService === title ? '90deg' : '0deg' }] }}
+                />
+              </View>
+              {selectedService === title && (
+                <View style={styles.serviceExpanded}>
+                  <Text style={styles.serviceDesc}>{desc}</Text>
+                </View>
+              )}
+            </Card>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Coaches section */}
+      <Text style={[styles.servicesSubHeader, { marginTop: 0 }]}>Our Coaches</Text>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

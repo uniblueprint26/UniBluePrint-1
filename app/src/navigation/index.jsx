@@ -1,32 +1,52 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Home, BookOpen, Users, Heart, MoreHorizontal } from 'lucide-react-native'
-import { Platform } from 'react-native'
+import { Platform, View, ActivityIndicator } from 'react-native'
 
 import { useAuth } from '../context/AuthContext'
+import { colors, fonts } from '../constants/theme'
 
 import HomeScreen from '../screens/HomeScreen'
 import BlueprintScreen from '../screens/BlueprintScreen'
 import ConnectScreen from '../screens/ConnectScreen'
 import LifestyleScreen from '../screens/LifestyleScreen'
 import MoreScreen from '../screens/MoreScreen'
+import AboutScreen from '../screens/AboutScreen'
+import FAQsScreen from '../screens/FAQsScreen'
+import HelpScreen from '../screens/HelpScreen'
 
 import WelcomeScreen from '../screens/auth/WelcomeScreen'
 import SignInScreen from '../screens/auth/SignInScreen'
 import SignUpScreen from '../screens/auth/SignUpScreen'
-
-import { colors, fonts } from '../constants/theme'
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen'
+import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen'
 
 const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
 
 const noHeader = { headerShown: false, animation: 'slide_from_right' }
+const backHeader = {
+  animation: 'slide_from_right',
+  headerStyle: { backgroundColor: colors.navy },
+  headerTintColor: colors.cream,
+  headerTitleStyle: { fontFamily: fonts.sansSemiBold },
+}
 
 function HomeStack()      { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="HomeMain"      component={HomeScreen}      /></Stack.Navigator> }
 function BlueprintStack() { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="BlueprintMain" component={BlueprintScreen} /></Stack.Navigator> }
 function ConnectStack()   { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="ConnectMain"   component={ConnectScreen}   /></Stack.Navigator> }
 function LifestyleStack() { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="LifestyleMain" component={LifestyleScreen} /></Stack.Navigator> }
-function MoreStack()      { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="MoreMain"      component={MoreScreen}      /></Stack.Navigator> }
+
+function MoreStack() {
+  return (
+    <Stack.Navigator screenOptions={noHeader}>
+      <Stack.Screen name="MoreMain" component={MoreScreen} />
+      <Stack.Screen name="About"    component={AboutScreen} />
+      <Stack.Screen name="FAQs"     component={FAQsScreen} />
+      <Stack.Screen name="Help"     component={HelpScreen} />
+    </Stack.Navigator>
+  )
+}
 
 function MainTabs() {
   return (
@@ -58,14 +78,25 @@ function MainTabs() {
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="SignIn"  component={SignInScreen}  options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="SignUp"  component={SignUpScreen}  options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="Welcome"        component={WelcomeScreen}       />
+      <Stack.Screen name="SignIn"         component={SignInScreen}         options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="SignUp"         component={SignUpScreen}         options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="VerifyEmail"    component={VerifyEmailScreen}   options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   )
 }
 
 export default function RootNavigator() {
-  const { authed } = useAuth()
-  return authed ? <MainTabs /> : <AuthStack />
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream }}>
+        <ActivityIndicator size="large" color={colors.navy} />
+      </View>
+    )
+  }
+
+  return user ? <MainTabs /> : <AuthStack />
 }
