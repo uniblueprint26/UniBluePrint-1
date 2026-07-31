@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Image } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import UBPLogo from '../../components/ui/UBPLogo'
 
 const { width } = Dimensions.get('window')
-const ubpLogo = require('../../../assets/ubp-logo.png')
 
 const SLIDES = [
   {
@@ -53,7 +53,7 @@ export default function WelcomeScreen({ navigation }) {
 
       {/* Logo header */}
       <View style={styles.logoHeader}>
-        <Image source={ubpLogo} style={styles.headerLogo} resizeMode="contain" />
+        <UBPLogo height={30} color={colors.navy} />
         <TouchableOpacity
           style={styles.skipBtn}
           activeOpacity={0.7}
@@ -133,7 +133,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 8,
   },
-  headerLogo: { width: 130, height: 36 },
   skipBtn: { paddingVertical: 12 },
   skipText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
 
