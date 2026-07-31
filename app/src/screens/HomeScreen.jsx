@@ -1,11 +1,10 @@
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
+import UBPLogo from '../components/ui/UBPLogo'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Zap, ChevronRight, Bell, User } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
-
-const ubpLogo = require('../../assets/ubp-logo.png')
 
 const QUICK_ACTIONS = [
   { label: 'Submit CV',    icon: FileText },
@@ -50,7 +49,6 @@ const AD_BOARD = [
     tagBg: 'rgba(245,240,232,0.2)',
     tagText: colors.cream,
     emoji: null,
-    logo: ubpLogo,
   },
   {
     type: 'partner',
@@ -163,7 +161,7 @@ export default function HomeScreen() {
     <View style={styles.screen}>
       {/* Top bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
-        <Image source={ubpLogo} style={styles.topBarLogo} resizeMode="contain" />
+        <UBPLogo height={30} color={colors.cream} />
         <View style={styles.topBarRight}>
           <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7}>
             <Bell size={20} color={colors.cream} />
@@ -268,8 +266,10 @@ export default function HomeScreen() {
               <TouchableOpacity key={i} activeOpacity={0.8}>
                 <View style={[styles.adCard, { backgroundColor: ad.color }]}>
                   {/* First card: UBP promo logo */}
-                  {ad.type === 'promo' && ad.logo ? (
-                    <Image source={ad.logo} style={styles.adPromoLogo} resizeMode="contain" />
+                  {ad.type === 'promo' ? (
+                    <View style={styles.adPromoLogo}>
+                      <UBPLogo height={22} color={ad.textColor} />
+                    </View>
                   ) : ad.emoji ? (
                     <Text style={styles.adEmoji}>{ad.emoji}</Text>
                   ) : null}
@@ -346,7 +346,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  topBarLogo: { width: 130, height: 34 },
   topBarRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: {
     position: 'relative', width: 40, height: 40,
@@ -428,7 +427,7 @@ const styles = StyleSheet.create({
     padding: 18, marginRight: 12, minHeight: 180,
     justifyContent: 'flex-end',
   },
-  adPromoLogo: { width: 80, height: 28, marginBottom: 12 },
+  adPromoLogo: { marginBottom: 12 },
   adEmoji: { fontSize: 30, marginBottom: 10 },
   adTag: {
     borderRadius: 4,

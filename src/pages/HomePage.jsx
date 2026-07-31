@@ -4,12 +4,11 @@ import { Helmet } from 'react-helmet-async'
 import {
   Sparkles,
   FileText, TrendingUp, Tag, Users, Globe, PiggyBank,
-  UserCheck, Award,
+  UserCheck, Award, ArrowRight,
 } from 'lucide-react'
 
 // ─── Countdown ─────────────────────────────────────────────────────────────────
 
-// 30 Sept 2026 23:59:59 Irish Standard Time = 22:59:59 UTC
 const TRIAL_END = new Date('2026-09-30T22:59:59Z')
 
 function calcTimeLeft() {
@@ -37,29 +36,32 @@ function CountdownTimer() {
   const units = [
     { value: time.days,    label: 'Days' },
     { value: time.hours,   label: 'Hours' },
-    { value: time.minutes, label: 'Minutes' },
-    { value: time.seconds, label: 'Seconds' },
+    { value: time.minutes, label: 'Mins' },
+    { value: time.seconds, label: 'Secs' },
   ]
 
   return (
     <div style={{
-      display: 'flex', gap: '8px', justifyContent: 'center',
-      flexWrap: 'wrap', marginTop: '32px',
+      display: 'flex', gap: '10px', justifyContent: 'center',
+      flexWrap: 'wrap', marginTop: '28px',
     }}>
       {units.map(({ value, label }) => (
         <div key={label} className="countdown-card" style={{
-          background: '#FFFFFF', borderRadius: '8px',
+          background: 'rgba(245,240,232,0.12)',
+          border: '1px solid rgba(245,240,232,0.18)',
+          borderRadius: '10px',
           textAlign: 'center', flexShrink: 0,
         }}>
           <p className="countdown-value" style={{
             fontFamily: "'DM Serif Display', serif",
-            color: '#1E3A5F', lineHeight: 1,
+            color: '#F5F0E8', lineHeight: 1,
           }}>
             {String(value).padStart(2, '0')}
           </p>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '11px', color: '#6B7280', marginTop: '4px',
+            fontSize: '11px', color: 'rgba(245,240,232,0.6)', marginTop: '4px',
+            textTransform: 'uppercase', letterSpacing: '0.05em',
           }}>
             {label}
           </p>
@@ -71,25 +73,32 @@ function CountdownTimer() {
 
 // ─── Page data ─────────────────────────────────────────────────────────────────
 
+const STATS = [
+  { n: '35+',  label: 'Students signed up' },
+  { n: '10+',  label: 'Irish universities' },
+  { n: '6',    label: 'Partner businesses' },
+  { n: 'Free', label: 'To join, always' },
+]
+
 const STEPS = [
   {
     n: 1,
-    title: 'Download and create your free account',
-    description: 'Sign up in under a minute. No payment required at any stage.',
+    title: 'Create your free account',
+    description: 'Sign up in under a minute. No payment required.',
   },
   {
     n: 2,
-    title: 'Choose your service and submit your details',
+    title: 'Choose your service',
     description: 'Select what you need and share your materials or brief.',
   },
   {
     n: 3,
-    title: 'Reviewed by a Campus Handler or Uni Coach',
-    description: 'A real person reviews your submission and prepares your output.',
+    title: 'Reviewed by a real person',
+    description: 'A Campus Handler or Uni Coach prepares your output.',
   },
   {
     n: 4,
-    title: 'Delivered to your inbox within your chosen timeframe',
+    title: 'Delivered within your timeframe',
     description: 'Receive your finished output ready to use.',
   },
 ]
@@ -100,42 +109,48 @@ const PILLARS = [
     description: 'CV building, LinkedIn optimisation, cover letters, interview prep, and CAO support — every output reviewed by a trained Campus Handler before delivery.',
     href: '/foundation-blueprint',
     icon: FileText,
-    link: 'Learn more →',
+    link: 'Explore services →',
+    bg: '#EFF6FF',
   },
   {
     name: 'Elevation Blueprint',
     description: 'Personal branding, network strategy, portfolio building, mentorship, pitch coaching, and postgrad support — delivered by specialist Uni Coaches.',
     href: '/elevation-blueprint',
     icon: TrendingUp,
-    link: 'Learn more →',
-  },
-  {
-    name: 'Lifestyle Blueprint',
-    description: 'Exclusive student discounts and lifestyle deals curated for Irish campus life.',
-    href: '/lifestyle-blueprint',
-    icon: Tag,
-    link: 'Learn more →',
+    link: 'Meet the coaches →',
+    bg: '#F0FDF4',
   },
   {
     name: 'Campus Connect',
-    description: 'Community boards to connect with students on your campus, share notes, and find study partners.',
+    description: 'Community boards to connect with students on your campus — accommodation, marketplace, events, carpooling, and more.',
     href: '/campus-connect',
     icon: Users,
-    link: 'Learn more →',
+    link: 'See what\'s on →',
+    bg: '#FFF7ED',
+  },
+  {
+    name: 'Lifestyle Blueprint',
+    description: 'Exclusive student discounts, mental health support resources, and budgeting tools — all curated for Irish campus life.',
+    href: '/lifestyle-blueprint',
+    icon: Tag,
+    link: 'Browse deals →',
+    bg: '#FDF4FF',
   },
   {
     name: 'Course Connect',
-    description: 'Course-specific discussion boards to collaborate with students studying the same subjects.',
+    description: 'Course-specific discussion boards, notes sharing, study groups, and module Q&A — collaborate with students studying the same subjects.',
     href: '/course-connect',
     icon: Globe,
-    link: 'Learn more →',
+    link: 'Find your course →',
+    bg: '#F0F9FF',
   },
   {
     name: 'Budgeting Tool',
-    description: 'A simple budgeting tool built for student life — track income, expenses, and savings goals.',
+    description: 'A simple budgeting tool built for student life — track income, expenses, and savings goals. Coming this September.',
     href: '/coming-soon',
     icon: PiggyBank,
     link: 'Coming soon →',
+    bg: '#FFFBEB',
   },
 ]
 
@@ -149,32 +164,6 @@ const STUDENTS = [
   { name: 'Sienna',   course: 'Nursing',                university: 'SETU Waterford',       cao: 'SE915' },
   { name: 'Basmali',  course: 'Computing',              university: 'MTU',                  cao: 'MT803' },
   { name: 'Ethan',    course: 'Sports Science',         university: 'TU Dublin',            cao: 'TU936' },
-  { name: 'Alex',     course: 'Digital Marketing',      university: 'TUS Athlone',          cao: 'US844' },
-  { name: 'Fiza',     course: 'Psychology',             university: 'University of Galway', cao: 'GY104' },
-  { name: 'Gigi',     course: 'Law',                    university: 'UCD',                  cao: 'DN030' },
-  { name: 'Wami',     course: 'Medicine',               university: 'RCSI',                 cao: 'RC850' },
-  { name: 'Daniel',   course: 'Architecture',           university: 'UCD',                  cao: 'DN060' },
-  { name: 'Sam',      course: 'Civil Engineering',      university: 'TU Dublin',            cao: 'TU001' },
-  { name: 'Harry',    course: 'Business and Law',       university: 'UCD',                  cao: 'DN700' },
-  { name: 'Elizabeth',course: 'Pharmacy',               university: 'TCD',                  cao: 'TR073' },
-  { name: 'Zafir',    course: 'Computer Science',       university: 'DCU',                  cao: 'DC182' },
-  { name: 'Sean',     course: 'Agricultural Science',   university: 'UCD',                  cao: 'DN200' },
-  { name: 'Seamus',   course: 'Early Childhood Education', university: 'ATU Galway',        cao: 'AU511' },
-  { name: 'Sinead',   course: 'Social Work',            university: 'UCC',                  cao: 'CK320' },
-  { name: 'Mairead',  course: 'Film and Television',    university: 'DCU',                  cao: 'DC231' },
-  { name: 'Emma',     course: 'Psychology',             university: 'UL',                   cao: 'LM120' },
-  { name: 'Mohammed', course: 'International Business', university: 'DCU',                  cao: 'DC217' },
-  { name: 'Ahmed',    course: 'Electronic Engineering', university: 'UL',                   cao: 'LM043' },
-  { name: 'Billy',    course: 'Sports Science',         university: 'ATU Galway',           cao: 'AU801' },
-  { name: 'Fatima',   course: 'Radiography',            university: 'TCD',                  cao: 'TR058' },
-  { name: 'Aoife',    course: 'Music',                  university: 'University of Galway', cao: 'GY200' },
-  { name: 'Roisin',   course: 'Environmental Science',  university: 'UCC',                  cao: 'CK723' },
-  { name: 'Kofi',     course: 'Marketing',              university: 'DCU',                  cao: 'DC222' },
-  { name: 'Amara',    course: 'Criminology',            university: 'UCC',                  cao: 'CK590' },
-  { name: 'James',    course: 'Mechanical Engineering', university: 'TU Dublin',            cao: 'TU003' },
-  { name: 'Priya',    course: 'Dentistry',              university: 'TCD',                  cao: 'TR005' },
-  { name: 'Luca',     course: 'Software Engineering',   university: 'UCD',                  cao: 'DN206' },
-  { name: 'Sofia',    course: 'International Relations', university: 'DCU',                 cao: 'DC203' },
 ]
 
 const AD_BOARD_POSTS = [
@@ -190,51 +179,69 @@ const AD_BOARD_POSTS = [
 // ─── StudentCard ───────────────────────────────────────────────────────────────
 
 function StudentCard({ name, course, university, cao }) {
+  const INITIALS_COLORS = ['#1E3A5F', '#15803D', '#0369A1', '#7C3AED', '#C2410C', '#B8860B', '#0F766E', '#9D174D']
+  const colorIdx = name.charCodeAt(0) % INITIALS_COLORS.length
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '24px', textAlign: 'left',
+      boxShadow: '0px 2px 12px rgba(30,58,95,0.07)',
+      padding: '20px', textAlign: 'left',
+      border: '1px solid rgba(30,58,95,0.06)',
     }}>
-      <div style={{
-        width: '52px', height: '52px', borderRadius: '50%',
-        background: '#1E3A5F',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <span style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '20px', color: '#FFFFFF', lineHeight: 1,
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <div style={{
+          width: '44px', height: '44px', borderRadius: '50%',
+          background: INITIALS_COLORS[colorIdx],
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
         }}>
-          {name.charAt(0)}
-        </span>
+          <span style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: '18px', color: '#FFFFFF', lineHeight: 1,
+          }}>
+            {name.charAt(0)}
+          </span>
+        </div>
+        <div>
+          <p style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: '16px', color: '#1E3A5F', margin: 0,
+          }}>
+            {name}
+          </p>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', color: '#9CA3AF', marginTop: '2px',
+          }}>
+            {university}
+          </p>
+        </div>
       </div>
       <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '17px', color: '#1E3A5F', marginTop: '10px',
-      }}>
-        {name}
-      </p>
-      <p style={{
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px', color: '#6B7280', marginTop: '4px',
+        fontSize: '13px', color: '#6B7280',
       }}>
-        {course} · {university}
+        {course}
       </p>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
-        marginTop: '12px',
+      <div style={{
+        display: 'inline-block', marginTop: '10px',
+        background: '#F5F0E8', borderRadius: '6px',
+        padding: '3px 10px',
       }}>
-        CAO Code: {cao}
-      </p>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', color: '#1E3A5F', fontWeight: '600',
+        }}>
+          CAO: {cao}
+        </p>
+      </div>
     </div>
   )
 }
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
 
-function PillarCard({ name, description, href, icon: Icon, link }) {
+function PillarCard({ name, description, href, icon: Icon, link, bg }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -242,43 +249,47 @@ function PillarCard({ name, description, href, icon: Icon, link }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        textAlign: 'center',
-        background: '#FFFFFF', borderRadius: '12px',
+        display: 'flex', flexDirection: 'column',
+        background: bg,
+        borderRadius: '12px',
+        padding: '24px',
         boxShadow: hovered
-          ? '0px 4px 20px rgba(30,58,95,0.14)'
-          : '0px 2px 12px rgba(30,58,95,0.08)',
-        padding: '28px',
-        transform: hovered ? 'scale(1.01)' : 'scale(1)',
-        transition: 'box-shadow 150ms ease, transform 150ms ease',
+          ? '0px 4px 20px rgba(30,58,95,0.12)'
+          : '0px 2px 8px rgba(30,58,95,0.05)',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'box-shadow 180ms ease, transform 180ms ease',
         textDecoration: 'none',
+        border: '1px solid rgba(30,58,95,0.06)',
       }}
     >
-      <div style={{
-        width: '60px', height: '60px', borderRadius: '50%',
-        background: '#F5F0E8',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <Icon size={32} color="#1E3A5F" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px' }}>
+        <div style={{
+          width: '46px', height: '46px',
+          background: '#FFFFFF', borderRadius: '10px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+          boxShadow: '0px 1px 4px rgba(30,58,95,0.1)',
+        }}>
+          <Icon size={22} color="#1E3A5F" />
+        </div>
+        <p style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: '17px', color: '#1E3A5F', lineHeight: 1.25,
+        }}>
+          {name}
+        </p>
       </div>
-      <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '18px', color: '#1E3A5F', marginTop: '12px',
-      }}>
-        {name}
-      </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '14px', color: '#6B7280',
-        marginTop: '8px', maxWidth: '260px', lineHeight: 1.5,
+        lineHeight: 1.55, flex: 1,
       }}>
         {description}
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
-        marginTop: '12px',
+        marginTop: '16px',
       }}>
         {link}
       </p>
@@ -286,16 +297,16 @@ function PillarCard({ name, description, href, icon: Icon, link }) {
   )
 }
 
-// ─── Section label ─────────────────────────────────────────────────────────────
+// ─── SectionLabel ──────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }) {
   return (
     <p style={{
       fontFamily: "'DM Sans', sans-serif",
       fontSize: '12px', fontWeight: '600',
-      color: '#6B7280',
+      color: '#9CA3AF',
       textTransform: 'uppercase',
-      letterSpacing: '0.06em',
+      letterSpacing: '0.07em',
     }}>
       {children}
     </p>
@@ -318,28 +329,12 @@ export default function HomePage() {
           '@type': 'Organization',
           name: 'UniBlueprint',
           url: 'https://uniblueprint.com',
-          logo: 'https://uniblueprint.com/og-image.png',
           description: 'The all-in-one platform for students, apprentices, and young people across Ireland.',
           sameAs: [
             'https://www.instagram.com/uniblueprint26',
             'https://www.tiktok.com/@uniblueprint26',
           ],
-          address: {
-            '@type': 'PostalAddress',
-            addressCountry: 'IE',
-          },
-        })}</script>
-        <script type="application/ld+json">{JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'WebSite',
-          name: 'UniBlueprint',
-          url: 'https://uniblueprint.com',
-          description: 'The Structure Behind Your Success',
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: 'https://uniblueprint.com/?q={search_term_string}',
-            'query-input': 'required name=search_term_string',
-          },
+          address: { '@type': 'PostalAddress', addressCountry: 'IE' },
         })}</script>
       </Helmet>
 
@@ -347,22 +342,23 @@ export default function HomePage() {
       <section style={{
         minHeight: '90dvh',
         background: '#F5F0E8',
-        padding: '80px 24px',
+        padding: '80px 24px 72px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        {/* Badge */}
+        {/* Launch badge */}
         <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          display: 'inline-flex', alignItems: 'center', gap: '7px',
           background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '6px', padding: '6px 12px',
+          borderRadius: '6px', padding: '6px 14px',
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '12px', fontWeight: '700',
+          letterSpacing: '0.02em',
         }}>
-          <Sparkles size={14} />
-          50% OFF — September Trial
+          <Sparkles size={13} />
+          50% OFF · September Trial
         </div>
 
         {/* Headline */}
@@ -371,7 +367,7 @@ export default function HomePage() {
           style={{
             fontFamily: "'DM Serif Display', serif",
             color: '#1E3A5F', textAlign: 'center',
-            marginTop: '16px', maxWidth: '720px',
+            marginTop: '20px', maxWidth: '740px',
           }}
         >
           The Structure Behind Your Success
@@ -383,10 +379,10 @@ export default function HomePage() {
           style={{
             fontFamily: "'DM Sans', sans-serif",
             color: '#6B7280', textAlign: 'center',
-            marginTop: '16px', maxWidth: '560px', lineHeight: 1.65,
+            marginTop: '18px', maxWidth: '560px', lineHeight: 1.65,
           }}
         >
-          The all-in-one platform for students, apprentices, and young people across Ireland — CV support, career coaching, campus community, and lifestyle deals. Built for you.
+          The all-in-one platform for students, apprentices, and young people across Ireland — CV support, career coaching, campus community, and lifestyle deals.
         </p>
 
         {/* CTAs */}
@@ -394,7 +390,7 @@ export default function HomePage() {
           <Link
             to="/download"
             style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               height: '52px', minWidth: '180px', padding: '0 28px',
               background: '#1E3A5F', color: '#F5F0E8',
               borderRadius: '8px',
@@ -403,6 +399,7 @@ export default function HomePage() {
             }}
           >
             Download the App
+            <ArrowRight size={16} />
           </Link>
           <Link
             to="/how-it-works"
@@ -410,7 +407,7 @@ export default function HomePage() {
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', minWidth: '180px', padding: '0 28px',
               background: 'transparent', color: '#1E3A5F',
-              border: '1.5px solid #1E3A5F',
+              border: '1.5px solid rgba(30,58,95,0.35)',
               borderRadius: '8px',
               fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
               textDecoration: 'none', whiteSpace: 'nowrap',
@@ -420,36 +417,56 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Social proof text */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#9CA3AF',
-          textAlign: 'center', marginTop: '24px',
+        {/* Stats strip */}
+        <div style={{
+          display: 'flex', gap: '40px', justifyContent: 'center',
+          marginTop: '56px', flexWrap: 'wrap',
+          paddingTop: '32px',
+          borderTop: '1px solid rgba(30,58,95,0.1)',
+          width: '100%', maxWidth: '680px',
         }}>
-          Launching September 2026 across Irish campuses
-        </p>
-
+          {STATS.map(({ n, label }) => (
+            <div key={label} style={{ textAlign: 'center' }}>
+              <p style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: '26px', color: '#1E3A5F',
+              }}>{n}</p>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '12px', color: '#9CA3AF', marginTop: '4px',
+              }}>{label}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ── SECTION 2 — SEPTEMBER TRIAL BANNER ────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
-        padding: '64px 24px',
+        padding: '72px 24px',
         textAlign: 'center',
       }}>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', fontWeight: '600', color: 'rgba(245,240,232,0.55)',
+          textTransform: 'uppercase', letterSpacing: '0.08em',
+        }}>
+          September Trial
+        </p>
+
         <h2
           className="trial-heading"
-          style={{ fontFamily: "'DM Serif Display', serif", color: '#F5F0E8' }}
+          style={{ fontFamily: "'DM Serif Display', serif", color: '#F5F0E8', marginTop: '6px' }}
         >
-          50% OFF
+          50% Off. Every service.
         </h2>
 
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '20px', color: 'rgba(245,240,232,0.8)',
-          marginTop: '12px',
+          fontSize: '18px', color: 'rgba(245,240,232,0.72)',
+          marginTop: '10px', maxWidth: '480px', margin: '10px auto 0', lineHeight: 1.6,
         }}>
-          The whole of September. Every service. Half the price.
+          The whole of September. CVs, LinkedIn, cover letters, coaching — all at half price.
         </p>
 
         <CountdownTimer />
@@ -457,15 +474,16 @@ export default function HomePage() {
         <Link
           to="/sign-up"
           style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             height: '52px', padding: '0 36px', minWidth: '200px',
             background: '#F5F0E8', color: '#1E3A5F',
             borderRadius: '8px',
             fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', marginTop: '24px',
+            textDecoration: 'none', marginTop: '28px',
           }}
         >
           Get started free
+          <ArrowRight size={16} />
         </Link>
       </section>
 
@@ -474,7 +492,7 @@ export default function HomePage() {
         <SectionLabel>How It Works</SectionLabel>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#1E3A5F', marginTop: '8px',
+          fontSize: '38px', color: '#1E3A5F', marginTop: '8px',
         }}>
           Your Blueprint in four steps
         </h2>
@@ -486,9 +504,8 @@ export default function HomePage() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 flex: '1 0 0', maxWidth: '220px', minWidth: '140px',
               }}>
-                {/* Number circle */}
                 <div style={{
-                  width: '48px', height: '48px', borderRadius: '50%',
+                  width: '52px', height: '52px', borderRadius: '50%',
                   background: '#1E3A5F',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
@@ -500,31 +517,29 @@ export default function HomePage() {
                     {step.n}
                   </span>
                 </div>
-
                 <p style={{
                   fontFamily: "'DM Serif Display', serif",
-                  fontSize: '18px', color: '#1E3A5F',
-                  marginTop: '12px', textAlign: 'center', lineHeight: 1.3,
+                  fontSize: '17px', color: '#1E3A5F',
+                  marginTop: '14px', textAlign: 'center', lineHeight: 1.3,
                 }}>
                   {step.title}
                 </p>
                 <p style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '14px', color: '#6B7280',
-                  marginTop: '8px', textAlign: 'center', lineHeight: 1.5,
+                  marginTop: '8px', textAlign: 'center', lineHeight: 1.55,
                 }}>
                   {step.description}
                 </p>
               </div>
 
-              {/* Connector line between steps */}
               {i < STEPS.length - 1 && (
                 <div
                   className="step-connector"
                   style={{
                     flex: '1 0 16px',
-                    borderTop: '1px dashed rgba(30,58,95,0.2)',
-                    marginTop: '24px',
+                    borderTop: '1.5px dashed rgba(30,58,95,0.15)',
+                    marginTop: '26px',
                   }}
                 />
               )}
@@ -538,10 +553,18 @@ export default function HomePage() {
         <SectionLabel>Everything in one place</SectionLabel>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#1E3A5F', marginTop: '8px',
+          fontSize: '38px', color: '#1E3A5F', marginTop: '8px',
         }}>
           Five pillars. One platform.
         </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '16px', color: '#6B7280',
+          marginTop: '12px', maxWidth: '520px',
+          marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6,
+        }}>
+          Everything an Irish student needs — from a polished CV to finding your study group — in a single app.
+        </p>
 
         <div className="pillars-grid">
           {PILLARS.map(p => <PillarCard key={p.name} {...p} />)}
@@ -550,143 +573,124 @@ export default function HomePage() {
 
       {/* ── SECTION 5 — SOCIAL PROOF ───────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
+        <SectionLabel>Who's using UniBlueprint</SectionLabel>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#1E3A5F',
+          fontSize: '38px', color: '#1E3A5F', marginTop: '8px',
         }}>
-          Built for students, apprentices, and young people across Ireland
+          Built for students across Ireland
         </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '16px', color: '#6B7280',
+          marginTop: '12px', maxWidth: '480px',
+          marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6,
+        }}>
+          From UCD to ATU, from Business to Nursing — UniBlueprint is open to every student in Ireland.
+        </p>
 
         <div className="testimonials-grid">
-          {STUDENTS.slice(0, 6).map(s => <StudentCard key={s.name} {...s} />)}
+          {STUDENTS.map(s => <StudentCard key={s.name} {...s} />)}
         </div>
 
         {/* Partners strip */}
-        <div style={{ marginTop: '56px' }}>
+        <div style={{ marginTop: '56px', paddingTop: '40px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
           <SectionLabel>Our Partners</SectionLabel>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexWrap: 'wrap', gap: '32px',
-            marginTop: '20px', filter: 'grayscale(1)', opacity: 0.6,
+            marginTop: '20px',
           }}>
-            {['CourseCompass', 'Whip Wizards', 'JMC Fitness', 'Nyz3ditz'].map(name => (
+            {['CourseCompass', 'Whip Wizardz', 'JMC Fitness', 'Nyz3ditz', 'Énergie Fitness', 'The Nail Nurse'].map(name => (
               <span key={name} style={{
                 display: 'inline-flex', alignItems: 'center',
-                height: '36px',
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '16px', color: '#1E3A5F',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px', fontWeight: '600', color: 'rgba(30,58,95,0.35)',
+                letterSpacing: '0.01em',
               }}>
                 {name}
               </span>
             ))}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '36px' }}>
-              {[1,2,3].map(i => (
-                <span key={i} style={{
-                  width: '6px', height: '6px', borderRadius: '50%',
-                  background: '#9CA3AF', display: 'inline-block',
-                }} />
-              ))}
-            </span>
           </div>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#9CA3AF',
-            marginTop: '8px',
-          }}>
-            And more coming
-          </p>
         </div>
       </section>
 
       {/* ── SECTION 5.5 — ADVERTISEMENT BOARD PREVIEW ─────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', fontWeight: '600', color: '#6B7280',
-            textTransform: 'uppercase', letterSpacing: '0.06em',
-            textAlign: 'center',
-          }}>
-            Advertisement Board
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            Students helping students
-          </h2>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: '#6B7280',
-            textAlign: 'center', margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.65,
-          }}>
-            The Advertisement Board lets students post services, gigs, and opportunities — from grinds to graphic design. Free to post.
-          </p>
-
-          {/* Mock content banner */}
-          <div style={{
-            background: '#FFFFFF', borderRadius: '12px',
-            borderLeft: '3px solid #1E3A5F',
-            padding: '20px', margin: '32px 0 0',
-            display: 'flex', alignItems: 'flex-start', gap: '16px',
-          }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
-              background: '#F5F0E8', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+          <div style={{ textAlign: 'center' }}>
+            <SectionLabel>Advertisement Board</SectionLabel>
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '38px', color: '#1E3A5F',
+              marginTop: '8px',
             }}>
-              <Sparkles size={20} color="#1E3A5F" />
-            </div>
+              Students helping students
+            </h2>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '16px', color: '#6B7280',
+              margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.65,
+            }}>
+              The Advertisement Board lets students post services, gigs, and opportunities — from grinds to graphic design. Free to post.
+            </p>
+          </div>
+
+          {/* Sample content notice */}
+          <div style={{
+            background: '#FFFFFF', borderRadius: '10px',
+            borderLeft: '3px solid #1E3A5F',
+            padding: '16px 20px', margin: '32px 0 0',
+            display: 'flex', alignItems: 'center', gap: '14px',
+          }}>
+            <Sparkles size={18} color="#1E3A5F" style={{ flexShrink: 0 }} />
             <div>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>
-                You are looking at example content
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600', color: '#1E3A5F', margin: 0 }}>
+                Example content
               </p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.5 }}>
-                These are sample posts to show what the Advertisement Board looks like in the app. Real posts are created by students.
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '2px' }}>
+                These are sample posts. Real posts are created by students after launch.
               </p>
             </div>
           </div>
 
-          {/* Ad cards — horizontal scroll */}
+          {/* Ad cards */}
           <div style={{
-            display: 'flex', gap: '16px',
+            display: 'flex', gap: '14px',
             overflowX: 'auto', paddingBottom: '8px',
-            marginTop: '24px',
-            scrollbarWidth: 'thin',
+            marginTop: '20px', scrollbarWidth: 'thin',
           }}>
             {AD_BOARD_POSTS.map(ad => (
               <div key={ad.title} style={{
-                flexShrink: 0, width: '280px', minHeight: '200px',
+                flexShrink: 0, width: '272px',
                 background: '#FFFFFF', borderRadius: '12px',
-                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+                boxShadow: '0px 2px 10px rgba(30,58,95,0.07)',
                 padding: '20px',
-                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                display: 'flex', flexDirection: 'column',
+                border: '1px solid rgba(30,58,95,0.06)',
               }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '50%',
-                      background: '#1E3A5F', flexShrink: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#FFFFFF' }}>
-                        {ad.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1E3A5F', fontWeight: '600', margin: 0 }}>{ad.name}</p>
-                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{ad.university}</p>
-                    </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                  <div style={{
+                    width: '36px', height: '36px', borderRadius: '50%',
+                    background: '#1E3A5F', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#FFFFFF' }}>
+                      {ad.name.charAt(0)}
+                    </span>
                   </div>
-                  <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>{ad.title}</p>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.45 }}>{ad.description}</p>
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1E3A5F', fontWeight: '600', margin: 0 }}>{ad.name}</p>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{ad.university}</p>
+                  </div>
                 </div>
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#1E3A5F', margin: 0 }}>{ad.title}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.45, flex: 1 }}>{ad.description}</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                   <span style={{
                     background: '#F5F0E8', color: '#1E3A5F',
                     borderRadius: '6px', padding: '3px 10px',
-                    fontFamily: "'DM Sans', sans-serif", fontSize: '11px',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
                   }}>
                     {ad.tag}
                   </span>
@@ -701,17 +705,18 @@ export default function HomePage() {
       </section>
 
       {/* ── SECTION 6 — HANDLER AND COACH CALLOUT ─────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px', textAlign: 'center' }}>
+      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
+        <SectionLabel>Quality you can count on</SectionLabel>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#1E3A5F',
+          fontSize: '38px', color: '#1E3A5F', marginTop: '8px',
         }}>
           Reviewed by real people. Every time.
         </h2>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '16px', color: '#6B7280',
-          margin: '16px auto 0', maxWidth: '640px', lineHeight: 1.65,
+          margin: '14px auto 0', maxWidth: '580px', lineHeight: 1.65,
         }}>
           Every Foundation Blueprint output is reviewed by a trained Campus Handler before delivery. Every Elevation service is delivered by a specialist Uni Coach.
         </p>
@@ -719,35 +724,36 @@ export default function HomePage() {
         <div className="handler-coach-grid">
           {/* Campus Handler */}
           <div style={{
-            background: '#FFFFFF', borderRadius: '12px',
-            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-            padding: '28px', textAlign: 'center', flex: 1,
+            background: '#F5F0E8', borderRadius: '12px',
+            padding: '32px 28px', textAlign: 'center', flex: 1,
+            border: '1px solid rgba(30,58,95,0.08)',
           }}>
             <div style={{
               width: '64px', height: '64px', borderRadius: '50%',
-              background: '#F5F0E8',
+              background: '#1E3A5F',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto',
             }}>
-              <UserCheck size={32} color="#1E3A5F" />
+              <UserCheck size={30} color="#F5F0E8" />
             </div>
             <h3 style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: '20px', color: '#1E3A5F', marginTop: '16px',
+              fontSize: '22px', color: '#1E3A5F', marginTop: '18px',
             }}>
               Campus Handler
             </h3>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '14px', color: '#6B7280',
-              marginTop: '10px', lineHeight: 1.55,
+              marginTop: '10px', lineHeight: 1.6,
             }}>
-              Campus Handlers are trained students who review Foundation Blueprint submissions — essays, CVs, and applications — ensuring every output meets our quality standard.
+              Campus Handlers are trained students who review Foundation Blueprint submissions — CVs, essays, and applications — ensuring every output meets our quality standard.
             </p>
             <Link
               to="/join#handler-form"
               style={{
-                display: 'inline-block', marginTop: '16px',
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                marginTop: '20px',
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '14px', fontWeight: '600', color: '#1E3A5F',
                 textDecoration: 'none',
@@ -759,35 +765,36 @@ export default function HomePage() {
 
           {/* Uni Coach */}
           <div style={{
-            background: '#FFFFFF', borderRadius: '12px',
-            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-            padding: '28px', textAlign: 'center', flex: 1,
+            background: '#F5F0E8', borderRadius: '12px',
+            padding: '32px 28px', textAlign: 'center', flex: 1,
+            border: '1px solid rgba(30,58,95,0.08)',
           }}>
             <div style={{
               width: '64px', height: '64px', borderRadius: '50%',
-              background: '#F5F0E8',
+              background: '#1E3A5F',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto',
             }}>
-              <Award size={32} color="#1E3A5F" />
+              <Award size={30} color="#F5F0E8" />
             </div>
             <h3 style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: '20px', color: '#1E3A5F', marginTop: '16px',
+              fontSize: '22px', color: '#1E3A5F', marginTop: '18px',
             }}>
               Uni Coach
             </h3>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '14px', color: '#6B7280',
-              marginTop: '10px', lineHeight: 1.55,
+              marginTop: '10px', lineHeight: 1.6,
             }}>
               Uni Coaches are specialists who deliver Elevation Blueprint services — career coaching, interview preparation, and LinkedIn optimisation — for students ready to level up.
             </p>
             <Link
               to="/join#coach-form"
               style={{
-                display: 'inline-block', marginTop: '16px',
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                marginTop: '20px',
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '14px', fontWeight: '600', color: '#1E3A5F',
                 textDecoration: 'none',
@@ -801,19 +808,28 @@ export default function HomePage() {
 
       {/* ── SECTION 7 — FINAL CTA ──────────────────────────────────────────── */}
       <section style={{
-        background: '#F5F0E8',
+        background: '#1E3A5F',
         padding: '100px 24px',
         textAlign: 'center',
       }}>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', fontWeight: '600', color: 'rgba(245,240,232,0.5)',
+          textTransform: 'uppercase', letterSpacing: '0.08em',
+        }}>
+          Get started today
+        </p>
+
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '48px', color: '#1E3A5F',
+          fontSize: '48px', color: '#F5F0E8', marginTop: '8px',
         }}>
           Your Blueprint starts here
         </h2>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: '#6B7280', marginTop: '12px',
+          fontSize: '16px', color: 'rgba(245,240,232,0.7)', marginTop: '14px',
+          maxWidth: '440px', margin: '14px auto 0', lineHeight: 1.6,
         }}>
           Free to join. No credit card required. September trial — 50% off everything.
         </p>
@@ -821,36 +837,36 @@ export default function HomePage() {
         <Link
           to="/download"
           style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             height: '52px', padding: '0 36px', minWidth: '200px',
-            background: '#1E3A5F', color: '#F5F0E8',
+            background: '#F5F0E8', color: '#1E3A5F',
             borderRadius: '8px',
             fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', marginTop: '24px',
+            textDecoration: 'none', marginTop: '28px',
           }}
         >
           Download the App
+          <ArrowRight size={16} />
         </Link>
 
-        {/* TODO: Replace with real store links */}
         <div style={{
           display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px',
         }}>
           <button style={{
             background: 'none',
-            border: '1px solid rgba(30,58,95,0.2)',
+            border: '1px solid rgba(245,240,232,0.2)',
             borderRadius: '8px', padding: '10px 20px',
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#9CA3AF', cursor: 'pointer',
+            fontSize: '12px', color: 'rgba(245,240,232,0.5)', cursor: 'pointer',
           }}>
             App Store
           </button>
           <button style={{
             background: 'none',
-            border: '1px solid rgba(30,58,95,0.2)',
+            border: '1px solid rgba(245,240,232,0.2)',
             borderRadius: '8px', padding: '10px 20px',
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#9CA3AF', cursor: 'pointer',
+            fontSize: '12px', color: 'rgba(245,240,232,0.5)', cursor: 'pointer',
           }}>
             Google Play
           </button>

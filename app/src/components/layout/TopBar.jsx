@@ -1,16 +1,15 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Bell, User } from 'lucide-react-native'
 import { colors, fonts } from '../../constants/theme'
-
-const ubpLogo = require('../../../assets/ubp-logo.png')
+import UBPLogo from '../ui/UBPLogo'
 
 export default function TopBar({ notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
-      <Image source={ubpLogo} style={styles.logo} resizeMode="contain" />
+      <UBPLogo height={30} color={colors.cream} />
       <View style={styles.right}>
         <TouchableOpacity
           onPress={onBellPress}
@@ -47,7 +46,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  logo: { width: 120, height: 32 },
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconButton: {
     position: 'relative', width: 40, height: 40,
