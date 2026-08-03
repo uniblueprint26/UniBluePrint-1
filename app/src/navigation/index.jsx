@@ -1,30 +1,37 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { Home, BookOpen, Users, Heart, MoreHorizontal } from 'lucide-react-native'
+import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
 import { Platform, View, ActivityIndicator } from 'react-native'
 
 import { useAuth } from '../context/AuthContext'
 import { colors, fonts } from '../constants/theme'
 
-import HomeScreen from '../screens/HomeScreen'
-import BlueprintScreen from '../screens/BlueprintScreen'
-import ConnectScreen from '../screens/ConnectScreen'
-import LifestyleScreen from '../screens/LifestyleScreen'
-import MoreScreen from '../screens/MoreScreen'
-import AboutScreen from '../screens/AboutScreen'
-import FAQsScreen from '../screens/FAQsScreen'
-import HelpScreen from '../screens/HelpScreen'
+// Main screens
+import HomeScreen       from '../screens/HomeScreen'
+import BlueprintScreen  from '../screens/BlueprintScreen'
+import ConnectScreen    from '../screens/ConnectScreen'
+import LifestyleScreen  from '../screens/LifestyleScreen'
+import AdBoardScreen    from '../screens/AdBoardScreen'
+import MessagesScreen   from '../screens/MessagesScreen'
+import DirectoryScreen  from '../screens/DirectoryScreen'
+import ProfileScreen    from '../screens/ProfileScreen'
 
-import WelcomeScreen from '../screens/auth/WelcomeScreen'
-import SignInScreen from '../screens/auth/SignInScreen'
-import SignUpScreen from '../screens/auth/SignUpScreen'
+// Profile sub-screens
+import AboutScreen  from '../screens/AboutScreen'
+import FAQsScreen   from '../screens/FAQsScreen'
+import HelpScreen   from '../screens/HelpScreen'
+
+// Auth screens
+import WelcomeScreen        from '../screens/auth/WelcomeScreen'
+import SignInScreen         from '../screens/auth/SignInScreen'
+import SignUpScreen         from '../screens/auth/SignUpScreen'
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen'
-import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen'
+import VerifyEmailScreen    from '../screens/auth/VerifyEmailScreen'
 
-const Tab = createBottomTabNavigator()
+const Tab   = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
 
-const noHeader = { headerShown: false, animation: 'slide_from_right' }
+const noHeader   = { headerShown: false, animation: 'slide_from_right' }
 const backHeader = {
   animation: 'slide_from_right',
   headerStyle: { backgroundColor: colors.navy },
@@ -32,18 +39,49 @@ const backHeader = {
   headerTitleStyle: { fontFamily: fonts.sansSemiBold },
 }
 
-function HomeStack()      { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="HomeMain"      component={HomeScreen}      /></Stack.Navigator> }
-function BlueprintStack() { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="BlueprintMain" component={BlueprintScreen} /></Stack.Navigator> }
-function ConnectStack()   { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="ConnectMain"   component={ConnectScreen}   /></Stack.Navigator> }
-function LifestyleStack() { return <Stack.Navigator screenOptions={noHeader}><Stack.Screen name="LifestyleMain" component={LifestyleScreen} /></Stack.Navigator> }
-
-function MoreStack() {
+// Home tab — includes blueprint/connect/lifestyle as sub-screens pushed from sidebar
+function HomeStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
-      <Stack.Screen name="MoreMain" component={MoreScreen} />
-      <Stack.Screen name="About"    component={AboutScreen} />
-      <Stack.Screen name="FAQs"     component={FAQsScreen} />
-      <Stack.Screen name="Help"     component={HelpScreen} />
+      <Stack.Screen name="HomeMain"      component={HomeScreen}      />
+      <Stack.Screen name="Blueprint"     component={BlueprintScreen} />
+      <Stack.Screen name="Connect"       component={ConnectScreen}   />
+      <Stack.Screen name="Lifestyle"     component={LifestyleScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function AdBoardStack() {
+  return (
+    <Stack.Navigator screenOptions={noHeader}>
+      <Stack.Screen name="AdBoardMain" component={AdBoardScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function MessagesStack() {
+  return (
+    <Stack.Navigator screenOptions={noHeader}>
+      <Stack.Screen name="MessagesMain" component={MessagesScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function DirectoryStack() {
+  return (
+    <Stack.Navigator screenOptions={noHeader}>
+      <Stack.Screen name="DirectoryMain" component={DirectoryScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={noHeader}>
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+      <Stack.Screen name="About"  component={AboutScreen}  />
+      <Stack.Screen name="FAQs"   component={FAQsScreen}   />
+      <Stack.Screen name="Help"   component={HelpScreen}   />
     </Stack.Navigator>
   )
 }
@@ -61,16 +99,36 @@ function MainTabs() {
           paddingBottom: Platform.OS === 'ios' ? 28 : 12,
           paddingTop: 10,
         },
-        tabBarActiveTintColor: colors.navy,
+        tabBarActiveTintColor:   colors.navy,
         tabBarInactiveTintColor: colors.light,
         tabBarLabelStyle: { fontFamily: fonts.sansMedium, fontSize: 11, marginTop: 2 },
       }}
     >
-      <Tab.Screen name="Home"      component={HomeStack}      options={{ tabBarIcon: ({ color }) => <Home          size={22} color={color} />, tabBarLabel: 'Home' }} />
-      <Tab.Screen name="Blueprint" component={BlueprintStack} options={{ tabBarIcon: ({ color }) => <BookOpen      size={22} color={color} />, tabBarLabel: 'Blueprint' }} />
-      <Tab.Screen name="Connect"   component={ConnectStack}   options={{ tabBarIcon: ({ color }) => <Users         size={22} color={color} />, tabBarLabel: 'Connect' }} />
-      <Tab.Screen name="Lifestyle" component={LifestyleStack} options={{ tabBarIcon: ({ color }) => <Heart         size={22} color={color} />, tabBarLabel: 'Lifestyle' }} />
-      <Tab.Screen name="More"      component={MoreStack}      options={{ tabBarIcon: ({ color }) => <MoreHorizontal size={22} color={color} />, tabBarLabel: 'More' }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeStack}
+        options={{ tabBarIcon: ({ color }) => <Home size={22} color={color} />, tabBarLabel: 'Home' }}
+      />
+      <Tab.Screen
+        name="AdBoard"
+        component={AdBoardStack}
+        options={{ tabBarIcon: ({ color }) => <Megaphone size={22} color={color} />, tabBarLabel: 'Ad Board' }}
+      />
+      <Tab.Screen
+        name="Messages"
+        component={MessagesStack}
+        options={{ tabBarIcon: ({ color }) => <MessageSquare size={22} color={color} />, tabBarLabel: 'Messages' }}
+      />
+      <Tab.Screen
+        name="Directory"
+        component={DirectoryStack}
+        options={{ tabBarIcon: ({ color }) => <Users size={22} color={color} />, tabBarLabel: 'Directory' }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileStack}
+        options={{ tabBarIcon: ({ color }) => <User size={22} color={color} />, tabBarLabel: 'Profile' }}
+      />
     </Tab.Navigator>
   )
 }
@@ -82,7 +140,7 @@ function AuthStack() {
       <Stack.Screen name="SignIn"         component={SignInScreen}         options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="SignUp"         component={SignUpScreen}         options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="VerifyEmail"    component={VerifyEmailScreen}   options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="VerifyEmail"    component={VerifyEmailScreen}    options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   )
 }

@@ -522,8 +522,9 @@ function ElevationTab() {
 }
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
-export default function BlueprintScreen() {
-  const [tab, setTab] = useState('foundation')
+export default function BlueprintScreen({ route }) {
+  const initialTab = route?.params?.initialTab?.toLowerCase() || 'foundation'
+  const [tab, setTab] = useState(initialTab)
 
   return (
     <View style={styles.screen}>

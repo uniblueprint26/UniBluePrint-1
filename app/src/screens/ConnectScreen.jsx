@@ -501,8 +501,9 @@ function CourseTab() {
 }
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
-export default function ConnectScreen() {
-  const [tab, setTab] = useState('campus')
+export default function ConnectScreen({ route }) {
+  const initialTab = route?.params?.initialTab?.toLowerCase() || 'campus'
+  const [tab, setTab] = useState(initialTab)
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

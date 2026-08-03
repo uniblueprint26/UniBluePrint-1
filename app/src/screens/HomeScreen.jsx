@@ -1,458 +1,307 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
-import UBPLogo from '../components/ui/UBPLogo'
+import { useRef, useEffect } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { FileText, Target, Users, Heart, Zap, ChevronRight, Bell, User } from 'lucide-react-native'
+import {
+  Bell, User, FileText, TrendingUp, Building2,
+  Heart, BookOpen, Compass, Calculator, Megaphone,
+  ChevronRight,
+} from 'lucide-react-native'
+import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 
-const QUICK_ACTIONS = [
-  { label: 'Submit CV',    icon: FileText },
-  { label: 'Book Coach',   icon: Target },
-  { label: 'Campus Board', icon: Users },
-  { label: 'Deals',        icon: Heart },
-  { label: 'My Notes',     icon: Zap },
+const NAV_ITEMS = [
+  { key: 'foundation',  label: 'Foundation',     Icon: FileText,   action: 'blueprint', tab: 'Foundation' },
+  { key: 'elevation',   label: 'Elevation',      Icon: TrendingUp, action: 'blueprint', tab: 'Elevation' },
+  { key: 'campus',      label: 'Campus',         Icon: Building2,  action: 'connect',   tab: 'Campus' },
+  { key: 'lifestyle',   label: 'Lifestyle',      Icon: Heart,      action: 'lifestyle' },
+  { key: 'course',      label: 'Course\nConnect', Icon: BookOpen,  action: 'connect',   tab: 'Course' },
+  { key: 'compass',     label: 'Compass',        Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
+  { key: 'budgeting',   label: 'Budgeting',      Icon: Calculator, action: 'lifestyle' },
+  { key: 'adboard',     label: 'Ad Board',       Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
 ]
 
-const PILLARS = [
-  { label: 'Foundation Blueprint', sub: 'CVs, cover letters, personal statements', icon: FileText, color: '#EFF6FF' },
-  { label: 'Elevation Blueprint',  sub: 'Coaching, mentorship, career support',    icon: Target,   color: '#F0FDF4' },
-  { label: 'Campus Connect',       sub: 'Boards, events, carpooling, projects',    icon: Users,    color: '#FFF7ED' },
-  { label: 'Lifestyle Blueprint',  sub: 'Deals, mental health, budgeting',         icon: Heart,    color: '#FDF4FF' },
-  { label: 'Course Connect',       sub: 'Notes, study groups, Q&A, exams',         icon: Zap,      color: '#F0F9FF' },
+const QUICK_CARDS = [
+  { label: 'Foundation Blueprint', sub: 'CVs, cover letters, personal statements', Icon: FileText,   bg: '#EFF6FF', action: 'blueprint', tab: 'Foundation' },
+  { label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',                 Icon: TrendingUp, bg: '#F0FDF4', action: 'blueprint', tab: 'Elevation' },
+  { label: 'Campus Connect',       sub: 'Boards, events, carpooling',              Icon: Building2,  bg: '#FFF7ED', action: 'connect',   tab: 'Campus' },
+  { label: 'Course Connect',       sub: 'Notes and study groups',                  Icon: BookOpen,   bg: '#F0F9FF', action: 'connect',   tab: 'Course' },
 ]
 
-const ACTIVITY = [
-  { title: 'CV Review — In Review',      time: '2 hours ago', dot: '#F59E0B' },
-  { title: 'Cover Letter — Delivered',   time: 'Yesterday',   dot: '#16A34A' },
-  { title: 'Coaching Session Confirmed', time: '2 days ago',  dot: colors.navy },
+const LIVE_FEED = [
+  { text: 'Abdullah submitted a CV for review',         dot: '#F59E0B' },
+  { text: 'New coaching session available in Dublin',   dot: colors.navy },
+  { text: 'Siofra completed her Foundation Blueprint',  dot: '#16A34A' },
+  { text: 'Ciarán joined a Course Connect study group', dot: '#2E6DB4' },
 ]
 
-const DEALS = [
-  { brand: 'Whip Wizardz',    discount: 'Student Deal',       color: '#EFF6FF', logo: require('../../assets/whip-wizardz-logo.png.png'), initials: 'WW', initBg: '#1E3A5F' },
-  { brand: 'JMC Fitness',     discount: 'Student Rate',       color: '#F0FDF4', logo: require('../../assets/jmc-fitness-logo.png.jpeg'), initials: 'JMC', initBg: '#15803D' },
-  { brand: 'Energie Fitness', discount: '€37.99/month',       color: '#F0F9FF', logo: require('../../assets/energie-fitness-logo.png.jpeg'), initials: 'EF', initBg: '#0369A1' },
-  { brand: 'Nyz3ditz',        discount: 'From €55/month',     color: '#FFF7ED', logo: require('../../assets/nyz3ditz-logo.png.jpeg'), initials: 'N3', initBg: '#C2410C' },
-  { brand: 'The Nail Nurse',  discount: 'Student Rate',       color: '#FDF4FF', logo: null, initials: 'TNN', initBg: '#B8860B' },
-  { brand: 'Emmanuel',        discount: 'Pricing TBC',        color: '#FEF9C3', logo: null, initials: 'EF', initBg: '#7C3AED' },
+const YOUR_ACTIVITY = [
+  { title: 'CV Review',         status: 'In Review',  dot: '#F59E0B' },
+  { title: 'Cover Letter',      status: 'Delivered',  dot: '#16A34A' },
+  { title: 'Coaching Session',  status: 'Confirmed',  dot: colors.navy },
 ]
 
-// Magazine-style advertisement board — first card is UniBlueprint 50% off
-const AD_BOARD = [
-  {
-    type: 'promo',
-    title: '50% Off Your First Service',
-    detail: 'September trial — every Foundation Blueprint service at half price. CV, LinkedIn, cover letter and more.',
-    tag: 'UniBlueprint',
-    color: colors.navy,
-    textColor: colors.cream,
-    tagBg: 'rgba(245,240,232,0.2)',
-    tagText: colors.cream,
-    emoji: null,
-  },
-  {
-    type: 'partner',
-    title: 'Whip Wizardz — Car Sales & Services',
-    detail: 'Vehicle sales, sourcing, inspections, repairs & detailing. Jonesborough, near Dundalk. Book via WhatsApp.',
-    tag: 'Automotive',
-    color: '#EFF6FF',
-    textColor: colors.navy,
-    tagBg: 'rgba(30,58,95,0.1)',
-    tagText: colors.navy,
-    emoji: '🚗',
-    logo: null,
-  },
-  {
-    type: 'partner',
-    title: 'The Nail Nurse — Nail & Beauty',
-    detail: 'Acrylic full sets from €25 · Gel polish from €6 · Galway · Student discount with valid ID. DM @theenailnurse__',
-    tag: 'Beauty',
-    color: '#FDF4FF',
-    textColor: colors.navy,
-    tagBg: 'rgba(184,134,11,0.15)',
-    tagText: '#92400E',
-    emoji: '💅',
-    logo: null,
-  },
-  {
-    type: 'partner',
-    title: 'JMC Fitness — Elite Sports Coaching',
-    detail: '12-week plan €300 · In-person sessions €50/hr · North Dublin 4G Astro · Analytics €100',
-    tag: 'Fitness',
-    color: '#F0FDF4',
-    textColor: colors.navy,
-    tagBg: 'rgba(21,128,61,0.12)',
-    tagText: '#15803D',
-    emoji: '⚽',
-    logo: null,
-  },
-  {
-    type: 'partner',
-    title: 'Nyz3ditz — Photography & Video',
-    detail: 'Monthly mentorship €55/month · 1-1 shoot session €90 · WhatsApp +353 85 7272 875 · @Nyz3ditz',
-    tag: 'Creative',
-    color: '#FFF7ED',
-    textColor: colors.navy,
-    tagBg: 'rgba(194,65,12,0.1)',
-    tagText: '#C2410C',
-    emoji: '📸',
-    logo: null,
-  },
-  {
-    type: 'partner',
-    title: 'Energie Fitness — Student Membership',
-    detail: '€37.99/month (normal €39.99–€44.99) · €15 joining fee · Mon–Fri 6am–10pm · Sat–Sun 9am–5pm',
-    tag: 'Gym',
-    color: '#F0F9FF',
-    textColor: colors.navy,
-    tagBg: 'rgba(3,105,161,0.1)',
-    tagText: '#0369A1',
-    emoji: '🏋️',
-    logo: null,
-  },
-  {
-    type: 'app',
-    title: 'Find your campus carpool',
-    detail: 'Match with students on your route and split the cost every day.',
-    tag: 'Campus Connect',
-    color: '#FEF9C3',
-    textColor: colors.navy,
-    tagBg: 'rgba(30,58,95,0.1)',
-    tagText: colors.navy,
-    emoji: '🚗',
-    logo: null,
-  },
-  {
-    type: 'app',
-    title: 'Share notes across Ireland',
-    detail: '1,200+ notes uploaded by students — search by module and university.',
-    tag: 'Course Connect',
-    color: '#F5F0E8',
-    textColor: colors.navy,
-    tagBg: 'rgba(30,58,95,0.1)',
-    tagText: colors.navy,
-    emoji: '📚',
-    logo: null,
-  },
-]
-
-function DealLogo({ deal }) {
-  return (
-    <Image
-      source={deal.logo}
-      style={styles.dealLogoImg}
-      resizeMode="contain"
-    />
-  )
-}
-
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
-  const university = user?.user_metadata?.university || 'Your University'
-  const course = user?.user_metadata?.course || ''
+  const university  = user?.user_metadata?.university || 'Your University'
+  const course      = user?.user_metadata?.course || ''
 
-  const hour = new Date().getHours()
+  const hour     = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
+  function handleNav(item) {
+    if (item.action === 'blueprint') navigation.navigate('Blueprint', { initialTab: item.tab })
+    else if (item.action === 'connect')   navigation.navigate('Connect',   { initialTab: item.tab })
+    else if (item.action === 'lifestyle') navigation.navigate('Lifestyle')
+    else if (item.action === 'tab')       navigation.getParent()?.navigate(item.tabName)
+    else if (item.action === 'external')  Linking.openURL(item.url)
+  }
+
   return (
-    <View style={styles.screen}>
-      {/* Top bar */}
-      <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
-        <UBPLogo height={30} color={colors.cream} />
-        <View style={styles.topBarRight}>
-          <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7}>
-            <Bell size={20} color={colors.cream} />
-            <View style={styles.notifDot} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.avatarBtn} activeOpacity={0.7}>
-            <User size={18} color={colors.navy} />
-          </TouchableOpacity>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <View style={styles.layout}>
+
+        {/* ── LEFT SIDEBAR ── */}
+        <View style={styles.sidebar}>
+          <View style={styles.sidebarLogoWrap}>
+            <UBPLogo height={22} color={colors.cream} />
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
+            {NAV_ITEMS.map(item => (
+              <TouchableOpacity
+                key={item.key}
+                style={styles.navItem}
+                activeOpacity={0.65}
+                onPress={() => handleNav(item)}
+              >
+                <item.Icon size={20} color="rgba(245,240,232,0.72)" strokeWidth={1.8} />
+                <Text style={styles.navLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* ── MAIN CONTENT ── */}
+        <View style={styles.main}>
+
+          {/* Main topbar */}
+          <View style={styles.mainTopBar}>
+            <View>
+              <Text style={styles.topBarGreeting}>{greeting}</Text>
+              <Text style={styles.topBarTitle}>Your Blueprint</Text>
+            </View>
+            <View style={styles.topBarActions}>
+              <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
+                <Bell size={19} color={colors.navy} strokeWidth={1.8} />
+                <View style={styles.badge}><Text style={styles.badgeText}>4</Text></View>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.avatarBtn} activeOpacity={0.7}>
+                <User size={16} color={colors.navy} strokeWidth={1.8} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <ScrollView
+            contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Greeting */}
+            <View style={styles.greetBlock}>
+              <Text style={styles.greetName}>{displayName}</Text>
+              {(university || course) ? (
+                <Text style={styles.greetSub}>{university}{course ? ` · ${course}` : ''}</Text>
+              ) : null}
+            </View>
+
+            {/* Quick-access cards — 2 per row */}
+            <Text style={styles.eyebrow}>Quick Access</Text>
+            <View style={styles.cardRow}>
+              {QUICK_CARDS.slice(0, 2).map(card => (
+                <TouchableOpacity
+                  key={card.label}
+                  style={[styles.quickCard, { backgroundColor: card.bg }]}
+                  activeOpacity={0.8}
+                  onPress={() => handleNav({ action: card.action, tab: card.tab })}
+                >
+                  <View style={styles.quickIconWrap}>
+                    <card.Icon size={17} color={colors.navy} strokeWidth={1.8} />
+                  </View>
+                  <Text style={styles.quickLabel} numberOfLines={2}>{card.label}</Text>
+                  <Text style={styles.quickSub}>{card.sub}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={[styles.cardRow, { marginBottom: 22 }]}>
+              {QUICK_CARDS.slice(2).map(card => (
+                <TouchableOpacity
+                  key={card.label}
+                  style={[styles.quickCard, { backgroundColor: card.bg }]}
+                  activeOpacity={0.8}
+                  onPress={() => handleNav({ action: card.action, tab: card.tab })}
+                >
+                  <View style={styles.quickIconWrap}>
+                    <card.Icon size={17} color={colors.navy} strokeWidth={1.8} />
+                  </View>
+                  <Text style={styles.quickLabel} numberOfLines={2}>{card.label}</Text>
+                  <Text style={styles.quickSub}>{card.sub}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Live Activity */}
+            <View style={styles.feedHeaderRow}>
+              <Text style={[styles.eyebrow, { marginBottom: 0 }]}>Live Activity</Text>
+              <View style={styles.livePulse} />
+            </View>
+            <Card style={{ padding: 0, marginBottom: 20 }}>
+              {LIVE_FEED.map(({ text, dot }, i) => (
+                <View
+                  key={i}
+                  style={[styles.feedRow, i < LIVE_FEED.length - 1 && styles.divider]}
+                >
+                  <View style={[styles.feedDot, { backgroundColor: dot }]} />
+                  <Text style={styles.feedText} numberOfLines={2}>{text}</Text>
+                </View>
+              ))}
+            </Card>
+
+            {/* Your Activity */}
+            <Text style={styles.eyebrow}>Your Activity</Text>
+            <Card style={{ padding: 0, marginBottom: 8 }}>
+              {YOUR_ACTIVITY.map(({ title, status, dot }, i) => (
+                <View
+                  key={title}
+                  style={[styles.feedRow, i < YOUR_ACTIVITY.length - 1 && styles.divider]}
+                >
+                  <View style={[styles.feedDot, { backgroundColor: dot }]} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.actTitle}>{title}</Text>
+                    <Text style={styles.actStatus}>{status}</Text>
+                  </View>
+                  <ChevronRight size={13} color={colors.light} />
+                </View>
+              ))}
+            </Card>
+
+          </ScrollView>
         </View>
       </View>
-
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: 40 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Greeting */}
-        <View style={styles.greeting}>
-          <Text style={styles.greetingPre}>{greeting},</Text>
-          <Text style={styles.greetingName}>{displayName}.</Text>
-          <Text style={styles.greetingSub}>{university}{course ? ` · ${course}` : ''}</Text>
-        </View>
-
-        {/* Profile completion */}
-        <Card style={styles.progressCard}>
-          <View style={styles.progressTop}>
-            <Text style={styles.progressLabel}>Profile completion</Text>
-            <Text style={styles.progressPct}>60%</Text>
-          </View>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: '60%' }]} />
-          </View>
-          <Text style={styles.progressHint}>Add your course to unlock Campus Connect →</Text>
-        </Card>
-
-        {/* Quick actions */}
-        <View style={styles.section}>
-          <Text style={styles.eyebrow}>Quick Actions</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.rowScroll}
-            contentContainerStyle={{ paddingRight: spacing.md }}
-          >
-            {QUICK_ACTIONS.map(({ label, icon: Icon }) => (
-              <TouchableOpacity key={label} style={styles.chip} activeOpacity={0.7}>
-                <View style={styles.chipIconWrap}>
-                  <Icon size={15} color={colors.navy} />
-                </View>
-                <Text style={styles.chipLabel}>{label}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Featured deals */}
-        <View style={styles.section}>
-          <View style={styles.sectionRow}>
-            <Text style={styles.eyebrow}>Featured Deals</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={styles.seeAll}>See all →</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.rowScroll}
-            contentContainerStyle={{ paddingRight: spacing.md }}
-          >
-            {DEALS.map(deal => (
-              <TouchableOpacity key={deal.brand} activeOpacity={0.8}>
-                <View style={[styles.dealCard, { backgroundColor: deal.color }]}>
-                  {deal.logo ? (
-                    <Image source={deal.logo} style={styles.dealLogoImg} resizeMode="contain" />
-                  ) : (
-                    <View style={[styles.dealInitial, { backgroundColor: deal.initBg }]}>
-                      <Text style={styles.dealInitialText}>{deal.initials}</Text>
-                    </View>
-                  )}
-                  <Text style={styles.dealBrand} numberOfLines={2}>{deal.brand}</Text>
-                  <Text style={styles.dealDiscount}>{deal.discount}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Advertisement Board — ABOVE Services */}
-        <View style={styles.section}>
-          <View style={styles.sectionRow}>
-            <Text style={styles.eyebrow}>Advertisement Board</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={styles.seeAll}>Post an ad →</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.rowScroll}
-            contentContainerStyle={{ paddingRight: spacing.md }}
-          >
-            {AD_BOARD.map((ad, i) => (
-              <TouchableOpacity key={i} activeOpacity={0.8}>
-                <View style={[styles.adCard, { backgroundColor: ad.color }]}>
-                  {/* First card: UBP promo logo */}
-                  {ad.type === 'promo' ? (
-                    <View style={styles.adPromoLogo}>
-                      <UBPLogo height={22} color={ad.textColor} />
-                    </View>
-                  ) : ad.emoji ? (
-                    <Text style={styles.adEmoji}>{ad.emoji}</Text>
-                  ) : null}
-                  <View style={[styles.adTag, { backgroundColor: ad.tagBg }]}>
-                    <Text style={[styles.adTagText, { color: ad.tagText }]}>{ad.tag}</Text>
-                  </View>
-                  <Text style={[styles.adTitle, { color: ad.textColor }]} numberOfLines={2}>{ad.title}</Text>
-                  <Text style={[styles.adDetail, { color: ad.type === 'promo' ? 'rgba(245,240,232,0.75)' : colors.muted }]} numberOfLines={3}>{ad.detail}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Services */}
-        <View style={styles.section}>
-          <Text style={styles.eyebrow}>Services</Text>
-          <View style={{ gap: 10 }}>
-            {PILLARS.map(({ label, sub, icon: Icon, color }) => (
-              <TouchableOpacity key={label} activeOpacity={0.8}>
-                <Card style={styles.pillarCard}>
-                  <View style={[styles.pillarIcon, { backgroundColor: color }]}>
-                    <Icon size={20} color={colors.navy} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.pillarTitle}>{label}</Text>
-                    <Text style={styles.pillarSub} numberOfLines={1}>{sub}</Text>
-                  </View>
-                  <ChevronRight size={16} color={colors.light} />
-                </Card>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Recent activity */}
-        <View style={styles.section}>
-          <View style={styles.sectionRow}>
-            <Text style={styles.eyebrow}>Recent Activity</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={styles.seeAll}>View all →</Text>
-            </TouchableOpacity>
-          </View>
-          <Card style={{ padding: 0 }}>
-            {ACTIVITY.map(({ title, time, dot }, i) => (
-              <View
-                key={title}
-                style={[styles.activityRow, i < ACTIVITY.length - 1 && styles.activityDivider]}
-              >
-                <View style={[styles.activityDot, { backgroundColor: dot }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.activityTitle}>{title}</Text>
-                  <Text style={styles.activityTime}>{time}</Text>
-                </View>
-                <ChevronRight size={14} color={colors.light} />
-              </View>
-            ))}
-          </Card>
-        </View>
-
-      </ScrollView>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen:  { flex: 1, backgroundColor: colors.navy },
+  layout:  { flex: 1, flexDirection: 'row' },
 
-  topBar: {
+  // Sidebar
+  sidebar: {
+    width: 74,
     backgroundColor: colors.navy,
-    paddingHorizontal: spacing.md,
-    paddingBottom: 16,
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(245,240,232,0.09)',
+  },
+  sidebarLogoWrap: {
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(245,240,232,0.09)',
+    alignItems: 'center',
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    paddingHorizontal: 6,
+  },
+  navLabel: {
+    fontFamily: fonts.sans,
+    fontSize: 9,
+    color: 'rgba(245,240,232,0.55)',
+    marginTop: 5,
+    textAlign: 'center',
+    lineHeight: 12,
+  },
+
+  // Main area
+  main: { flex: 1, backgroundColor: colors.cream },
+  mainTopBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(30,58,95,0.08)',
   },
-  topBarRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconBtn: {
-    position: 'relative', width: 40, height: 40,
+  topBarGreeting: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted },
+  topBarTitle:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 1 },
+  topBarActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  bellBtn: { position: 'relative', width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
+  badge: {
+    position: 'absolute', top: 3, right: 3,
+    minWidth: 15, height: 15, borderRadius: 8,
+    backgroundColor: '#DC2626',
     alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 3,
   },
-  notifDot: {
-    position: 'absolute', top: 9, right: 9,
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: '#F59E0B',
-    borderWidth: 1.5, borderColor: colors.navy,
-  },
+  badgeText: { fontFamily: fonts.sansBold, fontSize: 8, color: '#fff' },
   avatarBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(245,240,232,0.15)',
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: 'rgba(245,240,232,0.25)',
-  },
-
-  scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
-
-  greeting: { marginBottom: spacing.lg },
-  greetingPre: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted },
-  greetingName: { fontFamily: fonts.serif, fontSize: 36, color: colors.navy, marginTop: 2 },
-  greetingSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4 },
-
-  progressCard: { marginBottom: spacing.xl, padding: 18 },
-  progressTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  progressLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  progressPct: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  progressTrack: { height: 6, backgroundColor: colors.cream, borderRadius: 3, overflow: 'hidden' },
-  progressFill: { height: 6, backgroundColor: colors.navy, borderRadius: 3 },
-  progressHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 8 },
-
-  section: { marginBottom: spacing.xl },
-  sectionRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 12,
-  },
-  eyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: colors.muted, textTransform: 'uppercase',
-    letterSpacing: 0.8, marginBottom: 12,
-  },
-  seeAll: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, marginBottom: 12 },
-
-  rowScroll: { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
-
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.pill,
-    paddingHorizontal: 14, paddingVertical: 10, marginRight: 10,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
-    ...shadows.card,
-  },
-  chipIconWrap: {
-    width: 28, height: 28, borderRadius: 14,
+    width: 30, height: 30, borderRadius: 15,
     backgroundColor: colors.cream,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
     alignItems: 'center', justifyContent: 'center',
   },
-  chipLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
 
-  // Deal cards
-  dealCard: {
-    width: 118, borderRadius: radius.card,
-    padding: 14, marginRight: 12, alignItems: 'center',
-  },
-  dealLogoImg: { width: 52, height: 44, marginBottom: 8 },
-  dealInitial: {
-    width: 48, height: 48, borderRadius: 24,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 8,
-  },
-  dealInitialText: { fontFamily: fonts.sansBold, fontSize: 13, color: '#FFFFFF' },
-  dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, textAlign: 'center', lineHeight: 16 },
-  dealDiscount: { fontFamily: fonts.sansBold, fontSize: 11, color: colors.navy, marginTop: 3, textAlign: 'center' },
+  scroll: { paddingHorizontal: 14, paddingTop: 16 },
 
-  // Magazine-style ad cards
-  adCard: {
-    width: 260, borderRadius: radius.card,
-    padding: 18, marginRight: 12, minHeight: 180,
-    justifyContent: 'flex-end',
-  },
-  adPromoLogo: { marginBottom: 12 },
-  adEmoji: { fontSize: 30, marginBottom: 10 },
-  adTag: {
-    borderRadius: 4,
-    paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 8,
-  },
-  adTagText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
-  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, lineHeight: 21, marginBottom: 4 },
-  adDetail: { fontFamily: fonts.sans, fontSize: 12, lineHeight: 17 },
+  greetBlock:  { marginBottom: 20 },
+  greetName:   { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, lineHeight: 26 },
+  greetSub:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3 },
 
-  // Pillar cards
-  pillarCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
-  pillarIcon: {
-    width: 44, height: 44, borderRadius: 10,
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  eyebrow: {
+    fontFamily: fonts.sansSemiBold,
+    fontSize: 10,
+    color: colors.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 10,
   },
-  pillarTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  pillarSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
 
-  // Activity
-  activityRow: {
-    flexDirection: 'row', alignItems: 'center',
-    gap: 12, paddingVertical: 14, paddingHorizontal: 16,
+  // Quick-access cards
+  cardRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  quickCard: {
+    flex: 1,
+    borderRadius: 12,
+    padding: 13,
+    borderWidth: 1,
+    borderColor: 'rgba(30,58,95,0.07)',
+    minHeight: 110,
   },
-  activityDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  activityDot: { width: 9, height: 9, borderRadius: 5, flexShrink: 0 },
-  activityTitle: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  activityTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
+  quickIconWrap: {
+    width: 34, height: 34, borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.75)',
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 10,
+  },
+  quickLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 16, marginBottom: 4 },
+  quickSub:   { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, lineHeight: 14 },
+
+  // Feed / activity rows
+  feedHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
+  livePulse: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#16A34A', marginTop: -10 },
+
+  feedRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
+  divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
+  feedDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
+  feedText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 17 },
+
+  actTitle:  { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  actStatus: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
 })
