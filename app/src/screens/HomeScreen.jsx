@@ -1,59 +1,293 @@
-import { useRef, useEffect } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native'
+import { useState, useEffect } from 'react'
+import {
+  View, Text, TouchableOpacity, StyleSheet, ScrollView,
+  Linking, Modal,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   Bell, User, FileText, TrendingUp, Building2,
   Heart, BookOpen, Compass, Calculator, Megaphone,
-  ChevronRight,
+  ChevronRight, ChevronUp, ChevronDown, Pencil,
+  LayoutGrid, MessageSquare, Users, X,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { colors, fonts, spacing } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const SHORTCUTS_KEY = '@ubp:quick_shortcuts_v1'
+const DEFAULT_SHORTCUTS = ['foundation', 'elevation', 'campus', 'course']
+
+// All possible Quick Access destinations
+const ALL_SHORTCUTS = [
+  { key: 'foundation', label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'blueprint', tab: 'Foundation' },
+  { key: 'elevation',  label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'blueprint', tab: 'Elevation' },
+  { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle' },
+  { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'connect',   tab: 'Campus' },
+  { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'connect',   tab: 'Course' },
+  { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'external',  url: 'https://coursecompass.ie' },
+  { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'lifestyle' },
+  { key: 'adboard',    label: 'Ad Board',             sub: 'Partner listings and offers',    Icon: Megaphone,     bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
+  { key: 'messages',   label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab',       tabName: 'Messages' },
+  { key: 'directory',  label: 'Directory',            sub: 'Student directory',              Icon: Users,         bg: '#EFF6FF', action: 'tab',       tabName: 'Directory' },
+  { key: 'profile',    label: 'Profile',              sub: 'Your profile and settings',      Icon: User,          bg: '#FDF4FF', action: 'tab',       tabName: 'Profile' },
+]
+
+// Sidebar nav items — corrected order per spec
 const NAV_ITEMS = [
-  { key: 'foundation',  label: 'Foundation',     Icon: FileText,   action: 'blueprint', tab: 'Foundation' },
-  { key: 'elevation',   label: 'Elevation',      Icon: TrendingUp, action: 'blueprint', tab: 'Elevation' },
-  { key: 'campus',      label: 'Campus',         Icon: Building2,  action: 'connect',   tab: 'Campus' },
-  { key: 'lifestyle',   label: 'Lifestyle',      Icon: Heart,      action: 'lifestyle' },
-  { key: 'course',      label: 'Course\nConnect', Icon: BookOpen,  action: 'connect',   tab: 'Course' },
-  { key: 'compass',     label: 'Compass',        Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
-  { key: 'budgeting',   label: 'Budgeting',      Icon: Calculator, action: 'lifestyle' },
-  { key: 'adboard',     label: 'Ad Board',       Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
+  { key: 'dashboard',  label: 'Dashboard',             Icon: LayoutGrid, action: 'home' },
+  { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'blueprint', tab: 'Foundation' },
+  { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'blueprint', tab: 'Elevation' },
+  { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle' },
+  { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'connect',   tab: 'Campus' },
+  { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'connect',   tab: 'Course' },
+  { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
+  { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'lifestyle' },
+  { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
 ]
 
-const QUICK_CARDS = [
-  { label: 'Foundation Blueprint', sub: 'CVs, cover letters, personal statements', Icon: FileText,   bg: '#EFF6FF', action: 'blueprint', tab: 'Foundation' },
-  { label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',                 Icon: TrendingUp, bg: '#F0FDF4', action: 'blueprint', tab: 'Elevation' },
-  { label: 'Campus Connect',       sub: 'Boards, events, carpooling',              Icon: Building2,  bg: '#FFF7ED', action: 'connect',   tab: 'Campus' },
-  { label: 'Course Connect',       sub: 'Notes and study groups',                  Icon: BookOpen,   bg: '#F0F9FF', action: 'connect',   tab: 'Course' },
-]
+// Activity type dot colours
+const ACTIVITY_DOT = {
+  document_submitted: '#F59E0B',
+  handler_review:     '#16A34A',
+  session_booked:     colors.navy,
+  note_saved:         '#2E6DB4',
+  ad_posted:          '#7C3AED',
+}
 
-const LIVE_FEED = [
-  { text: 'Abdullah submitted a CV for review',         dot: '#F59E0B' },
-  { text: 'New coaching session available in Dublin',   dot: colors.navy },
-  { text: 'Siofra completed her Foundation Blueprint',  dot: '#16A34A' },
-  { text: 'Ciarán joined a Course Connect study group', dot: '#2E6DB4' },
-]
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-const YOUR_ACTIVITY = [
-  { title: 'CV Review',         status: 'In Review',  dot: '#F59E0B' },
-  { title: 'Cover Letter',      status: 'Delivered',  dot: '#16A34A' },
-  { title: 'Coaching Session',  status: 'Confirmed',  dot: colors.navy },
-]
+function getFirstName(displayName) {
+  if (!displayName) return 'Student'
+  return displayName.split(' ')[0]
+}
+
+function timeAgo(dateStr) {
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+  if (diff < 60)     return 'Just now'
+  if (diff < 3600)   return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400)  return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 172800) return 'Yesterday'
+  return `${Math.floor(diff / 86400)}d ago`
+}
+
+// ── Edit Shortcuts Modal ─────────────────────────────────────────────────────
+
+function EditShortcutsModal({ visible, selected, onSave, onClose }) {
+  const [local, setLocal] = useState(selected)
+
+  useEffect(() => {
+    if (visible) setLocal(selected)
+  }, [visible, selected])
+
+  function moveUp(i) {
+    if (i === 0) return
+    const next = [...local]
+    ;[next[i - 1], next[i]] = [next[i], next[i - 1]]
+    setLocal(next)
+  }
+
+  function moveDown(i) {
+    if (i === local.length - 1) return
+    const next = [...local]
+    ;[next[i], next[i + 1]] = [next[i + 1], next[i]]
+    setLocal(next)
+  }
+
+  function remove(key) { setLocal(local.filter(k => k !== key)) }
+
+  function add(key) {
+    if (local.length >= 4) return
+    setLocal([...local, key])
+  }
+
+  const selectedItems = local.map(k => ALL_SHORTCUTS.find(s => s.key === k)).filter(Boolean)
+  const available     = ALL_SHORTCUTS.filter(s => !local.includes(s.key))
+  const isFull        = local.length >= 4
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+      <View style={m.container}>
+        <View style={m.header}>
+          <View>
+            <Text style={m.headerTitle}>Quick Access</Text>
+            <Text style={m.headerSub}>Choose up to 4 shortcuts. Reorder with arrows.</Text>
+          </View>
+          <TouchableOpacity style={m.doneBtn} onPress={() => onSave(local)} activeOpacity={0.8}>
+            <Text style={m.doneBtnText}>Done</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
+          {/* Selected shortcuts */}
+          <Text style={m.sectionLabel}>YOUR SHORTCUTS ({local.length}/4)</Text>
+
+          {selectedItems.length === 0 && (
+            <Text style={m.emptyHint}>No shortcuts selected. Add some below.</Text>
+          )}
+
+          {selectedItems.map((item, i) => (
+            <View key={item.key} style={m.selectedRow}>
+              <View style={[m.rowIcon, { backgroundColor: item.bg }]}>
+                <item.Icon size={16} color={colors.navy} />
+              </View>
+              <Text style={m.rowLabel} numberOfLines={1}>{item.label}</Text>
+              <View style={m.rowActions}>
+                <TouchableOpacity onPress={() => moveUp(i)} style={m.arrowBtn} disabled={i === 0}>
+                  <ChevronUp size={16} color={i === 0 ? colors.light : colors.navy} strokeWidth={2} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => moveDown(i)} style={m.arrowBtn} disabled={i === selectedItems.length - 1}>
+                  <ChevronDown size={16} color={i === selectedItems.length - 1 ? colors.light : colors.navy} strokeWidth={2} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => remove(item.key)} style={m.removeBtn}>
+                  <X size={13} color="#DC2626" strokeWidth={2.5} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          {/* Available to add */}
+          {available.length > 0 && (
+            <>
+              <Text style={[m.sectionLabel, { marginTop: 28 }]}>ADD SHORTCUT</Text>
+              {isFull && (
+                <Text style={m.emptyHint}>Remove one above before adding another.</Text>
+              )}
+              {available.map(item => (
+                <TouchableOpacity
+                  key={item.key}
+                  style={[m.availableRow, isFull && { opacity: 0.38 }]}
+                  onPress={() => add(item.key)}
+                  disabled={isFull}
+                  activeOpacity={0.75}
+                >
+                  <View style={[m.rowIcon, { backgroundColor: item.bg }]}>
+                    <item.Icon size={16} color={colors.navy} />
+                  </View>
+                  <Text style={m.rowLabel}>{item.label}</Text>
+                  <View style={m.addChip}>
+                    <Text style={m.addChipText}>+ Add</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+        </ScrollView>
+      </View>
+    </Modal>
+  )
+}
+
+const m = StyleSheet.create({
+  container:   { flex: 1, backgroundColor: colors.cream },
+  header: {
+    backgroundColor: colors.navy,
+    padding: 20, paddingTop: 28, paddingBottom: 24,
+    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between',
+  },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  headerSub:   { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.6)', marginTop: 4 },
+  doneBtn: {
+    backgroundColor: colors.cream, borderRadius: 20,
+    paddingHorizontal: 18, paddingVertical: 9, marginTop: 4,
+  },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+
+  sectionLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 10,
+    color: colors.muted, letterSpacing: 0.8,
+    textTransform: 'uppercase', marginBottom: 10,
+  },
+  emptyHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginBottom: 12, lineHeight: 19 },
+
+  selectedRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.white, borderRadius: 12,
+    padding: 12, marginBottom: 8,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+  },
+  availableRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.white, borderRadius: 12,
+    padding: 12, marginBottom: 8,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+  },
+  rowIcon:    { width: 36, height: 36, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  rowLabel:   { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+  rowActions: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  arrowBtn:   { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  removeBtn:  {
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: '#FEF2F2', alignItems: 'center', justifyContent: 'center', marginLeft: 4,
+  },
+  addChip: {
+    backgroundColor: colors.navy, borderRadius: 14,
+    paddingHorizontal: 12, paddingVertical: 5,
+  },
+  addChipText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
+})
+
+// ── Home Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
-  const university  = user?.user_metadata?.university || 'Your University'
-  const course      = user?.user_metadata?.course || ''
+  const firstName   = getFirstName(displayName)
 
   const hour     = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
+  // Quick Access state
+  const [shortcuts, setShortcuts]     = useState(DEFAULT_SHORTCUTS)
+  const [editVisible, setEditVisible] = useState(false)
+
+  // Live activity state
+  const [activity, setActivity]             = useState([])
+  const [loadingActivity, setLoadingActivity] = useState(true)
+
+  // Load persisted shortcuts
+  useEffect(() => {
+    AsyncStorage.getItem(SHORTCUTS_KEY).then(val => {
+      if (val) {
+        try { setShortcuts(JSON.parse(val)) } catch {}
+      }
+    })
+  }, [])
+
+  // Load live activity from Supabase
+  useEffect(() => {
+    if (!user?.id) { setLoadingActivity(false); return }
+    fetchActivity()
+  }, [user?.id])
+
+  async function fetchActivity() {
+    setLoadingActivity(true)
+    try {
+      const { data, error } = await supabase
+        .from('activity_events')
+        .select('id, type, title, detail, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(6)
+      if (!error && data) setActivity(data)
+    } catch {}
+    finally { setLoadingActivity(false) }
+  }
+
+  async function saveShortcuts(newKeys) {
+    setShortcuts(newKeys)
+    setEditVisible(false)
+    await AsyncStorage.setItem(SHORTCUTS_KEY, JSON.stringify(newKeys))
+  }
+
   function handleNav(item) {
+    if (!item || item.action === 'home') return
     if (item.action === 'blueprint') navigation.navigate('Blueprint', { initialTab: item.tab })
     else if (item.action === 'connect')   navigation.navigate('Connect',   { initialTab: item.tab })
     else if (item.action === 'lifestyle') navigation.navigate('Lifestyle')
@@ -61,40 +295,59 @@ export default function HomeScreen({ navigation }) {
     else if (item.action === 'external')  Linking.openURL(item.url)
   }
 
+  const currentShortcutItems = shortcuts
+    .map(k => ALL_SHORTCUTS.find(s => s.key === k))
+    .filter(Boolean)
+
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.layout}>
 
-        {/* ── LEFT SIDEBAR ── */}
+        {/* ── SIDEBAR ── */}
         <View style={styles.sidebar}>
           <View style={styles.sidebarLogoWrap}>
-            <UBPLogo height={22} color={colors.cream} />
+            <UBPLogo height={28} color={colors.cream} />
           </View>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
-            {NAV_ITEMS.map(item => (
-              <TouchableOpacity
-                key={item.key}
-                style={styles.navItem}
-                activeOpacity={0.65}
-                onPress={() => handleNav(item)}
-              >
-                <item.Icon size={20} color="rgba(245,240,232,0.72)" strokeWidth={1.8} />
-                <Text style={styles.navLabel}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+            {NAV_ITEMS.map(item => {
+              const isActive = item.key === 'dashboard'
+              return (
+                <TouchableOpacity
+                  key={item.key}
+                  style={styles.navItemOuter}
+                  activeOpacity={0.65}
+                  onPress={() => handleNav(item)}
+                >
+                  {isActive && <View style={styles.navHighlight} />}
+                  <item.Icon
+                    size={20}
+                    color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
+                    strokeWidth={isActive ? 2 : 1.6}
+                  />
+                  <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
           </ScrollView>
         </View>
 
-        {/* ── MAIN CONTENT ── */}
+        {/* ── MAIN ── */}
         <View style={styles.main}>
 
-          {/* Main topbar */}
+          {/* Topbar */}
           <View style={styles.mainTopBar}>
-            <View>
-              <Text style={styles.topBarGreeting}>{greeting}</Text>
-              <Text style={styles.topBarTitle}>Your Blueprint</Text>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text style={styles.topGreeting} numberOfLines={1}>
+                {greeting}, {firstName}
+              </Text>
+              <Text style={styles.topTitle} numberOfLines={1}>
+                {firstName}'s UniBlueprint Dashboard
+              </Text>
             </View>
-            <View style={styles.topBarActions}>
+            <View style={styles.topActions}>
               <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
                 <Bell size={19} color={colors.navy} strokeWidth={1.8} />
                 <View style={styles.badge}><Text style={styles.badgeText}>4</Text></View>
@@ -106,93 +359,95 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <ScrollView
-            contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]}
+            contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
             showsVerticalScrollIndicator={false}
           >
-            {/* Greeting */}
-            <View style={styles.greetBlock}>
-              <Text style={styles.greetName}>{displayName}</Text>
-              {(university || course) ? (
-                <Text style={styles.greetSub}>{university}{course ? ` · ${course}` : ''}</Text>
-              ) : null}
+            {/* Quick Access */}
+            <View style={styles.sectionRow}>
+              <Text style={styles.eyebrow}>Quick Access</Text>
+              <TouchableOpacity onPress={() => setEditVisible(true)} style={styles.editIconBtn} activeOpacity={0.7}>
+                <Pencil size={13} color={colors.muted} strokeWidth={2} />
+              </TouchableOpacity>
             </View>
 
-            {/* Quick-access cards — 2 per row */}
-            <Text style={styles.eyebrow}>Quick Access</Text>
             <View style={styles.cardRow}>
-              {QUICK_CARDS.slice(0, 2).map(card => (
+              {currentShortcutItems.slice(0, 2).map(card => (
                 <TouchableOpacity
-                  key={card.label}
+                  key={card.key}
                   style={[styles.quickCard, { backgroundColor: card.bg }]}
                   activeOpacity={0.8}
-                  onPress={() => handleNav({ action: card.action, tab: card.tab })}
+                  onPress={() => handleNav(card)}
                 >
                   <View style={styles.quickIconWrap}>
                     <card.Icon size={17} color={colors.navy} strokeWidth={1.8} />
                   </View>
                   <Text style={styles.quickLabel} numberOfLines={2}>{card.label}</Text>
-                  <Text style={styles.quickSub}>{card.sub}</Text>
+                  <Text style={styles.quickSub} numberOfLines={2}>{card.sub}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <View style={[styles.cardRow, { marginBottom: 22 }]}>
-              {QUICK_CARDS.slice(2).map(card => (
+            <View style={[styles.cardRow, { marginBottom: 24 }]}>
+              {currentShortcutItems.slice(2, 4).map(card => (
                 <TouchableOpacity
-                  key={card.label}
+                  key={card.key}
                   style={[styles.quickCard, { backgroundColor: card.bg }]}
                   activeOpacity={0.8}
-                  onPress={() => handleNav({ action: card.action, tab: card.tab })}
+                  onPress={() => handleNav(card)}
                 >
                   <View style={styles.quickIconWrap}>
                     <card.Icon size={17} color={colors.navy} strokeWidth={1.8} />
                   </View>
                   <Text style={styles.quickLabel} numberOfLines={2}>{card.label}</Text>
-                  <Text style={styles.quickSub}>{card.sub}</Text>
+                  <Text style={styles.quickSub} numberOfLines={2}>{card.sub}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Live Activity */}
-            <View style={styles.feedHeaderRow}>
+            <View style={styles.sectionRow}>
               <Text style={[styles.eyebrow, { marginBottom: 0 }]}>Live Activity</Text>
               <View style={styles.livePulse} />
             </View>
-            <Card style={{ padding: 0, marginBottom: 20 }}>
-              {LIVE_FEED.map(({ text, dot }, i) => (
-                <View
-                  key={i}
-                  style={[styles.feedRow, i < LIVE_FEED.length - 1 && styles.divider]}
-                >
-                  <View style={[styles.feedDot, { backgroundColor: dot }]} />
-                  <Text style={styles.feedText} numberOfLines={2}>{text}</Text>
+            <Card style={{ padding: 0, marginTop: 10, marginBottom: 8 }}>
+              {loadingActivity ? (
+                <View style={styles.feedRow}>
+                  <Text style={styles.feedText}>Loading activity...</Text>
                 </View>
-              ))}
-            </Card>
-
-            {/* Your Activity */}
-            <Text style={styles.eyebrow}>Your Activity</Text>
-            <Card style={{ padding: 0, marginBottom: 8 }}>
-              {YOUR_ACTIVITY.map(({ title, status, dot }, i) => (
-                <View
-                  key={title}
-                  style={[styles.feedRow, i < YOUR_ACTIVITY.length - 1 && styles.divider]}
-                >
-                  <View style={[styles.feedDot, { backgroundColor: dot }]} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.actTitle}>{title}</Text>
-                    <Text style={styles.actStatus}>{status}</Text>
+              ) : activity.length === 0 ? (
+                <View style={[styles.feedRow, { paddingVertical: 18 }]}>
+                  <Text style={[styles.feedText, { color: colors.muted }]}>
+                    No activity yet. Complete your first action to see it here.
+                  </Text>
+                </View>
+              ) : (
+                activity.map((item, i) => (
+                  <View key={item.id} style={[styles.feedRow, i < activity.length - 1 && styles.divider]}>
+                    <View style={[styles.feedDot, { backgroundColor: ACTIVITY_DOT[item.type] ?? colors.navy }]} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.feedText} numberOfLines={2}>{item.title}</Text>
+                      <Text style={styles.feedTime}>{timeAgo(item.created_at)}</Text>
+                    </View>
+                    <ChevronRight size={13} color={colors.light} />
                   </View>
-                  <ChevronRight size={13} color={colors.light} />
-                </View>
-              ))}
+                ))
+              )}
             </Card>
 
           </ScrollView>
         </View>
       </View>
+
+      <EditShortcutsModal
+        visible={editVisible}
+        selected={shortcuts}
+        onSave={saveShortcuts}
+        onClose={() => setEditVisible(false)}
+      />
     </View>
   )
 }
+
+// ── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   screen:  { flex: 1, backgroundColor: colors.navy },
@@ -200,49 +455,53 @@ const styles = StyleSheet.create({
 
   // Sidebar
   sidebar: {
-    width: 74,
+    width: 78,
     backgroundColor: colors.navy,
     borderRightWidth: 1,
     borderRightColor: 'rgba(245,240,232,0.09)',
   },
   sidebarLogoWrap: {
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245,240,232,0.09)',
+    paddingTop: 16, paddingBottom: 16, paddingHorizontal: 10,
     alignItems: 'center',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(245,240,232,0.09)',
   },
-  navItem: {
+  navItemOuter: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 13,
+    paddingVertical: 17,
     paddingHorizontal: 6,
+    position: 'relative',
+  },
+  navHighlight: {
+    position: 'absolute',
+    top: 5, left: 5, right: 5, bottom: 5,
+    backgroundColor: 'rgba(255,255,255,0.13)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   navLabel: {
     fontFamily: fonts.sans,
     fontSize: 9,
-    color: 'rgba(245,240,232,0.55)',
+    color: 'rgba(245,240,232,0.5)',
     marginTop: 5,
     textAlign: 'center',
     lineHeight: 12,
   },
+  navLabelActive: { color: 'rgba(245,240,232,0.92)' },
 
-  // Main area
+  // Main
   main: { flex: 1, backgroundColor: colors.cream },
   mainTopBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 14,
-    paddingVertical: 11,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 14, paddingVertical: 13,
     backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(30,58,95,0.08)',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
   },
-  topBarGreeting: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted },
-  topBarTitle:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 1 },
-  topBarActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  topTitle:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
+
+  topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bellBtn: { position: 'relative', width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
   badge: {
     position: 'absolute', top: 3, right: 3,
@@ -259,11 +518,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
 
-  scroll: { paddingHorizontal: 14, paddingTop: 16 },
-
-  greetBlock:  { marginBottom: 20 },
-  greetName:   { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, lineHeight: 26 },
-  greetSub:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3 },
+  scroll: { paddingHorizontal: 14, paddingTop: 18 },
 
   eyebrow: {
     fontFamily: fonts.sansSemiBold,
@@ -271,18 +526,28 @@ const styles = StyleSheet.create({
     color: colors.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    marginBottom: 10,
   },
 
-  // Quick-access cards
-  cardRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  sectionRow: {
+    flexDirection: 'row', alignItems: 'center',
+    gap: 8, marginBottom: 10,
+  },
+  editIconBtn: {
+    width: 26, height: 26, borderRadius: 6,
+    backgroundColor: 'rgba(30,58,95,0.06)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  livePulse: {
+    width: 7, height: 7, borderRadius: 3.5,
+    backgroundColor: '#16A34A',
+  },
+
+  // Quick cards
+  cardRow:  { flexDirection: 'row', gap: 10, marginBottom: 10 },
   quickCard: {
-    flex: 1,
-    borderRadius: 12,
-    padding: 13,
-    borderWidth: 1,
-    borderColor: 'rgba(30,58,95,0.07)',
-    minHeight: 110,
+    flex: 1, borderRadius: 12, padding: 13,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.07)',
+    minHeight: 112,
   },
   quickIconWrap: {
     width: 34, height: 34, borderRadius: 8,
@@ -293,15 +558,10 @@ const styles = StyleSheet.create({
   quickLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 16, marginBottom: 4 },
   quickSub:   { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, lineHeight: 14 },
 
-  // Feed / activity rows
-  feedHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
-  livePulse: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#16A34A', marginTop: -10 },
-
-  feedRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
-  divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  feedDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  feedText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 17 },
-
-  actTitle:  { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
-  actStatus: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
+  // Activity feed
+  feedRow:  { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
+  divider:  { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
+  feedDot:  { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
+  feedText: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 17, flex: 1 },
+  feedTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 2 },
 })

@@ -8,8 +8,7 @@ export default function UBPLogo({ height = 32, color = '#F5F0E8' }) {
       <Text style={{ fontFamily: fonts.serif, fontSize, color, includeFontPadding: false }}>
         UBP
       </Text>
-      <View style={{ height: 2, backgroundColor: color, marginTop: 3 }} />
-      <View style={{ height: 1.5, backgroundColor: color, marginTop: 3 }} />
+      <View style={{ height: 2, backgroundColor: color, marginTop: 4 }} />
     </View>
   )
 }
