@@ -12,6 +12,7 @@ import BlueprintScreen  from '../screens/BlueprintScreen'
 import ConnectScreen    from '../screens/ConnectScreen'
 import LifestyleScreen  from '../screens/LifestyleScreen'
 import AdBoardScreen    from '../screens/AdBoardScreen'
+import BudgetingScreen  from '../screens/BudgetingScreen'
 import MessagesScreen   from '../screens/MessagesScreen'
 import DirectoryScreen  from '../screens/DirectoryScreen'
 import ProfileScreen    from '../screens/ProfileScreen'
@@ -47,6 +48,7 @@ function HomeStack() {
       <Stack.Screen name="Blueprint"     component={BlueprintScreen} />
       <Stack.Screen name="Connect"       component={ConnectScreen}   />
       <Stack.Screen name="Lifestyle"     component={LifestyleScreen} />
+      <Stack.Screen name="Budgeting"     component={BudgetingScreen} />
     </Stack.Navigator>
   )
 }

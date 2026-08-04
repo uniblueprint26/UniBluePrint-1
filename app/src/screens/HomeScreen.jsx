@@ -30,7 +30,7 @@ const ALL_SHORTCUTS = [
   { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'connect',   tab: 'Campus' },
   { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'connect',   tab: 'Course' },
   { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'external',  url: 'https://coursecompass.ie' },
-  { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'lifestyle' },
+  { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',             sub: 'Partner listings and offers',    Icon: Megaphone,     bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
   { key: 'messages',   label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab',       tabName: 'Messages' },
   { key: 'directory',  label: 'Directory',            sub: 'Student directory',              Icon: Users,         bg: '#EFF6FF', action: 'tab',       tabName: 'Directory' },
@@ -46,7 +46,7 @@ const NAV_ITEMS = [
   { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'connect',   tab: 'Campus' },
   { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'connect',   tab: 'Course' },
   { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
-  { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'lifestyle' },
+  { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
 ]
 
@@ -291,6 +291,7 @@ export default function HomeScreen({ navigation }) {
     if (item.action === 'blueprint') navigation.navigate('Blueprint', { initialTab: item.tab })
     else if (item.action === 'connect')   navigation.navigate('Connect',   { initialTab: item.tab })
     else if (item.action === 'lifestyle') navigation.navigate('Lifestyle')
+    else if (item.action === 'budgeting') navigation.navigate('Budgeting')
     else if (item.action === 'tab')       navigation.getParent()?.navigate(item.tabName)
     else if (item.action === 'external')  Linking.openURL(item.url)
   }
