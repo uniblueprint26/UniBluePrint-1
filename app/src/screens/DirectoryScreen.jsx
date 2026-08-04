@@ -195,10 +195,10 @@ const styles = StyleSheet.create({
   filterPill: {
     borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7,
     backgroundColor: colors.white,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
   },
   filterPillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  filterText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
+  filterText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
   filterTextActive: { color: colors.cream },
 
   scroll:       { paddingHorizontal: spacing.md, paddingTop: 4 },
