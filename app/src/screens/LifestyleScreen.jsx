@@ -80,7 +80,6 @@ const PARTNERS = [
     filterKey: 'fitness',
     category: 'Sports Coaching',
     tagline: 'Elite sports coaching, fully personalised.',
-    // NOTE: confirm lowest available offering with Des/Camila before publishing price update
     deal: 'From €50/hr',
     status: 'live',
     description: 'JMC Fitness delivers elite sports coaching with fully personalised programmes: online coaching, in-person training on North Dublin 4G Astro, dietary guidance, specialist football coaching, and connections to professional agents.',
@@ -89,7 +88,6 @@ const PARTNERS = [
       { label: '12-Week Online Plan',     price: '€300' },
       { label: 'Analytics Breakdown',     price: '€100' },
     ],
-    pricingNote: 'Pricing subject to confirmation. Contact for current packages.',
     howToStart: 'Book via the Elevation Blueprint section of the app.',
     contact: null,
   },

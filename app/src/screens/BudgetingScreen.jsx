@@ -5,9 +5,8 @@
  * Confirm correct spelling/full name and obtain appropriate permission
  * before this copy goes live. See HERO_ATTRIBUTION_NOTE below.
  *
- * SUSI FIGURES NOTE: All SUSI income thresholds and grant amounts are
- * approximate estimates based on published 2024/25 rates. Verify current
- * official figures at susi.ie before publishing the estimator live.
+ * SUSI FIGURES: Rates are the published 2026/27 full-time undergraduate figures
+ * from susi.ie. Thresholds adjust per additional dependant as listed per band.
  */
 
 import { useState, useCallback } from 'react'
@@ -25,16 +24,18 @@ import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
-// ─── SUSI figures (approximate 2024/25 — verify at susi.ie before publishing) ─
-const SUSI = {
-  specialThreshold:   24500,  // Base threshold for special rate (1 dependant)
-  standardThreshold:  45790,  // Base threshold for standard rate (1 dependant)
-  perDependant:        4785,  // Added per additional dependant above 1
-  special_nonadj:      5915,  // Special rate maintenance, non-adjacent
-  special_adj:         2935,  // Special rate maintenance, adjacent
-  standard_nonadj:     3025,  // Standard rate maintenance, non-adjacent
-  standard_adj:         635,  // Standard rate maintenance, adjacent
-}
+// ─── SUSI 2026/27 full-time undergraduate rates — source: susi.ie ────────────
+// Thresholds shown are for households with fewer than 4 dependant children.
+// Each band adds perDep per additional dependant above the base count.
+const SUSI_BANDS = [
+  { band: 'Special',  threshold: 28600, nonadj: 7936, adj: 3230, perDep: 4950 },
+  { band: 'Band 1',   threshold: 47010, nonadj: 4722, adj: 1774, perDep: 4950 },
+  { band: 'Band 2',   threshold: 48270, nonadj: 3532, adj: 1343, perDep: 4785 },
+  { band: 'Band 3',   threshold: 51040, nonadj: 2702, adj:  975, perDep: 4785 },
+  { band: 'Band 4',   threshold: 58470, nonadj: 1866, adj:  612, perDep: 4785 },
+]
+const SUSI_FEE_THRESHOLD = 120000  // Fee contribution only (no maintenance) up to €120,000
+const SUSI_FEE_PER_DEP   =   4785  // Additional dependant allowance for fee-only bands
 
 const SUSI_TERMS = [
   {
@@ -43,7 +44,7 @@ const SUSI_TERMS = [
   },
   {
     term: 'Adjacent vs. Non-Adjacent',
-    plain: 'Adjacent means you live within 45km of your college — SUSI assumes you can commute, so the grant is lower. Non-adjacent means you live further away and need to rent near college. The non-adjacent rate is significantly higher.',
+    plain: 'Adjacent means you live within 30km of your college — SUSI assumes you can commute, so the grant is lower. Non-adjacent means you live 30km or more from college and need to rent nearby. The non-adjacent rate is significantly higher.',
   },
   {
     term: 'Special Rate',
@@ -193,25 +194,38 @@ function SUSIEstimator() {
   function estimate() {
     const inc  = parseFloat(income) || 0
     const deps = Math.max(1, parseInt(dependants) || 1)
-    const extra = (deps - 1) * SUSI.perDependant
-    const specialThreshold  = SUSI.specialThreshold  + extra
-    const standardThreshold = SUSI.standardThreshold + extra
 
-    let band, maintenance, note
-    if (inc <= specialThreshold) {
-      band = 'special'
-      maintenance = adjacent ? SUSI.special_adj : SUSI.special_nonadj
-      note = 'Based on your income, you may qualify for the special rate maintenance grant.'
-    } else if (inc <= standardThreshold) {
-      band = 'standard'
-      maintenance = adjacent ? SUSI.standard_adj : SUSI.standard_nonadj
-      note = 'Based on your income, you may qualify for the standard rate maintenance grant.'
-    } else {
-      band = 'over'
-      maintenance = 0
-      note = 'Based on your income, you may be above the threshold for a maintenance grant this year. It\'s still worth checking the fee contribution grant at susi.ie.'
+    // Walk through each band — threshold scales up per additional dependant
+    let matched = null
+    for (let i = 0; i < SUSI_BANDS.length; i++) {
+      const b = SUSI_BANDS[i]
+      const threshold = b.threshold + (deps - 1) * b.perDep
+      if (inc <= threshold) { matched = b; break }
     }
-    setResult({ band, maintenance, note })
+
+    if (matched) {
+      const maintenance = adjacent ? matched.adj : matched.nonadj
+      setResult({
+        band: matched.band,
+        maintenance,
+        feeOnly: false,
+        note: `Based on your household income, you may qualify for the ${matched.band} maintenance grant.`,
+      })
+    } else if (inc <= SUSI_FEE_THRESHOLD + (deps - 1) * SUSI_FEE_PER_DEP) {
+      setResult({
+        band: 'Fee Only',
+        maintenance: 0,
+        feeOnly: true,
+        note: 'Your income may be above the maintenance grant threshold but you could still qualify for a fee contribution grant toward your Student Contribution Charge. Check susi.ie for the exact fee bands.',
+      })
+    } else {
+      setResult({
+        band: 'over',
+        maintenance: 0,
+        feeOnly: false,
+        note: 'Based on your income, your household may be above all SUSI thresholds for this year. Thresholds change annually — it is always worth checking susi.ie directly.',
+      })
+    }
   }
 
   const depOpts = ['1', '2', '3', '4', '5', '6+']
@@ -221,7 +235,7 @@ function SUSIEstimator() {
       <View style={styles.estimatorDisclaimer}>
         <Info size={13} color='#92400E' />
         <Text style={styles.estimatorDisclaimerText}>
-          Estimator only — not an official assessment. All figures approximate, based on published 2024/25 rates. Verify at susi.ie before applying.
+          Estimator only — not an official assessment. Rates are published 2026/27 figures from susi.ie. Your actual award depends on full means testing.
         </Text>
       </View>
 
@@ -260,14 +274,14 @@ function SUSIEstimator() {
             onPress={() => { setAdjacent(false); setResult(null) }}
             activeOpacity={0.8}
           >
-            <Text style={[styles.depChipText, !adjacent && styles.depChipTextActive]}>Non-Adjacent (45km+)</Text>
+            <Text style={[styles.depChipText, !adjacent && styles.depChipTextActive]}>Non-Adjacent (30km+)</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.depChip, { flex: 1 }, adjacent && styles.depChipActive]}
             onPress={() => { setAdjacent(true); setResult(null) }}
             activeOpacity={0.8}
           >
-            <Text style={[styles.depChipText, adjacent && styles.depChipTextActive]}>Adjacent (under 45km)</Text>
+            <Text style={[styles.depChipText, adjacent && styles.depChipTextActive]}>Adjacent (under 30km)</Text>
           </TouchableOpacity>
         </View>
 
@@ -277,13 +291,13 @@ function SUSIEstimator() {
       </Card>
 
       {result && (
-        <Card style={[styles.resultCard, result.band === 'over' && styles.resultCardOver]}>
-          {result.band !== 'over' && (
+        <Card style={[styles.resultCard, (result.band === 'over' || result.feeOnly) && styles.resultCardOver]}>
+          {result.maintenance > 0 && (
             <View style={styles.resultAmount}>
               <Text style={styles.resultAmtLabel}>Estimated annual maintenance grant</Text>
               <Text style={styles.resultAmtValue}>€{result.maintenance.toLocaleString()}</Text>
               <Text style={styles.resultAmtSub}>
-                {adjacent ? 'Adjacent rate' : 'Non-adjacent rate'} · {result.band} rate
+                {adjacent ? 'Adjacent rate' : 'Non-adjacent rate'} · {result.band}
               </Text>
             </View>
           )}
@@ -562,22 +576,24 @@ function SUSITab() {
           <View style={styles.susiRates}>
             <View style={styles.susiRateRow}>
               <Text style={styles.susiRateLabel}>Special Rate · Non-adjacent</Text>
-              <Text style={styles.susiRateValue}>~€{SUSI.special_nonadj.toLocaleString()}/yr</Text>
+              <Text style={styles.susiRateValue}>€7,936/yr</Text>
             </View>
             <View style={styles.susiRateRow}>
               <Text style={styles.susiRateLabel}>Special Rate · Adjacent</Text>
-              <Text style={styles.susiRateValue}>~€{SUSI.special_adj.toLocaleString()}/yr</Text>
+              <Text style={styles.susiRateValue}>€3,230/yr</Text>
             </View>
             <View style={styles.susiRateRow}>
-              <Text style={styles.susiRateLabel}>Standard Rate · Non-adjacent</Text>
-              <Text style={styles.susiRateValue}>~€{SUSI.standard_nonadj.toLocaleString()}/yr</Text>
+              <Text style={styles.susiRateLabel}>Band 1 (Full) · Non-adjacent</Text>
+              <Text style={styles.susiRateValue}>€4,722/yr</Text>
             </View>
             <View style={[styles.susiRateRow, { borderBottomWidth: 0 }]}>
-              <Text style={styles.susiRateLabel}>Standard Rate · Adjacent</Text>
-              <Text style={styles.susiRateValue}>~€{SUSI.standard_adj.toLocaleString()}/yr</Text>
+              <Text style={styles.susiRateLabel}>Band 1 (Full) · Adjacent</Text>
+              <Text style={styles.susiRateValue}>€1,774/yr</Text>
             </View>
           </View>
-          <Text style={styles.susiRateNote}>Approximate 2024/25 rates. Verify at susi.ie.</Text>
+          <Text style={styles.susiRateNote}>
+            2026/27 rates from susi.ie. Partial maintenance (Bands 2 to 4: €612 to €3,532/yr) available above Band 1 threshold. Use the estimator below to find your band.
+          </Text>
         </Card>
 
         <Card style={styles.susiGrantCard}>
