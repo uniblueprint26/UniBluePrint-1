@@ -381,13 +381,19 @@ function getAdPressHandler(ad, navigation) {
     })
   }
   if (ad.id === 'campus_carpool') {
-    return () => navigation.getParent()?.navigate('Home', {
-      screen: 'CampusConnect',
+    return () => navigation.navigate('ChatRoom', {
+      contextType: 'ad',
+      contextId:   'campus_carpool',
+      roomName:    'Campus Carpool',
+      subtitle:    'Find your carpool match and coordinate your route',
     })
   }
   if (ad.id === 'course_notes') {
-    return () => navigation.getParent()?.navigate('Home', {
-      screen: 'CourseConnect',
+    return () => navigation.navigate('ChatRoom', {
+      contextType: 'ad',
+      contextId:   'course_notes',
+      roomName:    'Course Notes',
+      subtitle:    'Share and find notes across Ireland',
     })
   }
   if (ad.link) {

@@ -23,6 +23,7 @@ import ProfileScreen       from '../screens/ProfileScreen'
 // Home sub-screens
 import NotificationsScreen  from '../screens/NotificationsScreen'
 import CoachProfileScreen   from '../screens/CoachProfileScreen'
+import ChatRoomScreen       from '../screens/ChatRoomScreen'
 
 // Profile sub-screens
 import AboutScreen  from '../screens/AboutScreen'
@@ -60,6 +61,7 @@ function HomeStack() {
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
+      <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
     </Stack.Navigator>
   )
 }
@@ -68,6 +70,7 @@ function AdBoardStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="AdBoardMain" component={AdBoardScreen} />
+      <Stack.Screen name="ChatRoom"    component={ChatRoomScreen} />
     </Stack.Navigator>
   )
 }
@@ -76,6 +79,7 @@ function MessagesStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="MessagesMain" component={MessagesScreen} />
+      <Stack.Screen name="ChatRoom"     component={ChatRoomScreen} />
     </Stack.Navigator>
   )
 }

@@ -462,7 +462,16 @@ export default function CourseConnectScreen({ navigation }) {
           />
           <View style={{ gap: 10 }}>
             {DISCUSSIONS.map((d, i) => (
-              <TouchableOpacity key={i} activeOpacity={0.8}>
+              <TouchableOpacity
+                key={i}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('ChatRoom', {
+                  contextType: 'board',
+                  contextId:   `course-${d.module.toLowerCase()}`,
+                  roomName:    `${d.module} Discussion`,
+                  subtitle:    d.university,
+                })}
+              >
                 <Card style={styles.discussionCard}>
                   <View style={styles.discussionTop}>
                     <View style={styles.noteModuleBadge}>

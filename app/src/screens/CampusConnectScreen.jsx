@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Users, Car, CalendarDays, Lightbulb,
-  Search, ChevronLeft, MapPin, AlertCircle, Plus,
+  Search, ChevronLeft, MapPin, AlertCircle, Plus, MessageSquare,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -167,6 +167,17 @@ const PROJECTS = [
   { title: 'Student Budget Tracker', tags: ['Finance', 'App Dev', 'Open to All'], team: 3, need: 1, university: 'UL' },
 ]
 
+// ─── Chat context helpers ─────────────────────────────────────────────────────
+
+function boardContextId(title) {
+  return 'campus-board-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+function carpoolContextId(post) {
+  return 'carpool-' + (post.from + '-to-' + post.to)
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function CampusConnectScreen({ navigation }) {
@@ -240,7 +251,16 @@ export default function CampusConnectScreen({ navigation }) {
             contentContainerStyle={{ paddingRight: spacing.md }}
           >
             {BOARDS_DATA.map(board => (
-              <TouchableOpacity key={board.title} activeOpacity={0.8}>
+              <TouchableOpacity
+                key={board.title}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('ChatRoom', {
+                  contextType: 'board',
+                  contextId:   boardContextId(board.title),
+                  roomName:    board.title,
+                  subtitle:    `${board.postCount} posts · Campus board`,
+                })}
+              >
                 <View style={[styles.boardCard, { backgroundColor: board.color }]}>
                   <View style={styles.boardHeader}>
                     <Text style={styles.boardEmoji}>{board.icon}</Text>
@@ -255,6 +275,10 @@ export default function CampusConnectScreen({ navigation }) {
                       <Text style={styles.boardPostTime}>{post.time}</Text>
                     </View>
                   ))}
+                  <View style={styles.boardChatHint}>
+                    <MessageSquare size={11} color="rgba(30,58,95,0.4)" strokeWidth={1.8} />
+                    <Text style={styles.boardChatHintText}>Open discussion</Text>
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}
@@ -280,8 +304,23 @@ export default function CampusConnectScreen({ navigation }) {
                 </View>
                 <View style={styles.carpoolFooter}>
                   <Text style={styles.carpoolTime}>{post.time}</Text>
-                  <View style={styles.seatBadge}>
-                    <Text style={styles.seatBadgeText}>{post.seats} seat{post.seats !== 1 ? 's' : ''} free</Text>
+                  <View style={styles.carpoolRight}>
+                    <View style={styles.seatBadge}>
+                      <Text style={styles.seatBadgeText}>{post.seats} seat{post.seats !== 1 ? 's' : ''} free</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.chatBtn}
+                      activeOpacity={0.8}
+                      onPress={() => navigation.navigate('ChatRoom', {
+                        contextType: 'carpool',
+                        contextId:   carpoolContextId(post),
+                        roomName:    `${post.from} → ${post.to}`,
+                        subtitle:    post.time,
+                      })}
+                    >
+                      <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
+                      <Text style={styles.chatBtnText}>Chat</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               </Card>
@@ -396,8 +435,26 @@ const styles = StyleSheet.create({
   carpoolTo:        { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
   carpoolFooter:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 },
   carpoolTime:      { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
+  carpoolRight:     { flexDirection: 'row', alignItems: 'center', gap: 8 },
   seatBadge:        { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   seatBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+
+  // Chat CTA — consistent across board cards and carpool posts
+  chatBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(30,58,95,0.08)',
+    borderRadius: radius.badge,
+    paddingHorizontal: 9, paddingVertical: 5,
+  },
+  chatBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+
+  // Board card chat hint (inside each board card)
+  boardChatHint: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    marginTop: 10, paddingTop: 10,
+    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
+  },
+  boardChatHintText: { fontFamily: fonts.sansMedium, fontSize: 11, color: 'rgba(30,58,95,0.45)' },
 
   // Projects
   projectCard:     { padding: 16 },
