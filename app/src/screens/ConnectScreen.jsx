@@ -14,6 +14,7 @@ import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import MockContentBanner from '../components/ui/MockContentBanner'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { useAuth } from '../context/AuthContext'
 
 // ─── Campus: Feature Products ─────────────────────────────────────────────────
 const CAMPUS_FEATURES = [
@@ -825,6 +826,8 @@ function CourseTab() {
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function ConnectScreen({ route }) {
+  const { user } = useAuth()
+  const institutionShort = user?.user_metadata?.institution_short
   const initialTab = route?.params?.initialTab?.toLowerCase() || 'campus'
   const [tab, setTab] = useState(initialTab)
 
@@ -838,9 +841,11 @@ export default function ConnectScreen({ route }) {
       >
         <View style={styles.hero}>
           <Text style={styles.heroEyebrow}>COMMUNITY</Text>
-          <Text style={styles.heroTitle}>Your campus, your people.</Text>
+          <Text style={styles.heroTitle}>
+            {institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
+          </Text>
           <Text style={styles.heroSub}>
-            From accommodation to study groups, carpooling to project collaboration — your university community, all in one place.
+            From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place.
           </Text>
         </View>
 
