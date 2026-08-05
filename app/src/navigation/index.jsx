@@ -1,7 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
-import { Platform, View } from 'react-native'
+import { Platform, View, Animated } from 'react-native'
+import { useRef, useEffect } from 'react'
 import UBPLogo from '../components/ui/UBPLogo'
 
 import { useAuth } from '../context/AuthContext'
@@ -164,15 +165,33 @@ function AuthStack() {
   )
 }
 
+// ── Splash Screen ─────────────────────────────────────────────────────────────
+// Shown while auth state resolves. Fade + scale matches Apple launch-screen feel.
+function SplashScreen() {
+  const fadeAnim  = useRef(new Animated.Value(0)).current
+  const scaleAnim = useRef(new Animated.Value(0.88)).current
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 640, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1, duration: 640, useNativeDriver: true }),
+    ]).start()
+  }, [])
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.navy }}>
+      <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }], alignItems: 'flex-start' }}>
+        <UBPLogo height={80} color={colors.cream} variant="wordmark" />
+      </Animated.View>
+    </View>
+  )
+}
+
 export default function RootNavigator() {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.navy }}>
-        <UBPLogo height={48} color={colors.cream} />
-      </View>
-    )
+    return <SplashScreen />
   }
 
   return user ? <MainTabs /> : <AuthStack />

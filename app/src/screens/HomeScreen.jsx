@@ -319,7 +319,7 @@ export default function HomeScreen({ navigation }) {
         {/* ── SIDEBAR ── */}
         <View style={styles.sidebar}>
           <View style={styles.sidebarLogoWrap}>
-            <UBPLogo height={28} color={colors.cream} />
+            <UBPLogo height={30} color={colors.cream} />
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>

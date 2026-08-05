@@ -157,7 +157,7 @@ export default function CompassScreen({ navigation }) {
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
             <Text style={s.backBtnText}>Home</Text>
           </TouchableOpacity>
-          <UBPLogo height={26} color={colors.cream} />
+          <UBPLogo height={30} color={colors.cream} />
           <View style={{ width: 70 }} />
         </View>
 

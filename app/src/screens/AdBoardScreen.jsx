@@ -467,7 +467,7 @@ export default function AdBoardScreen({ navigation }) {
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        <UBPLogo height={28} color={colors.cream} />
+        <UBPLogo height={30} color={colors.cream} />
         <TouchableOpacity
           style={styles.postBtn}
           activeOpacity={0.8}

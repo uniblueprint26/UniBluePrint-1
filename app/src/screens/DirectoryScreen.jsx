@@ -202,7 +202,7 @@ export default function DirectoryScreen() {
   return (
     <View style={styles.screen}>
       <View style={[styles.topBar, { paddingTop: insets.top + 14 }]}>
-        <UBPLogo height={28} color={colors.cream} />
+        <UBPLogo height={30} color={colors.cream} />
       </View>
 
       <View style={styles.headingWrap}>

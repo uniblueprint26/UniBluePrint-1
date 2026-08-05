@@ -67,7 +67,7 @@ export default function WelcomeScreen({ navigation }) {
 
       {/* Logo header */}
       <View style={styles.logoHeader}>
-        <UBPLogo height={30} color={colors.navy} />
+        <UBPLogo height={44} color={colors.navy} variant="wordmark" />
         <TouchableOpacity
           style={styles.skipBtn}
           activeOpacity={0.7}
