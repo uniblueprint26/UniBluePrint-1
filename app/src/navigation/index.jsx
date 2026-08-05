@@ -24,6 +24,7 @@ import ProfileScreen       from '../screens/ProfileScreen'
 import NotificationsScreen  from '../screens/NotificationsScreen'
 import CoachProfileScreen   from '../screens/CoachProfileScreen'
 import ChatRoomScreen       from '../screens/ChatRoomScreen'
+import CompassScreen        from '../screens/CompassScreen'
 
 // Profile sub-screens
 import AboutScreen  from '../screens/AboutScreen'
@@ -62,6 +63,7 @@ function HomeStack() {
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
+      <Stack.Screen name="Compass"       component={CompassScreen}      />
     </Stack.Navigator>
   )
 }

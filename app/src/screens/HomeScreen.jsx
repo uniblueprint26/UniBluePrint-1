@@ -30,7 +30,7 @@ const ALL_SHORTCUTS = [
   { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle'  },
   { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'campus_connect' },
   { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'course_connect' },
-  { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'external',  url: 'https://coursecompass.ie' },
+  { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'compass' },
   { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',             sub: 'Partner listings and offers',    Icon: Megaphone,     bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
   { key: 'messages',   label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab',       tabName: 'Messages' },
@@ -46,7 +46,7 @@ const NAV_ITEMS = [
   { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
   { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'campus_connect' },
   { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'course_connect' },
-  { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
+  { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'compass' },
   { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
 ]
@@ -302,6 +302,7 @@ export default function HomeScreen({ navigation }) {
     else if (item.action === 'campus_connect') navigation.navigate('CampusConnect')
     else if (item.action === 'course_connect') navigation.navigate('CourseConnect')
     else if (item.action === 'lifestyle')      navigation.navigate('Lifestyle')
+    else if (item.action === 'compass')    navigation.navigate('Compass')
     else if (item.action === 'budgeting')  navigation.navigate('Budgeting')
     else if (item.action === 'tab')        navigation.getParent()?.navigate(item.tabName)
     else if (item.action === 'external')   Linking.openURL(item.url)
