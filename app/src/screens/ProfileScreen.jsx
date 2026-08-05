@@ -143,7 +143,7 @@ export default function ProfileScreen({ navigation }) {
       navigation.navigate(link.screen)
     } else if (link.action === 'coaches') {
       navigation.getParent()?.navigate('Home', {
-        screen: 'Blueprint', params: { initialTab: 'Elevation' },
+        screen: 'Elevation',
       })
     } else if (link.action === 'become_coach') {
       Linking.openURL('mailto:hello@uniblueprint.ie?subject=Become a Coach Application')

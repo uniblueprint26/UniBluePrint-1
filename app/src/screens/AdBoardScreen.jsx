@@ -377,7 +377,7 @@ function PostAdModal({ visible, onClose }) {
 function getAdPressHandler(ad, navigation) {
   if (ad.id === 'ubp_promo') {
     return () => navigation.getParent()?.navigate('Home', {
-      screen: 'Blueprint', params: { initialTab: 'Foundation' },
+      screen: 'Foundation',
     })
   }
   if (ad.id === 'campus_carpool') {

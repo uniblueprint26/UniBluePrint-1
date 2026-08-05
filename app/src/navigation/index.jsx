@@ -8,15 +8,16 @@ import { useAuth } from '../context/AuthContext'
 import { colors, fonts } from '../constants/theme'
 
 // Main screens
-import HomeScreen       from '../screens/HomeScreen'
-import BlueprintScreen  from '../screens/BlueprintScreen'
-import ConnectScreen    from '../screens/ConnectScreen'
-import LifestyleScreen  from '../screens/LifestyleScreen'
-import AdBoardScreen    from '../screens/AdBoardScreen'
-import BudgetingScreen  from '../screens/BudgetingScreen'
-import MessagesScreen   from '../screens/MessagesScreen'
-import DirectoryScreen  from '../screens/DirectoryScreen'
-import ProfileScreen    from '../screens/ProfileScreen'
+import HomeScreen          from '../screens/HomeScreen'
+import FoundationScreen    from '../screens/FoundationScreen'
+import ElevationScreen     from '../screens/ElevationScreen'
+import ConnectScreen       from '../screens/ConnectScreen'
+import LifestyleScreen     from '../screens/LifestyleScreen'
+import AdBoardScreen       from '../screens/AdBoardScreen'
+import BudgetingScreen     from '../screens/BudgetingScreen'
+import MessagesScreen      from '../screens/MessagesScreen'
+import DirectoryScreen     from '../screens/DirectoryScreen'
+import ProfileScreen       from '../screens/ProfileScreen'
 
 // Home sub-screens
 import NotificationsScreen  from '../screens/NotificationsScreen'
@@ -45,17 +46,18 @@ const backHeader = {
   headerTitleStyle: { fontFamily: fonts.sansSemiBold },
 }
 
-// Home tab — includes blueprint/connect/lifestyle as sub-screens pushed from sidebar
+// Home tab — includes feature screens pushed from sidebar / Quick Access
 function HomeStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
-      <Stack.Screen name="HomeMain"      component={HomeScreen}      />
-      <Stack.Screen name="Blueprint"     component={BlueprintScreen}     />
-      <Stack.Screen name="Connect"       component={ConnectScreen}       />
-      <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
-      <Stack.Screen name="Budgeting"     component={BudgetingScreen}     />
-      <Stack.Screen name="Notifications" component={NotificationsScreen} />
-      <Stack.Screen name="CoachProfile"  component={CoachProfileScreen}  />
+      <Stack.Screen name="HomeMain"      component={HomeScreen}         />
+      <Stack.Screen name="Foundation"    component={FoundationScreen}   />
+      <Stack.Screen name="Elevation"     component={ElevationScreen}    />
+      <Stack.Screen name="Connect"       component={ConnectScreen}      />
+      <Stack.Screen name="Lifestyle"     component={LifestyleScreen}    />
+      <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
+      <Stack.Screen name="Notifications" component={NotificationsScreen}/>
+      <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
     </Stack.Navigator>
   )
 }

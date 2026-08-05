@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
   Linking, Modal,
@@ -11,6 +11,7 @@ import {
   ChevronRight, ChevronUp, ChevronDown, Pencil,
   LayoutGrid, MessageSquare, Users, X,
 } from 'lucide-react-native'
+import { useFocusEffect } from '@react-navigation/native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing } from '../constants/theme'
@@ -24,9 +25,9 @@ const DEFAULT_SHORTCUTS = ['foundation', 'elevation', 'campus', 'course']
 
 // All possible Quick Access destinations
 const ALL_SHORTCUTS = [
-  { key: 'foundation', label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'blueprint', tab: 'Foundation' },
-  { key: 'elevation',  label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'blueprint', tab: 'Elevation' },
-  { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle' },
+  { key: 'foundation', label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'foundation' },
+  { key: 'elevation',  label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'elevation'  },
+  { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle'  },
   { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'connect',   tab: 'Campus' },
   { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'connect',   tab: 'Course' },
   { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'external',  url: 'https://coursecompass.ie' },
@@ -39,10 +40,10 @@ const ALL_SHORTCUTS = [
 
 // Sidebar nav items — corrected order per spec
 const NAV_ITEMS = [
-  { key: 'dashboard',  label: 'Dashboard',             Icon: LayoutGrid, action: 'home' },
-  { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'blueprint', tab: 'Foundation' },
-  { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'blueprint', tab: 'Elevation' },
-  { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle' },
+  { key: 'dashboard',  label: 'Dashboard',             Icon: LayoutGrid, action: 'home'      },
+  { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
+  { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
+  { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
   { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'connect',   tab: 'Campus' },
   { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'connect',   tab: 'Course' },
   { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
@@ -247,6 +248,12 @@ export default function HomeScreen({ navigation }) {
   const [shortcuts, setShortcuts]     = useState(DEFAULT_SHORTCUTS)
   const [editVisible, setEditVisible] = useState(false)
 
+  // Sidebar active key — reset to dashboard whenever this screen regains focus
+  const [activeNavKey, setActiveNavKey] = useState('dashboard')
+  useFocusEffect(useCallback(() => {
+    setActiveNavKey('dashboard')
+  }, []))
+
   // Live activity state
   const [activity, setActivity]             = useState([])
   const [loadingActivity, setLoadingActivity] = useState(true)
@@ -287,13 +294,16 @@ export default function HomeScreen({ navigation }) {
   }
 
   function handleNav(item) {
-    if (!item || item.action === 'home') return
-    if (item.action === 'blueprint') navigation.navigate('Blueprint', { initialTab: item.tab })
-    else if (item.action === 'connect')   navigation.navigate('Connect',   { initialTab: item.tab })
-    else if (item.action === 'lifestyle') navigation.navigate('Lifestyle')
-    else if (item.action === 'budgeting') navigation.navigate('Budgeting')
-    else if (item.action === 'tab')       navigation.getParent()?.navigate(item.tabName)
-    else if (item.action === 'external')  Linking.openURL(item.url)
+    if (!item) return
+    if (item.action === 'home') { setActiveNavKey('dashboard'); return }
+    setActiveNavKey(item.key)
+    if      (item.action === 'foundation') navigation.navigate('Foundation')
+    else if (item.action === 'elevation')  navigation.navigate('Elevation')
+    else if (item.action === 'connect')    navigation.navigate('Connect',   { initialTab: item.tab })
+    else if (item.action === 'lifestyle')  navigation.navigate('Lifestyle')
+    else if (item.action === 'budgeting')  navigation.navigate('Budgeting')
+    else if (item.action === 'tab')        navigation.getParent()?.navigate(item.tabName)
+    else if (item.action === 'external')   Linking.openURL(item.url)
   }
 
   const currentShortcutItems = shortcuts
@@ -312,7 +322,7 @@ export default function HomeScreen({ navigation }) {
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
             {NAV_ITEMS.map(item => {
-              const isActive = item.key === 'dashboard'
+              const isActive = item.key === activeNavKey
               return (
                 <TouchableOpacity
                   key={item.key}
