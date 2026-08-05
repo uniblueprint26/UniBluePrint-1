@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { INSTITUTIONS, searchInstitutions } from '../../data/institutions'
+import { searchTrades, searchProviders } from '../../data/apprenticeships'
 
 // ── Situations ────────────────────────────────────────────────────────────────
 
@@ -131,8 +132,12 @@ export default function SignUpScreen({ navigation }) {
   // Step 3 — PLC (reuses institutionQuery / selectedInstitution / showInstList from in_college)
 
   // Step 3 — apprenticeship
-  const [trade, setTrade]                       = useState('')
-  const [trainingProvider, setTrainingProvider] = useState('')
+  const [tradeQuery, setTradeQuery]           = useState('')
+  const [selectedTrade, setSelectedTrade]     = useState(null)
+  const [showTradeList, setShowTradeList]     = useState(false)
+  const [providerQuery, setProviderQuery]     = useState('')
+  const [selectedProvider, setSelectedProvider] = useState(null)
+  const [showProviderList, setShowProviderList] = useState(false)
 
   // Step 3 — shared
   const [course, setCourse] = useState('')
@@ -206,8 +211,17 @@ export default function SignUpScreen({ navigation }) {
         }
         if (course.trim()) metadata.course = course.trim()
       } else if (situation === 'apprenticeship') {
-        if (trade.trim())            metadata.trade             = trade.trim()
-        if (trainingProvider.trim()) metadata.training_provider = trainingProvider.trim()
+        if (selectedTrade) {
+          metadata.trade          = selectedTrade.name
+          metadata.trade_category = selectedTrade.category
+        } else if (tradeQuery.trim()) {
+          metadata.trade = tradeQuery.trim()
+        }
+        if (selectedProvider) {
+          metadata.training_provider = selectedProvider.name
+        } else if (providerQuery.trim()) {
+          metadata.training_provider = providerQuery.trim()
+        }
       }
 
       await signUp(email.trim(), password, metadata)
@@ -221,8 +235,16 @@ export default function SignUpScreen({ navigation }) {
 
   // ── Institution search ──────────────────────────────────────────────────────
 
-  const instResults = institutionQuery.trim()
+  const instResults     = institutionQuery.trim()
     ? searchInstitutions(institutionQuery).slice(0, 8)
+    : []
+
+  const tradeResults    = tradeQuery.trim()
+    ? searchTrades(tradeQuery).slice(0, 8)
+    : []
+
+  const providerResults = providerQuery.trim()
+    ? searchProviders(providerQuery).slice(0, 8)
     : []
 
   function selectInstitution(inst) {
@@ -591,34 +613,151 @@ export default function SignUpScreen({ navigation }) {
                 <>
                   <Text style={styles.title}>Your apprenticeship.</Text>
                   <Text style={styles.sub}>
-                    Tell us a little about your trade and training provider. Both fields are optional.
+                    Select your trade from the SOLAS-recognised list. Both fields are optional.
                   </Text>
 
-                  <Field label="Trade or Craft (optional)" icon={Briefcase}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="e.g. Electrical, Plumbing, Carpentry"
-                      placeholderTextColor={colors.light}
-                      value={trade}
-                      onChangeText={setTrade}
-                      autoCapitalize="words"
-                    />
-                  </Field>
+                  {/* Trade picker */}
+                  <View style={styles.field}>
+                    <Text style={styles.label}>Trade or Craft</Text>
+                    <View style={[
+                      styles.inputWrap,
+                      showTradeList && tradeResults.length > 0 && styles.inputWrapOpen,
+                    ]}>
+                      <Briefcase size={16} color={colors.muted} style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={[styles.input, { flex: 1 }]}
+                        placeholder="e.g. Electrical, Plumbing, Software Developer"
+                        placeholderTextColor={colors.light}
+                        value={tradeQuery}
+                        onChangeText={text => {
+                          setTradeQuery(text)
+                          setSelectedTrade(null)
+                          setShowTradeList(true)
+                        }}
+                        onFocus={() => setShowTradeList(true)}
+                        autoCorrect={false}
+                        autoCapitalize="words"
+                      />
+                      {selectedTrade && (
+                        <View style={styles.shortBadge}>
+                          <Text style={styles.shortBadgeText}>{selectedTrade.category}</Text>
+                        </View>
+                      )}
+                    </View>
 
-                  <Field label="Training Provider (optional)" icon={MapPin}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="e.g. Dublin ETB, Cork ETB"
-                      placeholderTextColor={colors.light}
-                      value={trainingProvider}
-                      onChangeText={setTrainingProvider}
-                      autoCapitalize="words"
-                    />
-                  </Field>
+                    {showTradeList && tradeResults.length > 0 && (
+                      <View style={styles.instDropdown}>
+                        {tradeResults.map((t, i) => (
+                          <TouchableOpacity
+                            key={t.id}
+                            style={[
+                              styles.instItem,
+                              i < tradeResults.length - 1 && styles.instItemDivider,
+                              selectedTrade?.id === t.id && styles.instItemSelected,
+                            ]}
+                            onPress={() => {
+                              setSelectedTrade(t)
+                              setTradeQuery(t.name)
+                              setShowTradeList(false)
+                            }}
+                            activeOpacity={0.75}
+                          >
+                            <View style={[styles.instItemShort, styles.tradeCategoryBadge,
+                              t.category === 'Craft' ? styles.tradeCraft : styles.tradeConsortium,
+                            ]}>
+                              <Text style={styles.tradeCategoryText}>{t.category}</Text>
+                            </View>
+                            <Text style={[styles.instItemName, { flex: 1 }]} numberOfLines={1}>{t.name}</Text>
+                            {selectedTrade?.id === t.id && (
+                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                            )}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    {showTradeList && !tradeQuery.trim() && (
+                      <View style={styles.instHint}>
+                        <Text style={styles.instHintText}>
+                          Type to search — e.g. "Electrical", "Plumbing", "Software"
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* ETB provider picker */}
+                  <View style={styles.field}>
+                    <Text style={styles.label}>Training Provider</Text>
+                    <View style={[
+                      styles.inputWrap,
+                      showProviderList && providerResults.length > 0 && styles.inputWrapOpen,
+                    ]}>
+                      <MapPin size={16} color={colors.muted} style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={[styles.input, { flex: 1 }]}
+                        placeholder="e.g. City of Dublin ETB, Cork ETB"
+                        placeholderTextColor={colors.light}
+                        value={providerQuery}
+                        onChangeText={text => {
+                          setProviderQuery(text)
+                          setSelectedProvider(null)
+                          setShowProviderList(true)
+                        }}
+                        onFocus={() => setShowProviderList(true)}
+                        autoCorrect={false}
+                        autoCapitalize="words"
+                      />
+                      {selectedProvider && (
+                        <View style={styles.shortBadge}>
+                          <Text style={styles.shortBadgeText}>{selectedProvider.short}</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {showProviderList && providerResults.length > 0 && (
+                      <View style={styles.instDropdown}>
+                        {providerResults.map((p, i) => (
+                          <TouchableOpacity
+                            key={p.id}
+                            style={[
+                              styles.instItem,
+                              i < providerResults.length - 1 && styles.instItemDivider,
+                              selectedProvider?.id === p.id && styles.instItemSelected,
+                            ]}
+                            onPress={() => {
+                              setSelectedProvider(p)
+                              setProviderQuery(p.name)
+                              setShowProviderList(false)
+                            }}
+                            activeOpacity={0.75}
+                          >
+                            <View style={styles.instItemShort}>
+                              <Text style={styles.instItemShortText} numberOfLines={1}>{p.short}</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.instItemName} numberOfLines={1}>{p.name}</Text>
+                              {p.city ? <Text style={styles.instItemCity}>{p.city}</Text> : null}
+                            </View>
+                            {selectedProvider?.id === p.id && (
+                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                            )}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    {showProviderList && !providerQuery.trim() && (
+                      <View style={styles.instHint}>
+                        <Text style={styles.instHintText}>
+                          Type to search — e.g. "Dublin ETB", "Cork ETB", "Kildare"
+                        </Text>
+                      </View>
+                    )}
+                  </View>
 
                   <View style={styles.infoCard}>
                     <Text style={styles.infoText}>
-                      We are building a verified trade and provider directory. For now, enter your details freely and we will confirm them in a later step.
+                      Trade list sourced from SOLAS. A registration number verification step is planned for a future release.
                     </Text>
                   </View>
                 </>
@@ -783,4 +922,10 @@ const styles = StyleSheet.create({
 
   skipBtn: { alignItems: 'center', marginTop: spacing.md },
   skipBtnText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted },
+
+  // Trade category badges in apprenticeship dropdown
+  tradeCategoryBadge: { flexShrink: 0, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, alignItems: 'center', minWidth: 52 },
+  tradeCraft:         { backgroundColor: '#EFF6FF' },
+  tradeConsortium:    { backgroundColor: '#F0FDF4' },
+  tradeCategoryText:  { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy },
 })
