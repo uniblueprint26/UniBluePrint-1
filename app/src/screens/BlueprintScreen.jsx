@@ -3,8 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'r
 import {
   FileText, Target, Award, Linkedin, MessageSquare, Search,
   BookOpen, GraduationCap, Compass, Map, Wrench, Package,
-  User, Users, MapPin, ChevronRight, Sparkles, ExternalLink,
-  Phone, Mail, AtSign, Link2,
+  User, MapPin, ChevronRight, Sparkles, ExternalLink,
 } from 'lucide-react-native'
 
 import TopBar from '../components/layout/TopBar'
@@ -249,241 +248,142 @@ const COACHES = [
 
 // ─── Coach Card ───────────────────────────────────────────────────────────────
 
-function CoachCard({ coach }) {
-  const [expanded, setExpanded] = useState(false)
-
-  function openLink(type, value) {
-    if (!value) return
-    const urls = {
-      instagram: `https://www.instagram.com/${value}`,
-      tiktok:    `https://www.tiktok.com/@${value}`,
-      linktree:  value,
-      email:     `mailto:${value}`,
-      phone:     `tel:${value}`,
-    }
-    Linking.openURL(urls[type])
+function CoachCard({ coach, navigation }) {
+  function handlePress() {
+    navigation.navigate('CoachProfile', { coach })
   }
 
-  // Shell / coming-soon state
   if (coach.shell) {
     return (
-      <Card style={styles.coachCard}>
-        <View style={styles.coachTop}>
-          <View style={styles.coachAvatarWrap}>
-            <View style={[styles.coachAvatar, { backgroundColor: '#F5F0E8' }]}>
-              <User size={26} color={colors.light} />
+      <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
+        <Card style={styles.coachCard}>
+          <View style={styles.coachTop}>
+            <View style={styles.coachAvatarWrap}>
+              <View style={[styles.coachAvatar, { backgroundColor: '#F5F0E8' }]}>
+                <User size={26} color={colors.light} />
+              </View>
             </View>
-          </View>
-          <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={styles.coachName}>{coach.name}</Text>
-            <Text style={styles.coachCategory}>{coach.category}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-              <MapPin size={11} color={colors.muted} />
-              <Text style={styles.coachLocation}>{coach.location}</Text>
-            </View>
-          </View>
-          <View style={styles.shellBadge}>
-            <Text style={styles.shellBadgeText}>Coming Soon</Text>
-          </View>
-        </View>
-        <Text style={styles.shellMessage}>{coach.shellMessage}</Text>
-      </Card>
-    )
-  }
-
-  const hasExtra = coach.quote || coach.pricelist || coach.package || coach.contact || coach.pricingNote || coach.bookingNote
-
-  return (
-    <Card style={styles.coachCard}>
-      {/* Header */}
-      <View style={styles.coachTop}>
-        <View style={styles.coachAvatarWrap}>
-          <View style={styles.coachAvatar}>
-            <User size={26} color={colors.light} />
-          </View>
-          {!coach.shell && <View style={styles.coachOnlineDot} />}
-        </View>
-        <View style={{ flex: 1, marginLeft: 14 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <View style={{ flex: 1, marginRight: 8 }}>
+            <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={styles.coachName}>{coach.name}</Text>
-              {coach.title && (
-                <Text style={styles.coachTitle} numberOfLines={2}>{coach.title}</Text>
-              )}
               <Text style={styles.coachCategory}>{coach.category}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
                 <MapPin size={11} color={colors.muted} />
                 <Text style={styles.coachLocation}>{coach.location}</Text>
               </View>
             </View>
+            <View style={styles.shellBadge}>
+              <Text style={styles.shellBadgeText}>Coming Soon</Text>
+            </View>
           </View>
-          {coach.rating && (
-            <View style={styles.ratingRow}>
-              <Text style={{ fontSize: 12, color: '#F59E0B' }}>★</Text>
-              <Text style={styles.ratingText}>{coach.rating}</Text>
-              <Text style={styles.ratingCount}>({coach.reviews} reviews)</Text>
+          <Text style={styles.shellMessage}>{coach.shellMessage}</Text>
+          <View style={styles.coachFooter}>
+            <View>
+              <Text style={styles.fromLabel}>Starting from</Text>
+              <Text style={styles.fromPrice}>{coach.from}</Text>
+            </View>
+            <View style={styles.profileBtnMuted}>
+              <Text style={styles.profileBtnMutedText}>View Profile</Text>
+            </View>
+          </View>
+        </Card>
+      </TouchableOpacity>
+    )
+  }
+
+  return (
+    <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
+      <Card style={styles.coachCard}>
+        {/* Header */}
+        <View style={styles.coachTop}>
+          <View style={styles.coachAvatarWrap}>
+            <View style={styles.coachAvatar}>
+              <User size={26} color={colors.light} />
+            </View>
+            <View style={styles.coachOnlineDot} />
+          </View>
+          <View style={{ flex: 1, marginLeft: 14 }}>
+            <Text style={styles.coachName}>{coach.name}</Text>
+            {coach.title && (
+              <Text style={styles.coachTitle} numberOfLines={2}>{coach.title}</Text>
+            )}
+            <Text style={styles.coachCategory}>{coach.category}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
+              <MapPin size={11} color={colors.muted} />
+              <Text style={styles.coachLocation}>{coach.location}</Text>
+            </View>
+            {coach.rating && (
+              <View style={styles.ratingRow}>
+                <Text style={{ fontSize: 12, color: '#F59E0B' }}>★</Text>
+                <Text style={styles.ratingText}>{coach.rating}</Text>
+                <Text style={styles.ratingCount}>({coach.reviews} reviews)</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Tagline */}
+        {coach.tagline && (
+          <Text style={styles.coachTagline}>{coach.tagline}</Text>
+        )}
+
+        {/* Bio — preview, 3 lines max */}
+        <Text style={styles.coachBio} numberOfLines={3}>{coach.bio}</Text>
+
+        {/* Service pills — first 3 + overflow count */}
+        <View style={styles.servicePills}>
+          {coach.services.slice(0, 3).map(s => (
+            <View key={s} style={styles.servicePill}>
+              <Text style={styles.servicePillText}>{s}</Text>
+            </View>
+          ))}
+          {coach.services.length > 3 && (
+            <View style={[styles.servicePill, { backgroundColor: 'rgba(30,58,95,0.06)' }]}>
+              <Text style={styles.servicePillText}>+{coach.services.length - 3} more</Text>
             </View>
           )}
         </View>
-      </View>
 
-      {/* Tagline */}
-      {coach.tagline && (
-        <Text style={styles.coachTagline}>{coach.tagline}</Text>
-      )}
-
-      {/* Bio */}
-      <Text style={styles.coachBio}>{coach.bio}</Text>
-
-      {/* Quote */}
-      {coach.quote && (
-        <View style={styles.quoteBlock}>
-          <Text style={styles.quoteText}>"{coach.quote}"</Text>
-        </View>
-      )}
-
-      {/* Service pills */}
-      <View style={styles.servicePills}>
-        {coach.services.map(s => (
-          <View key={s} style={styles.servicePill}>
-            <Text style={styles.servicePillText}>{s}</Text>
+        {/* Footer */}
+        <View style={styles.coachFooter}>
+          <View>
+            <Text style={styles.fromLabel}>Starting from</Text>
+            <Text style={styles.fromPrice}>{coach.from}</Text>
           </View>
-        ))}
-      </View>
-
-      {/* Expandable detail */}
-      {hasExtra && (
-        <>
-          <TouchableOpacity
-            style={styles.expandRow}
-            onPress={() => setExpanded(e => !e)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.expandLabel}>{expanded ? 'Show less' : 'Show pricing & contact'}</Text>
-            <ChevronRight
-              size={14} color={colors.navy}
-              style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
-            />
-          </TouchableOpacity>
-
-          {expanded && (
-            <View style={styles.expandedContent}>
-
-              {/* Pricelist */}
-              {coach.pricelist && (
-                <View style={styles.pricelistWrap}>
-                  {coach.pricelist.map((p, i) => (
-                    <View
-                      key={p.label}
-                      style={[styles.pricelistRow, i < coach.pricelist.length - 1 && styles.pricelistDivider]}
-                    >
-                      <Text style={styles.pricelistLabel}>{p.label}</Text>
-                      <Text style={styles.pricelistPrice}>{p.price}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* Package inclusions */}
-              {coach.package && (
-                <View style={styles.packageWrap}>
-                  <Text style={styles.packageHeader}>Included</Text>
-                  {coach.package.map((item, i) => (
-                    <View key={i} style={styles.packageRow}>
-                      <View style={styles.packageDot} />
-                      <Text style={styles.packageText}>{item}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* Pricing note */}
-              {coach.pricingNote && (
-                <View style={styles.pricingNote}>
-                  <Text style={styles.pricingNoteText}>{coach.pricingNote}</Text>
-                </View>
-              )}
-
-              {/* Booking note */}
-              {coach.bookingNote && (
-                <View style={styles.bookingNote}>
-                  <Text style={styles.bookingNoteText}>{coach.bookingNote}</Text>
-                </View>
-              )}
-
-              {/* Contact links */}
-              {coach.contact && (
-                <View style={styles.contactRow}>
-                  {coach.contact.instagram && (
-                    <TouchableOpacity
-                      style={styles.contactChip}
-                      onPress={() => openLink('instagram', coach.contact.instagram)}
-                      activeOpacity={0.75}
-                    >
-                      <AtSign size={12} color={colors.navy} />
-                      <Text style={styles.contactChipText}>{coach.contact.instagram}</Text>
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.tiktok && (
-                    <TouchableOpacity
-                      style={styles.contactChip}
-                      onPress={() => openLink('tiktok', coach.contact.tiktok)}
-                      activeOpacity={0.75}
-                    >
-                      <AtSign size={12} color={colors.navy} />
-                      <Text style={styles.contactChipText}>{coach.contact.tiktok}</Text>
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.email && (
-                    <TouchableOpacity
-                      style={styles.contactChip}
-                      onPress={() => openLink('email', coach.contact.email)}
-                      activeOpacity={0.75}
-                    >
-                      <Mail size={12} color={colors.navy} />
-                      <Text style={styles.contactChipText}>Email</Text>
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.phone && (
-                    <TouchableOpacity
-                      style={styles.contactChip}
-                      onPress={() => openLink('phone', coach.contact.phone)}
-                      activeOpacity={0.75}
-                    >
-                      <Phone size={12} color={colors.navy} />
-                      <Text style={styles.contactChipText}>Call</Text>
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.linktree && (
-                    <TouchableOpacity
-                      style={styles.contactChip}
-                      onPress={() => openLink('linktree', coach.contact.linktree)}
-                      activeOpacity={0.75}
-                    >
-                      <Link2 size={12} color={colors.navy} />
-                      <Text style={styles.contactChipText}>Linktree</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
-            </View>
-          )}
-        </>
-      )}
-
-      {/* Footer */}
-      <View style={styles.coachFooter}>
-        <View>
-          <Text style={styles.fromLabel}>Starting from</Text>
-          <Text style={styles.fromPrice}>{coach.from}</Text>
+          <View style={styles.profileBtn}>
+            <Text style={styles.profileBtnText}>View Profile</Text>
+            <ChevronRight size={13} color={colors.cream} strokeWidth={2.5} />
+          </View>
         </View>
-        <TouchableOpacity style={styles.profileBtn} activeOpacity={0.8}>
-          <Text style={styles.profileBtnText}>Book / Enquire</Text>
-        </TouchableOpacity>
-      </View>
-    </Card>
+      </Card>
+    </TouchableOpacity>
   )
 }
+
+// ─── Group header ─────────────────────────────────────────────────────────────
+
+function GroupHeader({ label, count, first }) {
+  return (
+    <View style={[styles.groupHeader, first && { marginTop: 8 }]}>
+      <Text style={styles.groupLabel}>{label}</Text>
+      <View style={styles.groupCountBadge}>
+        <Text style={styles.groupCountText}>{count}</Text>
+      </View>
+    </View>
+  )
+}
+
+// ─── Groups (used when filter = All) ─────────────────────────────────────────
+
+const GROUPS = [
+  { label: 'Fitness & Physique',   filters: ['Fitness']                    },
+  { label: 'Sports Coaching',       filters: ['Sports']                     },
+  { label: 'Academic Grinds',       filters: ['Academic Grinds']            },
+  { label: 'Trading & Finance',     filters: ['Trading']                    },
+  { label: 'Marketing & Branding',  filters: ['Marketing', 'Branding']      },
+  { label: 'Creative',              filters: ['Creative']                   },
+  { label: 'Yoga',                  filters: ['Yoga']                       },
+  { label: 'Careers & Counselling', filters: ['Career']                     },
+]
 
 // ─── Foundation editorial stats ───────────────────────────────────────────────
 const FOUNDATION_STATS = [
@@ -634,14 +534,28 @@ function FoundationTab() {
 }
 
 // ─── Elevation tab ────────────────────────────────────────────────────────────
-// Part A: categories/services list removed — coach list + filters only
-function ElevationTab() {
+
+function ElevationTab({ navigation }) {
   const [active, setActive] = useState('All')
   const visible = active === 'All' ? COACHES : COACHES.filter(c => c.filter === active)
 
+  const academicBanner = (
+    <View style={styles.academicBanner}>
+      <View style={styles.academicBannerLeft}>
+        <View style={styles.newBadgeInline}>
+          <Text style={styles.newBadgeInlineText}>NEW</Text>
+        </View>
+        <Text style={styles.academicBannerTitle}>Academic Grinds</Text>
+      </View>
+      <Text style={styles.academicBannerSub}>
+        One-to-one Leaving Cert and university grinds now available through Elevation Blueprint.
+      </Text>
+    </View>
+  )
+
   return (
     <View>
-      {/* Filter pills — kept as-is per spec */}
+      {/* Filter pills */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -662,22 +576,36 @@ function ElevationTab() {
 
       <Text style={styles.resultsCount}>{visible.length} coach{visible.length !== 1 ? 'es' : ''} available</Text>
 
-      {(active === 'All' || active === 'Academic Grinds') && (
-        <View style={styles.academicBanner}>
-          <View style={styles.academicBannerLeft}>
-            <View style={styles.newBadgeInline}>
-              <Text style={styles.newBadgeInlineText}>NEW</Text>
-            </View>
-            <Text style={styles.academicBannerTitle}>Academic Grinds</Text>
-          </View>
-          <Text style={styles.academicBannerSub}>
-            One-to-one Leaving Cert and university grinds now available through Elevation Blueprint.
-          </Text>
-        </View>
-      )}
+      {/* Academic banner for filtered view */}
+      {active === 'Academic Grinds' && academicBanner}
 
-      <View style={{ gap: 16, marginTop: spacing.sm }}>
-        {visible.map(coach => <CoachCard key={coach.id} coach={coach} />)}
+      <View style={{ marginTop: spacing.sm }}>
+        {active === 'All' ? (
+          /* Grouped view — glass section headers */
+          GROUPS.map((group, gi) => {
+            const groupCoaches = COACHES.filter(c => group.filters.includes(c.filter))
+            if (groupCoaches.length === 0) return null
+            return (
+              <View key={group.label}>
+                {/* Academic banner inline before its group */}
+                {group.label === 'Academic Grinds' && academicBanner}
+                <GroupHeader label={group.label} count={groupCoaches.length} first={gi === 0} />
+                <View style={{ gap: 12, marginBottom: 4 }}>
+                  {groupCoaches.map(coach => (
+                    <CoachCard key={coach.id} coach={coach} navigation={navigation} />
+                  ))}
+                </View>
+              </View>
+            )
+          })
+        ) : (
+          /* Flat filtered view */
+          <View style={{ gap: 12 }}>
+            {visible.map(coach => (
+              <CoachCard key={coach.id} coach={coach} navigation={navigation} />
+            ))}
+          </View>
+        )}
       </View>
 
       <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8}>
@@ -688,7 +616,7 @@ function ElevationTab() {
 }
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
-export default function BlueprintScreen({ route }) {
+export default function BlueprintScreen({ route, navigation }) {
   const initialTab = route?.params?.initialTab?.toLowerCase() || 'foundation'
   const [tab, setTab] = useState(initialTab)
 
@@ -731,7 +659,7 @@ export default function BlueprintScreen({ route }) {
           ) : (
             <>
               <SectionHeader eyebrow="Elevation Blueprint" title="Our Coaches" />
-              <ElevationTab />
+              <ElevationTab navigation={navigation} />
             </>
           )}
         </View>
@@ -850,6 +778,20 @@ const styles = StyleSheet.create({
   newBadgeInline:     { backgroundColor: '#7C3AED', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   newBadgeInlineText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#FFFFFF', letterSpacing: 0.5 },
 
+  // Group headers — glass treatment on cream background
+  groupHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: 'rgba(30,58,95,0.05)',
+    borderRadius: 10,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    borderLeftWidth: 3, borderLeftColor: colors.navy,
+    paddingHorizontal: 16, paddingVertical: 12,
+    marginBottom: 12, marginTop: spacing.xl,
+  },
+  groupLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  groupCountBadge: { backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
+  groupCountText:  { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
+
   // Coach cards
   coachCard:       { padding: 18, marginBottom: 0 },
   coachTop:        { flexDirection: 'row' },
@@ -911,8 +853,10 @@ const styles = StyleSheet.create({
   coachFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   fromLabel:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
   fromPrice:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 1 },
-  profileBtn:  { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 18, paddingVertical: 10 },
-  profileBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  profileBtn:        { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  profileBtnText:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  profileBtnMuted:   { backgroundColor: colors.cream, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
+  profileBtnMutedText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
 
   // Shell card
   shellBadge:     { backgroundColor: 'rgba(30,58,95,0.07)', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
