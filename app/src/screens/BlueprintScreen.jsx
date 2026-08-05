@@ -485,26 +485,52 @@ function CoachCard({ coach }) {
   )
 }
 
+// ─── Foundation editorial stats ───────────────────────────────────────────────
+const FOUNDATION_STATS = [
+  {
+    stat: '7 months in the making.',
+    line: 'Built and refined for how Irish recruiters and ATS systems actually hire.',
+  },
+  {
+    stat: '8 documents. 1 standard.',
+    line: 'CV, cover letter, LinkedIn, interview prep, personal statement and more. Every one built to get you noticed.',
+  },
+  {
+    stat: '30+ verified strengths.',
+    line: 'Matched against the same strengths framework employers use to hire worldwide.',
+  },
+  {
+    stat: 'Reviewed by real people.',
+    line: 'Every submission gets eyes from a real Campus Handler before it reaches you.',
+  },
+]
+
 // ─── Foundation tab ───────────────────────────────────────────────────────────
 function FoundationTab() {
   const [selected, setSelected] = useState(null)
 
   return (
     <View>
-      <View style={styles.statsBanner}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>2,400+</Text>
-          <Text style={styles.statLabel}>Documents Delivered</Text>
+      {/* Editorial confidence stats */}
+      <View style={styles.foundationStatsGrid}>
+        {FOUNDATION_STATS.map(({ stat, line }, i) => (
+          <View key={i} style={styles.foundationStatCard}>
+            <Text style={styles.foundationStatValue}>{stat}</Text>
+            <Text style={styles.foundationStatLine}>{line}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Turnaround tiers */}
+      <View style={styles.turnaroundRow}>
+        <View style={styles.turnaroundChip}>
+          <Text style={styles.turnaroundLabel}>Standard</Text>
+          <Text style={styles.turnaroundValue}>48hr</Text>
         </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>48 hrs</Text>
-          <Text style={styles.statLabel}>Standard Turnaround</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>4.9★</Text>
-          <Text style={styles.statLabel}>Avg. Rating</Text>
+        <View style={styles.turnaroundSep} />
+        <View style={styles.turnaroundChip}>
+          <Text style={styles.turnaroundLabel}>Premium</Text>
+          <Text style={styles.turnaroundValue}>24hr</Text>
         </View>
       </View>
 
@@ -742,12 +768,25 @@ const styles = StyleSheet.create({
 
   content: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
 
-  // Stats
-  statsBanner: { flexDirection: 'row', backgroundColor: colors.navy, borderRadius: radius.card, padding: spacing.md, alignItems: 'center' },
-  statItem:    { flex: 1, alignItems: 'center' },
-  statNumber:  { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
-  statLabel:   { fontFamily: fonts.sans, fontSize: 10, color: 'rgba(245,240,232,0.65)', marginTop: 2, textAlign: 'center' },
-  statDivider: { width: 1, height: 32, backgroundColor: 'rgba(245,240,232,0.15)' },
+  // Foundation editorial stats grid
+  foundationStatsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 12 },
+  foundationStatCard: {
+    width: '48.5%', backgroundColor: colors.white, borderRadius: radius.card,
+    padding: 16, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card,
+  },
+  foundationStatValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, lineHeight: 26, marginBottom: 8 },
+  foundationStatLine:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
+
+  // Turnaround tiers
+  turnaroundRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 32, backgroundColor: colors.navy, borderRadius: radius.card,
+    paddingVertical: 16, marginBottom: 14,
+  },
+  turnaroundChip:  { alignItems: 'center' },
+  turnaroundLabel: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase', letterSpacing: 0.9 },
+  turnaroundValue: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginTop: 3 },
+  turnaroundSep:   { width: 1, height: 36, backgroundColor: 'rgba(245,240,232,0.18)' },
 
   trialBanner:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, marginTop: 14 },
   trialBannerText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
