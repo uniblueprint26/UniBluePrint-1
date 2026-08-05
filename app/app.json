@@ -21,6 +21,9 @@
         "backgroundColor": "#F5F0E8"
       },
       "package": "com.uniblueprint.app"
+    },
+    "web": {
+      "bundler": "metro"
     }
   }
 }
