@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { FileText, Target, Users } from 'lucide-react-native'
+import { FileText, Target, Users, Heart, Calculator } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import UBPLogo from '../../components/ui/UBPLogo'
@@ -14,21 +14,35 @@ const SLIDES = [
     color: '#EFF6FF',
     eyebrow: 'FOUNDATION BLUEPRINT',
     title: 'Your career\ndocuments, done right.',
-    sub: 'Professional CVs, cover letters, personal statements and LinkedIn profiles — crafted by verified writers, built for Irish students.',
+    sub: 'Professional CVs, cover letters, personal statements and LinkedIn profiles. Crafted by verified writers, built for young people across Ireland.',
   },
   {
     icon: Target,
     color: '#F0FDF4',
     eyebrow: 'ELEVATION BLUEPRINT',
     title: 'Coaches who\nget students.',
-    sub: 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more — starting from €20.',
+    sub: 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more. Starting from €20.',
   },
   {
     icon: Users,
     color: '#FFF7ED',
-    eyebrow: 'CAMPUS & COURSE CONNECT',
+    eyebrow: 'CAMPUS AND COURSE CONNECT',
     title: 'Your campus.\nYour community.',
     sub: 'Connect with classmates, share notes, find project teammates, post on campus boards, and split carpools.',
+  },
+  {
+    icon: Heart,
+    color: '#FDF4FF',
+    eyebrow: 'LIFESTYLE BLUEPRINT',
+    title: 'Deals built\nfor student life.',
+    sub: 'Exclusive discounts from verified partners, mental health resources, and weekly money tips. All in one place.',
+  },
+  {
+    icon: Calculator,
+    color: '#F0FDF4',
+    eyebrow: 'BUDGETING TOOL',
+    title: 'Know where\nyour money goes.',
+    sub: 'Track your spending, set savings goals, and understand your SUSI entitlement. Built around what student life actually costs.',
   },
 ]
 
@@ -97,7 +111,7 @@ export default function WelcomeScreen({ navigation }) {
       <View style={[styles.actions, { paddingBottom: insets.bottom + 24 }]}>
         {slide < SLIDES.length - 1 ? (
           <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={() => goTo(slide + 1)}>
-            <Text style={styles.primaryBtnText}>Next →</Text>
+            <Text style={styles.primaryBtnText}>Next</Text>
           </TouchableOpacity>
         ) : (
           <>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Modal, TextInput, KeyboardAvoidingView, Platform,
+  Modal, TextInput, KeyboardAvoidingView, Platform, Linking, Alert,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
+import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 
 // ── Board config ──────────────────────────────────────────────────────────────
@@ -137,7 +138,7 @@ const FILTERS = [
 
 // ── Ad Card ───────────────────────────────────────────────────────────────────
 
-function AdCard({ ad }) {
+function AdCard({ ad, onPress }) {
   const isFeatured = ad.type === 'featured'
   const cat        = ad.category ? CATEGORY[ad.category] : null
 
@@ -146,7 +147,7 @@ function AdCard({ ad }) {
   const brandClr  = isFeatured ? 'rgba(245,240,232,0.48)'  : colors.light
 
   return (
-    <TouchableOpacity activeOpacity={0.88} style={styles.cardWrap}>
+    <TouchableOpacity activeOpacity={0.88} style={styles.cardWrap} onPress={onPress}>
       <Card style={[styles.adCard, isFeatured && styles.adCardFeatured]}>
 
         {/* Icon + brand row */}
@@ -212,6 +213,7 @@ function PostAdModal({ visible, onClose }) {
   const [description, setDescription] = useState('')
   const [link,        setLink]        = useState('')
   const [boards,      setBoards]      = useState([])
+  const [submitting,  setSubmitting]  = useState(false)
 
   function toggleBoard(key) {
     setBoards(prev =>
@@ -219,10 +221,23 @@ function PostAdModal({ visible, onClose }) {
     )
   }
 
-  function handleSubmit() {
-    // TODO: wire to Supabase ads table — validate then insert, set status: 'pending_review'
-    setTitle(''); setDescription(''); setLink(''); setBoards([])
-    onClose()
+  async function handleSubmit() {
+    if (!canSubmit || submitting) return
+    setSubmitting(true)
+    try {
+      await supabase.from('ads').insert({
+        title:       title.trim(),
+        description: description.trim(),
+        link:        link.trim() || null,
+        boards,
+        status:      'pending_review',
+      })
+    } catch {}
+    finally {
+      setTitle(''); setDescription(''); setLink(''); setBoards([])
+      setSubmitting(false)
+      onClose()
+    }
   }
 
   const canSubmit = title.trim().length > 0 && description.trim().length > 0 && boards.length > 0
@@ -338,12 +353,12 @@ function PostAdModal({ visible, onClose }) {
 
             {/* Submit */}
             <TouchableOpacity
-              style={[m.submitBtn, !canSubmit && m.submitBtnDisabled]}
+              style={[m.submitBtn, (!canSubmit || submitting) && m.submitBtnDisabled]}
               onPress={handleSubmit}
-              disabled={!canSubmit}
+              disabled={!canSubmit || submitting}
               activeOpacity={0.8}
             >
-              <Text style={m.submitBtnText}>Submit Ad for Review</Text>
+              <Text style={m.submitBtnText}>{submitting ? 'Submitting...' : 'Submit Ad for Review'}</Text>
             </TouchableOpacity>
 
             <Text style={m.submitNote}>
@@ -359,7 +374,30 @@ function PostAdModal({ visible, onClose }) {
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
-export default function AdBoardScreen() {
+function getAdPressHandler(ad, navigation) {
+  if (ad.id === 'ubp_promo') {
+    return () => navigation.getParent()?.navigate('Home', {
+      screen: 'Blueprint', params: { initialTab: 'Foundation' },
+    })
+  }
+  if (ad.id === 'campus_carpool') {
+    return () => navigation.getParent()?.navigate('Home', {
+      screen: 'Connect', params: { initialTab: 'Campus' },
+    })
+  }
+  if (ad.id === 'course_notes') {
+    return () => navigation.getParent()?.navigate('Home', {
+      screen: 'Connect', params: { initialTab: 'Course' },
+    })
+  }
+  if (ad.link) {
+    return () => Linking.openURL(ad.link)
+  }
+  // Partner ads with no link: surface description in an alert
+  return () => Alert.alert(ad.brand, ad.description)
+}
+
+export default function AdBoardScreen({ navigation }) {
   const insets = useSafeAreaInsets()
 
   const [filter,      setFilter]      = useState('all')
@@ -422,7 +460,9 @@ export default function AdBoardScreen() {
         <Text style={styles.resultCount}>
           {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'}
         </Text>
-        {filtered.map(ad => <AdCard key={ad.id} ad={ad} />)}
+        {filtered.map(ad => (
+          <AdCard key={ad.id} ad={ad} onPress={getAdPressHandler(ad, navigation)} />
+        ))}
       </ScrollView>
 
       <PostAdModal

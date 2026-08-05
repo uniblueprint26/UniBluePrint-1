@@ -1,5 +1,5 @@
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MessageSquare, Users, ChevronRight, Pencil } from 'lucide-react-native'
@@ -151,7 +151,11 @@ export default function MessagesScreen({ navigation }) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <UBPLogo height={28} color={colors.cream} />
-        <TouchableOpacity style={styles.composeBtn} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.composeBtn}
+          activeOpacity={0.8}
+          onPress={() => Alert.alert('New Message', 'Direct messaging is coming soon. Check back for updates.')}
+        >
           <Pencil size={16} color={colors.cream} strokeWidth={1.8} />
         </TouchableOpacity>
       </View>

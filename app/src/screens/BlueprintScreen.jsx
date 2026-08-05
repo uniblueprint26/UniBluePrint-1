@@ -602,7 +602,7 @@ function FoundationTab() {
           <Compass size={22} color={colors.navy} />
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.ccCardTitle}>Powered by CourseCompass</Text>
-            <Text style={styles.ccCardSub}>AI-powered CAO course matching for Irish students</Text>
+            <Text style={styles.ccCardSub}>AI-powered CAO course matching for students across Ireland</Text>
           </View>
         </View>
         <Text style={styles.ccCardDesc}>
@@ -701,7 +701,7 @@ export default function BlueprintScreen({ route }) {
           <Text style={styles.heroEyebrow}>SERVICES</Text>
           <Text style={styles.heroTitle}>Blueprint Services</Text>
           <Text style={styles.heroSub}>
-            Professional documents and verified coaching — built around Irish student life.
+            Professional documents and verified coaching, built around student life in Ireland.
           </Text>
         </View>
 

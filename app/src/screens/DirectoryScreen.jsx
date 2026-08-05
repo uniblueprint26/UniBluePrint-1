@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
@@ -95,7 +95,15 @@ function StudentCard({ student }) {
           </View>
         ))}
       </View>
-      <TouchableOpacity style={styles.connectBtn} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.connectBtn}
+        activeOpacity={0.8}
+        onPress={() => Alert.alert(
+          student.name,
+          `Full student profiles are coming soon. You will be able to connect with ${student.name} directly through the app.`,
+          [{ text: 'Got it' }]
+        )}
+      >
         <Text style={styles.connectBtnText}>View Profile</Text>
       </TouchableOpacity>
     </Card>

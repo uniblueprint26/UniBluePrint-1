@@ -1,21 +1,22 @@
 import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronRight, ChevronLeft } from 'lucide-react-native'
+import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 
 const FAQS = [
   {
     q: 'Is UniBlueprint free to use?',
-    a: 'Yes — UniBlueprint is free to join. Core features including CV submission, campus boards, course connect, and lifestyle deals are available to all members. Premium features unlock priority coach access and advanced document services.',
+    a: 'Yes. UniBlueprint is free to join. Core features including CV submission, campus boards, course connect, and lifestyle deals are available to all members. Premium features unlock priority coach access and advanced document services.',
   },
   {
     q: 'How do Foundation Blueprint services work?',
-    a: 'You submit your details and any existing documents through the app. A trained Campus Handler reviews your submission and returns a professionally optimised version within 48 hours (Standard) or the same day (Premium). Every output is human-reviewed — not AI-generated.',
+    a: 'You submit your details and any existing documents through the app. A trained Campus Handler reviews your submission and returns a professionally optimised version within 48 hours (Standard) or the same day (Premium). Every output is human-reviewed, not AI-generated.',
   },
   {
     q: 'What is a Campus Handler?',
-    a: 'Campus Handlers are students or recent graduates trained by UniBlueprint to review and optimise career documents. They understand what Irish employers look for and apply that knowledge to every submission they handle.',
+    a: 'Campus Handlers are students or recent graduates trained by UniBlueprint to review and optimise career documents. They understand what employers in Ireland are actually looking for and apply that knowledge to every submission they handle.',
   },
   {
     q: 'How do I book a coach through Elevation Blueprint?',
@@ -39,11 +40,11 @@ const FAQS = [
   },
   {
     q: 'Can I become a Campus Handler or Coach?',
-    a: 'Yes — we are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the More section to apply. For Campus Handler applications, contact us directly at hello@uniblueprint.ie.',
+    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at hello@uniblueprint.ie.',
   },
   {
     q: 'Which universities does UniBlueprint cover?',
-    a: 'UniBlueprint is open to students from all Irish universities and colleges, including UCD, TCD, UCC, DCU, University of Galway, UL, Maynooth, TU Dublin, RCSI, ATU, TUS, and SETU. If your institution is not listed, select "Other" when signing up.',
+    a: 'UniBlueprint is open to students from all universities and colleges across Ireland, including UCD, TCD, UCC, DCU, University of Galway, UL, Maynooth, TU Dublin, RCSI, ATU, TUS, and SETU. If your institution is not listed, select "Other" when signing up.',
   },
 ]
 
@@ -75,7 +76,7 @@ export default function FAQsScreen({ navigation }) {
               activeOpacity={0.85}
               onPress={() => setOpen(open === i ? null : i)}
             >
-              <View style={[styles.faqCard, open === i && styles.faqCardOpen]}>
+              <Card style={[styles.faqCard, open === i && styles.faqCardOpen]}>
                 <View style={styles.faqTop}>
                   <Text style={styles.faqQ}>{q}</Text>
                   <ChevronRight
@@ -87,18 +88,23 @@ export default function FAQsScreen({ navigation }) {
                 {open === i && (
                   <Text style={styles.faqA}>{a}</Text>
                 )}
-              </View>
+              </Card>
             </TouchableOpacity>
           ))}
         </View>
 
-        <View style={styles.contactCard}>
+        <Card style={styles.contactCard}>
           <Text style={styles.contactTitle}>Still have questions?</Text>
           <Text style={styles.contactSub}>
             We're happy to help. Reach out at{' '}
-            <Text style={styles.contactEmail}>hello@uniblueprint.ie</Text>
+            <Text
+              style={styles.contactEmail}
+              onPress={() => Linking.openURL('mailto:hello@uniblueprint.ie')}
+            >
+              hello@uniblueprint.ie
+            </Text>
           </Text>
-        </View>
+        </Card>
       </View>
     </ScrollView>
   )
@@ -121,20 +127,16 @@ const styles = StyleSheet.create({
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
-  faqCard: {
-    backgroundColor: colors.white, borderRadius: radius.card,
-    padding: 16, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-  },
-  faqCardOpen: { borderColor: colors.navy },
+  faqCard: { padding: 16 },
+  faqCardOpen: { borderWidth: 1.5, borderColor: colors.navy },
   faqTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   faqQ: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1, lineHeight: 20 },
   faqA: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 12 },
 
   contactCard: {
-    backgroundColor: '#EFF6FF', borderRadius: radius.card,
-    padding: 18, marginTop: spacing.xl,
+    backgroundColor: colors.navy, padding: 18, marginTop: spacing.xl,
   },
-  contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.navy },
-  contactSub: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 6, lineHeight: 21 },
-  contactEmail: { fontFamily: fonts.sansSemiBold, color: colors.navy },
+  contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  contactSub: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.7)', marginTop: 6, lineHeight: 21 },
+  contactEmail: { fontFamily: fonts.sansSemiBold, color: colors.cream, textDecorationLine: 'underline' },
 })

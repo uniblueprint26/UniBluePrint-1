@@ -12,7 +12,7 @@
 import { useState, useCallback } from 'react'
 import {
   ScrollView, View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform, Linking,
 } from 'react-native'
 import {
   TrendingUp, TrendingDown, Wallet, Target, Plus, Minus,
@@ -638,7 +638,7 @@ function SUSITab() {
       </Card>
 
       {/* Official link CTA */}
-      <TouchableOpacity style={styles.susiCta} activeOpacity={0.8}>
+      <TouchableOpacity style={styles.susiCta} activeOpacity={0.8} onPress={() => Linking.openURL('https://susi.ie')}>
         <View>
           <Text style={styles.susiCtaLabel}>Ready to apply?</Text>
           <Text style={styles.susiCtaTitle}>Go to susi.ie</Text>

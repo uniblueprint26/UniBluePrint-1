@@ -1,6 +1,7 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, MessageCircle, FileText, Shield, ChevronRight, ChevronLeft } from 'lucide-react-native'
+import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 
 const TOPICS = [
@@ -8,37 +9,41 @@ const TOPICS = [
     icon: FileText,
     title: 'Foundation Blueprint',
     items: [
-      'How to submit a document request',
-      'What information to include in your submission',
-      'Standard vs Premium — what\'s the difference',
-      'Turnaround times and delivery',
-      'Requesting revisions on a delivered document',
+      { label: 'How to submit a document request',              detail: 'Open Foundation Blueprint from the Home screen or sidebar. Choose your service, tap "Order", and follow the submission steps.' },
+      { label: 'What information to include in your submission', detail: 'Include your current CV or relevant experience, the role or industry you are targeting, and any specific instructions for your Campus Handler.' },
+      { label: 'Standard vs Premium — what\'s the difference',  detail: 'Standard delivers your document within 48 hours. Premium is same-day and includes unlimited revisions until you are satisfied.' },
+      { label: 'Turnaround times and delivery',                 detail: 'Standard: 48 hours. Premium: same day. You will receive a notification and message when your document is ready.' },
+      { label: 'Requesting revisions on a delivered document',  detail: 'Premium orders include revisions. Contact your Campus Handler directly through Messages to request changes to a delivered document.' },
     ],
   },
   {
     icon: MessageCircle,
     title: 'Elevation Blueprint (Coaches)',
     items: [
-      'How to find and book a coach',
-      'What happens after I book',
-      'Rescheduling or cancelling a session',
-      'How coach pricing works',
+      { label: 'How to find and book a coach',         detail: 'Go to the Blueprint tab and select Elevation. Browse coaches by category or use the filter pills to narrow by specialism.' },
+      { label: 'What happens after I book',            detail: 'Your coach will confirm the session via Messages. Check your Messages tab for confirmation details and any pre-session instructions.' },
+      { label: 'Rescheduling or cancelling a session', detail: 'Contact your coach directly through Messages to reschedule or cancel. Cancellation policies vary by coach and are listed on their profile.' },
+      { label: 'How coach pricing works',              detail: 'Each coach sets their own rates. Pricing is shown on the coach card. Some coaches offer free initial consultations.' },
     ],
   },
   {
     icon: Shield,
-    title: 'Account & Privacy',
+    title: 'Account and Privacy',
     items: [
-      'Updating your profile information',
-      'Changing your password',
-      'Deleting your account',
-      'How your data is stored and used',
+      { label: 'Updating your profile information', detail: 'Go to the Profile tab and tap "Edit Profile" to update your name, university, course, and other details.' },
+      { label: 'Changing your password',            detail: 'From the sign-in screen, tap "Forgot Password" and follow the steps. An email link will be sent to your registered address.' },
+      { label: 'Deleting your account',             detail: 'To permanently delete your account, email hello@uniblueprint.ie from your registered address with the subject "Account Deletion Request".' },
+      { label: 'How your data is stored and used',  detail: 'We use Supabase for secure storage and authentication. We never sell or share your data with third parties. See our Privacy Policy for full details.' },
     ],
   },
 ]
 
 export default function HelpScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+
+  function openTopic(item) {
+    Alert.alert(item.label, item.detail, [{ text: 'Got it', style: 'default' }])
+  }
 
   return (
     <ScrollView
@@ -52,7 +57,7 @@ export default function HelpScreen({ navigation }) {
           <Text style={styles.backBtnText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.heroEyebrow}>SUPPORT</Text>
-        <Text style={styles.heroTitle}>Help & Support</Text>
+        <Text style={styles.heroTitle}>Help and Support</Text>
         <Text style={styles.heroSub}>
           Everything you need to get the most out of UniBlueprint.
         </Text>
@@ -61,7 +66,7 @@ export default function HelpScreen({ navigation }) {
       <View style={styles.body}>
 
         {/* Contact card */}
-        <View style={styles.contactCard}>
+        <Card style={styles.contactCard}>
           <Mail size={20} color={colors.navy} />
           <View style={{ flex: 1 }}>
             <Text style={styles.contactTitle}>Email us directly</Text>
@@ -74,7 +79,7 @@ export default function HelpScreen({ navigation }) {
           >
             <Text style={styles.contactBtnText}>Email</Text>
           </TouchableOpacity>
-        </View>
+        </Card>
 
         {/* Help topics */}
         {TOPICS.map(({ icon: Icon, title, items }) => (
@@ -85,21 +90,23 @@ export default function HelpScreen({ navigation }) {
               </View>
               <Text style={styles.topicTitle}>{title}</Text>
             </View>
-            <View style={styles.topicCard}>
+            <Card style={styles.topicCard}>
               {items.map((item, i) => (
-                <View
+                <TouchableOpacity
                   key={i}
                   style={[styles.topicRow, i < items.length - 1 && styles.topicRowBorder]}
+                  activeOpacity={0.7}
+                  onPress={() => openTopic(item)}
                 >
-                  <Text style={styles.topicItem}>{item}</Text>
+                  <Text style={styles.topicItem}>{item.label}</Text>
                   <ChevronRight size={14} color={colors.light} />
-                </View>
+                </TouchableOpacity>
               ))}
-            </View>
+            </Card>
           </View>
         ))}
 
-        <View style={styles.footerCard}>
+        <Card style={styles.footerCard}>
           <Text style={styles.footerTitle}>Didn't find what you're looking for?</Text>
           <Text style={styles.footerSub}>
             Email us at{' '}
@@ -111,7 +118,7 @@ export default function HelpScreen({ navigation }) {
             </Text>{' '}
             and we'll get back to you as quickly as possible.
           </Text>
-        </View>
+        </Card>
 
       </View>
     </ScrollView>
@@ -136,9 +143,7 @@ const styles = StyleSheet.create({
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
   contactCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: '#EFF6FF', borderRadius: radius.card,
-    padding: 16, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16,
   },
   contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
   contactSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
@@ -157,10 +162,7 @@ const styles = StyleSheet.create({
   },
   topicTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.navy },
 
-  topicCard: {
-    backgroundColor: colors.white, borderRadius: radius.card,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-  },
+  topicCard: { padding: 0 },
   topicRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 16, paddingVertical: 14,
@@ -169,8 +171,7 @@ const styles = StyleSheet.create({
   topicItem: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, flex: 1, marginRight: 8 },
 
   footerCard: {
-    backgroundColor: colors.navy, borderRadius: radius.card,
-    padding: 20, marginTop: spacing.xl,
+    backgroundColor: colors.navy, padding: 20, marginTop: spacing.xl,
   },
   footerTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
   footerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.75)', marginTop: 8, lineHeight: 21 },

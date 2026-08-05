@@ -1,7 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
-import { Platform, View, ActivityIndicator } from 'react-native'
+import { Platform, View } from 'react-native'
+import UBPLogo from '../components/ui/UBPLogo'
 
 import { useAuth } from '../context/AuthContext'
 import { colors, fonts } from '../constants/theme'
@@ -16,6 +17,9 @@ import BudgetingScreen  from '../screens/BudgetingScreen'
 import MessagesScreen   from '../screens/MessagesScreen'
 import DirectoryScreen  from '../screens/DirectoryScreen'
 import ProfileScreen    from '../screens/ProfileScreen'
+
+// Home sub-screens
+import NotificationsScreen from '../screens/NotificationsScreen'
 
 // Profile sub-screens
 import AboutScreen  from '../screens/AboutScreen'
@@ -45,10 +49,11 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="HomeMain"      component={HomeScreen}      />
-      <Stack.Screen name="Blueprint"     component={BlueprintScreen} />
-      <Stack.Screen name="Connect"       component={ConnectScreen}   />
-      <Stack.Screen name="Lifestyle"     component={LifestyleScreen} />
-      <Stack.Screen name="Budgeting"     component={BudgetingScreen} />
+      <Stack.Screen name="Blueprint"     component={BlueprintScreen}     />
+      <Stack.Screen name="Connect"       component={ConnectScreen}       />
+      <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
+      <Stack.Screen name="Budgeting"     component={BudgetingScreen}     />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   )
 }
@@ -152,8 +157,8 @@ export default function RootNavigator() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream }}>
-        <ActivityIndicator size="large" color={colors.navy} />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.navy }}>
+        <UBPLogo height={48} color={colors.cream} />
       </View>
     )
   }

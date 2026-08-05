@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { useState, useEffect } from 'react'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
@@ -9,16 +9,9 @@ import {
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
-
-const STATS = [
-  { value: '3',  label: 'CVs Submitted',  Icon: FileText,  color: '#1d4ed8', bg: '#EFF6FF' },
-  { value: '1',  label: 'Session Booked', Icon: Calendar,  color: '#15803D', bg: '#F0FDF4' },
-  { value: '12', label: 'Notes Saved',    Icon: BookOpen,  color: '#7C3AED', bg: '#F5F3FF' },
-]
-
-// ── Explore links (value-first: benefit headline before feature name) ─────────
+// ── Explore links ──────────────────────────────────────────────────────────────
 
 const EXPLORE_LINKS = [
   {
@@ -27,7 +20,7 @@ const EXPLORE_LINKS = [
     label: 'Find the right coach for your goals',
     sub: 'Browse our verified panel of coaches across every field.',
     color: '#EFF6FF',
-    screen: null,
+    action: 'coaches',
   },
   {
     Icon: Star,
@@ -35,7 +28,7 @@ const EXPLORE_LINKS = [
     label: 'Share your expertise. Help others grow.',
     sub: 'Apply to join the UniBlueprint coaching network.',
     color: '#F0FDF4',
-    screen: null,
+    action: 'become_coach',
   },
   {
     Icon: HelpCircle,
@@ -43,6 +36,7 @@ const EXPLORE_LINKS = [
     label: 'Quick answers to the questions that matter',
     sub: 'Everything about how UniBlueprint works.',
     color: '#FFF7ED',
+    action: 'screen',
     screen: 'FAQs',
   },
   {
@@ -51,11 +45,12 @@ const EXPLORE_LINKS = [
     label: 'Built for every young person in Ireland',
     sub: 'Our mission and how the platform works.',
     color: '#FDF4FF',
+    action: 'screen',
     screen: 'About',
   },
 ]
 
-// ── Account links ─────────────────────────────────────────────────────────────
+// ── Account links ──────────────────────────────────────────────────────────────
 
 const ACCOUNT_LINKS = [
   { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
@@ -63,17 +58,42 @@ const ACCOUNT_LINKS = [
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
 ]
 
-// ── Screen ────────────────────────────────────────────────────────────────────
+// ── Screen ─────────────────────────────────────────────────────────────────────
 
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
+  const [stats, setStats] = useState({ cvs: 0, sessions: 0, notes: 0 })
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
   const university  = user?.user_metadata?.university || 'Your University'
   const course      = user?.user_metadata?.course || ''
   const initials    = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+  // Pull live stats from activity_events
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('activity_events')
+      .select('type')
+      .eq('user_id', user.id)
+      .then(({ data }) => {
+        if (!data) return
+        setStats({
+          cvs:      data.filter(e => e.type === 'document_submitted').length,
+          sessions: data.filter(e => e.type === 'session_booked').length,
+          notes:    data.filter(e => e.type === 'note_saved').length,
+        })
+      })
+      .catch(() => {})
+  }, [user?.id])
+
+  const STATS = [
+    { value: stats.cvs.toString(),      label: 'CVs Submitted',  Icon: FileText,  color: '#1d4ed8', bg: '#EFF6FF' },
+    { value: stats.sessions.toString(), label: 'Session Booked', Icon: Calendar,  color: '#15803D', bg: '#F0FDF4' },
+    { value: stats.notes.toString(),    label: 'Notes Saved',    Icon: BookOpen,  color: '#7C3AED', bg: '#F5F3FF' },
+  ]
 
   async function handleSignOut() {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -91,6 +111,18 @@ export default function ProfileScreen({ navigation }) {
     ])
   }
 
+  function handleExplorePress(link) {
+    if (link.action === 'screen' && link.screen) {
+      navigation.navigate(link.screen)
+    } else if (link.action === 'coaches') {
+      navigation.getParent()?.navigate('Home', {
+        screen: 'Blueprint', params: { initialTab: 'Elevation' },
+      })
+    } else if (link.action === 'become_coach') {
+      Linking.openURL('mailto:hello@uniblueprint.ie?subject=Become a Coach Application')
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -98,7 +130,7 @@ export default function ProfileScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
 
-        {/* ── Profile header ── */}
+        {/* Profile header */}
         <View style={[styles.profileHeader, { paddingTop: insets.top + 20 }]}>
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarInitials}>{initials}</Text>
@@ -110,12 +142,20 @@ export default function ProfileScreen({ navigation }) {
               {university}{course ? ` · ${course}` : ''}
             </Text>
           </View>
-          <TouchableOpacity style={styles.editBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            activeOpacity={0.8}
+            onPress={() => Alert.alert(
+              'Edit Profile',
+              'Profile editing is coming soon. You will be able to update your name, university, course, and photo here.',
+              [{ text: 'Got it' }]
+            )}
+          >
             <Text style={styles.editBtnText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
-        {/* ── Stats bar ── */}
+        {/* Stats bar */}
         <View style={styles.statsRow}>
           {STATS.map((s, i) => (
             <View key={i} style={[styles.statItem, i < STATS.length - 1 && styles.statBorder]}>
@@ -128,7 +168,7 @@ export default function ProfileScreen({ navigation }) {
           ))}
         </View>
 
-        {/* ── Membership banner ── */}
+        {/* Membership banner */}
         <View style={styles.membershipCard}>
           <View style={styles.membershipTop}>
             <View style={styles.membershipStarWrap}>
@@ -147,24 +187,24 @@ export default function ProfileScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* ── Explore ── */}
+        {/* Explore */}
         <View style={styles.section}>
           <Text style={styles.sectionEyebrow}>EXPLORE</Text>
           <View style={{ gap: 12 }}>
-            {EXPLORE_LINKS.map(({ Icon, eyebrow, label, sub, color, screen }) => (
+            {EXPLORE_LINKS.map(link => (
               <TouchableOpacity
-                key={eyebrow}
+                key={link.eyebrow}
                 activeOpacity={0.8}
-                onPress={() => screen && navigation.navigate(screen)}
+                onPress={() => handleExplorePress(link)}
               >
                 <Card style={styles.linkCard}>
-                  <View style={[styles.linkIcon, { backgroundColor: color }]}>
-                    <Icon size={20} color={colors.navy} strokeWidth={1.8} />
+                  <View style={[styles.linkIcon, { backgroundColor: link.color }]}>
+                    <link.Icon size={20} color={colors.navy} strokeWidth={1.8} />
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.linkEyebrow}>{eyebrow}</Text>
-                    <Text style={styles.linkLabel}>{label}</Text>
-                    <Text style={styles.linkSub} numberOfLines={2}>{sub}</Text>
+                    <Text style={styles.linkEyebrow}>{link.eyebrow}</Text>
+                    <Text style={styles.linkLabel}>{link.label}</Text>
+                    <Text style={styles.linkSub} numberOfLines={2}>{link.sub}</Text>
                   </View>
                   <ChevronRight size={16} color={colors.light} style={{ flexShrink: 0 }} />
                 </Card>
@@ -173,7 +213,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
 
-        {/* ── Account settings ── */}
+        {/* Account settings */}
         <View style={styles.section}>
           <Text style={styles.sectionEyebrow}>ACCOUNT</Text>
           <Card style={{ padding: 0 }}>
@@ -197,7 +237,7 @@ export default function ProfileScreen({ navigation }) {
           </Card>
         </View>
 
-        {/* ── Sign out ── */}
+        {/* Sign out */}
         <View style={[styles.section, { paddingBottom: 0 }]}>
           <TouchableOpacity
             style={[styles.signOutBtn, signingOut && { opacity: 0.7 }]}
@@ -218,13 +258,12 @@ export default function ProfileScreen({ navigation }) {
   )
 }
 
-// ── Styles ────────────────────────────────────────────────────────────────────
+// ── Styles ─────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: {},
 
-  // ── Header ──
   profileHeader: {
     backgroundColor: colors.navy,
     paddingHorizontal: spacing.md,
@@ -249,7 +288,6 @@ const styles = StyleSheet.create({
   },
   editBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
-  // ── Stats ──
   statsRow: {
     flexDirection: 'row', backgroundColor: colors.white,
     marginHorizontal: spacing.md, marginTop: -1,
@@ -267,7 +305,6 @@ const styles = StyleSheet.create({
     marginTop: 3, textAlign: 'center', lineHeight: 14,
   },
 
-  // ── Membership ──
   membershipCard: {
     backgroundColor: colors.navy,
     borderRadius: radius.card,
@@ -301,7 +338,6 @@ const styles = StyleSheet.create({
   },
   upgradeBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
 
-  // ── Sections ──
   section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
   sectionEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
@@ -309,7 +345,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', marginBottom: spacing.sm,
   },
 
-  // ── Explore cards ──
   linkCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, padding: 16 },
   linkIcon: { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 },
   linkEyebrow: {
@@ -319,7 +354,6 @@ const styles = StyleSheet.create({
   linkLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, lineHeight: 20, marginBottom: 3 },
   linkSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
 
-  // ── Account settings ──
   settingsRow: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     paddingVertical: 14, paddingHorizontal: 16,
@@ -333,7 +367,6 @@ const styles = StyleSheet.create({
   settingsLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   settingsSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
 
-  // ── Sign out ──
   signOutBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     borderWidth: 1.5, borderColor: '#FCA5A5', borderRadius: radius.card,

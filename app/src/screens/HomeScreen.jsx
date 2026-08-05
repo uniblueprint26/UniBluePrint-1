@@ -349,11 +349,18 @@ export default function HomeScreen({ navigation }) {
               </Text>
             </View>
             <View style={styles.topActions}>
-              <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
+              <TouchableOpacity
+                style={styles.bellBtn}
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate('Notifications')}
+              >
                 <Bell size={19} color={colors.navy} strokeWidth={1.8} />
-                <View style={styles.badge}><Text style={styles.badgeText}>4</Text></View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.avatarBtn} activeOpacity={0.7}>
+              <TouchableOpacity
+                style={styles.avatarBtn}
+                activeOpacity={0.7}
+                onPress={() => navigation.getParent()?.navigate('Profile')}
+              >
                 <User size={16} color={colors.navy} strokeWidth={1.8} />
               </TouchableOpacity>
             </View>
