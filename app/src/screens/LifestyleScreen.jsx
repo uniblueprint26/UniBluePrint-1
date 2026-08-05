@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image,
 } from 'react-native'
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
@@ -55,6 +55,7 @@ const PARTNERS = [
   {
     id: 'energie',
     brand: 'Energie Fitness',
+    logo: null,    // upload via partner-logos bucket when available
     initials: 'EF',
     initBg: '#0369A1',
     filterKey: 'fitness',
@@ -114,6 +115,7 @@ const PARTNERS = [
   {
     id: 'whipwizardz',
     brand: 'Whip Wizardz',
+    logo: null,    // upload via partner-logos bucket when available
     initials: 'WW',
     initBg: '#1E3A5F',
     filterKey: 'services',
@@ -131,6 +133,7 @@ const PARTNERS = [
   {
     id: 'nailnurse',
     brand: 'The Nail Nurse',
+    logo: null,    // upload via partner-logos bucket when available
     initials: 'NN',
     initBg: '#BE185D',
     filterKey: 'beauty',
@@ -226,15 +229,37 @@ const BUDGET_TOOLS = [
   { title: 'Part-Time Work Finder',     sub: 'Flexible roles near your campus', Icon: ShoppingBag },
 ]
 
-// ─── Initials Circle ─────────────────────────────────────────────────────────
-function Circle({ partner, size = 44 }) {
-  const isTbc = partner.status === 'tbc'
-  const bg = isTbc ? '#F59E0B' : partner.initBg
-  const text = isTbc ? 'TBC' : partner.initials
-  const fontSize = text.length > 2 ? 10 : 13
+// ─── Partner Logo / Initials Fallback ────────────────────────────────────────
+// Renders the partner's logo when one is available, falling back to a coloured
+// initials circle for every partner that doesn't have a logo yet.
+//
+// partner.logo can be:
+//   null / undefined  — render initials fallback (permanent for shell/tbc cards)
+//   string (URL)      — remote image from Supabase Storage (partner-logos bucket)
+//   number            — static require() result, if ever used for bundled assets
+//
+// New partners are added with logo: null and updated via the admin-only
+// partner-logos Storage bucket. No logo assets should be committed to the repo.
+function PartnerLogo({ partner, size = 44 }) {
+  const isTbc    = partner.status === 'tbc'
+  const bg       = isTbc ? '#F59E0B' : partner.initBg
+  const label    = isTbc ? 'TBC'     : partner.initials
+  const fontSize = label.length > 2 ? 10 : 13
+
+  if (!isTbc && partner.logo) {
+    const source = typeof partner.logo === 'string'
+      ? { uri: partner.logo }   // remote URL from Storage
+      : partner.logo            // static require() (number) — kept for future use
+    return (
+      <View style={[styles.logoCircle, { width: size, height: size, borderRadius: size / 2 }]}>
+        <Image source={source} style={{ width: size, height: size }} resizeMode="contain" />
+      </View>
+    )
+  }
+
   return (
     <View style={[styles.circle, { width: size, height: size, borderRadius: size / 2, backgroundColor: bg }]}>
-      <Text style={[styles.circleText, { fontSize }]}>{text}</Text>
+      <Text style={[styles.circleText, { fontSize }]}>{label}</Text>
     </View>
   )
 }
@@ -277,7 +302,7 @@ function PartnerCard({ partner }) {
         onPress={() => isLive && setOpen(v => !v)}
         disabled={!isLive}
       >
-        <Circle partner={partner} size={44} />
+        <PartnerLogo partner={partner} size={44} />
 
         <View style={styles.cardBody}>
           <View style={styles.cardTopRow}>
@@ -595,6 +620,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+  },
+  // Logo variant: white bg with subtle border, image fills the frame
+  logoCircle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: 'rgba(30,58,95,0.1)',
+    overflow: 'hidden',
   },
   circleText: { fontFamily: fonts.sansBold, color: '#FFFFFF', letterSpacing: 0.3 },
 

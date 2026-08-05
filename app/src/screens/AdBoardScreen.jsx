@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   Modal, TextInput, KeyboardAvoidingView, Platform, Linking, Alert,
@@ -11,8 +11,10 @@ import {
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
+import ImageUploader from '../components/ui/ImageUploader'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
+import { useAuth } from '../context/AuthContext'
 
 // ── Board config ──────────────────────────────────────────────────────────────
 
@@ -207,13 +209,40 @@ function AdCard({ ad, onPress }) {
 }
 
 // ── Post Ad Modal ─────────────────────────────────────────────────────────────
+// Image upload notes:
+//   - Image is uploaded to the ad-images bucket at {userId}/{timestamp}.jpg
+//     before form submission. The returned public URL is stored in ads.image_url.
+//   - storagePath is computed once per modal open (timestamp locked in) so
+//     the same path is used whether the user picks/re-picks before submitting.
+//   - If the user cancels without submitting, the uploaded image becomes an
+//     orphan in storage. This is acceptable for V1; admin cleanup or a
+//     scheduled function can prune unlinked images later.
+//
+// Insert fixes applied here:
+//   - 'link' → 'target_url'  (was sending a column that doesn't exist in ads)
+//   - 'boards' column added to ads via migration 20260805100000_image_storage.sql
+//   - 'status' column added to ads via same migration
+//   - 'active: false' — newly submitted ads are pending review, not live
+//   - 'user_id' — required by the new RLS INSERT policy
 
 function PostAdModal({ visible, onClose }) {
-  const [title,       setTitle]       = useState('')
-  const [description, setDescription] = useState('')
-  const [link,        setLink]        = useState('')
-  const [boards,      setBoards]      = useState([])
-  const [submitting,  setSubmitting]  = useState(false)
+  const { user }                        = useAuth()
+  const [title,       setTitle]         = useState('')
+  const [description, setDescription]   = useState('')
+  const [link,        setLink]          = useState('')
+  const [boards,      setBoards]        = useState([])
+  const [submitting,  setSubmitting]    = useState(false)
+  const [imageUrl,    setImageUrl]      = useState(null)
+  const [adImagePath, setAdImagePath]   = useState(null)
+
+  // Generate a fresh storage path each time the modal opens so every
+  // submission gets a unique filename (avoids cross-submission collisions)
+  useEffect(() => {
+    if (visible && user?.id) {
+      setAdImagePath(`${user.id}/${Date.now()}.jpg`)
+      setImageUrl(null)
+    }
+  }, [visible, user?.id])
 
   function toggleBoard(key) {
     setBoards(prev =>
@@ -226,15 +255,19 @@ function PostAdModal({ visible, onClose }) {
     setSubmitting(true)
     try {
       await supabase.from('ads').insert({
+        user_id:     user?.id,
         title:       title.trim(),
         description: description.trim(),
-        link:        link.trim() || null,
+        target_url:  link.trim() || null,
         boards,
         status:      'pending_review',
+        active:      false,
+        image_url:   imageUrl || null,
       })
     } catch {}
     finally {
       setTitle(''); setDescription(''); setLink(''); setBoards([])
+      setImageUrl(null)
       setSubmitting(false)
       onClose()
     }
@@ -309,6 +342,22 @@ function PostAdModal({ visible, onClose }) {
               autoCapitalize="none"
               autoCorrect={false}
             />
+
+            {/* Ad image (optional) */}
+            <Text style={[m.label, { marginTop: 20 }]}>Image (optional)</Text>
+            <Text style={m.boardHint}>
+              Add a photo to make your ad stand out. JPG, PNG, or WebP, under 5 MB.
+            </Text>
+            {adImagePath && (
+              <ImageUploader
+                bucket="ad-images"
+                storagePath={adImagePath}
+                currentUrl={null}
+                onUpload={url => setImageUrl(url)}
+                label=""
+                size={80}
+              />
+            )}
 
             {/* Board destination */}
             <Text style={[m.label, { marginTop: 24 }]}>Post to</Text>

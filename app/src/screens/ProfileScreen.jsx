@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native'
+import {
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert, Linking,
+  Modal, TextInput, Image, KeyboardAvoidingView, Platform,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen,
+  Star, FileText, Calendar, BookOpen, X,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import ImageUploader from '../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -58,13 +62,182 @@ const ACCOUNT_LINKS = [
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
 ]
 
+// ── Edit Profile Modal ─────────────────────────────────────────────────────────
+// Lets the user update their display name and profile photo.
+// Photo: uploaded to the profile-pictures bucket at a fixed path ({userId}/avatar.jpg)
+// using upsert=true — overwrites in place, so no orphaned files accumulate on re-upload.
+// Name: written to both profiles.full_name and auth user metadata so both
+// the database and the in-session user object stay in sync.
+
+function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar }) {
+  const [name,      setName]      = useState(currentName || '')
+  const [avatarUrl, setAvatarUrl] = useState(null)  // URL returned by ImageUploader on upload
+  const [saving,    setSaving]    = useState(false)
+
+  // Reset form fields each time the modal opens
+  useEffect(() => {
+    if (visible) {
+      setName(currentName || '')
+      setAvatarUrl(null)
+    }
+  }, [visible, currentName])
+
+  async function handleSave() {
+    if (saving) return
+    setSaving(true)
+    try {
+      const profileUpdates = {}
+      if (name.trim())  profileUpdates.full_name  = name.trim()
+      if (avatarUrl)    profileUpdates.avatar_url  = avatarUrl
+
+      if (Object.keys(profileUpdates).length) {
+        const { error } = await supabase
+          .from('profiles')
+          .update(profileUpdates)
+          .eq('id', userId)
+        if (error) throw error
+      }
+
+      // Sync display name into auth metadata so ProfileScreen re-renders immediately
+      if (name.trim() && name.trim() !== currentName) {
+        await supabase.auth.updateUser({ data: { full_name: name.trim() } })
+      }
+
+      onClose({ name: name.trim() || currentName, avatarUrl: avatarUrl || currentAvatar })
+    } catch {
+      Alert.alert('Save failed', 'Could not save your changes. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const storagePath = userId ? `${userId}/avatar.jpg` : null
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={() => onClose(null)}
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={ep.container}>
+
+          {/* Header */}
+          <View style={ep.header}>
+            <View style={{ flex: 1 }}>
+              <Text style={ep.headerTitle}>Edit Profile</Text>
+              <Text style={ep.headerSub}>Update your name and profile photo</Text>
+            </View>
+            <TouchableOpacity style={ep.closeBtn} onPress={() => onClose(null)} activeOpacity={0.8}>
+              <X size={15} color={colors.navy} strokeWidth={2.5} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            contentContainerStyle={ep.scroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+
+            {/* Photo upload */}
+            {storagePath && (
+              <ImageUploader
+                bucket="profile-pictures"
+                storagePath={storagePath}
+                currentUrl={avatarUrl || currentAvatar}
+                onUpload={url => setAvatarUrl(url)}
+                label="Profile Photo"
+                size={96}
+              />
+            )}
+
+            {/* Name field */}
+            <Text style={ep.fieldLabel}>Display Name</Text>
+            <TextInput
+              style={ep.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="Your name"
+              placeholderTextColor={colors.light}
+              maxLength={60}
+              autoCapitalize="words"
+              returnKeyType="done"
+            />
+
+            {/* Save */}
+            <TouchableOpacity
+              style={[ep.saveBtn, saving && { opacity: 0.6 }]}
+              onPress={handleSave}
+              disabled={saving}
+              activeOpacity={0.8}
+            >
+              <Text style={ep.saveBtnText}>{saving ? 'Saving…' : 'Save Changes'}</Text>
+            </TouchableOpacity>
+
+            <Text style={ep.note}>
+              University, course, and apprenticeship details are set during onboarding and cannot be changed here yet.
+            </Text>
+
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+const ep = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.cream },
+  header: {
+    backgroundColor: colors.navy,
+    paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24,
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+  },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  headerSub:   { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.55)', marginTop: 4 },
+  closeBtn: {
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: colors.cream,
+    alignItems: 'center', justifyContent: 'center',
+    marginTop: 2, flexShrink: 0,
+  },
+  scroll: { padding: 24, paddingBottom: 60, gap: 0 },
+
+  fieldLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.7,
+    marginTop: 28, marginBottom: 8,
+  },
+  input: {
+    backgroundColor: colors.white,
+    borderRadius: radius.button, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
+    paddingHorizontal: 14, paddingVertical: 12,
+    fontFamily: fonts.sans, fontSize: 15, color: colors.navy,
+  },
+  saveBtn: {
+    backgroundColor: colors.navy, borderRadius: radius.button,
+    paddingVertical: 15, alignItems: 'center', marginTop: 32,
+  },
+  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  note: {
+    fontFamily: fonts.sans, fontSize: 12, color: colors.light,
+    textAlign: 'center', marginTop: 16, lineHeight: 18,
+  },
+})
+
+
 // ── Screen ─────────────────────────────────────────────────────────────────────
 
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
-  const [signingOut, setSigningOut] = useState(false)
-  const [stats, setStats] = useState({ cvs: 0, sessions: 0, notes: 0 })
+  const [signingOut,   setSigningOut]   = useState(false)
+  const [stats,        setStats]        = useState({ cvs: 0, sessions: 0, notes: 0 })
+  const [profileAvatar, setProfileAvatar] = useState(null)  // loaded from profiles table
+  const [editVisible,  setEditVisible]  = useState(false)
 
   const displayName      = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
   const institution      = user?.user_metadata?.institution || user?.user_metadata?.university || ''
@@ -97,6 +270,19 @@ export default function ProfileScreen({ navigation }) {
   }
 
   const profileSubLine = getProfileSubLine()
+
+  // Load avatar_url from the profiles table
+  // (auth user_metadata doesn't hold avatar_url — the profiles table is the source of truth)
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => { if (data?.avatar_url) setProfileAvatar(data.avatar_url) })
+      .catch(() => {})
+  }, [user?.id])
 
   // Pull live stats from activity_events
   useEffect(() => {
@@ -159,9 +345,15 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Profile header */}
         <View style={[styles.profileHeader, { paddingTop: insets.top + 20 }]}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarInitials}>{initials}</Text>
+          {/* Avatar: shows uploaded photo if available, falls back to initials */}
+          <View style={[styles.avatarCircle, profileAvatar && styles.avatarCirclePhoto]}>
+            {profileAvatar ? (
+              <Image source={{ uri: profileAvatar }} style={styles.avatarImg} resizeMode="cover" />
+            ) : (
+              <Text style={styles.avatarInitials}>{initials}</Text>
+            )}
           </View>
+
           <Text style={styles.profileName}>{displayName}</Text>
           <View style={styles.profileUniBadge}>
             <GraduationCap size={13} color="rgba(245,240,232,0.6)" />
@@ -172,11 +364,7 @@ export default function ProfileScreen({ navigation }) {
           <TouchableOpacity
             style={styles.editBtn}
             activeOpacity={0.8}
-            onPress={() => Alert.alert(
-              'Edit Profile',
-              'Profile editing is coming soon. You will be able to update your name, university, course, and photo here.',
-              [{ text: 'Got it' }]
-            )}
+            onPress={() => setEditVisible(true)}
           >
             <Text style={styles.editBtnText}>Edit Profile</Text>
           </TouchableOpacity>
@@ -281,6 +469,19 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
       </ScrollView>
+
+      {/* Edit Profile modal */}
+      <EditProfileModal
+        visible={editVisible}
+        userId={user?.id}
+        currentName={displayName}
+        currentAvatar={profileAvatar}
+        onClose={updates => {
+          setEditVisible(false)
+          if (updates?.avatarUrl) setProfileAvatar(updates.avatarUrl)
+          // Display name refresh is handled by auth state change from updateUser()
+        }}
+      />
     </View>
   )
 }
@@ -302,8 +503,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245,240,232,0.12)',
     borderWidth: 2, borderColor: 'rgba(245,240,232,0.25)',
     alignItems: 'center', justifyContent: 'center',
-    marginBottom: 14,
+    marginBottom: 14, overflow: 'hidden',
   },
+  // When a photo is loaded, drop the tinted bg so the image shows cleanly
+  avatarCirclePhoto: { backgroundColor: 'transparent', borderColor: 'rgba(245,240,232,0.5)' },
+  avatarImg:      { width: 76, height: 76, borderRadius: 38 },
   avatarInitials: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream },
   profileName:    { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginBottom: 6 },
   profileUniBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 18 },
