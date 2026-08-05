@@ -66,10 +66,37 @@ export default function ProfileScreen({ navigation }) {
   const [signingOut, setSigningOut] = useState(false)
   const [stats, setStats] = useState({ cvs: 0, sessions: 0, notes: 0 })
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
-  const university  = user?.user_metadata?.university || 'Your University'
-  const course      = user?.user_metadata?.course || ''
-  const initials    = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  const displayName      = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
+  const institution      = user?.user_metadata?.institution || user?.user_metadata?.university || ''
+  const course           = user?.user_metadata?.course || ''
+  const situation        = user?.user_metadata?.situation || ''
+  const trade            = user?.user_metadata?.trade || ''
+  const trainingProvider = user?.user_metadata?.training_provider || ''
+  const initials         = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+  // Build the sub-line shown beneath the display name in the profile header
+  const SITUATION_LABELS = {
+    working:     'Working',
+    gap_year:    'Gap Year',
+    recent_grad: 'Recent Graduate',
+    prospective: 'Prospective Student',
+    other:       'Not Currently Studying',
+  }
+
+  function getProfileSubLine() {
+    if (situation === 'apprenticeship') {
+      const parts = [trade ? `${trade} Apprenticeship` : 'Apprenticeship']
+      if (trainingProvider) parts.push(trainingProvider)
+      return parts.join(' · ')
+    }
+    if (situation === 'in_college' || situation === 'plc') {
+      const parts = [institution, course].filter(Boolean)
+      return parts.length ? parts.join(' · ') : (situation === 'plc' ? 'PLC' : 'Add your institution')
+    }
+    return SITUATION_LABELS[situation] || institution || 'Your Institution'
+  }
+
+  const profileSubLine = getProfileSubLine()
 
   // Pull live stats from activity_events
   useEffect(() => {
@@ -138,8 +165,8 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.profileName}>{displayName}</Text>
           <View style={styles.profileUniBadge}>
             <GraduationCap size={13} color="rgba(245,240,232,0.6)" />
-            <Text style={styles.profileUni} numberOfLines={1}>
-              {university}{course ? ` · ${course}` : ''}
+            <Text style={styles.profileUni} numberOfLines={2}>
+              {profileSubLine}
             </Text>
           </View>
           <TouchableOpacity

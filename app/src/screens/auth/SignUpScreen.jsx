@@ -6,7 +6,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  User, Mail, Lock, GraduationCap, BookOpen,
+  User, Mail, Lock, GraduationCap, BookOpen, Briefcase, MapPin,
   Eye, EyeOff, AlertCircle, ChevronLeft, Check,
 } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
@@ -32,7 +32,7 @@ const SITUATIONS = [
     key:      'apprenticeship',
     label:    'Apprenticeship',
     sub:      'SOLAS or ETB registered apprenticeship',
-    hasDetails: false,
+    hasDetails: true,
   },
   {
     key:      'working',
@@ -128,8 +128,11 @@ export default function SignUpScreen({ navigation }) {
   const [selectedInstitution, setSelectedInstitution] = useState(null)
   const [showInstList, setShowInstList]             = useState(false)
 
-  // Step 3 — PLC
-  const [plcInstitution, setPlcInstitution] = useState('')
+  // Step 3 — PLC (reuses institutionQuery / selectedInstitution / showInstList from in_college)
+
+  // Step 3 — apprenticeship
+  const [trade, setTrade]                       = useState('')
+  const [trainingProvider, setTrainingProvider] = useState('')
 
   // Step 3 — shared
   const [course, setCourse] = useState('')
@@ -194,9 +197,17 @@ export default function SignUpScreen({ navigation }) {
         metadata.university        = selectedInstitution.name  // backward compat
         if (course.trim()) metadata.course = course.trim()
       } else if (situation === 'plc') {
-        metadata.institution       = plcInstitution.trim() || null
-        metadata.institution_short = null
+        if (selectedInstitution) {
+          metadata.institution       = selectedInstitution.name
+          metadata.institution_short = selectedInstitution.short
+        } else if (institutionQuery.trim()) {
+          metadata.institution       = institutionQuery.trim()
+          metadata.institution_short = null
+        }
         if (course.trim()) metadata.course = course.trim()
+      } else if (situation === 'apprenticeship') {
+        if (trade.trim())            metadata.trade             = trade.trim()
+        if (trainingProvider.trim()) metadata.training_provider = trainingProvider.trim()
       }
 
       await signUp(email.trim(), password, metadata)
@@ -488,19 +499,74 @@ export default function SignUpScreen({ navigation }) {
                 <>
                   <Text style={styles.title}>Where are you studying?</Text>
                   <Text style={styles.sub}>
-                    Enter your college or PLC provider. You can leave this blank and update it later.
+                    Search for your FE college or PLC provider. Type freely if yours isn't listed.
                   </Text>
 
-                  <Field label="College or Provider" icon={GraduationCap}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="e.g. Coláiste Dhúlaigh CFE"
-                      placeholderTextColor={colors.light}
-                      value={plcInstitution}
-                      onChangeText={setPlcInstitution}
-                      autoCapitalize="words"
-                    />
-                  </Field>
+                  {/* Institution search — same mechanism as in_college */}
+                  <View style={styles.field}>
+                    <Text style={styles.label}>College or Provider</Text>
+                    <View style={[
+                      styles.inputWrap,
+                      showInstList && instResults.length > 0 && styles.inputWrapOpen,
+                    ]}>
+                      <GraduationCap size={16} color={colors.muted} style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={[styles.input, { flex: 1 }]}
+                        placeholder="e.g. Coláiste Dhúlaigh, BCFE, CSN…"
+                        placeholderTextColor={colors.light}
+                        value={institutionQuery}
+                        onChangeText={text => {
+                          setInstitutionQuery(text)
+                          setSelectedInstitution(null)
+                          setShowInstList(true)
+                        }}
+                        onFocus={() => setShowInstList(true)}
+                        autoCorrect={false}
+                        autoCapitalize="words"
+                      />
+                      {selectedInstitution && (
+                        <View style={styles.shortBadge}>
+                          <Text style={styles.shortBadgeText}>{selectedInstitution.short}</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {showInstList && instResults.length > 0 && (
+                      <View style={styles.instDropdown}>
+                        {instResults.map((inst, i) => (
+                          <TouchableOpacity
+                            key={inst.id}
+                            style={[
+                              styles.instItem,
+                              i < instResults.length - 1 && styles.instItemDivider,
+                              selectedInstitution?.id === inst.id && styles.instItemSelected,
+                            ]}
+                            onPress={() => selectInstitution(inst)}
+                            activeOpacity={0.75}
+                          >
+                            <View style={styles.instItemShort}>
+                              <Text style={styles.instItemShortText} numberOfLines={1}>{inst.short}</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.instItemName} numberOfLines={1}>{inst.name}</Text>
+                              {inst.city ? <Text style={styles.instItemCity}>{inst.city}</Text> : null}
+                            </View>
+                            {selectedInstitution?.id === inst.id && (
+                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                            )}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    {showInstList && !institutionQuery.trim() && (
+                      <View style={styles.instHint}>
+                        <Text style={styles.instHintText}>
+                          Type to search — e.g. "BCFE", "CSN", "Rathmines"
+                        </Text>
+                      </View>
+                    )}
+                  </View>
 
                   <Field label="Course (optional)" icon={BookOpen}>
                     <TextInput
@@ -514,7 +580,45 @@ export default function SignUpScreen({ navigation }) {
 
                   <View style={styles.infoCard}>
                     <Text style={styles.infoText}>
-                      Not all PLC providers are listed in our directory yet. Type yours above and we'll add it to the list.
+                      Not listed? Type your college above and we will add it to the directory.
+                    </Text>
+                  </View>
+                </>
+              )}
+
+              {/* Apprenticeship */}
+              {situation === 'apprenticeship' && (
+                <>
+                  <Text style={styles.title}>Your apprenticeship.</Text>
+                  <Text style={styles.sub}>
+                    Tell us a little about your trade and training provider. Both fields are optional.
+                  </Text>
+
+                  <Field label="Trade or Craft (optional)" icon={Briefcase}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. Electrical, Plumbing, Carpentry"
+                      placeholderTextColor={colors.light}
+                      value={trade}
+                      onChangeText={setTrade}
+                      autoCapitalize="words"
+                    />
+                  </Field>
+
+                  <Field label="Training Provider (optional)" icon={MapPin}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. Dublin ETB, Cork ETB"
+                      placeholderTextColor={colors.light}
+                      value={trainingProvider}
+                      onChangeText={setTrainingProvider}
+                      autoCapitalize="words"
+                    />
+                  </Field>
+
+                  <View style={styles.infoCard}>
+                    <Text style={styles.infoText}>
+                      We are building a verified trade and provider directory. For now, enter your details freely and we will confirm them in a later step.
                     </Text>
                   </View>
                 </>
@@ -614,7 +718,7 @@ const styles = StyleSheet.create({
   instItemDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   instItemSelected: { backgroundColor: 'rgba(30,58,95,0.04)' },
   instItemShort: {
-    width: 68, flexShrink: 0,
+    flexShrink: 0, minWidth: 48, maxWidth: 120,
     backgroundColor: colors.cream, borderRadius: 6,
     paddingHorizontal: 8, paddingVertical: 4,
     alignItems: 'center',
