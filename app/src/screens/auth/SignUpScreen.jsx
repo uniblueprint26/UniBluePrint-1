@@ -6,13 +6,14 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  User, Mail, Lock, GraduationCap, BookOpen, Briefcase, MapPin,
+  User, Mail, Lock, GraduationCap, BookOpen, Briefcase, MapPin, Calendar,
   Eye, EyeOff, AlertCircle, ChevronLeft, Check,
 } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
-import { INSTITUTIONS, searchInstitutions } from '../../data/institutions'
+import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
+import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
 
 // ── Situations ────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,26 @@ const SITUATIONS = [
     label:    'Not Currently Studying',
     sub:      'Something else entirely',
     hasDetails: false,
+  },
+]
+
+// ── Status options for step 3 availability selector ──────────────────────────
+
+const STATUS_OPTIONS = [
+  {
+    key:   'open',
+    label: 'Open to Connect',
+    sub:   'Happy to connect with others across the platform.',
+  },
+  {
+    key:   'study',
+    label: 'Looking for a Study Group',
+    sub:   'Searching for others on the same module or course.',
+  },
+  {
+    key:   'mentor',
+    label: 'Happy to Mentor Others',
+    sub:   'Willing to share advice or experience with others.',
   },
 ]
 
@@ -140,7 +161,12 @@ export default function SignUpScreen({ navigation }) {
   const [showProviderList, setShowProviderList] = useState(false)
 
   // Step 3 — shared
-  const [course, setCourse] = useState('')
+  const [course, setCourse]         = useState('')
+  const [yearOfStudy, setYearOfStudy] = useState('')
+
+  // Step 3 — interests and availability (all situations)
+  const [selectedInterests, setSelectedInterests] = useState(new Set())
+  const [selectedStatuses, setSelectedStatuses]   = useState(new Set())
 
   // Meta
   const [loading, setLoading] = useState(false)
@@ -182,12 +208,25 @@ export default function SignUpScreen({ navigation }) {
   function handleStep2Continue() {
     if (!situation) { setError('Please select your current situation.'); return }
     setError('')
-    const selected = SITUATIONS.find(s => s.key === situation)
-    if (selected?.hasDetails) {
-      setStep(3)
-    } else {
-      doSignUp()
-    }
+    setStep(3)  // everyone gets step 3 (interests + availability)
+  }
+
+  function toggleInterest(id) {
+    setSelectedInterests(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else if (next.size < MAX_INTERESTS) next.add(id)
+      return next
+    })
+  }
+
+  function toggleStatus(key) {
+    setSelectedStatuses(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
   }
 
   async function doSignUp() {
@@ -200,7 +239,8 @@ export default function SignUpScreen({ navigation }) {
         metadata.institution       = selectedInstitution.name
         metadata.institution_short = selectedInstitution.short
         metadata.university        = selectedInstitution.name  // backward compat
-        if (course.trim()) metadata.course = course.trim()
+        if (course.trim())       metadata.course        = course.trim()
+        if (yearOfStudy.trim())  metadata.year_of_study = yearOfStudy.trim()
       } else if (situation === 'plc') {
         if (selectedInstitution) {
           metadata.institution       = selectedInstitution.name
@@ -209,7 +249,8 @@ export default function SignUpScreen({ navigation }) {
           metadata.institution       = institutionQuery.trim()
           metadata.institution_short = null
         }
-        if (course.trim()) metadata.course = course.trim()
+        if (course.trim())       metadata.course        = course.trim()
+        if (yearOfStudy.trim())  metadata.year_of_study = yearOfStudy.trim()
       } else if (situation === 'apprenticeship') {
         if (selectedTrade) {
           metadata.trade          = selectedTrade.name
@@ -223,6 +264,13 @@ export default function SignUpScreen({ navigation }) {
           metadata.training_provider = providerQuery.trim()
         }
       }
+
+      // Interests and availability — collected in step 3 for all situations
+      const interestLabels = [...selectedInterests]
+        .map(id => INTERESTS.find(i => i.id === id)?.label)
+        .filter(Boolean)
+      if (interestLabels.length)   metadata.interests = interestLabels
+      if (selectedStatuses.size)   metadata.statuses  = [...selectedStatuses]
 
       await signUp(email.trim(), password, metadata)
       navigation.navigate('VerifyEmail', { email: email.trim() })
@@ -423,10 +471,20 @@ export default function SignUpScreen({ navigation }) {
             </>
           )}
 
-          {/* ── Step 3: Details ─────────────────────────────────────────────── */}
+          {/* ── Step 3: Details + Interests + Availability ──────────────────── */}
           {step === 3 && (
             <>
               <Text style={styles.stepLabel}>Step 3 of 3</Text>
+
+              {/* Generic title for situations without specific details */}
+              {situation !== 'in_college' && situation !== 'plc' && situation !== 'apprenticeship' && (
+                <>
+                  <Text style={styles.title}>A bit about you.</Text>
+                  <Text style={styles.sub}>
+                    Your interests and availability help others find you in the Directory.
+                  </Text>
+                </>
+              )}
 
               {/* In College / University */}
               {situation === 'in_college' && (
@@ -513,6 +571,17 @@ export default function SignUpScreen({ navigation }) {
                       onChangeText={setCourse}
                     />
                   </Field>
+
+                  <Field label="Year of Study (optional)" icon={Calendar}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. 1st Year, 3rd Year, Postgrad"
+                      placeholderTextColor={colors.light}
+                      value={yearOfStudy}
+                      onChangeText={setYearOfStudy}
+                      autoCapitalize="words"
+                    />
+                  </Field>
                 </>
               )}
 
@@ -597,6 +666,17 @@ export default function SignUpScreen({ navigation }) {
                       placeholderTextColor={colors.light}
                       value={course}
                       onChangeText={setCourse}
+                    />
+                  </Field>
+
+                  <Field label="Year of Study (optional)" icon={Calendar}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. 1st Year, 2nd Year"
+                      placeholderTextColor={colors.light}
+                      value={yearOfStudy}
+                      onChangeText={setYearOfStudy}
+                      autoCapitalize="words"
                     />
                   </Field>
 
@@ -763,6 +843,62 @@ export default function SignUpScreen({ navigation }) {
                 </>
               )}
 
+              {/* ── Shared: Interests chip grid ─────────────────────────────── */}
+              <View style={styles.sectionDivider} />
+              <Text style={styles.sectionLabel}>Your interests</Text>
+              <Text style={styles.sectionSub}>
+                Select up to {MAX_INTERESTS}. These help others find you in the Directory.
+              </Text>
+              <View style={styles.chipGrid}>
+                {INTERESTS.map(interest => {
+                  const isSelected = selectedInterests.has(interest.id)
+                  const atMax = selectedInterests.size >= MAX_INTERESTS && !isSelected
+                  return (
+                    <TouchableOpacity
+                      key={interest.id}
+                      style={[styles.chip, isSelected && styles.chipActive, atMax && styles.chipDisabled]}
+                      onPress={() => toggleInterest(interest.id)}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
+                        {interest.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+              {selectedInterests.size > 0 && (
+                <Text style={styles.chipCount}>{selectedInterests.size} of {MAX_INTERESTS} selected</Text>
+              )}
+
+              {/* ── Shared: Availability ────────────────────────────────────── */}
+              <View style={styles.sectionDivider} />
+              <Text style={styles.sectionLabel}>What are you open to?</Text>
+              <Text style={styles.sectionSub}>Select all that apply.</Text>
+              <View style={{ gap: 8 }}>
+                {STATUS_OPTIONS.map(opt => {
+                  const isSelected = selectedStatuses.has(opt.key)
+                  return (
+                    <TouchableOpacity
+                      key={opt.key}
+                      style={[styles.statusOption, isSelected && styles.statusOptionActive]}
+                      onPress={() => toggleStatus(opt.key)}
+                      activeOpacity={0.8}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.statusOptionLabel, isSelected && styles.statusOptionLabelActive]}>
+                          {opt.label}
+                        </Text>
+                        <Text style={styles.statusOptionSub}>{opt.sub}</Text>
+                      </View>
+                      <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
+                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+
               <TouchableOpacity
                 style={[styles.primaryBtn, { marginTop: spacing.xl }, loading && { opacity: 0.7 }]}
                 activeOpacity={0.85}
@@ -928,4 +1064,41 @@ const styles = StyleSheet.create({
   tradeCraft:         { backgroundColor: '#EFF6FF' },
   tradeConsortium:    { backgroundColor: '#F0FDF4' },
   tradeCategoryText:  { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy },
+
+  // Step 3 shared sections
+  sectionDivider:  { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: spacing.xl },
+  sectionLabel:    { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginBottom: 4 },
+  sectionSub:      { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: spacing.md },
+
+  // Interest chips
+  chipGrid:        { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chipCount:       { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 10, textAlign: 'right' },
+  chip: {
+    borderRadius: 20, paddingHorizontal: 13, paddingVertical: 7,
+    backgroundColor: colors.white,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
+  },
+  chipActive:      { backgroundColor: colors.navy, borderColor: colors.navy },
+  chipDisabled:    { opacity: 0.35 },
+  chipText:        { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  chipTextActive:  { color: colors.cream },
+
+  // Availability (status) multi-select
+  statusOption: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    backgroundColor: colors.white, borderRadius: radius.card,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
+    paddingHorizontal: 16, paddingVertical: 14,
+    ...shadows.card,
+  },
+  statusOptionActive:       { borderColor: colors.navy, backgroundColor: 'rgba(30,58,95,0.04)' },
+  statusOptionLabel:        { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 2 },
+  statusOptionLabelActive:  { color: colors.navy },
+  statusOptionSub:          { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
+  statusCheck: {
+    width: 22, height: 22, borderRadius: 4,
+    borderWidth: 2, borderColor: 'rgba(30,58,95,0.20)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  statusCheckActive: { backgroundColor: colors.navy, borderColor: colors.navy },
 })
