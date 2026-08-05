@@ -28,8 +28,8 @@ const ALL_SHORTCUTS = [
   { key: 'foundation', label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'foundation' },
   { key: 'elevation',  label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'elevation'  },
   { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle'  },
-  { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'connect',   tab: 'Campus' },
-  { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'connect',   tab: 'Course' },
+  { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'campus_connect' },
+  { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'course_connect' },
   { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'external',  url: 'https://coursecompass.ie' },
   { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',             sub: 'Partner listings and offers',    Icon: Megaphone,     bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
@@ -44,8 +44,8 @@ const NAV_ITEMS = [
   { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
   { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
   { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
-  { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'connect',   tab: 'Campus' },
-  { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'connect',   tab: 'Course' },
+  { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'campus_connect' },
+  { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'course_connect' },
   { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'external',  url: 'https://coursecompass.ie' },
   { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
@@ -297,10 +297,11 @@ export default function HomeScreen({ navigation }) {
     if (!item) return
     if (item.action === 'home') { setActiveNavKey('dashboard'); return }
     setActiveNavKey(item.key)
-    if      (item.action === 'foundation') navigation.navigate('Foundation')
-    else if (item.action === 'elevation')  navigation.navigate('Elevation')
-    else if (item.action === 'connect')    navigation.navigate('Connect',   { initialTab: item.tab })
-    else if (item.action === 'lifestyle')  navigation.navigate('Lifestyle')
+    if      (item.action === 'foundation')     navigation.navigate('Foundation')
+    else if (item.action === 'elevation')      navigation.navigate('Elevation')
+    else if (item.action === 'campus_connect') navigation.navigate('CampusConnect')
+    else if (item.action === 'course_connect') navigation.navigate('CourseConnect')
+    else if (item.action === 'lifestyle')      navigation.navigate('Lifestyle')
     else if (item.action === 'budgeting')  navigation.navigate('Budgeting')
     else if (item.action === 'tab')        navigation.getParent()?.navigate(item.tabName)
     else if (item.action === 'external')   Linking.openURL(item.url)

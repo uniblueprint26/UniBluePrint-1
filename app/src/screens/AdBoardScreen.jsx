@@ -382,12 +382,12 @@ function getAdPressHandler(ad, navigation) {
   }
   if (ad.id === 'campus_carpool') {
     return () => navigation.getParent()?.navigate('Home', {
-      screen: 'Connect', params: { initialTab: 'Campus' },
+      screen: 'CampusConnect',
     })
   }
   if (ad.id === 'course_notes') {
     return () => navigation.getParent()?.navigate('Home', {
-      screen: 'Connect', params: { initialTab: 'Course' },
+      screen: 'CourseConnect',
     })
   }
   if (ad.link) {

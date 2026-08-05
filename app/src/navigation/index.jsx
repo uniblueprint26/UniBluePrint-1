@@ -11,7 +11,8 @@ import { colors, fonts } from '../constants/theme'
 import HomeScreen          from '../screens/HomeScreen'
 import FoundationScreen    from '../screens/FoundationScreen'
 import ElevationScreen     from '../screens/ElevationScreen'
-import ConnectScreen       from '../screens/ConnectScreen'
+import CampusConnectScreen from '../screens/CampusConnectScreen'
+import CourseConnectScreen from '../screens/CourseConnectScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
 import BudgetingScreen     from '../screens/BudgetingScreen'
@@ -51,10 +52,11 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="HomeMain"      component={HomeScreen}         />
-      <Stack.Screen name="Foundation"    component={FoundationScreen}   />
-      <Stack.Screen name="Elevation"     component={ElevationScreen}    />
-      <Stack.Screen name="Connect"       component={ConnectScreen}      />
-      <Stack.Screen name="Lifestyle"     component={LifestyleScreen}    />
+      <Stack.Screen name="Foundation"    component={FoundationScreen}    />
+      <Stack.Screen name="Elevation"     component={ElevationScreen}     />
+      <Stack.Screen name="CampusConnect" component={CampusConnectScreen} />
+      <Stack.Screen name="CourseConnect" component={CourseConnectScreen} />
+      <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
