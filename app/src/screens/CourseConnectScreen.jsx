@@ -333,17 +333,19 @@ export default function CourseConnectScreen({ navigation }) {
           Stats — real Irish HE figures, not platform usage metrics.
           Source: HEA.ie Annual Report 2022/23 and CAO.ie course listings.
 
-          TODO (permanent): Verify current HEI count at hea.ie before any public-facing update.
-          As of 2024, approximately 26 publicly funded HEIs remain after TU mergers
-          (TU Dublin, MTU, TUS, ATU, SETU). Was 34 (HEA 2022/23 report).
-          Always cross-check at hea.ie/statistics before changing this number.
+          TODO (permanent): Confirm current institution count before any public update.
+          This covers all colleges listing CAO courses or recognised by HEA/QQI —
+          universities, TUs, ITs, colleges of education, and specialist colleges.
+          Do NOT narrow to HEA-designated public institutions only; that undercounts
+          the real landscape. Verify the full list at hea.ie and cao.ie before changing.
+          Source used here: HEA Annual Report 2022/23 (34 institutions).
 
           1,300+ CAO courses: approximate — confirm exact count at cao.ie before publishing
           240,000+ students: HE enrolments in Ireland per HEA — confirm exact figure
         */}
         <View style={styles.heroStats}>
           <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>26</Text>
+            <Text style={styles.heroStatNumber}>34</Text>
             <Text style={styles.heroStatLabel}>Institutions{'\n'}Across Ireland</Text>
           </View>
           <View style={styles.heroStatDivider} />
