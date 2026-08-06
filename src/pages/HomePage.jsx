@@ -348,43 +348,6 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Stats */}
-        <div style={{
-          display: 'flex', gap: 0, marginTop: '52px',
-          borderTop: '1px solid rgba(30,58,95,0.12)', paddingTop: '32px',
-          maxWidth: '480px', width: '100%',
-        }}>
-          {STATS.map((s, i) => (
-            <div key={s.label} style={{
-              flex: 1, textAlign: 'center',
-              paddingLeft: i > 0 ? '20px' : 0,
-              paddingRight: i < STATS.length - 1 ? '20px' : 0,
-              borderLeft: i > 0 ? '1px solid rgba(30,58,95,0.1)' : 'none',
-            }}>
-              <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '24px', color: '#1E3A5F', lineHeight: 1 }}>
-                {s.n}
-              </p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '4px', fontWeight: 500 }}>
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Pillars pills */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['Foundation', 'Elevation', 'Lifestyle', 'Connect'].map(pillar => (
-            <span key={pillar} style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '11px', fontWeight: 600, color: '#1E3A5F',
-              border: '1.5px solid rgba(30,58,95,0.22)',
-              borderRadius: '20px', padding: '4px 13px',
-              letterSpacing: '0.04em',
-            }}>
-              {pillar}
-            </span>
-          ))}
-        </div>
       </section>
 
       {/* ── SECTION 2 — GLASS BOX: THE APP ──────────────────────────────────── */}
@@ -457,9 +420,46 @@ export default function HomePage() {
               ))}
             </div>
 
+            {/* Stats */}
+            <div style={{
+              display: 'flex', gap: 0, marginTop: '32px',
+              borderTop: '1px solid rgba(245,240,232,0.12)', paddingTop: '24px',
+            }}>
+              {STATS.map((s, i) => (
+                <div key={s.label} style={{
+                  flex: 1, textAlign: 'center',
+                  paddingLeft: i > 0 ? '16px' : 0,
+                  paddingRight: i < STATS.length - 1 ? '16px' : 0,
+                  borderLeft: i > 0 ? '1px solid rgba(245,240,232,0.12)' : 'none',
+                }}>
+                  <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '22px', color: '#F5F0E8', lineHeight: 1 }}>
+                    {s.n}
+                  </p>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: 'rgba(245,240,232,0.45)', marginTop: '4px', fontWeight: 500 }}>
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Pillar pills */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {['Foundation', 'Elevation', 'Lifestyle', 'Connect'].map(pillar => (
+                <span key={pillar} style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '10px', fontWeight: 600, color: 'rgba(245,240,232,0.7)',
+                  border: '1px solid rgba(245,240,232,0.2)',
+                  borderRadius: '20px', padding: '4px 12px',
+                  letterSpacing: '0.04em',
+                }}>
+                  {pillar}
+                </span>
+              ))}
+            </div>
+
             <Link to="/download" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              marginTop: '32px', height: '46px', padding: '0 24px',
+              marginTop: '28px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
               fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
               textDecoration: 'none',
