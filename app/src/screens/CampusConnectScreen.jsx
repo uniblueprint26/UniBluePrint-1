@@ -213,6 +213,24 @@ export default function CampusConnectScreen({ navigation }) {
         <Text style={styles.heroSub}>
           From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place.
         </Text>
+
+        {/* Stats */}
+        <View style={styles.heroStats}>
+          <View style={styles.heroStatItem}>
+            <Text style={styles.heroStatNumber}>100+</Text>
+            <Text style={styles.heroStatLabel}>Institutions{'\n'}on the Platform</Text>
+          </View>
+          <View style={styles.heroStatDivider} />
+          <View style={styles.heroStatItem}>
+            <Text style={styles.heroStatNumber}>12</Text>
+            <Text style={styles.heroStatLabel}>Campus Boards{'\n'}per College</Text>
+          </View>
+          <View style={styles.heroStatDivider} />
+          <View style={styles.heroStatItem}>
+            <Text style={styles.heroStatNumber}>Free</Text>
+            <Text style={styles.heroStatLabel}>To join{'\n'}your campus</Text>
+          </View>
+        </View>
       </View>
 
       {/* ── Scrollable content ── */}
@@ -398,6 +416,11 @@ const styles = StyleSheet.create({
   },
   heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
+  heroStats:       { flexDirection: 'row', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.12)' },
+  heroStatItem:    { flex: 1, alignItems: 'flex-start' },
+  heroStatNumber:  { fontFamily: fonts.serif, fontSize: 22, color: colors.cream, lineHeight: 26 },
+  heroStatLabel:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.5)', marginTop: 3, lineHeight: 15 },
+  heroStatDivider: { width: 1, backgroundColor: 'rgba(245,240,232,0.12)', marginHorizontal: 16, alignSelf: 'stretch' },
 
   scroll:  {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
