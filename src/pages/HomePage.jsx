@@ -1,9 +1,9 @@
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   Sparkles, ArrowRight,
-  FileText, TrendingUp, Tag, Users, Globe,
+  FileText, TrendingUp, Tag, Users, Globe, Megaphone, PiggyBank,
   UserCheck, Award,
 } from 'lucide-react'
 
@@ -113,9 +113,10 @@ function SectionLabel({ children, light }) {
   )
 }
 
-// ─── PillarRow ─────────────────────────────────────────────────────────────────
+// ─── PillarCard ────────────────────────────────────────────────────────────────
+// Glass treatment: frosted white card with accent top bar and tinted icon.
 
-function PillarRow({ name, description, href, icon: Icon, link }) {
+function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -123,47 +124,65 @@ function PillarRow({ name, description, href, icon: Icon, link }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'flex', alignItems: 'flex-start', gap: '28px',
-        padding: '34px 0',
-        borderTop: '1px solid rgba(30,58,95,0.09)',
-        textDecoration: 'none', color: 'inherit',
-        transition: 'opacity 150ms',
+        display: 'flex', flexDirection: 'column',
+        background: hovered
+          ? 'rgba(255,255,255,0.97)'
+          : 'rgba(255,255,255,0.72)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        borderRadius: '16px',
+        border: `1px solid rgba(255,255,255,0.85)`,
+        borderTop: `3px solid ${accent}`,
+        padding: '28px 26px 24px',
+        textDecoration: 'none',
+        transform: hovered ? 'translateY(-5px)' : 'translateY(0)',
+        boxShadow: hovered
+          ? `0 20px 52px rgba(${accentRgb},0.13), 0 4px 16px rgba(0,0,0,0.07)`
+          : `0 2px 16px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.9) inset`,
+        transition: 'all 220ms ease',
       }}
     >
       <div style={{
-        width: '52px', height: '52px', flexShrink: 0, borderRadius: '12px',
-        background: '#FFFFFF',
+        width: '44px', height: '44px', borderRadius: '10px',
+        background: `rgba(${accentRgb},0.10)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 1px 6px rgba(30,58,95,0.1)', marginTop: '2px',
-        transition: 'box-shadow 150ms',
-        ...(hovered ? { boxShadow: '0 4px 14px rgba(30,58,95,0.18)' } : {}),
+        flexShrink: 0,
+        border: `1px solid rgba(${accentRgb},0.14)`,
       }}>
-        <Icon size={24} color="#1E3A5F" strokeWidth={1.8} />
+        <Icon size={22} color={accent} strokeWidth={1.8} />
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{
-          fontFamily: "'DM Serif Display', Georgia, serif",
-          fontSize: '21px', color: '#1E3A5F', lineHeight: 1.2,
-        }}>
-          {name}
-        </p>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '15px', color: '#6B7280',
-          marginTop: '8px', lineHeight: 1.6, maxWidth: '600px',
-        }}>
-          {description}
-        </p>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', fontWeight: '700', color: '#1E3A5F',
-          marginTop: '14px',
-          opacity: hovered ? 1 : 0.45,
-          transition: 'opacity 150ms',
-        }}>
-          {link}
-        </p>
-      </div>
+      <p style={{
+        fontFamily: "'DM Serif Display', Georgia, serif",
+        fontSize: '19px', color: '#1E3A5F',
+        marginTop: '16px', lineHeight: 1.2,
+      }}>
+        {name}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontWeight: '700',
+        color: accent,
+        marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em',
+      }}>
+        {slogan}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '13px', color: '#6B7280',
+        marginTop: '10px', lineHeight: 1.65, flex: 1,
+      }}>
+        {description}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '12px', fontWeight: '700',
+        color: accent,
+        marginTop: '16px', letterSpacing: '0.01em',
+        opacity: hovered ? 1 : 0.45,
+        transition: 'opacity 220ms',
+      }}>
+        Explore →
+      </p>
     </Link>
   )
 }
@@ -179,38 +198,66 @@ const STATS = [
 const PILLARS_DATA = [
   {
     name: 'Foundation Blueprint',
-    description: 'CV building, LinkedIn optimisation, cover letters, personal statements, interview prep, and CAO support — every output reviewed by a trained Campus Handler before delivery.',
+    slogan: 'Build the CV. Own the room.',
+    description: 'CV building, LinkedIn optimisation, cover letters, personal statements, interview prep, and CAO support — every output reviewed by a trained Campus Handler.',
     href: '/foundation-blueprint',
     icon: FileText,
-    link: 'Explore services →',
+    accent: '#1E3A5F',
+    accentRgb: '30,58,95',
   },
   {
     name: 'Elevation Blueprint',
-    description: 'Personal branding, network strategy, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches. Book a coach, work with them directly in the app.',
+    slogan: 'Go beyond the degree.',
+    description: 'Personal branding, network strategy, portfolio building, pitch coaching, and postgrad support — delivered by verified Uni Coaches, booked directly in the app.',
     href: '/elevation-blueprint',
     icon: TrendingUp,
-    link: 'Meet the coaches →',
-  },
-  {
-    name: 'Campus Connect',
-    description: 'Community boards for your campus — accommodation, marketplace, carpooling, events, and more. The student community layer that lives inside the same app.',
-    href: '/campus-connect',
-    icon: Users,
-    link: "See what's on →",
+    accent: '#2D4B8E',
+    accentRgb: '45,75,142',
   },
   {
     name: 'Lifestyle Blueprint',
-    description: 'Exclusive student discounts from verified Irish partners, mental health support resources, and a built-in budgeting tool — all curated for campus life.',
+    slogan: 'Live smart. Spend less.',
+    description: 'Exclusive discounts from verified Irish partners, mental health resources, and lifestyle deals curated for campus life across Ireland.',
     href: '/lifestyle-blueprint',
     icon: Tag,
-    link: 'Browse deals →',
+    accent: '#145A3E',
+    accentRgb: '20,90,62',
+  },
+  {
+    name: 'Campus Connect',
+    slogan: 'Your campus. Your community.',
+    description: 'Community boards for your college — accommodation, marketplace, carpooling, events, study groups, and more. 100+ institutions across Ireland.',
+    href: '/campus-connect',
+    icon: Users,
+    accent: '#7C3500',
+    accentRgb: '124,53,0',
   },
   {
     name: 'Course Connect',
-    description: 'Course-specific discussion boards, shared notes, study groups, and module Q&A — collaborate with young people studying the same subjects across Ireland.',
+    slogan: 'Study smarter, together.',
+    description: 'Course-specific discussion boards, shared notes, study groups, and module Q&A — collaborate with young people on the same course across Ireland.',
     href: '/course-connect',
     icon: Globe,
-    link: 'Find your course →',
+    accent: '#4C1D95',
+    accentRgb: '76,29,149',
+  },
+  {
+    name: 'Ad Board',
+    slogan: 'Buy. Sell. Connect.',
+    description: 'The student marketplace. Post services, sell items, find gigs, and connect with other young people across campuses and counties.',
+    href: '/ad-board',
+    icon: Megaphone,
+    accent: '#1B4B5A',
+    accentRgb: '27,75,90',
+  },
+  {
+    name: 'Budgeting Tool',
+    slogan: 'Know your money. Plan your future.',
+    description: 'Track spending, set budgets, and navigate SUSI grants — with a built-in SUSI eligibility guide so you always know what support you can claim.',
+    href: '/budgeting',
+    icon: PiggyBank,
+    accent: '#134E4A',
+    accentRgb: '19,78,74',
   },
 ]
 
@@ -245,12 +292,27 @@ const PAGE_STYLES = `
   .ubp-glass-phone { flex-shrink: 0 }
   .ubp-glass-text  { flex: 1; min-width: 0; text-align: center }
 
-  /* Pillars */
+  /* Pillars grid */
+  .ubp-pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  /* Last item (7th) sits in col 2 of 3 — centred */
+  .ubp-pillars-grid > *:last-child:nth-child(3n + 1) {
+    grid-column: 2;
+  }
+
+  /* Quality grid */
   .ubp-quality-grid {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 20px; max-width: 820px; margin: 52px auto 0;
   }
 
+  @media (max-width: 960px) {
+    .ubp-pillars-grid { grid-template-columns: repeat(2, 1fr) }
+    .ubp-pillars-grid > *:last-child:nth-child(3n + 1) { grid-column: auto }
+  }
   @media (max-width: 860px) {
     .ubp-glass-inner  { flex-direction: column; text-align: center }
     .ubp-glass-text   { text-align: center }
@@ -258,6 +320,7 @@ const PAGE_STYLES = `
     .ubp-glass-phone.ubp-right { display: block }
   }
   @media (max-width: 600px) {
+    .ubp-pillars-grid { grid-template-columns: 1fr }
     .ubp-quality-grid { grid-template-columns: 1fr }
     .ubp-cta-row a    { width: 100%; box-sizing: border-box }
     .ubp-cta-row      { flex-direction: column !important }
@@ -418,18 +481,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — PILLARS (interactive) ───────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
-        <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
+      {/* ── SECTION 3 — PILLARS GRID ─────────────────────────────────────────── */}
+      <section style={{
+        background: '#EDE8DF',
+        padding: '96px 24px',
+        position: 'relative',
+      }}>
+        {/* Subtle dot grid — gives the glass cards something to blur against */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle, rgba(30,58,95,0.06) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} />
+        <div style={{ maxWidth: '1080px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
             <SectionLabel>Everything in one place</SectionLabel>
             <h2 style={{
               fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: 'clamp(30px, 4vw, 42px)', color: '#1E3A5F',
-              marginTop: '10px', lineHeight: 1.15,
+              fontSize: 'clamp(30px, 4vw, 44px)', color: '#1E3A5F',
+              marginTop: '10px', lineHeight: 1.12,
             }}>
-              Five pillars. One platform.
+              Seven features. One app.
             </h2>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
@@ -437,13 +510,12 @@ export default function HomePage() {
               marginTop: '14px', maxWidth: '480px',
               marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
             }}>
-              Everything a young person in Ireland needs, from a polished CV to finding your study group, in a single app.
+              Everything a young person in Ireland needs — from a polished CV to SUSI guidance — in a single app.
             </p>
           </div>
 
-          <div>
-            {PILLARS_DATA.map(p => <PillarRow key={p.name} {...p} />)}
-            <div style={{ borderTop: '1px solid rgba(30,58,95,0.09)' }} />
+          <div className="ubp-pillars-grid">
+            {PILLARS_DATA.map(p => <PillarCard key={p.name} {...p} />)}
           </div>
 
         </div>
