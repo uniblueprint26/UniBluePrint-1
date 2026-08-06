@@ -287,73 +287,10 @@ export default function HomePage() {
         })}</script>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
-      <section style={{
-        background: '#F5F0E8',
-        minHeight: '92dvh',
-        padding: '80px 24px 80px',
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        textAlign: 'center',
-      }}>
-        {/* Badge */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '7px',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '6px', padding: '5px 13px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', fontWeight: '700', letterSpacing: '0.02em',
-        }}>
-          <span className="ubp-badge-dot" aria-hidden="true" style={{
-            width: '6px', height: '6px', borderRadius: '50%',
-            background: '#4ade80', flexShrink: 0,
-          }} />
-          September Trial &middot; 50% off every service
-        </div>
-
-        {/* Headline */}
-        <h1 className="ubp-hero-headline">
-          The Structure Behind Your Success
-        </h1>
-
-        {/* Subheadline */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '17px', color: '#6B7280',
-          marginTop: '18px', maxWidth: '520px', lineHeight: 1.65,
-        }}>
-          The all-in-one app for students, apprentices, and young people across Ireland — CV support, coaching, campus community, and lifestyle deals.
-        </p>
-
-        {/* CTAs */}
-        <div className="ubp-cta-row">
-          <Link to="/sign-up" style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            height: '52px', padding: '0 32px',
-            background: '#1E3A5F', color: '#F5F0E8', borderRadius: '8px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', whiteSpace: 'nowrap',
-          }}>
-            Get started free <ArrowRight size={16} />
-          </Link>
-          <Link to="/download" style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            height: '52px', padding: '0 28px',
-            background: 'transparent', color: '#1E3A5F',
-            border: '1.5px solid rgba(30,58,95,0.25)', borderRadius: '8px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', whiteSpace: 'nowrap',
-          }}>
-            Download the app
-          </Link>
-        </div>
-
-      </section>
-
-      {/* ── SECTION 2 — GLASS BOX: THE APP ──────────────────────────────────── */}
+      {/* ── SECTION 1 — GLASS BOX: THE APP ──────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
-        padding: '96px 24px',
+        padding: '120px 24px 96px',
         position: 'relative', overflow: 'hidden',
       }}>
         {/* Subtle grid */}
@@ -388,14 +325,14 @@ export default function HomePage() {
             padding: '48px 40px',
           }}>
             <SectionLabel light>The App</SectionLabel>
-            <h2 style={{
+            <h1 style={{
               fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: 'clamp(28px, 3.5vw, 42px)', color: '#F5F0E8',
-              marginTop: '10px', lineHeight: 1.15,
+              fontSize: 'clamp(30px, 3.8vw, 48px)', color: '#F5F0E8',
+              marginTop: '10px', lineHeight: 1.12,
               textWrap: 'balance',
             }}>
-              The structure behind your success
-            </h2>
+              The Structure Behind Your Success
+            </h1>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
