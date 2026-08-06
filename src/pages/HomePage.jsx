@@ -1,10 +1,7 @@
 import { useState, useEffect, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import {
-  FileText, TrendingUp, Tag, Users, Globe, DollarSign,
-  UserCheck, Award, ArrowRight, Info,
-} from 'lucide-react'
+import { ArrowRight, UserCheck, Award } from 'lucide-react'
 
 // ─── Countdown ─────────────────────────────────────────────────────────────────
 
@@ -25,40 +22,36 @@ function CountdownTimer() {
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
   const [time, setTime] = useState(calcTimeLeft)
-
   useEffect(() => {
     if (prefersReduced) return
     const id = setInterval(() => setTime(calcTimeLeft()), 1000)
     return () => clearInterval(id)
   }, [prefersReduced])
-
   const units = [
-    { value: time.days,    label: 'Days' },
+    { value: time.days,    label: 'Days'  },
     { value: time.hours,   label: 'Hours' },
-    { value: time.minutes, label: 'Mins' },
-    { value: time.seconds, label: 'Secs' },
+    { value: time.minutes, label: 'Mins'  },
+    { value: time.seconds, label: 'Secs'  },
   ]
-
   return (
-    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '40px' }}>
+    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '36px' }}>
       {units.map(({ value, label }) => (
         <div key={label} style={{
-          background: 'rgba(245,240,232,0.08)',
-          border: '1px solid rgba(245,240,232,0.12)',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(245,240,232,0.08)',
-          borderRadius: '12px', padding: '18px 24px', minWidth: '80px',
-          textAlign: 'center', flexShrink: 0,
+          background: 'rgba(245,240,232,0.09)',
+          border: '1px solid rgba(245,240,232,0.14)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(245,240,232,0.08)',
+          borderRadius: '12px', padding: '16px 22px', minWidth: '76px', textAlign: 'center',
         }}>
           <p style={{
             fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: '38px', color: '#F5F0E8', lineHeight: 1,
+            fontSize: '36px', color: '#F5F0E8', lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
           }}>
             {String(value).padStart(2, '0')}
           </p>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '10px', color: 'rgba(245,240,232,0.45)', marginTop: '6px',
+            fontSize: '10px', color: 'rgba(245,240,232,0.45)', marginTop: '5px',
             textTransform: 'uppercase', letterSpacing: '0.1em',
           }}>
             {label}
@@ -69,87 +62,70 @@ function CountdownTimer() {
   )
 }
 
-// ─── Page data ─────────────────────────────────────────────────────────────────
+// ─── PhoneMockup ───────────────────────────────────────────────────────────────
 
-const HERO_STATS = [
-  { n: '35+',  label: 'Students signed up' },
-  { n: '10+',  label: 'Irish universities' },
-  { n: '6',    label: 'Partner businesses' },
-  { n: 'Free', label: 'To join, always' },
-]
-
-const HIW_STEPS = [
-  { n: '1', title: 'Create your free account', desc: 'Sign up in under a minute. No payment required.' },
-  { n: '2', title: 'Choose your service',      desc: 'Select what you need and share your brief or materials.' },
-  { n: '3', title: 'Reviewed by a real person', desc: 'A Campus Handler or Uni Coach prepares your output.' },
-  { n: '4', title: 'Delivered, ready to use',  desc: 'Receive your finished output within your timeframe.' },
-]
-
-const PILLARS = [
-  {
-    name: 'Foundation Blueprint',
-    description: 'CV building, LinkedIn, cover letters, interview prep, and CAO support. Every output reviewed by a trained Campus Handler.',
-    href: '/foundation-blueprint',
-    icon: FileText,
-    link: 'Explore services →',
-    bg: '#EFF6FF',
-  },
-  {
-    name: 'Elevation Blueprint',
-    description: 'Personal branding, network strategy, pitch coaching, and postgrad support. Delivered by verified Uni Coaches.',
-    href: '/elevation-blueprint',
-    icon: TrendingUp,
-    link: 'Meet the coaches →',
-    bg: '#F0FDF4',
-  },
-  {
-    name: 'Campus Connect',
-    description: 'Boards for your campus — accommodation, marketplace, carpooling, events, and community. All inside the app.',
-    href: '/campus-connect',
-    icon: Users,
-    link: "See what's on →",
-    bg: '#FFF7ED',
-  },
-  {
-    name: 'Lifestyle Blueprint',
-    description: 'Exclusive student discounts from verified Irish partners, mental health resources, and a built-in budgeting tool.',
-    href: '/lifestyle-blueprint',
-    icon: Tag,
-    link: 'Browse deals →',
-    bg: '#FDF4FF',
-  },
-  {
-    name: 'Course Connect',
-    description: 'Discussion boards, shared notes, study groups, and module Q&A — across Ireland, by subject.',
-    href: '/course-connect',
-    icon: Globe,
-    link: 'Find your course →',
-    bg: '#F0F9FF',
-  },
-  {
-    name: 'Budgeting Tool',
-    description: 'Track income and expenses, set savings goals, and understand your SUSI entitlement. Built for student life.',
-    href: '/coming-soon',
-    icon: DollarSign,
-    link: null,
-    bg: '#FFFBEB',
-    comingSoon: true,
-  },
-]
-
-const AD_POSTS = [
-  { initial: 'A', color: '#1E3A5F', name: 'Aoife',  uni: 'University of Galway', title: 'Piano & Music Lessons',    desc: '1-to-1 lessons from a 3rd year Music student. All levels welcome. Online or in person.',          tag: 'Lessons',  price: 'From €20/hr' },
-  { initial: 'L', color: '#15803D', name: 'Luca',   uni: 'UCD',                  title: 'Graphic Design Services',  desc: 'Logos, social media content, and branding for student projects and small businesses.',           tag: 'Design',   price: 'From €50'    },
-  { initial: 'Z', color: '#0369A1', name: 'Zafir',  uni: 'DCU',                  title: 'Maths & Stats Grinds',     desc: 'Leaving Cert and 1st year college maths. Past papers and exam prep included.',                  tag: 'Grinds',   price: '€25/hr'      },
-  { initial: 'F', color: '#7C3AED', name: 'Fatima', uni: 'TCD',                  title: 'Photography & Content',    desc: 'Events, portraits, and content creation for social media. Fast turnaround available.',           tag: 'Creative', price: 'From €60'    },
-  { initial: 'E', color: '#C2410C', name: 'Emma',   uni: 'UL',                   title: 'Essay Proofreading',       desc: 'Academic proofreading and feedback from an English graduate. 24hr turnaround available.',        tag: 'Academic', price: 'From €15'    },
-]
-
-const PROOF_CARDS = [
-  { initial: 'A', color: '#1E3A5F', name: 'Abdullah', uni: 'ATU Galway', course: 'Business',                badge: 'CAO: AU601' },
-  { initial: 'E', color: '#15803D', name: 'Emily',    uni: 'DCU',        course: 'Accounting and Finance',  badge: 'CAO: DC115' },
-  { initial: 'C', color: '#7C3AED', name: 'Ciarán',   uni: 'UL',         course: 'Computer Science',        badge: 'CAO: LM121' },
-]
+function PhoneMockup({ src, alt, width = 270 }) {
+  const aspectRatio = 852 / 393
+  const screenW = width - 16
+  const screenH = Math.round(screenW * aspectRatio)
+  return (
+    <div style={{
+      width,
+      borderRadius: '46px',
+      background: '#0c1520',
+      padding: '8px',
+      boxShadow: '0 48px 96px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 1px rgba(255,255,255,0.04)',
+      flexShrink: 0,
+      position: 'relative',
+    }}>
+      {/* Side button accents */}
+      <div style={{
+        position: 'absolute', right: '-3px', top: '100px',
+        width: '3px', height: '44px', background: '#1a2535', borderRadius: '0 3px 3px 0',
+      }} />
+      <div style={{
+        position: 'absolute', left: '-3px', top: '80px',
+        width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px',
+      }} />
+      <div style={{
+        position: 'absolute', left: '-3px', top: '124px',
+        width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px',
+      }} />
+      {/* Screen */}
+      <div style={{
+        borderRadius: '38px', overflow: 'hidden',
+        width: screenW, height: screenH,
+        background: '#F5F0E8',
+        position: 'relative',
+      }}>
+        {/* Dynamic island */}
+        <div style={{
+          position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)',
+          width: '90px', height: '26px', background: '#0c1520',
+          borderRadius: '20px', zIndex: 10,
+        }} />
+        <img
+          src={src}
+          alt={alt}
+          style={{
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'top',
+            display: 'block',
+          }}
+        />
+      </div>
+      {/* Home indicator */}
+      <div style={{
+        height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{
+          width: '80px', height: '4px', borderRadius: '2px',
+          background: 'rgba(255,255,255,0.18)',
+        }} />
+      </div>
+    </div>
+  )
+}
 
 // ─── SectionLabel ──────────────────────────────────────────────────────────────
 
@@ -166,119 +142,87 @@ function SectionLabel({ children, light }) {
   )
 }
 
-// ─── PillarCard ────────────────────────────────────────────────────────────────
-
-function PillarCard({ name, description, href, icon: Icon, link, bg, comingSoon }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <Link
-      to={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: bg,
-        borderRadius: '14px', padding: '26px',
-        border: '1px solid rgba(30,58,95,0.07)',
-        textDecoration: 'none', color: 'inherit',
-        display: 'flex', flexDirection: 'column',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 8px 28px rgba(30,58,95,0.12)' : '0 2px 8px rgba(30,58,95,0.05)',
-        transition: 'transform 200ms ease, box-shadow 200ms ease',
-      }}
-    >
-      <div style={{
-        width: '48px', height: '48px', borderRadius: '11px',
-        background: 'rgba(255,255,255,0.75)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 1px 4px rgba(30,58,95,0.1)',
-      }}>
-        <Icon size={22} color="#1E3A5F" strokeWidth={1.9} />
-      </div>
-      <p style={{
-        fontFamily: "'DM Serif Display', Georgia, serif",
-        fontSize: '18px', color: '#1E3A5F', marginTop: '18px', lineHeight: 1.2,
-      }}>
-        {name}
-      </p>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6, flex: 1,
-      }}>
-        {description}
-      </p>
-      {comingSoon ? (
-        <span style={{
-          display: 'inline-block', marginTop: '18px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '10px', fontWeight: '700', letterSpacing: '0.08em',
-          textTransform: 'uppercase', color: '#9CA3AF',
-          border: '1px solid rgba(30,58,95,0.12)', borderRadius: '4px', padding: '3px 8px',
-        }}>
-          Coming Sept
-        </span>
-      ) : (
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', fontWeight: '700', color: '#1E3A5F',
-          marginTop: '18px', opacity: hovered ? 1 : 0.55,
-          letterSpacing: '0.01em', transition: 'opacity 150ms',
-        }}>
-          {link}
-        </p>
-      )}
-    </Link>
-  )
-}
-
-// ─── HomePage ──────────────────────────────────────────────────────────────────
+// ─── Page styles ───────────────────────────────────────────────────────────────
 
 const PAGE_STYLES = `
-  @keyframes ubp-pulse-dot {
+  @keyframes ubp-pulse {
     0%, 100% { opacity: 1 }
-    50%       { opacity: 0.35 }
+    50%       { opacity: 0.3 }
   }
-  .ubp-badge-dot {
-    animation: ubp-pulse-dot 2.4s ease infinite;
+  .ubp-badge-dot { animation: ubp-pulse 2.4s ease infinite }
+
+  .ubp-hero {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 48px; max-width: 1080px; margin: 0 auto;
   }
-  .ubp-pillar-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 52px;
+  .ubp-hero-text { flex: 1; min-width: 0 }
+  .ubp-hero-phone { flex-shrink: 0 }
+
+  .ubp-screens-row {
+    display: flex; gap: 24px; justify-content: center;
+    align-items: flex-end; flex-wrap: wrap; margin-top: 56px;
   }
-  .ubp-adboard-scroll {
-    display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px;
-    margin-top: 32px; scroll-snap-type: x mandatory;
-    scrollbar-width: thin; scrollbar-color: rgba(30,58,95,0.15) transparent;
+
+  .ubp-hiw-steps {
+    display: flex; align-items: flex-start; gap: 0;
+    max-width: 860px; margin: 56px auto 0; flex-wrap: nowrap;
   }
-  .ubp-adboard-scroll::-webkit-scrollbar { height: 4px }
-  .ubp-adboard-scroll::-webkit-scrollbar-track { background: transparent }
-  .ubp-adboard-scroll::-webkit-scrollbar-thumb { background: rgba(30,58,95,0.15); border-radius: 4px }
-  .ubp-quality-link { opacity: 0.55; transition: opacity 150ms; }
-  .ubp-quality-link:hover { opacity: 1; }
+  .ubp-hiw-step { flex: 1; text-align: center; padding: 0 16px; min-width: 0 }
+  .ubp-hiw-connector {
+    flex-shrink: 0; width: 80px; align-self: flex-start;
+    border-top: 1.5px dashed rgba(30,58,95,0.18); margin-top: 26px;
+  }
+
+  .ubp-quality-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; max-width: 820px; margin: 52px auto 0;
+  }
+  .ubp-quality-link { opacity: 0.55; transition: opacity 150ms }
+  .ubp-quality-link:hover { opacity: 1 }
+
   .ubp-store-btn {
     background: none; border: 1px solid rgba(245,240,232,0.18); border-radius: 8px;
-    padding: 10px 22px; font-family: inherit; font-size: 12px; color: rgba(245,240,232,0.45);
-    cursor: pointer; transition: border-color 150ms, color 150ms;
+    padding: 10px 24px; font-family: inherit; font-size: 12px;
+    color: rgba(245,240,232,0.45); cursor: pointer;
+    transition: border-color 150ms, color 150ms;
   }
-  .ubp-store-btn:hover { border-color: rgba(245,240,232,0.35); color: rgba(245,240,232,0.7) }
-  @media (max-width: 800px) {
-    .ubp-pillar-grid { grid-template-columns: repeat(2, 1fr) !important }
-    .ubp-hiw-connector { display: none !important }
-    .ubp-hiw-steps { flex-wrap: wrap !important; gap: 32px !important }
-    .ubp-hiw-step { flex: 0 0 calc(50% - 16px) !important; min-width: 0 !important }
+  .ubp-store-btn:hover { border-color: rgba(245,240,232,0.4); color: rgba(245,240,232,0.75) }
+
+  @media (max-width: 860px) {
+    .ubp-hero { flex-direction: column; align-items: center; text-align: center }
+    .ubp-hero-text { text-align: center }
+    .ubp-hero-ctas { justify-content: center !important }
+    .ubp-hero-stats { justify-content: center !important }
+    .ubp-hero-phone { order: -1 }
+    .ubp-hiw-connector { display: none }
+    .ubp-hiw-steps { flex-wrap: wrap; gap: 32px }
+    .ubp-hiw-step { flex: 0 0 calc(50% - 16px) }
   }
   @media (max-width: 600px) {
-    .ubp-pillar-grid { grid-template-columns: 1fr !important }
-    .ubp-quality-grid { grid-template-columns: 1fr !important }
-    .ubp-proof-grid { grid-template-columns: 1fr !important }
-    .ubp-hero-stats { flex-direction: column !important; align-items: center !important }
-    .ubp-hero-stat + .ubp-hero-stat { border-left: none !important; border-top: 1px solid rgba(30,58,95,0.1) !important; padding-top: 20px !important }
-    .ubp-hiw-step { flex: 0 0 100% !important }
-    .ubp-hero-ctas { flex-direction: column !important; width: 100% !important }
-    .ubp-hero-ctas a { width: 100% !important; box-sizing: border-box !important }
+    .ubp-quality-grid { grid-template-columns: 1fr }
+    .ubp-hiw-step { flex: 0 0 100% }
+    .ubp-hero-ctas a { width: 100%; box-sizing: border-box }
+    .ubp-hero-ctas { flex-direction: column !important }
+    .ubp-screens-row { gap: 14px }
   }
 `
+
+// ─── HIW data ──────────────────────────────────────────────────────────────────
+
+const HIW_STEPS = [
+  { n: '1', title: 'Create your free account', desc: 'Sign up in under a minute. No payment required.' },
+  { n: '2', title: 'Choose your service',       desc: 'Pick what you need and share your brief or materials.' },
+  { n: '3', title: 'Reviewed by a real person', desc: 'A Campus Handler or Uni Coach prepares your output.' },
+  { n: '4', title: 'Delivered, ready to use',   desc: 'Receive your finished output within your timeframe.' },
+]
+
+const SCREENS = [
+  { src: '/app-screens/directory.png', alt: 'Student Directory screen', label: 'Student Directory',  caption: 'Find and connect with students across Ireland' },
+  { src: '/app-screens/adboard.png',   alt: 'Ad Board screen',          label: 'Ad Board',           caption: 'Student-run services, gigs, and opportunities' },
+  { src: '/app-screens/messages.png',  alt: 'Messages screen',          label: 'Messages',           caption: 'Community chat rooms by campus and course' },
+]
+
+// ─── HomePage ──────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
@@ -296,10 +240,7 @@ export default function HomePage() {
           name: 'UniBlueprint',
           url: 'https://uniblueprint.com',
           description: 'The all-in-one platform for students, apprentices, and young people across Ireland.',
-          sameAs: [
-            'https://www.instagram.com/uniblueprint26',
-            'https://www.tiktok.com/@uniblueprint26',
-          ],
+          sameAs: ['https://www.instagram.com/uniblueprint26', 'https://www.tiktok.com/@uniblueprint26'],
           address: { '@type': 'PostalAddress', addressCountry: 'IE' },
         })}</script>
       </Helmet>
@@ -307,131 +248,171 @@ export default function HomePage() {
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
       <section style={{
         background: '#F5F0E8',
-        padding: '88px 24px 80px',
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        textAlign: 'center', minHeight: '94dvh', justifyContent: 'center',
-        position: 'relative', overflow: 'hidden',
+        padding: '80px 24px 88px',
+        minHeight: '100dvh',
+        display: 'flex', alignItems: 'center',
       }}>
-        {/* Radial depth glow */}
-        <div aria-hidden="true" style={{
-          position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)',
-          width: '800px', height: '600px', pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 50% 30%, rgba(30,58,95,0.07) 0%, transparent 70%)',
-        }} />
+        <div className="ubp-hero">
 
-        {/* UBP lockup */}
-        <div style={{ position: 'relative', zIndex: 1, marginBottom: '28px', textAlign: 'left' }}>
-          <p style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: '42px', lineHeight: 1, color: '#1E3A5F', letterSpacing: '-0.01em',
-          }}>
-            UBP
-          </p>
-          <div style={{ height: '2px', background: '#1E3A5F', marginTop: '6px' }} />
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '13px', color: '#1E3A5F', letterSpacing: '2px',
-            marginTop: '7px', opacity: 0.7, fontWeight: 500,
-          }}>
-            UniBlueprint
-          </p>
-        </div>
-
-        {/* Pulsing launch badge */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          display: 'inline-flex', alignItems: 'center', gap: '6px',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '6px', padding: '5px 13px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', fontWeight: '700', letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-        }}>
-          <span className="ubp-badge-dot" aria-hidden="true" style={{
-            width: '6px', height: '6px', borderRadius: '50%',
-            background: '#4ade80', flexShrink: 0,
-          }} />
-          September Trial &middot; 50% off every service
-        </div>
-
-        {/* Headline */}
-        <h1 style={{
-          fontFamily: "'DM Serif Display', Georgia, serif",
-          fontSize: 'clamp(38px, 5.5vw, 60px)', lineHeight: 1.1, color: '#1E3A5F',
-          marginTop: '22px', maxWidth: '720px', letterSpacing: '-0.02em',
-          position: 'relative', zIndex: 1,
-        }}>
-          The Structure Behind Your Success
-        </h1>
-
-        {/* Subheadline */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '17px', color: '#6B7280',
-          marginTop: '18px', maxWidth: '540px', lineHeight: 1.7,
-          position: 'relative', zIndex: 1,
-        }}>
-          The all-in-one platform for students, apprentices, and young people across Ireland — CV support, career coaching, campus community, and lifestyle deals.
-        </p>
-
-        {/* CTAs */}
-        <div className="ubp-hero-ctas" style={{
-          display: 'flex', gap: '12px', marginTop: '32px',
-          flexWrap: 'wrap', justifyContent: 'center',
-          position: 'relative', zIndex: 1,
-        }}>
-          <Link to="/sign-up" style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            height: '52px', padding: '0 30px', background: '#1E3A5F', color: '#F5F0E8',
-            borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', whiteSpace: 'nowrap',
-          }}>
-            Get started free
-            <ArrowRight size={16} />
-          </Link>
-          <Link to="/how-it-works" style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            height: '52px', padding: '0 28px', background: 'transparent', color: '#1E3A5F',
-            border: '1.5px solid rgba(30,58,95,0.25)', borderRadius: '8px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', whiteSpace: 'nowrap',
-          }}>
-            See how it works
-          </Link>
-        </div>
-
-        {/* Stats strip */}
-        <div className="ubp-hero-stats" style={{
-          position: 'relative', zIndex: 1,
-          display: 'flex', marginTop: '64px', flexWrap: 'wrap', justifyContent: 'center',
-          borderTop: '1px solid rgba(30,58,95,0.12)', paddingTop: '40px',
-          width: '100%', maxWidth: '720px',
-        }}>
-          {HERO_STATS.map((s, i) => (
-            <div key={s.label} className="ubp-hero-stat" style={{
-              flex: 1, minWidth: '120px', textAlign: 'center', padding: '0 28px',
-              borderLeft: i > 0 ? '1px solid rgba(30,58,95,0.1)' : 'none',
-            }}>
+          {/* Left — text */}
+          <div className="ubp-hero-text">
+            {/* UBP lockup */}
+            <div style={{ marginBottom: '28px', display: 'inline-block', textAlign: 'left' }}>
               <p style={{
                 fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '30px', color: '#1E3A5F', lineHeight: 1,
+                fontSize: '40px', lineHeight: 1, color: '#1E3A5F', letterSpacing: '-0.01em',
               }}>
-                {s.n}
+                UBP
               </p>
+              <div style={{ height: '2px', background: '#1E3A5F', marginTop: '5px' }} />
               <p style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px', color: '#9CA3AF', marginTop: '5px', fontWeight: 500,
+                fontSize: '12px', color: '#1E3A5F', letterSpacing: '2px',
+                marginTop: '6px', opacity: 0.65, fontWeight: 500,
               }}>
-                {s.label}
+                UniBlueprint
               </p>
             </div>
-          ))}
+
+            {/* Badge */}
+            <div style={{ marginBottom: '20px' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                background: '#1E3A5F', color: '#F5F0E8',
+                borderRadius: '6px', padding: '5px 12px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '11px', fontWeight: '700', letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}>
+                <span className="ubp-badge-dot" aria-hidden="true" style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  background: '#4ade80', flexShrink: 0,
+                }} />
+                September Trial &middot; 50% off every service
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1 style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: 'clamp(36px, 5vw, 58px)', lineHeight: 1.1, color: '#1E3A5F',
+              maxWidth: '560px', letterSpacing: '-0.02em',
+            }}>
+              The Structure Behind Your Success
+            </h1>
+
+            {/* Sub */}
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '17px', color: '#6B7280',
+              marginTop: '18px', maxWidth: '480px', lineHeight: 1.7,
+            }}>
+              The all-in-one app for students, apprentices, and young people across Ireland — CV support, coaching, campus community, and lifestyle deals.
+            </p>
+
+            {/* CTAs */}
+            <div className="ubp-hero-ctas" style={{ display: 'flex', gap: '12px', marginTop: '32px', flexWrap: 'wrap' }}>
+              <Link to="/sign-up" style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                height: '52px', padding: '0 28px',
+                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+                textDecoration: 'none', whiteSpace: 'nowrap',
+              }}>
+                Get started free <ArrowRight size={16} />
+              </Link>
+              <Link to="/download" style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                height: '52px', padding: '0 24px',
+                background: 'transparent', color: '#1E3A5F',
+                border: '1.5px solid rgba(30,58,95,0.25)', borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+                textDecoration: 'none', whiteSpace: 'nowrap',
+              }}>
+                Download the app
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="ubp-hero-stats" style={{
+              display: 'flex', gap: '0', marginTop: '48px', flexWrap: 'wrap',
+              borderTop: '1px solid rgba(30,58,95,0.12)', paddingTop: '32px', maxWidth: '440px',
+            }}>
+              {[
+                { n: '35+',  label: 'Students signed up'  },
+                { n: '10+',  label: 'Irish universities'  },
+                { n: 'Free', label: 'To join, always'     },
+              ].map((s, i) => (
+                <div key={s.label} style={{
+                  flex: 1, minWidth: '100px', textAlign: 'left', padding: i > 0 ? '0 0 0 24px' : '0 24px 0 0',
+                  borderLeft: i > 0 ? '1px solid rgba(30,58,95,0.1)' : 'none',
+                }}>
+                  <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '26px', color: '#1E3A5F', lineHeight: 1 }}>
+                    {s.n}
+                  </p>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '4px', fontWeight: 500 }}>
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — phone mockup */}
+          <div className="ubp-hero-phone">
+            <PhoneMockup src="/app-screens/home.png" alt="UniBlueprint home screen" width={270} />
+          </div>
+
         </div>
       </section>
 
-      {/* ── SECTION 2 — HOW IT WORKS ─────────────────────────────────────── */}
+      {/* ── SECTION 2 — APP SCREENSHOTS ─────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '88px 24px 96px' }}>
+        <div style={{ maxWidth: '1080px', margin: '0 auto', textAlign: 'center' }}>
+          <SectionLabel light>The App</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(28px, 4vw, 42px)', color: '#F5F0E8',
+            marginTop: '10px', lineHeight: 1.15, maxWidth: '560px',
+            marginLeft: 'auto', marginRight: 'auto',
+          }}>
+            Every corner of student life, in one place
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '16px', color: 'rgba(245,240,232,0.6)',
+            margin: '14px auto 0', maxWidth: '460px', lineHeight: 1.65,
+          }}>
+            From your campus community to your career documents — it all lives inside UniBlueprint.
+          </p>
+
+          <div className="ubp-screens-row">
+            {SCREENS.map(({ src, alt, label, caption }) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <PhoneMockup src={src} alt={alt} width={210} />
+                <p style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: '15px', color: '#F5F0E8',
+                  marginTop: '20px',
+                }}>
+                  {label}
+                </p>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '12px', color: 'rgba(245,240,232,0.5)',
+                  marginTop: '4px', maxWidth: '180px', margin: '6px auto 0', lineHeight: 1.5,
+                }}>
+                  {caption}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 3 — HOW IT WORKS ─────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '88px 24px' }}>
-        <div style={{ maxWidth: '1060px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: '1080px', margin: '0 auto', textAlign: 'center' }}>
           <SectionLabel>How It Works</SectionLabel>
           <h2 style={{
             fontFamily: "'DM Serif Display', Georgia, serif",
@@ -441,19 +422,16 @@ export default function HomePage() {
             Your Blueprint in four steps
           </h2>
 
-          <div className="ubp-hiw-steps" style={{
-            display: 'flex', alignItems: 'flex-start',
-            justifyContent: 'center', maxWidth: '860px', margin: '56px auto 0',
-          }}>
+          <div className="ubp-hiw-steps">
             {HIW_STEPS.map((step, i) => (
               <Fragment key={step.n}>
-                <div className="ubp-hiw-step" style={{ flex: 1, textAlign: 'center', padding: '0 16px', minWidth: 0 }}>
+                <div className="ubp-hiw-step">
                   <div style={{
                     width: '52px', height: '52px', borderRadius: '50%',
                     background: '#1E3A5F', color: '#F5F0E8',
                     fontFamily: "'DM Serif Display', Georgia, serif",
                     fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    margin: '0 auto', flexShrink: 0,
+                    margin: '0 auto',
                   }}>
                     {step.n}
                   </div>
@@ -470,40 +448,9 @@ export default function HomePage() {
                     {step.desc}
                   </p>
                 </div>
-                {i < HIW_STEPS.length - 1 && (
-                  <div className="ubp-hiw-connector" style={{
-                    flexShrink: 0, width: '80px',
-                    borderTop: '1.5px dashed rgba(30,58,95,0.18)',
-                    marginTop: '26px', alignSelf: 'flex-start',
-                  }} />
-                )}
+                {i < HIW_STEPS.length - 1 && <div className="ubp-hiw-connector" />}
               </Fragment>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 3 — FIVE PILLARS ─────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '88px 24px' }}>
-        <div style={{ maxWidth: '1060px', margin: '0 auto', textAlign: 'center' }}>
-          <SectionLabel>Everything in one place</SectionLabel>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 'clamp(28px, 4vw, 40px)', color: '#1E3A5F',
-            marginTop: '10px', lineHeight: 1.2,
-          }}>
-            Five pillars. One platform.
-          </h2>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: '#6B7280',
-            margin: '14px auto 0', maxWidth: '480px', lineHeight: 1.65,
-          }}>
-            Everything a student needs — from a polished CV to finding your study group — in a single app.
-          </p>
-
-          <div className="ubp-pillar-grid">
-            {PILLARS.map(p => <PillarCard key={p.name} {...p} />)}
           </div>
         </div>
       </section>
@@ -516,8 +463,8 @@ export default function HomePage() {
         <div aria-hidden="true" style={{
           position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, pointerEvents: 'none',
           backgroundImage: [
-            'linear-gradient(rgba(245,240,232,0.03) 1px, transparent 1px)',
-            'linear-gradient(90deg, rgba(245,240,232,0.03) 1px, transparent 1px)',
+            'linear-gradient(rgba(245,240,232,0.025) 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(245,240,232,0.025) 1px, transparent 1px)',
           ].join(', '),
           backgroundSize: '48px 48px',
         }} />
@@ -528,284 +475,105 @@ export default function HomePage() {
             fontSize: 'clamp(32px, 5vw, 52px)', color: '#F5F0E8',
             marginTop: '10px', lineHeight: 1.12,
           }}>
-            50% Off.<br />Every service. All month.
+            50% off. Every service.<br />All of September.
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: 'rgba(245,240,232,0.65)',
-            margin: '16px auto 0', maxWidth: '440px', lineHeight: 1.65,
+            fontSize: '16px', color: 'rgba(245,240,232,0.6)',
+            margin: '16px auto 0', maxWidth: '420px', lineHeight: 1.65,
           }}>
-            CVs, LinkedIn profiles, cover letters, career coaching — every service at half price for the entire month. Free to join, no card needed.
+            CVs, LinkedIn profiles, cover letters, career coaching — every service at half price. Free to join.
           </p>
-
           <CountdownTimer />
-
-          <div style={{ marginTop: '40px' }}>
+          <div style={{ marginTop: '36px' }}>
             <Link to="/sign-up" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              height: '52px', padding: '0 30px',
-              background: '#F5F0E8', color: '#1E3A5F',
-              borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              height: '52px', padding: '0 32px',
+              background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
               textDecoration: 'none',
             }}>
-              Get started free
-              <ArrowRight size={16} />
+              Get started free <ArrowRight size={16} />
             </Link>
           </div>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: 'rgba(245,240,232,0.38)', marginTop: '14px',
+            fontSize: '12px', color: 'rgba(245,240,232,0.35)', marginTop: '14px',
           }}>
             No credit card required.
           </p>
         </div>
       </section>
 
-      {/* ── SECTION 5 — AD BOARD PREVIEW ────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '88px 24px' }}>
-        <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center' }}>
-            <SectionLabel>Advertisement Board</SectionLabel>
-            <h2 style={{
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: 'clamp(28px, 4vw, 40px)', color: '#1E3A5F',
-              marginTop: '10px', lineHeight: 1.2,
-            }}>
-              Students helping students
-            </h2>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '16px', color: '#6B7280',
-              margin: '14px auto 0', maxWidth: '500px', lineHeight: 1.65,
-            }}>
-              Students can post services, gigs, and opportunities — from grinds to graphic design. Free to post. Visible across Ireland.
-            </p>
-          </div>
-
-          <div className="ubp-adboard-scroll">
-            {AD_POSTS.map(post => (
-              <div key={post.name} style={{
-                flexShrink: 0, width: '268px', background: '#FFFFFF', borderRadius: '14px',
-                boxShadow: '0 2px 12px rgba(30,58,95,0.08)', padding: '20px',
-                display: 'flex', flexDirection: 'column', scrollSnapAlign: 'start',
-                border: '1px solid rgba(30,58,95,0.06)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                  <div style={{
-                    width: '36px', height: '36px', borderRadius: '50%',
-                    background: post.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '14px', color: '#F5F0E8' }}>
-                      {post.initial}
-                    </span>
-                  </div>
-                  <div>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                      {post.name}
-                    </p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>
-                      {post.uni}
-                    </p>
-                  </div>
-                </div>
-                <p style={{
-                  fontFamily: "'DM Serif Display', Georgia, serif",
-                  fontSize: '15px', color: '#1E3A5F', lineHeight: 1.3,
-                }}>
-                  {post.title}
-                </p>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.5, flex: 1,
-                }}>
-                  {post.desc}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                  <span style={{
-                    background: '#F5F0E8', color: '#1E3A5F', borderRadius: '5px',
-                    padding: '3px 9px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
-                  }}>
-                    {post.tag}
-                  </span>
-                  <span style={{
-                    fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '700', color: '#1E3A5F',
-                  }}>
-                    {post.price}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '12px',
-            background: '#FFFFFF', borderRadius: '10px', borderLeft: '3px solid #1E3A5F',
-            padding: '14px 18px', marginTop: '32px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', maxWidth: '500px',
-          }}>
-            <Info size={16} color="#1E3A5F" strokeWidth={2} style={{ flexShrink: 0 }} />
-            <span>
-              <strong style={{ color: '#1E3A5F' }}>Example content.</strong>{' '}
-              These are sample posts. Real posts are created by students after launch in September.
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 6 — WHO'S USING IT ──────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '88px 24px' }}>
-        <div style={{ maxWidth: '1060px', margin: '0 auto', textAlign: 'center' }}>
-          <SectionLabel>Who's using UniBlueprint</SectionLabel>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 'clamp(28px, 4vw, 40px)', color: '#1E3A5F',
-            marginTop: '10px', lineHeight: 1.2,
-          }}>
-            Built for students across Ireland
-          </h2>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: '#6B7280',
-            margin: '14px auto 0', maxWidth: '460px', lineHeight: 1.65,
-          }}>
-            From UCD to ATU, from Business to Nursing — UniBlueprint is open to every student in Ireland.
-          </p>
-
-          <div className="ubp-proof-grid" style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginTop: '48px',
-          }}>
-            {PROOF_CARDS.map(card => (
-              <div key={card.name} style={{
-                background: '#F5F0E8', borderRadius: '12px',
-                boxShadow: '0 2px 10px rgba(30,58,95,0.07)',
-                padding: '20px', border: '1px solid rgba(30,58,95,0.06)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                  <div style={{
-                    width: '44px', height: '44px', borderRadius: '50%', background: card.color,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '18px', color: '#fff' }}>
-                      {card.initial}
-                    </span>
-                  </div>
-                  <div style={{ textAlign: 'left' }}>
-                    <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '15px', color: '#1E3A5F' }}>
-                      {card.name}
-                    </p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>
-                      {card.uni}
-                    </p>
-                  </div>
-                </div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '10px' }}>
-                  {card.course}
-                </p>
-                <span style={{
-                  display: 'inline-block', marginTop: '10px',
-                  background: '#FFFFFF', borderRadius: '5px', padding: '3px 10px',
-                  fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '700', color: '#1E3A5F',
-                }}>
-                  {card.badge}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 7 — QUALITY / PEOPLE ────────────────────────────────── */}
+      {/* ── SECTION 5 — QUALITY / PEOPLE ────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '88px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
           <SectionLabel>Quality you can count on</SectionLabel>
           <h2 style={{
             fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(28px, 3.5vw, 40px)', color: '#1E3A5F',
             marginTop: '10px', lineHeight: 1.2,
-            maxWidth: '580px', marginLeft: 'auto', marginRight: 'auto',
+            maxWidth: '520px', marginLeft: 'auto', marginRight: 'auto',
           }}>
-            Reviewed by real people.<br />Every time.
+            Reviewed by real people. Every time.
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '16px', color: '#6B7280',
-            margin: '14px auto 0', maxWidth: '500px', lineHeight: 1.65,
+            margin: '14px auto 0', maxWidth: '480px', lineHeight: 1.65,
           }}>
             Every Foundation Blueprint output is reviewed by a trained Campus Handler before delivery. Every Elevation service is delivered by a verified Uni Coach. No automation, no shortcuts.
           </p>
 
-          <div className="ubp-quality-grid" style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px',
-            maxWidth: '820px', margin: '52px auto 0',
-          }}>
-            {/* Campus Handler */}
-            <div style={{
-              background: '#FFFFFF', borderRadius: '14px', padding: '36px 32px',
-              border: '1px solid rgba(30,58,95,0.08)', textAlign: 'center',
-            }}>
-              <div style={{
-                width: '64px', height: '64px', borderRadius: '50%', background: '#1E3A5F',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto',
+          <div className="ubp-quality-grid">
+            {[
+              {
+                Icon: UserCheck, title: 'Campus Handler',
+                body: 'Trained students who review every Foundation Blueprint submission — CVs, essays, and applications — before it reaches you.',
+                cta: 'Become a Handler →', href: '/join#handler-form',
+              },
+              {
+                Icon: Award, title: 'Uni Coach',
+                body: 'Verified specialists delivering Elevation Blueprint services — career coaching, personal branding, and postgrad strategy.',
+                cta: 'Apply as a Coach →', href: '/join#coach-form',
+              },
+            ].map(({ Icon, title, body, cta, href }) => (
+              <div key={title} style={{
+                background: '#FFFFFF', borderRadius: '14px', padding: '36px 32px',
+                border: '1px solid rgba(30,58,95,0.08)', textAlign: 'center',
               }}>
-                <UserCheck size={30} color="#F5F0E8" strokeWidth={1.8} />
+                <div style={{
+                  width: '64px', height: '64px', borderRadius: '50%', background: '#1E3A5F',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto',
+                }}>
+                  <Icon size={28} color="#F5F0E8" strokeWidth={1.8} />
+                </div>
+                <h3 style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: '22px', color: '#1E3A5F', marginTop: '20px',
+                }}>
+                  {title}
+                </h3>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px', color: '#6B7280', marginTop: '12px', lineHeight: 1.65,
+                }}>
+                  {body}
+                </p>
+                <Link to={href} className="ubp-quality-link" style={{
+                  display: 'inline-block', marginTop: '20px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '700', color: '#1E3A5F', textDecoration: 'none',
+                }}>
+                  {cta}
+                </Link>
               </div>
-              <h3 style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '22px', color: '#1E3A5F', marginTop: '20px',
-              }}>
-                Campus Handler
-              </h3>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#6B7280', marginTop: '12px', lineHeight: 1.65,
-              }}>
-                Trained students who review every Foundation Blueprint submission — CVs, essays, and applications — before it reaches you.
-              </p>
-              <Link to="/join#handler-form" className="ubp-quality-link" style={{
-                display: 'inline-block', marginTop: '20px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px', fontWeight: '700', color: '#1E3A5F', textDecoration: 'none',
-              }}>
-                Become a Handler →
-              </Link>
-            </div>
-
-            {/* Uni Coach */}
-            <div style={{
-              background: '#FFFFFF', borderRadius: '14px', padding: '36px 32px',
-              border: '1px solid rgba(30,58,95,0.08)', textAlign: 'center',
-            }}>
-              <div style={{
-                width: '64px', height: '64px', borderRadius: '50%', background: '#1E3A5F',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto',
-              }}>
-                <Award size={30} color="#F5F0E8" strokeWidth={1.8} />
-              </div>
-              <h3 style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '22px', color: '#1E3A5F', marginTop: '20px',
-              }}>
-                Uni Coach
-              </h3>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#6B7280', marginTop: '12px', lineHeight: 1.65,
-              }}>
-                Verified specialists delivering Elevation Blueprint services — career coaching, personal branding, and postgrad strategy.
-              </p>
-              <Link to="/join#coach-form" className="ubp-quality-link" style={{
-                display: 'inline-block', marginTop: '20px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px', fontWeight: '700', color: '#1E3A5F', textDecoration: 'none',
-              }}>
-                Apply as a Coach →
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 8 — FINAL CTA ────────────────────────────────────────── */}
+      {/* ── SECTION 6 — FINAL CTA ────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F', padding: '100px 24px', textAlign: 'center',
         position: 'relative', overflow: 'hidden',
@@ -813,8 +581,8 @@ export default function HomePage() {
         <div aria-hidden="true" style={{
           position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, pointerEvents: 'none',
           backgroundImage: [
-            'linear-gradient(rgba(245,240,232,0.03) 1px, transparent 1px)',
-            'linear-gradient(90deg, rgba(245,240,232,0.03) 1px, transparent 1px)',
+            'linear-gradient(rgba(245,240,232,0.025) 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(245,240,232,0.025) 1px, transparent 1px)',
           ].join(', '),
           backgroundSize: '48px 48px',
         }} />
@@ -824,41 +592,48 @@ export default function HomePage() {
             fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(32px, 5vw, 52px)', color: '#F5F0E8',
             marginTop: '10px', lineHeight: 1.12,
-            maxWidth: '560px', marginLeft: 'auto', marginRight: 'auto',
+            maxWidth: '520px', marginLeft: 'auto', marginRight: 'auto',
           }}>
             Your Blueprint starts here
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '16px', color: 'rgba(245,240,232,0.6)',
-            margin: '16px auto 0', maxWidth: '420px', lineHeight: 1.6,
+            margin: '16px auto 0', maxWidth: '400px', lineHeight: 1.6,
           }}>
             Free to join. No credit card. September trial — 50% off everything.
           </p>
-
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: '12px', marginTop: '36px', flexWrap: 'wrap',
           }}>
-            <Link to="/download" style={{
+            <Link to="/sign-up" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              height: '52px', padding: '0 30px',
-              background: '#F5F0E8', color: '#1E3A5F',
-              borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              height: '52px', padding: '0 28px',
+              background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
               textDecoration: 'none',
             }}>
-              Download the App
-              <ArrowRight size={16} />
+              Get started free <ArrowRight size={16} />
+            </Link>
+            <Link to="/download" style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: '52px', padding: '0 24px',
+              background: 'transparent', color: 'rgba(245,240,232,0.75)',
+              border: '1px solid rgba(245,240,232,0.2)', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              textDecoration: 'none',
+            }}>
+              Download the app
             </Link>
           </div>
-
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' }}>
             <button className="ubp-store-btn">App Store</button>
             <button className="ubp-store-btn">Google Play</button>
           </div>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: 'rgba(245,240,232,0.35)', marginTop: '18px',
+            fontSize: '12px', color: 'rgba(245,240,232,0.3)', marginTop: '18px',
           }}>
             No credit card required. Free forever to join.
           </p>
