@@ -333,17 +333,17 @@ export default function CourseConnectScreen({ navigation }) {
           Stats — real Irish HE figures, not platform usage metrics.
           Source: HEA.ie Annual Report 2022/23 and CAO.ie course listings.
 
-          TODO (permanent): Keep this stat in sync with src/data/institutions.js in the
-          sign-up form. Currently 66 named institutions (HE + FE + private). Stat shown
-          is 70+ (rounded up to nearest 10). Update whenever institutions.js grows past
-          the next 10-boundary (i.e. change to 80+ when list hits 80+).
+          TODO (permanent): Keep this stat in sync with app/src/data/institutions.js.
+          Currently 94 named institutions (universities, TUs, IoTs, specialist, private,
+          ETB FE colleges, Northern Ireland). Stat shown is 100+ (rounded to nearest 10).
+          Update when institutions.js crosses the next 10-boundary.
 
           1,300+ CAO courses: approximate — confirm exact count at cao.ie before publishing
           240,000+ students: HE enrolments in Ireland per HEA — confirm exact figure
         */}
         <View style={styles.heroStats}>
           <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>70+</Text>
+            <Text style={styles.heroStatNumber}>100+</Text>
             <Text style={styles.heroStatLabel}>Institutions{'\n'}Across Ireland</Text>
           </View>
           <View style={styles.heroStatDivider} />

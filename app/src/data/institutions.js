@@ -1,17 +1,25 @@
 /**
- * Irish Third-Level Institution Directory
+ * Irish and Northern Irish Third-Level & Further Education Institution Directory
  *
- * Source: HEA (Higher Education Authority) designated institutions list.
- * Last verified: 2025. Verify at hea.ie before each release cycle.
+ * Covers universities, technological universities, institutes of technology,
+ * specialist colleges, private colleges, ETB further education colleges,
+ * and Northern Ireland institutions across the island of Ireland.
  *
- * `short`  — the display identifier used in "Campus Connect [short]" header
- * `type`   — 'university' | 'tu' | 'iot' | 'specialist' | 'private' | 'other'
- * `city`   — primary campus city (used as secondary label in picker)
- * `aliases`— additional search terms (old names, alternate spellings)
+ * Sources: HEA, ETB Ireland / SOLAS, QQI, cao.ie, etbi.ie.
+ *
+ * TODO (permanent): Review against etbi.ie, hea.ie, and cao.ie before each
+ * release cycle. When this list crosses the next 10-institution boundary,
+ * update the stat in CourseConnectScreen.jsx accordingly.
+ *
+ * `short`   — display identifier used in headers and pickers
+ * `type`    — 'university' | 'tu' | 'iot' | 'specialist' | 'private' | 'fet' | 'ni' | 'other'
+ * `city`    — primary campus city / region
+ * `aliases` — additional search terms (old names, alternate spellings, abbreviations)
  */
 
 export const INSTITUTIONS = [
-  // ── Universities ─────────────────────────────────────────────────────────────
+
+  // ── Universities ──────────────────────────────────────────────────────────────
   {
     id: 'ucd',
     name: 'University College Dublin',
@@ -169,7 +177,7 @@ export const INSTITUTIONS = [
     aliases: ['dkit', 'dundalk it'],
   },
 
-  // ── Specialist / Medical ──────────────────────────────────────────────────────
+  // ── Specialist Colleges ───────────────────────────────────────────────────────
   {
     id: 'rcsi',
     name: 'RCSI University of Medicine and Health Sciences',
@@ -218,6 +226,14 @@ export const INSTITUTIONS = [
     city: 'Dublin',
     aliases: ['mie', 'marino'],
   },
+  {
+    id: 'shannon_hotel',
+    name: 'Shannon College of Hotel Management',
+    short: 'Shannon College',
+    type: 'specialist',
+    city: 'Shannon, Clare',
+    aliases: ['shannon college', 'shannon hotel management', 'schm'],
+  },
 
   // ── Private Colleges ──────────────────────────────────────────────────────────
   {
@@ -252,10 +268,42 @@ export const INSTITUTIONS = [
     city: 'Dublin',
     aliases: ['lsb', 'lsb college'],
   },
+  {
+    id: 'carlow_college',
+    name: 'Carlow College',
+    short: 'Carlow College',
+    type: 'private',
+    city: 'Carlow',
+    aliases: ['carlow college', 'st patricks carlow', "st. patrick's college carlow"],
+  },
+  {
+    id: 'acd',
+    name: 'American College Dublin',
+    short: 'ACD',
+    type: 'private',
+    city: 'Dublin',
+    aliases: ['american college dublin', 'acd'],
+  },
+  {
+    id: 'bimm',
+    name: 'BIMM Institute Dublin',
+    short: 'BIMM',
+    type: 'private',
+    city: 'Dublin',
+    aliases: ['bimm', 'bimm dublin', 'bimm institute'],
+  },
+  {
+    id: 'pulse_college',
+    name: 'Pulse College',
+    short: 'Pulse',
+    type: 'private',
+    city: 'Dublin',
+    aliases: ['pulse college', 'pulse media', 'pulse dublin'],
+  },
 
   // ── Further Education and Training Colleges ───────────────────────────────────
-  // ETB-operated and standalone FE colleges offering QQI Level 5 / 6 programmes.
-  // Source: ETB Ireland / SOLAS. Verify at etbi.ie before each release cycle.
+  // ETB-operated colleges offering QQI Level 5/6 programmes.
+  // Source: ETB Ireland / SOLAS / etbi.ie — verify before each release cycle.
 
   // City of Dublin ETB (CDETB)
   {
@@ -370,6 +418,14 @@ export const INSTITUTIONS = [
     city: 'Whitehall, Dublin',
     aliases: ['whitehall cfe', 'whitehall college'],
   },
+  {
+    id: 'ringsend_cfe',
+    name: 'Ringsend College of Further Education',
+    short: 'Ringsend CFE',
+    type: 'fet',
+    city: 'Ringsend, Dublin',
+    aliases: ['ringsend cfe', 'ringsend college'],
+  },
 
   // Dublin and Dún Laoghaire ETB (DDLETB)
   {
@@ -383,7 +439,7 @@ export const INSTITUTIONS = [
   {
     id: 'sallynoggin_cfe',
     name: 'Sallynoggin College of Further Education',
-    short: 'SCFE (Sallynog.)',
+    short: 'Sallynoggin CFE',
     type: 'fet',
     city: 'Dún Laoghaire',
     aliases: ['sallynoggin', 'sallynoggin cfe', 'sallynoggin college'],
@@ -432,6 +488,22 @@ export const INSTITUTIONS = [
     city: 'Drogheda, Louth',
     aliases: ['dife', 'drogheda institute', 'drogheda cfe'],
   },
+  {
+    id: 'dundalk_cfe',
+    name: 'Dundalk College of Further Education',
+    short: 'Dundalk CFE',
+    type: 'fet',
+    city: 'Dundalk, Louth',
+    aliases: ['dundalk cfe', 'dundalk college fe', 'louth cfe'],
+  },
+  {
+    id: 'navan_cfe',
+    name: 'Navan College of Further Education',
+    short: 'Navan CFE',
+    type: 'fet',
+    city: 'Navan, Meath',
+    aliases: ['navan cfe', 'navan college', 'meath cfe'],
+  },
 
   // Cork ETB (CETB)
   {
@@ -450,6 +522,14 @@ export const INSTITUTIONS = [
     city: 'Mallow, Cork',
     aliases: ['mallow cfe', 'mallow college'],
   },
+  {
+    id: 'westcork_cfe',
+    name: 'West Cork College of Further Education',
+    short: 'West Cork CFE',
+    type: 'fet',
+    city: 'Skibbereen, Cork',
+    aliases: ['west cork cfe', 'skibbereen cfe', 'west cork college'],
+  },
 
   // Limerick and Clare ETB (LCETB)
   {
@@ -459,6 +539,14 @@ export const INSTITUTIONS = [
     type: 'fet',
     city: 'Limerick',
     aliases: ['lcfe', 'limerick cfe', 'limerick college of fe'],
+  },
+  {
+    id: 'ennis_cfe',
+    name: 'Ennis College of Further Education',
+    short: 'Ennis CFE',
+    type: 'fet',
+    city: 'Ennis, Clare',
+    aliases: ['ennis cfe', 'ennis college', 'clare cfe'],
   },
 
   // Galway and Roscommon ETB (GRETB)
@@ -470,6 +558,14 @@ export const INSTITUTIONS = [
     city: 'Galway',
     aliases: ['gti', 'galway technical', 'galway tech institute'],
   },
+  {
+    id: 'roscommon_cfe',
+    name: 'Roscommon College of Further Education',
+    short: 'Roscommon CFE',
+    type: 'fet',
+    city: 'Roscommon',
+    aliases: ['roscommon cfe', 'roscommon college'],
+  },
 
   // Kerry ETB (KETB)
   {
@@ -477,8 +573,8 @@ export const INSTITUTIONS = [
     name: 'Kerry College of Further Education',
     short: 'Kerry College',
     type: 'fet',
-    city: 'Tralee, Kerry',
-    aliases: ['kerry college', 'kerry cfe', 'tralee cfe'],
+    city: 'Tralee · Killarney · Listowel',
+    aliases: ['kerry college', 'kerry cfe', 'tralee cfe', 'killarney cfe', 'listowel cfe'],
   },
 
   // Tipperary ETB (TETB)
@@ -488,7 +584,15 @@ export const INSTITUTIONS = [
     short: 'Tipp CFE',
     type: 'fet',
     city: 'Thurles · Clonmel',
-    aliases: ['tipperary cfe', 'tipperary college', 'thurles cfe', 'tipp cfe'],
+    aliases: ['tipperary cfe', 'tipperary college', 'thurles cfe', 'tipp cfe', 'clonmel cfe'],
+  },
+  {
+    id: 'nenagh_cfe',
+    name: 'Nenagh College of Further Education',
+    short: 'Nenagh CFE',
+    type: 'fet',
+    city: 'Nenagh, Tipperary',
+    aliases: ['nenagh cfe', 'nenagh college', 'north tipperary cfe'],
   },
 
   // Waterford and Wexford ETB (WWETB)
@@ -501,6 +605,14 @@ export const INSTITUTIONS = [
     aliases: ['wcfe', 'waterford cfe', 'waterford college of fe'],
   },
   {
+    id: 'dungarvan_cfe',
+    name: 'Dungarvan College of Further Education',
+    short: 'Dungarvan CFE',
+    type: 'fet',
+    city: 'Dungarvan, Waterford',
+    aliases: ['dungarvan cfe', 'dungarvan college', 'west waterford cfe'],
+  },
+  {
     id: 'wexford_cfe',
     name: 'Wexford College of Further Education',
     short: 'Wexford CFE',
@@ -508,15 +620,47 @@ export const INSTITUTIONS = [
     city: 'Wexford Town',
     aliases: ['wexford cfe', 'wexford college'],
   },
+  {
+    id: 'enniscorthy_cfe',
+    name: 'Enniscorthy College of Further Education',
+    short: 'Enniscorthy CFE',
+    type: 'fet',
+    city: 'Enniscorthy, Wexford',
+    aliases: ['enniscorthy cfe', 'enniscorthy college', 'north wexford cfe'],
+  },
 
   // Mayo, Sligo and Leitrim ETB (MSLETB)
   {
+    id: 'mayo_cfe',
+    name: 'Mayo College of Further Education',
+    short: 'Mayo CFE',
+    type: 'fet',
+    city: 'Castlebar, Mayo',
+    aliases: ['mayo cfe', 'castlebar cfe', 'mayo college', 'castlebar college'],
+  },
+  {
+    id: 'ballina_cfe',
+    name: 'Ballina College of Further Education',
+    short: 'Ballina CFE',
+    type: 'fet',
+    city: 'Ballina, Mayo',
+    aliases: ['ballina cfe', 'ballina college', 'north mayo cfe'],
+  },
+  {
     id: 'sligo_cfe',
     name: 'Sligo College of Further Education',
-    short: 'SCFE',
+    short: 'Sligo CFE',
     type: 'fet',
     city: 'Sligo',
-    aliases: ['scfe', 'sligo cfe', 'sligo college'],
+    aliases: ['sligo cfe', 'sligo college', 'scfe'],
+  },
+  {
+    id: 'carrickonshannon_cfe',
+    name: 'Carrick-on-Shannon College of Further Education',
+    short: 'Carrick CFE',
+    type: 'fet',
+    city: 'Carrick-on-Shannon, Leitrim',
+    aliases: ['carrick cfe', 'carrick on shannon cfe', 'leitrim cfe'],
   },
 
   // Donegal ETB (DETB)
@@ -527,6 +671,14 @@ export const INSTITUTIONS = [
     type: 'fet',
     city: 'Killybegs, Donegal',
     aliases: ['donegal cfe', 'donegal college', 'killybegs cfe'],
+  },
+  {
+    id: 'crana_college',
+    name: 'Crana College',
+    short: 'Crana',
+    type: 'fet',
+    city: 'Buncrana, Donegal',
+    aliases: ['crana college', 'buncrana cfe', 'inishowen cfe'],
   },
 
   // Cavan and Monaghan ETB (CMETB)
@@ -566,6 +718,14 @@ export const INSTITUTIONS = [
     city: 'Portlaoise, Laois',
     aliases: ['portlaoise cfe', 'portlaoise college'],
   },
+  {
+    id: 'tullamore_cfe',
+    name: 'Tullamore College of Further Education',
+    short: 'Tullamore CFE',
+    type: 'fet',
+    city: 'Tullamore, Offaly',
+    aliases: ['tullamore cfe', 'tullamore college', 'offaly cfe'],
+  },
 
   // Longford and Westmeath ETB (LWETB)
   {
@@ -583,6 +743,82 @@ export const INSTITUTIONS = [
     type: 'fet',
     city: 'Mullingar, Westmeath',
     aliases: ['mullingar cfe', 'mullingar college'],
+  },
+
+  // ── Northern Ireland ──────────────────────────────────────────────────────────
+  // UniBlueprint is open to young people across the island. NI institutions
+  // award UK qualifications (QUB, Ulster) and BTEC/A-Level (FE colleges).
+  {
+    id: 'qub',
+    name: "Queen's University Belfast",
+    short: "Queen's",
+    type: 'ni',
+    city: 'Belfast',
+    aliases: ['qub', "queens belfast", 'queens university belfast'],
+  },
+  {
+    id: 'ulster',
+    name: 'Ulster University',
+    short: 'Ulster',
+    type: 'ni',
+    city: 'Belfast · Coleraine · Magee · Jordanstown',
+    aliases: ['ulster', 'uu', 'university of ulster', 'uuj', 'uuc', 'uumagee'],
+  },
+  {
+    id: 'stranmillis',
+    name: 'Stranmillis University College',
+    short: 'Stranmillis',
+    type: 'ni',
+    city: 'Belfast',
+    aliases: ['stranmillis', 'stran'],
+  },
+  {
+    id: 'stmarys_belfast',
+    name: "St Mary's University College Belfast",
+    short: "St Mary's Belfast",
+    type: 'ni',
+    city: 'Belfast',
+    aliases: ['st marys belfast', 'stmarys ni', 'st marys university college'],
+  },
+  {
+    id: 'belfast_met',
+    name: 'Belfast Metropolitan College',
+    short: 'Belfast Met',
+    type: 'ni',
+    city: 'Belfast',
+    aliases: ['belfast met', 'bmet', 'belfast metropolitan'],
+  },
+  {
+    id: 'nwrc',
+    name: 'North West Regional College',
+    short: 'NWRC',
+    type: 'ni',
+    city: 'Derry · Limavady',
+    aliases: ['nwrc', 'north west regional', 'derry college', 'londonderry college'],
+  },
+  {
+    id: 'nrc',
+    name: 'Northern Regional College',
+    short: 'NRC',
+    type: 'ni',
+    city: 'Ballymena · Coleraine · Newtownabbey',
+    aliases: ['nrc', 'northern regional college', 'ballymena college', 'magherafelt college'],
+  },
+  {
+    id: 'serc',
+    name: 'South Eastern Regional College',
+    short: 'SERC',
+    type: 'ni',
+    city: 'Bangor · Downpatrick · Lisburn · Newtownards',
+    aliases: ['serc', 'south eastern regional college', 'bangor college'],
+  },
+  {
+    id: 'swc',
+    name: 'South West College',
+    short: 'SWC',
+    type: 'ni',
+    city: 'Enniskillen · Dungannon · Omagh',
+    aliases: ['swc', 'south west college', 'enniskillen college', 'fermanagh college'],
   },
 
   // ── Other ─────────────────────────────────────────────────────────────────────
@@ -616,5 +852,6 @@ export const TYPE_LABELS = {
   specialist:  'Specialist Colleges',
   private:     'Private Colleges',
   fet:         'Further Education Colleges',
+  ni:          'Northern Ireland',
   other:       'Other',
 }
