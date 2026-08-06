@@ -336,12 +336,12 @@ export default function HomePage() {
             {/* Stats */}
             <div className="ubp-hero-stats" style={{
               display: 'flex', gap: '0', marginTop: '48px', flexWrap: 'wrap',
-              borderTop: '1px solid rgba(30,58,95,0.12)', paddingTop: '32px', maxWidth: '440px',
+              borderTop: '1px solid rgba(30,58,95,0.12)', paddingTop: '32px', maxWidth: '480px',
             }}>
               {[
-                { n: '35+',  label: 'Students signed up'  },
-                { n: '10+',  label: 'Irish universities'  },
-                { n: 'Free', label: 'To join, always'     },
+                { n: 'Open',  label: 'Available to every young person' },
+                { n: 'IE',    label: 'Across Ireland'                  },
+                { n: 'Free',  label: 'To join, always'                 },
               ].map((s, i) => (
                 <div key={s.label} style={{
                   flex: 1, minWidth: '100px', textAlign: 'left', padding: i > 0 ? '0 0 0 24px' : '0 24px 0 0',
@@ -354,6 +354,23 @@ export default function HomePage() {
                     {s.label}
                   </p>
                 </div>
+              ))}
+            </div>
+
+            {/* Pillars */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '20px', flexWrap: 'wrap' }}>
+              {['Foundation', 'Elevation', 'Lifestyle', 'Connect'].map(pillar => (
+                <span key={pillar} style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '11px', fontWeight: 600,
+                  color: '#1E3A5F',
+                  border: '1.5px solid rgba(30,58,95,0.22)',
+                  borderRadius: '20px',
+                  padding: '4px 13px',
+                  letterSpacing: '0.04em',
+                }}>
+                  {pillar}
+                </span>
               ))}
             </div>
           </div>
