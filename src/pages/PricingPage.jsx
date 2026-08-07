@@ -433,7 +433,7 @@ export default function PricingPage() {
                 borderRadius: '4px', padding: '2px 8px',
                 fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
               }}>
-                Save €33.89 vs monthly
+                Less than €1 a week
               </span>
             </div>
 
