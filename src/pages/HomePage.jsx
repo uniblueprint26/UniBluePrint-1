@@ -114,9 +114,9 @@ function SectionLabel({ children, light }) {
 }
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
-// Glass treatment: frosted white card with accent top bar and tinted icon.
+// Glass card with hover peek panel — slides up to reveal live-style activity dots.
 
-function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb }) {
+function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb, peek }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -125,29 +125,29 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', flexDirection: 'column',
-        background: hovered
-          ? 'rgba(255,255,255,0.97)'
-          : 'rgba(255,255,255,0.72)',
+        background: hovered ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.72)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
         borderRadius: '16px',
-        border: `1px solid rgba(255,255,255,0.85)`,
+        border: '1px solid rgba(255,255,255,0.85)',
         borderTop: `3px solid ${accent}`,
         padding: '28px 26px 24px',
         textDecoration: 'none',
+        position: 'relative',
+        overflow: 'hidden',
         transform: hovered ? 'translateY(-5px)' : 'translateY(0)',
         boxShadow: hovered
           ? `0 20px 52px rgba(${accentRgb},0.13), 0 4px 16px rgba(0,0,0,0.07)`
-          : `0 2px 16px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.9) inset`,
+          : '0 2px 16px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.9) inset',
         transition: 'all 220ms ease',
       }}
     >
       <div style={{
         width: '44px', height: '44px', borderRadius: '10px',
         background: `rgba(${accentRgb},0.10)`,
+        border: `1px solid rgba(${accentRgb},0.14)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
-        border: `1px solid rgba(${accentRgb},0.14)`,
       }}>
         <Icon size={22} color={accent} strokeWidth={1.8} />
       </div>
@@ -160,8 +160,7 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '11px', fontWeight: '700',
-        color: accent,
+        fontSize: '11px', fontWeight: '700', color: accent,
         marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em',
       }}>
         {slogan}
@@ -175,14 +174,47 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '12px', fontWeight: '700',
-        color: accent,
+        fontSize: '12px', fontWeight: '700', color: accent,
         marginTop: '16px', letterSpacing: '0.01em',
-        opacity: hovered ? 1 : 0.45,
-        transition: 'opacity 220ms',
+        opacity: hovered ? 0 : 0.45,
+        transition: 'opacity 160ms',
       }}>
         Explore →
       </p>
+
+      {/* Peek panel — slides up on hover */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        padding: '32px 26px 22px',
+        background: `linear-gradient(to top, rgba(255,255,255,0.99) 60%, transparent)`,
+        transform: hovered ? 'translateY(0)' : 'translateY(100%)',
+        transition: 'transform 260ms cubic-bezier(.4,0,.2,1)',
+        zIndex: 2,
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', marginBottom: '12px' }}>
+          {peek.map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+              <div style={{
+                width: '5px', height: '5px', borderRadius: '50%',
+                background: accent, flexShrink: 0,
+              }} />
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '12px', color: `rgba(${accentRgb},0.8)`, lineHeight: 1.4,
+              }}>
+                {item}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12px', fontWeight: '700', color: accent,
+          letterSpacing: '0.01em',
+        }}>
+          Explore {name} →
+        </p>
+      </div>
     </Link>
   )
 }
@@ -204,6 +236,12 @@ const PILLARS_DATA = [
     icon: FileText,
     accent: '#1E3A5F',
     accentRgb: '30,58,95',
+    peek: [
+      'CV submitted and under review by your Campus Handler',
+      'Cover letter completed and delivered',
+      'Interview prep session confirmed',
+      '3 of 4 Foundation milestones complete',
+    ],
   },
   {
     name: 'Elevation Blueprint',
@@ -213,6 +251,12 @@ const PILLARS_DATA = [
     icon: TrendingUp,
     accent: '#2D4B8E',
     accentRgb: '45,75,142',
+    peek: [
+      'Coach session booked: tomorrow at 2:00 PM',
+      'Personal brand score: 72%',
+      'Network growth: +14 connections this month',
+      'Portfolio: 3 new pieces added',
+    ],
   },
   {
     name: 'Lifestyle Blueprint',
@@ -222,6 +266,12 @@ const PILLARS_DATA = [
     icon: Tag,
     accent: '#145A3E',
     accentRgb: '20,90,62',
+    peek: [
+      '2 new partner discounts unlocked this week',
+      'Career fair nearby: UCD, this Friday',
+      'Featured partner: Headspace 40% off',
+      'Mental wellbeing resources updated',
+    ],
   },
   {
     name: 'Campus Connect',
@@ -231,6 +281,12 @@ const PILLARS_DATA = [
     icon: Users,
     accent: '#7C3500',
     accentRgb: '124,53,0',
+    peek: [
+      '7 accommodation posts near your campus',
+      '23 marketplace listings active right now',
+      '4 carpool offers available this week',
+      '2 study groups looking for members',
+    ],
   },
   {
     name: 'Course Connect',
@@ -240,6 +296,12 @@ const PILLARS_DATA = [
     icon: Globe,
     accent: '#4C1D95',
     accentRgb: '76,29,149',
+    peek: [
+      '14 new posts in your course board today',
+      '6 shared notes uploaded this week',
+      'Module Q&A: 3 questions answered',
+      'Study group forming for Thursday',
+    ],
   },
   {
     name: 'Ad Board',
@@ -249,6 +311,12 @@ const PILLARS_DATA = [
     icon: Megaphone,
     accent: '#1B4B5A',
     accentRgb: '27,75,90',
+    peek: [
+      'Photography services: 3 enquiries received',
+      'Textbooks listed: 2 sold this week',
+      'Gig posted: social media help wanted',
+      'New listing alert in your area',
+    ],
   },
   {
     name: 'Budgeting Tool',
@@ -258,6 +326,12 @@ const PILLARS_DATA = [
     icon: PiggyBank,
     accent: '#134E4A',
     accentRgb: '19,78,74',
+    peek: [
+      'Monthly budget: 68% remaining',
+      'SUSI eligibility: you may qualify for full grant',
+      'Biggest spend this week: groceries',
+      'Tip: rent allowance deadline is Oct 1',
+    ],
   },
 ]
 
@@ -297,6 +371,10 @@ const PAGE_STYLES = `
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+    align-items: stretch;
+  }
+  .ubp-pillars-grid > a {
+    min-height: 280px;
   }
   /* Last item (7th) sits in col 2 of 3 — centred */
   .ubp-pillars-grid > *:last-child:nth-child(3n + 1) {
@@ -349,6 +427,29 @@ export default function HomePage() {
           address: { '@type': 'PostalAddress', addressCountry: 'IE' },
         })}</script>
       </Helmet>
+
+      {/* ── ANNOUNCEMENT BAR ─────────────────────────────────────────────────── */}
+      <div style={{
+        background: '#1E3A5F',
+        borderBottom: '1px solid rgba(245,240,232,0.1)',
+        padding: '10px 24px',
+        textAlign: 'center',
+      }}>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px', fontWeight: '600',
+          color: '#F5F0E8', letterSpacing: '0.02em',
+        }}>
+          <span style={{ opacity: 0.6, marginRight: '8px' }}>🎓</span>
+          50% off all services during the September Trial.{' '}
+          <Link to="/sign-up" style={{
+            color: '#F5F0E8', textDecoration: 'underline',
+            textUnderlineOffset: '3px', opacity: 0.85,
+          }}>
+            Get started free
+          </Link>
+        </p>
+      </div>
 
       {/* ── SECTION 1 — GLASS BOX: THE APP ──────────────────────────────────── */}
       <section style={{
