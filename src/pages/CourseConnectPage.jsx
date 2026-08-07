@@ -279,10 +279,10 @@ export default function CourseConnectPage() {
               fontSize: 'clamp(28px, 3.6vw, 46px)', color: '#F5F0E8',
               marginTop: '10px', lineHeight: 1.12,
             }}>
-              Study Smarter. Together.
+              Cross-Ireland networking, made easier.
             </h1>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.65)', marginTop: '14px', lineHeight: 1.7 }}>
-              Course-specific boards, shared notes, and study groups. Collaborate with people on the same course across Ireland.
+              Connect with people on the same course at any college across Ireland. Share resources, form groups, and build your network beyond your campus.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>

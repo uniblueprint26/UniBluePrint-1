@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ExternalLink } from 'lucide-react'
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
@@ -40,9 +40,10 @@ const COACHES = [
   { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Ireland',       filter: 'Marketing',        services: ['Social Media Strategy', 'Content Creation', 'Brand Building'],    accent: '#4C1D95' },
   { id: 11, name: 'Nikola',      category: 'Personal Branding',    location: 'Ireland',       filter: 'Branding',         services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],    accent: '#2D4B8E' },
   { id: 12, name: 'Jayden',      category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
-  { id: 13, name: 'Camila',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ["Women's Fitness", 'Personal Training', 'Lifestyle Support'],   accent: '#145A3E' },
-  { id: 14, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Coming soon'],                                                    accent: '#145A3E', shell: true },
-  { id: 15, name: 'Eitne',       category: 'Careers and Counselling', location: 'Ireland',   filter: 'Career',           services: ['Coming soon'],                                                    accent: '#1B4B5A', shell: true },
+  { id: 13, name: 'Stephen',      category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
+  { id: 14, name: 'Camila',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ["Women's Fitness", 'Personal Training', 'Lifestyle Support'],   accent: '#145A3E' },
+  { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Coming soon'],                                                    accent: '#145A3E', shell: true },
+  { id: 16, name: 'Eitne',       category: 'Careers and Counselling', location: 'Ireland',   filter: 'Career',           services: ['Coming soon'],                                                    accent: '#1B4B5A', shell: true },
 ]
 
 const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Branding', 'Creative', 'Yoga', 'Career']
@@ -120,11 +121,11 @@ function PhoneMockup() {
 
 // ─── CoachCard ────────────────────────────────────────────────────────────────
 
-function CoachCard({ name, category, location, services, accent, shell }) {
+function CoachCard({ name, category, location, services, accent, shell, href }) {
   const [hovered, setHovered] = useState(false)
   const initial = name.charAt(0).toUpperCase()
 
-  return (
+  const inner = (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -141,6 +142,8 @@ function CoachCard({ name, category, location, services, accent, shell }) {
         display: 'flex',
         flexDirection: 'column',
         opacity: shell ? 0.72 : 1,
+        cursor: href ? 'pointer' : 'default',
+        height: '100%',
       }}
     >
       {/* Avatar area */}
@@ -199,15 +202,35 @@ function CoachCard({ name, category, location, services, accent, shell }) {
             ))}
           </div>
         )}
-        <p style={{
-          fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF',
+        <div style={{
           marginTop: '14px', borderTop: '1px solid rgba(30,58,95,0.07)', paddingTop: '12px',
+          display: 'flex', alignItems: 'center', gap: '5px',
         }}>
-          Full profile and booking in the app.
-        </p>
+          {href ? (
+            <>
+              <ExternalLink size={11} color={accent} />
+              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: accent, fontWeight: '600' }}>
+                Visit Course Compass
+              </span>
+            </>
+          ) : (
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF' }}>
+              Full profile and booking in the app.
+            </span>
+          )}
+        </div>
       </div>
     </div>
   )
+
+  if (href) {
+    return (
+      <Link to={href} style={{ textDecoration: 'none', display: 'block' }}>
+        {inner}
+      </Link>
+    )
+  }
+  return inner
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

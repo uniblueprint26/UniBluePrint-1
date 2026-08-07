@@ -14,6 +14,7 @@ const ElevationBlueprintPage = lazy(() => import('./pages/ElevationBlueprintPage
 const LifestyleBlueprintPage = lazy(() => import('./pages/LifestyleBlueprintPage'))
 const CampusConnectPage = lazy(() => import('./pages/CampusConnectPage'))
 const CourseConnectPage = lazy(() => import('./pages/CourseConnectPage'))
+const CourseCompassPage = lazy(() => import('./pages/CourseCompassPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const SeptemberTrialPage = lazy(() => import('./pages/SeptemberTrialPage'))
 const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
@@ -63,6 +64,7 @@ function AppRoutes() {
         <Route path="/lifestyle-blueprint" element={<LifestyleBlueprintPage />} />
         <Route path="/campus-connect" element={<CampusConnectPage />} />
         <Route path="/course-connect" element={<CourseConnectPage />} />
+        <Route path="/course-compass" element={<CourseCompassPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/september-trial" element={<SeptemberTrialPage />} />
         <Route path="/for-universities" element={<ForUniversitiesPage />} />
