@@ -86,9 +86,9 @@ function LifestyleScreen() {
 
       {/* Deal cards */}
       {[
-        { name: 'Energie Fitness', sub: 'Monthly membership', pct: '15% off', locked: false, bg: '#1a5c3a' },
-        { name: 'JMC Fitness',     sub: 'PT sessions',        pct: '20% off', locked: true,  bg: '#142a1f' },
-        { name: 'Yoga Studio',     sub: 'Class pass',         pct: '€8',      locked: true,  bg: '#142a1f' },
+        { name: 'Energie Fitness', sub: 'Student membership',  pct: '€37.99/mo', locked: false, bg: '#0369A1' },
+        { name: 'JMC Fitness',     sub: 'Sports coaching',     pct: 'From €50',  locked: true,  bg: '#166534' },
+        { name: 'MPFitness',       sub: 'Personal training',   pct: 'From €150', locked: true,  bg: '#15803D' },
       ].map((d, i) => (
         <div key={i} style={{
           display: 'flex', alignItems: 'center', gap: '8px',
@@ -186,30 +186,25 @@ const STEPS = [
 const COUNTY_PARTNERS = [
   {
     id: 'dublin', name: 'Dublin', cx: 259, cy: 200,
-    total: 9,
+    total: 7,
     breakdown: [
-      { category: 'Personal Training', count: 3 },
-      { category: 'Gym Membership',    count: 1 },
-      { category: 'Sports Coaching',   count: 1 },
-      { category: 'Lash Tech',         count: 2 },
-      { category: 'Photography',       count: 1 },
-      { category: 'Digital Marketing', count: 1 },
+      { category: 'Personal Training', count: 1 },   // MPFitness (Milan)
+      { category: 'Gym Membership',    count: 1 },   // Energie Fitness
+      { category: 'Sports Coaching',   count: 1 },   // JMC Fitness
+      { category: 'Photography & Video', count: 1 }, // Nyz3ditz (Nathan)
+      { category: 'Lash Tech',         count: 2 },   // Chloe May House · Lash Lux Dublin
+      { category: 'Digital Marketing', count: 1 },   // Leva Impact
     ],
   },
   {
     id: 'louth', name: 'Louth', cx: 254, cy: 148,
     total: 1,
-    breakdown: [{ category: 'Automotive', count: 1 }],
-  },
-  {
-    id: 'sligo', name: 'Sligo', cx: 88, cy: 114,
-    total: 1,
-    breakdown: [{ category: 'Health & Fitness', count: 1 }],
+    breakdown: [{ category: 'Automotive', count: 1 }], // Whip Wizardz (Jonesborough)
   },
   {
     id: 'galway', name: 'Galway', cx: 64, cy: 232,
     total: 1,
-    breakdown: [{ category: 'Nail Tech', count: 1 }],
+    breakdown: [{ category: 'Nail Tech', count: 1 }], // The Nail Nurse
   },
 ]
 

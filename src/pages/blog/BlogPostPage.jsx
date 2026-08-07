@@ -6,6 +6,17 @@ import { POSTS, calcReadTime, formatDate } from '../../data/blogPosts'
 
 const SITE_URL = 'https://uniblueprint.com'
 
+// Category accent palette (mirrors BlogPage)
+const CATEGORY_ACCENTS = {
+  'CV & Career':            '#2563EB',
+  'UniBlueprint Updates':   '#0891B2',
+  'CAO & Education':        '#C2410C',
+  'Apprenticeships':        '#166534',
+  'Graduate Life':          '#6D28D9',
+  'Mental Health':          '#15803D',
+  'Lifestyle':              '#B45309',
+}
+
 const PRINT_STYLES = `
 @media print {
   [role="banner"], header, nav, footer,
@@ -206,51 +217,68 @@ export default function BlogPostPage() {
 
       <ReadingProgress />
 
-      {/* ARTICLE HERO */}
-      <section style={{ background: '#FFFFFF', padding: '64px 24px 48px', textAlign: 'center' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+      {/* ARTICLE HERO — poster banner */}
+      <section style={{
+        background: '#1E3A5F', padding: '64px 24px 56px',
+        textAlign: 'center', position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Accent stripe */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
+          background: CATEGORY_ACCENTS[post.category] || '#2563EB',
+        }} />
+        {/* Dot grid texture */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle, rgba(245,240,232,0.045) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} />
+
+        <div style={{ maxWidth: '720px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Link
             to="/blog"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '4px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280',
-              marginBottom: '24px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
+              color: 'rgba(245,240,232,0.55)',
+              marginBottom: '28px',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#1E3A5F')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+            onMouseEnter={e => (e.currentTarget.style.color = '#F5F0E8')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,240,232,0.55)')}
           >
             <ChevronLeft size={14} /> Blog
           </Link>
           <span style={{
             display: 'inline-block',
-            background: '#F5F0E8', color: '#1E3A5F',
+            background: CATEGORY_ACCENTS[post.category] || '#2563EB',
+            color: '#fff',
             borderRadius: '20px', padding: '4px 12px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-            textTransform: 'uppercase', letterSpacing: '0.04em',
-            marginBottom: '16px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+            textTransform: 'uppercase', letterSpacing: '0.05em',
+            marginBottom: '18px',
           }}>
             {post.category}
           </span>
           <h1 style={{
             fontFamily: "'DM Serif Display', serif",
-            fontSize: '40px', color: '#1E3A5F',
-            lineHeight: 1.2,
+            fontSize: 'clamp(28px, 4vw, 44px)', color: '#F5F0E8',
+            lineHeight: 1.18,
           }}>
             {post.title}
           </h1>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: '8px', marginTop: '16px',
+            gap: '8px', marginTop: '18px', flexWrap: 'wrap',
           }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.5)' }}>
               {formatDate(post.date)}
             </span>
-            <span aria-hidden="true" style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
+            <span aria-hidden="true" style={{ color: 'rgba(245,240,232,0.25)', fontSize: '10px' }}>·</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.5)' }}>
               {readTime}
             </span>
-            <span aria-hidden="true" style={{ color: '#D1D5DB', fontSize: '10px' }}>·</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>
+            <span aria-hidden="true" style={{ color: 'rgba(245,240,232,0.25)', fontSize: '10px' }}>·</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.5)' }}>
               UniBlueprint Team
             </span>
           </div>

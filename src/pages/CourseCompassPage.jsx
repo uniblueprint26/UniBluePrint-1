@@ -256,6 +256,28 @@ export default function CourseCompassPage() {
           }}>
             Built for Irish students, by someone who has been through it
           </h2>
+
+          {/* Pull quote */}
+          <blockquote style={{
+            margin: '32px 0',
+            padding: '24px 28px',
+            background: '#F5F0E8',
+            borderLeft: `4px solid ${ACCENT}`,
+            borderRadius: '0 10px 10px 0',
+            textAlign: 'left',
+          }}>
+            <p style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 'clamp(17px, 2vw, 21px)',
+              color: '#1E3A5F',
+              lineHeight: 1.45,
+              margin: 0,
+              fontStyle: 'italic',
+            }}>
+              "Every student deserves personalised career guidance that goes beyond test scores."
+            </p>
+          </blockquote>
+
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '14px', color: '#6B7280',
