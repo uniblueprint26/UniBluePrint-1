@@ -1,107 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { UserCheck, Award, Megaphone, User, MapPin } from 'lucide-react'
+import { UserCheck, Award, Megaphone } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
 } from '../components/ui/Form'
 
-/*
-  TODO: Create Supabase table:
-
-  create table handler_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    full_name text not null,
-    university text not null,
-    course text not null,
-    year text not null,
-    email text not null,
-    why_apply text not null,
-    hours_per_week text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table handler_applications enable row level security;
-  create policy "anon_insert" on handler_applications for insert to anon with check (true);
-
-  create table coach_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    full_name text not null,
-    email text not null,
-    linkedin_url text not null,
-    specialisms text[] not null,
-    experience text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table coach_applications enable row level security;
-  create policy "anon_insert" on coach_applications for insert to anon with check (true);
-
-  create table ambassador_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    full_name text not null,
-    university text not null,
-    course text not null,
-    year text not null,
-    email text not null,
-    instagram_handle text,
-    why_apply text not null,
-    how_promote text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table ambassador_applications enable row level security;
-  create policy "anon_insert" on ambassador_applications for insert to anon with check (true);
-*/
-
-// ─── Data ──────────────────────────────────────────────────────────────────────
-
-const FEATURED_COACHES = [
-  { id: 4, category: 'Personal Branding',  location: 'Dublin' },
-  { id: 7, category: 'Pitch Coaching',     location: 'Cork' },
-  { id: 9, category: 'Postgrad Support',   location: 'Dublin' },
-]
-
-const ROLES = [
-  {
-    id: 'handler-form',
-    icon: UserCheck,
-    title: 'Campus Handler',
-    description: 'Review and deliver Foundation Blueprint outputs for students on your campus. Earn money per ticket. Get Pro free.',
-    pills: ['Earn per ticket', 'Pro free', 'Flexible hours'],
-    requirement: 'Must be a current university student in Ireland',
-    cta: 'Apply as a Handler →',
-  },
-  {
-    id: 'coach-form',
-    icon: Award,
-    title: 'Uni Coach',
-    description: 'Deliver Elevation Blueprint services in your area of expertise. Earn commission per engagement. Get Pro free.',
-    pills: ['Earn commission', 'Pro free', 'Build your practice'],
-    requirement: 'Relevant professional experience or expertise required',
-    cta: 'Apply as a Coach →',
-  },
-  {
-    id: 'ambassador-form',
-    icon: Megaphone,
-    title: 'Ambassador',
-    description: 'Represent UniBlueprint on your campus. Spread the word, recruit Handlers, and be part of the September launch.',
-    pills: ['Pro free', 'Launch team', 'Campus presence'],
-    requirement: null,
-    cta: 'Apply as an Ambassador →',
-  },
-]
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const UNIVERSITIES = [
   'University College Dublin',
@@ -130,76 +37,45 @@ const SPECIALISMS = [
   'Postgrad Support',
 ]
 
-// ─── Sub-components ────────────────────────────────────────────────────────────
+// ─── Shared small components ──────────────────────────────────────────────────
 
-function RoleCard({ id, icon: Icon, title, description, pills, requirement, cta }) {
+function SectionLabel({ children, light }) {
   return (
-    <div style={{
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '28px',
-      display: 'flex', flexDirection: 'column',
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em',
+      margin: 0,
     }}>
-      <div style={{
-        width: '60px', height: '60px', borderRadius: '50%',
-        background: '#F5F0E8', margin: '0 auto',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Icon size={32} color="#1E3A5F" />
-      </div>
-      <h3 style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '22px', color: '#1E3A5F',
-        textAlign: 'center', marginTop: '16px',
-      }}>
-        {title}
-      </h3>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '14px', color: '#6B7280',
-        textAlign: 'center', marginTop: '8px', lineHeight: 1.6,
-      }}>
-        {description}
-      </p>
-      <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: '6px',
-        justifyContent: 'center', marginTop: '16px',
-      }}>
-        {pills.map(p => (
-          <span key={p} style={{
-            background: '#F5F0E8', color: '#1E3A5F',
-            borderRadius: '6px', padding: '4px 10px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
-          }}>
-            {p}
-          </span>
-        ))}
-      </div>
-      {requirement && (
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#9CA3AF',
-          textAlign: 'center', marginTop: '16px',
-        }}>
-          {requirement}
-        </p>
-      )}
-      <a
-        href={`#${id}`}
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          height: '52px', width: '100%',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '8px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-          textDecoration: 'none', marginTop: '20px',
-        }}
-      >
-        {cta}
-      </a>
-    </div>
+      {children}
+    </p>
   )
 }
+
+function BulletList({ items, dark }) {
+  return (
+    <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {items.map((item, i) => (
+        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <span style={{
+            width: '5px', height: '5px', borderRadius: '50%',
+            background: dark ? '#1E3A5F' : 'rgba(30,58,95,0.5)',
+            flexShrink: 0, marginTop: '8px',
+          }} />
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#6B7280', lineHeight: 1.55,
+          }}>
+            {item}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// ─── SpecialismToggle ─────────────────────────────────────────────────────────
 
 function SpecialismToggle({ value, onChange }) {
   function toggle(item) {
@@ -233,7 +109,7 @@ function SpecialismToggle({ value, onChange }) {
   )
 }
 
-// ─── Application forms ─────────────────────────────────────────────────────────
+// ─── Application forms ────────────────────────────────────────────────────────
 
 function HandlerForm() {
   const [form, setForm] = useState({
@@ -461,9 +337,88 @@ function AmbassadorForm() {
   )
 }
 
-// ─── JoinPage ──────────────────────────────────────────────────────────────────
+// ─── Page styles ──────────────────────────────────────────────────────────────
+
+const JOIN_STYLES = `
+  .join-role-row {
+    display: flex;
+    gap: 64px;
+    align-items: flex-start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .join-role-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .join-role-form {
+    flex: 1;
+    min-width: 0;
+    max-width: 560px;
+  }
+  @media (max-width: 880px) {
+    .join-role-row {
+      flex-direction: column;
+      gap: 40px;
+    }
+    .join-role-form {
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+`
+
+// ─── RoleInfo ─────────────────────────────────────────────────────────────────
+
+function RoleInfo({ icon: Icon, title, tagline, doItems, getItems }) {
+  return (
+    <div>
+      <div style={{
+        width: '64px', height: '64px', borderRadius: '50%',
+        background: '#1E3A5F',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: '20px',
+      }}>
+        <Icon size={28} color="#F5F0E8" strokeWidth={1.8} />
+      </div>
+
+      <h2 style={{
+        fontFamily: "'DM Serif Display', Georgia, serif",
+        fontSize: '32px', color: '#1E3A5F',
+        lineHeight: 1.1, margin: 0,
+      }}>
+        {title}
+      </h2>
+
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '15px', color: '#6B7280',
+        marginTop: '10px', lineHeight: 1.65,
+        maxWidth: '400px',
+      }}>
+        {tagline}
+      </p>
+
+      <div style={{ marginTop: '28px' }}>
+        <SectionLabel>What you do</SectionLabel>
+        <BulletList items={doItems} dark />
+      </div>
+
+      <div style={{ marginTop: '24px' }}>
+        <SectionLabel>What you get</SectionLabel>
+        <BulletList items={getItems} dark />
+      </div>
+    </div>
+  )
+}
+
+// ─── JoinPage ─────────────────────────────────────────────────────────────────
 
 export default function JoinPage() {
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <>
       <Helmet>
@@ -472,149 +427,194 @@ export default function JoinPage() {
           name="description"
           content="Join the team behind the Blueprint. Apply to become a Campus Handler, Uni Coach, or UniBlueprint Ambassador."
         />
+        <style>{JOIN_STYLES}</style>
       </Helmet>
 
-      <div style={{ background: '#F5F0E8' }}>
-        {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
-        <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
+      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      <section style={{
+        background: '#1E3A5F',
+        padding: '100px 24px 80px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Grid texture */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: [
+            'linear-gradient(rgba(245,240,232,0.025) 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(245,240,232,0.025) 1px, transparent 1px)',
+          ].join(', '),
+          backgroundSize: '56px 56px',
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <SectionLabel light>Join the team</SectionLabel>
+
           <h1 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '48px', color: '#1E3A5F',
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(36px, 5vw, 60px)',
+            color: '#F5F0E8',
+            marginTop: '10px',
+            lineHeight: 1.08,
           }}>
-            Join the Team Behind the Blueprint
+            Build something real.
           </h1>
+
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '18px', color: '#6B7280',
-            margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.6,
+            fontSize: '17px',
+            color: 'rgba(245,240,232,0.65)',
+            margin: '16px auto 0',
+            maxWidth: '560px',
+            lineHeight: 1.65,
           }}>
-            Campus Handlers. Uni Coaches. Ambassadors. Three ways to be part of something building across Ireland.
+            Campus Handlers, Uni Coaches, and Ambassadors are the people behind UniBlueprint. Join us.
           </p>
-        </section>
 
-        {/* ── SECTION 1.5 — FEATURED COACHES ──────────────────────────────── */}
-        <section style={{ background: '#F5F0E8', padding: '64px 24px' }}>
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>
-              Our Uni Coaches
-            </p>
-            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '32px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
-              Meet some of the coaches you&apos;d be joining
-            </h2>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', maxWidth: '480px', margin: '12px auto 0', lineHeight: 1.65 }}>
-              As a Uni Coach you become part of a vetted network of specialists delivering Elevation Blueprint services across Ireland.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '36px' }}
-              className="featured-coaches-grid">
-              <style>{`
-                @media (max-width: 767px) { .featured-coaches-grid { grid-template-columns: 1fr !important; } }
-              `}</style>
-              {FEATURED_COACHES.map(({ id, category, location }) => (
-                <div key={id} style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', overflow: 'hidden' }}>
-                  <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <User size={40} color="#9CA3AF" style={{ opacity: 0.5 }} />
-                    <span style={{
-                      position: 'absolute', top: '12px', left: '12px',
-                      background: '#1E3A5F', color: '#F5F0E8',
-                      borderRadius: '6px', padding: '4px 10px',
-                      fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '700',
-                    }}>
-                      {category}
-                    </span>
-                  </div>
-                  <div style={{ padding: '16px 20px 20px' }}>
-                    <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', margin: 0 }}>
-                      Coach Name
-                    </p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                      <MapPin size={13} color="#9CA3AF" style={{ flexShrink: 0 }} />
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280' }}>{location}</span>
-                    </div>
-                    <Link
-                      to="/our-coaches"
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        marginTop: '14px', height: '40px',
-                        border: '1.5px solid #1E3A5F', borderRadius: '8px',
-                        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
-                        color: '#1E3A5F', textDecoration: 'none',
-                      }}
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ textAlign: 'center', marginTop: '32px' }}>
-              <Link
-                to="/our-coaches"
+          {/* Role pills — scroll to each section */}
+          <div style={{
+            display: 'flex', gap: '10px', justifyContent: 'center',
+            flexWrap: 'wrap', marginTop: '36px',
+          }}>
+            {[
+              { label: 'Campus Handler', id: 'handler-form' },
+              { label: 'Uni Coach', id: 'coach-form' },
+              { label: 'Ambassador', id: 'ambassador-form' },
+            ].map(({ label, id }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => scrollTo(id)}
                 style={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-                  color: '#1E3A5F', textDecoration: 'none',
-                  borderBottom: '1.5px solid #1E3A5F', paddingBottom: '2px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px', fontWeight: '600',
+                  color: '#1E3A5F', background: '#F5F0E8',
+                  border: 'none', borderRadius: '8px',
+                  padding: '12px 24px',
+                  cursor: 'pointer',
+                  transition: 'opacity 150ms',
                 }}
               >
-                See all coaches →
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── SECTION 2 — ROLE CARDS ───────────────────────────────────────── */}
-        <section style={{ padding: '80px 24px 0' }}>
-          <div className="about-diff-grid" style={{ maxWidth: '1100px', margin: '40px auto 0', gap: '16px' }}>
-            {ROLES.map(r => (
-              <RoleCard key={r.id} {...r} />
+                {label}
+              </button>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── SECTION 3 — APPLICATION FORMS ────────────────────────────────── */}
-        <section style={{ padding: '80px 24px' }}>
-          <div id="handler-form" style={{ maxWidth: '640px', margin: '0 auto' }}>
+      {/* ── SECTION 2a — CAMPUS HANDLER ────────────────────────────────────── */}
+      <section id="handler-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div className="join-role-row">
+          <div className="join-role-info">
+            <RoleInfo
+              icon={UserCheck}
+              title="Campus Handler"
+              tagline="Review Foundation Blueprint submissions and provide written feedback to young people on your campus. Earn per review. Work flexibly."
+              doItems={[
+                'Review Foundation Blueprint submissions',
+                'Provide written feedback to each user',
+                'Work 2-4 hours per week, flexibly',
+              ]}
+              getItems={[
+                'Paid per completed review',
+                'Build your own CV and professional skills',
+                'Part of the UniBlueprint team',
+              ]}
+            />
+          </div>
+          <div className="join-role-form">
             <HandlerForm />
           </div>
-          <div id="coach-form" style={{ maxWidth: '640px', margin: '48px auto 0' }}>
+        </div>
+      </section>
+
+      {/* ── SECTION 2b — UNI COACH ─────────────────────────────────────────── */}
+      <section id="coach-form" style={{ background: '#EDE8DF', padding: '80px 24px' }}>
+        <div className="join-role-row">
+          <div className="join-role-info">
+            <RoleInfo
+              icon={Award}
+              title="Uni Coach"
+              tagline="Deliver Elevation Blueprint services in your area of expertise. Set your own rates, choose your availability, and keep the majority of every booking."
+              doItems={[
+                'Deliver Elevation Blueprint services',
+                'One-to-one sessions, coaching, and strategy',
+                'Set your own rates and availability',
+              ]}
+              getItems={[
+                'Keep 85% of every booking',
+                'Full flexibility — you choose your hours',
+                'Verified Coach badge on your profile',
+              ]}
+            />
+          </div>
+          <div className="join-role-form">
             <CoachForm />
           </div>
-          <div id="ambassador-form" style={{ maxWidth: '640px', margin: '48px auto 0' }}>
+        </div>
+      </section>
+
+      {/* ── SECTION 2c — AMBASSADOR ────────────────────────────────────────── */}
+      <section id="ambassador-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div className="join-role-row">
+          <div className="join-role-info">
+            <RoleInfo
+              icon={Megaphone}
+              title="Ambassador"
+              tagline="Be the face of UniBlueprint on your campus. Spread the word, build community, and shape how UniBlueprint launches in September 2026."
+              doItems={[
+                'Represent UniBlueprint on your campus',
+                'Share with your network',
+                'Host or attend events',
+              ]}
+              getItems={[
+                'Free Pro subscription',
+                'Exclusive Ambassador merchandise',
+                'First access to new features',
+              ]}
+            />
+          </div>
+          <div className="join-role-form">
             <AmbassadorForm />
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── SECTION 4 — GENERAL CTA ──────────────────────────────────────── */}
-        <section style={{ background: '#1E3A5F', padding: '64px 24px', textAlign: 'center' }}>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '32px', color: '#F5F0E8',
-          }}>
-            Not sure which role is right for you?
-          </h2>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: 'rgba(245,240,232,0.7)',
-            marginTop: '12px',
-          }}>
-            Get in touch and we will help you find the right fit.
-          </p>
-          <Link
-            to="/contact"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 36px',
-              background: '#F5F0E8', color: '#1E3A5F',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none', marginTop: '24px',
-            }}
-          >
-            Contact Us →
-          </Link>
-        </section>
-      </div>
+      {/* ── SECTION 3 — CTA ────────────────────────────────────────────────── */}
+      <section style={{
+        background: '#1E3A5F',
+        padding: '64px 24px',
+        textAlign: 'center',
+      }}>
+        <p style={{
+          fontFamily: "'DM Serif Display', Georgia, serif",
+          fontSize: '28px', color: '#F5F0E8',
+          margin: 0,
+        }}>
+          Questions? Get in touch.
+        </p>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '15px', color: 'rgba(245,240,232,0.55)',
+          marginTop: '8px',
+        }}>
+          We will help you find the right role.
+        </p>
+        <Link
+          to="/contact"
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            height: '48px', padding: '0 28px',
+            background: '#F5F0E8', color: '#1E3A5F',
+            borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none', marginTop: '24px',
+          }}
+        >
+          Contact us
+        </Link>
+      </section>
     </>
   )
 }

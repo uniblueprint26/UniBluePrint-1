@@ -1,16 +1,14 @@
 import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import {
-  Check, X as XIcon, ChevronDown, Sparkles,
-} from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FREE_FEATURES = [
   'Campus Connect (all boards)',
   'Course Connect (all boards)',
-  'Mental Health & Wellbeing resources',
+  'Mental Health and Wellbeing resources',
   'Basic profile and account',
   'View Lifestyle Blueprint deals',
 ]
@@ -20,337 +18,102 @@ const PRO_FEATURES = [
   'Foundation Blueprint (all services)',
   'Elevation Blueprint (all services)',
   'Lifestyle Blueprint deals access',
-  'Priority Handler & Coach assignment',
+  'Priority Handler and Coach assignment',
   'Discount on service bundles',
 ]
 
-const COMPARISON_SECTIONS = [
-  {
-    label: 'Foundation Blueprint',
-    rows: [
-      { feature: 'CV Optimisation',             free: false, pro: true },
-      { feature: 'LinkedIn Optimisation',        free: false, pro: true },
-      { feature: 'Cover Letter Assistance',      free: false, pro: true },
-      { feature: 'Application Form Assistance',  free: false, pro: true },
-      { feature: 'Interview Preparation',        free: false, pro: true },
-      { feature: 'Job Search Support',           free: false, pro: true },
-      { feature: 'CAO Personal Statement',       free: false, pro: true },
-      { feature: 'College Interview Prep',       free: false, pro: true },
-      { feature: 'Scholarship & Grants',         free: false, pro: true },
-      { feature: 'Course Selection Guidance',    free: false, pro: true },
-    ],
-  },
-  {
-    label: 'Elevation Blueprint',
-    rows: [
-      { feature: 'Personal Branding Support',         free: false, pro: true },
-      { feature: 'Network Assistance',                free: false, pro: true },
-      { feature: 'Portfolio Building',                free: false, pro: true },
-      { feature: 'Mentorship Matching',               free: 'Free matching', pro: 'Free matching + sessions' },
-      { feature: 'Pitch & Presentation Coaching',     free: false, pro: true },
-      { feature: 'Personal Statement & Postgrad',     free: false, pro: true },
-    ],
-  },
-  {
-    label: 'Lifestyle Blueprint',
-    rows: [
-      { feature: 'Mental Health & Wellbeing',   free: true, pro: true },
-      { feature: 'Lifestyle deals access',       free: false, pro: true },
-      { feature: 'New deals notifications',      free: false, pro: true },
-    ],
-  },
-  {
-    label: 'Campus & Course Features',
-    rows: [
-      { feature: 'Campus Connect (all boards)', free: true, pro: true },
-      { feature: 'Course Connect (all boards)', free: true, pro: true },
-      { feature: 'Study group creation',         free: true, pro: true },
-      { feature: 'Resource sharing',             free: true, pro: true },
-    ],
-  },
-  {
-    label: 'Delivery & Support',
-    rows: [
-      { feature: 'Standard 48hr delivery',    free: false, pro: true },
-      { feature: 'Same-day Premium delivery', free: false, pro: true },
-      { feature: 'Priority Handler/Coach',    free: false, pro: true },
-      { feature: 'Email support',             free: true, pro: true },
-    ],
-  },
-]
-
-// All 16 services across both blueprints
 const PRICING_ROWS = {
   foundation: [
-    { name: 'CV Optimisation',             stdOrig: '€20', stdTrial: '€10', premOrig: '€30', premTrial: '€15' },
-    { name: 'LinkedIn Optimisation',        stdOrig: '€20', stdTrial: '€10', premOrig: '€30', premTrial: '€15' },
-    { name: 'Cover Letter Assistance',      stdOrig: '€20', stdTrial: '€10', premOrig: '€30', premTrial: '€15' },
-    { name: 'Application Form Assistance',  stdOrig: 'From €20', stdTrial: 'From €10', premOrig: 'From €30', premTrial: 'From €15' },
-    { name: 'Interview Preparation',        stdOrig: 'From €20', stdTrial: 'From €10', premOrig: 'From €30', premTrial: 'From €15' },
-    { name: 'Job Search Support',           stdOrig: '€15', stdTrial: '€8', premOrig: '€22', premTrial: '€11' },
-    { name: 'CAO Personal Statement',       stdOrig: '€20', stdTrial: '€10', premOrig: '€30', premTrial: '€15' },
-    { name: 'College Interview Prep',       stdOrig: '€20', stdTrial: '€10', premOrig: '€30', premTrial: '€15' },
-    { name: 'Scholarship & Grants',         stdOrig: '€20', stdTrial: '€10', premOrig: '€30', premTrial: '€15' },
-    { name: 'Course Selection Guidance',    stdOrig: '€15', stdTrial: '€8', premOrig: '€22', premTrial: '€11' },
+    { name: 'CV Optimisation',             std: '€20',      trial: '€10'      },
+    { name: 'LinkedIn Optimisation',        std: '€20',      trial: '€10'      },
+    { name: 'Cover Letter Assistance',      std: '€20',      trial: '€10'      },
+    { name: 'Application Form Assistance',  std: 'From €20', trial: 'From €10' },
+    { name: 'Interview Preparation',        std: 'From €20', trial: 'From €10' },
+    { name: 'Job Search Support',           std: '€15',      trial: '€8'       },
+    { name: 'CAO Personal Statement',       std: '€20',      trial: '€10'      },
+    { name: 'College Interview Prep',       std: '€20',      trial: '€10'      },
+    { name: 'Scholarship and Grants',       std: '€20',      trial: '€10'      },
+    { name: 'Course Selection Guidance',    std: '€15',      trial: '€8'       },
   ],
   elevation: [
-    { name: 'Personal Branding Support',        stdOrig: '€40', stdTrial: '€20', premOrig: '€55', premTrial: '€28' },
-    { name: 'Network Assistance',               stdOrig: '€30', stdTrial: '€15', premOrig: '€46', premTrial: '€23' },
-    { name: 'Portfolio Building',               stdOrig: '€30', stdTrial: '€15', premOrig: '€46', premTrial: '€23' },
-    { name: 'Mentorship Matching',              stdOrig: '€20', stdTrial: '€10', premOrig: '€36', premTrial: '€18' },
-    { name: 'Pitch & Presentation Coaching',    stdOrig: '€25', stdTrial: '€13', premOrig: '€45', premTrial: '€18' },
-    { name: 'Personal Statement & Postgrad',    stdOrig: '€30', stdTrial: '€15', premOrig: '€52', premTrial: '€26' },
+    { name: 'Personal Branding Support',        std: '€40', trial: '€20' },
+    { name: 'Network Assistance',               std: '€30', trial: '€15' },
+    { name: 'Portfolio Building',               std: '€30', trial: '€15' },
+    { name: 'Mentorship Matching',              std: '€20', trial: '€10' },
+    { name: 'Pitch and Presentation Coaching',  std: '€25', trial: '€13' },
+    { name: 'Personal Statement and Postgrad',  std: '€30', trial: '€15' },
   ],
 }
 
 const FAQS = [
-  { q: 'What does the Free plan actually include?', a: 'Foundation Blueprint at Standard pricing, Campus Connect, Course Connect, the Budgeting Tool, and all Mental Health & Wellbeing resources are free for every user.' },
-  { q: 'Do I need Pro to use Foundation or Elevation Blueprint services?', a: 'Foundation Blueprint Standard is available on the free tier. Pro is required for Foundation Blueprint Premium (same-day delivery) and for all Elevation Blueprint services.' },
-  { q: 'What is the September trial price?', a: 'Every UniBlueprint service is available at 50% off standard pricing throughout September 2026. The discount is applied automatically — no code needed.' },
-  { q: 'Can I cancel Pro at any time?', a: 'Yes — cancel any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service.' },
-  { q: 'Is there a student discount on top of the trial price?', a: 'No. The September trial price is already the discounted rate — 50% off standard pricing. Discounts do not stack.' },
-  { q: 'What payment methods are accepted?', a: 'Card, Apple Pay, and Google Pay. Payments are processed securely via Stripe.' },
-  { q: 'Does Pro include unlimited service usage?', a: 'Pro unlocks access to purchase services at listed prices. Services are pay-per-use within the subscription — Pro is the access key, not an unlimited bundle.' },
-  { q: 'Is there a refund policy?', a: 'Yes — see our Refund Policy for full details. Annual Pro subscribers are entitled to a refund within 14 days of purchase if they have not used the service.' },
+  {
+    q: 'What does the Free plan actually include?',
+    a: 'Campus Connect, Course Connect, all Mental Health and Wellbeing resources, and a basic profile are free for every user. Foundation Blueprint services are available to purchase on the free tier at listed prices.',
+  },
+  {
+    q: 'What is the September trial price?',
+    a: 'Every UniBlueprint service is available at 50% off standard pricing throughout September 2026. The discount is applied automatically — no code needed.',
+  },
+  {
+    q: 'Can I cancel Pro at any time?',
+    a: 'Yes — cancel any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service.',
+  },
+  {
+    q: 'What payment methods are accepted?',
+    a: 'Card, Apple Pay, and Google Pay. Payments are processed securely via Stripe.',
+  },
+  {
+    q: 'Is there a refund policy?',
+    a: 'Yes — see our Refund Policy for full details. Annual Pro subscribers are entitled to a refund within 14 days of purchase if they have not used the service.',
+  },
 ]
+
+// ─── Page styles ───────────────────────────────────────────────────────────────
+
+const PAGE_STYLES = `
+  .pricing-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1020px;
+    margin: 40px auto 0;
+  }
+  @media (max-width: 767px) {
+    .pricing-cards-grid { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 768px) and (max-width: 959px) {
+    .pricing-cards-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .pricing-card-annual { grid-column: 1 / -1; max-width: 480px; margin: 0 auto; width: 100%; }
+  }
+  .pricing-svc-row { transition: background 140ms ease; }
+  .pricing-svc-row:hover { background: rgba(30,58,95,0.03); }
+`
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function ComingSoonModal({ onClose }) {
+function SectionLabel({ children, light }) {
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '24px',
-      }}
-    >
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        style={{
-          position: 'absolute', inset: 0,
-          background: 'rgba(0,0,0,0.4)',
-        }}
-      />
-      {/* Panel */}
-      <div style={{
-        position: 'relative', zIndex: 1,
-        background: '#FFFFFF', borderRadius: '16px',
-        padding: '36px', maxWidth: '420px', width: '100%',
-        boxShadow: '0px 16px 48px rgba(30,58,95,0.18)',
-        textAlign: 'center',
-      }}>
-        <div style={{
-          width: '56px', height: '56px', borderRadius: '50%',
-          background: '#F5F0E8',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 20px',
-        }}>
-          <Sparkles size={28} color="#1E3A5F" />
-        </div>
-        <h2
-          id="modal-title"
-          style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}
-        >
-          Subscriptions coming soon
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '15px', color: '#6B7280',
-          marginTop: '12px', lineHeight: 1.6,
-        }}>
-          Subscription payments aren't live yet. Download the app to get started — you'll be notified when Pro launches.
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
-          <Link
-            to="/download"
-            onClick={onClose}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '48px', background: '#1E3A5F', color: '#F5F0E8',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-              textDecoration: 'none',
-            }}
-          >
-            Download the App
-          </Link>
-          <button
-            onClick={onClose}
-            style={{
-              height: '48px', background: 'none',
-              border: '1.5px solid rgba(30,58,95,0.2)',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280',
-              cursor: 'pointer',
-            }}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function PlanCard({ plan, annual, onProClick }) {
-  const isFree = plan === 'free'
-  const isAnnual = plan === 'annual'
-
-  const name = isFree ? 'Free' : 'Pro'
-  const badge = plan === 'monthly' ? 'Most Popular' : plan === 'annual' ? 'Best Value' : null
-
-  const origPrice = isFree ? null : plan === 'monthly' ? '€13.98' : '€99.98'
-  const price = isFree ? '€0' : plan === 'monthly' ? '€6.99' : '€49.99'
-  const period = isFree ? 'Forever' : plan === 'monthly' ? '/month' : '/year'
-
-  return (
-    <div style={{
-      position: 'relative',
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      borderLeft: !isFree ? '3px solid #1E3A5F' : 'none',
-      padding: '28px',
-      flex: 1,
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em',
     }}>
-      {badge && (
-        <span style={{
-          position: 'absolute', top: '16px', right: '16px',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '6px', padding: '3px 10px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', fontWeight: '700',
-        }}>
-          {badge}
-        </span>
-      )}
-
-      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F' }}>
-        {name}
-      </p>
-
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '12px', flexWrap: 'wrap' }}>
-        {origPrice && (
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: '#9CA3AF',
-            textDecoration: 'line-through',
-          }}>
-            {origPrice}
-          </span>
-        )}
-        <span style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '44px', fontWeight: '700', color: '#1E3A5F',
-          lineHeight: 1,
-        }}>
-          {price}
-        </span>
-        <span style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '14px', color: '#6B7280',
-        }}>
-          {period}
-        </span>
-      </div>
-
-      {!isFree && (
-        <>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#9CA3AF', marginTop: '4px',
-          }}>
-            September trial price
-          </p>
-          {isAnnual && (
-            <span style={{
-              display: 'inline-block', marginTop: '8px',
-              background: 'rgba(22,163,74,0.1)', color: '#16A34A',
-              borderRadius: '4px', padding: '3px 8px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '11px', fontWeight: '700',
-            }}>
-              Save 40% vs monthly
-            </span>
-          )}
-        </>
-      )}
-
-      <ul style={{
-        marginTop: '20px', padding: 0, listStyle: 'none',
-        display: 'flex', flexDirection: 'column', gap: '10px',
-      }}>
-        {(isFree ? FREE_FEATURES : PRO_FEATURES).map(f => (
-          <li key={f} style={{
-            display: 'flex', alignItems: 'flex-start', gap: '8px',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '14px', color: '#1E3A5F',
-          }}>
-            <Check size={16} color="#16A34A" style={{ flexShrink: 0, marginTop: '2px' }} />
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      <div style={{ marginTop: '24px' }}>
-        {isFree ? (
-          <Link
-            to="/sign-up"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '48px', width: '100%',
-              background: 'none', color: '#1E3A5F',
-              border: '1.5px solid #1E3A5F',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-              textDecoration: 'none',
-            }}
-          >
-            Get started free
-          </Link>
-        ) : (
-          <button
-            onClick={onProClick}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '48px', width: '100%',
-              background: '#1E3A5F', color: '#F5F0E8',
-              border: 'none', borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-              cursor: 'pointer',
-            }}
-          >
-            {plan === 'monthly' ? 'Start Pro' : 'Start Pro Annual'}
-          </button>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function CellValue({ value }) {
-  if (value === true)  return <Check size={18} color="#16A34A" style={{ margin: '0 auto', display: 'block' }} />
-  if (value === false) return <XIcon size={18} color="#9CA3AF" style={{ margin: '0 auto', display: 'block' }} />
-  return (
-    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>
-      {value}
-    </span>
+      {children}
+    </p>
   )
 }
 
 function AccordionItem({ question, answer }) {
   const [open, setOpen] = useState(false)
-  const panelId = useId()
-  const triggerId = useId()
+  const panelId    = useId()
+  const triggerId  = useId()
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      overflow: 'hidden',
+      boxShadow: '0 2px 12px rgba(30,58,95,0.08)', overflow: 'hidden',
     }}>
       <button
         id={triggerId}
@@ -365,10 +128,7 @@ function AccordionItem({ question, answer }) {
           cursor: 'pointer', textAlign: 'left',
         }}
       >
-        <span style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '15px', fontWeight: '500', color: '#1E3A5F',
-        }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '500', color: '#1E3A5F' }}>
           {question}
         </span>
         <ChevronDown
@@ -378,11 +138,7 @@ function AccordionItem({ question, answer }) {
       </button>
       <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!open}>
         <div style={{ padding: '0 24px 20px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '14px', color: '#6B7280',
-            lineHeight: 1.7, paddingTop: '16px',
-          }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.7, paddingTop: '16px' }}>
             {answer}
           </p>
         </div>
@@ -408,354 +164,472 @@ function AccordionGroup({ children }) {
 // ─── PricingPage ───────────────────────────────────────────────────────────────
 
 export default function PricingPage() {
-  const [billing, setBilling] = useState('monthly') // 'monthly' | 'annual'
-  const [showModal, setShowModal] = useState(false)
+  const [mode, setMode] = useState('trial')       // 'trial' | 'standard'
+  const [tab,  setTab]  = useState('foundation')  // 'foundation' | 'elevation'
+
+  const isTrial = mode === 'trial'
 
   return (
     <>
       <Helmet>
         <title>Pricing | UniBlueprint</title>
-        <meta
-          name="description"
-          content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial."
-        />
+        <meta name="description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial." />
         <meta property="og:title" content="Pricing | UniBlueprint" />
         <meta property="og:description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial." />
+        <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {showModal && <ComingSoonModal onClose={() => setShowModal(false)} />}
-
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px 0', textAlign: 'center' }}>
-        <h1 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '48px', color: '#1E3A5F',
-        }}>
-          Simple, transparent pricing
-        </h1>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '18px', color: '#6B7280',
-          marginTop: '12px',
-        }}>
-          Free to join. Pro unlocks everything.
-        </p>
+      <section style={{
+        background: '#1E3A5F', padding: '100px 24px 72px',
+        textAlign: 'center', position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Dot grid */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle, rgba(245,240,232,0.04) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
 
-        {/* Trial strip */}
-        <div style={{
-          background: '#1E3A5F',
-          marginTop: '40px',
-          padding: '12px 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-        }}>
-          <Sparkles size={14} color="#F5F0E8" />
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '13px', color: '#F5F0E8', fontWeight: '500',
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <SectionLabel light>Transparent pricing</SectionLabel>
+
+          <h1 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(32px, 5vw, 56px)',
+            color: '#F5F0E8', lineHeight: 1.08,
+            marginTop: '12px', letterSpacing: '-0.01em',
           }}>
-            50% OFF — September Trial ends 30 September 2026
-          </span>
+            Simple. Honest. No surprises.
+          </h1>
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '17px', color: 'rgba(245,240,232,0.65)',
+            marginTop: '16px', maxWidth: '500px', margin: '16px auto 0', lineHeight: 1.65,
+          }}>
+            Free to join. Pay only for the services you use. Every service at 50% off during the September Trial.
+          </p>
+
+          {/* Trial badge */}
+          <div style={{ marginTop: '28px' }}>
+            <span style={{
+              display: 'inline-block',
+              background: '#F5F0E8', color: '#1E3A5F',
+              borderRadius: '100px', padding: '8px 22px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '13px', fontWeight: '700', letterSpacing: '0.01em',
+            }}>
+              🎓 September Trial — 50% off all services
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* ── SECTION 2 — PLAN CARDS ───────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        {/* Billing toggle */}
+      {/* ── SECTION 2 — TIER CARDS ───────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+
+        {/* Mode toggle */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{
             display: 'inline-flex',
-            background: '#FFFFFF', borderRadius: '8px',
-            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-            height: '52px', overflow: 'hidden',
+            background: '#F5F0E8', borderRadius: '10px',
+            padding: '4px', gap: '4px',
           }}>
-            <button
-              onClick={() => setBilling('monthly')}
-              style={{
-                padding: '0 24px',
-                background: billing === 'monthly' ? '#1E3A5F' : 'transparent',
-                color: billing === 'monthly' ? '#F5F0E8' : '#6B7280',
-                border: 'none', cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', fontWeight: '600',
-                transition: 'background 150ms, color 150ms',
-              }}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBilling('annual')}
-              style={{
-                padding: '0 24px',
-                background: billing === 'annual' ? '#1E3A5F' : 'transparent',
-                color: billing === 'annual' ? '#F5F0E8' : '#6B7280',
-                border: 'none', cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', fontWeight: '600',
-                transition: 'background 150ms, color 150ms',
-                display: 'flex', alignItems: 'center', gap: '8px',
-              }}
-            >
-              Annual
-              <span style={{
-                background: 'rgba(22,163,74,0.15)', color: '#16A34A',
-                borderRadius: '4px', padding: '2px 7px',
-                fontSize: '11px', fontWeight: '700',
-              }}>
-                Save 40%
-              </span>
-            </button>
+            {[
+              ['trial',    'September Trial'],
+              ['standard', 'Standard'],
+            ].map(([val, label]) => (
+              <button
+                key={val}
+                onClick={() => setMode(val)}
+                style={{
+                  padding: '8px 20px', borderRadius: '8px',
+                  border: 'none', cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '600',
+                  background: mode === val ? '#1E3A5F' : 'transparent',
+                  color: mode === val ? '#F5F0E8' : '#6B7280',
+                  transition: 'all 150ms ease',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                }}
+              >
+                {label}
+                {val === 'trial' && mode === 'standard' && (
+                  <span style={{
+                    background: 'rgba(22,163,74,0.15)', color: '#16A34A',
+                    borderRadius: '4px', padding: '1px 6px',
+                    fontSize: '10px', fontWeight: '700',
+                  }}>
+                    50% off
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Plan cards */}
-        <div className="pricing-plans-grid" style={{ maxWidth: '960px', margin: '40px auto 0' }}>
-          <PlanCard plan="free"    annual={billing === 'annual'} onProClick={() => setShowModal(true)} />
-          {billing === 'monthly'
-            ? <PlanCard plan="monthly" annual={false} onProClick={() => setShowModal(true)} />
-            : <PlanCard plan="annual"  annual={true}  onProClick={() => setShowModal(true)} />
-          }
-          {/* Third card: always show the opposite of the selected billing */}
-          {billing === 'monthly'
-            ? (
-              <div style={{
-                background: '#FFFFFF', borderRadius: '12px',
-                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-                padding: '28px', flex: 1,
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', textAlign: 'center', gap: '8px',
+        <div className="pricing-cards-grid">
+
+          {/* Free */}
+          <div style={{
+            background: '#FFFFFF', borderRadius: '16px',
+            border: '2px solid #1E3A5F',
+            padding: '32px 28px',
+            display: 'flex', flexDirection: 'column',
+          }}>
+            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#1E3A5F' }}>
+              Free
+            </p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '16px' }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '44px', fontWeight: '700', color: '#1E3A5F', lineHeight: 1 }}>
+                €0
+              </span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
+                forever
+              </span>
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '4px' }}>
+              No credit card required
+            </p>
+
+            <ul style={{ marginTop: '24px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+              {FREE_FEATURES.map(f => (
+                <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>
+                  <Check size={15} color="#16A34A" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              to="/sign-up"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: '46px', marginTop: '24px',
+                background: 'none', border: '1.5px solid #1E3A5F',
+                borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                color: '#1E3A5F', textDecoration: 'none',
+              }}
+            >
+              Sign up free
+            </Link>
+          </div>
+
+          {/* Pro Monthly */}
+          <div style={{
+            background: '#FFFFFF', borderRadius: '16px',
+            border: '2px solid #B8860B',
+            padding: '32px 28px',
+            display: 'flex', flexDirection: 'column',
+            position: 'relative',
+            boxShadow: '0 8px 40px rgba(184,134,11,0.10)',
+          }}>
+            <span style={{
+              position: 'absolute', top: '-13px', left: '50%', transform: 'translateX(-50%)',
+              background: '#B8860B', color: '#FFFFFF',
+              borderRadius: '100px', padding: '4px 16px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+              whiteSpace: 'nowrap',
+            }}>
+              Most Popular
+            </span>
+
+            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#1E3A5F' }}>
+              Pro
+            </p>
+
+            <div style={{ marginTop: '16px' }}>
+              {isTrial ? (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#9CA3AF', textDecoration: 'line-through' }}>€6.99</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '44px', fontWeight: '700', color: '#1E3A5F', lineHeight: 1 }}>€3.50</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>/month</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '44px', fontWeight: '700', color: '#1E3A5F', lineHeight: 1 }}>€6.99</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>/month</span>
+                </div>
+              )}
+              {isTrial && (
+                <span style={{
+                  display: 'inline-block', marginTop: '6px',
+                  background: 'rgba(22,163,74,0.10)', color: '#16A34A',
+                  borderRadius: '4px', padding: '2px 8px',
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+                }}>
+                  September trial price
+                </span>
+              )}
+            </div>
+
+            <ul style={{ marginTop: '24px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+              {PRO_FEATURES.map(f => (
+                <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>
+                  <Check size={15} color="#16A34A" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              to="/sign-up"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: '46px', marginTop: '24px',
+                background: '#1E3A5F', borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                color: '#F5F0E8', textDecoration: 'none',
+              }}
+            >
+              Get Pro
+            </Link>
+          </div>
+
+          {/* Pro Annual */}
+          <div
+            className="pricing-card-annual"
+            style={{
+              background: '#1E3A5F', borderRadius: '16px',
+              border: '2px solid #1E3A5F',
+              padding: '32px 28px',
+              display: 'flex', flexDirection: 'column',
+              position: 'relative',
+            }}
+          >
+            <span style={{
+              position: 'absolute', top: '-13px', left: '50%', transform: 'translateX(-50%)',
+              background: '#F5F0E8', color: '#1E3A5F',
+              borderRadius: '100px', padding: '4px 16px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+              whiteSpace: 'nowrap',
+            }}>
+              Best Value
+            </span>
+
+            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#F5F0E8' }}>
+              Pro Annual
+            </p>
+
+            <div style={{ marginTop: '16px' }}>
+              {isTrial ? (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.4)', textDecoration: 'line-through' }}>€49.99</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '44px', fontWeight: '700', color: '#F5F0E8', lineHeight: 1 }}>€24.99</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: 'rgba(245,240,232,0.55)' }}>/year</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '44px', fontWeight: '700', color: '#F5F0E8', lineHeight: 1 }}>€49.99</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: 'rgba(245,240,232,0.55)' }}>/year</span>
+                </div>
+              )}
+              <span style={{
+                display: 'inline-block', marginTop: '6px',
+                background: 'rgba(245,240,232,0.12)', color: 'rgba(245,240,232,0.75)',
+                borderRadius: '4px', padding: '2px 8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
               }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
-                  Save 40% by paying annually
-                </p>
-                <button
-                  onClick={() => setBilling('annual')}
-                  style={{
-                    background: 'none', border: '1.5px solid #1E3A5F',
-                    borderRadius: '8px', padding: '10px 20px',
-                    fontFamily: "'DM Sans', sans-serif", fontSize: '14px',
-                    color: '#1E3A5F', fontWeight: '600', cursor: 'pointer',
-                  }}
-                >
-                  Switch to Annual →
-                </button>
-              </div>
-            )
-            : (
-              <div style={{
-                background: '#FFFFFF', borderRadius: '12px',
-                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-                padding: '28px', flex: 1,
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', textAlign: 'center', gap: '8px',
-              }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
-                  Prefer month-to-month? Switch to monthly billing.
-                </p>
-                <button
-                  onClick={() => setBilling('monthly')}
-                  style={{
-                    background: 'none', border: '1.5px solid #1E3A5F',
-                    borderRadius: '8px', padding: '10px 20px',
-                    fontFamily: "'DM Sans', sans-serif", fontSize: '14px',
-                    color: '#1E3A5F', fontWeight: '600', cursor: 'pointer',
-                  }}
-                >
-                  Switch to Monthly →
-                </button>
-              </div>
-            )
-          }
+                Save €33.89 vs monthly
+              </span>
+            </div>
+
+            <ul style={{ marginTop: '24px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+              {PRO_FEATURES.map(f => (
+                <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: 'rgba(245,240,232,0.8)' }}>
+                  <Check size={15} color="rgba(245,240,232,0.55)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              to="/sign-up"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: '46px', marginTop: '24px',
+                background: '#F5F0E8', borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                color: '#1E3A5F', textDecoration: 'none',
+              }}
+            >
+              Get Pro Annual
+            </Link>
+          </div>
+
         </div>
-        {/* TODO: Confirm VAT treatment with accountant before launch */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', color: '#9CA3AF',
-          textAlign: 'center', marginTop: '16px',
-        }}>
-          *All prices include VAT where applicable.
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '20px' }}>
+          All prices include VAT where applicable.
         </p>
       </section>
 
-      {/* ── SECTION 3 — FEATURE COMPARISON TABLE ─────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center',
-        }}>
-          What's included
-        </h2>
+      {/* ── SECTION 3 — SERVICES PRICING ─────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '80px 24px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <SectionLabel>Service pricing</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(28px, 4vw, 40px)',
+            color: '#1E3A5F', marginTop: '10px',
+          }}>
+            Every service. Every price.
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '10px', lineHeight: 1.6 }}>
+            {isTrial
+              ? 'September trial prices are active. Standard prices resume 1 October 2026.'
+              : 'Standard pricing. Switch to September Trial above to see 50% off prices.'}
+          </p>
+        </div>
 
-        <div style={{
-          maxWidth: '1000px', margin: '40px auto 0',
-          background: '#FFFFFF', borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          overflow: 'hidden',
-        }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '460px' }}>
-              <thead>
-                <tr style={{ background: '#1E3A5F' }}>
-                  <th style={{ padding: '16px 24px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#F5F0E8' }}>
-                    Feature
-                  </th>
-                  <th style={{ padding: '16px 24px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#F5F0E8', width: '120px' }}>
-                    Free
-                  </th>
-                  <th style={{ padding: '16px 24px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#F5F0E8', width: '120px' }}>
-                    Pro
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARISON_SECTIONS.map(section => (
-                  <>
-                    <tr key={section.label} style={{ background: '#F5F0E8' }}>
-                      <td
-                        colSpan={3}
-                        style={{
-                          padding: '10px 24px',
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: '12px', fontWeight: '600',
-                          color: '#6B7280',
-                          textTransform: 'uppercase', letterSpacing: '0.06em',
-                          borderTop: '1px solid rgba(30,58,95,0.08)',
-                        }}
-                      >
-                        {section.label}
-                      </td>
-                    </tr>
-                    {section.rows.map((row, i) => (
-                      <tr
-                        key={row.feature}
-                        style={{
-                          borderTop: '1px solid rgba(30,58,95,0.06)',
-                          background: i % 2 === 0 ? '#FFFFFF' : 'rgba(245,240,232,0.3)',
-                        }}
-                      >
-                        <td style={{ padding: '13px 24px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>
-                          {row.feature}
-                        </td>
-                        <td style={{ padding: '13px 24px', textAlign: 'center' }}>
-                          <CellValue value={row.free} />
-                        </td>
-                        <td style={{ padding: '13px 24px', textAlign: 'center' }}>
-                          <CellValue value={row.pro} />
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                ))}
-              </tbody>
-            </table>
+        {/* Blueprint tab switcher */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+          <div style={{
+            display: 'inline-flex',
+            background: 'rgba(255,255,255,0.65)', borderRadius: '10px',
+            padding: '4px', gap: '4px',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+          }}>
+            {[
+              ['foundation', 'Foundation Blueprint'],
+              ['elevation',  'Elevation Blueprint'],
+            ].map(([val, label]) => (
+              <button
+                key={val}
+                onClick={() => setTab(val)}
+                style={{
+                  padding: '8px 20px', borderRadius: '8px',
+                  border: 'none', cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '600',
+                  background: tab === val ? '#1E3A5F' : 'transparent',
+                  color: tab === val ? '#F5F0E8' : '#6B7280',
+                  transition: 'all 150ms ease',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-        {/* TODO: Confirm VAT treatment with accountant before launch */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', color: '#9CA3AF',
-          textAlign: 'center', marginTop: '16px',
+
+        {/* Service table */}
+        <div style={{
+          maxWidth: '820px', margin: '28px auto 0',
+          background: 'rgba(255,255,255,0.72)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: '1px solid rgba(255,255,255,0.85)',
+          borderRadius: '16px', overflow: 'hidden',
         }}>
-          *All prices include VAT where applicable.
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div style={{ minWidth: '520px' }}>
+
+              {/* Header */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 100px 100px 88px',
+                gap: '8px', padding: '14px 24px',
+                borderBottom: '1px solid rgba(30,58,95,0.08)',
+                background: 'rgba(30,58,95,0.04)',
+              }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  Service
+                </span>
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+                  color: isTrial ? '#9CA3AF' : '#1E3A5F',
+                  textTransform: 'uppercase', letterSpacing: '0.08em', textAlign: 'center',
+                }}>
+                  Standard
+                </span>
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+                  color: isTrial ? '#16A34A' : '#9CA3AF',
+                  textTransform: 'uppercase', letterSpacing: '0.08em', textAlign: 'center',
+                }}>
+                  Trial
+                </span>
+                <span />
+              </div>
+
+              {/* Rows */}
+              {PRICING_ROWS[tab].map((row, i) => (
+                <div
+                  key={row.name}
+                  className="pricing-svc-row"
+                  style={{
+                    display: 'grid', gridTemplateColumns: '1fr 100px 100px 88px',
+                    gap: '8px', padding: '13px 24px', alignItems: 'center',
+                    borderBottom: i < PRICING_ROWS[tab].length - 1 ? '1px solid rgba(30,58,95,0.06)' : 'none',
+                  }}
+                >
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>
+                    {row.name}
+                  </span>
+                  <span style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '14px', textAlign: 'center',
+                    color: isTrial ? '#9CA3AF' : '#1E3A5F',
+                    fontWeight: isTrial ? '400' : '600',
+                    textDecoration: isTrial ? 'line-through' : 'none',
+                  }}>
+                    {row.std}
+                  </span>
+                  <span style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '14px', textAlign: 'center',
+                    color: isTrial ? '#16A34A' : '#6B7280',
+                    fontWeight: isTrial ? '700' : '400',
+                  }}>
+                    {row.trial}
+                  </span>
+                  <Link
+                    to="/sign-up"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '6px 12px',
+                      background: '#1E3A5F', color: '#F5F0E8',
+                      borderRadius: '6px',
+                      fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
+                      textDecoration: 'none', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Get started
+                  </Link>
+                </div>
+              ))}
+
+              {/* Premium note */}
+              <div style={{ padding: '12px 24px', background: 'rgba(30,58,95,0.03)', borderTop: '1px solid rgba(30,58,95,0.06)' }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', lineHeight: 1.55 }}>
+                  <strong style={{ color: '#6B7280' }}>Premium tier (same-day delivery)</strong> is available in the app at Standard +50%.
+                  {isTrial ? ' September trial pricing applies to Premium too.' : ''}
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '16px' }}>
+          September trial prices apply throughout September 2026. Standard pricing resumes from 1 October 2026.
         </p>
       </section>
 
-      {/* ── SECTION 4 — FULL SERVICE PRICING TABLE ───────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center',
-        }}>
-          Service pricing
-        </h2>
-
-        <div style={{
-          maxWidth: '1000px', margin: '40px auto 0',
-          background: '#FFFFFF', borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          overflow: 'hidden',
-        }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
-              <thead>
-                <tr style={{ background: '#F5F0E8' }}>
-                  <th style={{ padding: '14px 24px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>Service</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>Standard</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>Std Trial</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>Premium</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>Prem Trial</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Foundation subheader */}
-                <tr style={{ background: '#F5F0E8', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
-                  <td colSpan={5} style={{ padding: '10px 24px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Foundation Blueprint
-                  </td>
-                </tr>
-                {PRICING_ROWS.foundation.map((s, i) => (
-                  <tr key={s.name} style={{ borderTop: '1px solid rgba(30,58,95,0.06)', background: i % 2 === 0 ? '#FFFFFF' : 'rgba(245,240,232,0.3)' }}>
-                    <td style={{ padding: '12px 24px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>{s.name}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through' }}>{s.stdOrig}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '600' }}>{s.stdTrial}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through' }}>{s.premOrig}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '600' }}>{s.premTrial}</td>
-                  </tr>
-                ))}
-
-                {/* Elevation subheader */}
-                <tr style={{ background: '#F5F0E8', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
-                  <td colSpan={5} style={{ padding: '10px 24px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Elevation Blueprint
-                  </td>
-                </tr>
-                {PRICING_ROWS.elevation.map((s, i) => (
-                  <tr key={s.name} style={{ borderTop: '1px solid rgba(30,58,95,0.06)', background: i % 2 === 0 ? '#FFFFFF' : 'rgba(245,240,232,0.3)' }}>
-                    <td style={{ padding: '12px 24px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>{s.name}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through' }}>{s.stdOrig}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '600' }}>{s.stdTrial}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through' }}>{s.premOrig}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '600' }}>{s.premTrial}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {/* TODO: Confirm VAT treatment with accountant before launch */}
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '11px', color: '#9CA3AF',
-            padding: '12px 24px 0',
-            borderTop: '1px solid rgba(30,58,95,0.06)',
-          }}>
-            *All prices include VAT where applicable.
-          </p>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#9CA3AF',
-            padding: '8px 24px 14px',
-          }}>
-            * September trial prices apply throughout September 2026 only. Standard prices resume from 1 October 2026. Pro subscription required to purchase services.
-          </p>
-        </div>
-      </section>
-
-      {/* ── SECTION 5 — FAQ ACCORDION ─────────────────────────────────────── */}
+      {/* ── SECTION 4 — FAQ ──────────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '32px', color: '#1E3A5F',
-          textAlign: 'center',
+          fontSize: 'clamp(28px, 3.5vw, 36px)',
+          color: '#1E3A5F', textAlign: 'center',
         }}>
           Pricing questions
         </h2>
 
         <AccordionGroup>
-          <div style={{
-            maxWidth: '700px', margin: '40px auto 0',
-            display: 'flex', flexDirection: 'column', gap: '12px',
-          }}>
+          <div style={{ maxWidth: '700px', margin: '40px auto 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {FAQS.map(({ q, a }) => (
               <AccordionItem key={q} question={q} answer={a} />
             ))}
@@ -765,35 +639,24 @@ export default function PricingPage() {
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <Link
             to="/faqs"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px', fontWeight: '600', color: '#1E3A5F',
-              textDecoration: 'none',
-            }}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600', color: '#1E3A5F', textDecoration: 'none' }}
           >
             See all FAQs →
           </Link>
         </div>
       </section>
 
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────── */}
-      <section style={{
-        background: '#1E3A5F',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}>
+      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
+          fontSize: 'clamp(28px, 4vw, 44px)',
+          color: '#F5F0E8', lineHeight: 1.12,
         }}>
-          Start your Blueprint today
+          Get started free. Upgrade when you're ready.
         </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: 'rgba(245,240,232,0.7)',
-          marginTop: '12px',
-        }}>
-          Free to join. September trial — 50% off everything.
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.6)', marginTop: '12px' }}>
+          No credit card required. September trial — 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link
@@ -815,13 +678,13 @@ export default function PricingPage() {
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', padding: '0 32px',
               background: 'transparent', color: '#F5F0E8',
-              border: '1.5px solid rgba(245,240,232,0.5)',
+              border: '1.5px solid rgba(245,240,232,0.4)',
               borderRadius: '8px',
               fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
               textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
-            Sign up free
+            Sign up on web
           </Link>
         </div>
       </section>

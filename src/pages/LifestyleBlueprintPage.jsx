@@ -1,954 +1,461 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import {
-  Heart, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket,
-  Lock, Phone, ExternalLink, Megaphone, ArrowRight,
-} from 'lucide-react'
-import whipWizardzLogo from '../assets/whip-wizardz-logo.png.png'
-import jmcFitnessLogo from '../assets/jmc-fitness-logo.png.jpeg'
-import energieFitnessLogo from '../assets/energie-fitness-logo.png.jpeg'
-import nyz3ditzLogo from '../assets/nyz3ditz-logo.png.jpeg'
+import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart } from 'lucide-react'
+
+// ─── Design tokens ─────────────────────────────────────────────────────────────
+
+const ACCENT = '#145A3E'
+const ACCENT_ALPHA = 'rgba(20,90,62,0.10)'
+const ACCENT_BORDER = 'rgba(20,90,62,0.14)'
+
+// ─── Shared components ─────────────────────────────────────────────────────────
+
+function PhoneMockup({ children, style = {} }) {
+  return (
+    <div style={{
+      width: 230, borderRadius: '44px', background: '#0c1520', padding: '8px',
+      boxShadow: '0 56px 100px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07)',
+      flexShrink: 0, position: 'relative', ...style,
+    }}>
+      <div style={{ position: 'absolute', right: '-3px', top: '96px', width: '3px', height: '44px', background: '#1a2535', borderRadius: '0 3px 3px 0' }} />
+      <div style={{ position: 'absolute', left: '-3px', top: '76px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ position: 'absolute', left: '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 463, background: '#0d2b1c' }}>
+        {children}
+      </div>
+      <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />
+      </div>
+    </div>
+  )
+}
+
+function SectionLabel({ children, light }) {
+  return (
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0,
+    }}>
+      {children}
+    </p>
+  )
+}
+
+// ─── Phone screen illustration ─────────────────────────────────────────────────
+
+function LifestyleScreen() {
+  return (
+    <div style={{
+      width: '100%', height: '100%', background: '#0d2b1c',
+      display: 'flex', flexDirection: 'column', padding: '18px 12px 14px', boxSizing: 'border-box',
+    }}>
+      {/* Status bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: 'rgba(245,240,232,0.5)', fontWeight: 600 }}>9:41</span>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+          {[4, 3, 2].map(h => (
+            <div key={h} style={{ width: '3px', height: `${h}px`, background: 'rgba(245,240,232,0.4)', borderRadius: '1px' }} />
+          ))}
+          <div style={{ width: '14px', height: '7px', border: '1px solid rgba(245,240,232,0.35)', borderRadius: '2px', marginLeft: '3px', padding: '1.5px', boxSizing: 'border-box' }}>
+            <div style={{ width: '60%', height: '100%', background: 'rgba(245,240,232,0.55)', borderRadius: '1px' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: 'rgba(20,160,80,0.75)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px' }}>
+        Lifestyle Blueprint
+      </p>
+      <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#F5F0E8', margin: '0 0 10px' }}>
+        Your deals
+      </p>
+
+      {/* Category pills */}
+      <div style={{ display: 'flex', gap: '5px', marginBottom: '10px' }}>
+        {['Fitness', 'Food', 'Travel'].map((c, i) => (
+          <span key={c} style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 600,
+            padding: '3px 8px', borderRadius: '20px', flexShrink: 0,
+            background: i === 0 ? ACCENT : 'rgba(245,240,232,0.08)',
+            color: i === 0 ? '#fff' : 'rgba(245,240,232,0.4)',
+          }}>{c}</span>
+        ))}
+      </div>
+
+      {/* Deal cards */}
+      {[
+        { name: 'Energie Fitness', sub: 'Monthly membership', pct: '15% off', locked: false, bg: '#1a5c3a' },
+        { name: 'JMC Fitness',     sub: 'PT sessions',        pct: '20% off', locked: true,  bg: '#142a1f' },
+        { name: 'Yoga Studio',     sub: 'Class pass',         pct: '€8',      locked: true,  bg: '#142a1f' },
+      ].map((d, i) => (
+        <div key={i} style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          background: d.locked ? 'rgba(245,240,232,0.04)' : 'rgba(20,90,62,0.25)',
+          border: `1px solid ${d.locked ? 'rgba(245,240,232,0.08)' : 'rgba(20,90,62,0.5)'}`,
+          borderRadius: '8px', padding: '7px 8px', marginBottom: '7px',
+        }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: d.bg, flexShrink: 0 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: d.locked ? 'rgba(245,240,232,0.45)' : '#F5F0E8', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {d.name}
+            </p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', color: 'rgba(245,240,232,0.3)', margin: '1px 0 0' }}>
+              {d.sub}
+            </p>
+          </div>
+          {d.locked ? (
+            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" style={{ flexShrink: 0 }}>
+              <rect x="1" y="5" width="8" height="7" rx="1.5" fill="rgba(245,240,232,0.22)" />
+              <path d="M3 5V3.5a2 2 0 0 1 4 0V5" stroke="rgba(245,240,232,0.22)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: '#4ade80', flexShrink: 0 }}>
+              {d.pct}
+            </span>
+          )}
+        </div>
+      ))}
+
+      {/* Mental health strip */}
+      <div style={{ marginTop: 'auto', background: 'rgba(22,163,74,0.1)', borderRadius: '8px', padding: '7px 10px', border: '1px solid rgba(22,163,74,0.22)' }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: '#4ade80', margin: 0 }}>
+          Mental Health
+        </p>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', color: 'rgba(245,240,232,0.4)', margin: '1px 0 0' }}>
+          Free for every user
+        </p>
+      </div>
+    </div>
+  )
+}
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
-const CATEGORIES = [
-  {
-    icon: UtensilsCrossed,
-    name: 'Food & Drink',
-    description: 'Discounts at restaurants, cafés, and food delivery platforms popular on Irish campuses.',
-    locked: true,
-  },
-  {
-    icon: Dumbbell,
-    name: 'Fitness',
-    description: 'Reduced gym memberships, class passes, and sports club deals across Ireland.',
-    locked: true,
-  },
-  {
-    icon: ShoppingBag,
-    name: 'Shopping',
-    description: 'Student discounts at clothing, tech, and lifestyle brands available in Ireland.',
-    locked: true,
-  },
-  {
-    icon: Plane,
-    name: 'Travel',
-    description: 'Deals on buses, trains, flights, and student travel cards for getting around Ireland.',
-    locked: true,
-  },
-  {
-    icon: Ticket,
-    name: 'Entertainment',
-    description: 'Cinema, events, concerts, and experiences at reduced student prices.',
-    locked: true,
-  },
-  {
-    icon: Heart,
-    name: 'Mental Health',
-    description: 'Free resources, helplines, and wellbeing tools — available to every UniBlueprint user.',
-    locked: false,
-    green: true,
-  },
+const FEATURES = [
+  { Icon: UtensilsCrossed, title: 'Food & Drink',  desc: 'Discounts at restaurants and cafes across Ireland.' },
+  { Icon: Dumbbell,        title: 'Fitness',        desc: 'Reduced gym memberships and class passes.' },
+  { Icon: ShoppingBag,     title: 'Shopping',       desc: 'Discounts at clothing and lifestyle brands.' },
+  { Icon: Plane,           title: 'Travel',         desc: 'Deals on buses, trains, and student travel.' },
+  { Icon: Ticket,          title: 'Entertainment',  desc: 'Cinema, events, and experiences at reduced prices.' },
+  { Icon: Heart,           title: 'Mental Health',  desc: 'Free resources, helplines, and wellbeing tools.', free: true },
 ]
 
-const PARTNER_DEALS = [
-  {
-    name: 'Whip Wizardz',
-    logo: whipWizardzLogo,
-    category: 'Automotive & Transport',
-    description: 'Exclusive student rates on car sales and sourcing from Whip Wizardz. Show your UniBlueprint Pro badge to redeem.',
-    deal: 'Student Deal — contact to redeem',
-  },
-  {
-    name: 'The Nail Nurse',
-    tnn: true,
-    category: 'Beauty & Wellness',
-    description: 'Exclusive student discount on professional nail services from The Nail Nurse. Show your UniBlueprint Pro badge to redeem.',
-    deal: 'Student Deal — badge required',
-  },
-  {
-    name: 'JMC Fitness',
-    logo: jmcFitnessLogo,
-    category: 'Fitness & Wellbeing',
-    description: 'Student membership rates and exclusive coaching offers for UniBlueprint Pro subscribers from JMC Fitness.',
-    deal: 'Student Rate — badge required',
-  },
-  {
-    name: 'NYZ3DITZ Studio',
-    logo: nyz3ditzLogo,
-    category: 'Creative & Media',
-    description: 'Student rates on professional video editing and photography from NYZ3DITZ Studio. Perfect for content creators and personal projects.',
-    deal: 'Student Rate — contact to redeem',
-  },
-  {
-    name: 'Energie Fitness',
-    logo: energieFitnessLogo,
-    category: 'Fitness & Wellbeing',
-    description: 'Reduced student membership rates at Energie Fitness gyms. Stay active throughout the academic year without the full-price cost.',
-    deal: 'Reduced Membership — badge required',
-  },
-  {
-    name: 'Emmanuel Fasanmi Grinds',
-    initials: 'EF',
-    category: 'Education & Coaching',
-    description: 'Junior and Leaving Cert grinds and academic coaching from Emmanuel Fasanmi. One-to-one sessions, exam prep, and structured study support.',
-    deal: 'Student Rate — book through app',
-  },
+const DEALS = {
+  'Food & Drink': [
+    { brand: 'Campus Diner',   deal: '10% off all orders',     locked: true },
+    { brand: 'The Study Cafe', deal: '15% off coffee',         locked: true },
+    { brand: 'Green Bowl',     deal: 'Free delivery over €15', locked: true },
+  ],
+  'Fitness': [
+    { brand: 'Energie Fitness',    deal: '15% off membership',  locked: true },
+    { brand: 'Online PT Sessions', deal: 'First session free',  locked: true },
+    { brand: 'Yoga Studio',        deal: '€8 student class pass', locked: true },
+  ],
+  'Shopping': [
+    { brand: 'Campus Bookshop', deal: '10% off all titles',  locked: true },
+    { brand: 'Tech Store IE',   deal: '5% off laptops',      locked: true },
+    { brand: 'Urban Threads',   deal: '15% off clothing',    locked: true },
+  ],
+  'Travel': [
+    { brand: 'Bus Eireann', deal: 'Student Leap Card rate',    locked: true },
+    { brand: 'Irish Rail',   deal: '25% off off-peak fares',   locked: true },
+    { brand: 'Dublin Bikes', deal: 'First 3 months free',      locked: true },
+  ],
+  'Entertainment': [
+    { brand: 'Omniplex Cinema', deal: '€7 student tickets',  locked: true },
+    { brand: 'Campus Events',   deal: 'Early access tickets', locked: true },
+    { brand: 'Streaming+',      deal: '3 months half price',  locked: true },
+  ],
+  'Mental Health': [
+    { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123',  locked: false },
+    { brand: 'Jigsaw',             deal: 'Free. Ages 12 to 25', locked: false },
+    { brand: 'SpunOut',            deal: 'Free. Youth platform', locked: false },
+  ],
+}
+
+const STEPS = [
+  { n: 1, title: 'Download and sign up free',     desc: 'Create your account in minutes, no credit card needed.' },
+  { n: 2, title: 'Browse deals in your category', desc: 'Filter by Food, Fitness, Travel, Entertainment, and more.' },
+  { n: 3, title: 'Unlock and redeem in the app',  desc: 'Show your deal badge to the partner to claim your saving.' },
 ]
 
-const COMING_SOON_CATEGORIES = [
-  { icon: UtensilsCrossed, name: 'Food & Drink' },
-  { icon: Dumbbell, name: 'Fitness' },
-  { icon: ShoppingBag, name: 'Shopping' },
-  { icon: Plane, name: 'Travel' },
-  { icon: Ticket, name: 'Entertainment' },
-]
+const PAGE_STYLES = `
+  .lbp-hero { display: flex; align-items: center; gap: 48px; max-width: 1040px; margin: 0 auto; position: relative; z-index: 1; }
+  .lbp-phone { flex-shrink: 0; }
+  .lbp-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .lbp-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  @media (max-width: 860px) {
+    .lbp-hero { flex-direction: column; }
+    .lbp-phone { display: none; }
+  }
+  @media (max-width: 720px) { .lbp-feat-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .lbp-feat-grid { grid-template-columns: 1fr; } .lbp-steps-grid { grid-template-columns: 1fr; } }
+`
 
-const COMING_SOON_SLOTS = COMING_SOON_CATEGORIES.flatMap(c => [
-  { ...c, slot: 1 },
-  { ...c, slot: 2 },
-])
-
-const MENTAL_HEALTH_SERVICES = [
-  {
-    name: 'Samaritans Ireland',
-    description: 'Free, confidential support for anyone struggling emotionally or having thoughts of suicide. Available 24 hours a day, 7 days a week.',
-    phone: { href: 'tel:116123', display: '116 123' },
-    website: 'https://www.samaritans.org/ireland',
-    badge: 'Free · 24/7',
-  },
-  {
-    name: 'Pieta House',
-    description: 'Specialist support for people experiencing suicidal ideation, self-harm, and emotional distress. Therapy appointments and crisis support available.',
-    phone: { href: 'tel:116123', display: '116 123 (Freephone)' },
-    text: 'Text HELP to 51444',
-    website: 'https://www.pieta.ie',
-    badge: 'Free · Crisis Support',
-  },
-  {
-    name: 'Jigsaw',
-    description: 'Free mental health support for young people aged 12 to 25 across Ireland. Online and in-person support from trained professionals.',
-    website: 'https://www.jigsaw.ie',
-    badge: 'Free · Ages 12–25',
-  },
-  {
-    name: 'Turn2Me',
-    description: 'Free online mental health support including peer support groups, self-help tools, and professional counselling sessions for people in Ireland.',
-    website: 'https://www.turn2me.ie',
-    badge: 'Free · Online',
-  },
-  {
-    name: 'SpunOut',
-    description: "Ireland's youth information platform covering mental health, relationships, money, and wellbeing — written by young people for young people.",
-    website: 'https://spunout.ie',
-    badge: 'Free · Information',
-  },
-  {
-    name: 'Niteline',
-    description: 'Free confidential listening service run by students for students. Available during term time, late night hours when other services may be closed.',
-    website: 'https://www.nightline.ie',
-    badge: 'Free · Student Run',
-  },
-  {
-    name: 'Student Counselling Services',
-    description: 'Every Irish university offers free counselling to enrolled students. Contact your college student services office to access support on campus.',
-    informational: true,
-    badge: 'Free · On Campus',
-  },
-  {
-    name: 'MyMind',
-    description: 'Affordable online counselling and psychotherapy for people across Ireland. Sliding scale pricing based on income.',
-    website: 'https://mymind.com',
-    badge: 'Low Cost · Online',
-  },
-]
-
-const PARTNERS_STEPS = [
-  {
-    n: 1,
-    title: 'Partner applies',
-    description: 'Businesses apply to become a Lifestyle Blueprint partner through our partner portal.',
-  },
-  {
-    n: 2,
-    title: 'Deal reviewed and verified',
-    description: 'Our team reviews every deal before it goes live — only genuine value makes the cut.',
-  },
-  {
-    n: 3,
-    title: 'Exclusive access for Pro users',
-    description: 'Verified deals go live in the Lifestyle Blueprint for all Pro subscribers.',
-  },
-]
-
-// ─── Sub-components ────────────────────────────────────────────────────────────
-
-function CategoryCard({ icon: Icon, name, description, locked, green }) {
-  const borderColor = green ? '#16A34A' : 'transparent'
-  const iconBg = green ? 'rgba(22,163,74,0.08)' : '#F5F0E8'
-  const iconColor = green ? '#16A34A' : '#1E3A5F'
-
-  return (
-    <div style={{
-      position: 'relative',
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '24px',
-      border: green ? `1.5px solid ${borderColor}` : 'none',
-    }}>
-      {/* Badge */}
-      {green ? (
-        <span style={{
-          position: 'absolute', top: '12px', right: '12px',
-          background: 'rgba(22,163,74,0.1)', color: '#16A34A',
-          borderRadius: '4px', padding: '3px 8px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', fontWeight: '700',
-        }}>
-          Always Free
-        </span>
-      ) : (
-        <div style={{
-          position: 'absolute', top: '12px', right: '12px',
-          color: '#9CA3AF',
-        }}>
-          <Lock size={14} />
-        </div>
-      )}
-
-      <div style={{
-        width: '48px', height: '48px', borderRadius: '50%',
-        background: iconBg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Icon size={24} color={iconColor} />
-      </div>
-
-      <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '17px', color: '#1E3A5F', marginTop: '10px',
-      }}>
-        {name}
-      </p>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px', color: '#6B7280',
-        marginTop: '6px', lineHeight: 1.6,
-      }}>
-        {description}
-      </p>
-
-      {locked && (
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', color: '#9CA3AF',
-          marginTop: '12px',
-        }}>
-          Pro subscribers only
-        </p>
-      )}
-    </div>
-  )
-}
-
-function PartnerDealCard({ name, initials, category, description, deal, logo, tnn }) {
-  return (
-    <div style={{
-      position: 'relative',
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '20px',
-      textAlign: 'center',
-    }}>
-      <span style={{
-        position: 'absolute', top: '12px', right: '12px',
-        background: '#1E3A5F', color: '#F5F0E8',
-        borderRadius: '4px', padding: '3px 8px',
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '10px', fontWeight: '700',
-      }}>
-        Pro Deal
-      </span>
-
-      <div style={{
-        width: '56px', height: '56px', borderRadius: '50%',
-        background: tnn ? '#B8860B' : logo ? '#F5F0E8' : '#F5F0E8',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        margin: '0 auto',
-        overflow: 'hidden',
-      }}>
-        {logo ? (
-          <img src={logo} alt={name} style={{ width: '56px', height: '56px', objectFit: 'contain', borderRadius: '50%' }} />
-        ) : tnn ? (
-          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#FFFFFF' }}>TNN</span>
-        ) : (
-          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>{initials}</span>
-        )}
-      </div>
-
-      <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '18px', color: '#1E3A5F',
-        marginTop: '14px',
-      }}>
-        {name}
-      </p>
-
-      <span style={{
-        display: 'inline-block', marginTop: '8px',
-        background: '#F5F0E8', color: '#1E3A5F',
-        borderRadius: '6px', padding: '3px 10px',
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '11px',
-      }}>
-        {category}
-      </span>
-
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '14px', color: '#6B7280',
-        marginTop: '12px', lineHeight: 1.6,
-      }}>
-        {description}
-      </p>
-
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '12px', color: '#9CA3AF',
-        marginTop: '10px',
-      }}>
-        {deal}
-      </p>
-
-      <a
-        href="#"
-        // TODO: Link to deal detail page when available
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          height: '40px', padding: '0 20px', marginTop: '16px',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '8px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', fontWeight: '600',
-          textDecoration: 'none',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-      >
-        View Deal →
-      </a>
-    </div>
-  )
-}
-
-function ComingSoonCard({ icon: Icon }) {
-  return (
-    <div style={{
-      background: '#FFFFFF', borderRadius: '12px',
-      border: '1.5px dashed rgba(30,58,95,0.3)',
-      padding: '20px',
-      textAlign: 'center',
-    }}>
-      <div style={{
-        width: '48px', height: '48px', borderRadius: '50%',
-        background: '#F5F0E8',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        margin: '0 auto',
-      }}>
-        <Icon size={28} color="#9CA3AF" aria-hidden="true" />
-      </div>
-      <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '16px', color: '#9CA3AF',
-        marginTop: '12px',
-      }}>
-        Coming Soon
-      </p>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px', color: '#9CA3AF',
-        marginTop: '6px',
-      }}>
-        A new partner deal is on the way
-      </p>
-      <Link
-        to="/for-businesses"
-        style={{
-          display: 'block', marginTop: '12px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#1E3A5F',
-          textDecoration: 'none',
-        }}
-      >
-        Are you a business?
-      </Link>
-    </div>
-  )
-}
-
-function MentalHealthCard({ name, description, phone, text, website, badge, informational }) {
-  return (
-    <div style={{
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '20px',
-      borderLeft: '3px solid #16A34A',
-    }}>
-      <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '18px', color: '#1E3A5F',
-      }}>
-        {name}
-      </p>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '14px', color: '#6B7280',
-        marginTop: '8px', lineHeight: 1.6,
-      }}>
-        {description}
-      </p>
-      <span style={{
-        display: 'inline-block', marginTop: '12px',
-        background: '#16A34A', color: '#FFFFFF',
-        borderRadius: '4px', padding: '2px 8px',
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '11px', fontWeight: '700',
-      }}>
-        {badge}
-      </span>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px', alignItems: 'center' }}>
-        {phone && (
-          <a
-            href={phone.href}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
-              textDecoration: 'none',
-            }}
-          >
-            <Phone size={14} color="#1E3A5F" aria-hidden="true" />
-            {phone.display}
-          </a>
-        )}
-        {text && (
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
-          }}>
-            {text}
-          </span>
-        )}
-        {website && (
-          <a
-            href={website}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
-              textDecoration: 'none',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          >
-            Visit {name}
-            <ExternalLink size={14} color="#1E3A5F" aria-hidden="true" />
-          </a>
-        )}
-        {informational && (
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
-          }}>
-            Find your campus counselling service
-          </span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function ProCalculator() {
-  const [dealsPerMonth, setDealsPerMonth] = useState(3)
-  const avgSaving = 8
-  const proCost = 6.99
-  const totalSaving = dealsPerMonth * avgSaving
-  const netSaving = Math.max(0, totalSaving - proCost).toFixed(2)
-
-  return (
-    <div style={{
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '32px', maxWidth: '540px', margin: '0 auto',
-    }}>
-      <h3 style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '28px', color: '#1E3A5F',
-        textAlign: 'center',
-      }}>
-        How much could you save with Pro?
-      </h3>
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '14px', color: '#6B7280',
-        textAlign: 'center', marginTop: '8px',
-      }}>
-        Move the slider to see your estimated monthly saving
-      </p>
-
-      <div style={{ marginTop: '28px' }}>
-        <label style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '14px', color: '#1E3A5F', fontWeight: '500',
-          display: 'flex', justifyContent: 'space-between', marginBottom: '12px',
-        }}>
-          <span>Deals you'd use per month</span>
-          <span style={{ fontWeight: '700' }}>{dealsPerMonth}</span>
-        </label>
-        <input
-          type="range"
-          min={1}
-          max={10}
-          value={dealsPerMonth}
-          onChange={e => setDealsPerMonth(Number(e.target.value))}
-          style={{ width: '100%', accentColor: '#1E3A5F', cursor: 'pointer' }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>1</span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>10</span>
-        </div>
-      </div>
-
-      <div style={{
-        marginTop: '28px',
-        background: '#F5F0E8', borderRadius: '10px',
-        padding: '20px 24px',
-        display: 'flex', flexDirection: 'column', gap: '12px',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
-            Estimated savings ({dealsPerMonth} deals × avg €{avgSaving})
-          </span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#1E3A5F', fontWeight: '700' }}>
-            €{totalSaving}
-          </span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
-            Pro subscription cost
-          </span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280' }}>
-            −€{proCost}
-          </span>
-        </div>
-        <div style={{
-          borderTop: '1px solid rgba(30,58,95,0.1)', paddingTop: '12px',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        }}>
-          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F' }}>
-            Net monthly saving
-          </span>
-          <span style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '28px', color: '#16A34A',
-          }}>
-            €{netSaving}
-          </span>
-        </div>
-      </div>
-
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '11px', color: '#9CA3AF',
-        textAlign: 'center', marginTop: '12px',
-      }}>
-        Estimate based on average deal saving of €8. Actual savings vary by deal.
-      </p>
-    </div>
-  )
-}
-
-// ─── LifestyleBlueprintPage ────────────────────────────────────────────────────
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LifestyleBlueprintPage() {
+  const [activeCategory, setActiveCategory] = useState('Fitness')
+
+  const deals = DEALS[activeCategory]
+  const isMH  = activeCategory === 'Mental Health'
+
   return (
     <>
       <Helmet>
         <title>Lifestyle Blueprint | UniBlueprint</title>
-        <meta
-          name="description"
-          content="Exclusive deals, discounts, and wellbeing resources — for students, apprentices, and young people across Ireland. Pro subscribers unlock the full Lifestyle Blueprint. Mental Health & Wellbeing is always free for everyone."
-        />
+        <meta name="description" content="Exclusive deals from Irish partners, mental health resources, and lifestyle tools. All in the UniBlueprint app." />
         <meta property="og:title" content="Lifestyle Blueprint | UniBlueprint" />
-        <meta property="og:description" content="Exclusive deals, discounts, and wellbeing resources — for students, apprentices, and young people across Ireland. Pro subscribers unlock the full Lifestyle Blueprint. Mental Health & Wellbeing is always free for everyone." />
+        <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <h1 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '48px', color: '#1E3A5F',
-        }}>
-          Lifestyle Blueprint
-        </h1>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '18px', color: '#6B7280',
-          margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
-        }}>
-          Exclusive deals and discounts curated for students, apprentices, and young people in Ireland. Pro subscribers only — from €6.99/month. Mental Health &amp; Wellbeing always free.
-        </p>
+      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: ['linear-gradient(rgba(245,240,232,0.025) 1px,transparent 1px)', 'linear-gradient(90deg,rgba(245,240,232,0.025) 1px,transparent 1px)'].join(','),
+          backgroundSize: '56px 56px',
+        }} />
 
-        {/* Mental Health callout */}
-        <div style={{
-          maxWidth: '560px', margin: '32px auto 0',
-          background: '#FFFFFF',
-          borderLeft: '3px solid #16A34A',
-          borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          padding: '20px 24px',
-          textAlign: 'left',
-          position: 'relative',
-        }}>
-          <span style={{
-            position: 'absolute', top: '12px', right: '12px',
-            background: 'rgba(22,163,74,0.1)', color: '#16A34A',
-            borderRadius: '4px', padding: '3px 8px',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '11px', fontWeight: '700',
-          }}>
-            Always Free
-          </span>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <Heart size={22} color="#16A34A" style={{ flexShrink: 0, marginTop: '2px' }} />
-            <div>
-              <p style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '20px', color: '#1E3A5F',
-              }}>
-                Mental Health &amp; Wellbeing — Always Free
-              </p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#6B7280',
-                marginTop: '6px', lineHeight: 1.6,
-              }}>
-                Access to mental health resources, helplines, and wellbeing tools is available to every UniBlueprint user — no subscription required, no paywall, ever.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        <div className="lbp-hero">
 
-      {/* ── SECTION 2 — CATEGORY CARDS ───────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', fontWeight: '600',
-            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-            textAlign: 'center',
-          }}>
-            Deal Categories
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            Deals built for student life
-          </h2>
-
-          <div className="services-grid" style={{ marginTop: '40px' }}>
-            {CATEGORIES.map(c => <CategoryCard key={c.name} {...c} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 3 — PARTNER DEALS ────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', fontWeight: '600',
-            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-            textAlign: 'center',
-          }}>
-            Live Now
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            Featured partner deals
-          </h2>
-
-          <div className="partner-deals-grid">
-            {PARTNER_DEALS.map(p => <PartnerDealCard key={p.name} {...p} />)}
+          {/* Phone mockup */}
+          <div className="lbp-phone">
+            <PhoneMockup style={{ transform: 'rotate(-2deg) translateY(8px)' }}>
+              <LifestyleScreen />
+            </PhoneMockup>
           </div>
 
-          <div style={{ marginTop: '64px' }}>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '12px', fontWeight: '600',
-              color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-              textAlign: 'center',
+          {/* Glass box */}
+          <div style={{
+            flex: 1, minWidth: 0,
+            background: 'rgba(245,240,232,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(245,240,232,0.12)', borderRadius: '20px', padding: '48px 40px',
+          }}>
+            <SectionLabel light>Lifestyle Blueprint</SectionLabel>
+            <h1 style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: 'clamp(28px, 3.6vw, 46px)', color: '#F5F0E8',
+              marginTop: '10px', lineHeight: 1.12,
             }}>
-              Coming Soon
+              Live Smart. Spend Less.
+            </h1>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.65)', marginTop: '14px', lineHeight: 1.7 }}>
+              Exclusive deals from Irish partners, mental health resources, and lifestyle tools. All in one place.
             </p>
-            <h3 style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '24px', color: '#1E3A5F',
-              textAlign: 'center', marginTop: '8px',
-            }}>
-              More partners joining soon
-            </h3>
 
-            <div className="coming-soon-grid" style={{ marginTop: '32px' }}>
-              {COMING_SOON_SLOTS.map((c, i) => (
-                <ComingSoonCard key={`${c.name}-${c.slot}-${i}`} icon={c.icon} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
+              {[
+                'Verified partner discounts across Ireland',
+                'Mental health resources, free to all users',
+                'New deals added weekly',
+                'Unlock deals directly in the app',
+              ].map(pt => (
+                <div key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: ACCENT, flexShrink: 0, marginTop: '7px', opacity: 0.85 }} />
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: 'rgba(245,240,232,0.7)', lineHeight: 1.55, margin: 0 }}>{pt}</p>
+                </div>
               ))}
             </div>
+
+            <Link to="/download" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              marginTop: '32px', height: '46px', padding: '0 24px',
+              background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+              textDecoration: 'none',
+            }}>
+              Get the app <ArrowRight size={15} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 4 — MENTAL HEALTH & WELLBEING ───────────────────────── */}
-      <section style={{ background: '#FFFFFF' }}>
+      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.04) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
 
-        {/* Crisis banner — full width */}
-        <div style={{
-          background: '#16A34A',
-          padding: '12px 24px',
-          textAlign: 'center',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#FFFFFF',
-        }}>
-          In crisis right now? Call Samaritans free on 116 123 — available 24 hours a day, 7 days a week
-        </div>
-
-        <div style={{ padding: '64px 24px' }}>
-          {/* Section header */}
-          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-            <h2 style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '32px', color: '#1E3A5F',
-            }}>
-              Mental Health &amp; Wellbeing
+        <div style={{ maxWidth: 1040, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+            <SectionLabel>What you get</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Six categories. Real savings.
             </h2>
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: '8px', marginTop: '8px',
-            }}>
-              <Heart size={24} color="#16A34A" aria-hidden="true" />
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '16px', color: '#16A34A', fontWeight: '600',
-              }}>
-                Always free. No subscription. No paywall. Ever.
-              </p>
-            </div>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '15px', color: '#6B7280',
-              marginTop: '8px', lineHeight: 1.6,
-            }}>
-              If you are struggling, these Irish services are here for you. Reaching out is the right move.
-            </p>
           </div>
 
-          {/* Cards grid */}
-          <div className="mh-grid" style={{ maxWidth: '1000px', margin: '40px auto 0' }}>
-            {MENTAL_HEALTH_SERVICES.map(s => <MentalHealthCard key={s.name} {...s} />)}
-          </div>
-
-          {/* Disclaimer */}
-          <div style={{
-            maxWidth: '800px', margin: '40px auto 0',
-            background: '#FFFFFF',
-            borderTop: '3px solid #16A34A',
-            borderRadius: '8px',
-            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-            padding: '16px 24px',
-            textAlign: 'center',
-          }}>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px', color: '#6B7280',
-            }}>
-              UniBlueprint is not a counselling or crisis service. If you are in immediate danger, call 999 or go to your nearest emergency department.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 5 — HOW IT WORKS FOR PARTNERS ────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', fontWeight: '600',
-          color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-        }}>
-          For Partners
-        </p>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F', marginTop: '8px',
-        }}>
-          How deals get listed
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: '#6B7280',
-          margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7,
-        }}>
-          We partner with businesses and brands that want to reach Irish students. Every deal is reviewed before going live — only genuine value is listed.
-        </p>
-
-        <div className="steps-row" style={{ maxWidth: '800px', margin: '40px auto 0' }}>
-          {PARTNERS_STEPS.map((step, i) => (
-            <div key={step.n} style={{ display: 'flex', flex: 1, alignItems: 'flex-start', gap: i < PARTNERS_STEPS.length - 1 ? 0 : undefined }}>
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                flex: '1 0 0', maxWidth: '240px',
+          <div className="lbp-feat-grid">
+            {FEATURES.map(({ Icon, title, desc, free }) => (
+              <div key={title} style={{
+                background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+                border: '1px solid rgba(255,255,255,0.85)',
+                borderTop: `3px solid ${free ? '#16A34A' : ACCENT}`,
+                borderRadius: '16px', padding: '28px 26px 24px',
               }}>
                 <div style={{
-                  width: '48px', height: '48px', borderRadius: '50%',
-                  background: '#1E3A5F',
+                  width: '44px', height: '44px', borderRadius: '10px',
+                  background: free ? 'rgba(22,163,74,0.1)' : ACCENT_ALPHA,
+                  border: `1px solid ${free ? 'rgba(22,163,74,0.14)' : ACCENT_BORDER}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
                 }}>
-                  <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#F5F0E8' }}>
-                    {step.n}
-                  </span>
+                  <Icon size={20} color={free ? '#16A34A' : ACCENT} strokeWidth={1.8} />
                 </div>
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', marginTop: '12px', textAlign: 'center' }}>
-                  {step.title}
-                </p>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', textAlign: 'center', lineHeight: 1.5 }}>
-                  {step.description}
-                </p>
+                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#1E3A5F', marginTop: '14px', marginBottom: 0 }}>{title}</p>
+                {free && (
+                  <span style={{
+                    display: 'inline-block', marginTop: '5px',
+                    background: 'rgba(22,163,74,0.1)', color: '#16A34A',
+                    borderRadius: '4px', padding: '2px 8px',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700,
+                  }}>Always Free</span>
+                )}
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>{desc}</p>
               </div>
-              {i < PARTNERS_STEPS.length - 1 && (
-                <div className="step-connector" style={{ flex: '1 0 16px', borderTop: '1px dashed rgba(30,58,95,0.2)', marginTop: '24px' }} />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div style={{
-          maxWidth: '640px', margin: '40px auto 0',
-          background: '#FFFFFF', borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          padding: '20px', textAlign: 'left',
-          display: 'flex', alignItems: 'flex-start', gap: '16px',
-        }}>
-          <div style={{
-            width: '48px', height: '48px', borderRadius: '50%',
-            background: '#F5F0E8', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+      {/* ── SECTION 3 — DEALS EXPLORER ───────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
+        <div style={{ maxWidth: 780, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <SectionLabel>Deals Explorer</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Browse by category
+            </h2>
+          </div>
+
+          {/* Category pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '32px' }}>
+            {Object.keys(DEALS).map(cat => {
+              const active = activeCategory === cat
+              const isMHcat = cat === 'Mental Health'
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600,
+                    padding: '8px 18px', borderRadius: '24px', cursor: 'pointer',
+                    border: '1.5px solid',
+                    borderColor: active ? (isMHcat ? '#16A34A' : ACCENT) : 'rgba(30,58,95,0.12)',
+                    background: active ? (isMHcat ? '#16A34A' : ACCENT) : 'transparent',
+                    color: active ? '#fff' : '#6B7280',
+                    transition: 'all 160ms ease',
+                  }}
+                >
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Deal cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {deals.map((d, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                background: d.locked ? '#FFFFFF' : 'rgba(22,163,74,0.04)',
+                border: `1px solid ${d.locked ? 'rgba(30,58,95,0.08)' : 'rgba(22,163,74,0.2)'}`,
+                borderRadius: '12px', padding: '14px 18px',
+              }}>
+                {/* Brand colour block */}
+                <div style={{
+                  width: '44px', height: '44px', borderRadius: '10px',
+                  background: d.locked ? '#EDE8DF' : 'rgba(22,163,74,0.1)',
+                  flexShrink: 0,
+                }} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>{d.brand}</p>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: isMH ? '#16A34A' : '#6B7280', margin: '3px 0 0', fontWeight: isMH ? 600 : 400 }}>{d.deal}</p>
+                </div>
+                {d.locked ? (
+                  <button style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700,
+                    padding: '7px 14px', borderRadius: '20px',
+                    background: ACCENT, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+                  }}>
+                    Unlock in the app
+                  </button>
+                ) : (
+                  <span style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700,
+                    padding: '6px 12px', borderRadius: '20px',
+                    background: 'rgba(22,163,74,0.1)', color: '#16A34A',
+                    border: '1px solid rgba(22,163,74,0.2)', whiteSpace: 'nowrap',
+                  }}>
+                    Free access
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {isMH && (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', textAlign: 'center', marginTop: '20px', lineHeight: 1.6 }}>
+              Mental health resources are free to every UniBlueprint user. No subscription required.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* ── SECTION 4 — HOW IT WORKS ─────────────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+            <SectionLabel>How it works</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Three steps to your first deal
+            </h2>
+          </div>
+
+          <div className="lbp-steps-grid">
+            {STEPS.map(s => (
+              <div key={s.n} style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: '52px', height: '52px', borderRadius: '50%',
+                  background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto',
+                }}>
+                  <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '22px', color: '#F5F0E8', lineHeight: 1 }}>{s.n}</span>
+                </div>
+                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#1E3A5F', marginTop: '16px' }}>{s.title}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: ['linear-gradient(rgba(245,240,232,0.025) 1px,transparent 1px)', 'linear-gradient(90deg,rgba(245,240,232,0.025) 1px,transparent 1px)'].join(','),
+          backgroundSize: '48px 48px',
+        }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <SectionLabel light>Get the app</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(28px, 4vw, 46px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
+            Start saving this September
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
+            Free to join. September trial offers 50% off everything. Mental health resources always free.
+          </p>
+          <Link to="/download" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            marginTop: '32px', height: '50px', padding: '0 28px',
+            background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none',
           }}>
-            <Megaphone size={24} color="#1E3A5F" aria-hidden="true" />
-          </div>
-          <div>
-            <p style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '16px', color: '#1E3A5F',
-            }}>
-              Want to promote your business or service?
-            </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px', color: '#6B7280',
-              marginTop: '8px', lineHeight: 1.6,
-            }}>
-              The Advertisement Board is the place for student-run promotions, services, and opportunities. Free to post.
-            </p>
-            <a
-              href="#"
-              // TODO: Link to Advertisement Board deep link in app when available
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', fontWeight: '600', color: '#1E3A5F',
-                textDecoration: 'none',
-              }}
-            >
-              Visit the Advertisement Board
-              <ArrowRight size={16} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-
-        <div style={{ marginTop: '40px' }}>
-          <Link
-            to="/for-businesses"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px', fontWeight: '600', color: '#1E3A5F',
-              textDecoration: 'none',
-            }}
-          >
-            Become a Lifestyle Blueprint partner →
-          </Link>
-        </div>
-      </section>
-
-      {/* ── SECTION 6 — PRO CALCULATOR ───────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <ProCalculator />
-      </section>
-
-      {/* ── SECTION 7 — CTA ──────────────────────────────────────────────── */}
-      <section style={{
-        background: '#1E3A5F',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
-        }}>
-          Unlock your Lifestyle Blueprint
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: 'rgba(245,240,232,0.7)',
-          marginTop: '12px',
-        }}>
-          Join UniBlueprint free. Upgrade to Pro when you're ready.
-        </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
-          <Link
-            to="/sign-up"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 32px',
-              background: '#F5F0E8', color: '#1E3A5F',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            Sign up free
-          </Link>
-          <Link
-            to="/pricing"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 32px',
-              background: 'transparent', color: '#F5F0E8',
-              border: '1.5px solid rgba(245,240,232,0.5)',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            View pricing
+            Download the app <ArrowRight size={16} />
           </Link>
         </div>
       </section>

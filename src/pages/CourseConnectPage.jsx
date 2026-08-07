@@ -1,598 +1,525 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import {
-  BookOpen, MessageSquare, Upload, Users, Bell, FileText,
-  UserPlus, Briefcase, Globe, Award, Sparkles,
-} from 'lucide-react'
+import { ArrowRight, BookOpen, FileText, Users, MessageSquare, Globe, Archive, Search } from 'lucide-react'
 
-// ─── Data ──────────────────────────────────────────────────────────────────────
+// ─── Design tokens ─────────────────────────────────────────────────────────────
 
-const FEATURES = [
-  {
-    icon: BookOpen,
-    name: 'Course Boards',
-    description: 'Discussion boards for every module — ask questions, share notes, and learn from your cohort.',
-  },
-  {
-    icon: MessageSquare,
-    name: 'Q&A Threads',
-    description: 'Post questions on past exam papers, assignments, and lectures. Upvote the best answers.',
-  },
-  {
-    icon: Upload,
-    name: 'Resource Sharing',
-    description: 'Share summaries, mind maps, and helpful links with students on the same course.',
-  },
-  {
-    icon: Users,
-    name: 'Study Groups',
-    description: 'Find study partners for your course — online or in-person, across campuses.',
-  },
-  {
-    icon: Bell,
-    name: 'Course Alerts',
-    description: 'Get notified when something new is posted on your module board.',
-  },
-  {
-    icon: FileText,
-    name: 'Past Papers & Notes',
-    description: 'A growing library of student-submitted notes and past exam papers, organised by course.',
-  },
-  {
-    icon: UserPlus,
-    name: 'Mentorship Requests',
-    description: 'Post a request for informal peer mentorship — find a student two years ahead of you in your course who can share their experience.',
-  },
-  {
-    icon: Briefcase,
-    name: 'Internship & Placement Board',
-    description: 'Students share internship and placement opportunities, application tips, and employer reviews across Ireland.',
-  },
-  {
-    icon: Globe,
-    name: 'Study Abroad Board',
-    description: 'Connect with students who have studied abroad or are planning to. Share Erasmus experiences, partner universities, and advice.',
-  },
-  {
-    icon: Award,
-    name: 'Alumni Network',
-    description: 'Connect with graduates from your course and university. Ask for advice, request informational interviews, and build your professional network early.',
-    comingSoon: true,
-  },
-]
+const ACCENT = '#4C1D95'
+const ACCENT_ALPHA = 'rgba(76,29,149,0.10)'
+const ACCENT_BORDER = 'rgba(76,29,149,0.14)'
 
-// University city coordinates on the SVG map (Ireland, approx 400×480 viewBox)
-const MAP_DOTS = [
-  { city: 'Dublin',    x: 310, y: 195, unis: ['UCD', 'TCD', 'DCU', 'TUD'] },
-  { city: 'Cork',      x: 215, y: 390, unis: ['UCC'] },
-  { city: 'Galway',    x: 105, y: 220, unis: ['University of Galway'] },
-  { city: 'Limerick',  x: 160, y: 295, unis: ['UL'] },
-  { city: 'Waterford', x: 270, y: 355, unis: ['SETU Waterford'] },
-  { city: 'Athlone',   x: 185, y: 200, unis: ['ATU Athlone'] },
-  { city: 'Maynooth',  x: 285, y: 185, unis: ['MU'] },
-  { city: 'Sligo',     x: 130, y: 120, unis: ['ATU Sligo'] },
-  { city: 'Letterkenny', x: 150, y: 55,  unis: ['ATU Letterkenny'] },
-  { city: 'Tralee',    x: 130, y: 360, unis: ['MTU Kerry'] },
-  { city: 'Kilkenny',  x: 245, y: 320, unis: ['SETU Kilkenny'] },
-]
+// ─── Shared components ─────────────────────────────────────────────────────────
 
-const STUDENT_PROFILES = [
-  { name: 'Abdullah', course: 'Business',               university: 'ATU Galway',           cao: 'AU601' },
-  { name: 'Eman',     course: 'Engineering',             university: 'UCD',                  cao: 'DN150' },
-  { name: 'Emily',    course: 'Accounting and Finance',  university: 'DCU',                  cao: 'DC115' },
-  { name: 'Siofra',   course: 'Arts',                    university: 'UCC',                  cao: 'CK111' },
-  { name: 'Ciarán',   course: 'Computer Science',        university: 'UL',                   cao: 'LM121' },
-  { name: 'Nicole',   course: 'Nursing',                 university: 'Maynooth University',  cao: 'MH701' },
-  { name: 'Sienna',   course: 'Nursing',                 university: 'SETU Waterford',       cao: 'SE915' },
-  { name: 'Basmali',  course: 'Computing',               university: 'MTU',                  cao: 'MT803' },
-  { name: 'Ethan',    course: 'Sports Science',          university: 'TU Dublin',            cao: 'TU936' },
-  { name: 'Alex',     course: 'Digital Marketing',       university: 'TUS Athlone',          cao: 'US844' },
-  { name: 'Fiza',     course: 'Psychology',              university: 'University of Galway', cao: 'GY104' },
-  { name: 'Gigi',     course: 'Law',                     university: 'UCD',                  cao: 'DN030' },
-  { name: 'Wami',     course: 'Medicine',                university: 'RCSI',                 cao: 'RC850' },
-  { name: 'Daniel',   course: 'Architecture',            university: 'UCD',                  cao: 'DN060' },
-  { name: 'Sam',      course: 'Civil Engineering',       university: 'TU Dublin',            cao: 'TU001' },
-  { name: 'Harry',    course: 'Business and Law',        university: 'UCD',                  cao: 'DN700' },
-  { name: 'Elizabeth',course: 'Pharmacy',                university: 'TCD',                  cao: 'TR073' },
-  { name: 'Zafir',    course: 'Computer Science',        university: 'DCU',                  cao: 'DC182' },
-  { name: 'Sean',     course: 'Agricultural Science',    university: 'UCD',                  cao: 'DN200' },
-  { name: 'Seamus',   course: 'Early Childhood Education', university: 'ATU Galway',         cao: 'AU511' },
-  { name: 'Sinead',   course: 'Social Work',             university: 'UCC',                  cao: 'CK320' },
-  { name: 'Mairead',  course: 'Film and Television',     university: 'DCU',                  cao: 'DC231' },
-  { name: 'Emma',     course: 'Psychology',              university: 'UL',                   cao: 'LM120' },
-  { name: 'Mohammed', course: 'International Business',  university: 'DCU',                  cao: 'DC217' },
-  { name: 'Ahmed',    course: 'Electronic Engineering',  university: 'UL',                   cao: 'LM043' },
-  { name: 'Billy',    course: 'Sports Science',          university: 'ATU Galway',           cao: 'AU801' },
-  { name: 'Fatima',   course: 'Radiography',             university: 'TCD',                  cao: 'TR058' },
-  { name: 'Aoife',    course: 'Music',                   university: 'University of Galway', cao: 'GY200' },
-  { name: 'Roisin',   course: 'Environmental Science',   university: 'UCC',                  cao: 'CK723' },
-  { name: 'Kofi',     course: 'Marketing',               university: 'DCU',                  cao: 'DC222' },
-  { name: 'Amara',    course: 'Criminology',             university: 'UCC',                  cao: 'CK590' },
-  { name: 'James',    course: 'Mechanical Engineering',  university: 'TU Dublin',            cao: 'TU003' },
-  { name: 'Priya',    course: 'Dentistry',               university: 'TCD',                  cao: 'TR005' },
-  { name: 'Luca',     course: 'Software Engineering',    university: 'UCD',                  cao: 'DN206' },
-  { name: 'Sofia',    course: 'International Relations', university: 'DCU',                  cao: 'DC203' },
-]
-
-const COLLAB_POINTS = [
-  { title: 'Cross-campus study groups', description: 'Find students studying the same subject at other Irish universities — different campus, same module content.' },
-  { title: 'Shared notes library', description: 'Student-created resources are tagged by course and module, making it easy to find what you need.' },
-  { title: 'Peer learning built in', description: 'Course Connect is designed to foster genuine peer learning — not just content dumping.' },
-]
-
-// ─── Ireland SVG Map ───────────────────────────────────────────────────────────
-
-function IrelandMap() {
+function PhoneMockup({ children, style = {} }) {
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', position: 'relative' }}>
-      <svg
-        viewBox="0 0 400 480"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="Map of Ireland showing university cities"
-        style={{ width: '100%', height: 'auto' }}
-      >
-        {/* Ireland island outline — simplified polygon */}
-        <path
-          d="
-            M 200 20
-            C 230 18, 270 25, 295 45
-            C 330 65, 355 90, 365 120
-            C 375 150, 372 180, 368 200
-            C 362 225, 355 245, 358 268
-            C 362 295, 370 315, 360 340
-            C 350 365, 330 385, 310 400
-            C 285 418, 260 430, 235 438
-            C 210 446, 185 445, 162 438
-            C 138 430, 115 415, 98 398
-            C 78 378, 65 355, 58 330
-            C 50 303, 52 278, 48 252
-            C 44 228, 35 208, 38 182
-            C 42 155, 55 130, 72 110
-            C 90 88, 115 72, 140 58
-            C 162 45, 180 22, 200 20
-            Z
-          "
-          fill="rgba(30,58,95,0.06)"
-          stroke="rgba(30,58,95,0.2)"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-
-        {/* University city dots — hover for city name */}
-        {MAP_DOTS.map(dot => (
-          <g key={dot.city} style={{ cursor: 'pointer' }}>
-            <title>{dot.city}</title>
-            <circle
-              cx={dot.x}
-              cy={dot.y}
-              r="9"
-              fill="#1E3A5F"
-              opacity="0.12"
-            />
-            <circle
-              cx={dot.x}
-              cy={dot.y}
-              r="4"
-              fill="#1E3A5F"
-              opacity="0.85"
-            />
-          </g>
-        ))}
-      </svg>
+    <div style={{
+      width: 230, borderRadius: '44px', background: '#0c1520', padding: '8px',
+      boxShadow: '0 56px 100px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07)',
+      flexShrink: 0, position: 'relative', ...style,
+    }}>
+      <div style={{ position: 'absolute', right: '-3px', top: '96px', width: '3px', height: '44px', background: '#1a2535', borderRadius: '0 3px 3px 0' }} />
+      <div style={{ position: 'absolute', left: '-3px', top: '76px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ position: 'absolute', left: '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 463, background: '#1E3A5F' }}>
+        {children}
+      </div>
+      <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />
+      </div>
     </div>
   )
 }
 
-// ─── CourseConnectPage ─────────────────────────────────────────────────────────
+function SectionLabel({ children, light }) {
+  return (
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0,
+    }}>
+      {children}
+    </p>
+  )
+}
+
+// ─── Phone screen illustration ─────────────────────────────────────────────────
+
+function CourseScreen() {
+  return (
+    <div style={{
+      width: '100%', height: '100%',
+      background: 'linear-gradient(160deg, #1a0044 0%, #080020 100%)',
+      display: 'flex', flexDirection: 'column', padding: '18px 12px 14px', boxSizing: 'border-box',
+    }}>
+      {/* Status bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: 'rgba(245,240,232,0.5)', fontWeight: 600 }}>9:41</span>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+          {[4, 3, 2].map(h => (
+            <div key={h} style={{ width: '3px', height: `${h}px`, background: 'rgba(245,240,232,0.4)', borderRadius: '1px' }} />
+          ))}
+          <div style={{ width: '14px', height: '7px', border: '1px solid rgba(245,240,232,0.35)', borderRadius: '2px', marginLeft: '3px', padding: '1.5px', boxSizing: 'border-box' }}>
+            <div style={{ width: '60%', height: '100%', background: 'rgba(245,240,232,0.55)', borderRadius: '1px' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: 'rgba(139,92,246,0.8)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px' }}>
+        Course Connect
+      </p>
+      <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#F5F0E8', margin: '0 0 10px' }}>
+        Find your course
+      </p>
+
+      {/* Search bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        background: 'rgba(245,240,232,0.07)', border: '1px solid rgba(139,92,246,0.4)',
+        borderRadius: '8px', padding: '6px 10px', marginBottom: '12px',
+      }}>
+        <Search size={10} color="rgba(139,92,246,0.7)" strokeWidth={2} />
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: 'rgba(245,240,232,0.55)' }}>
+          Business Analytics L8
+        </span>
+        <span style={{ marginLeft: 'auto', width: '1px', height: '12px', background: 'rgba(139,92,246,0.7)', borderRadius: '1px', animation: 'blink 1s step-end infinite' }} />
+      </div>
+
+      {/* Stat tiles */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', marginBottom: '12px' }}>
+        {[
+          { val: '847',    sub: 'Members' },
+          { val: '4',      sub: 'Notes this wk' },
+          { val: 'Thu 6pm', sub: 'Study group' },
+        ].map((tile, i) => (
+          <div key={i} style={{
+            background: 'rgba(76,29,149,0.2)', border: '1px solid rgba(76,29,149,0.3)',
+            borderRadius: '7px', padding: '6px 4px', textAlign: 'center',
+          }}>
+            <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '11px', color: '#F5F0E8', margin: 0, lineHeight: 1 }}>{tile.val}</p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '7px', color: 'rgba(245,240,232,0.4)', margin: '2px 0 0', lineHeight: 1.2 }}>{tile.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Activity feed */}
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: 'rgba(245,240,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 8px' }}>
+        Recent activity
+      </p>
+      {[
+        { name: 'Emma',   color: '#3b5fa8', time: '1h ago',  text: 'Uploaded Data Visualisation notes for semester 1.' },
+        { name: 'Ciarán', color: '#145A3E', time: '3h ago',  text: 'Study group forming, Thursday 6pm. Message to join.' },
+        { name: 'Fiza',   color: '#7C3500', time: '5h ago',  text: 'Anyone have the 2024 past paper for Fin Analytics?' },
+      ].map((item, i) => (
+        <div key={i} style={{
+          display: 'flex', gap: '6px', paddingBottom: '7px',
+          borderBottom: i < 2 ? '1px solid rgba(245,240,232,0.06)' : 'none',
+          marginBottom: i < 2 ? '7px' : 0,
+        }}>
+          <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: item.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '1px' }}>
+            <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '8px', color: '#fff' }}>{item.name[0]}</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: 'rgba(245,240,232,0.6)' }}>{item.name}</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '8px', color: 'rgba(245,240,232,0.25)' }}>{item.time}</span>
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', color: 'rgba(245,240,232,0.35)', margin: '2px 0 0', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+              {item.text}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Data ──────────────────────────────────────────────────────────────────────
+
+const FEATURES = [
+  { Icon: BookOpen,     title: 'Course Boards',              desc: 'Discussion boards for every course in Ireland.' },
+  { Icon: FileText,     title: 'Shared Notes',               desc: 'Upload and access notes shared by your course.' },
+  { Icon: Users,        title: 'Study Groups',               desc: 'Form study groups in minutes, online or in person.' },
+  { Icon: MessageSquare, title: 'Module Q&A',                desc: 'Ask questions about modules that stay with the course.' },
+  { Icon: Globe,        title: 'Cross-Ireland Collaboration', desc: 'Connect with people on the same course at other institutions.' },
+  { Icon: Archive,      title: 'Resource Library',           desc: 'Organised past papers, notes, and summaries by module.' },
+]
+
+const COURSE_DATA = {
+  'Business Analytics': {
+    institutions: 24,
+    members: 847,
+    activity: [
+      { name: 'Emma',    color: '#3b5fa8', time: '1h ago',  text: 'Uploaded my Data Visualisation notes for semester 1.' },
+      { name: 'Ciarán',  color: '#145A3E', time: '3h ago',  text: 'Study group forming for the stats exam, Thursday 6pm. Message to join.' },
+      { name: 'Fiza',    color: '#7C3500', time: '5h ago',  text: 'Anyone have the 2024 past paper for Financial Analytics?' },
+    ],
+  },
+  'Computer Science': {
+    institutions: 18,
+    members: 1204,
+    activity: [
+      { name: 'Zafir',  color: '#4C1D95', time: '30m ago', text: 'Algorithms study group in DCU library, Monday 4pm. 3 spots left.' },
+      { name: 'Sam',    color: '#1B4B5A', time: '2h ago',  text: 'Uploaded OS notes from this semester, should cover most topics.' },
+      { name: 'Luca',   color: '#145A3E', time: '4h ago',  text: 'Need a partner for the embedded systems project, TU Dublin students.' },
+    ],
+  },
+  'Law': {
+    institutions: 10,
+    members: 632,
+    activity: [
+      { name: 'Gigi',   color: '#7C3500', time: '2h ago',  text: 'Contract law moot court prep group forming for UCD students.' },
+      { name: 'Harry',  color: '#1E3A5F', time: '6h ago',  text: 'Full summary for Constitutional Law module, 3rd year, now uploaded.' },
+      { name: 'Sofia',  color: '#4C1D95', time: '1d ago',  text: 'Anyone know which cases to focus on for the Tort exam this year?' },
+    ],
+  },
+  'Nursing': {
+    institutions: 15,
+    members: 978,
+    activity: [
+      { name: 'Nicole', color: '#145A3E', time: '1h ago',  text: 'Placement at Galway University Hospital next week. Anyone else on this rotation?' },
+      { name: 'Sienna', color: '#1B4B5A', time: '4h ago',  text: 'Anatomy flashcards for the pharmacology module now uploaded.' },
+      { name: 'Fatima', color: '#3b5fa8', time: '8h ago',  text: 'OSCE practical study group, every Wednesday 5pm in the skills lab.' },
+    ],
+  },
+  'Engineering': {
+    institutions: 20,
+    members: 1089,
+    activity: [
+      { name: 'Eman',   color: '#3b5fa8', time: '45m ago', text: 'Fluid Mechanics tutorial group, Friday 2pm on campus. DM to confirm.' },
+      { name: 'James',  color: '#7C3500', time: '3h ago',  text: 'Anyone have Thermodynamics past papers from 2023 for finals prep?' },
+      { name: 'Ahmed',  color: '#145A3E', time: '7h ago',  text: 'Signal processing notes now uploaded. Covers the full semester.' },
+    ],
+  },
+  'Marketing': {
+    institutions: 16,
+    members: 724,
+    activity: [
+      { name: 'Kofi',      color: '#4C1D95', time: '2h ago',  text: 'Looking for 2 more people for the group marketing strategy assignment.' },
+      { name: 'Alex',      color: '#1B4B5A', time: '5h ago',  text: 'Uploaded a brand audit template for the Digital Marketing module.' },
+      { name: 'Mohammed',  color: '#7C3500', time: '1d ago',  text: 'Consumer Behaviour study group starting next week. First session online.' },
+    ],
+  },
+}
+
+const COURSE_PILLS = Object.keys(COURSE_DATA)
+
+const STEPS = [
+  { n: 1, title: 'Search for your course in the app', desc: 'Find your exact course across all Irish institutions.' },
+  { n: 2, title: 'Join the board and connect',         desc: 'See who is studying the same course across Ireland.' },
+  { n: 3, title: 'Share notes, form groups, ask questions', desc: 'Collaborate with your course from day one.' },
+]
+
+const PAGE_STYLES = `
+  .crp-hero { display: flex; align-items: center; gap: 48px; max-width: 1040px; margin: 0 auto; position: relative; z-index: 1; }
+  .crp-phone { flex-shrink: 0; }
+  .crp-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .crp-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  @media (max-width: 860px) {
+    .crp-hero { flex-direction: column; }
+    .crp-phone { display: none; }
+  }
+  @media (max-width: 720px) { .crp-feat-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .crp-feat-grid { grid-template-columns: 1fr; } .crp-steps-grid { grid-template-columns: 1fr; } }
+`
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function CourseConnectPage() {
+  const [activeCourse, setActiveCourse] = useState('Business Analytics')
+  const [fading, setFading] = useState(false)
+
+  function switchCourse(course) {
+    if (course === activeCourse) return
+    setFading(true)
+    setTimeout(() => {
+      setActiveCourse(course)
+      setFading(false)
+    }, 180)
+  }
+
+  const course = COURSE_DATA[activeCourse]
+
   return (
     <>
       <Helmet>
         <title>Course Connect | UniBlueprint</title>
-        <meta
-          name="description"
-          content="Connect with students studying the same course across Irish universities. Course boards, study groups, resource sharing, and Q&A — free for all users."
-        />
+        <meta name="description" content="Course-specific boards, shared notes, and study groups. Collaborate with people on the same course across Ireland." />
         <meta property="og:title" content="Course Connect | UniBlueprint" />
-        <meta property="og:description" content="Connect with students studying the same course across Irish universities. Course boards, study groups, resource sharing, and Q&A — free for all users." />
+        <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <h1 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '48px', color: '#1E3A5F',
-        }}>
-          Course Connect
-        </h1>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '18px', color: '#6B7280',
-          margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.6,
-        }}>
-          Connect across the Emerald Isle
-        </p>
-        <div style={{ marginTop: '16px' }}>
-          <span style={{
-            display: 'inline-block',
-            background: 'rgba(22,163,74,0.1)', color: '#16A34A',
-            borderRadius: '6px', padding: '5px 12px',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '13px', fontWeight: '700',
+      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: ['linear-gradient(rgba(245,240,232,0.025) 1px,transparent 1px)', 'linear-gradient(90deg,rgba(245,240,232,0.025) 1px,transparent 1px)'].join(','),
+          backgroundSize: '56px 56px',
+        }} />
+
+        <div className="crp-hero">
+
+          {/* Phone mockup */}
+          <div className="crp-phone">
+            <PhoneMockup style={{ transform: 'rotate(-2deg) translateY(8px)' }}>
+              <CourseScreen />
+            </PhoneMockup>
+          </div>
+
+          {/* Glass box */}
+          <div style={{
+            flex: 1, minWidth: 0,
+            background: 'rgba(245,240,232,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(245,240,232,0.12)', borderRadius: '20px', padding: '48px 40px',
           }}>
-            Free for all users
-          </span>
+            <SectionLabel light>Course Connect</SectionLabel>
+            <h1 style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: 'clamp(28px, 3.6vw, 46px)', color: '#F5F0E8',
+              marginTop: '10px', lineHeight: 1.12,
+            }}>
+              Study Smarter. Together.
+            </h1>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.65)', marginTop: '14px', lineHeight: 1.7 }}>
+              Course-specific boards, shared notes, and study groups. Collaborate with people on the same course across Ireland.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
+              {[
+                'Boards for every course in Ireland',
+                'Share notes and resources with your course',
+                'Form study groups in minutes',
+                'Module Q&A that stays with the course',
+              ].map(pt => (
+                <div key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: ACCENT, flexShrink: 0, marginTop: '7px', opacity: 0.85 }} />
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: 'rgba(245,240,232,0.7)', lineHeight: 1.55, margin: 0 }}>{pt}</p>
+                </div>
+              ))}
+            </div>
+
+            <Link to="/download" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              marginTop: '32px', height: '46px', padding: '0 24px',
+              background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+              textDecoration: 'none',
+            }}>
+              Get the app <ArrowRight size={15} />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURE CARDS ────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', fontWeight: '600',
-            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-            textAlign: 'center',
-          }}>
-            What's included
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            Your course, connected
-          </h2>
+      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.04) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
 
-          <div className="services-grid" style={{ marginTop: '40px' }}>
-            {FEATURES.map(f => (
-              <div key={f.name} style={{
-                position: 'relative',
-                background: '#FFFFFF', borderRadius: '12px',
-                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-                padding: '24px',
+        <div style={{ maxWidth: 1040, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+            <SectionLabel>What you get</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Everything your course needs
+            </h2>
+          </div>
+
+          <div className="crp-feat-grid">
+            {FEATURES.map(({ Icon, title, desc }) => (
+              <div key={title} style={{
+                background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+                border: '1px solid rgba(255,255,255,0.85)',
+                borderTop: `3px solid ${ACCENT}`,
+                borderRadius: '16px', padding: '28px 26px 24px',
               }}>
-                {f.comingSoon && (
-                  <span style={{
-                    position: 'absolute', top: '12px', right: '12px',
-                    background: 'rgba(156,163,175,0.15)', color: '#9CA3AF',
-                    borderRadius: '4px', padding: '3px 8px',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '11px', fontWeight: '700',
-                  }}>
-                    Coming Soon
-                  </span>
-                )}
                 <div style={{
-                  width: '48px', height: '48px', borderRadius: '50%',
-                  background: '#F5F0E8',
+                  width: '44px', height: '44px', borderRadius: '10px',
+                  background: ACCENT_ALPHA, border: `1px solid ${ACCENT_BORDER}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <f.icon size={24} color="#1E3A5F" />
+                  <Icon size={20} color={ACCENT} strokeWidth={1.8} />
                 </div>
-                <p style={{
-                  fontFamily: "'DM Serif Display', serif",
-                  fontSize: '17px', color: '#1E3A5F', marginTop: '12px',
-                }}>
-                  {f.name}
-                </p>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '13px', color: '#6B7280',
-                  marginTop: '6px', lineHeight: 1.6,
-                }}>
-                  {f.description}
-                </p>
+                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#1E3A5F', marginTop: '14px', marginBottom: 0 }}>{title}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 3 — STUDENT PROFILES PREVIEW ─────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center',
-        }}>
-          Students already studying like this
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: '#6B7280',
-          textAlign: 'center', margin: '12px auto 0', maxWidth: '520px', lineHeight: 1.7,
-        }}>
-          Connect with students on the same course — across campuses, across Ireland.
-        </p>
+      {/* ── SECTION 3 — COURSE SEARCH ────────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <SectionLabel>Course Search</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Find your course board
+            </h2>
+          </div>
 
-        {/* Mock content banner */}
-        <div style={{
-          maxWidth: '1000px', margin: '32px auto 0',
-          background: '#FFFFFF', borderRadius: '12px',
-          borderLeft: '3px solid #1E3A5F',
-          padding: '20px',
-          display: 'flex', alignItems: 'flex-start', gap: '16px',
-        }}>
+          {/* Search input */}
           <div style={{
-            width: '40px', height: '40px', borderRadius: '50%',
-            background: '#F5F0E8', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: '#F5F0E8', border: `1.5px solid ${ACCENT_BORDER}`,
+            borderRadius: '10px', padding: '12px 16px', marginBottom: '20px',
           }}>
-            <Sparkles size={20} color="#1E3A5F" />
+            <Search size={16} color="#9CA3AF" strokeWidth={2} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF' }}>
+              Search for your course...
+            </span>
           </div>
-          <div>
-            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>
-              You are looking at example content
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.5 }}>
-              These student profiles are a mix of real verified users and sample accounts to show how Course Connect looks in the app. Real profiles are created by students who sign up.
-            </p>
-          </div>
-        </div>
 
-        <div className="testimonials-grid" style={{ maxWidth: '1000px', margin: '32px auto 0' }}>
-          {STUDENT_PROFILES.slice(0, 12).map(p => (
-            <div key={p.name} style={{
-              background: '#FFFFFF', borderRadius: '12px',
-              boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-              padding: '24px', textAlign: 'left',
-            }}>
-              <div style={{
-                width: '52px', height: '52px', borderRadius: '50%',
-                background: '#1E3A5F',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
-                <span style={{
-                  fontFamily: "'DM Serif Display', serif",
-                  fontSize: '20px', color: '#FFFFFF', lineHeight: 1,
+          {/* Course pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '32px' }}>
+            {COURSE_PILLS.map(name => (
+              <button
+                key={name}
+                onClick={() => switchCourse(name)}
+                style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600,
+                  padding: '8px 18px', borderRadius: '24px', cursor: 'pointer',
+                  border: '1.5px solid',
+                  borderColor: activeCourse === name ? ACCENT : 'rgba(30,58,95,0.12)',
+                  background: activeCourse === name ? ACCENT : 'transparent',
+                  color: activeCourse === name ? '#fff' : '#6B7280',
+                  transition: 'all 160ms ease',
+                }}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+
+          {/* Course card */}
+          <div style={{
+            background: '#FFFFFF', border: `1px solid ${ACCENT_BORDER}`,
+            borderTop: `3px solid ${ACCENT}`,
+            borderRadius: '16px', padding: '28px 26px',
+            opacity: fading ? 0 : 1,
+            transition: 'opacity 180ms ease',
+          }}>
+            {/* Title row */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '20px' }}>
+              <div>
+                <h3 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '22px', color: '#1E3A5F', margin: 0 }}>
+                  {activeCourse}
+                </h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', margin: '4px 0 0' }}>
+                  Offered at {course.institutions} institutions across Ireland
+                </p>
+              </div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '24px', color: ACCENT, margin: 0, lineHeight: 1 }}>
+                  {course.members.toLocaleString()}
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', margin: '3px 0 0', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>
+                  Members
+                </p>
+              </div>
+            </div>
+
+            {/* Activity feed */}
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '12px' }}>
+              Recent activity
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {course.activity.map((item, i) => (
+                <div key={i} style={{
+                  display: 'flex', gap: '10px', alignItems: 'flex-start',
+                  paddingTop: i > 0 ? '12px' : 0, paddingBottom: i < 2 ? '12px' : 0,
+                  borderBottom: i < 2 ? '1px solid rgba(30,58,95,0.06)' : 'none',
                 }}>
-                  {p.name.charAt(0)}
-                </span>
-              </div>
-              <p style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '17px', color: '#1E3A5F', marginTop: '10px',
-              }}>
-                {p.name}
-              </p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px', color: '#6B7280', marginTop: '4px',
-              }}>
-                {p.course} · {p.university}
-              </p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px', color: '#1E3A5F', fontWeight: '600',
-                marginTop: '12px',
-              }}>
-                CAO Code: {p.cao}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── SECTION 3.5 — MOCK CONTENT TABS ─────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', fontWeight: '600', color: '#6B7280',
-            textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center',
-          }}>
-            Inside the app
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            What Course Connect looks like
-          </h2>
-
-          {/* Mock content banner */}
-          <div style={{
-            background: '#FFFFFF', borderRadius: '12px',
-            borderLeft: '3px solid #1E3A5F',
-            padding: '20px', margin: '32px 0',
-            display: 'flex', alignItems: 'flex-start', gap: '16px',
-          }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
-              background: '#F5F0E8', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Sparkles size={20} color="#1E3A5F" />
-            </div>
-            <div>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', margin: 0 }}>
-                You are looking at example content
-              </p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.5 }}>
-                These sample posts and threads show what Course Connect looks like in the app. Real content is created by students on the platform.
-              </p>
-            </div>
-          </div>
-
-          {/* Mock discussion threads */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-            {/* Discussions board */}
-            <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <MessageSquare size={20} color="#1E3A5F" />
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', margin: 0 }}>Discussions</p>
-              </div>
-              {[
-                { author: 'Fiza', course: 'Psychology · GY104', time: '1h ago', text: 'Anyone find the cognitive bias chapter confusing? Happy to share my summary notes for the exam.', replies: 4 },
-                { author: 'Ciarán', course: 'Computer Science · LM121', time: '3h ago', text: 'Has anyone done the algorithms assignment already? Struggling with the complexity analysis section.', replies: 7 },
-                { author: 'Emily', course: 'Accounting & Finance · DC115', time: '5h ago', text: 'Revision notes for financial reporting are up in the Resources tab. Should cover everything on the paper.', replies: 12 },
-              ].map((t, i) => (
-                <div key={i} style={{ borderTop: i > 0 ? '1px solid rgba(30,58,95,0.08)' : 'none', paddingTop: i > 0 ? '14px' : 0, marginTop: i > 0 ? '14px' : 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '12px', color: '#FFFFFF' }}>{t.author.charAt(0)}</span>
-                      </div>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', fontWeight: '600' }}>{t.author}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>{t.course}</span>
-                    </div>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>{t.time}</span>
+                  <div style={{
+                    width: '28px', height: '28px', borderRadius: '50%',
+                    background: item.color, flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '1px',
+                  }}>
+                    <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '11px', color: '#fff' }}>{item.name[0]}</span>
                   </div>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#374151', lineHeight: 1.5, margin: '8px 0 0' }}>{t.text}</p>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>{t.replies} replies</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Resources board */}
-            <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <FileText size={20} color="#1E3A5F" />
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', margin: 0 }}>Resources</p>
-              </div>
-              {[
-                { author: 'Emily', tag: 'Notes', title: 'Financial Reporting — Full Summary Notes', desc: 'Covers all lecture content + past paper answers. 28 pages.' },
-                { author: 'Zafir', tag: 'Past Paper', title: 'Algorithms Exam 2023 — Worked Solutions', desc: 'Full solutions with complexity analysis for every question.' },
-                { author: 'Fiza', tag: 'Mind Map', title: 'Cognitive Psychology — Chapter 3 Mind Map', desc: 'Visual breakdown of cognitive biases and memory models.' },
-              ].map((r, i) => (
-                <div key={i} style={{ borderTop: i > 0 ? '1px solid rgba(30,58,95,0.08)' : 'none', paddingTop: i > 0 ? '14px' : 0, marginTop: i > 0 ? '14px' : 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ background: '#F5F0E8', color: '#1E3A5F', borderRadius: '4px', padding: '2px 8px', fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600' }}>{r.tag}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>by {r.author}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: '#1E3A5F' }}>{item.name}</span>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>{item.time}</span>
                     </div>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1E3A5F', fontWeight: '600', margin: 0 }}>{r.title}</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', marginTop: '3px' }}>{r.desc}</p>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', margin: 0, lineHeight: 1.55 }}>
+                      {item.text}
+                    </p>
                   </div>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', fontWeight: '600', whiteSpace: 'nowrap' }}>View →</span>
                 </div>
               ))}
             </div>
 
-            {/* Mentorship board */}
-            <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <UserPlus size={20} color="#1E3A5F" />
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', margin: 0 }}>Mentorship</p>
-              </div>
-              {[
-                { author: 'Gigi', course: 'Law · UCD', text: 'Looking for a 3rd or 4th year Law student to chat through module choices and what to expect in second year. Any help appreciated.', time: '2h ago' },
-                { author: 'Eman', course: 'Engineering · UCD', text: 'Happy to mentor any 1st year Engineering students. I remember how overwhelming the first semester is. Drop me a message.', time: '1d ago' },
-              ].map((m, i) => (
-                <div key={i} style={{ borderTop: i > 0 ? '1px solid rgba(30,58,95,0.08)' : 'none', paddingTop: i > 0 ? '14px' : 0, marginTop: i > 0 ? '14px' : 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '12px', color: '#FFFFFF' }}>{m.author.charAt(0)}</span>
-                      </div>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', fontWeight: '600' }}>{m.author}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>{m.course}</span>
-                    </div>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>{m.time}</span>
-                  </div>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#374151', lineHeight: 1.5, margin: '8px 0 0' }}>{m.text}</p>
-                </div>
-              ))}
+            {/* CTA */}
+            <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(30,58,95,0.07)', textAlign: 'center' }}>
+              <Link to="/download" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                height: '44px', padding: '0 24px',
+                background: ACCENT, color: '#fff', borderRadius: '8px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                textDecoration: 'none',
+              }}>
+                Join in the app <ArrowRight size={14} />
+              </Link>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 4 — COLLABORATION ────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center',
-          }}>
-            Collaboration built in
-          </h2>
+      {/* ── SECTION 4 — HOW IT WORKS ─────────────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+            <SectionLabel>How it works</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Three steps to your course board
+            </h2>
+          </div>
 
-          <div className="about-diff-grid" style={{ marginTop: '40px' }}>
-            {COLLAB_POINTS.map(c => (
-              <div key={c.title} style={{
-                background: '#FFFFFF', borderRadius: '12px',
-                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-                padding: '24px',
-              }}>
-                <p style={{
-                  fontFamily: "'DM Serif Display', serif",
-                  fontSize: '18px', color: '#1E3A5F',
+          <div className="crp-steps-grid">
+            {STEPS.map(s => (
+              <div key={s.n} style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: '52px', height: '52px', borderRadius: '50%',
+                  background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto',
                 }}>
-                  {c.title}
-                </p>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '14px', color: '#6B7280',
-                  marginTop: '8px', lineHeight: 1.65,
-                }}>
-                  {c.description}
-                </p>
+                  <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '22px', color: '#F5F0E8', lineHeight: 1 }}>{s.n}</span>
+                </div>
+                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#1E3A5F', marginTop: '16px' }}>{s.title}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 5 — IRELAND MAP ───────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <IrelandMap />
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '28px', color: '#1E3A5F',
-          textAlign: 'center', marginTop: '32px',
-        }}>
-          One platform. Every campus. All of Ireland.
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '15px', color: '#9CA3AF',
-          textAlign: 'center', marginTop: '8px',
-        }}>
-          Launching September 2026 across Irish universities and institutes of technology.
-        </p>
-      </section>
-
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────── */}
-      <section style={{
-        background: '#1E3A5F',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
-        }}>
-          Connect with your course
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: 'rgba(245,240,232,0.7)',
-          marginTop: '12px',
-        }}>
-          Free for every UniBlueprint user. No upgrade required.
-        </p>
-        <div style={{ marginTop: '32px' }}>
-          <Link
-            to="/sign-up"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 36px',
-              background: '#F5F0E8', color: '#1E3A5F',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none',
-            }}
-          >
-            Sign up free
+      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: ['linear-gradient(rgba(245,240,232,0.025) 1px,transparent 1px)', 'linear-gradient(90deg,rgba(245,240,232,0.025) 1px,transparent 1px)'].join(','),
+          backgroundSize: '48px 48px',
+        }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <SectionLabel light>Get the app</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(28px, 4vw, 46px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
+            Connect with your course today
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
+            Free to join. September trial offers 50% off everything across UniBlueprint.
+          </p>
+          <Link to="/download" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            marginTop: '32px', height: '50px', padding: '0 28px',
+            background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none',
+          }}>
+            Download the app <ArrowRight size={16} />
           </Link>
         </div>
       </section>

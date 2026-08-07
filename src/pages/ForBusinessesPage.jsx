@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react'
+import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Tag, TrendingUp, Users, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -31,50 +31,46 @@ import {
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
 
-const STATS = [
-  { value: 'Ireland',        label: 'Nationwide reach' },
-  { value: 'September 2026', label: 'Live across campuses' },
-  { value: 'Pro Subscribers', label: 'Actively seeking deals' },
-  { value: '50% OFF',        label: 'September trial driving sign-ups' },
-]
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
-const STEPS = [
-  { n: 1, title: 'Apply',         description: 'Tell us about your business and the deal you want to offer.' },
-  { n: 2, title: 'Verified',      description: 'We review and confirm your listing meets our standards.' },
-  { n: 3, title: 'Listed',        description: 'Your deal goes live on the UniBlueprint Lifestyle Blueprint.' },
-  { n: 4, title: 'Students save', description: 'Pro subscribers discover and redeem your deal.' },
-]
-
-const BENEFITS = [
+const VALUE_PROPS = [
+  {
+    icon: Users,
+    title: 'Direct access to young adults',
+    description: 'Reach 18-26 year olds across 100+ Irish institutions — active, engaged, and looking for brands that understand them.',
+  },
   {
     icon: Tag,
-    title: 'Listed on the Lifestyle Blueprint',
-    description: 'Visible to every UniBlueprint Pro subscriber, daily.',
+    title: 'Lifestyle Blueprint placement',
+    description: 'Your brand featured in the deals section, directly unlockable in the app by Pro subscribers.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Campus Connect presence',
+    description: 'Sponsored listings on relevant campus boards — your brand where young people are already spending time.',
   },
   {
     icon: Star,
-    title: 'Category placement',
-    description: 'Your deal appears in the right category for your business.',
+    title: 'Authentic, opt-in',
+    description: 'Young people choose to engage with your brand. No interruption advertising — only genuine, opted-in discovery.',
+  },
+]
+
+const STEPS = [
+  {
+    n: 1,
+    title: 'Tell us about your brand',
+    description: 'Share your brand, your goal, and the offer you want to bring to the UniBlueprint audience.',
   },
   {
-    icon: TrendingUp,
-    title: 'Featured deal opportunities',
-    description: 'Top deals are featured on the home dashboard.',
+    n: 2,
+    title: 'Agree a placement',
+    description: 'We find the right approach together — Lifestyle Blueprint, Campus Connect, or both.',
   },
   {
-    icon: Users,
-    title: 'September launch visibility',
-    description: 'Listed during our nationwide freshers week campaign.',
-  },
-  {
-    icon: Tag,
-    title: 'Partner page listing',
-    description: 'Featured on uniblueprint.com/partners.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Student reach data',
-    description: 'TODO: add analytics dashboard when available.',
+    n: 3,
+    title: 'Go live',
+    description: 'Your brand goes live in the app with a verified partner badge.',
   },
 ]
 
@@ -86,6 +82,76 @@ const BUSINESS_TYPES = [
   'Entertainment',
   'Other',
 ]
+
+// ─── Page styles ──────────────────────────────────────────────────────────────
+
+const BIZ_STYLES = `
+  .biz-value-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 40px auto 0;
+  }
+  .biz-steps-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    max-width: 760px;
+    margin: 40px auto 0;
+    position: relative;
+  }
+  .biz-steps-row::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: calc(33.33% / 2);
+    right: calc(33.33% / 2);
+    height: 1px;
+    background: rgba(30,58,95,0.18);
+    z-index: 0;
+  }
+  .biz-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .biz-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) {
+    .biz-value-grid { grid-template-columns: 1fr !important; }
+    .biz-steps-row { flex-direction: column; align-items: flex-start; gap: 32px; }
+    .biz-steps-row::before { display: none; }
+    .biz-step { align-items: flex-start; text-align: left; padding: 0; }
+    .biz-form-grid { grid-template-columns: 1fr !important; }
+  }
+`
+
+// ─── SectionLabel ─────────────────────────────────────────────────────────────
+
+function SectionLabel({ children, light }) {
+  return (
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em',
+      margin: 0,
+    }}>
+      {children}
+    </p>
+  )
+}
+
+// ─── ForBusinessesPage ────────────────────────────────────────────────────────
 
 export default function ForBusinessesPage() {
   const [form, setForm] = useState({
@@ -120,161 +186,126 @@ export default function ForBusinessesPage() {
     else setSuccess(true)
   }
 
+  function scrollToForm() {
+    document.getElementById('biz-enquiry-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <>
       <Helmet>
         <title>For Businesses | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026."
+          content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect — launching September 2026."
         />
         <meta property="og:title" content="For Businesses | UniBlueprint" />
-        <meta property="og:description" content="Partner with UniBlueprint to list exclusive student deals in the Lifestyle Blueprint and reach Irish students from freshers week 2026." />
+        <meta property="og:description" content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect — launching September 2026." />
+        <style>{BIZ_STYLES}</style>
       </Helmet>
 
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F' }}>
-          Your brand. Their campus. UniBlueprint.
-        </h1>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
-          margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
-        }}>
-          List your deals and discounts on UniBlueprint's Lifestyle Blueprint — accessed daily by students, apprentices, and young people across Ireland. Pro subscribers are actively looking for the right deals right now.
-        </p>
+      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      <section style={{
+        background: '#1E3A5F',
+        padding: '100px 24px 80px',
+        textAlign: 'center',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: [
+            'linear-gradient(rgba(245,240,232,0.025) 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(245,240,232,0.025) 1px, transparent 1px)',
+          ].join(', '),
+          backgroundSize: '56px 56px',
+        }} />
 
-        <div className="stats-grid" style={{ marginTop: '48px' }}>
-          {STATS.map(s => (
-            <div key={s.label} style={{
-              background: '#F5F0E8', borderRadius: '12px',
-              padding: '20px', textAlign: 'center', flex: 1,
-            }}>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>
-                {s.value}
-              </p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px' }}>
-                {s.label}
-              </p>
-            </div>
-          ))}
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '680px', margin: '0 auto' }}>
+          <SectionLabel light>For Businesses and Brands</SectionLabel>
+
+          <h1 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(32px, 4.5vw, 52px)',
+            color: '#F5F0E8',
+            marginTop: '10px', lineHeight: 1.1,
+          }}>
+            Reach young people in Ireland. Authentically.
+          </h1>
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '17px', color: 'rgba(245,240,232,0.65)',
+            marginTop: '16px', lineHeight: 1.7,
+          }}>
+            UniBlueprint connects you directly with the student and young adult market across Ireland through the Lifestyle Blueprint deals section and Campus Connect boards.
+          </p>
+
+          <button
+            type="button"
+            onClick={scrollToForm}
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: '50px', padding: '0 28px',
+              background: '#F5F0E8', color: '#1E3A5F',
+              border: 'none', borderRadius: '10px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              cursor: 'pointer', marginTop: '28px',
+            }}
+          >
+            Get in touch
+          </button>
         </div>
       </section>
 
-      {/* ── WHY PARTNER WITH US ──────────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px', textAlign: 'center' }}>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-          color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-        }}>
-          Why partner with us
-        </p>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
-          margin: '20px auto 0', maxWidth: '700px', lineHeight: 1.7,
-        }}>
-          UniBlueprint Pro subscribers are actively spending. They are looking for food, fitness, travel, entertainment, and services that fit their lifestyle and budget. A listing on UniBlueprint puts your brand directly in front of them — at the moment they are deciding where to spend.
-        </p>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
-          margin: '16px auto 0', maxWidth: '700px', lineHeight: 1.7,
-        }}>
-          Ireland is launching into a student economy moment. September 2026 brings one of the largest freshers cohorts in years. UniBlueprint is there from day one — and so are our partners.
-        </p>
-      </section>
+      {/* ── SECTION 2 — VALUE PROPS ────────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle, rgba(30,58,95,0.04) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} />
 
-      {/* ── HOW PARTNERSHIP WORKS ────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-          color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-        }}>
-          How partnership works
-        </p>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F',
-          marginTop: '8px',
-        }}>
-          From application to live listing
-        </h2>
+        <div style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <SectionLabel>Why advertise with us</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(26px, 3.5vw, 38px)', color: '#1E3A5F',
+            marginTop: '10px', lineHeight: 1.15,
+          }}>
+            The student audience, curated.
+          </h2>
 
-        <div className="steps-row" style={{ marginTop: '40px' }}>
-          {STEPS.map((step, i) => (
-            <Fragment key={step.n}>
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                flex: '1 0 0', maxWidth: '220px', minWidth: '140px',
+          <div className="biz-value-grid">
+            {VALUE_PROPS.map(v => (
+              <div key={v.title} style={{
+                background: 'rgba(255,255,255,0.88)',
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
+                border: '1px solid rgba(30,58,95,0.08)',
+                borderRadius: '16px',
+                padding: '28px 26px 24px',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
+                textAlign: 'left',
               }}>
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '50%',
                   background: '#1E3A5F',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
+                  marginBottom: '14px',
                 }}>
-                  <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#F5F0E8' }}>
-                    {step.n}
-                  </span>
+                  <v.icon size={22} color="#F5F0E8" strokeWidth={1.8} />
                 </div>
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F',
-                  marginTop: '12px', textAlign: 'center',
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: '18px', color: '#1E3A5F', margin: 0,
                 }}>
-                  {step.title}
+                  {v.title}
                 </p>
                 <p style={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280',
-                  marginTop: '8px', textAlign: 'center', lineHeight: 1.5,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px', color: '#6B7280',
+                  marginTop: '8px', lineHeight: 1.65,
                 }}>
-                  {step.description}
-                </p>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className="step-connector" style={{
-                  flex: '1 0 16px',
-                  borderTop: '1px dashed rgba(30,58,95,0.2)',
-                  marginTop: '24px',
-                }} />
-              )}
-            </Fragment>
-          ))}
-        </div>
-      </section>
-
-      {/* ── WHAT YOU GET ──────────────────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-            textAlign: 'center',
-          }}>
-            What you get
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            The student audience, curated
-          </h2>
-          <div className="about-team-grid" style={{ maxWidth: '900px', margin: '40px auto 0' }}>
-            {BENEFITS.map(b => (
-              <div key={b.title} style={{
-                background: '#FFFFFF', borderRadius: '12px',
-                boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-                padding: '24px',
-              }}>
-                <div style={{
-                  width: '48px', height: '48px', borderRadius: '50%',
-                  background: '#F5F0E8',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <b.icon size={24} color="#1E3A5F" />
-                </div>
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', marginTop: '12px' }}>
-                  {b.title}
-                </p>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.6 }}>
-                  {b.description}
+                  {v.description}
                 </p>
               </div>
             ))}
@@ -282,21 +313,66 @@ export default function ForBusinessesPage() {
         </div>
       </section>
 
-      {/* ── APPLICATION FORM ──────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-          color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-          textAlign: 'center',
-        }}>
-          Partner application
-        </p>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center', marginTop: '8px', marginBottom: '40px',
-        }}>
-          Apply to become a partner
-        </h2>
+      {/* ── SECTION 3 — HOW IT WORKS ───────────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <SectionLabel>How it works</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(26px, 3.5vw, 38px)', color: '#1E3A5F',
+            marginTop: '10px', lineHeight: 1.15,
+          }}>
+            From conversation to live in the app.
+          </h2>
+
+          <div className="biz-steps-row">
+            {STEPS.map(step => (
+              <div key={step.n} className="biz-step">
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '50%',
+                  background: '#1E3A5F',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, marginBottom: '14px',
+                }}>
+                  <span style={{
+                    fontFamily: "'DM Serif Display', Georgia, serif",
+                    fontSize: '20px', color: '#F5F0E8', lineHeight: 1,
+                  }}>
+                    {step.n}
+                  </span>
+                </div>
+                <p style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: '18px', color: '#1E3A5F',
+                  margin: '0 0 6px',
+                }}>
+                  {step.title}
+                </p>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px', color: '#6B7280',
+                  lineHeight: 1.6, margin: 0,
+                }}>
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4 — ENQUIRY FORM ───────────────────────────────────────── */}
+      <section id="biz-enquiry-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <SectionLabel>Partner application</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(26px, 3.5vw, 38px)', color: '#1E3A5F',
+            marginTop: '10px',
+          }}>
+            Get in touch
+          </h2>
+        </div>
 
         <FormCard subtitle="Tell us about your business and the deal you have in mind. We review every application before any listing goes live.">
           {success ? (
@@ -310,7 +386,7 @@ export default function ForBusinessesPage() {
               />
               {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="biz-form-grid">
                 <FormField label="Business name">
                   <FormInput value={form.business_name} onChange={set('business_name')} placeholder="Acme Coffee Co." required />
                 </FormField>
@@ -318,7 +394,7 @@ export default function ForBusinessesPage() {
                   <FormInput value={form.contact_name} onChange={set('contact_name')} placeholder="John Murphy" required />
                 </FormField>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="biz-form-grid">
                 <FormField label="Your role">
                   <FormInput value={form.role} onChange={set('role')} placeholder="Marketing Manager" required />
                 </FormField>
@@ -326,7 +402,7 @@ export default function ForBusinessesPage() {
                   <FormInput type="email" value={form.email} onChange={set('email')} placeholder="john@business.ie" required />
                 </FormField>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="biz-form-grid">
                 <FormField label="Phone (optional)">
                   <FormInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
                 </FormField>
@@ -337,7 +413,7 @@ export default function ForBusinessesPage() {
                   </FormSelect>
                 </FormField>
               </div>
-              <FormField label="Tell us about the deal you want to offer UniBlueprint students" hint="Include details about the offer you'd like to list for students.">
+              <FormField label="Tell us about the deal you want to offer" hint="Include details about the offer you'd like to list for young people.">
                 <FormTextarea value={form.message} onChange={set('message')} placeholder="We'd like to offer 10% off all orders for verified students..." rows={5} />
               </FormField>
 
@@ -346,16 +422,6 @@ export default function ForBusinessesPage() {
             </form>
           )}
         </FormCard>
-      </section>
-
-      {/* ── CTA ───────────────────────────────────────────────────────────── */}
-      <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '40px', color: '#F5F0E8' }}>
-          Launching September 2026
-        </h2>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.7)', marginTop: '12px' }}>
-          Get your deal in front of Irish students from freshers week.
-        </p>
       </section>
     </>
   )

@@ -3,1060 +3,654 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
   Sparkles, Network, Layout, Users, Presentation, BookOpen,
-  UserCheck, Send, Bot,
-  Check, X as XIcon,
-  Award, Dumbbell, User, MapPin,
+  ArrowRight, Check,
 } from 'lucide-react'
 
-// ─── Data ──────────────────────────────────────────────────────────────────────
+// ─── Page styles ───────────────────────────────────────────────────────────────
+
+const PAGE_STYLES = `
+  .ebp-hero-inner {
+    display: flex; align-items: center; gap: 48px;
+    max-width: 1040px; margin: 0 auto;
+  }
+  .ebp-services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; margin-top: 48px;
+  }
+  .ebp-steps-row {
+    display: flex; align-items: flex-start;
+    gap: 0; max-width: 720px; margin: 48px auto 0;
+    position: relative;
+  }
+  .ebp-steps-line {
+    position: absolute; top: 22px; left: 80px; right: 80px;
+    height: 1px; background: rgba(30,58,95,0.15);
+    pointer-events: none;
+  }
+  @media (max-width: 860px) {
+    .ebp-hero-inner { flex-direction: column; }
+    .ebp-hero-phone { display: none; }
+    .ebp-services-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .ebp-services-grid { grid-template-columns: 1fr; }
+    .ebp-steps-row { flex-direction: column; align-items: center; gap: 32px; }
+    .ebp-steps-line { display: none; }
+  }
+  @keyframes ebp-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .ebp-tab-content { animation: ebp-fade 200ms ease; }
+`
+
+// ─── Accent colour ─────────────────────────────────────────────────────────────
+// Elevation Blueprint uses a slightly deeper blue to distinguish from Foundation.
+
+const ACCENT = '#2D4B8E'
+
+// ─── Services grid data ────────────────────────────────────────────────────────
 
 const ELEVATION_SERVICES = [
   {
-    name: 'Personal Branding Support',
-    tagline: 'Know who you are professionally. Make sure everyone else does too.',
-    description: 'Your personal brand is what people say about you when you are not in the room — and right now, most students do not have one. UniBlueprint works with you through a Uni Coach to define your professional identity, sharpen your positioning, and ensure every touchpoint — LinkedIn, CV, online presence — tells a consistent, compelling story about who you are and where you are going.',
-    standardBullets: [
-      'Personal brand audit across all touchpoints',
-      'Brand positioning statement — who you are, what you offer, who you serve',
-      'LinkedIn headline and about section aligned to your positioning',
-      'Visual identity guidance — photo, consistency, tone',
-    ],
-    premiumBullets: [
-      'Full personal brand strategy document',
-      '30-day implementation plan',
-      'Follow-up review session with your Uni Coach',
-    ],
+    name: 'Personal Branding',
     icon: Sparkles,
-    originalStandard: '€40', trialStandard: '€20',
-    originalPremium: '€55', trialPremium: '€28',
+    description: 'Define your professional identity and make every touchpoint tell the same compelling story, from LinkedIn to your cover letter.',
+    bullets: [
+      'Personal brand audit across all channels',
+      'Positioning statement and LinkedIn alignment',
+      'Visual identity and tone guidance',
+    ],
+    price: '€40', trialPrice: '€20',
   },
   {
-    name: 'Network Assistance and Strategic Linking',
-    tagline: 'Build the connections that build your career',
-    description: 'Who you know matters — but only if you know how to build and use your network strategically. A Uni Coach helps you identify the right people to connect with, craft outreach messages that actually get responses, and turn cold connections into warm relationships that open doors.',
-    standardBullets: [
-      'Network audit — who you know and who you need to know',
-      'Target connection list — specific people and companies to reach',
+    name: 'Network Assistance',
+    icon: Network,
+    description: 'Build and activate the connections that actually open doors. A Uni Coach helps you reach the right people with the right message.',
+    bullets: [
+      'Network audit: who you know, who you need',
       'Outreach message templates tailored to your goals',
       'LinkedIn connection and engagement strategy',
     ],
-    premiumBullets: [
-      'Full network strategy document',
-      'Personalised outreach sequence for top 10 target connections',
-      'Follow-up session with your Uni Coach after first outreach results',
-    ],
-    icon: Network,
-    originalStandard: '€30', trialStandard: '€15',
-    originalPremium: '€46', trialPremium: '€23',
+    price: '€30', trialPrice: '€15',
   },
   {
     name: 'Portfolio Building',
-    tagline: 'Show your work. Show your thinking. Get noticed.',
-    description: 'For students in creative, tech, business, and other portfolio-relevant fields, your work needs to be visible and presented correctly. A Uni Coach guides you through choosing the right platform for your field, structuring your projects as compelling case studies, and building a portfolio that employers and clients actually engage with.',
-    standardBullets: [
-      'Platform recommendation for your specific field and audience',
-      'Portfolio structure and content strategy',
-      'Case study framework — how to present each project',
+    icon: Layout,
+    description: 'Show your work in a way that gets you noticed. Platform recommendation, project structuring, and presentation guidance for your field.',
+    bullets: [
+      'Platform recommendation for your field and audience',
+      'Portfolio structure and case study framework',
       'Hero section and contact optimisation',
     ],
-    premiumBullets: [
-      'Portfolio review session after you build — Coach reviews and gives specific feedback',
-      'Improvement recommendations before you share with employers or clients',
-    ],
-    icon: Layout,
-    originalStandard: '€30', trialStandard: '€15',
-    originalPremium: '€46', trialPremium: '€23',
+    price: '€30', trialPrice: '€15',
   },
   {
     name: 'Mentorship Matching',
-    tagline: 'One conversation with the right person changes everything',
-    description: 'UniBlueprint matches you with a professional or alumni from our curated mentorship network — someone who has navigated where you are trying to go. Matching is always free. You pay only for the session itself. A Uni Coach prepares you before the session so you get the most from every minute.',
+    icon: Users,
+    description: 'One conversation with the right person changes everything. Matching is always free. You pay only for the session itself.',
     bullets: [
       'Personalised mentor match from the UniBlueprint network',
-      'Session preparation guide — specific questions, session structure, etiquette',
-      'One-to-one mentorship session by video call or in person',
+      'Session prep guide: questions, structure, and etiquette',
+      'One-to-one session by video or in person',
     ],
-    premiumBullets: [
-      'Structured follow-up notes from your Uni Coach after the session',
-      'Action items and next steps documented',
-    ],
-    icon: Users,
-    originalStandard: '€20', trialStandard: '€10',
-    originalPremium: '€36', trialPremium: '€18',
+    price: '€20', trialPrice: '€10',
     matchingFree: true,
   },
   {
     name: 'Pitch and Presentation Coaching',
-    tagline: 'Perform under pressure. Every time.',
-    description: 'Whether you are preparing for a pitch competition, a university presentation, an internship interview, or a graduate scheme assessment centre — UniBlueprint prepares you to perform when it matters. A Uni Coach reviews your materials, gives specific written feedback, and coaches you on delivery, structure, and Q&A handling. Premium includes a live rehearsal session.',
-    standardBullets: [
-      'Written feedback on your slides, script, or deck — slide by slide',
-      'Delivery coaching on the three skills that separate strong from weak presenters',
-      'Q&A preparation with predicted questions and how to handle them',
-      'Practice schedule based on days until your event',
-    ],
-    premiumBullets: [
-      'Live rehearsal session with your Uni Coach as the audience or panel',
-      'Scored across five dimensions with readiness rating',
-      'Targeted re-run on your lowest scoring area',
-    ],
     icon: Presentation,
-    originalStandard: '€25', trialStandard: '€13',
-    originalPremium: '€45', trialPremium: '€18',
+    description: 'Perform under pressure, in front of panels, clients, or investors. Written feedback on your deck, delivery coaching, and Q&A prep.',
+    bullets: [
+      'Slide-by-slide feedback on your deck or script',
+      'Delivery coaching on the three skills that separate good from great',
+      'Q&A prep with predicted questions',
+    ],
+    price: '€25', trialPrice: '€13',
   },
   {
-    name: 'Personal Statement and Postgrad Support',
-    tagline: 'Your postgraduate application — built to stand out',
-    description: 'Applying for a Masters, PhD, or professional postgraduate programme is a different game from undergraduate applications. UniBlueprint generates a strong personal statement foundation — programme-specific, academically written, and built around your genuine strengths — which a Uni Coach then refines, adding specificity and ensuring it speaks directly to what the admissions committee is looking for.',
-    standardBullets: [
-      'Programme-specific personal statement draft — not a generic template',
-      'Coach refinement session — specificity, narrative, programme alignment',
+    name: 'Postgrad Support',
+    icon: BookOpen,
+    description: 'Your Masters, PhD, or professional postgraduate application built to stand out. Programme-specific, not a template.',
+    bullets: [
+      'Programme-specific personal statement draft',
+      'Coach refinement session for specificity and alignment',
       'Delivered within 48 hours',
     ],
-    premiumBullets: [
-      'Same day delivery',
-      'Follow-up revision round after your Coach session',
-      "Second pass incorporating your voice and the Coach's refinements",
+    price: '€30', trialPrice: '€15',
+  },
+]
+
+// ─── Find Your Service tab data ────────────────────────────────────────────────
+
+const SERVICE_TABS = [
+  {
+    id: 'branding',
+    label: 'Personal Branding',
+    icon: Sparkles,
+    description: 'Your personal brand is what people say about you when you are not in the room. A Uni Coach helps you define your professional identity, sharpen your positioning, and ensure every channel tells a consistent story.',
+    bullets: [
+      'Personal brand audit across LinkedIn, CV, and online presence',
+      'Brand positioning statement: who you are and what you offer',
+      'A 30-day implementation plan with your Coach',
     ],
-    note: 'Covers Masters, PhD, MBA, law conversion, clinical programmes, and other professional postgraduate programmes.',
+    price: '€40', trialPrice: '€20',
+  },
+  {
+    id: 'network',
+    label: 'Network',
+    icon: Network,
+    description: 'Who you know matters, but only if you know how to build and use your network strategically. A Uni Coach identifies the right people to reach and helps you craft outreach that gets responses.',
+    bullets: [
+      'Network audit and target connection list',
+      'Personalised outreach message templates',
+      'Follow-up strategy after first results',
+    ],
+    price: '€30', trialPrice: '€15',
+  },
+  {
+    id: 'portfolio',
+    label: 'Portfolio',
+    icon: Layout,
+    description: 'For young people in creative, tech, business, and other portfolio-relevant fields, your work needs to be visible and presented correctly. A Uni Coach guides you through the structure and platform that fits your audience.',
+    bullets: [
+      'Platform recommendation for your specific field',
+      'Case study framework: how to present each project',
+      'Portfolio review session after you build',
+    ],
+    price: '€30', trialPrice: '€15',
+  },
+  {
+    id: 'pitch',
+    label: 'Pitch Coaching',
+    icon: Presentation,
+    description: 'Whether you are preparing for a pitch competition, a university presentation, or an assessment centre, a Uni Coach reviews your materials and coaches you on delivery, structure, and Q&A handling.',
+    bullets: [
+      'Slide-by-slide written feedback on your deck or script',
+      'Delivery coaching: structure, presence, and timing',
+      'Premium: live rehearsal session with real-time scoring',
+    ],
+    price: '€25', trialPrice: '€13',
+  },
+  {
+    id: 'mentorship',
+    label: 'Mentorship',
+    icon: Users,
+    description: 'UniBlueprint matches you with a professional or alumnus from our curated network: someone who has navigated where you are trying to go. Matching is always free.',
+    bullets: [
+      'Personalised mentor match from the UniBlueprint network',
+      'Session preparation guide so you get the most from every minute',
+      'One-to-one session by video call or in person',
+    ],
+    price: '€20', trialPrice: '€10',
+    note: 'Matching is always free. You pay only for the session.',
+  },
+  {
+    id: 'postgrad',
+    label: 'Postgrad Support',
     icon: BookOpen,
-    originalStandard: '€30', trialStandard: '€15',
-    originalPremium: '€52', trialPremium: '€26',
-  },
-]
-
-// ─── Coaches section data ──────────────────────────────────────────────────────
-
-const COACHES = [
-  { id: 1,  name: 'Emmanuel Fasanmi', category: 'Academic Grinds',           location: 'Ireland', services: ['1-to-1 Grinds', 'Exam Prep', 'Junior & Leaving Cert'] },
-  { id: 2,  name: 'Daniel Gough',     category: 'Trading & Finance',         location: 'Ireland', services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'] },
-  { id: 3,  name: 'Ali',              category: 'Fitness Coaching',          location: 'Ireland', services: ['Personal Training', 'Training Plans', 'Form Coaching'] },
-  { id: 4,  name: 'Emmanuel Tolic',   category: 'Online Coaching',           location: 'Remote',  services: ['Online Coaching', 'Goal Setting', 'Weekly Check-ins'] },
-  { id: 5,  name: 'Nathan Yanzo',     category: 'Videography & Photography', location: 'Ireland', services: ['1-to-1 Video Sessions', 'Photo Editing', 'Creative Direction'] },
-  { id: 6,  name: 'Shauna Rogers',    category: 'Fitness Coaching',          location: 'Ireland', services: ['Fitness Coaching', 'Training Plans', 'Lifestyle Support'] },
-  { id: 7,  name: 'Alex Leva',        category: 'Digital Marketing',         location: 'Ireland', services: ['Social Media Strategy', 'Content Creation', 'Brand Building'] },
-  { id: 8,  name: 'Ethan Henry',      category: 'Guitar Lessons',            location: 'Ireland', services: ['Beginner Guitar', 'Music Theory', '1-to-1 Lessons'] },
-  { id: 9,  name: 'Nikola Jurek',     category: 'Personal Branding',         location: 'Ireland', services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'] },
-  { id: 10, name: 'Fayed',            category: 'Network Assistance',        location: 'Ireland', services: ['Network Audit', 'Outreach Templates', 'Connection Strategy'] },
-  { id: 11, name: 'Milan',            category: 'Fitness Coaching',          location: 'Ireland', services: ['Strength Programming', 'Powerlifting', 'Progressive Overload'] },
-  { id: 12, name: 'Jayden Reynolds',  category: 'Nutrition',                 location: 'Ireland', services: ['Nutrition Plans', 'Meal Prep Guidance', 'Sports Nutrition'] },
-  { id: 13, name: 'Stephen McKeown',  category: 'Career Guidance',           location: 'Ireland', services: ['Career Planning', 'Interview Prep', 'Graduate Pathways'] },
-  { id: 14, name: 'JMC Fitness',      category: 'Sports Coaching',           location: 'Ireland', services: ['Online Coaching', 'Dietary Guidance', 'Football Coaching', 'Agent Connections', '1-to-1 Training', 'Analysis & Consultation'] },
-]
-
-const COACH_FILTER_CATEGORIES = [
-  'All',
-  'Fitness Coaching',
-  'Nutrition',
-  'Academic Grinds',
-  'Trading & Finance',
-  'Personal Branding',
-  'Digital Marketing',
-  'Network Assistance',
-  'Career Guidance',
-  'Videography & Photography',
-  'Guitar Lessons',
-  'Sports Coaching',
-  'Online Coaching',
-]
-
-const STARTING_FROM = {
-  'Fitness Coaching':            'From €30',
-  'Nutrition':                   'From €30',
-  'Academic Grinds':             'Pricing TBC',
-  'Trading & Finance':           'From €40',
-  'Personal Branding':           'From €40',
-  'Digital Marketing':           'From €40',
-  'Network Assistance':          'From €30',
-  'Career Guidance':             'From €25',
-  'Videography & Photography':   'From €45',
-  'Guitar Lessons':              'From €25',
-  'Sports Coaching':             'From €35',
-  'Online Coaching':             'From €20',
-}
-
-const coachActivePill = {
-  background: '#1E3A5F', color: '#F5F0E8',
-  borderRadius: '20px', padding: '7px 16px',
-  fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '500',
-  whiteSpace: 'nowrap', cursor: 'pointer', border: 'none',
-  transition: 'background 150ms, color 150ms',
-}
-
-const coachInactivePill = {
-  background: '#FFFFFF', color: '#6B7280',
-  border: '1px solid rgba(30,58,95,0.15)',
-  borderRadius: '20px', padding: '7px 16px',
-  fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '500',
-  whiteSpace: 'nowrap', cursor: 'pointer',
-  transition: 'background 150ms, color 150ms',
-}
-
-function ElevationCoachCard({ name, category, location, services }) {
-  const [hovered, setHovered] = useState(false)
-  const price = STARTING_FROM[category] || 'Starting from €20'
-  const isTBC = price === 'Pricing TBC'
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: '#FFFFFF', borderRadius: '12px',
-        boxShadow: hovered ? '0px 8px 28px rgba(30,58,95,0.14)' : '0px 2px 12px rgba(30,58,95,0.08)',
-        overflow: 'hidden',
-        transform: hovered ? 'scale(1.01)' : 'scale(1)',
-        transition: 'box-shadow 150ms ease, transform 150ms ease',
-      }}
-    >
-      <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <User size={40} color="#9CA3AF" style={{ opacity: 0.5 }} />
-        <span style={{
-          position: 'absolute', top: '12px', left: '12px',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '6px', padding: '4px 10px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '700',
-        }}>
-          {category}
-        </span>
-      </div>
-      <div style={{ padding: '20px' }}>
-        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', margin: 0 }}>
-          {name}
-        </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-          <MapPin size={14} color="#9CA3AF" style={{ flexShrink: 0 }} />
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>{location}</span>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
-          {services.map(s => (
-            <span key={s} style={{ background: '#F5F0E8', color: '#1E3A5F', borderRadius: '6px', padding: '4px 10px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px' }}>
-              {s}
-            </span>
-          ))}
-        </div>
-        <div style={{ borderTop: '1px solid rgba(30,58,95,0.1)', marginTop: '16px', paddingTop: '14px' }}>
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
-            color: isTBC ? '#9CA3AF' : '#1E3A5F',
-            fontWeight: isTBC ? '400' : '600',
-            fontStyle: isTBC ? 'italic' : 'normal',
-          }}>
-            {price}
-          </span>
-        </div>
-        <Link
-          to="/our-coaches"
-          style={{
-            width: '100%', marginTop: '16px', height: '44px',
-            borderRadius: '8px', background: 'none',
-            border: '1.5px solid #1E3A5F',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
-            color: '#1E3A5F', textDecoration: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          View Profile
-        </Link>
-      </div>
-    </div>
-  )
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
-
-const COMPARISON_ROWS = [
-  {
-    feature: 'Delivery model',
-    standard: 'Session + written deliverable',
-    premium: 'Session + follow-up review or notes',
-    type: 'text',
-  },
-  {
-    feature: 'Uni Coach assigned',
-    standard: true,
-    premium: true,
-    type: 'bool',
-  },
-  {
-    feature: 'Priority Coach assignment',
-    standard: false,
-    premium: true,
-    type: 'bool',
-  },
-  {
-    feature: 'Follow-up review included',
-    standard: false,
-    premium: true,
-    type: 'bool',
-  },
-  {
-    feature: 'Revision requests',
-    standard: '1 included',
-    premium: '2 included',
-    type: 'text',
-  },
-  {
-    feature: 'Turnaround',
-    standard: 'Agreed at booking',
-    premium: 'Priority scheduling',
-    type: 'text',
+    description: 'Applying for a Masters, PhD, or professional postgraduate programme is a different game from undergraduate applications. UniBlueprint generates a strong foundation, which a Uni Coach refines with specificity and programme alignment.',
+    bullets: [
+      'Programme-specific personal statement draft',
+      'Coach refinement session for narrative and fit',
+      'Covers Masters, PhD, MBA, law conversion, and clinical programmes',
+    ],
+    price: '€30', trialPrice: '€15',
   },
 ]
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function TrialBadge() {
+function SectionLabel({ children, light }) {
+  return (
+    <p style={{
+      fontFamily: "'DM Sans',sans-serif", fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em',
+    }}>
+      {children}
+    </p>
+  )
+}
+
+function PhoneMockup({ children, style = {} }) {
   return (
     <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: '6px',
-      background: '#1E3A5F', color: '#F5F0E8',
-      borderRadius: '6px', padding: '6px 12px',
-      fontFamily: "'DM Sans', sans-serif",
-      fontSize: '12px', fontWeight: '700',
+      width: 230, borderRadius: '44px', background: '#0c1520', padding: '8px',
+      boxShadow: '0 56px 100px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.07)',
+      flexShrink: 0, position: 'relative', ...style,
     }}>
-      <Sparkles size={13} />
-      50% OFF — September Trial
+      <div style={{ position: 'absolute', right: '-3px', top: '96px', width: '3px', height: '44px', background: '#1a2535', borderRadius: '0 3px 3px 0' }} />
+      <div style={{ position: 'absolute', left: '-3px', top: '76px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ position: 'absolute', left: '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
+      <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 463, background: '#1E3A5F' }}>
+        {children}
+      </div>
+      <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />
+      </div>
     </div>
   )
 }
 
-function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, note, originalStandard, trialStandard, matchingFree, pricingTodo }) {
-  const [hovered, setHovered] = useState(false)
+function ServiceCard({ name, icon: Icon, description, bullets, price, trialPrice, matchingFree }) {
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        position: 'relative',
-        background: '#FFFFFF', borderRadius: '12px',
-        boxShadow: hovered
-          ? '0px 4px 20px rgba(30,58,95,0.14)'
-          : '0px 2px 12px rgba(30,58,95,0.08)',
-        padding: '24px',
-        transform: hovered ? 'scale(1.01)' : 'scale(1)',
-        transition: 'box-shadow 150ms ease, transform 150ms ease',
-      }}
-    >
-      {/* 50% OFF badge — shown only when pricing is confirmed */}
-      {!pricingTodo && (
-        <div style={{
-          position: 'absolute', top: '12px', right: '12px',
-          background: '#1E3A5F', color: '#F5F0E8',
-          borderRadius: '6px', padding: '3px 7px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '10px', fontWeight: '700',
-          letterSpacing: '0.02em',
-        }}>
-          50% OFF
-        </div>
-      )}
-
-      {/* Icon */}
+    <div style={{
+      background: 'rgba(255,255,255,0.72)',
+      backdropFilter: 'blur(14px)',
+      WebkitBackdropFilter: 'blur(14px)',
+      border: '1px solid rgba(255,255,255,0.85)',
+      borderTop: `3px solid ${ACCENT}`,
+      borderRadius: '16px',
+      padding: '28px 26px 24px',
+    }}>
       <div style={{
-        width: '48px', height: '48px', borderRadius: '50%',
-        background: '#F5F0E8',
+        width: '44px', height: '44px', borderRadius: '10px',
+        background: 'rgba(45,75,142,0.08)',
+        border: '1px solid rgba(45,75,142,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <Icon size={26} color="#1E3A5F" />
+        <Icon size={22} color={ACCENT} strokeWidth={1.8} />
       </div>
-
-      {/* Name */}
-      <p style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: '17px', color: '#1E3A5F', marginTop: '10px',
-      }}>
+      <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '18px', color: '#1E3A5F', marginTop: '14px' }}>
         {name}
       </p>
-
-      {/* Tagline */}
-      {tagline && (
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', color: '#1E3A5F', fontStyle: 'italic',
-          marginTop: '3px',
-        }}>
-          {tagline}
-        </p>
-      )}
-
-      {/* Description */}
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px', color: '#6B7280',
-        marginTop: '10px', lineHeight: 1.55,
-      }}>
-        {description}
-      </p>
-
-      {/* Flat bullets — "What you get" (Mentorship Matching) */}
-      {bullets && bullets.length > 0 && (
-        <ul style={{ marginTop: '10px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          {bullets.map(b => (
-            <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.45 }}>
-              <span style={{ color: '#1E3A5F', flexShrink: 0, marginTop: '1px' }}>✓</span>
-              {b}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* Standard / Premium bullet groups */}
-      {standardBullets && (
-        <>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '10px' }}>
-            Standard includes
-          </p>
-          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {standardBullets.map(b => (
-              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.45 }}>
-                <span style={{ color: '#1E3A5F', flexShrink: 0, marginTop: '1px' }}>✓</span>
-                {b}
-              </li>
-            ))}
-          </ul>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '8px' }}>
-            Premium adds
-          </p>
-          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {premiumBullets.map(b => (
-              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', lineHeight: 1.45 }}>
-                <span style={{ flexShrink: 0, marginTop: '1px' }}>+</span>
-                {b}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      {/* Premium adds when base is flat bullets (Mentorship Matching) */}
-      {!standardBullets && premiumBullets && (
-        <>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '8px' }}>
-            Premium adds
-          </p>
-          <ul style={{ marginTop: '4px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {premiumBullets.map(b => (
-              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#1E3A5F', lineHeight: 1.45 }}>
-                <span style={{ flexShrink: 0, marginTop: '1px' }}>+</span>
-                {b}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      {/* Note (Postgrad) */}
-      {note && (
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', color: '#9CA3AF', fontStyle: 'italic',
-          marginTop: '10px', lineHeight: 1.5,
-        }}>
-          {note}
-        </p>
-      )}
-
-      {/* Matching: Always Free badge */}
       {matchingFree && (
         <span style={{
-          display: 'inline-block', marginTop: '10px',
-          background: '#16A34A', color: '#FFFFFF',
+          display: 'inline-block', marginTop: '6px',
+          background: 'rgba(22,163,74,0.1)', color: '#16A34A',
           borderRadius: '4px', padding: '2px 8px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px', fontWeight: '700',
+          fontFamily: "'DM Sans',sans-serif", fontSize: '11px', fontWeight: '700',
         }}>
           Matching: Always Free
         </span>
       )}
-
-      {/* Prices */}
-      {pricingTodo ? (
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic',
-          marginTop: '14px',
-        }}>
-          {/* TODO: confirm exact pricing for Fitness Coaching tier with Des before launch */}
-          Pricing to be confirmed — check back soon.
-        </p>
-      ) : (
-        <>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px', color: '#9CA3AF',
-              textDecoration: 'line-through',
-            }}>
-              {originalStandard}
-            </span>
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '16px', color: '#1E3A5F', fontWeight: '700',
-            }}>
-              {trialStandard}
-            </span>
-          </div>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
-            September trial price
-          </p>
-        </>
-      )}
+      <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '10px', lineHeight: 1.6 }}>
+        {description}
+      </p>
+      <ul style={{ marginTop: '12px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {bullets.map(b => (
+          <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', fontFamily: "'DM Sans',sans-serif", fontSize: '12px', color: '#6B7280', lineHeight: 1.5 }}>
+            <Check size={13} color={ACCENT} style={{ flexShrink: 0, marginTop: '2px' }} />
+            {b}
+          </li>
+        ))}
+      </ul>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '18px' }}>
+        <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '13px', color: '#9CA3AF', textDecoration: 'line-through' }}>
+          {price}
+        </span>
+        <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '17px', color: ACCENT, fontWeight: '700' }}>
+          {trialPrice}
+        </span>
+        <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF' }}>
+          September trial
+        </span>
+      </div>
     </div>
   )
 }
 
-function BoolCell({ value }) {
-  return value
-    ? <Check size={18} color="#16A34A" style={{ margin: '0 auto', display: 'block' }} />
-    : <XIcon size={18} color="#9CA3AF" style={{ margin: '0 auto', display: 'block' }} />
+// ─── Find Your Service interactive ────────────────────────────────────────────
+
+function FindYourService() {
+  const [activeId, setActiveId] = useState('branding')
+  const active = SERVICE_TABS.find(t => t.id === activeId)
+
+  return (
+    <div>
+      {/* Tab pills */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '36px' }}>
+        {SERVICE_TABS.map(tab => {
+          const isActive = tab.id === activeId
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveId(tab.id)}
+              style={{
+                padding: '9px 18px', borderRadius: '24px',
+                border: isActive ? `1.5px solid ${ACCENT}` : '1.5px solid rgba(30,58,95,0.18)',
+                background: isActive ? ACCENT : 'transparent',
+                color: isActive ? '#F5F0E8' : '#1E3A5F',
+                fontFamily: "'DM Sans',sans-serif",
+                fontSize: '13px', fontWeight: isActive ? '600' : '400',
+                cursor: 'pointer', whiteSpace: 'nowrap',
+                transition: 'all 160ms ease',
+              }}
+            >
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Tab content */}
+      <div
+        key={activeId}
+        className="ebp-tab-content"
+        style={{
+          display: 'flex', gap: '40px', alignItems: 'flex-start', flexWrap: 'wrap',
+          background: '#F5F0E8', borderRadius: '16px', padding: '36px',
+        }}
+      >
+        {/* Icon + name */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', minWidth: '80px' }}>
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '14px',
+            background: 'rgba(45,75,142,0.1)',
+            border: '1px solid rgba(45,75,142,0.14)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <active.icon size={30} color={ACCENT} strokeWidth={1.6} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF', textDecoration: 'line-through' }}>
+              {active.price}
+            </span>
+            <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '20px', color: ACCENT }}>
+              {active.trialPrice}
+            </span>
+          </div>
+          <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '10px', color: '#9CA3AF', textAlign: 'center' }}>
+            September trial
+          </span>
+        </div>
+
+        {/* Description + bullets */}
+        <div style={{ flex: 1, minWidth: '240px' }}>
+          <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '22px', color: '#1E3A5F', lineHeight: 1.2 }}>
+            {active.label}
+          </p>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '10px', lineHeight: 1.7 }}>
+            {active.description}
+          </p>
+          <ul style={{ marginTop: '16px', paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {active.bullets.map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontFamily: "'DM Sans',sans-serif", fontSize: '13px', color: '#1E3A5F', lineHeight: 1.55 }}>
+                <Check size={14} color={ACCENT} style={{ flexShrink: 0, marginTop: '2px' }} />
+                {b}
+              </li>
+            ))}
+          </ul>
+          {active.note && (
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '14px', fontStyle: 'italic' }}>
+              {active.note}
+            </p>
+          )}
+          <Link to="/download" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '7px',
+            marginTop: '20px', height: '42px', padding: '0 20px',
+            background: ACCENT, color: '#F5F0E8', borderRadius: '8px',
+            fontFamily: "'DM Sans',sans-serif", fontSize: '13px', fontWeight: '600',
+            textDecoration: 'none',
+          }}>
+            Book in the app <ArrowRight size={14} />
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ─── ElevationBlueprintPage ────────────────────────────────────────────────────
 
 export default function ElevationBlueprintPage() {
-  const [activeFilter, setActiveFilter] = useState('All')
-  const visibleCoaches = activeFilter === 'All' ? COACHES : COACHES.filter(c => c.category === activeFilter)
-
   return (
     <>
       <Helmet>
         <title>Elevation Blueprint | UniBlueprint</title>
-        <meta
-          name="description"
-          content="Expert personal branding, mentorship, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches."
-        />
+        <meta name="description" content="Personal branding, mentorship, portfolio building, pitch coaching, and postgrad support delivered by verified Uni Coaches." />
         <meta property="og:title" content="Elevation Blueprint | UniBlueprint" />
-        <meta property="og:description" content="Expert personal branding, mentorship, portfolio building, pitch coaching, and postgrad support — delivered by specialist Uni Coaches." />
+        <meta property="og:description" content="Personal branding, mentorship, portfolio building, pitch coaching, and postgrad support delivered by verified Uni Coaches." />
+        <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <h1 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '48px', color: '#1E3A5F',
-        }}>
-          Elevation Blueprint
-        </h1>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '18px', color: '#6B7280',
-          margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
-        }}>
-          Expert coaching and strategy — delivered by specialist Uni Coaches
-        </p>
-        <div style={{ marginTop: '20px' }}>
-          <TrialBadge />
+      {/* ── SECTION 1: HERO ─────────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle,rgba(245,240,232,0.04) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
+
+        <div className="ebp-hero-inner" style={{ position: 'relative', zIndex: 1 }}>
+
+          {/* Phone mockup */}
+          <div className="ebp-hero-phone">
+            <PhoneMockup style={{ transform: 'rotate(-2deg) translateY(8px)' }}>
+              <div style={{ padding: '20px 14px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', boxSizing: 'border-box' }}>
+                {/* Status bar */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'rgba(245,240,232,0.5)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>9:41</span>
+                  <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
+                    {[1, 2, 3].map(i => (
+                      <div key={i} style={{ width: '3px', height: `${4 + i * 2}px`, background: i === 3 ? 'rgba(245,240,232,0.25)' : 'rgba(245,240,232,0.6)', borderRadius: '1px' }} />
+                    ))}
+                  </div>
+                </div>
+                {/* Header */}
+                <div>
+                  <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Elevation Blueprint</p>
+                  <p style={{ color: '#F5F0E8', fontSize: '16px', fontFamily: "'DM Serif Display',serif", marginTop: '3px', lineHeight: 1.2 }}>Your Coach<br />Session</p>
+                </div>
+                {/* Coach card */}
+                <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.14)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,240,232,0.3),rgba(245,240,232,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>N</span>
+                    </div>
+                    <div>
+                      <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Nikola J.</p>
+                      <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Uni Coach, Personal Branding</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Session info */}
+                <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.06)', border: '1px solid rgba(245,240,232,0.08)' }}>
+                  <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next session</p>
+                  <p style={{ color: '#F5F0E8', fontSize: '13px', fontFamily: "'DM Serif Display',serif", marginTop: '3px' }}>Tomorrow, 2:00 PM</p>
+                  <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", marginTop: '2px' }}>Personal Branding Strategy</p>
+                </div>
+                {/* Activity items */}
+                {[
+                  { label: 'Brand audit complete', color: '#16A34A' },
+                  { label: 'LinkedIn updated: +38%', color: '#3B82F6' },
+                  { label: 'Network: +14 this month', color: '#F59E0B' },
+                ].map(item => (
+                  <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 8px', borderRadius: '7px', background: 'rgba(245,240,232,0.04)' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+                    <span style={{ color: 'rgba(245,240,232,0.55)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>{item.label}</span>
+                  </div>
+                ))}
+                {/* Download CTA */}
+                <div style={{ marginTop: 'auto', padding: '8px 10px', borderRadius: '8px', background: '#F5F0E8', textAlign: 'center' }}>
+                  <span style={{ color: '#1E3A5F', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700 }}>Book your Coach</span>
+                </div>
+              </div>
+            </PhoneMockup>
+          </div>
+
+          {/* Glass box */}
+          <div style={{
+            background: 'rgba(245,240,232,0.06)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(245,240,232,0.12)',
+            borderRadius: '20px',
+            padding: '48px 40px',
+            flex: 1,
+          }}>
+            <SectionLabel light>Elevation Blueprint</SectionLabel>
+            <h1 style={{
+              fontFamily: "'DM Serif Display',serif",
+              fontSize: 'clamp(28px,3.5vw,46px)',
+              color: '#F5F0E8',
+              marginTop: '10px',
+              lineHeight: 1.12,
+            }}>
+              Go beyond the degree.<br />Build something that lasts.
+            </h1>
+            <p style={{
+              fontFamily: "'DM Sans',sans-serif",
+              fontSize: '15px', color: 'rgba(245,240,232,0.65)',
+              marginTop: '14px', lineHeight: 1.7,
+            }}>
+              Expert coaching from verified Uni Coaches. Booked directly in the app, delivered to your schedule.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
+              {[
+                'Personal branding across LinkedIn and beyond',
+                'Network strategy and outreach that gets responses',
+                'Portfolio and pitch coaching for your field',
+                'Mentorship matching and postgrad application support',
+              ].map(point => (
+                <div key={point} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#F5F0E8', flexShrink: 0, marginTop: '8px', opacity: 0.55 }} />
+                  <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '14px', color: 'rgba(245,240,232,0.7)', lineHeight: 1.55 }}>
+                    {point}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <Link to="/download" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              marginTop: '30px', height: '46px', padding: '0 24px',
+              background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+              fontFamily: "'DM Sans',sans-serif", fontSize: '14px', fontWeight: '600',
+              textDecoration: 'none',
+            }}>
+              Download the app <ArrowRight size={15} />
+            </Link>
+          </div>
+
         </div>
       </section>
 
-      {/* ── SECTION 1.5 — FITNESS COACHING (NEW) ─────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '64px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          {/* Header row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+      {/* ── SECTION 2: SERVICES GRID ────────────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.04) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
+        <div style={{ maxWidth: '1040px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center' }}>
+            <SectionLabel>Services</SectionLabel>
             <h2 style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '24px', color: '#1E3A5F', margin: 0,
+              fontFamily: "'DM Serif Display',serif",
+              fontSize: 'clamp(28px,3.5vw,40px)', color: '#1E3A5F',
+              marginTop: '10px', lineHeight: 1.12,
             }}>
-              Fitness Coaching
+              Everything you need to level up
             </h2>
-            <span style={{
-              background: '#16A34A', color: '#FFFFFF',
-              borderRadius: '6px', padding: '3px 9px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '10px', fontWeight: '700',
-              letterSpacing: '0.03em',
+            <p style={{
+              fontFamily: "'DM Sans',sans-serif",
+              fontSize: '15px', color: '#6B7280',
+              marginTop: '12px', maxWidth: '460px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
             }}>
-              New
-            </span>
+              Six coaching services, each delivered by a verified Uni Coach matched to your goals.
+            </p>
           </div>
-
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '15px', color: '#1E3A5F', fontStyle: 'italic',
-            textAlign: 'center', marginTop: '6px',
-          }}>
-            Train smarter. Perform better. Build the habits that last.
-          </p>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '15px', color: '#6B7280',
-            textAlign: 'center', maxWidth: '620px',
-            margin: '12px auto 0', lineHeight: 1.65,
-          }}>
-            UniBlueprint connects you with verified Uni Coaches specialising in fitness, strength, and conditioning — built around your schedule as a student, apprentice, or young professional.
-          </p>
-
-          <div style={{ maxWidth: '480px', margin: '40px auto 0' }}>
-            <ServiceCard
-              icon={Dumbbell}
-              name="Fitness Coaching"
-              standardBullets={[
-                'Personalised training plan built around your schedule and goals',
-                'Form and technique guidance session',
-                'Nutrition basics aligned to your training',
-                'Weekly check-in structure',
-              ]}
-              premiumBullets={[
-                'Live coaching session with your Uni Coach',
-                'Progress review and plan adjustment',
-                'Direct access to your Coach for questions between sessions',
-              ]}
-              pricingTodo
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 1.75 — ACADEMIC GRINDS (NEW) ────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '64px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F', margin: 0 }}>
-              Academic Grinds
-            </h2>
-            <span style={{
-              background: '#16A34A', color: '#FFFFFF',
-              borderRadius: '6px', padding: '3px 9px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '10px', fontWeight: '700', letterSpacing: '0.03em',
-            }}>
-              New
-            </span>
-          </div>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#1E3A5F', fontStyle: 'italic', textAlign: 'center', marginTop: '6px' }}>
-            One-to-one academic support — from Junior Cert to final year.
-          </p>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', maxWidth: '620px', margin: '12px auto 0', lineHeight: 1.65 }}>
-            UniBlueprint connects you with verified Uni Coaches who offer 1-to-1 grinds and academic coaching — covering Junior Cert, Leaving Cert, and third-level modules across Ireland.
-          </p>
-          <div style={{ maxWidth: '480px', margin: '40px auto 0' }}>
-            <ServiceCard
-              icon={BookOpen}
-              name="Academic Grinds"
-              standardBullets={[
-                'Personalised sessions tailored to your subject and exam level',
-                'Junior Cert and Leaving Cert subject support',
-                'Third-level module assistance and assignment guidance',
-                'Past paper practice and exam technique coaching',
-              ]}
-              premiumBullets={[
-                'Extended sessions with a structured study plan',
-                'Ongoing support across multiple weeks',
-                'Progress tracking with session notes delivered after each session',
-              ]}
-              pricingTodo
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 2 — SERVICES GRID ────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', fontWeight: '600',
-            color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em',
-            textAlign: 'center',
-          }}>
-            Available Services
-          </p>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F',
-            textAlign: 'center', marginTop: '8px',
-          }}>
-            Everything you need to level up
-          </h2>
-
-          <div className="services-grid" style={{ marginTop: '40px' }}>
+          <div className="ebp-services-grid">
             {ELEVATION_SERVICES.map(s => <ServiceCard key={s.name} {...s} />)}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 3 — UNI COACH ────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-        }}>
-          Delivered by Uni Coaches
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: '#6B7280',
-          margin: '16px auto 0', maxWidth: '640px', lineHeight: 1.7,
-        }}>
-          Uni Coaches are specialists — professionals, postgraduates, and experienced practitioners in their field. Each Coach is vetted, onboarded, and assigned based on the specific service and your goals.
-        </p>
-
-        {/* Engagement callout */}
-        <div style={{
-          maxWidth: '640px', margin: '32px auto 0',
-          background: '#F5F0E8',
-          borderLeft: '3px solid #1E3A5F',
-          borderRadius: '12px',
-          padding: '20px 24px',
-          textAlign: 'left',
-        }}>
-          <p style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '18px', color: '#1E3A5F',
-            fontStyle: 'italic',
-          }}>
-            "Coaches work with you over a defined engagement — not a one-off transaction"
-          </p>
-        </div>
-
-        {/* Engagement model cards */}
-        <div className="hiw-blueprints-grid" style={{ maxWidth: '700px', margin: '32px auto 0' }}>
-          <div style={{
-            background: '#FFFFFF', borderRadius: '12px',
-            boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-            padding: '28px', textAlign: 'left', flex: 1,
-          }}>
+      {/* ── SECTION 3: FIND YOUR SERVICE ────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <SectionLabel>Find your service</SectionLabel>
+            <h2 style={{
+              fontFamily: "'DM Serif Display',serif",
+              fontSize: 'clamp(28px,3.5vw,40px)', color: '#1E3A5F',
+              marginTop: '10px', lineHeight: 1.12,
+            }}>
+              What do you need most right now?
+            </h2>
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '20px', color: '#1E3A5F',
+              fontFamily: "'DM Sans',sans-serif",
+              fontSize: '15px', color: '#6B7280',
+              marginTop: '12px', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
             }}>
-              Standard
-            </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '16px', color: '#6B7280',
-              marginTop: '12px', lineHeight: 1.65,
-            }}>
-              One coaching session or deliverable engagement with your assigned Uni Coach. Includes one revision or follow-up question.
+              Select a service to see what is included and what it costs.
             </p>
           </div>
-
-          <div style={{
-            background: '#1E3A5F', borderRadius: '12px',
-            padding: '28px', textAlign: 'left', flex: 1,
-          }}>
-            <p style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '20px', color: '#F5F0E8',
-            }}>
-              Premium
-            </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '16px', color: 'rgba(245,240,232,0.75)',
-              marginTop: '12px', lineHeight: 1.65,
-            }}>
-              Session plus a follow-up review or written notes. Priority Coach assignment and two revision requests included.
-            </p>
-          </div>
-        </div>
-
-        {/* Three step process */}
-        <div className="hiw-quality-row" style={{ maxWidth: '700px', margin: '40px auto 0' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{
-              width: '64px', height: '64px', borderRadius: '50%',
-              background: '#F5F0E8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Bot size={32} color="#1E3A5F" />
-            </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '500', marginTop: '12px' }}>
-              You submit your brief
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '4px', maxWidth: '140px', lineHeight: 1.5 }}>
-              Goals, materials, and service selected
-            </p>
-          </div>
-
-          <div style={{ color: 'rgba(30,58,95,0.3)', flexShrink: 0, fontSize: '24px', alignSelf: 'center' }} className="hiw-quality-arrow">→</div>
-
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{
-              width: '64px', height: '64px', borderRadius: '50%',
-              background: '#F5F0E8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Award size={32} color="#1E3A5F" />
-            </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '500', marginTop: '12px' }}>
-              Uni Coach assigned
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '4px', maxWidth: '140px', lineHeight: 1.5 }}>
-              Matched to a Coach in your area
-            </p>
-          </div>
-
-          <div style={{ color: 'rgba(30,58,95,0.3)', flexShrink: 0, fontSize: '24px', alignSelf: 'center' }} className="hiw-quality-arrow">→</div>
-
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{
-              width: '64px', height: '64px', borderRadius: '50%',
-              background: '#F5F0E8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Send size={32} color="#1E3A5F" />
-            </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '500', marginTop: '12px' }}>
-              Engagement delivered
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '4px', maxWidth: '140px', lineHeight: 1.5 }}>
-              Session, deliverable, or both
-            </p>
-          </div>
+          <FindYourService />
         </div>
       </section>
 
-      {/* ── SECTION 4 — STANDARD VS PREMIUM TABLE ────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center',
-        }}>
-          Standard vs Premium
-        </h2>
-
-        <div style={{
-          maxWidth: '900px', margin: '40px auto 0',
-          background: '#FFFFFF', borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          overflow: 'hidden',
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: '#F5F0E8' }}>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                  Feature
-                </th>
-                <th style={{ padding: '16px 24px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                  Standard
-                </th>
-                <th style={{ padding: '16px 24px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                  Premium
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {COMPARISON_ROWS.map((row, i) => (
-                <tr
-                  key={row.feature}
-                  style={{ borderTop: '1px solid rgba(30,58,95,0.06)', background: i % 2 === 0 ? '#FFFFFF' : 'rgba(245,240,232,0.3)' }}
-                >
-                  <td style={{ padding: '14px 24px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>
-                    {row.feature}
-                  </td>
-                  <td style={{ padding: '14px 24px', textAlign: 'center' }}>
-                    {row.type === 'bool'
-                      ? <BoolCell value={row.standard} />
-                      : <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>{row.standard}</span>
-                    }
-                  </td>
-                  <td style={{ padding: '14px 24px', textAlign: 'center' }}>
-                    {row.type === 'bool'
-                      ? <BoolCell value={row.premium} />
-                      : <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>{row.premium}</span>
-                    }
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* ── SECTION 5 — FULL PRICING TABLE ───────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center',
-        }}>
-          Full pricing
-        </h2>
-
-        <div style={{
-          maxWidth: '900px', margin: '40px auto 0',
-          background: '#FFFFFF', borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          overflow: 'hidden',
-        }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
-              <thead>
-                <tr style={{ background: '#F5F0E8' }}>
-                  <th style={{ padding: '14px 24px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                    Service
-                  </th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                    Standard
-                  </th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                    Standard Trial
-                  </th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                    Premium
-                  </th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: '#1E3A5F' }}>
-                    Premium Trial
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {ELEVATION_SERVICES.map((s, i) => (
-                  <tr
-                    key={s.name}
-                    style={{
-                      borderTop: '1px solid rgba(30,58,95,0.06)',
-                      background: i % 2 === 0 ? '#FFFFFF' : 'rgba(245,240,232,0.3)',
-                    }}
-                  >
-                    <td style={{ padding: '13px 24px' }}>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F' }}>
-                        {s.name}
-                      </span>
-                      {s.matchingFree && (
-                        <span style={{
-                          display: 'inline-block', marginLeft: '8px',
-                          background: 'rgba(22,163,74,0.1)', color: '#16A34A',
-                          borderRadius: '4px', padding: '1px 6px',
-                          fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
-                        }}>
-                          Matching free
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: '13px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through' }}>
-                      {s.originalStandard}
-                    </td>
-                    <td style={{ padding: '13px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '600' }}>
-                      {s.trialStandard}
-                    </td>
-                    <td style={{ padding: '13px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through' }}>
-                      {s.originalPremium}
-                    </td>
-                    <td style={{ padding: '13px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '600' }}>
-                      {s.trialPremium}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px', color: '#9CA3AF',
-            padding: '14px 24px',
-            borderTop: '1px solid rgba(30,58,95,0.06)',
+      {/* ── SECTION 4: HOW IT WORKS ─────────────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
+        <div style={{ maxWidth: '1040px', margin: '0 auto', textAlign: 'center' }}>
+          <SectionLabel>How it works</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display',serif",
+            fontSize: 'clamp(28px,3.5vw,40px)', color: '#1E3A5F',
+            marginTop: '10px', lineHeight: 1.12,
           }}>
-            * September trial prices apply throughout September 2026 only. Standard prices resume from 1 October 2026. Mentorship matching is always free regardless of trial period.
-          </p>
-        </div>
-      </section>
-
-      {/* ── SECTION 5.5 — MEET OUR COACHES ──────────────────────────────── */}
-      <style>{`
-        .elevation-coaches-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        @media (max-width: 1023px) { .elevation-coaches-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 767px)  { .elevation-coaches-grid { grid-template-columns: 1fr; } }
-      `}</style>
-
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>
-            Verified Specialists
-          </p>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
-            Meet Our Coaches
+            Browse, book, and get coached
           </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', textAlign: 'center', maxWidth: '540px', margin: '12px auto 0', lineHeight: 1.65 }}>
-            Every Uni Coach is vetted and onboarded before they take on engagements. Browse by specialism below.
-          </p>
-
-          {/* Filter pills */}
-          <div style={{ overflowX: 'auto', display: 'flex', gap: '8px', paddingBottom: '4px', marginTop: '32px' }}>
-            {COACH_FILTER_CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                style={cat === activeFilter ? coachActivePill : coachInactivePill}
-              >
-                {cat}
-              </button>
+          <div className="ebp-steps-row">
+            <div className="ebp-steps-line" />
+            {[
+              { n: '1', title: 'Browse and book your Coach in the app', desc: 'Find a Uni Coach for your service and book directly in the app.' },
+              { n: '2', title: 'Your Uni Coach prepares your service', desc: 'Your assigned Coach reviews your brief and prepares everything before your engagement.' },
+              { n: '3', title: 'Delivered or delivered live', desc: 'Receive a written deliverable, attend a live session, or both, depending on your service.' },
+            ].map(step => (
+              <div key={step.n} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 12px' }}>
+                <div style={{
+                  width: '44px', height: '44px', borderRadius: '50%', background: '#1E3A5F',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '18px', color: '#F5F0E8' }}>{step.n}</span>
+                </div>
+                <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '17px', color: '#1E3A5F', marginTop: '16px', lineHeight: 1.3 }}>{step.title}</p>
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>{step.desc}</p>
+              </div>
             ))}
-          </div>
-
-          {/* Coach cards */}
-          <div className="elevation-coaches-grid" style={{ marginTop: '24px' }}>
-            {visibleCoaches.map(c => (
-              <ElevationCoachCard key={c.id} {...c} />
-            ))}
-          </div>
-
-          {/* See all link */}
-          <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <Link
-              to="/our-coaches"
-              style={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-                color: '#1E3A5F', textDecoration: 'none',
-                borderBottom: '1.5px solid #1E3A5F', paddingBottom: '2px',
-              }}
-            >
-              See all coaches →
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────── */}
-      <section style={{
-        background: '#1E3A5F',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}>
+      {/* ── SECTION 5: CTA ──────────────────────────────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center' }}>
+        <SectionLabel light>Get started</SectionLabel>
         <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
+          fontFamily: "'DM Serif Display',serif",
+          fontSize: 'clamp(28px,4vw,44px)', color: '#F5F0E8',
+          marginTop: '10px', lineHeight: 1.12,
+          maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto',
         }}>
-          Start your Elevation Blueprint
+          Get the app. Get your Blueprint.
         </h2>
         <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: 'rgba(245,240,232,0.7)',
-          marginTop: '12px',
+          fontFamily: "'DM Sans',sans-serif",
+          fontSize: '15px', color: 'rgba(245,240,232,0.6)',
+          marginTop: '14px', maxWidth: '360px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
         }}>
-          Free to join. September trial — 50% off everything.
+          Free to join. September trial, 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
-          <Link
-            to="/download"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 32px',
-              background: '#F5F0E8', color: '#1E3A5F',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            Download the App
+          <Link to="/download" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            height: '52px', padding: '0 32px',
+            background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
+            fontFamily: "'DM Sans',sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none', whiteSpace: 'nowrap',
+          }}>
+            Download the app <ArrowRight size={16} />
           </Link>
-          <Link
-            to="/sign-up"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 32px',
-              background: 'transparent', color: '#F5F0E8',
-              border: '1.5px solid rgba(245,240,232,0.5)',
-              borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            Sign up free
+          <Link to="/pricing" style={{
+            display: 'inline-flex', alignItems: 'center',
+            height: '52px', padding: '0 28px',
+            background: 'transparent', color: 'rgba(245,240,232,0.75)',
+            border: '1px solid rgba(245,240,232,0.2)', borderRadius: '8px',
+            fontFamily: "'DM Sans',sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none', whiteSpace: 'nowrap',
+          }}>
+            See pricing
           </Link>
         </div>
       </section>

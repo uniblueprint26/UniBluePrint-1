@@ -37,6 +37,9 @@ const CookiesPage = lazy(() => import('./pages/legal/CookiesPage'))
 const RefundPolicyPage = lazy(() => import('./pages/legal/RefundPolicyPage'))
 const AccessibilityPage = lazy(() => import('./pages/legal/AccessibilityPage'))
 
+const BudgetingPage = lazy(() => import('./pages/BudgetingPage'))
+const AdBoardPage = lazy(() => import('./pages/AdBoardPage'))
+
 const BlogPage = lazy(() => import('./pages/blog/BlogPage'))
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'))
 
@@ -65,6 +68,8 @@ function AppRoutes() {
         <Route path="/september-trial" element={<SeptemberTrialPage />} />
         <Route path="/for-universities" element={<ForUniversitiesPage />} />
         <Route path="/for-businesses" element={<ForBusinessesPage />} />
+        <Route path="/budgeting" element={<BudgetingPage />} />
+        <Route path="/ad-board" element={<AdBoardPage />} />
         <Route path="/partners" element={<PartnersPage />} />
         <Route path="/our-coaches" element={<OurCoachesPage />} />
         <Route path="/join" element={<JoinPage />} />
