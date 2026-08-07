@@ -9,6 +9,9 @@ import {
 } from '../_shared/coreRules.ts'
 import { computeFormattingScore } from '../_shared/atsFormat.ts'
 import { LIMITS, checkLengths, checkRequired, isBlank } from '../_shared/fieldLimits.ts'
+import {
+  fetchProfileContext, mergeWithProfile, profileNarrative, PROFILE_CONTEXT_RULE,
+} from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
 
@@ -17,6 +20,8 @@ METHOD — every experience, project, or achievement bullet follows the Harvard 
 Write phrases, not full sentences. Never start a bullet with "I" or use personal pronouns.
 
 ${ANTI_HALLUCINATION_RULE}
+
+${PROFILE_CONTEXT_RULE}
 
 ${buzzwordRule()}
 
@@ -104,14 +109,32 @@ Deno.serve(async (req: Request) => {
       .single()
     if (fetchErr || !doc) return jsonResponse({ error: 'CV document not found' }, 404)
 
-    const input = doc.input || {}
-    if (isBlank(doc.target_industry)) return jsonResponse({ error: 'Target industry/field is required.' }, 422)
+    // §08 Career Profile: fill what the user has already told us elsewhere, so
+    // a returning user is not re-typing their education into a fourth form.
+    // Merged UNDER the request — anything this form supplied always wins.
+    const { profile, target } = await fetchProfileContext(supabase, user.id)
+    const input = mergeWithProfile(doc.input || {}, profile && {
+      personal_info: profile.personal_info,
+      education: profile.education,
+      experience: profile.experience,
+      skills: profile.skills,
+      achievements: profile.achievements,
+    })
+
+    // Same precedence for the target-context object: the document's own target
+    // wins, the active career target fills the blanks.
+    const targetIndustry = doc.target_industry || target?.target_industry || null
+    const targetRole = doc.target_role || target?.target_role || null
+    const targetCompany = doc.target_company || target?.target_company || null
+    const jobDescription = doc.job_description || target?.job_description || null
+
+    if (isBlank(targetIndustry)) return jsonResponse({ error: 'Target industry/field is required.' }, 422)
 
     const lengthError = checkLengths([
-      ['Target industry', doc.target_industry, LIMITS.SHORT],
-      ['Target role', doc.target_role, LIMITS.SHORT],
-      ['Target company', doc.target_company, LIMITS.SHORT],
-      ['Job description', doc.job_description, LIMITS.PASTE_JD],
+      ['Target industry', targetIndustry, LIMITS.SHORT],
+      ['Target role', targetRole, LIMITS.SHORT],
+      ['Target company', targetCompany, LIMITS.SHORT],
+      ['Job description', jobDescription, LIMITS.PASTE_JD],
       ['What you want emphasised', input.target_emphasis, LIMITS.LONG],
       ['Specific requests', input.specific_requests, LIMITS.LONG],
     ])
@@ -121,19 +144,20 @@ Deno.serve(async (req: Request) => {
     if (validationError) return jsonResponse({ error: validationError }, 422)
 
     const [examples, intelligence] = await Promise.all([
-      fetchIndustryExamples(supabase, 'cv_bullet', doc.target_industry, 3),
-      fetchIndustryIntelligence(supabase, doc.target_industry, 8),
+      fetchIndustryExamples(supabase, 'cv_bullet', targetIndustry, 3),
+      fetchIndustryIntelligence(supabase, targetIndustry, 8),
     ])
 
     const userContent = JSON.stringify({
       personal_info: input.personal_info,
       target: {
-        industry: doc.target_industry,
-        role: doc.target_role,
-        company: doc.target_company,
+        industry: targetIndustry,
+        role: targetRole,
+        company: targetCompany,
         emphasis: input.target_emphasis,
-        job_description: doc.job_description,
+        job_description: jobDescription,
       },
+      career_profile_context: profileNarrative(profile),
       education: input.education,
       has_no_experience: !!input.has_no_experience,
       experience: input.has_no_experience ? [] : input.experience,
@@ -153,7 +177,7 @@ Deno.serve(async (req: Request) => {
       maxTokens: 4096,
     })
 
-    const atsReport = computeAtsReport(result, input, doc.target_industry, doc.target_role, doc.job_description)
+    const atsReport = computeAtsReport(result, input, targetIndustry, targetRole, jobDescription)
     const allSources = [...examples, ...intelligence]
     const resultWithBenchmark = {
       ...result,

@@ -35,6 +35,7 @@ const InterviewPrepPage = lazy(() => import('./pages/foundation/InterviewPrepPag
 const PersonalStatementPage = lazy(() => import('./pages/foundation/PersonalStatementPage'))
 const PortfolioBuildingPage = lazy(() => import('./pages/foundation/PortfolioBuildingPage'))
 const MyDocumentsPage = lazy(() => import('./pages/foundation/MyDocumentsPage'))
+const CareerProfilePage = lazy(() => import('./pages/foundation/CareerProfilePage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -184,6 +185,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MyDocumentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/career-profile"
+          element={
+            <ProtectedRoute>
+              <CareerProfilePage />
             </ProtectedRoute>
           }
         />

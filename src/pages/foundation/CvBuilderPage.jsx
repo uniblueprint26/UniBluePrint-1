@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useNavigate } from 'react-router-dom'
 import { Loader2, Plus, Trash2, Download, Send, ArrowLeft, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react'
@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS, checkLengths } from '../../lib/fieldLimits'
+import { loadProfileDefaults } from '../../lib/careerProfile'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import {
   FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox,
@@ -44,6 +45,37 @@ export default function CvBuilderPage() {
   const [cvDoc, setDocument] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
+
+  // §08 Career Profile: start from what the user already told us. Only fills
+  // blanks — anything already typed in this session is left alone — and stays
+  // silent if there is no profile, so a first-time user sees no change at all.
+  useEffect(() => {
+    let cancelled = false
+    loadProfileDefaults(user.id).then(({ profile, target }) => {
+      if (cancelled || (!profile && !target)) return
+      setForm((f) => {
+        const next = { ...f }
+        if (profile) {
+          next.personal_info = { ...profile.personal_info, ...stripEmpty(f.personal_info) }
+          if (profile.education?.length && !f.education.some((e) => e.institution || e.degree)) next.education = profile.education
+          if (profile.experience?.length && !f.experience.some((r) => r.job_title || r.company)) next.experience = profile.experience
+          if (profile.skills) next.skills = { ...profile.skills, ...stripEmpty(f.skills) }
+          if (profile.achievements) next.achievements = { ...profile.achievements, ...stripEmpty(f.achievements) }
+          if (profile.has_no_experience) next.has_no_experience = true
+        }
+        if (target) {
+          next.target_industry = f.target_industry || target.target_industry || ''
+          next.target_role = f.target_role || target.target_role || ''
+          next.target_company = f.target_company || target.target_company || ''
+          next.job_description = f.job_description || target.job_description || ''
+        }
+        return next
+      })
+      setPrefilled(true)
+    })
+    return () => { cancelled = true }
+  }, [user.id])
 
   const set = (path) => (e) => {
     const value = e?.target ? (e.target.type === 'checkbox' ? e.target.checked : e.target.value) : e
@@ -177,6 +209,14 @@ export default function CvBuilderPage() {
           Tell us about you once — we generate a tailored, ATS-optimised CV, then a Campus Handler reviews it before delivery.
         </p>
 
+        {prefilled && step < STEPS.length - 1 && (
+          <div style={{ background: 'rgba(30,58,95,0.05)', borderRadius: '8px', padding: '12px 14px', marginBottom: '20px', fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#1E3A5F', lineHeight: 1.6 }}>
+            We've filled in what we already know from your{' '}
+            <Link to="/foundation/career-profile" style={{ color: '#1E3A5F', fontWeight: 600 }}>Career Profile</Link>.
+            Change anything here — what you type on this form is what we'll use.
+          </div>
+        )}
+
         {step < STEPS.length - 1 && <Stepper steps={STEPS} current={step} />}
         {error && <ErrorBanner message={error} />}
 
@@ -244,6 +284,14 @@ export default function CvBuilderPage() {
 }
 
 function splitCsv(v) { return (v || '').split(',').map((s) => s.trim()).filter(Boolean) }
+
+/**
+ * Drops blank keys so a spread puts the user's typed values on top of profile
+ * values without empty strings overwriting real ones.
+ */
+function stripEmpty(obj) {
+  return Object.fromEntries(Object.entries(obj || {}).filter(([, v]) => v !== '' && v !== null && v !== undefined))
+}
 
 function Stepper({ steps, current }) {
   return (

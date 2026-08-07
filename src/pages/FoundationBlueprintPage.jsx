@@ -627,7 +627,20 @@ export default function FoundationBlueprintPage() {
             Everything you need to launch your career
           </h2>
 
-          <p style={{ textAlign: 'center', marginTop: '14px' }}>
+          <p style={{
+            textAlign: 'center', marginTop: '14px',
+            display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap',
+          }}>
+            <Link
+              to="/foundation/career-profile"
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px',
+                fontWeight: '600', color: '#1E3A5F',
+                textDecoration: 'underline', textUnderlineOffset: '3px',
+              }}
+            >
+              Set up your Career Profile →
+            </Link>
             <Link
               to="/foundation/my-documents"
               style={{
