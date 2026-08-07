@@ -21,8 +21,7 @@ export default function UBPLogo({ height = 36, color = '#1E3A5F' }) {
       >
         UBP
       </text>
-      <rect x="8" y="82" width="284" height="2.5" fill={color} />
-      <rect x="8" y="90" width="284" height="1.5" fill={color} />
+      <rect x="28" y="83" width="244" height="2" fill={color} />
     </svg>
   )
 }
