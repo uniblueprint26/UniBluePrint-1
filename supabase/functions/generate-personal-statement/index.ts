@@ -6,6 +6,7 @@ import {
   buzzwordRule, HANDLER_NOTES_DESCRIPTION,
 } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
+import { fetchCareerTarget, fetchCareerProfile, profileNarrative, experienceNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
 const PATHWAY_PROMPTS: Record<string, string> = {
   ucas: `UCAS PATHWAY — 2026 entry onwards uses a NEW three-question structured format, not a single free-form essay. Produce exactly three answers:
@@ -25,6 +26,8 @@ Each answer must be a minimum of 350 characters, and the three combined must not
 const SYSTEM_PROMPT_BASE = `You are writing a personal statement for a specific applicant, course, and institution. Never write anything generic enough to be resubmitted unchanged elsewhere.
 
 ${ANTI_HALLUCINATION_RULE}
+
+${PROFILE_CONTEXT_RULE}
 
 ${buzzwordRule()}
 
@@ -58,23 +61,31 @@ const OUTPUT_SCHEMA = {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   try {
-    const { supabase } = await requireUser(req)
+    const { supabase, user } = await requireUser(req)
     const { document_id } = await req.json()
     if (!document_id) return jsonResponse({ error: 'document_id is required' }, 400)
 
     const { data: doc, error: fetchErr } = await supabase.from('personal_statements').select('*').eq('id', document_id).single()
     if (fetchErr || !doc) return jsonResponse({ error: 'Personal statement not found' }, 404)
+
+    const [profile, target] = await Promise.all([
+      fetchCareerProfile(supabase, user.id),
+      fetchCareerTarget(supabase, user.id),
+    ])
     const input = doc.input || {}
+    const targetCourse = doc.target_course || target?.target_course || null
+    const targetInstitution = doc.target_institution || target?.target_institution || null
+
     const missing = checkRequired([
-      ['Course', doc.target_course],
-      ['Institution', doc.target_institution],
+      ['Course', targetCourse],
+      ['Institution', targetInstitution],
       ['Background and motivation', input.background_and_motivation],
     ])
     if (missing) return jsonResponse({ error: missing }, 422)
 
     const lengthError = checkLengths([
-      ['Course', doc.target_course, LIMITS.SHORT],
-      ['Institution', doc.target_institution, LIMITS.SHORT],
+      ['Course', targetCourse, LIMITS.SHORT],
+      ['Institution', targetInstitution, LIMITS.SHORT],
       ['Background and motivation', input.background_and_motivation, LIMITS.LONG],
       ['Relevant experience', input.relevant_experience, LIMITS.LONG],
       ['Life / work experience', input.life_work_experience, LIMITS.LONG],
@@ -86,17 +97,21 @@ Deno.serve(async (req: Request) => {
     const pathwayPrompt = PATHWAY_PROMPTS[doc.pathway]
     if (!pathwayPrompt) return jsonResponse({ error: 'Unknown pathway' }, 422)
 
+    const goals = input.goals || profile?.goals || null
+    const lifeWorkExperience = input.life_work_experience || experienceNarrative(profile) || null
+
     const result = await callClaudeForStructuredOutput({
       system: `${SYSTEM_PROMPT_BASE}\n\n${pathwayPrompt}`,
       userContent: JSON.stringify({
         pathway: doc.pathway,
-        target_course: doc.target_course,
-        target_institution: doc.target_institution,
+        target_course: targetCourse,
+        target_institution: targetInstitution,
         background_and_motivation: input.background_and_motivation,
         relevant_experience: input.relevant_experience,
-        life_work_experience: input.life_work_experience,
+        life_work_experience: lifeWorkExperience,
         weaknesses_or_gaps: input.weaknesses_or_gaps,
-        goals: input.goals,
+        goals,
+        career_profile_context: profileNarrative(profile),
       }),
       toolName: 'submit_personal_statement',
       toolDescription: 'Submit the generated personal statement.',

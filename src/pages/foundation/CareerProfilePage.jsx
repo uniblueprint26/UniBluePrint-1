@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link } from 'react-router-dom'
-import { Loader2, ArrowLeft, Plus, Trash2, CheckCircle, Target } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Loader2, ArrowLeft, Plus, Trash2, CheckCircle, Target, Sparkles, ArrowRight } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
 import {
   fetchCareerProfile, saveCareerProfile, fetchCareerTargets,
-  createCareerTarget, setActiveTarget, deleteCareerTarget,
+  createCareerTarget, setActiveTarget, deleteCareerTarget, experienceNarrative,
 } from '../../lib/careerProfile'
 import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
@@ -13,6 +15,7 @@ import {
   FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox,
   ErrorBanner,
 } from '../../components/ui/Form'
+import { OPPORTUNITY_TYPES } from '../../lib/jobSearchConstants'
 
 /**
  * Foundation Blueprint §08 — the Career Profile.
@@ -22,6 +25,8 @@ import {
  * applying for once per application, and every builder reads from it instead of
  * asking again.
  */
+
+const splitCsv = (v) => (v || '').split(',').map((s) => s.trim()).filter(Boolean)
 
 const emptyEducation = () => ({ institution: '', degree: '', year: '', grade: '', modules: '', awards: '' })
 const emptyExperience = () => ({ job_title: '', company: '', dates: '', responsibilities: '' })
@@ -51,6 +56,7 @@ const PATHWAYS = [
 
 export default function CareerProfilePage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { runLocked } = useSubmitLock()
   const [form, setForm] = useState(initialProfile)
   const [targets, setTargets] = useState([])
@@ -60,6 +66,17 @@ export default function CareerProfilePage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+
+  // Quick Generate: creates the document/session and calls its generator
+  // directly from whatever is currently in this form — the user does not have
+  // to save first, since the form itself is always the freshest statement of
+  // who they are. `quickGenerating` names which card is mid-request so only
+  // that one button shows a spinner. `quickFields` holds the one or two
+  // essential inputs (LinkedIn's current_status, Job Search's opportunity
+  // type) that genuinely cannot come from the profile.
+  const [quickGenerating, setQuickGenerating] = useState(null)
+  const [quickError, setQuickError] = useState('')
+  const [quickFields, setQuickFields] = useState({ linkedin_current_status: '', job_search_opportunity_type: '' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -194,6 +211,134 @@ export default function CareerProfilePage() {
     } catch (err) { setError(err.message) }
   }
 
+  const activeTarget = targets.find((t) => t.is_active) || null
+
+  const handleQuickGenerateCv = () => runLocked(async () => {
+    setQuickError('')
+    setQuickGenerating('cv')
+    try {
+      const { data: inserted, error: insertErr } = await supabase
+        .from('cv_documents')
+        .insert([{
+          user_id: user.id,
+          title: `${form.personal_info.full_name || 'Untitled'} — ${activeTarget?.target_role || activeTarget?.target_industry || 'CV'}`,
+          style: 'classic_ats',
+          target_role: activeTarget?.target_role || null,
+          target_industry: activeTarget?.target_industry || null,
+          target_company: activeTarget?.target_company || null,
+          job_description: activeTarget?.job_description || null,
+          input: {
+            personal_info: form.personal_info,
+            education: form.education.filter((e) => e.institution || e.degree),
+            has_no_experience: form.has_no_experience,
+            experience: form.has_no_experience ? [] : form.experience.filter((r) => r.job_title || r.company),
+            skills: {
+              technical: splitCsv(form.skills.technical),
+              soft: splitCsv(form.skills.soft),
+              languages: splitCsv(form.skills.languages),
+              tools: splitCsv(form.skills.tools),
+            },
+            achievements: form.achievements,
+            tone: 'balanced', length: 'one_page', specific_requests: '',
+          },
+        }])
+        .select()
+        .single()
+      if (insertErr) throw insertErr
+
+      const data = await invokeFunction('generate-cv', { document_id: inserted.id })
+      navigate('/foundation/cv-builder', { state: { document: data.document } })
+    } catch (err) {
+      setQuickError(err.message || 'Could not generate your CV yet.')
+    } finally {
+      setQuickGenerating(null)
+    }
+  })
+
+  const handleQuickGenerateLinkedin = () => runLocked(async () => {
+    if (!quickFields.linkedin_current_status.trim()) {
+      setQuickError('Add your current status (e.g. your year and course, or your role) to generate a LinkedIn profile.')
+      return
+    }
+    setQuickError('')
+    setQuickGenerating('linkedin')
+    try {
+      const keySkills = [...new Set([
+        ...splitCsv(form.skills.technical), ...splitCsv(form.skills.soft),
+        ...splitCsv(form.skills.languages), ...splitCsv(form.skills.tools),
+      ])]
+      const { data: inserted, error: insertErr } = await supabase
+        .from('linkedin_documents')
+        .insert([{
+          user_id: user.id,
+          target_industry: activeTarget?.target_industry || null,
+          target_role: activeTarget?.target_role || null,
+          input: {
+            current_status: quickFields.linkedin_current_status,
+            key_skills: keySkills,
+            notable_achievements: form.achievements.projects || form.achievements.other || '',
+            target_connections: '',
+            experience: form.has_no_experience ? '' : experienceNarrative(form),
+            has_no_experience: form.has_no_experience,
+            tone: 'balanced',
+          },
+        }])
+        .select()
+        .single()
+      if (insertErr) throw insertErr
+
+      const data = await invokeFunction('generate-linkedin', { document_id: inserted.id })
+      navigate('/foundation/linkedin-optimisation', { state: { document: data.document } })
+    } catch (err) {
+      setQuickError(err.message || 'Could not generate your LinkedIn profile yet.')
+    } finally {
+      setQuickGenerating(null)
+    }
+  })
+
+  const handleQuickGenerateJobSearch = () => runLocked(async () => {
+    if (!quickFields.job_search_opportunity_type) {
+      setQuickError('Choose what you\'re looking for to build a strategy.')
+      return
+    }
+    setQuickError('')
+    setQuickGenerating('jobsearch')
+    try {
+      const { data: inserted, error: insertErr } = await supabase
+        .from('job_search_sessions')
+        .insert([{
+          user_id: user.id,
+          input: {
+            field_or_industry: activeTarget?.target_industry || '',
+            opportunity_type: quickFields.job_search_opportunity_type,
+            has_no_experience: form.has_no_experience,
+          },
+        }])
+        .select()
+        .single()
+      if (insertErr) throw insertErr
+
+      const data = await invokeFunction('generate-job-search-support', { session_id: inserted.id })
+
+      // Same visibility rule as the standalone page: only an account holding
+      // the handler/operations role can actually read this row back — RLS
+      // decides that, not this check.
+      let handlerGuide = null
+      const { data: guideRow } = await supabase
+        .from('job_search_handler_guides')
+        .select('handler_guide')
+        .eq('session_id', data.session.id)
+        .maybeSingle()
+      if (guideRow) handlerGuide = guideRow.handler_guide
+
+      navigate('/foundation/job-search-support', { state: { session: data.session, handlerGuide } })
+    } catch (err) {
+      setQuickError(err.message || 'Could not build your strategy yet.')
+    } finally {
+      setQuickGenerating(null)
+    }
+  })
+
   if (loading) {
     return (
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '80px 24px', display: 'flex', alignItems: 'center', gap: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
@@ -219,6 +364,17 @@ export default function CareerProfilePage() {
         </p>
 
         {error && <ErrorBanner message={error} onRetry={load} />}
+
+        <QuickGenerateSection
+          activeTarget={activeTarget}
+          quickGenerating={quickGenerating}
+          quickError={quickError}
+          quickFields={quickFields}
+          setQuickFields={setQuickFields}
+          onGenerateCv={handleQuickGenerateCv}
+          onGenerateLinkedin={handleQuickGenerateLinkedin}
+          onGenerateJobSearch={handleQuickGenerateJobSearch}
+        />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <FormCard title="About you">
@@ -388,6 +544,139 @@ export default function CareerProfilePage() {
         </div>
       </div>
     </>
+  )
+}
+
+// Tools with no essential field beyond profile + active target: cover letter
+// (needs a tailored "relevant experience"), application forms (needs the
+// actual questions), interview prep (only needs a role, already covered by
+// the active target so it's effectively one-click too, but keeps its own
+// question — interview format — worth choosing deliberately), personal
+// statement (needs a pathway choice that changes the whole generator), and
+// portfolio (needs a description of the actual work). Rather than guess at
+// those, these route to the builder — already pre-filled by the same profile
+// data — instead of guessing at content that has to be genuinely theirs.
+const LINK_ONLY_TOOLS = [
+  { label: 'Cover Letter', route: '/foundation/cover-letter' },
+  { label: 'Application Form', route: '/foundation/application-form-assistance' },
+  { label: 'Interview Prep', route: '/foundation/interview-preparation' },
+  { label: 'Personal Statement', route: '/foundation/personal-statement' },
+  { label: 'Portfolio Plan', route: '/foundation/portfolio-building' },
+]
+
+function QuickGenerateSection({
+  activeTarget, quickGenerating, quickError, quickFields, setQuickFields,
+  onGenerateCv, onGenerateLinkedin, onGenerateJobSearch,
+}) {
+  const [expanded, setExpanded] = useState(null)
+
+  return (
+    <div style={{ background: '#FFFFFF', borderRadius: '14px', boxShadow: '0px 4px 20px rgba(30,58,95,0.10)', padding: '24px', marginBottom: '28px', border: '1.5px solid rgba(30,58,95,0.08)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Sparkles size={18} color="#9C6B26" aria-hidden="true" />
+        <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>Quick Generate</h2>
+      </div>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', marginTop: '6px', marginBottom: '18px', lineHeight: 1.6 }}>
+        Generate straight from what's in this form right now — no need to save first, and no separate builder to fill in again.
+        {activeTarget ? (
+          <> Targeting <strong style={{ color: '#1E3A5F' }}>{activeTarget.label}</strong>.</>
+        ) : (
+          <> Add an application below to target these, or generate a general version now.</>
+        )}
+      </p>
+
+      {quickError && <div style={{ marginBottom: '14px' }}><ErrorBanner message={quickError} /></div>}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+        <QuickGenerateCard
+          label="CV" description="Uses your education, experience, and skills as they stand right now."
+          busy={quickGenerating === 'cv'} disabled={quickGenerating !== null}
+          onClick={onGenerateCv}
+        />
+
+        <QuickGenerateCard
+          label="LinkedIn Profile" description="Headline, About section, and skills to add."
+          busy={quickGenerating === 'linkedin'} disabled={quickGenerating !== null}
+          expanded={expanded === 'linkedin'}
+          onClick={() => (expanded === 'linkedin' ? onGenerateLinkedin() : setExpanded('linkedin'))}
+        >
+          {expanded === 'linkedin' && (
+            <div style={{ marginTop: '10px' }}>
+              <FormField id="qg_current_status" label="Current status" hint="e.g. Final year Computer Science student at UCD">
+                <FormInput
+                  id="qg_current_status" value={quickFields.linkedin_current_status}
+                  onChange={(e) => setQuickFields((f) => ({ ...f, linkedin_current_status: e.target.value }))}
+                  maxLength={LIMITS.MEDIUM}
+                />
+              </FormField>
+            </div>
+          )}
+        </QuickGenerateCard>
+
+        <QuickGenerateCard
+          label="Job Search Strategy" description="A live Handler session plus a personalised search plan."
+          busy={quickGenerating === 'jobsearch'} disabled={quickGenerating !== null}
+          expanded={expanded === 'jobsearch'}
+          onClick={() => (expanded === 'jobsearch' ? onGenerateJobSearch() : setExpanded('jobsearch'))}
+        >
+          {expanded === 'jobsearch' && (
+            <div style={{ marginTop: '10px' }}>
+              <FormField id="qg_opportunity_type" label="What are you looking for?">
+                <FormSelect
+                  id="qg_opportunity_type" value={quickFields.job_search_opportunity_type}
+                  onChange={(e) => setQuickFields((f) => ({ ...f, job_search_opportunity_type: e.target.value }))}
+                >
+                  <option value="">Select…</option>
+                  {OPPORTUNITY_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </FormSelect>
+              </FormField>
+            </div>
+          )}
+        </QuickGenerateCard>
+      </div>
+
+      <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '10px' }}>
+          These need a bit more from you — open the pre-filled builder
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {LINK_ONLY_TOOLS.map((t) => (
+            <Link
+              key={t.route} to={t.route}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#1E3A5F',
+                background: 'rgba(30,58,95,0.05)', padding: '7px 12px', borderRadius: '8px', textDecoration: 'none',
+              }}
+            >
+              {t.label} <ArrowRight size={12} aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function QuickGenerateCard({ label, description, busy, disabled, expanded, onClick, children }) {
+  return (
+    <div style={{ border: expanded ? '1.5px solid #1E3A5F' : '1.5px solid rgba(30,58,95,0.12)', borderRadius: '10px', padding: '14px 16px', background: expanded ? 'rgba(30,58,95,0.03)' : '#FFFFFF' }}>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', fontWeight: 700, color: '#1E3A5F' }}>{label}</p>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#6B7280', marginTop: '3px', lineHeight: 1.5, minHeight: '32px' }}>{description}</p>
+      {children}
+      <button
+        type="button" onClick={onClick} disabled={disabled}
+        style={{
+          marginTop: '10px', width: '100%', height: '38px', borderRadius: '7px', border: 'none',
+          background: disabled && !busy ? 'rgba(30,58,95,0.15)' : '#1E3A5F', color: '#F5F0E8',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600,
+          cursor: disabled ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+        }}
+      >
+        {busy && <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true" />}
+        {busy ? 'Generating…' : 'Generate'}
+      </button>
+    </div>
   )
 }
 

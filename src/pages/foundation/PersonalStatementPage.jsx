@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
@@ -8,7 +8,9 @@ import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS } from '../../lib/fieldLimits'
+import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const PATHWAYS = [
   ['ucas', 'UCAS (UK undergraduate)', 'Three structured questions — the new 2026 entry format.'],
@@ -32,6 +34,24 @@ export default function PersonalStatementPage() {
   const [doc, setDoc] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
+
+  // §08 Career Profile: fills course/institution/goals and a life-experience
+  // draft (used only on the cao_mature pathway). Pathway itself is never
+  // auto-selected — it changes which generator prompt runs entirely, so it
+  // stays a deliberate choice every time.
+  useEffect(() => {
+    let cancelled = false
+    loadProfileDefaults(user.id).then(({ profile, target }) => {
+      if (cancelled || (!profile && !target)) return
+      if (target?.target_course) setTargetCourse(target.target_course)
+      if (target?.target_institution) setTargetInstitution(target.target_institution)
+      setGoals((v) => v || profile?.goals || '')
+      setLifeWorkExperience((v) => v || experienceNarrative(profile))
+      setPrefilled(true)
+    })
+    return () => { cancelled = true }
+  }, [user.id])
 
   const handleSubmit = (e) => runLocked(async () => {
     e?.preventDefault?.()
@@ -93,6 +113,7 @@ export default function PersonalStatementPage() {
         </p>
 
         {error && <ErrorBanner message={error} />}
+        {prefilled && !doc && <ProfilePrefillNote />}
 
         {!doc ? (
           <FormCard>

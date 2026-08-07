@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
@@ -8,7 +8,9 @@ import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS } from '../../lib/fieldLimits'
+import { loadProfileDefaults } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
+import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 export default function PortfolioBuildingPage() {
   const { runLocked } = useSubmitLock()
@@ -22,6 +24,20 @@ export default function PortfolioBuildingPage() {
   const [plan, setPlan] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    loadProfileDefaults(user.id).then(({ profile, target }) => {
+      if (cancelled || (!profile && !target)) return
+      if (target?.target_industry) setField(target.target_industry)
+      setCareerGoal((v) => v || profile?.goals || '')
+      const presence = [profile?.personal_info?.portfolio_url, profile?.personal_info?.linkedin_url].filter(Boolean).join(', ')
+      setExistingPresence((v) => v || presence)
+      setPrefilled(true)
+    })
+    return () => { cancelled = true }
+  }, [user.id])
 
   const handleSubmit = (e) => runLocked(async () => {
     e?.preventDefault?.()
@@ -71,6 +87,7 @@ export default function PortfolioBuildingPage() {
         </p>
 
         {error && <ErrorBanner message={error} />}
+        {prefilled && !plan && <ProfilePrefillNote />}
 
         {!plan ? (
           <FormCard>

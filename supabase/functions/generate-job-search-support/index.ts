@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
+import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps
 // found, 6 confirmed critical, all applied. See the Foundation Blueprint research
@@ -40,6 +41,8 @@ You produce TWO separate outputs:
 ═══ CONTENT RULES ═══
 
 ${ANTI_HALLUCINATION_RULE} For this service specifically: never invent or imply a specific current job posting exists at a specific company. The job market changes daily and you cannot know what's open right now. Cover WHERE to look and HOW to search — never WHAT is currently available. Equally, never invent a work history the person does not have, or write strategy that assumes one.
+
+${PROFILE_CONTEXT_RULE}
 
 ${NON_TRADITIONAL_EVIDENCE_RULE}
 
@@ -142,9 +145,15 @@ Deno.serve(async (req: Request) => {
       .single()
     if (fetchErr || !session) return jsonResponse({ error: 'Session not found' }, 404)
 
+    const [profile, target] = await Promise.all([
+      fetchCareerProfile(supabase, user.id),
+      fetchCareerTarget(supabase, user.id),
+    ])
     const input = session.input || {}
+    const fieldOrIndustry = input.field_or_industry || target?.target_industry || null
+
     const missing = checkRequired([
-      ['Field / industry', input.field_or_industry],
+      ['Field / industry', fieldOrIndustry],
       ['Target opportunity type', input.opportunity_type],
     ])
     if (missing) {
@@ -152,7 +161,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const lengthError = checkLengths([
-      ['Field / industry', input.field_or_industry, LIMITS.SHORT],
+      ['Field / industry', fieldOrIndustry, LIMITS.SHORT],
       ['Location', input.location, LIMITS.SHORT],
       ['Timeline', input.timeline, LIMITS.SHORT],
       ['Professional registration status', input.professional_registration_status, LIMITS.MEDIUM],
@@ -163,10 +172,13 @@ Deno.serve(async (req: Request) => {
     const userContent = JSON.stringify({
       today: new Date().toISOString().slice(0, 10),
       ...input,
+      field_or_industry: fieldOrIndustry,
       // Coerced explicitly rather than relying on the spread: sessions created
       // before this field existed would otherwise arrive as undefined, and the
-      // first-job branch must resolve to a definite true/false.
-      has_no_experience: !!input.has_no_experience,
+      // first-job branch must resolve to a definite true/false. §08: falls back
+      // to the profile-level flag only when this session never stated it.
+      has_no_experience: input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience,
+      career_profile_context: profileNarrative(profile),
     })
 
     const result = await callClaudeForStructuredOutput({

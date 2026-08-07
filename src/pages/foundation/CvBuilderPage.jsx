@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Loader2, Plus, Trash2, Download, Send, ArrowLeft, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -37,12 +37,16 @@ const initialForm = {
 export default function CvBuilderPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const { runLocked } = useSubmitLock()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(initialForm)
   const [error, setError] = useState('')
   const [generating, setGenerating] = useState(false)
-  const [cvDoc, setDocument] = useState(null)
+  // §08 Career Profile: Quick Generate on the profile page inserts the row and
+  // calls generate-cv itself, then hands the finished document here via router
+  // state so the result renders immediately instead of the empty wizard.
+  const [cvDoc, setDocument] = useState(location.state?.document ?? null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)

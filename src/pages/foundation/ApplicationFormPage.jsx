@@ -8,8 +8,10 @@ import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS } from '../../lib/fieldLimits'
+import { fetchActiveTarget } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const COMPETENCY_TAGS = ['Teamwork', 'Leadership', 'Problem Solving', 'Communication', 'Initiative', 'Resilience', 'Client / Stakeholder Focus', 'Adaptability']
 
@@ -188,6 +190,18 @@ function AnswerFormTab({ userId }) {
   const [result, setResult] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchActiveTarget(userId).then((target) => {
+      if (cancelled || !target) return
+      if (target.target_company) setTargetCompany(target.target_company)
+      if (target.target_role) setTargetRole(target.target_role)
+      setPrefilled(true)
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [userId])
 
   const updateQ = (i, field, value) => setQuestions((qs) => qs.map((q, idx) => (idx === i ? { ...q, [field]: value } : q)))
   const addQ = () => setQuestions((qs) => [...qs, { question_text: '', word_limit: '' }])
@@ -273,6 +287,7 @@ function AnswerFormTab({ userId }) {
   return (
     <FormCard>
       {error && <ErrorBanner message={error} />}
+      {prefilled && <ProfilePrefillNote />}
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <FormField id="target_company" label="Company" hint="Optional"><FormInput id="target_company" value={targetCompany} onChange={(e) => setTargetCompany(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>
         <FormField id="target_role" label="Role" hint="Optional"><FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} maxLength={LIMITS.SHORT} /></FormField>

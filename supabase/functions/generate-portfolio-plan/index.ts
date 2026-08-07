@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
+import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are a portfolio strategist. Portfolio building is a decision-tree problem, not a document to generate — there is no single "portfolio" you can write for someone.
 
@@ -20,6 +21,8 @@ NO PROFESSIONAL WORK YET: for a student or first-time job seeker, coursework pro
 
 ${ANTI_HALLUCINATION_RULE}
 
+${PROFILE_CONTEXT_RULE}
+
 ${NON_TRADITIONAL_EVIDENCE_RULE}`
 
 const OUTPUT_SCHEMA = {
@@ -37,30 +40,42 @@ const OUTPUT_SCHEMA = {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   try {
-    const { supabase } = await requireUser(req)
+    const { supabase, user } = await requireUser(req)
     const { plan_id } = await req.json()
     if (!plan_id) return jsonResponse({ error: 'plan_id is required' }, 400)
 
     const { data: plan, error: fetchErr } = await supabase.from('portfolio_plans').select('*').eq('id', plan_id).single()
     if (fetchErr || !plan) return jsonResponse({ error: 'Portfolio plan not found' }, 404)
+
+    const [profile, target] = await Promise.all([
+      fetchCareerProfile(supabase, user.id),
+      fetchCareerTarget(supabase, user.id),
+    ])
     const input = plan.input || {}
+    const field = plan.field || target?.target_industry || null
+
     const missing = checkRequired([
-      ['Field', plan.field],
+      ['Field', field],
       ['What kind of work you want to showcase', input.work_type],
     ])
     if (missing) return jsonResponse({ error: missing }, 422)
 
     const lengthError = checkLengths([
-      ['Field', plan.field, LIMITS.SHORT],
+      ['Field', field, LIMITS.SHORT],
       ['Career goal', input.career_goal, LIMITS.MEDIUM],
       ['Existing presence', input.existing_presence, LIMITS.MEDIUM],
       ['Work type', input.work_type, LIMITS.LONG],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
+    const careerGoal = input.career_goal || profile?.goals || null
+
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
-      userContent: JSON.stringify({ field: plan.field, work_type: input.work_type, career_goal: input.career_goal, existing_presence: input.existing_presence }),
+      userContent: JSON.stringify({
+        field, work_type: input.work_type, career_goal: careerGoal, existing_presence: input.existing_presence,
+        career_profile_context: profileNarrative(profile),
+      }),
       toolName: 'submit_portfolio_plan',
       toolDescription: 'Submit the portfolio plan.',
       inputSchema: OUTPUT_SCHEMA,

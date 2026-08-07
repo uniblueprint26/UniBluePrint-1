@@ -7,6 +7,9 @@ import {
   buzzwordRule, realExamplesRule, HANDLER_NOTES_DESCRIPTION,
 } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
+import {
+  fetchProfileContext, profileNarrative, experienceNarrative, PROFILE_CONTEXT_RULE,
+} from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are an expert cover letter writer. Every letter is written for ONE specific role at ONE specific company — never a generic template, and it must read like it could not be sent to any other employer unchanged.
 
@@ -23,6 +26,8 @@ The letter should ADD to the CV, not repeat it — pick the one or two things fr
 NO FORMAL WORK EXPERIENCE — if has_no_experience is true, the letter's architecture shifts, honestly: the HOOK leads with the genuine, specific connection between what this person has actually studied, built, or done and what this role needs — not a manufactured career narrative. The PROOF draws from academic projects, coursework, societies, volunteering, or part-time work, presented at full confidence as the real evidence it is. Never imply professional experience that doesn't exist, never dress a college project in workplace language it didn't have, and never apologise for the absence ("although I have not yet worked in..."). A first cover letter earns the interview on genuine specificity and demonstrated initiative, not on borrowed seniority.
 
 ${ANTI_HALLUCINATION_RULE}
+
+${PROFILE_CONTEXT_RULE}
 
 ${NON_TRADITIONAL_EVIDENCE_RULE}
 
@@ -48,45 +53,54 @@ const OUTPUT_SCHEMA = {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   try {
-    const { supabase } = await requireUser(req)
+    const { supabase, user } = await requireUser(req)
     const { document_id } = await req.json()
     if (!document_id) return jsonResponse({ error: 'document_id is required' }, 400)
 
     const { data: doc, error: fetchErr } = await supabase.from('cover_letters').select('*').eq('id', document_id).single()
     if (fetchErr || !doc) return jsonResponse({ error: 'Cover letter not found' }, 404)
 
+    const { profile, target } = await fetchProfileContext(supabase, user.id)
     const input = doc.input || {}
+    const targetRole = doc.target_role || target?.target_role || null
+    const targetCompany = doc.target_company || target?.target_company || null
+    const industry = input.industry || target?.target_industry || null
+    const jobDescription = doc.job_description || target?.job_description || null
+
     const missing = checkRequired([
-      ['Target role', doc.target_role],
-      ['Target company', doc.target_company],
+      ['Target role', targetRole],
+      ['Target company', targetCompany],
       ['Relevant experience', input.relevant_experience],
     ])
     if (missing) return jsonResponse({ error: missing }, 422)
 
     const lengthError = checkLengths([
-      ['Target role', doc.target_role, LIMITS.SHORT],
-      ['Target company', doc.target_company, LIMITS.SHORT],
-      ['Industry', input.industry, LIMITS.SHORT],
-      ['Job description', doc.job_description, LIMITS.PASTE_JD],
+      ['Target role', targetRole, LIMITS.SHORT],
+      ['Target company', targetCompany, LIMITS.SHORT],
+      ['Industry', industry, LIMITS.SHORT],
+      ['Job description', jobDescription, LIMITS.PASTE_JD],
       ['Background summary', input.background_summary, LIMITS.LONG],
       ['Relevant experience', input.relevant_experience, LIMITS.LONG],
       ['Why this company', input.why_this_company, LIMITS.LONG],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
-    const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', input.industry, 2)
+    const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', industry, 2)
+    const hasNoExperience = input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience
+    const backgroundSummary = input.background_summary || experienceNarrative(profile) || null
 
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
-        target_role: doc.target_role,
-        target_company: doc.target_company,
-        job_description: doc.job_description,
-        background_summary: input.background_summary,
+        target_role: targetRole,
+        target_company: targetCompany,
+        job_description: jobDescription,
+        background_summary: backgroundSummary,
         why_this_company: input.why_this_company,
         relevant_experience: input.relevant_experience,
-        has_no_experience: !!input.has_no_experience,
+        has_no_experience: hasNoExperience,
         tone: input.tone,
+        career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_cover_letter',

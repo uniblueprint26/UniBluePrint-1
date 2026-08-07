@@ -7,6 +7,9 @@ import {
   buzzwordRule, realExamplesRule, HANDLER_NOTES_DESCRIPTION,
 } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired, isBlank } from '../_shared/fieldLimits.ts'
+import {
+  fetchProfileContext, profileNarrative, flattenProfileSkills, experienceNarrative, PROFILE_CONTEXT_RULE,
+} from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are an expert LinkedIn profile writer combining a recruiter's search behaviour with a copywriter's ear for how people actually talk.
 
@@ -20,6 +23,8 @@ ABOUT SECTION — real 4-part structure that outperforms generic "results-driven
 Written in FIRST PERSON ("I", "my") — never third person. Conversational, not corporate-bio. Target 1,500-2,000 characters (LinkedIn allows up to 2,600). The first sentence must stand alone and hook, since it's the only part visible before "see more".
 
 ${ANTI_HALLUCINATION_RULE}
+
+${PROFILE_CONTEXT_RULE}
 
 ${buzzwordRule('"thought leader", "guru", "ninja", "rockstar"')}
 
@@ -61,23 +66,30 @@ const OUTPUT_SCHEMA = {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   try {
-    const { supabase } = await requireUser(req)
+    const { supabase, user } = await requireUser(req)
     const { document_id } = await req.json()
     if (!document_id) return jsonResponse({ error: 'document_id is required' }, 400)
 
     const { data: doc, error: fetchErr } = await supabase.from('linkedin_documents').select('*').eq('id', document_id).single()
     if (fetchErr || !doc) return jsonResponse({ error: 'LinkedIn document not found' }, 404)
 
+    // §08 Career Profile: fall back to the active target's role/industry, and
+    // to profile-derived skills/experience only where this form gave nothing —
+    // never overriding what the user actually typed here.
+    const { profile, target } = await fetchProfileContext(supabase, user.id)
     const input = doc.input || {}
+    const targetIndustry = doc.target_industry || target?.target_industry || null
+    const targetRole = doc.target_role || target?.target_role || null
+
     const missing = checkRequired([
-      ['Target industry', doc.target_industry],
+      ['Target industry', targetIndustry],
       ['Current status (e.g. your year and course, or your role)', input.current_status],
     ])
     if (missing) return jsonResponse({ error: missing }, 422)
 
     const lengthError = checkLengths([
-      ['Target industry', doc.target_industry, LIMITS.SHORT],
-      ['Target role', doc.target_role, LIMITS.SHORT],
+      ['Target industry', targetIndustry, LIMITS.SHORT],
+      ['Target role', targetRole, LIMITS.SHORT],
       ['Current status', input.current_status, LIMITS.MEDIUM],
       ['Target connections', input.target_connections, LIMITS.MEDIUM],
       ['Notable achievements', input.notable_achievements, LIMITS.LONG],
@@ -85,27 +97,34 @@ Deno.serve(async (req: Request) => {
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
-    const skillCount = ((input.key_skills || []) as string[]).filter(s => !isBlank(s)).length
-    if (skillCount < 3) return jsonResponse({ error: 'List at least 3 key skills.' }, 422)
+    const keySkills = ((input.key_skills || []) as string[]).filter(s => !isBlank(s))
+    const mergedSkills = keySkills.length >= 3
+      ? keySkills
+      : [...new Set([...keySkills, ...flattenProfileSkills(profile)])]
+    if (mergedSkills.length < 3) return jsonResponse({ error: 'List at least 3 key skills.' }, 422)
+
+    const hasNoExperience = input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience
+    const experience = !isBlank(input.experience) ? input.experience : experienceNarrative(profile)
 
     const [headlineExamples, aboutExamples] = await Promise.all([
-      fetchIndustryExamples(supabase, 'linkedin_headline', doc.target_industry, 2),
-      fetchIndustryExamples(supabase, 'linkedin_about', doc.target_industry, 1),
+      fetchIndustryExamples(supabase, 'linkedin_headline', targetIndustry, 2),
+      fetchIndustryExamples(supabase, 'linkedin_about', targetIndustry, 1),
     ])
     const examples = [...headlineExamples, ...aboutExamples]
 
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
-        target_industry: doc.target_industry,
-        target_role: doc.target_role,
+        target_industry: targetIndustry,
+        target_role: targetRole,
         current_status: input.current_status,
-        key_skills: input.key_skills,
+        key_skills: mergedSkills,
         notable_achievements: input.notable_achievements,
         target_connections: input.target_connections,
-        experience: input.experience,
-        has_no_experience: !!input.has_no_experience,
+        experience,
+        has_no_experience: hasNoExperience,
         tone: input.tone,
+        career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_linkedin_profile',

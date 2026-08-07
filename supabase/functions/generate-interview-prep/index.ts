@@ -5,6 +5,7 @@ import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
+import { fetchCareerTarget, fetchCareerProfile, profileNarrative, experienceNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.
 
@@ -21,6 +22,8 @@ EMPTY OR THIN EVIDENCE BANK: if the evidence bank is empty or has only one or tw
 COMPANY RESEARCH: give the candidate specific things to actually go find out (recent news, values, what the interviewer likely cares about) — never assert something you don't know to be true about the specific company, since your knowledge of current events may be stale. Frame these as research prompts ("look up X"), not as facts you're telling them about the company.
 
 ${ANTI_HALLUCINATION_RULE} For this service specifically: never invent a fact about the company either — your knowledge of any given employer may be stale or wrong.
+
+${PROFILE_CONTEXT_RULE}
 
 ${NON_TRADITIONAL_EVIDENCE_RULE}
 
@@ -71,12 +74,20 @@ Deno.serve(async (req: Request) => {
 
     const { data: pack, error: fetchErr } = await supabase.from('interview_prep_packs').select('*').eq('id', pack_id).single()
     if (fetchErr || !pack) return jsonResponse({ error: 'Interview prep pack not found' }, 404)
-    const missing = checkRequired([['Target role', pack.target_role]])
+
+    const [profile, target] = await Promise.all([
+      fetchCareerProfile(supabase, user.id),
+      fetchCareerTarget(supabase, user.id),
+    ])
+    const targetRole = pack.target_role || target?.target_role || null
+    const targetCompany = pack.target_company || target?.target_company || null
+
+    const missing = checkRequired([['Target role', targetRole]])
     if (missing) return jsonResponse({ error: missing }, 422)
 
     const lengthError = checkLengths([
-      ['Target role', pack.target_role, LIMITS.SHORT],
-      ['Target company', pack.target_company, LIMITS.SHORT],
+      ['Target role', targetRole, LIMITS.SHORT],
+      ['Target company', targetCompany, LIMITS.SHORT],
       ['Background summary', (pack.input || {}).background_summary, LIMITS.LONG],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
@@ -87,15 +98,17 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', user.id)
 
     const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3)
+    const backgroundSummary = (pack.input || {}).background_summary || experienceNarrative(profile) || null
 
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
-        target_company: pack.target_company,
-        target_role: pack.target_role,
+        target_company: targetCompany,
+        target_role: targetRole,
         interview_type: pack.interview_type,
-        background_summary: (pack.input || {}).background_summary,
+        background_summary: backgroundSummary,
         evidence_bank: stories || [],
+        career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_interview_prep',

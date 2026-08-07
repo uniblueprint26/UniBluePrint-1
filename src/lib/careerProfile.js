@@ -108,6 +108,28 @@ export async function loadProfileDefaults(userId) {
   }
 }
 
+/** Profile skills, flattened to one deduped comma-separated string. Mirrors the backend helper. */
+export function flattenProfileSkills(profile) {
+  if (!profile?.skills) return []
+  const { technical, soft, languages, tools } = profile.skills
+  const parts = [technical, soft, languages, tools]
+    .filter((v) => typeof v === 'string' && v.trim().length > 0)
+    .flatMap((v) => v.split(',').map((s) => s.trim()).filter(Boolean))
+  return [...new Set(parts)]
+}
+
+/** Profile experience, rendered as short narrative text. Mirrors the backend helper. */
+export function experienceNarrative(profile) {
+  if (!profile?.experience?.length) return ''
+  return profile.experience
+    .map((r) => {
+      const head = [r.job_title, r.company].filter(Boolean).join(' at ')
+      return [head, r.dates, r.responsibilities].filter(Boolean).join(' — ')
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
 /** True for null, undefined, '', whitespace, [], {}. Mirrors the backend helper. */
 function isEmpty(value) {
   if (value === null || value === undefined) return true

@@ -190,6 +190,42 @@ export function profileNarrative(profile: CareerProfile | null): Record<string, 
 }
 
 /**
+ * Profile skills, flattened to one deduped string array.
+ *
+ * Several generators take skills as a flat list (LinkedIn's key_skills) rather
+ * than the CV builder's four categories. This is the shared conversion so both
+ * shapes read from the same profile data instead of each generator inventing
+ * its own flattening.
+ */
+export function flattenProfileSkills(profile: CareerProfile | null): string[] {
+  if (!profile?.skills) return []
+  const { technical, soft, languages, tools } = profile.skills as Record<string, unknown>
+  const parts = [technical, soft, languages, tools]
+    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+    .flatMap((v) => v.split(',').map((s) => s.trim()).filter(Boolean))
+  return [...new Set(parts)]
+}
+
+/**
+ * Profile experience, rendered as short narrative text.
+ *
+ * Some generators (LinkedIn's "experience", cover letter's "relevant
+ * experience") take a free-text paragraph rather than the CV builder's
+ * structured array. This is the fallback text used only when the user has
+ * given that field nothing at all — never a silent override of what they typed.
+ */
+export function experienceNarrative(profile: CareerProfile | null): string {
+  if (!profile?.experience?.length) return ''
+  return (profile.experience as Record<string, string>[])
+    .map((r) => {
+      const head = [r.job_title, r.company].filter(Boolean).join(' at ')
+      return [head, r.dates, r.responsibilities].filter(Boolean).join(' — ')
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
+/**
  * How a generator should treat profile-derived context, as a prompt rule.
  *
  * The risk this guards against is specific: context the user did not restate in

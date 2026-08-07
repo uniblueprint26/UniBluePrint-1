@@ -1,21 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Loader2, ArrowLeft, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { LIMITS } from '../../lib/fieldLimits'
+import { loadProfileDefaults } from '../../lib/careerProfile'
+import { OPPORTUNITY_TYPES } from '../../lib/jobSearchConstants'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner } from '../../components/ui/Form'
-
-const OPPORTUNITY_TYPES = [
-  ['graduate_scheme', 'Graduate scheme'],
-  ['internship', 'Internship'],
-  ['part_time', 'Part-time job'],
-  ['placement_year', 'Placement year'],
-  ['work_experience', 'Work experience'],
-]
+import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const initialInput = {
   field_or_industry: '', opportunity_type: '', location: '', timeline: '',
@@ -28,11 +23,29 @@ const initialInput = {
 export default function JobSearchSupportPage() {
   const { runLocked } = useSubmitLock()
   const { user } = useAuth()
+  const location = useLocation()
   const [input, setInput] = useState(initialInput)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [session, setSession] = useState(null)
-  const [handlerGuide, setHandlerGuide] = useState(null)
+  // §08 Career Profile: Quick Generate on the profile page can hand a
+  // finished session (and Handler guide, if this account can see one) here.
+  const [session, setSession] = useState(location.state?.session ?? null)
+  const [handlerGuide, setHandlerGuide] = useState(location.state?.handlerGuide ?? null)
+  const [prefilled, setPrefilled] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    loadProfileDefaults(user.id).then(({ profile, target }) => {
+      if (cancelled || (!profile && !target)) return
+      setInput((f) => ({
+        ...f,
+        field_or_industry: f.field_or_industry || target?.target_industry || '',
+        has_no_experience: f.has_no_experience || !!profile?.has_no_experience,
+      }))
+      setPrefilled(true)
+    })
+    return () => { cancelled = true }
+  }, [user.id])
 
   const set = (key) => (e) => setInput((f) => ({
     ...f,
@@ -86,6 +99,7 @@ export default function JobSearchSupportPage() {
         </p>
 
         {error && <ErrorBanner message={error} />}
+        {prefilled && !session && <ProfilePrefillNote />}
 
         {!session ? (
           <FormCard>

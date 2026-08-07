@@ -5,6 +5,7 @@ import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, isBlank } from '../_shared/fieldLimits.ts'
+import { fetchCareerTarget, profileNarrative, fetchCareerProfile, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are drafting answers to graduate scheme / internship / apprenticeship application form questions, using the candidate's own evidence bank of real STAR stories — never inventing a story that isn't in the bank.
 
@@ -16,6 +17,8 @@ METHOD:
 5. Write in first person, natural language — never robotic "Situation: ... Task: ..." labelling in the final answer text; the STAR structure should be invisible in the prose, just present in how it's built.
 
 ${ANTI_HALLUCINATION_RULE} For this service specifically, the evidence bank stories ARE the input — every answer must be traceable to a story in the bank.
+
+${PROFILE_CONTEXT_RULE}
 
 ${NON_TRADITIONAL_EVIDENCE_RULE} A story from a society committee, a group coursework project, or a Saturday retail job answers a competency question at exactly the same strength as a corporate internship story — judge stories by how well they demonstrate the competency, never by how "professional" their setting sounds.
 
@@ -54,13 +57,22 @@ Deno.serve(async (req: Request) => {
     const { data: form, error: fetchErr } = await supabase.from('application_forms').select('*').eq('id', form_id).single()
     if (fetchErr || !form) return jsonResponse({ error: 'Application form not found' }, 404)
 
+    // §08 Career Profile: fall back to the active target for company/role only
+    // — the questions themselves are always specific to this actual form.
+    const [profile, target] = await Promise.all([
+      fetchCareerProfile(supabase, user.id),
+      fetchCareerTarget(supabase, user.id),
+    ])
+    const targetCompany = form.target_company || target?.target_company || null
+    const targetRole = form.target_role || target?.target_role || null
+
     const questions = (form.questions || []) as Record<string, string>[]
     const answerable = questions.filter(q => !isBlank(q?.question_text))
     if (answerable.length === 0) return jsonResponse({ error: 'Add at least one question first.' }, 422)
 
     const lengthError = checkLengths([
-      ['Target company', form.target_company, LIMITS.SHORT],
-      ['Target role', form.target_role, LIMITS.SHORT],
+      ['Target company', targetCompany, LIMITS.SHORT],
+      ['Target role', targetRole, LIMITS.SHORT],
       ...answerable.map((q, i) => [`Question ${i + 1}`, q.question_text, LIMITS.LONG] as [string, unknown, number]),
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
@@ -79,10 +91,11 @@ Deno.serve(async (req: Request) => {
     const result = await callClaudeForStructuredOutput({
       system: SYSTEM_PROMPT,
       userContent: JSON.stringify({
-        target_company: form.target_company,
-        target_role: form.target_role,
+        target_company: targetCompany,
+        target_role: targetRole,
         questions: answerable,
         evidence_bank: stories,
+        career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),
       }),
       toolName: 'submit_application_answers',

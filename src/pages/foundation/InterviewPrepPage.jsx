@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { Loader2, ArrowLeft, Send, Check } from 'lucide-react'
@@ -8,8 +8,10 @@ import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS } from '../../lib/fieldLimits'
+import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const TYPE_LABELS = { behavioural: 'Behavioural', technical: 'Technical', strengths_based: 'Strengths-based' }
 
@@ -25,6 +27,19 @@ export default function InterviewPrepPage() {
   const [pack, setPack] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    loadProfileDefaults(user.id).then(({ profile, target }) => {
+      if (cancelled || (!profile && !target)) return
+      if (target?.target_role) setTargetRole(target.target_role)
+      if (target?.target_company) setTargetCompany(target.target_company)
+      setBackgroundSummary((v) => v || experienceNarrative(profile))
+      setPrefilled(true)
+    })
+    return () => { cancelled = true }
+  }, [user.id])
 
   const handleSubmit = (e) => runLocked(async () => {
     e?.preventDefault?.()
@@ -74,6 +89,7 @@ export default function InterviewPrepPage() {
         </p>
 
         {error && <ErrorBanner message={error} />}
+        {prefilled && !pack && <ProfilePrefillNote />}
 
         {!pack ? (
           <FormCard>

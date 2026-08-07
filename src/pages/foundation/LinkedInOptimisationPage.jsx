@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Loader2, ArrowLeft, Copy, Check, Send } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -8,8 +8,10 @@ import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS } from '../../lib/fieldLimits'
+import { loadProfileDefaults, flattenProfileSkills, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const initialInput = {
   current_status: '', key_skills: '', notable_achievements: '', target_connections: '', experience: '', tone: 'balanced',
@@ -18,15 +20,38 @@ const initialInput = {
 export default function LinkedInOptimisationPage() {
   const { runLocked } = useSubmitLock()
   const { user } = useAuth()
+  const location = useLocation()
   const [targetIndustry, setTargetIndustry] = useState('')
   const [targetRole, setTargetRole] = useState('')
   const [hasNoExperience, setHasNoExperience] = useState(false)
   const [input, setInput] = useState(initialInput)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [cvDoc, setDocument] = useState(null)
+  // §08 Career Profile: Quick Generate on the profile page can hand a
+  // finished document straight here via router state.
+  const [cvDoc, setDocument] = useState(location.state?.document ?? null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
+
+  // §08 Career Profile: fill blanks only, on first load. Silent if there's no
+  // profile yet — a first-time user sees no change.
+  useEffect(() => {
+    let cancelled = false
+    loadProfileDefaults(user.id).then(({ profile, target }) => {
+      if (cancelled || (!profile && !target)) return
+      if (target?.target_industry) setTargetIndustry(target.target_industry)
+      if (target?.target_role) setTargetRole(target.target_role)
+      if (profile?.has_no_experience) setHasNoExperience(true)
+      setInput((f) => ({
+        ...f,
+        key_skills: f.key_skills || flattenProfileSkills(profile).join(', '),
+        experience: f.experience || (profile?.has_no_experience ? '' : experienceNarrative(profile)),
+      }))
+      setPrefilled(true)
+    })
+    return () => { cancelled = true }
+  }, [user.id])
 
   const set = (key) => (e) => setInput((f) => ({ ...f, [key]: e.target.value }))
 
@@ -96,6 +121,7 @@ export default function LinkedInOptimisationPage() {
         </p>
 
         {error && <ErrorBanner message={error} />}
+        {prefilled && !cvDoc && <ProfilePrefillNote />}
 
         {!cvDoc ? (
           <FormCard>
