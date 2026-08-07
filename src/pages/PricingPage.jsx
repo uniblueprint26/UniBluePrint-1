@@ -164,7 +164,7 @@ function AccordionGroup({ children }) {
 // ─── PricingPage ───────────────────────────────────────────────────────────────
 
 export default function PricingPage() {
-  const [mode, setMode] = useState('trial')       // 'trial' | 'standard'
+  const [mode, setMode] = useState('standard')    // 'trial' | 'standard'
   const [tab,  setTab]  = useState('foundation')  // 'foundation' | 'elevation'
 
   const isTrial = mode === 'trial'
