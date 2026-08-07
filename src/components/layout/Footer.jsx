@@ -21,6 +21,7 @@ const COLUMNS = [
       { label: 'Lifestyle Blueprint',  href: '/lifestyle-blueprint' },
       { label: 'Campus Connect',       href: '/campus-connect' },
       { label: 'Course Connect',       href: '/course-connect' },
+      { label: 'Course Compass',       href: '/course-compass' },
       { label: 'Budgeting Tool',       href: '/budgeting' },
       { label: 'Ad Board',             href: '/ad-board' },
       { label: 'Pricing',              href: '/pricing' },
