@@ -40,8 +40,9 @@ const COACHES = [
   { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Ireland',       filter: 'Marketing',        services: ['Social Media Strategy', 'Content Creation', 'Brand Building'],    accent: '#4C1D95' },
   { id: 11, name: 'Nikola',      category: 'Personal Branding',    location: 'Ireland',       filter: 'Branding',         services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],    accent: '#2D4B8E' },
   { id: 12, name: 'Jayden',      category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
-  { id: 13, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Coming soon'],                                                    accent: '#145A3E', shell: true },
-  { id: 14, name: 'Eitne',       category: 'Careers and Counselling', location: 'Ireland',   filter: 'Career',           services: ['Coming soon'],                                                    accent: '#1B4B5A', shell: true },
+  { id: 13, name: 'Camila',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ["Women's Fitness", 'Personal Training', 'Lifestyle Support'],   accent: '#145A3E' },
+  { id: 14, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Coming soon'],                                                    accent: '#145A3E', shell: true },
+  { id: 15, name: 'Eitne',       category: 'Careers and Counselling', location: 'Ireland',   filter: 'Career',           services: ['Coming soon'],                                                    accent: '#1B4B5A', shell: true },
 ]
 
 const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Branding', 'Creative', 'Yoga', 'Career']
@@ -267,7 +268,7 @@ export default function ElevationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              {COACHES.length} verified specialists across fitness, career, trading, creative skills, and more.
+              {COACHES.length} verified coaches across fitness, career, trading, creative skills, and more.
               Find your coach and book directly in the app.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
