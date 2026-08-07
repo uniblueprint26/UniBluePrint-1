@@ -181,6 +181,185 @@ const STEPS = [
   { n: 3, title: 'Unlock and redeem in the app',  desc: 'Show your deal badge to the partner to claim your saving.' },
 ]
 
+// ─── Ireland partner map ───────────────────────────────────────────────────────
+
+const COUNTY_PARTNERS = [
+  {
+    id: 'dublin', name: 'Dublin', cx: 259, cy: 200,
+    total: 9,
+    breakdown: [
+      { category: 'Personal Training', count: 3 },
+      { category: 'Gym Membership',    count: 1 },
+      { category: 'Sports Coaching',   count: 1 },
+      { category: 'Lash Tech',         count: 2 },
+      { category: 'Photography',       count: 1 },
+      { category: 'Digital Marketing', count: 1 },
+    ],
+  },
+  {
+    id: 'louth', name: 'Louth', cx: 254, cy: 148,
+    total: 1,
+    breakdown: [{ category: 'Automotive', count: 1 }],
+  },
+  {
+    id: 'sligo', name: 'Sligo', cx: 88, cy: 114,
+    total: 1,
+    breakdown: [{ category: 'Health & Fitness', count: 1 }],
+  },
+  {
+    id: 'galway', name: 'Galway', cx: 64, cy: 232,
+    total: 1,
+    breakdown: [{ category: 'Nail Tech', count: 1 }],
+  },
+]
+
+// Simplified Republic of Ireland SVG outline
+const IRELAND_PATH =
+  'M 185 12 L 215 24 L 232 44 L 248 75 L 262 108 L 252 130 L 260 156 ' +
+  'L 263 180 L 259 204 L 253 226 L 243 252 L 232 276 L 218 302 L 200 325 ' +
+  'L 180 346 L 160 360 L 138 368 L 112 370 L 88 374 L 66 369 L 46 363 ' +
+  'L 28 350 L 20 330 L 16 308 L 20 284 L 28 260 L 40 240 L 56 226 ' +
+  'L 64 236 L 42 242 L 26 226 L 16 205 L 20 184 L 30 168 L 40 156 ' +
+  'L 30 138 L 40 123 L 56 113 L 78 108 L 100 103 L 118 96 L 128 86 ' +
+  'L 122 73 L 106 60 L 100 48 L 116 36 L 136 26 L 152 18 L 166 12 ' +
+  'L 178 9 L 185 12 Z'
+
+function IrelandMap() {
+  const [hoveredId, setHoveredId] = useState(null)
+  const active = COUNTY_PARTNERS.find(c => c.id === hoveredId)
+
+  return (
+    <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
+      {/* SVG map */}
+      <div style={{ position: 'relative', width: '320px', flexShrink: 0 }}>
+        <svg
+          viewBox="0 0 360 400"
+          style={{ width: '100%', height: 'auto', display: 'block' }}
+          aria-label="Map of Ireland showing UniBlueprint lifestyle partner locations by county"
+        >
+          {/* Base fill */}
+          <path d={IRELAND_PATH} fill="#D9E4F0" stroke="#B8C8D8" strokeWidth="1.5" strokeLinejoin="round" />
+          {/* County dots */}
+          {COUNTY_PARTNERS.map(c => {
+            const active = hoveredId === c.id
+            const r = c.id === 'dublin' ? 16 : 10
+            return (
+              <g key={c.id} style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredId(c.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                onFocus={() => setHoveredId(c.id)}
+                onBlur={() => setHoveredId(null)}
+                role="button"
+                aria-label={`${c.name}: ${c.total} partner${c.total > 1 ? 's' : ''}`}
+                tabIndex={0}
+              >
+                {/* Halo ring */}
+                <circle
+                  cx={c.cx} cy={c.cy} r={r + 8}
+                  fill="none" stroke={ACCENT} strokeWidth={1.5}
+                  opacity={active ? 0.5 : 0}
+                  style={{ transition: 'opacity 200ms' }}
+                />
+                {/* Main dot */}
+                <circle
+                  cx={c.cx} cy={c.cy} r={r}
+                  fill={ACCENT}
+                  opacity={active ? 1 : 0.75}
+                  style={{ transition: 'all 200ms ease' }}
+                />
+                {/* Count label */}
+                <text
+                  x={c.cx} y={c.cy}
+                  textAnchor="middle" dominantBaseline="central"
+                  style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: c.id === 'dublin' ? '9px' : '8px',
+                    fontWeight: 700, fill: '#fff', pointerEvents: 'none',
+                  }}
+                >
+                  {c.total}
+                </text>
+              </g>
+            )
+          })}
+        </svg>
+        {/* Legend */}
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF',
+          textAlign: 'center', marginTop: '8px',
+        }}>
+          Hover a marker to see partner breakdown
+        </p>
+      </div>
+
+      {/* Info panel */}
+      <div style={{ flex: 1, minWidth: '220px', maxWidth: '360px' }}>
+        {active ? (
+          <div style={{
+            background: '#FFFFFF', borderRadius: '14px', padding: '24px 26px',
+            boxShadow: '0 8px 24px rgba(30,58,95,0.10)',
+            border: '1px solid rgba(30,58,95,0.08)',
+          }}>
+            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', margin: 0 }}>
+              {active.name}
+            </p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', margin: '4px 0 18px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {active.total} partner{active.total > 1 ? 's' : ''}
+            </p>
+            {active.breakdown.map(b => (
+              <div key={b.category} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                gap: '16px', padding: '8px 0', borderBottom: '1px solid rgba(30,58,95,0.06)',
+              }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#4B5563' }}>
+                  {b.category}
+                </span>
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
+                  color: ACCENT, fontWeight: 700,
+                  background: `${ACCENT}10`, borderRadius: '4px', padding: '2px 8px',
+                }}>
+                  {b.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {COUNTY_PARTNERS.map(c => (
+              <div
+                key={c.id}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  background: '#FFFFFF', borderRadius: '10px', padding: '12px 16px',
+                  border: '1px solid rgba(30,58,95,0.07)',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={() => setHoveredId(c.id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                <div style={{
+                  width: '8px', height: '8px', borderRadius: '50%',
+                  background: ACCENT, flexShrink: 0,
+                }} />
+                <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#1E3A5F', flex: 1 }}>
+                  {c.name}
+                </span>
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
+                  color: ACCENT, background: `${ACCENT}12`, borderRadius: '4px', padding: '2px 8px',
+                }}>
+                  {c.total} partner{c.total > 1 ? 's' : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const PAGE_STYLES = `
   .lbp-hero { display: flex; align-items: center; gap: 48px; max-width: 1040px; margin: 0 auto; position: relative; z-index: 1; }
   .lbp-phone { flex-shrink: 0; }
@@ -405,7 +584,23 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — HOW IT WORKS ─────────────────────────────────────────── */}
+      {/* ── SECTION 4 — PARTNER MAP ──────────────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+            <SectionLabel>Partner map</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
+              Partners across Ireland
+            </h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '12px', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
+              Hover any marker to see what is available in that county. More partners added weekly.
+            </p>
+          </div>
+          <IrelandMap />
+        </div>
+      </section>
+
+      {/* ── SECTION 5 — HOW IT WORKS ─────────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
@@ -433,7 +628,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────────── */}
+      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
