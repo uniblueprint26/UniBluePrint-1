@@ -403,7 +403,316 @@ const PAGE_STYLES = `
     .ubp-cta-row a    { width: 100%; box-sizing: border-box }
     .ubp-cta-row      { flex-direction: column !important }
   }
+
+  /* ── Browser-frame dashboard ── */
+  .ubp-browser-frame {
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    box-shadow: 0 32px 100px rgba(30,58,95,0.22), 0 0 0 1px rgba(30,58,95,0.1);
+    border: 1px solid rgba(30,58,95,0.12);
+    border-bottom: none;
+  }
+  .ubp-browser-chrome {
+    background: #ddd7cc;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ubp-chrome-dot { width: 12px; height: 12px; border-radius: 50% }
+  .ubp-chrome-bar {
+    flex: 1; background: rgba(255,255,255,0.5);
+    border-radius: 6px; height: 26px;
+    display: flex; align-items: center; padding: 0 12px;
+    font-size: 12px; color: rgba(30,58,95,0.5);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .ubp-app-body { display: flex; height: 440px }
+  .ubp-sidebar {
+    width: 180px; background: #1E3A5F;
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .ubp-app-main {
+    flex: 1; background: #F5F0E8;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .ubp-dash-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px;
+  }
+  .ubp-live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #16A34A;
+    animation: ubp-live-pulse 2s ease-in-out infinite;
+  }
+  @keyframes ubp-live-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22,163,74,0.4) }
+    50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(22,163,74,0) }
+  }
+  .ubp-feed-item {
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .ubp-feed-vis { opacity: 1; transform: translateY(0) }
+
+  @media (max-width: 860px) {
+    .ubp-browser-frame { display: none }
+    .ubp-dash-mobile-note { display: block !important }
+  }
 `
+
+// ─── AppDashboard ──────────────────────────────────────────────────────────────
+
+const FEED_ITEMS = [
+  { text: 'Your CV review is complete. Check Foundation Blueprint for feedback.',  time: 'Just now'   },
+  { text: 'New accommodation post near your campus in Campus Connect.',             time: '2 min ago'  },
+  { text: '3 new shared notes uploaded for Business Analytics — Course Connect.',  time: '5 min ago'  },
+  { text: 'Lifestyle deal unlocked: 40% off Headspace this month.',                time: '12 min ago' },
+  { text: 'Your Elevation coach session is confirmed for tomorrow at 2:00 PM.',    time: '18 min ago' },
+]
+
+const SIDEBAR_NAV = [
+  { id: 'dashboard',  label: 'Dashboard',  Icon: Sparkles   },
+  { id: 'foundation', label: 'Foundation', Icon: FileText   },
+  { id: 'elevation',  label: 'Elevation',  Icon: TrendingUp },
+  { id: 'campus',     label: 'Campus',     Icon: Users      },
+  { id: 'lifestyle',  label: 'Lifestyle',  Icon: Tag        },
+  { id: 'budgeting',  label: 'Budgeting',  Icon: PiggyBank  },
+]
+
+const DASH_CARDS = [
+  { label: 'Foundation Blueprint', val: 'CV Review',    sub: 'Delivered in 48 hrs', bg: '#EFF6FF' },
+  { label: 'Elevation Blueprint',  val: 'Book a coach', sub: 'From €20/session',    bg: '#F0FDF4' },
+  { label: 'Campus Connect',       val: '12 new posts', sub: 'Your campus board',   bg: '#FFF7ED' },
+]
+
+function AppDashboard() {
+  const [visibleCount, setVisibleCount] = useState(0)
+
+  useEffect(() => {
+    if (visibleCount >= FEED_ITEMS.length) return
+    const t = setTimeout(
+      () => setVisibleCount(c => c + 1),
+      visibleCount === 0 ? 900 : 520,
+    )
+    return () => clearTimeout(t)
+  }, [visibleCount])
+
+  return (
+    <section style={{
+      background: '#FFFFFF', padding: '96px 24px 0',
+      position: 'relative', overflow: 'hidden',
+    }}>
+      {/* Dot grid */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: 'radial-gradient(circle, rgba(30,58,95,0.04) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }} />
+
+      <div style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+          <SectionLabel>See it in action</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(28px, 4vw, 42px)', color: '#1E3A5F',
+            marginTop: '10px', lineHeight: 1.12,
+          }}>
+            Your Blueprint at a glance
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '16px', color: '#6B7280',
+            marginTop: '14px', maxWidth: '440px',
+            marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
+          }}>
+            One dashboard. Every feature. Live activity from across your entire Blueprint.
+          </p>
+        </div>
+
+        {/* Mobile fallback — hidden on desktop */}
+        <p className="ubp-dash-mobile-note" style={{
+          display: 'none', textAlign: 'center', padding: '0 0 80px',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280',
+        }}>
+          Open on a larger screen to explore the interactive dashboard.
+        </p>
+
+        {/* Browser frame */}
+        <div className="ubp-browser-frame">
+
+          {/* Chrome bar */}
+          <div className="ubp-browser-chrome">
+            <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+              <div className="ubp-chrome-dot" style={{ background: '#ff5f57' }} />
+              <div className="ubp-chrome-dot" style={{ background: '#ffbd2e' }} />
+              <div className="ubp-chrome-dot" style={{ background: '#28ca41' }} />
+            </div>
+            <div className="ubp-chrome-bar">uniblueprint.com/dashboard</div>
+          </div>
+
+          {/* App body */}
+          <div className="ubp-app-body">
+
+            {/* Sidebar */}
+            <div className="ubp-sidebar">
+              <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <svg height="22" width="64" viewBox="0 0 300 100" fill="none" style={{ display: 'block' }}>
+                  <text x="150" y="72" textAnchor="middle" fontFamily="Georgia,serif" fontSize="68" fill="#F5F0E8">UBP</text>
+                </svg>
+              </div>
+              <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {SIDEBAR_NAV.map(({ id, label, Icon }) => (
+                  <div key={id} style={{
+                    display: 'flex', alignItems: 'center', gap: '9px',
+                    padding: '8px 10px', borderRadius: '7px',
+                    background: id === 'dashboard' ? 'rgba(255,255,255,0.12)' : 'transparent',
+                    color: id === 'dashboard' ? '#F5F0E8' : 'rgba(245,240,232,0.5)',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 500,
+                    cursor: 'default',
+                  }}>
+                    <Icon size={13} strokeWidth={1.8} />
+                    {label}
+                  </div>
+                ))}
+              </nav>
+              {/* User row */}
+              <div style={{
+                margin: '0 8px 12px', paddingTop: '12px',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex', alignItems: 'center', gap: '9px', padding: '12px 10px 12px',
+              }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#4a7ab5,#2d5a8e)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: '12px', color: '#F5F0E8', flexShrink: 0,
+                }}>Y</div>
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '11px', color: 'rgba(245,240,232,0.55)',
+                }}>Your profile</span>
+              </div>
+            </div>
+
+            {/* Main area */}
+            <div className="ubp-app-main">
+
+              {/* Top bar */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '13px 18px', borderBottom: '1px solid rgba(30,58,95,0.08)',
+                flexShrink: 0,
+              }}>
+                <div>
+                  <p style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '9px', fontWeight: 700, letterSpacing: '0.07em',
+                    textTransform: 'uppercase', color: '#9CA3AF',
+                  }}>
+                    September Trial — 50% off
+                  </p>
+                  <p style={{
+                    fontFamily: "'DM Serif Display', Georgia, serif",
+                    fontSize: '17px', color: '#1E3A5F', marginTop: '1px',
+                  }}>
+                    Your Blueprint
+                  </p>
+                </div>
+                {/* Notification bell */}
+                <div style={{
+                  position: 'relative', width: '32px', height: '32px',
+                  borderRadius: '8px', background: 'rgba(255,255,255,0.7)',
+                  border: '1px solid rgba(30,58,95,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E3A5F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  <span style={{
+                    position: 'absolute', top: '-5px', right: '-5px',
+                    background: '#DC2626', color: '#fff',
+                    fontSize: '8px', fontWeight: 700,
+                    width: '14px', height: '14px', borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>4</span>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div style={{ flex: 1, padding: '14px 18px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                {/* Dashboard cards */}
+                <div className="ubp-dash-cards">
+                  {DASH_CARDS.map(({ label, val, sub, bg }) => (
+                    <div key={label} style={{
+                      background: bg, borderRadius: '9px', padding: '12px',
+                      border: '1px solid rgba(30,58,95,0.06)',
+                    }}>
+                      <p style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '9px', fontWeight: 700, letterSpacing: '0.06em',
+                        textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '4px',
+                      }}>{label}</p>
+                      <p style={{
+                        fontFamily: "'DM Serif Display', Georgia, serif",
+                        fontSize: '14px', color: '#1E3A5F',
+                      }}>{val}</p>
+                      <p style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '10px', color: '#6B7280', marginTop: '2px',
+                      }}>{sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Live activity feed */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
+                    <p style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '9px', fontWeight: 700, letterSpacing: '0.07em',
+                      textTransform: 'uppercase', color: '#9CA3AF',
+                    }}>Live activity</p>
+                    <div className="ubp-live-dot" />
+                  </div>
+                  <div>
+                    {FEED_ITEMS.map((item, i) => (
+                      <div
+                        key={i}
+                        className={`ubp-feed-item${i < visibleCount ? ' ubp-feed-vis' : ''}`}
+                        style={{
+                          display: 'flex', alignItems: 'flex-start', gap: '8px',
+                          padding: '6px 0', borderBottom: '1px solid rgba(30,58,95,0.05)',
+                        }}
+                      >
+                        <div style={{
+                          width: '5px', height: '5px', borderRadius: '50%',
+                          background: 'rgba(30,58,95,0.22)', flexShrink: 0, marginTop: '5px',
+                        }} />
+                        <p style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: '11px', color: 'rgba(30,58,95,0.65)', flex: 1, lineHeight: 1.4,
+                        }}>{item.text}</p>
+                        <span style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: '9px', color: '#9CA3AF', flexShrink: 0, marginTop: '2px',
+                        }}>{item.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  )
+}
 
 // ─── HomePage ──────────────────────────────────────────────────────────────────
 
@@ -621,6 +930,9 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* ── SECTION 3b — INTERACTIVE DASHBOARD ──────────────────────────────── */}
+      <AppDashboard />
 
       {/* ── SECTION 4 — QUALITY / PEOPLE ────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px', textAlign: 'center' }}>
