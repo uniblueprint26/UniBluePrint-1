@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, Home, ShoppingCart, Car, Calendar, BookOpen, Search } from 'lucide-react'
+import { ArrowRight, Home, ShoppingCart, Car, Calendar, BookOpen, Search, MapPin } from 'lucide-react'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -46,11 +46,12 @@ function SectionLabel({ children, light }) {
 // ─── Phone screen illustration ─────────────────────────────────────────────────
 
 const CAT_ICONS = [
-  { label: 'Rooms',    Icon: Home },
+  { label: 'Rooms',   Icon: Home },
   { label: 'Market',  Icon: ShoppingCart },
   { label: 'Carpool', Icon: Car },
   { label: 'Events',  Icon: Calendar },
   { label: 'Study',   Icon: BookOpen },
+  { label: 'Lost',    Icon: Search },
 ]
 
 const AVATAR_COLORS = ['#3b5fa8', '#7C3500', '#145A3E', '#4C1D95', '#1B4B5A']
@@ -161,6 +162,11 @@ const BOARDS = {
     { author: 'Zafir',   color: AVATAR_COLORS[0], meta: 'Online',    time: '2h ago',  title: 'Coding bootcamp group, DIT students' },
     { author: 'Emily',   color: AVATAR_COLORS[1], meta: 'Forming',   time: '5h ago',  title: 'Marketing strategy group, UCC and DCU' },
   ],
+  'Lost and Found': [
+    { author: 'Tom',     color: AVATAR_COLORS[1], meta: 'Lost',  time: '2h ago',  title: 'Left laptop bag in the library, brown leather with green strap' },
+    { author: 'Grace',   color: AVATAR_COLORS[4], meta: 'Found', time: '4h ago',  title: 'Found keys near the arts block, blue tag. Left at reception.' },
+    { author: 'Marcus',  color: AVATAR_COLORS[0], meta: 'Lost',  time: '1d ago',  title: 'Graphing calculator lost near maths department, name sticker inside' },
+  ],
 }
 
 const STEPS = [
@@ -230,7 +236,7 @@ export default function CampusConnectPage() {
               Your Campus. Your Community.
             </h1>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.65)', marginTop: '14px', lineHeight: 1.7 }}>
-              Community boards for every aspect of campus life: accommodation, carpooling, events, study groups, and more.
+              Community boards for every aspect of campus life: accommodation, carpooling, events, study groups, lost and found, and more.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>

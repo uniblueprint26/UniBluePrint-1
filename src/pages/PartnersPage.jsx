@@ -57,9 +57,15 @@ const LIFESTYLE_PARTNERS = [
     category: 'Education & Coaching',
     description: 'Junior and Leaving Cert grinds and academic coaching. One-to-one sessions, exam prep, and structured study support.',
   },
+  {
+    name: 'MPFitness',
+    initials: 'MP',
+    category: 'Fitness & Wellbeing',
+    description: 'Personal training and strength and conditioning programmes for UniBlueprint Pro subscribers, with exclusive member rates.',
+  },
 ]
 
-const COMING_SOON_ICONS = [UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Sparkles]
+const COMING_SOON_ICONS = [UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket]
 
 // ─── SectionLabel ──────────────────────────────────────────────────────────────
 

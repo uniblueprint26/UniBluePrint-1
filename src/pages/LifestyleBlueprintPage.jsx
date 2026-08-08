@@ -86,9 +86,9 @@ function LifestyleScreen() {
 
       {/* Deal cards */}
       {[
-        { name: 'Energie Fitness', sub: 'Member rate',  pct: '€37.99/mo', locked: false, bg: '#0369A1' },
-        { name: 'JMC Fitness',     sub: 'Sports coaching',     pct: 'From €50',  locked: true,  bg: '#166534' },
-        { name: 'MPFitness',       sub: 'Personal training',   pct: 'From €150', locked: true,  bg: '#15803D' },
+        { name: 'Gym Membership',    sub: 'Fitness club rate',     pct: '15% off',   locked: false, bg: '#0369A1' },
+        { name: 'Sports Coaching',   sub: 'Personal coaching',     pct: 'Unlock',     locked: true,  bg: '#166534' },
+        { name: 'Personal Trainer',  sub: 'Strength sessions',     pct: 'Unlock',     locked: true,  bg: '#15803D' },
       ].map((d, i) => (
         <div key={i} style={{
           display: 'flex', alignItems: 'center', gap: '8px',
@@ -144,34 +144,34 @@ const FEATURES = [
 
 const DEALS = {
   'Food & Drink': [
-    { brand: 'Campus Diner',   deal: '10% off all orders',     locked: true },
-    { brand: 'The Study Cafe', deal: '15% off coffee',         locked: true },
-    { brand: 'Green Bowl',     deal: 'Free delivery over €15', locked: true },
+    { brand: 'Food & Drink Partner', deal: 'Up to 10% off all orders',   locked: true },
+    { brand: 'Cafe Partner',         deal: 'Up to 15% off hot drinks',   locked: true },
+    { brand: 'Healthy Bowl Partner', deal: 'Free delivery over €15',     locked: true },
   ],
   'Fitness': [
-    { brand: 'Energie Fitness',    deal: '15% off membership',  locked: true },
-    { brand: 'Online PT Sessions', deal: 'First session free',  locked: true },
-    { brand: 'Yoga Studio',        deal: '€8 member class pass', locked: true },
+    { brand: 'Gym Partner',         deal: 'Up to 15% off membership',   locked: true },
+    { brand: 'Coaching Partner',    deal: 'First session free',         locked: true },
+    { brand: 'Wellness Studio',     deal: '€8 member class pass',       locked: true },
   ],
   'Shopping': [
-    { brand: 'Campus Bookshop', deal: '10% off all titles',  locked: true },
-    { brand: 'Tech Store IE',   deal: '5% off laptops',      locked: true },
-    { brand: 'Urban Threads',   deal: '15% off clothing',    locked: true },
+    { brand: 'Bookshop Partner',    deal: '10% off all titles',         locked: true },
+    { brand: 'Tech Retailer',       deal: '5% off laptops and devices', locked: true },
+    { brand: 'Clothing Partner',    deal: 'Up to 15% off clothing',     locked: true },
   ],
   'Travel': [
-    { brand: 'Bus Eireann', deal: 'Young adult Leap Card rate', locked: true },
-    { brand: 'Irish Rail',   deal: '25% off off-peak fares',   locked: true },
-    { brand: 'Dublin Bikes', deal: 'First 3 months free',      locked: true },
+    { brand: 'Bus Services',        deal: 'Young adult Leap Card rate', locked: true },
+    { brand: 'Rail Services',       deal: '25% off off-peak fares',    locked: true },
+    { brand: 'City Bikes',          deal: 'First 3 months free',       locked: true },
   ],
   'Entertainment': [
-    { brand: 'Omniplex Cinema', deal: '€7 member tickets',  locked: true },
-    { brand: 'Campus Events',   deal: 'Early access tickets', locked: true },
-    { brand: 'Streaming+',      deal: '3 months half price',  locked: true },
+    { brand: 'Cinema Partner',      deal: '€7 member tickets',         locked: true },
+    { brand: 'Events Platform',     deal: 'Early access and discounts', locked: true },
+    { brand: 'Streaming Partner',   deal: '3 months half price',       locked: true },
   ],
   'Mental Health': [
-    { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123',  locked: false },
-    { brand: 'Jigsaw',             deal: 'Free. Ages 12 to 25', locked: false },
-    { brand: 'SpunOut',            deal: 'Free. Youth platform', locked: false },
+    { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123',         locked: false },
+    { brand: 'Jigsaw',             deal: 'Free. Ages 12 to 25',        locked: false },
+    { brand: 'SpunOut',            deal: 'Free. Youth platform',       locked: false },
   ],
 }
 
