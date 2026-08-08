@@ -233,21 +233,15 @@ export default function Footer() {
               &copy; 2026 UniBlueprint Ltd. All rights reserved.
             </span>
 
-            {/* Centre — registered territory only */}
+            {/* Centre — registered territory */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-              {/* TODO: Insert company registration number when incorporated */}
-              Registered in Ireland — [TODO: Insert company registration number when incorporated]
+              Registered in Ireland
             </span>
 
-            {/* Right — VAT + address stacked */}
+            {/* Right — placeholder until incorporated */}
             <div className="footer-legal-right">
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-                {/* TODO: Insert VAT number when registered */}
-                VAT: [TODO: Insert VAT number when registered]
-              </span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-                {/* TODO: Insert registered address */}
-                [TODO: Insert registered address]
+                hello@uniblueprint.com
               </span>
             </div>
           </div>

@@ -220,7 +220,7 @@ export default function PricingPage() {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '13px', fontWeight: '700', letterSpacing: '0.01em',
             }}>
-              🎓 September Trial — 50% off all services
+              🎓 September Trial: 50% off all services
             </span>
           </div>
         </div>

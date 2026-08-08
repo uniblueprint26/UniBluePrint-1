@@ -67,11 +67,11 @@ export default function CookiesPage() {
             padding: '48px 40px',
           }}>
             <Section title="1. What Are Cookies">
-              <p style={P}>TODO: Cookies are small text files placed on your device when you visit a website. They are widely used to make websites work, to improve efficiency, and to provide information to website operators. Cookies do not damage your device or files.</p>
+              <p style={P}>Cookies are small text files placed on your device when you visit a website. They are widely used to make websites work, to improve efficiency, and to provide information to website operators. Cookies do not damage your device or files.</p>
             </Section>
 
             <Section title="2. Essential Cookies">
-              <p style={P}>TODO: Essential cookies are strictly necessary for the platform to function. They enable core features such as account authentication, session management, and security. <strong>You cannot opt out of essential cookies</strong> — these are set automatically and the platform cannot function without them.</p>
+              <p style={P}>Essential cookies are strictly necessary for the platform to function. They enable core features such as account authentication, session management, and security. <strong>You cannot opt out of essential cookies</strong> — these are set automatically and the platform cannot function without them.</p>
               <CookieTable rows={[
                 ['sb-auth-token', 'Supabase authentication session (Essential — cannot be rejected)', 'Session'],
                 ['ubp_cookie_consent', 'Stores your cookie consent preference (Essential — cannot be rejected)', '1 year'],
@@ -79,7 +79,7 @@ export default function CookiesPage() {
             </Section>
 
             <Section title="3. Functional Cookies">
-              <p style={P}>TODO: Functional cookies remember choices you make on the platform to improve your experience — such as your session state, UI preferences, and in-app settings. These cookies are set when you use interactive features of the platform.</p>
+              <p style={P}>Functional cookies remember choices you make on the platform to improve your experience — such as your session state, UI preferences, and in-app settings. These cookies are set when you use interactive features of the platform.</p>
               <p style={P}>You may opt out of functional cookies by choosing "Reject All" when the consent banner appears; however, some features (such as staying signed in) may not work correctly without them.</p>
               <CookieTable rows={[
                 ['ubp_utm', 'Remembers UTM campaign parameters for your session (session storage only — not persisted)', 'Session'],
@@ -87,7 +87,7 @@ export default function CookiesPage() {
             </Section>
 
             <Section title="4. Analytics Cookies">
-              <p style={P}>TODO: We use Google Analytics to understand how visitors use the platform — which pages are most visited, how long people stay, and where they navigate from. Analytics cookies are only set if you choose "Accept All" when the cookie banner appears.</p>
+              <p style={P}>We use Google Analytics to understand how visitors use the platform — which pages are most visited, how long people stay, and where they navigate from. Analytics cookies are only set if you choose "Accept All" when the cookie banner appears.</p>
               <CookieTable rows={[
                 ['_ga', 'Google Analytics — distinguishes users', '2 years'],
                 ['_ga_*', 'Google Analytics — maintains session state', '2 years'],
@@ -95,12 +95,12 @@ export default function CookiesPage() {
             </Section>
 
             <Section title="5. Marketing Cookies">
-              <p style={P}>TODO: We do not currently use marketing or targeting cookies. If this changes, this policy will be updated and your consent will be requested before any marketing cookies are set.</p>
+              <p style={P}>We do not currently use marketing or targeting cookies. If this changes, this policy will be updated and your consent will be requested before any marketing cookies are set.</p>
             </Section>
 
             <Section title="6. Managing Your Preferences">
               <p style={P}>
-                TODO: When you first visit UniBlueprint, a cookie consent banner will appear at the bottom of the screen. You may choose "Accept All", "Manage Preferences", or "Reject All". You can change your preference at any time by clearing the{' '}
+                When you first visit UniBlueprint, a cookie consent banner will appear at the bottom of the screen. You may choose "Accept All", "Manage Preferences", or "Reject All". You can change your preference at any time by clearing the{' '}
                 <code style={{ background: '#F5F0E8', padding: '2px 6px', borderRadius: '4px', fontSize: '13px' }}>ubp_cookie_consent</code>
                 {' '}key from your browser's local storage and refreshing the page.
               </p>
@@ -108,12 +108,12 @@ export default function CookiesPage() {
             </Section>
 
             <Section title="7. Third-Party Cookies">
-              <p style={P}>TODO: Some cookies on UniBlueprint are set by third-party services — specifically Supabase (authentication) and Google Analytics (analytics, if accepted). These providers operate under their own cookie policies. We do not control third-party cookies beyond the access controls we configure.</p>
+              <p style={P}>Some cookies on UniBlueprint are set by third-party services — specifically Supabase (authentication) and Google Analytics (analytics, if accepted). These providers operate under their own cookie policies. We do not control third-party cookies beyond the access controls we configure.</p>
             </Section>
 
             <Section title="8. Contact Us">
               <p style={P}>
-                TODO: If you have any questions about our use of cookies, contact us at{' '}
+                If you have any questions about our use of cookies, contact us at{' '}
                 <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>
                 {' '}or visit our{' '}
                 <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>.
