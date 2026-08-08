@@ -38,7 +38,7 @@ const LISTINGS = [
   {
     id: 1, category: 'Textbooks',
     title: 'Business Law textbook — 3rd Edition',
-    desc: 'Great condition. Highlighted chapters 1–8. Perfect for 1st year business students.',
+    desc: 'Great condition. Highlighted chapters 1–8. Perfect for anyone starting business this year.',
     price: '€25', type: 'For Sale',
     poster: 'Emily', university: 'DCU',
     postedAgo: '2 hours ago', accent: '#2D4B8E',
@@ -70,7 +70,7 @@ const LISTINGS = [
   {
     id: 5, category: 'Textbooks',
     title: 'Anatomy and Physiology — Tortora, 16th Ed',
-    desc: 'Nursing and healthcare students — used for one year, some annotation. Selling well below college shop price.',
+    desc: 'Nursing and healthcare — used for one year, some annotation. Selling well below college shop price.',
     price: '€35', type: 'For Sale',
     poster: 'Nicole', university: 'Maynooth University',
     postedAgo: '1 day ago', accent: '#2D4B8E',
@@ -93,8 +93,8 @@ const LISTINGS = [
   },
   {
     id: 8, category: 'Gigs',
-    title: 'Campus rep wanted for student events brand',
-    desc: 'Paid role promoting student events on your campus. Flexible, commission-based. Contact via the app.',
+    title: 'Campus rep wanted for events brand',
+    desc: 'Paid role promoting events on your campus. Flexible, commission-based. Contact via the app.',
     price: 'Commission', type: 'Paid gig',
     poster: 'Sofia', university: 'DCU',
     postedAgo: '2 days ago', accent: '#4C1D95',
@@ -102,7 +102,7 @@ const LISTINGS = [
   {
     id: 9, category: 'Accommodation',
     title: 'Seeking accommodation near UL campus',
-    desc: 'Final year student looking for a room or studio near University of Limerick from September. Budget €700.',
+    desc: 'Looking for a room or studio near University of Limerick from September. Budget €700.',
     price: 'Budget €700 / mo', type: 'Seeking',
     poster: 'Emma', university: 'UL',
     postedAgo: '3 days ago', accent: '#1E3A5F',
@@ -110,7 +110,7 @@ const LISTINGS = [
   {
     id: 10, category: 'Items',
     title: 'MacBook Air M1 — 2021, 8GB, 256GB',
-    desc: 'Used for two years, excellent condition, original charger included. Ideal for students. No issues.',
+    desc: 'Used for two years, excellent condition, original charger included. No issues.',
     price: '€680', type: 'For Sale',
     poster: 'Mohammed', university: 'DCU',
     postedAgo: '3 days ago', accent: '#134E4A',
@@ -118,7 +118,7 @@ const LISTINGS = [
   {
     id: 11, category: 'Services',
     title: 'Proofreading and editing for essays',
-    desc: 'Final year English and Media student. 24-hr turnaround, cover letters and essays. Rate per 1000 words.',
+    desc: 'English and Media grad. 24-hr turnaround, cover letters and essays. Rate per 1000 words.',
     price: '€15 / 1000 words', type: 'Service',
     poster: 'Mairead', university: 'DCU',
     postedAgo: '4 days ago', accent: '#7C3500',
@@ -348,7 +348,7 @@ export default function AdBoardPage() {
             marginTop: '16px', maxWidth: '460px',
             margin: '16px auto 0', lineHeight: 1.65,
           }}>
-            The student marketplace built into UniBlueprint. Textbooks, services, accommodation, gigs, and more.
+            The peer marketplace built into UniBlueprint. Textbooks, services, accommodation, gigs, and more.
           </p>
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
             {CATEGORIES.slice(1).map(cat => {

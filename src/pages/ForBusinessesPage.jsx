@@ -236,7 +236,7 @@ export default function ForBusinessesPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.65)',
             marginTop: '16px', lineHeight: 1.7,
           }}>
-            UniBlueprint connects you directly with the student and young adult market across Ireland through the Lifestyle Blueprint deals section and Campus Connect boards.
+            UniBlueprint connects you directly with young people across Ireland through the Lifestyle Blueprint deals section and Campus Connect boards.
           </p>
 
           <button
@@ -271,7 +271,7 @@ export default function ForBusinessesPage() {
             fontSize: 'clamp(26px, 3.5vw, 38px)', color: '#1E3A5F',
             marginTop: '10px', lineHeight: 1.15,
           }}>
-            The student audience, curated.
+            A focused audience, curated.
           </h2>
 
           <div className="biz-value-grid">
@@ -414,7 +414,7 @@ export default function ForBusinessesPage() {
                 </FormField>
               </div>
               <FormField label="Tell us about the deal you want to offer" hint="Include details about the offer you'd like to list for young people.">
-                <FormTextarea value={form.message} onChange={set('message')} placeholder="We'd like to offer 10% off all orders for verified students..." rows={5} />
+                <FormTextarea value={form.message} onChange={set('message')} placeholder="We'd like to offer 10% off all orders for verified members..." rows={5} />
               </FormField>
 
               <FormConsent />

@@ -83,7 +83,7 @@ const BLOG_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'Blog',
   name: 'UniBlueprint Insights',
-  description: 'Career tips, platform updates, and guides for students and young people in Ireland',
+  description: 'Career tips, platform updates, and guides for young people across all pathways in Ireland',
 }
 
 function PostCard({ slug, title, excerpt, category, date, sections }) {
@@ -177,7 +177,7 @@ export default function BlogPage() {
     <>
       <Helmet>
         <title>{safePage > 1 ? `Blog — Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
-        <meta name="description" content="Career tips, platform updates, and guides for students and young people in Ireland from the UniBlueprint team." />
+        <meta name="description" content="Career tips, platform updates, and guides for young people across all pathways in Ireland from the UniBlueprint team." />
         <link rel="canonical" href={canonical} />
         {/* TODO: Uncomment before going live — adds noindex on paginated pages beyond page 1 to prevent duplicate content penalties */}
         {/* {safePage > 1 && <meta name="robots" content="noindex, follow" />} */}
@@ -199,7 +199,7 @@ export default function BlogPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '480px', lineHeight: 1.6,
         }}>
-          Career tips, platform updates, and guides for students and young people in Ireland.
+          Career tips, platform updates, and guides for young people across all pathways in Ireland.
         </p>
       </section>
 

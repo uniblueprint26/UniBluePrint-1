@@ -306,7 +306,7 @@ const PILLARS_DATA = [
   {
     name: 'Ad Board',
     slogan: 'Buy. Sell. Connect.',
-    description: 'The student marketplace. Post services, sell items, find gigs, and connect with other young people across campuses and counties.',
+    description: 'The peer marketplace. Post services, sell items, find gigs, and connect with other young people across campuses and counties.',
     href: '/ad-board',
     icon: Megaphone,
     accent: '#1B4B5A',
@@ -721,9 +721,9 @@ export default function HomePage() {
     <>
       <Helmet>
         <title>UniBlueprint — The Structure Behind Your Success</title>
-        <meta name="description" content="The all-in-one platform for students, apprentices, and young people across Ireland. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta name="description" content="The all-in-one platform for young people across Ireland — every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta property="og:title" content="UniBlueprint — The Structure Behind Your Success" />
-        <meta property="og:description" content="The all-in-one platform for students, apprentices, and young people across Ireland. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta property="og:description" content="The all-in-one platform for young people across Ireland — every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta name="twitter:card" content="summary_large_image" />
         <style>{PAGE_STYLES}</style>
         <script type="application/ld+json">{JSON.stringify({
@@ -731,7 +731,7 @@ export default function HomePage() {
           '@type': 'Organization',
           name: 'UniBlueprint',
           url: 'https://uniblueprint.com',
-          description: 'The all-in-one platform for students, apprentices, and young people across Ireland.',
+          description: 'The all-in-one platform for young people across Ireland — every pathway, every ambition.',
           sameAs: ['https://www.instagram.com/uniblueprint26', 'https://www.tiktok.com/@uniblueprint26'],
           address: { '@type': 'PostalAddress', addressCountry: 'IE' },
         })}</script>
@@ -958,7 +958,7 @@ export default function HomePage() {
             {[
               {
                 Icon: UserCheck, title: 'Campus Handler',
-                body: 'Trained students who review every Foundation Blueprint submission — CVs, essays, and applications — before it reaches you.',
+                body: 'Trained reviewers who check every Foundation Blueprint submission — CVs, essays, and applications — before it reaches you.',
                 cta: 'Become a Handler →', href: '/join#handler-form',
               },
               {

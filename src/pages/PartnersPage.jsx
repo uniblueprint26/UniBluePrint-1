@@ -25,31 +25,31 @@ const LIFESTYLE_PARTNERS = [
     name: 'Whip Wizardz',
     logo: whipWizardzLogo,
     category: 'Automotive & Transport',
-    description: 'Exclusive student rates on car sales and sourcing. Show your UniBlueprint Pro badge to redeem.',
+    description: 'Exclusive member rates on car sales and sourcing. Show your UniBlueprint Pro badge to redeem.',
   },
   {
     name: 'The Nail Nurse',
     tnn: true,
     category: 'Beauty & Wellness',
-    description: 'Exclusive student discount on professional nail services for UniBlueprint Pro subscribers.',
+    description: 'Exclusive member discount on professional nail services for UniBlueprint Pro subscribers.',
   },
   {
     name: 'JMC Fitness',
     logo: jmcFitnessLogo,
     category: 'Fitness & Wellbeing',
-    description: 'Student membership rates and exclusive coaching offers for UniBlueprint Pro subscribers.',
+    description: 'Exclusive membership rates and coaching offers for UniBlueprint Pro subscribers.',
   },
   {
     name: 'NYZ3DITZ Studio',
     logo: nyz3ditzLogo,
     category: 'Creative & Media',
-    description: 'Student rates on professional video editing and photography for content creators and personal projects.',
+    description: 'Member rates on professional video editing and photography for content creators and personal projects.',
   },
   {
     name: 'Energie Fitness',
     logo: energieFitnessLogo,
     category: 'Fitness & Wellbeing',
-    description: 'Reduced student membership rates at Energie Fitness gyms across Ireland.',
+    description: 'Reduced membership rates at Energie Fitness gyms across Ireland.',
   },
   {
     name: 'Emmanuel Fasanmi Grinds',
@@ -258,10 +258,10 @@ export default function PartnersPage() {
         <title>Our Partners | UniBlueprint</title>
         <meta
           name="description"
-          content="The businesses, brands, and platforms that make UniBlueprint stronger for every student, apprentice, and young person in Ireland."
+          content="The businesses, brands, and platforms that make UniBlueprint stronger for every young person across Ireland, whatever pathway they are on."
         />
         <meta property="og:title" content="Our Partners | UniBlueprint" />
-        <meta property="og:description" content="The businesses, brands, and platforms that make UniBlueprint stronger for every student, apprentice, and young person in Ireland." />
+        <meta property="og:description" content="The businesses, brands, and platforms that make UniBlueprint stronger for every young person across Ireland, whatever pathway they are on." />
       </Helmet>
 
       <div style={{ background: '#F5F0E8' }}>
@@ -280,7 +280,7 @@ export default function PartnersPage() {
             fontSize: '18px', color: '#6B7280',
             margin: '16px auto 0', maxWidth: '600px', lineHeight: 1.7,
           }}>
-            The businesses, brands, and platforms that make UniBlueprint stronger for every student, apprentice, and young person in Ireland.
+            The businesses, brands, and platforms that make UniBlueprint stronger for every young person across Ireland, whatever pathway they are on.
           </p>
         </section>
 
@@ -318,7 +318,7 @@ export default function PartnersPage() {
               marginTop: '8px', maxWidth: '560px', margin: '8px auto 0',
               lineHeight: 1.6,
             }}>
-              Ireland's AI-powered CAO course matching platform — helping students find the right course, pathway, and career direction.
+              Ireland's AI-powered CAO course matching platform — helping young people find the right course, pathway, and career direction.
             </p>
 
             <span style={{
@@ -406,7 +406,7 @@ export default function PartnersPage() {
             fontSize: '16px', color: 'rgba(245,240,232,0.7)',
             margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.7,
           }}>
-            Reach students, apprentices, and young people across Ireland. UniBlueprint Pro subscribers are actively looking for the right deals.
+            Reach young people across Ireland — college, apprenticeship, and every pathway in between. UniBlueprint Pro subscribers are actively looking for the right deals.
           </p>
           <Link
             to="/for-businesses"

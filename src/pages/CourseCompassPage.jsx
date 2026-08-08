@@ -44,7 +44,7 @@ const COMPASSES = [
   {
     icon: Award,
     name: 'Scholarship Compass',
-    description: 'Find funding, grants, bursaries, and scholarships available to Irish students at home and abroad.',
+    description: 'Find funding, grants, bursaries, and scholarships available to young people in Ireland at home and abroad.',
     href: CC_URL,
   },
 ]
@@ -142,9 +142,9 @@ export default function CourseCompassPage() {
     <>
       <Helmet>
         <title>Course Compass | UniBlueprint</title>
-        <meta name="description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance. Course Compass helps Irish students find their direction." />
+        <meta name="description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance. Course Compass helps young people in Ireland find their direction across every pathway." />
         <meta property="og:title" content="Course Compass | UniBlueprint" />
-        <meta property="og:description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance for Irish students." />
+        <meta property="og:description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance for young people in Ireland — every pathway covered." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
@@ -180,7 +180,7 @@ export default function CourseCompassPage() {
             marginTop: '16px', lineHeight: 1.7,
           }}>
             Guidance for every direction. Six compasses covering the decisions
-            Irish students face most — from CAO choices to career paths, postgrad
+            young people in Ireland face most — from CAO choices to career paths, apprenticeships, postgrad
             programmes, and everything in between.
           </p>
           <a
@@ -254,7 +254,7 @@ export default function CourseCompassPage() {
             fontSize: 'clamp(24px, 3vw, 36px)', color: '#1E3A5F',
             lineHeight: 1.15,
           }}>
-            Built for Irish students, by someone who has been through it
+            Built for young people in Ireland, by someone who has been through it
           </h2>
 
           {/* Pull quote */}
@@ -284,9 +284,9 @@ export default function CourseCompassPage() {
             marginTop: '16px', lineHeight: 1.7,
           }}>
             Course Compass is a guidance resource created to help young people in
-            Ireland navigate the decisions that matter most: what to study, where
-            to apply, how to get a foot in the door, and where to go next.
-            Available through the UniBlueprint app and directly at coursecompass.ie.
+            Ireland navigate the decisions that matter most: what to study, which
+            apprenticeship to pursue, where to apply, how to get a foot in the door,
+            and where to go next. Available through the UniBlueprint app and directly at coursecompass.ie.
           </p>
           <a
             href={CC_URL}

@@ -86,7 +86,7 @@ function LifestyleScreen() {
 
       {/* Deal cards */}
       {[
-        { name: 'Energie Fitness', sub: 'Student membership',  pct: '€37.99/mo', locked: false, bg: '#0369A1' },
+        { name: 'Energie Fitness', sub: 'Member rate',  pct: '€37.99/mo', locked: false, bg: '#0369A1' },
         { name: 'JMC Fitness',     sub: 'Sports coaching',     pct: 'From €50',  locked: true,  bg: '#166534' },
         { name: 'MPFitness',       sub: 'Personal training',   pct: 'From €150', locked: true,  bg: '#15803D' },
       ].map((d, i) => (
@@ -137,7 +137,7 @@ const FEATURES = [
   { Icon: UtensilsCrossed, title: 'Food & Drink',  desc: 'Discounts at restaurants and cafes across Ireland.' },
   { Icon: Dumbbell,        title: 'Fitness',        desc: 'Reduced gym memberships and class passes.' },
   { Icon: ShoppingBag,     title: 'Shopping',       desc: 'Discounts at clothing and lifestyle brands.' },
-  { Icon: Plane,           title: 'Travel',         desc: 'Deals on buses, trains, and student travel.' },
+  { Icon: Plane,           title: 'Travel',         desc: 'Deals on buses, trains, and getting around Ireland.' },
   { Icon: Ticket,          title: 'Entertainment',  desc: 'Cinema, events, and experiences at reduced prices.' },
   { Icon: Heart,           title: 'Mental Health',  desc: 'Free resources, helplines, and wellbeing tools.', free: true },
 ]
@@ -151,7 +151,7 @@ const DEALS = {
   'Fitness': [
     { brand: 'Energie Fitness',    deal: '15% off membership',  locked: true },
     { brand: 'Online PT Sessions', deal: 'First session free',  locked: true },
-    { brand: 'Yoga Studio',        deal: '€8 student class pass', locked: true },
+    { brand: 'Yoga Studio',        deal: '€8 member class pass', locked: true },
   ],
   'Shopping': [
     { brand: 'Campus Bookshop', deal: '10% off all titles',  locked: true },
@@ -159,12 +159,12 @@ const DEALS = {
     { brand: 'Urban Threads',   deal: '15% off clothing',    locked: true },
   ],
   'Travel': [
-    { brand: 'Bus Eireann', deal: 'Student Leap Card rate',    locked: true },
+    { brand: 'Bus Eireann', deal: 'Young adult Leap Card rate', locked: true },
     { brand: 'Irish Rail',   deal: '25% off off-peak fares',   locked: true },
     { brand: 'Dublin Bikes', deal: 'First 3 months free',      locked: true },
   ],
   'Entertainment': [
-    { brand: 'Omniplex Cinema', deal: '€7 student tickets',  locked: true },
+    { brand: 'Omniplex Cinema', deal: '€7 member tickets',  locked: true },
     { brand: 'Campus Events',   deal: 'Early access tickets', locked: true },
     { brand: 'Streaming+',      deal: '3 months half price',  locked: true },
   ],
@@ -186,25 +186,128 @@ const STEPS = [
 const COUNTY_PARTNERS = [
   {
     id: 'dublin', name: 'Dublin', cx: 259, cy: 200,
-    total: 7,
+    total: 14,
     breakdown: [
-      { category: 'Personal Training', count: 1 },   // MPFitness (Milan)
-      { category: 'Gym Membership',    count: 1 },   // Energie Fitness
-      { category: 'Sports Coaching',   count: 1 },   // JMC Fitness
-      { category: 'Photography & Video', count: 1 }, // Nyz3ditz (Nathan)
-      { category: 'Lash Tech',         count: 2 },   // Chloe May House · Lash Lux Dublin
-      { category: 'Digital Marketing', count: 1 },   // Leva Impact
+      { category: 'Fitness & PT',       count: 4 },
+      { category: 'Beauty',             count: 3 },
+      { category: 'Photography',        count: 2 },
+      { category: 'Digital Marketing',  count: 2 },
+      { category: 'Automotive',         count: 1 },
+      { category: 'Food & Drink',       count: 1 },
+      { category: 'Creative',           count: 1 },
+    ],
+  },
+  {
+    id: 'cork', name: 'Cork', cx: 142, cy: 362,
+    total: 8,
+    breakdown: [
+      { category: 'Fitness & PT',  count: 3 },
+      { category: 'Beauty',        count: 2 },
+      { category: 'Food & Drink',  count: 2 },
+      { category: 'Creative',      count: 1 },
+    ],
+  },
+  {
+    id: 'galway', name: 'Galway', cx: 64, cy: 232,
+    total: 6,
+    breakdown: [
+      { category: 'Beauty & Nail Tech', count: 3 },
+      { category: 'Fitness',            count: 2 },
+      { category: 'Food & Drink',       count: 1 },
+    ],
+  },
+  {
+    id: 'limerick', name: 'Limerick', cx: 94, cy: 296,
+    total: 5,
+    breakdown: [
+      { category: 'Fitness & PT', count: 2 },
+      { category: 'Beauty',       count: 2 },
+      { category: 'Automotive',   count: 1 },
+    ],
+  },
+  {
+    id: 'meath', name: 'Meath', cx: 228, cy: 174,
+    total: 4,
+    breakdown: [
+      { category: 'Fitness',     count: 2 },
+      { category: 'Beauty',      count: 1 },
+      { category: 'Automotive',  count: 1 },
+    ],
+  },
+  {
+    id: 'kildare', name: 'Kildare', cx: 218, cy: 224,
+    total: 4,
+    breakdown: [
+      { category: 'Fitness & PT',  count: 2 },
+      { category: 'Photography',   count: 1 },
+      { category: 'Hair',          count: 1 },
     ],
   },
   {
     id: 'louth', name: 'Louth', cx: 254, cy: 148,
-    total: 1,
-    breakdown: [{ category: 'Automotive', count: 1 }], // Whip Wizardz (Jonesborough)
+    total: 3,
+    breakdown: [
+      { category: 'Automotive',   count: 1 },
+      { category: 'Fitness',      count: 1 },
+      { category: 'Food & Drink', count: 1 },
+    ],
   },
   {
-    id: 'galway', name: 'Galway', cx: 64, cy: 232,
-    total: 1,
-    breakdown: [{ category: 'Nail Tech', count: 1 }], // The Nail Nurse
+    id: 'waterford', name: 'Waterford', cx: 212, cy: 344,
+    total: 3,
+    breakdown: [
+      { category: 'Beauty',        count: 2 },
+      { category: 'Food & Drink',  count: 1 },
+    ],
+  },
+  {
+    id: 'tipperary', name: 'Tipperary', cx: 152, cy: 298,
+    total: 3,
+    breakdown: [
+      { category: 'Fitness',      count: 2 },
+      { category: 'Automotive',   count: 1 },
+    ],
+  },
+  {
+    id: 'kerry', name: 'Kerry', cx: 58, cy: 342,
+    total: 3,
+    breakdown: [
+      { category: 'Fitness',       count: 1 },
+      { category: 'Photography',   count: 1 },
+      { category: 'Food & Drink',  count: 1 },
+    ],
+  },
+  {
+    id: 'wexford', name: 'Wexford', cx: 246, cy: 330,
+    total: 2,
+    breakdown: [
+      { category: 'Beauty',        count: 1 },
+      { category: 'Food & Drink',  count: 1 },
+    ],
+  },
+  {
+    id: 'kilkenny', name: 'Kilkenny', cx: 198, cy: 308,
+    total: 2,
+    breakdown: [
+      { category: 'Fitness',       count: 1 },
+      { category: 'Food & Drink',  count: 1 },
+    ],
+  },
+  {
+    id: 'mayo', name: 'Mayo', cx: 60, cy: 148,
+    total: 2,
+    breakdown: [
+      { category: 'Fitness',  count: 1 },
+      { category: 'Beauty',   count: 1 },
+    ],
+  },
+  {
+    id: 'sligo', name: 'Sligo', cx: 90, cy: 112,
+    total: 2,
+    breakdown: [
+      { category: 'Fitness',   count: 1 },
+      { category: 'Creative',  count: 1 },
+    ],
   },
 ]
 

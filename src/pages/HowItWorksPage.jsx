@@ -73,11 +73,11 @@ const FAQS = [
   },
   {
     q: 'What is the difference between a Campus Handler and a Uni Coach?',
-    a: 'Campus Handlers are trained university students who review every Foundation Blueprint output before it reaches you. Uni Coaches are verified specialists who deliver Elevation Blueprint services — coaching, mentorship, and strategy — over a defined engagement.',
+    a: 'Campus Handlers are trained reviewers at your institution who check every Foundation Blueprint output before it reaches you. Uni Coaches are verified specialists who deliver Elevation Blueprint services — coaching, mentorship, and strategy — over a defined engagement.',
   },
   {
-    q: 'Can I use UniBlueprint if I am not a student?',
-    a: 'UniBlueprint is for young people across Ireland — university students, college students, apprentices, 5th and 6th year students, and young workers. Whether you are preparing for your first job, applying to college, building your career, or looking for deals near your campus — UniBlueprint has something for you.',
+    q: 'Who is UniBlueprint for?',
+    a: 'UniBlueprint is for young people across Ireland on every pathway — university, college, apprenticeship, PLC, 5th and 6th year, and those already in work. Whether you are applying to college, starting an apprenticeship, building your career, or looking for deals near your campus — UniBlueprint has something for you.',
   },
   {
     q: 'Is my information kept private?',

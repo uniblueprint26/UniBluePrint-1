@@ -11,11 +11,11 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'What is UniBlueprint?',
-        a: 'UniBlueprint is an all-in-one platform for students, apprentices, and young people across Ireland. It gives you access to professional career support through Foundation Blueprint, expert coaching and strategy through Elevation Blueprint, exclusive lifestyle deals through Lifestyle Blueprint, campus community features through Campus Connect, and cross-Ireland student networking through Course Connect. Everything in one place — built specifically for the Irish student and young person experience.',
+        a: 'UniBlueprint is an all-in-one platform for young people across Ireland, whatever pathway you are on. It gives you access to professional career support through Foundation Blueprint, expert coaching and strategy through Elevation Blueprint, exclusive lifestyle deals through Lifestyle Blueprint, campus community features through Campus Connect, and cross-Ireland networking through Course Connect. Everything in one place — built for the full range of Irish youth experiences.',
       },
       {
         q: 'Who is UniBlueprint for?',
-        a: 'UniBlueprint is for university students, college students, apprentices, 5th and 6th year students, and young workers across Ireland. Whether you are preparing for your first job, applying to college, building your career, or just looking for student deals near your campus — UniBlueprint has something for you.',
+        a: 'UniBlueprint is for young people across Ireland on every pathway: university, college, apprenticeship, PLC, 5th and 6th year, and those already in work. Whether you are applying for college, starting an apprenticeship, building your career, or looking for deals near your campus — UniBlueprint has something for you.',
       },
       {
         q: 'Is UniBlueprint free?',
@@ -61,7 +61,7 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'What is a Campus Handler?',
-        a: 'A Campus Handler is a trained university student who reviews every Foundation Blueprint output before it reaches you. They check the quality, accuracy, and relevance of the AI-generated foundation against a structured checklist. You never receive a raw AI output — a real student has reviewed it first.',
+        a: 'A Campus Handler is a trained reviewer on your campus who checks every Foundation Blueprint output before it reaches you. They verify the quality, accuracy, and relevance of the AI-generated foundation against a structured checklist. You never receive a raw AI output — a real person has reviewed it first.',
       },
       {
         q: 'How long does Foundation Blueprint take?',
@@ -150,7 +150,7 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'How do I become a Campus Handler?',
-        a: 'You must be a current university student in Ireland. Apply at uniblueprint.com/join. Applications for September 2026 are open now.',
+        a: 'You must be currently enrolled at an Irish university or college. Apply at uniblueprint.com/join. Applications for September 2026 are open now.',
       },
       {
         q: 'How much do Campus Handlers earn?',
