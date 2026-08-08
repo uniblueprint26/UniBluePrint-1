@@ -48,7 +48,7 @@ export default function RefundPolicyPage() {
             </Section>
 
             <Section title="2. Your Right to Cancel (14-Day Cooling-Off Period)">
-              <p style={P}>Under the Consumer Rights Act 2022, you have the right to cancel a Pro subscription within 14 days of purchase without giving any reason (the "cooling-off period"). To exercise this right, contact us at <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a> before the 14-day period expires. If you cancel within this window, we will issue a full refund within 14 days via the original payment method.</p>
+              <p style={P}>Under the Consumer Rights Act 2022, you have the right to cancel a Pro subscription within 14 days of purchase without giving any reason (the "cooling-off period"). To exercise this right, contact us at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a> before the 14-day period expires. If you cancel within this window, we will issue a full refund within 14 days via the original payment method.</p>
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Important:</strong> where you have used a Foundation Blueprint or Elevation Blueprint service during the cooling-off period, you expressly request and acknowledge that we begin performing the service immediately. In that case, you may be charged pro-rata for services already delivered, in accordance with Article 16(m) of the Consumer Rights Directive. This acknowledgement is collected during the checkout flow.</p>
             </Section>
 
@@ -65,7 +65,7 @@ export default function RefundPolicyPage() {
             <Section title="4. Pro Subscription Cancellation">
               <p style={P}>Pro subscriptions may be cancelled at any time via Account Settings. Cancellation takes effect at the end of the current billing period, and access to Pro features continues until that date.</p>
               <p style={P}>We do not issue prorated refunds for the unused portion of a billing period on cancellation, except as required by law or as set out in Section 6 (Exceptional Refund Circumstances) below.</p>
-              <p style={P}>If you believe you were charged incorrectly, contact us within 7 days of the charge at <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a> with your account email and details of the charge.</p>
+              <p style={P}>If you believe you were charged incorrectly, contact us within 7 days of the charge at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a> with your account email and details of the charge.</p>
             </Section>
 
             <Section title="5. Foundation Blueprint Services">
@@ -86,7 +86,7 @@ export default function RefundPolicyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>No content within 48 hours:</strong> a Foundation Blueprint or Elevation Blueprint service is accepted but no output or communication is provided by the assigned Handler or Coach within 48 hours.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Service discontinued:</strong> UniBlueprint discontinues a paid service you have purchased and cannot fulfil it.</li>
               </ul>
-              <p style={P}>Exceptional refund decisions are made at UniBlueprint's sole discretion. To request consideration, contact us at <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a> with full details.</p>
+              <p style={P}>Exceptional refund decisions are made at UniBlueprint's sole discretion. To request consideration, contact us at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a> with full details.</p>
             </Section>
 
             <Section title="8. Non-Refundable Items">
@@ -103,7 +103,7 @@ export default function RefundPolicyPage() {
             <Section title="9. How to Request a Refund">
               <p style={P}>
                 To request a refund, contact us at{' '}
-                <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
                 {' '}with: your full name, account email address, the service or charge in question, and the reason for your request. Alternatively, use the{' '}
                 <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>.
               </p>
@@ -141,7 +141,7 @@ export default function RefundPolicyPage() {
             <Section title="13. Contact Us">
               <p style={P}>
                 For any refund-related queries, email{' '}
-                <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
                 {' '}or use the <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>. Our team responds within 2 business days.
               </p>
             </Section>

@@ -82,7 +82,7 @@ export default function TermsPage() {
               <p style={P}>You are responsible for maintaining the security and confidentiality of your account credentials, including your password. You must not share your credentials with any other person. You are solely liable for all activity that occurs under your Account.</p>
               <p style={P}>
                 If you become aware of any unauthorised use of your Account, you must notify us immediately at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>.
                 {' '}UniBlueprint will not be liable for any loss arising from unauthorised use of your Account where you have failed to maintain the security of your credentials.
               </p>
             </Section>
@@ -182,10 +182,18 @@ export default function TermsPage() {
               <p style={P}>Your continued use of UniBlueprint after the effective date of any changes constitutes your acceptance of the revised Terms. If you do not agree to the revised Terms, you must stop using UniBlueprint and close your Account before the changes take effect.</p>
             </Section>
 
-            <Section title="18. Contact Us">
+            <Section title="18. General Provisions">
+              <p style={P}><strong style={{ color: '#1E3A5F' }}>Severability.</strong> If any provision of these Terms is found by a court of competent jurisdiction to be invalid, illegal, or unenforceable, that provision will be modified to the minimum extent necessary to make it enforceable, or if it cannot be modified, it will be severed from these Terms. The remaining provisions will continue in full force and effect.</p>
+              <p style={P}><strong style={{ color: '#1E3A5F' }}>Entire agreement.</strong> These Terms, together with the Privacy Policy, Cookie Policy, and Refund Policy, constitute the entire agreement between you and UniBlueprint Ltd with respect to your use of the Platform and supersede all prior agreements, representations, and understandings.</p>
+              <p style={P}><strong style={{ color: '#1E3A5F' }}>Waiver.</strong> A failure by UniBlueprint to enforce any right or provision of these Terms at any time does not constitute a waiver of that right or provision and does not prevent UniBlueprint from enforcing it at a later date.</p>
+              <p style={P}><strong style={{ color: '#1E3A5F' }}>Assignment.</strong> You may not assign or transfer your rights or obligations under these Terms without our prior written consent. UniBlueprint may assign its rights and obligations under these Terms to any affiliate, successor, or purchaser of all or substantially all of its assets.</p>
+              <p style={P}><strong style={{ color: '#1E3A5F' }}>Force majeure.</strong> UniBlueprint will not be liable for any delay or failure to perform its obligations where such failure results from circumstances beyond its reasonable control, including but not limited to acts of God, power failures, server outages at third-party providers, or internet disruptions. We will restore the service as soon as reasonably practicable.</p>
+            </Section>
+
+            <Section title="19. Contact Us">
               <p style={P}>
                 If you have any questions about these Terms, please contact us at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
                 {' '}or via the{' '}
                 <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>.
               </p>

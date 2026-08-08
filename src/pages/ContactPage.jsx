@@ -355,8 +355,8 @@ export default function ContactPage() {
             textAlign: 'center', marginTop: '20px',
           }}>
             You can also reach us at{' '}
-            <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>
-              hello@uniblueprint.com
+            <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>
+              uniblueprintoperations@gmail.com
             </a>
           </p>
         </div>

@@ -61,7 +61,7 @@ export default function AccessibilityPage() {
             <Section title="How to Request Accessible Content">
               <p style={P}>
                 TODO: If you need content in an accessible format — for example, a PDF in plain text, or a service output in a screen-reader-friendly format — please contact us at{' '}
-                <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
                 {' '}with a description of what you need. We will do our best to provide an accessible version within 5 business days.
               </p>
             </Section>
@@ -70,7 +70,7 @@ export default function AccessibilityPage() {
               <p style={P}>TODO: If you experience an accessibility barrier on the UniBlueprint platform, or have feedback on how we can improve, please contact us:</p>
               <p style={P}>
                 Email:{' '}
-                <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
               </p>
               <p style={P}>
                 Contact form:{' '}

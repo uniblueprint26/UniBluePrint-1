@@ -149,7 +149,7 @@ export default function CookiesPage() {
             <Section title="9. Contact Us">
               <p style={P}>
                 If you have any questions about our use of cookies, contact us at{' '}
-                <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>hello@uniblueprint.com</a>
+                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
                 {' '}or visit our{' '}
                 <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>.
               </p>
