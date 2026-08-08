@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart } from 'lucide-react'
+import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -183,132 +183,51 @@ const STEPS = [
 
 // ─── Ireland partner map ───────────────────────────────────────────────────────
 
-const COUNTY_PARTNERS = [
-  {
-    id: 'dublin', name: 'Dublin', cx: 259, cy: 200,
-    total: 14,
-    breakdown: [
-      { category: 'Fitness & PT',       count: 4 },
-      { category: 'Beauty',             count: 3 },
-      { category: 'Photography',        count: 2 },
-      { category: 'Digital Marketing',  count: 2 },
-      { category: 'Automotive',         count: 1 },
-      { category: 'Food & Drink',       count: 1 },
-      { category: 'Creative',           count: 1 },
-    ],
-  },
-  {
-    id: 'cork', name: 'Cork', cx: 142, cy: 362,
-    total: 8,
-    breakdown: [
-      { category: 'Fitness & PT',  count: 3 },
-      { category: 'Beauty',        count: 2 },
-      { category: 'Food & Drink',  count: 2 },
-      { category: 'Creative',      count: 1 },
-    ],
-  },
-  {
-    id: 'galway', name: 'Galway', cx: 64, cy: 232,
-    total: 6,
-    breakdown: [
-      { category: 'Beauty & Nail Tech', count: 3 },
-      { category: 'Fitness',            count: 2 },
-      { category: 'Food & Drink',       count: 1 },
-    ],
-  },
-  {
-    id: 'limerick', name: 'Limerick', cx: 94, cy: 296,
-    total: 5,
-    breakdown: [
-      { category: 'Fitness & PT', count: 2 },
-      { category: 'Beauty',       count: 2 },
-      { category: 'Automotive',   count: 1 },
-    ],
-  },
-  {
-    id: 'meath', name: 'Meath', cx: 228, cy: 174,
-    total: 4,
-    breakdown: [
-      { category: 'Fitness',     count: 2 },
-      { category: 'Beauty',      count: 1 },
-      { category: 'Automotive',  count: 1 },
-    ],
-  },
-  {
-    id: 'kildare', name: 'Kildare', cx: 218, cy: 224,
-    total: 4,
-    breakdown: [
-      { category: 'Fitness & PT',  count: 2 },
-      { category: 'Photography',   count: 1 },
-      { category: 'Hair',          count: 1 },
-    ],
-  },
-  {
-    id: 'louth', name: 'Louth', cx: 254, cy: 148,
-    total: 3,
-    breakdown: [
-      { category: 'Automotive',   count: 1 },
-      { category: 'Fitness',      count: 1 },
-      { category: 'Food & Drink', count: 1 },
-    ],
-  },
-  {
-    id: 'waterford', name: 'Waterford', cx: 212, cy: 344,
-    total: 3,
-    breakdown: [
-      { category: 'Beauty',        count: 2 },
-      { category: 'Food & Drink',  count: 1 },
-    ],
-  },
-  {
-    id: 'tipperary', name: 'Tipperary', cx: 152, cy: 298,
-    total: 3,
-    breakdown: [
-      { category: 'Fitness',      count: 2 },
-      { category: 'Automotive',   count: 1 },
-    ],
-  },
-  {
-    id: 'kerry', name: 'Kerry', cx: 58, cy: 342,
-    total: 3,
-    breakdown: [
-      { category: 'Fitness',       count: 1 },
-      { category: 'Photography',   count: 1 },
-      { category: 'Food & Drink',  count: 1 },
-    ],
-  },
-  {
-    id: 'wexford', name: 'Wexford', cx: 246, cy: 330,
-    total: 2,
-    breakdown: [
-      { category: 'Beauty',        count: 1 },
-      { category: 'Food & Drink',  count: 1 },
-    ],
-  },
-  {
-    id: 'kilkenny', name: 'Kilkenny', cx: 198, cy: 308,
-    total: 2,
-    breakdown: [
-      { category: 'Fitness',       count: 1 },
-      { category: 'Food & Drink',  count: 1 },
-    ],
-  },
-  {
-    id: 'mayo', name: 'Mayo', cx: 60, cy: 148,
-    total: 2,
-    breakdown: [
-      { category: 'Fitness',  count: 1 },
-      { category: 'Beauty',   count: 1 },
-    ],
-  },
-  {
-    id: 'sligo', name: 'Sligo', cx: 90, cy: 112,
-    total: 2,
-    breakdown: [
-      { category: 'Fitness',   count: 1 },
-      { category: 'Creative',  count: 1 },
-    ],
-  },
+// ─── Reach section data ───────────────────────────────────────────────────────
+
+// All 26 Republic of Ireland counties — positions only, no counts
+const COUNTY_DOTS = [
+  { id: 'dublin',    cx: 259, cy: 200, pulse: true  },
+  { id: 'cork',      cx: 142, cy: 362, pulse: true  },
+  { id: 'galway',    cx: 64,  cy: 232, pulse: true  },
+  { id: 'limerick',  cx: 94,  cy: 296 },
+  { id: 'waterford', cx: 212, cy: 344 },
+  { id: 'tipperary', cx: 152, cy: 298 },
+  { id: 'kerry',     cx: 58,  cy: 342 },
+  { id: 'wexford',   cx: 246, cy: 330 },
+  { id: 'kilkenny',  cx: 198, cy: 308 },
+  { id: 'meath',     cx: 228, cy: 174 },
+  { id: 'kildare',   cx: 218, cy: 224 },
+  { id: 'louth',     cx: 254, cy: 148 },
+  { id: 'wicklow',   cx: 262, cy: 252 },
+  { id: 'carlow',    cx: 218, cy: 298 },
+  { id: 'laois',     cx: 188, cy: 268 },
+  { id: 'offaly',    cx: 168, cy: 238 },
+  { id: 'westmeath', cx: 176, cy: 200 },
+  { id: 'longford',  cx: 156, cy: 188 },
+  { id: 'roscommon', cx: 110, cy: 186 },
+  { id: 'mayo',      cx: 60,  cy: 148 },
+  { id: 'sligo',     cx: 90,  cy: 112 },
+  { id: 'leitrim',   cx: 118, cy: 130 },
+  { id: 'cavan',     cx: 196, cy: 140 },
+  { id: 'monaghan',  cx: 214, cy: 128 },
+  { id: 'donegal',   cx: 108, cy: 52  },
+  { id: 'clare',     cx: 80,  cy: 258 },
+]
+
+const DEAL_CATEGORIES = [
+  { label: 'Fitness & PT',      Icon: Dumbbell        },
+  { label: 'Beauty',            Icon: Sparkles        },
+  { label: 'Photography',       Icon: Camera          },
+  { label: 'Food & Drink',      Icon: UtensilsCrossed },
+  { label: 'Automotive',        Icon: Car             },
+  { label: 'Digital Marketing', Icon: TrendingUp      },
+  { label: 'Hair & Styling',    Icon: Scissors        },
+  { label: 'Creative',          Icon: Palette         },
+  { label: 'Sports Coaching',   Icon: Trophy          },
+  { label: 'Clothing',          Icon: ShoppingBag     },
+  { label: 'Nail Tech',         Icon: Sparkles        },
+  { label: 'Wellness',          Icon: Leaf            },
 ]
 
 // Simplified Republic of Ireland SVG outline
@@ -322,150 +241,25 @@ const IRELAND_PATH =
   'L 122 73 L 106 60 L 100 48 L 116 36 L 136 26 L 152 18 L 166 12 ' +
   'L 178 9 L 185 12 Z'
 
-function IrelandMap() {
-  const [hoveredId, setHoveredId] = useState(null)
-  const active = COUNTY_PARTNERS.find(c => c.id === hoveredId)
-
-  return (
-    <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
-      {/* SVG map */}
-      <div style={{ position: 'relative', width: '320px', flexShrink: 0 }}>
-        <svg
-          viewBox="0 0 360 400"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
-          aria-label="Map of Ireland showing UniBlueprint lifestyle partner locations by county"
-        >
-          {/* Base fill */}
-          <path d={IRELAND_PATH} fill="#D9E4F0" stroke="#B8C8D8" strokeWidth="1.5" strokeLinejoin="round" />
-          {/* County dots */}
-          {COUNTY_PARTNERS.map(c => {
-            const active = hoveredId === c.id
-            const r = c.id === 'dublin' ? 16 : 10
-            return (
-              <g key={c.id} style={{ cursor: 'pointer' }}
-                onMouseEnter={() => setHoveredId(c.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onFocus={() => setHoveredId(c.id)}
-                onBlur={() => setHoveredId(null)}
-                role="button"
-                aria-label={`${c.name}: ${c.total} partner${c.total > 1 ? 's' : ''}`}
-                tabIndex={0}
-              >
-                {/* Halo ring */}
-                <circle
-                  cx={c.cx} cy={c.cy} r={r + 8}
-                  fill="none" stroke={ACCENT} strokeWidth={1.5}
-                  opacity={active ? 0.5 : 0}
-                  style={{ transition: 'opacity 200ms' }}
-                />
-                {/* Main dot */}
-                <circle
-                  cx={c.cx} cy={c.cy} r={r}
-                  fill={ACCENT}
-                  opacity={active ? 1 : 0.75}
-                  style={{ transition: 'all 200ms ease' }}
-                />
-                {/* Count label */}
-                <text
-                  x={c.cx} y={c.cy}
-                  textAnchor="middle" dominantBaseline="central"
-                  style={{
-                    fontFamily: 'DM Sans, sans-serif',
-                    fontSize: c.id === 'dublin' ? '9px' : '8px',
-                    fontWeight: 700, fill: '#fff', pointerEvents: 'none',
-                  }}
-                >
-                  {c.total}
-                </text>
-              </g>
-            )
-          })}
-        </svg>
-        {/* Legend */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF',
-          textAlign: 'center', marginTop: '8px',
-        }}>
-          Hover a marker to see partner breakdown
-        </p>
-      </div>
-
-      {/* Info panel */}
-      <div style={{ flex: 1, minWidth: '220px', maxWidth: '360px' }}>
-        {active ? (
-          <div style={{
-            background: '#FFFFFF', borderRadius: '14px', padding: '24px 26px',
-            boxShadow: '0 8px 24px rgba(30,58,95,0.10)',
-            border: '1px solid rgba(30,58,95,0.08)',
-          }}>
-            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', margin: 0 }}>
-              {active.name}
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', margin: '4px 0 18px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {active.total} partner{active.total > 1 ? 's' : ''}
-            </p>
-            {active.breakdown.map(b => (
-              <div key={b.category} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                gap: '16px', padding: '8px 0', borderBottom: '1px solid rgba(30,58,95,0.06)',
-              }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#4B5563' }}>
-                  {b.category}
-                </span>
-                <span style={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
-                  color: ACCENT, fontWeight: 700,
-                  background: `${ACCENT}10`, borderRadius: '4px', padding: '2px 8px',
-                }}>
-                  {b.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {COUNTY_PARTNERS.map(c => (
-              <div
-                key={c.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  background: '#FFFFFF', borderRadius: '10px', padding: '12px 16px',
-                  border: '1px solid rgba(30,58,95,0.07)',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={() => setHoveredId(c.id)}
-                onMouseLeave={() => setHoveredId(null)}
-              >
-                <div style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: ACCENT, flexShrink: 0,
-                }} />
-                <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#1E3A5F', flex: 1 }}>
-                  {c.name}
-                </span>
-                <span style={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
-                  color: ACCENT, background: `${ACCENT}12`, borderRadius: '4px', padding: '2px 8px',
-                }}>
-                  {c.total} partner{c.total > 1 ? 's' : ''}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 const PAGE_STYLES = `
   .lbp-hero { display: flex; align-items: center; gap: 48px; max-width: 1040px; margin: 0 auto; position: relative; z-index: 1; }
   .lbp-phone { flex-shrink: 0; }
   .lbp-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .lbp-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .lbp-reach-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 48px; align-items: center; margin-top: 64px; }
+  @keyframes lbpPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%       { opacity: 0.08; transform: scale(2.8); }
+  }
+  @media (max-width: 960px) {
+    .lbp-reach-grid { grid-template-columns: 1fr 1fr; }
+  }
   @media (max-width: 860px) {
     .lbp-hero { flex-direction: column; }
     .lbp-phone { display: none; }
+  }
+  @media (max-width: 600px) {
+    .lbp-reach-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 720px) { .lbp-feat-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .lbp-feat-grid { grid-template-columns: 1fr; } .lbp-steps-grid { grid-template-columns: 1fr; } }
@@ -682,19 +476,95 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — PARTNER MAP ──────────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-            <SectionLabel>Partner map</SectionLabel>
-            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F', marginTop: '10px', lineHeight: 1.12 }}>
-              Partners across Ireland
+      {/* ── SECTION 4 — REACH + CATEGORIES + PHONE ──────────────────────────── */}
+      <section style={{ background: '#1E3A5F', padding: '96px 24px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle, rgba(245,240,232,0.04) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
+
+        <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+
+          {/* Header */}
+          <div style={{ textAlign: 'center' }}>
+            <SectionLabel light>Where we are</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
+              Every county. Every category.
             </h2>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '12px', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
-              Hover any marker to see what is available in that county. More partners added weekly.
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.5)', marginTop: '12px', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
+              Lifestyle Blueprint covers the full range — fitness, beauty, photography, food, and more. Expanding across every corner of Ireland.
             </p>
           </div>
-          <IrelandMap />
+
+          {/* 3-column: map | phone | categories */}
+          <div className="lbp-reach-grid">
+
+            {/* Ireland map — presence only, no counts */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <svg
+                viewBox="0 0 360 400"
+                style={{ width: '100%', maxWidth: '260px', height: 'auto', display: 'block' }}
+                role="img"
+                aria-label="Map of Ireland showing UniBlueprint presence across all 26 counties"
+              >
+                <path d={IRELAND_PATH} fill="rgba(245,240,232,0.07)" stroke="rgba(245,240,232,0.2)" strokeWidth="1.5" strokeLinejoin="round" />
+                {COUNTY_DOTS.map(({ id, cx, cy, pulse }) => (
+                  <g key={id}>
+                    {pulse && (
+                      <circle
+                        cx={cx} cy={cy} r={6}
+                        fill={ACCENT}
+                        style={{ animation: 'lbpPulse 2.6s ease-in-out infinite', transformOrigin: `${cx}px ${cy}px` }}
+                      />
+                    )}
+                    <circle cx={cx} cy={cy} r={4} fill={ACCENT} opacity={0.9} />
+                  </g>
+                ))}
+              </svg>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
+                color: 'rgba(245,240,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                marginTop: '14px', textAlign: 'center',
+              }}>
+                26 counties · more partners weekly
+              </p>
+            </div>
+
+            {/* Phone mockup */}
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <PhoneMockup style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+                <LifestyleScreen />
+              </PhoneMockup>
+            </div>
+
+            {/* Category chips */}
+            <div>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
+                color: 'rgba(245,240,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                marginBottom: '18px',
+              }}>
+                Service categories
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {DEAL_CATEGORIES.map(({ label, Icon }) => (
+                  <div key={label} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '7px',
+                    padding: '9px 14px', borderRadius: '24px',
+                    background: 'rgba(245,240,232,0.07)',
+                    border: '1px solid rgba(245,240,232,0.11)',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 500,
+                    color: 'rgba(245,240,232,0.7)',
+                  }}>
+                    <Icon size={13} strokeWidth={1.8} color="rgba(245,240,232,0.5)" />
+                    {label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
