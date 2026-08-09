@@ -161,6 +161,12 @@ const PAGE_STYLES = `
   .sept-price-anim {
     animation: sept-price-in 220ms ease forwards;
   }
+  .sept-cta-heading {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(28px, 4vw, 44px);
+    color: #F5F0E8;
+    line-height: 1.1;
+  }
 `
 
 // ─── Sub-components ────────────────────────────────────────────────────────────

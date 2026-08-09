@@ -169,9 +169,14 @@ const DEALS = {
     { brand: 'Streaming Partner',   deal: '3 months half price',       locked: true },
   ],
   'Mental Health': [
-    { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123',         locked: false },
-    { brand: 'Jigsaw',             deal: 'Free. Ages 12 to 25',        locked: false },
-    { brand: 'SpunOut',            deal: 'Free. Youth platform',       locked: false },
+    { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123. Available 24 hours.',     locked: false },
+    { brand: 'Pieta House',        deal: 'Free. Call 1800 247 247. Crisis support.',    locked: false },
+    { brand: 'Niteline',           deal: 'Free. Peer support for college students.',    locked: false },
+    { brand: 'SpunOut',            deal: 'Free. Youth mental health platform.',         locked: false },
+    { brand: 'Jigsaw',             deal: 'Free. Support for young people aged 12-25.',  locked: false },
+    { brand: 'Turn2Me',            deal: 'Free. Online support and peer groups.',       locked: false },
+    { brand: 'MyMind',             deal: 'Low-cost counselling from €40 per session.', locked: false },
+    { brand: 'Student Counselling', deal: 'Free through your college. Check your college website.', locked: false },
   ],
 }
 

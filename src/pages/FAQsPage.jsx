@@ -52,7 +52,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'What is the September trial?',
-        a: 'The September 2026 trial gives every UniBlueprint user access to all services at 50% off standard pricing throughout September. The trial applies automatically — no code needed. Trial pricing ends on 30 September 2026 at midnight followed by a 7-day grace period ending 7 October 2026.',
+        a: 'The September 2026 trial gives every UniBlueprint user access to all services at 50% off standard pricing throughout September. The trial applies automatically — no code needed. Trial pricing ends on 30 September 2026 at midnight. Standard pricing applies from 1 October 2026.',
       },
     ],
   },
@@ -188,7 +188,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'When does the September trial end?',
-        a: 'The trial ends on 30 September 2026 at midnight Irish time. A 7-day grace period runs until 7 October 2026. Standard pricing applies from 1 October 2026.',
+        a: 'The trial ends on 30 September 2026 at midnight Irish time. Standard pricing applies from 1 October 2026.',
       },
       {
         q: 'Does the September trial apply to Pro?',

@@ -24,7 +24,7 @@ const STEPS = [
     screenTitle: 'Foundation Blueprint',
     screenItems: ['CV Optimisation', 'LinkedIn Profile', 'Cover Letter', 'Interview Prep'],
     screenCta: 'Select',
-    screenNote: 'From €8 in September',
+    screenNote: 'From €10 in September',
   },
   {
     n: 3,
@@ -34,7 +34,7 @@ const STEPS = [
     screenTitle: 'Campus Handler',
     screenItems: ['Reviewing your CV...', 'Quality check', 'Feedback ready'],
     screenCta: null,
-    screenNote: 'Est. delivery: 24 hrs',
+    screenNote: 'Est. delivery: 48 hrs',
   },
   {
     n: 4,
