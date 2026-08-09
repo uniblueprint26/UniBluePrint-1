@@ -37,13 +37,15 @@ const COACHES = [
   { id: 7,  name: 'Tadgh',       category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
   { id: 8,  name: 'Milan',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
   { id: 9,  name: 'Kevin',       category: 'Personal Training',    location: 'Dublin',        filter: 'Fitness',          services: ['1-to-1 PT Sessions', 'Beginner Gym Coaching', 'Accountability Coaching'], accent: '#145A3E' },
-  { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Ireland',       filter: 'Marketing',        services: ['Social Media Strategy', 'Content Creation', 'Brand Building'],    accent: '#4C1D95' },
+  { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Co. Mayo',      filter: 'Marketing',        services: ['Social Media Management', 'Content & Graphics', 'Creator Coordination', 'Client Reporting'], accent: '#4C1D95', badge: 'Student Mentor Listing', crossLinkHref: '/partners#leva', crossLinkLabel: 'See LEVA Impact on Partners' },
   { id: 11, name: 'Nikola',      category: 'Personal Branding',    location: 'Ireland',       filter: 'Branding',         services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],    accent: '#2D4B8E' },
   { id: 12, name: 'Jayden',      category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
   { id: 13, name: 'Stephen',      category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
   { id: 14, name: 'Camila',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ["Women's Fitness", 'Personal Training', 'Lifestyle Support'],   accent: '#145A3E' },
   { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Coming soon'],                                                    accent: '#145A3E', shell: true },
   { id: 16, name: 'Eitne',       category: 'Careers and Counselling', location: 'Ireland',   filter: 'Career',           services: ['Coming soon'],                                                    accent: '#1B4B5A', shell: true },
+  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading', services: ['Coming soon'],                                              accent: '#1B4B5A', shell: true },
+  { id: 18, name: 'Zainab Ade',  category: 'Investing and Finance Coach', location: 'Ireland', filter: 'Trading',          services: ['Coming soon'],                                                  accent: '#1B4B5A', shell: true },
 ]
 
 const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Branding', 'Creative', 'Yoga', 'Career']
@@ -121,12 +123,13 @@ function PhoneMockup() {
 
 // ─── CoachCard ────────────────────────────────────────────────────────────────
 
-function CoachCard({ name, category, location, services, accent, shell, href }) {
+function CoachCard({ id, name, category, location, services, accent, shell, href, badge, crossLinkHref, crossLinkLabel }) {
   const [hovered, setHovered] = useState(false)
   const initial = name.charAt(0).toUpperCase()
 
   const inner = (
     <div
+      id={`coach-${id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -184,6 +187,17 @@ function CoachCard({ name, category, location, services, accent, shell, href }) 
         <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '19px', color: '#1E3A5F', margin: 0 }}>
           {name}
         </p>
+        {badge && (
+          <span style={{
+            display: 'inline-block', marginTop: '8px', alignSelf: 'flex-start',
+            background: '#F0FDF4', color: '#15803D', borderRadius: '20px',
+            padding: '3px 10px', fontFamily: "'DM Sans',sans-serif",
+            fontSize: '9px', fontWeight: '700', letterSpacing: '0.04em',
+            textTransform: 'uppercase', width: 'fit-content',
+          }}>
+            {badge}
+          </span>
+        )}
         {shell ? (
           <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '10px', fontStyle: 'italic' }}>
             Full profile coming soon.
@@ -219,6 +233,18 @@ function CoachCard({ name, category, location, services, accent, shell, href }) 
             </span>
           )}
         </div>
+        {crossLinkHref && (
+          <Link
+            to={crossLinkHref}
+            onClick={e => e.stopPropagation()}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '8px', textDecoration: 'none' }}
+          >
+            <ArrowRight size={11} color={accent} />
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: accent, fontWeight: '600' }}>
+              {crossLinkLabel}
+            </span>
+          </Link>
+        )}
       </div>
     </div>
   )

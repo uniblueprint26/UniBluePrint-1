@@ -4,12 +4,13 @@ import {
 } from 'react-native'
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
-  ChevronDown, ChevronUp, Phone, Mail, AtSign,
+  ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { COACHES } from './ElevationScreen'
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
 const FILTERS = [
@@ -156,9 +157,28 @@ const PARTNERS = [
     contact: { instagram: 'theenailnurse__' },
   },
 
+  // ── Live: Services ───────────────────────────────────────────────────────
+  {
+    id: 'leva',
+    brand: 'LEVA Impact',
+    logo: null,    // upload via partner-logos bucket when available
+    initials: 'LI',
+    initBg: '#0369A1',
+    filterKey: 'services',
+    category: 'Digital Marketing & Design',
+    tagline: 'Social media, content, and design for small businesses.',
+    deal: 'One week free social media trial',
+    status: 'live',
+    description: 'LEVA Impact is a freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, from content creation and UGC coordination to AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
+    services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
+    howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
+    contact: { instagram: 'leva.impact', tiktok: 'leva.media', phone: '0899662635', email: 'levaalex13@gmail.com', website: 'https://alexleva.myportfolio.com/home-page' },
+    crossLink: { label: "Also a UniBlueprint Uni Coach — see Alex's Digital Marketing profile", coachId: 10 },
+  },
+
   // ── Shell: Services ─────────────────────────────────────────────────────
-  { id: 'leva',       brand: 'Leva Impact',             initials: 'LI', initBg: '#0369A1', filterKey: 'services', category: 'Digital Marketing', status: 'shell' },
   { id: 'kelan',      brand: 'madebykelan',             initials: 'MK', initBg: '#1E3A5F', filterKey: 'services', category: 'Creative',          status: 'shell' },
+  { id: 'mbcuts',     brand: 'MBCuts',                  initials: 'MB', initBg: '#374151', filterKey: 'beauty',   category: 'Barber',             status: 'shell' },
 
   // ── Shell: Hair ─────────────────────────────────────────────────────────
   { id: 'lucy',    brand: 'Hair by Lucy Staunton Kelly', initials: 'LS', initBg: '#B45309', filterKey: 'beauty', category: 'Hair', status: 'shell' },
@@ -166,6 +186,7 @@ const PARTNERS = [
 
   // ── Shell: Clothing ──────────────────────────────────────────────────────
   { id: 'ocean1',      brand: 'Ocean1',           initials: 'O1', initBg: '#0369A1', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
+  { id: 'archangel',   brand: 'Archangel',        initials: 'AA', initBg: '#111827', filterKey: 'fashion', category: 'Clothing Brand', status: 'shell' },
   { id: 'pouvoirs',    brand: 'Pouvoirs Gallery', initials: 'PG', initBg: '#4B5563', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'saiemsent',   brand: 'Saiemsent',        initials: 'SM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'fortesce',    brand: 'Fortesce',         initials: 'FT', initBg: '#1D4ED8', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
@@ -267,14 +288,18 @@ function PartnerLogo({ partner, size = 44 }) {
 function ContactChip({ type, value }) {
   const handlers = {
     instagram: () => Linking.openURL(`https://instagram.com/${value}`),
+    tiktok:    () => Linking.openURL(`https://www.tiktok.com/@${value}`),
     phone:     () => Linking.openURL(`tel:${value.replace(/\s/g, '')}`),
     email:     () => Linking.openURL(`mailto:${value}`),
+    website:   () => Linking.openURL(value),
   }
-  const labels  = { instagram: `@${value}`, phone: value, email: value }
+  const labels  = { instagram: `@${value}`, tiktok: `@${value}`, phone: value, email: value, website: 'Portfolio' }
   const icons   = {
     instagram: <AtSign size={12} color={colors.cream} />,
+    tiktok:    <AtSign size={12} color={colors.cream} />,
     phone:     <Phone  size={12} color={colors.cream} />,
     email:     <Mail   size={12} color={colors.cream} />,
+    website:   <Link2  size={12} color={colors.cream} />,
   }
   if (!handlers[type]) return null
   return (
@@ -286,8 +311,8 @@ function ContactChip({ type, value }) {
 }
 
 // ─── Partner Card ─────────────────────────────────────────────────────────────
-function PartnerCard({ partner }) {
-  const [open, setOpen] = useState(false)
+function PartnerCard({ partner, navigation, autoOpen }) {
+  const [open, setOpen] = useState(!!autoOpen)
   const isLive  = partner.status === 'live'
   const isShell = partner.status === 'shell'
   const isTbc   = partner.status === 'tbc'
@@ -408,13 +433,33 @@ function PartnerCard({ partner }) {
               {partner.contact.instagram && (
                 <ContactChip type="instagram" value={partner.contact.instagram} />
               )}
+              {partner.contact.tiktok && (
+                <ContactChip type="tiktok" value={partner.contact.tiktok} />
+              )}
               {partner.contact.phone && (
                 <ContactChip type="phone" value={partner.contact.phone} />
               )}
               {partner.contact.email && (
                 <ContactChip type="email" value={partner.contact.email} />
               )}
+              {partner.contact.website && (
+                <ContactChip type="website" value={partner.contact.website} />
+              )}
             </View>
+          )}
+
+          {partner.crossLink && (
+            <TouchableOpacity
+              style={styles.crossLinkCard}
+              activeOpacity={0.75}
+              onPress={() => {
+                const coach = COACHES.find(c => c.id === partner.crossLink.coachId)
+                if (coach) navigation.navigate('CoachProfile', { coach })
+              }}
+            >
+              <Text style={styles.crossLinkText}>{partner.crossLink.label}</Text>
+              <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
+            </TouchableOpacity>
           )}
         </View>
       )}
@@ -423,8 +468,14 @@ function PartnerCard({ partner }) {
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function LifestyleScreen() {
-  const [activeFilter, setActiveFilter] = useState('all')
+export default function LifestyleScreen({ navigation, route }) {
+  const highlightId = route?.params?.highlightId
+
+  const [activeFilter, setActiveFilter] = useState(() => {
+    if (!highlightId) return 'all'
+    const target = PARTNERS.find(p => p.id === highlightId)
+    return target ? target.filterKey : 'all'
+  })
 
   const visible = activeFilter === 'all'
     ? PARTNERS
@@ -471,7 +522,14 @@ export default function LifestyleScreen() {
 
           {/* Partner cards */}
           <View style={styles.partnerList}>
-            {visible.map(p => <PartnerCard key={p.id} partner={p} />)}
+            {visible.map(p => (
+              <PartnerCard
+                key={p.id}
+                partner={p}
+                navigation={navigation}
+                autoOpen={p.id === highlightId}
+              />
+            ))}
           </View>
 
           {visible.length === 0 && (
@@ -714,6 +772,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 7,
   },
   contactChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.cream },
+
+  // Cross-link (partner ↔ coach profile)
+  crossLinkCard: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+    backgroundColor: '#F5F3FF', borderRadius: 8, padding: 14,
+    borderWidth: 1, borderColor: '#DDD6FE', marginTop: 16,
+  },
+  crossLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#6D28D9', lineHeight: 19, flex: 1 },
 
   // Wellbeing
   supportBanner: {

@@ -79,6 +79,11 @@ export default function CoachProfileScreen({ route, navigation }) {
             <MapPin size={12} color={colors.muted} strokeWidth={1.8} />
             <Text style={styles.locationText}>{coach.location}</Text>
           </View>
+          {coach.badge && (
+            <View style={styles.mentorBadge}>
+              <Text style={styles.mentorBadgeText}>{coach.badge}</Text>
+            </View>
+          )}
           {coach.rating && (
             <View style={styles.ratingRow}>
               <Text style={styles.ratingStar}>★</Text>
@@ -111,6 +116,14 @@ export default function CoachProfileScreen({ route, navigation }) {
             <Text style={styles.bioText}>{coach.bio}</Text>
           </View>
         )}
+
+        {/* ── Structured sections (e.g. Student Mentor Listing breakdown) ── */}
+        {coach.sections && coach.sections.map(sec => (
+          <View key={sec.title} style={styles.section}>
+            <Text style={styles.sectionLabel}>{sec.title}</Text>
+            <Text style={styles.bioText}>{sec.body}</Text>
+          </View>
+        ))}
 
         {/* ── Quote ── */}
         {coach.quote && (
@@ -273,6 +286,20 @@ export default function CoachProfileScreen({ route, navigation }) {
           </View>
         )}
 
+        {/* ── Cross-link (e.g. coach who also runs a Lifestyle Blueprint partner business) ── */}
+        {coach.crossLink && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.crossLinkCard}
+              activeOpacity={0.75}
+              onPress={() => navigation.navigate(coach.crossLink.screen, coach.crossLink.params)}
+            >
+              <Text style={styles.crossLinkText}>{coach.crossLink.label}</Text>
+              <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* ── CTA ── */}
         {!coach.shell && (
           <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.8} onPress={handleEnquire}>
@@ -347,6 +374,10 @@ const styles = StyleSheet.create({
   ratingValue:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
   ratingCount:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
 
+  // Mentor badge
+  mentorBadge:     { backgroundColor: '#F0FDF4', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5, marginTop: 10 },
+  mentorBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: '#15803D', letterSpacing: 0.4, textTransform: 'uppercase' },
+
   // Tagline
   taglineBlock: {
     marginHorizontal: spacing.md, marginBottom: spacing.lg,
@@ -401,6 +432,14 @@ const styles = StyleSheet.create({
   noteText:    { fontFamily: fonts.sans, fontSize: 13, color: '#92400E', lineHeight: 20 },
   bookingCard: { backgroundColor: '#EFF6FF', borderRadius: 8, padding: 14, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
   bookingText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+
+  // Cross-link (coach ↔ partner listing)
+  crossLinkCard: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+    backgroundColor: '#F5F3FF', borderRadius: 8, padding: 14,
+    borderWidth: 1, borderColor: '#DDD6FE',
+  },
+  crossLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#6D28D9', lineHeight: 19, flex: 1 },
 
   // Package
   packageCard: { backgroundColor: '#F0FDF4', borderRadius: radius.card, padding: 18, gap: 10 },

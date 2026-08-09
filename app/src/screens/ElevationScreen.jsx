@@ -21,7 +21,7 @@ const FILTER_PILLS = [
 // Updated: Milan Piroska, Emanuel Tolic, Jayden Reynolds
 // Added: Tadgh Darcy, Eitne Jarrett, Kevin (TrainWitKev), Aoife Keogh
 
-const COACHES = [
+export const COACHES = [
   // ── Academic ──
   {
     id: 1, name: 'Emmanuel Fasanmi', category: 'Academic Grinds', filter: 'Academic Grinds',
@@ -62,6 +62,20 @@ const COACHES = [
     location: 'Ireland', from: 'From €40',
     services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'],
     bio: 'Active trader breaking down markets and investment strategy for students starting their financial journey.',
+  },
+
+  {
+    id: 15, name: 'Dinero Trading Group', category: 'Trading & Investment Education', filter: 'Trading',
+    location: 'Ireland', from: 'Coming soon',
+    shell: true,
+    shellMessage: 'Student investment and trading education, delivered via PDF guides. Full profile coming soon.',
+  },
+
+  {
+    id: 16, name: 'Zainab Ade', category: 'Investing & Finance Coach', filter: 'Trading',
+    location: 'Ireland', from: 'Coming soon',
+    shell: true,
+    shellMessage: 'Full profile and session details coming soon.',
   },
 
   // ── Fitness ──
@@ -140,9 +154,33 @@ const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
-    location: 'Ireland', from: 'From €40',
-    services: ['Social Media Strategy', 'Content Creation', 'Brand Building'],
-    bio: 'Digital marketing specialist helping students and early-stage founders grow their presence online.',
+    location: 'Co. Mayo, Ireland', from: 'From €40',
+    badge: 'Student Mentor Listing',
+    services: ['Social Media Content Plans', 'Captions & Graphics', 'Creator Coordination', 'Client Reporting', 'Student Mentorship'],
+    bio: 'Digital marketing specialist running his own freelance business, LEVA Impact, working across social media strategy, content creation, graphic design, and AI-powered video production. Brings students onto real, live client projects rather than mock briefs.',
+    sections: [
+      {
+        title: 'How I Work With Companies',
+        body: 'I usually start with a chat to understand the business and what they\'re missing, then build out a content plan across their social platforms — Instagram, Facebook, and TikTok. From there I handle everything from captions and graphics to coordinating creators for video content, and I report back regularly so the business can see what\'s working.',
+      },
+      {
+        title: 'Helping Students Get Real Experience',
+        body: 'I bring students onto real client projects, not mock briefs. They get hands-on experience creating content, working with actual brands, and building a portfolio of real, published work they can show future employers or clients.',
+      },
+      {
+        title: 'Results & Outcomes',
+        body: 'Students who\'ve worked with me have gained real hands-on experience, grown their portfolios with published brand content, and become more confident creating content, all while being coached and guided by me along the way.',
+      },
+      {
+        title: 'What Students Can Expect',
+        body: 'Real, practical experience working directly with a live brand, not just theory. You\'ll get guidance along the way, exposure to how a small business actually runs its marketing, and content you can add straight to your portfolio.',
+      },
+    ],
+    crossLink: {
+      label: 'Also runs LEVA Impact — see the Lifestyle Blueprint listing',
+      screen: 'Lifestyle',
+      params: { highlightId: 'leva' },
+    },
   },
 
   {
@@ -256,6 +294,11 @@ function CoachCard({ coach, navigation }) {
               <MapPin size={11} color={colors.muted} />
               <Text style={styles.coachLocation}>{coach.location}</Text>
             </View>
+            {coach.badge && (
+              <View style={styles.mentorPill}>
+                <Text style={styles.mentorPillText}>{coach.badge}</Text>
+              </View>
+            )}
             {coach.rating && (
               <View style={styles.ratingRow}>
                 <Text style={{ fontSize: 12, color: '#F59E0B' }}>★</Text>
@@ -516,6 +559,9 @@ const styles = StyleSheet.create({
   coachLocation: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
   coachTagline:  { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, marginTop: 10, fontStyle: 'italic' },
   coachBio:      { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 10 },
+
+  mentorPill:     { backgroundColor: '#F0FDF4', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 2, marginTop: 5, alignSelf: 'flex-start' },
+  mentorPillText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#15803D', letterSpacing: 0.3, textTransform: 'uppercase' },
 
   ratingRow:   { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
   ratingText:  { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },

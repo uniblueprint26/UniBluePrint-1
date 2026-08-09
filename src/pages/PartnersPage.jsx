@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ExternalLink, Handshake, Instagram, Phone } from 'lucide-react'
+import { ExternalLink, Handshake, Instagram, Phone, Link2, ArrowRight } from 'lucide-react'
 import whipWizardzLogo from '../assets/whip-wizardz-logo.png.png'
 import jmcFitnessLogo from '../assets/jmc-fitness-logo.png.jpeg'
 import energieFitnessLogo from '../assets/energie-fitness-logo.png.jpeg'
@@ -82,15 +82,31 @@ const LIVE_PARTNERS = [
     description: 'Junior and Leaving Cert grinds and one-to-one academic coaching. Structured sessions covering exam prep, subject strategy, and study support across all levels. Pro member rates available.',
     deal: 'Pro member rates',
   },
+  {
+    id: 'leva',
+    name: 'LEVA Impact',
+    initials: 'LI',
+    initBg: '#0369A1',
+    category: 'Digital Marketing & Design',
+    description: 'Freelance digital marketing and design service run by Alex, helping small businesses build their social media presence — content creation, UGC coordination, AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
+    deal: 'One week free social media trial',
+    instagram: 'leva.impact',
+    tiktok: 'leva.media',
+    phone: '089 966 2635',
+    website: 'https://alexleva.myportfolio.com/home-page',
+    crossLinkHref: '/elevation-blueprint#coach-10',
+    crossLinkLabel: "Also a UniBlueprint Uni Coach — see Alex's profile",
+  },
 ]
 
 // ─── Shell partners: name + category only ──────────────────────────────────────
 const SHELL_PARTNERS = [
-  { name: 'Leva Impact',                  category: 'Digital Marketing' },
   { name: 'madebykelan',                  category: 'Creative' },
+  { name: 'MBCuts',                       category: 'Barber' },
   { name: 'Hair by Lucy Staunton Kelly',  category: 'Hair' },
   { name: 'Angelic Touch',                category: 'Hair' },
   { name: 'Ocean1',                       category: 'Clothing' },
+  { name: 'Archangel',                    category: 'Clothing Brand' },
   { name: 'Pouvoirs Gallery',             category: 'Clothing' },
   { name: 'Saiemsent',                    category: 'Clothing' },
   { name: 'Fortesce',                     category: 'Clothing' },
@@ -168,14 +184,15 @@ function ToolCard({ name, description, url }) {
   )
 }
 
-function LivePartnerCard({ name, initials, initBg, category, description, deal, logo, instagram, phone }) {
+function LivePartnerCard({ id, name, initials, initBg, category, description, deal, logo, instagram, tiktok, phone, website, crossLinkHref, crossLinkLabel }) {
   return (
-    <div style={{
+    <div id={id} style={{
       position: 'relative',
       background: '#FFFFFF', borderRadius: '14px',
       boxShadow: '0px 2px 14px rgba(30,58,95,0.09)',
       padding: '24px 20px',
       display: 'flex', flexDirection: 'column',
+      scrollMarginTop: '96px',
     }}>
       {/* Pro badge */}
       <span style={{
@@ -228,7 +245,7 @@ function LivePartnerCard({ name, initials, initBg, category, description, deal, 
       </p>
 
       {/* Contact chips */}
-      {(instagram || phone) && (
+      {(instagram || tiktok || phone || website) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
           {instagram && (
             <a
@@ -246,6 +263,22 @@ function LivePartnerCard({ name, initials, initBg, category, description, deal, 
               @{instagram}
             </a>
           )}
+          {tiktok && (
+            <a
+              href={`https://www.tiktok.com/@${tiktok}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
+                padding: '5px 12px', textDecoration: 'none',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
+              }}
+            >
+              <Link2 size={12} />
+              TikTok @{tiktok}
+            </a>
+          )}
           {phone && (
             <a
               href={`tel:${phone.replace(/\s/g, '')}`}
@@ -258,6 +291,22 @@ function LivePartnerCard({ name, initials, initBg, category, description, deal, 
             >
               <Phone size={12} />
               {phone}
+            </a>
+          )}
+          {website && (
+            <a
+              href={website}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
+                padding: '5px 12px', textDecoration: 'none',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
+              }}
+            >
+              <Link2 size={12} />
+              Portfolio
             </a>
           )}
         </div>
@@ -277,6 +326,21 @@ function LivePartnerCard({ name, initials, initBg, category, description, deal, 
       >
         View in Lifestyle Blueprint →
       </Link>
+
+      {crossLinkHref && (
+        <Link
+          to={crossLinkHref}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '5px',
+            marginTop: '10px', textDecoration: 'none',
+          }}
+        >
+          <ArrowRight size={11} color="#1E3A5F" />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#1E3A5F', fontWeight: '600' }}>
+            {crossLinkLabel}
+          </span>
+        </Link>
+      )}
     </div>
   )
 }
