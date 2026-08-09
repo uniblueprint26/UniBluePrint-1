@@ -48,7 +48,6 @@ const PARTNERS = [
       { label: 'Online Consultation Call',         price: '€30/call' },
       { label: 'Deposit (all bookings)',           price: '€20 required' },
     ],
-    pricingNote: 'Pricing pending final sign-off.',
     howToStart: 'Fill out the free client consultation form in bio, then DM "READY" on Instagram or WhatsApp.',
     contact: { instagram: 'milanpir_fitness', phone: '0857633757', email: 'milanpirfitness@gmail.com' },
   },
@@ -101,10 +100,10 @@ const PARTNERS = [
     initBg: '#C2410C',
     filterKey: 'services',
     category: 'Photography & Video',
-    tagline: 'Creative mentorship for students building their portfolio.',
+    tagline: 'Creative mentorship for building your portfolio.',
     deal: 'From €55/month',
     status: 'live',
-    description: 'Nathan Yanzo (@Nyz3ditz) is a professional photographer and videographer offering mentorship and 1-1 shoot sessions for students building their creative skills. Monthly subscription includes Zoom calls and editing guidance.',
+    description: 'Nathan Yanzo (@Nyz3ditz) is a professional photographer and videographer offering mentorship and 1-1 shoot sessions for young people building their creative skills. Monthly subscription includes Zoom calls and editing guidance.',
     pricelist: [
       { label: 'Monthly Subscription', price: '€55/month' },
       { label: '1-1 Shoot Session',    price: '€90' },
@@ -206,7 +205,7 @@ const PARTNERS = [
 // ─── Wellbeing & Support ─────────────────────────────────────────────────────
 const SUPPORT_LINES = [
   { name: 'Samaritans Ireland',  number: '116 123',        hours: '24/7',        link: 'tel:116123' },
-  { name: 'Pieta House',         number: '116 123',        hours: '24/7',        link: 'tel:116123' },
+  { name: 'Pieta House',         number: '1800 247 247',   hours: '24/7',        link: 'tel:1800247247' },
   { name: 'Niteline',            number: '1800 793 793',   hours: 'Term nights', link: 'tel:1800793793' },
   { name: 'SpunOut',             number: 'spunout.ie',     hours: 'Online',      link: 'https://spunout.ie' },
   { name: 'Jigsaw',              number: 'jigsaw.ie',      hours: 'Online',      link: 'https://jigsaw.ie' },
@@ -224,7 +223,7 @@ const WELLBEING_RESOURCES = [
 
 // ─── Budget Tools ─────────────────────────────────────────────────────────────
 const BUDGET_TOOLS = [
-  { title: 'Student Budget Calculator', sub: 'Plan rent, food, transport and more', Icon: PiggyBank },
+  { title: 'Budget Calculator', sub: 'Plan rent, food, transport and more', Icon: PiggyBank },
   { title: 'SUSI Grant Guide',          sub: 'Check eligibility and application steps', Icon: Tag },
   { title: 'Part-Time Work Finder',     sub: 'Flexible roles near your campus', Icon: ShoppingBag },
 ]
@@ -441,7 +440,7 @@ export default function LifestyleScreen() {
           <Text style={styles.heroEyebrow}>LIFESTYLE</Text>
           <Text style={styles.heroTitle}>Lifestyle Blueprint</Text>
           <Text style={styles.heroSub}>
-            Partner deals, wellbeing support, and money tools — built around what student life actually costs.
+            Partner deals, wellbeing support, and money tools — built around what life actually costs.
           </Text>
         </View>
 
@@ -482,7 +481,7 @@ export default function LifestyleScreen() {
 
         {/* ── Mental Health & Wellbeing ─────────────────────────────────────── */}
         <View style={styles.section}>
-          <SectionHeader eyebrow="Student Wellbeing" title="Mental Health & Support" />
+          <SectionHeader eyebrow="Wellbeing" title="Mental Health & Support" />
 
           <View style={styles.supportBanner}>
             <Heart size={16} color={colors.cream} fill={colors.cream} />
@@ -554,7 +553,7 @@ export default function LifestyleScreen() {
           <Card style={styles.tipCard}>
             <Text style={styles.tipEyebrow}>MONEY TIP OF THE WEEK</Text>
             <Text style={styles.tipText}>
-              Cook in bulk on Sundays. Students who meal prep spend on average 40% less on food per week than those who don't.
+              Cook in bulk on Sundays. Young people who meal prep spend significantly less on food per week than those who don't.
             </Text>
           </Card>
         </View>

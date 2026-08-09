@@ -24,7 +24,7 @@ const CAMPUS_FEATURES = [
     key: 'boards', label: 'CAMPUS BOARDS', Icon: Users, color: '#FFF7ED',
     headline: 'Find rooms, sell stuff, stay connected',
     sub: 'Twelve community boards covering accommodation, marketplace, societies, and more.',
-    count: '42 live posts',
+    count: 'Live at launch',
     preview: [
       { text: 'Room near UCD — €600/month, bills included. Available from August.', meta: '2h ago' },
       { text: 'Selling all 2nd yr Business textbooks — €15 each or €50 bundle.', meta: '1h ago' },
@@ -33,8 +33,8 @@ const CAMPUS_FEATURES = [
   {
     key: 'carpool', label: 'CARPOOLING', Icon: Car, color: '#F0FDF4',
     headline: 'Split the cost of your commute',
-    sub: 'Match with students on your route every day and cut your travel costs every week.',
-    count: '17 active routes',
+    sub: 'Match with people on your route every day and cut your travel costs every week.',
+    count: 'Live at launch',
     preview: [
       { text: 'Limerick City → UL Campus · Mon–Fri · 8:30am', meta: '2 seats' },
       { text: 'Cork City → UCC Main Gate · Mon/Wed/Fri · 9:00am', meta: '3 seats' },
@@ -44,7 +44,7 @@ const CAMPUS_FEATURES = [
     key: 'events', label: 'CAMPUS EVENTS', Icon: CalendarDays, color: '#EFF6FF',
     headline: "Never miss what's on this week",
     sub: 'Society events, open days, campus talks, and student-run nights — all in one feed.',
-    count: '8 this week',
+    count: 'Live at launch',
     preview: [
       { text: 'UCD Law Society mixer — Thursday · Free entry with student card', meta: 'Thu' },
       { text: 'TCD Drama Society auditions — Monday 7pm · All welcome', meta: 'Mon' },
@@ -54,7 +54,7 @@ const CAMPUS_FEATURES = [
     key: 'projects', label: 'PROJECT COLLABORATION', Icon: Lightbulb, color: '#FDF4FF',
     headline: 'Build something real with your peers',
     sub: 'Post project ideas, find teammates from any campus, and ship something worth showing.',
-    count: '11 open projects', isNew: true,
+    count: 'Live at launch', isNew: true,
     preview: [
       { text: 'Campus Sustainability App · UCD · 2 spots open', meta: 'Mobile Dev' },
       { text: 'AI Study Planner (Final Year) · TCD · 3 spots open', meta: 'AI/ML' },
@@ -217,8 +217,8 @@ export default function CampusConnectScreen({ navigation }) {
         {/* Stats */}
         <View style={styles.heroStats}>
           <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>100+</Text>
-            <Text style={styles.heroStatLabel}>Institutions{'\n'}on the Platform</Text>
+            <Text style={styles.heroStatNumber}>All</Text>
+            <Text style={styles.heroStatLabel}>Irish Institutions{'\n'}Welcome</Text>
           </View>
           <View style={styles.heroStatDivider} />
           <View style={styles.heroStatItem}>

@@ -206,7 +206,7 @@ export default function DirectoryScreen() {
       </View>
 
       <View style={styles.headingWrap}>
-        <Text style={styles.screenTitle}>Student Directory</Text>
+        <Text style={styles.screenTitle}>Directory</Text>
         <Text style={styles.screenSub}>
           Search by name, course, or any interest area
         </Text>

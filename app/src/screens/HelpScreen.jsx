@@ -30,9 +30,9 @@ const TOPICS = [
     icon: Shield,
     title: 'Account and Privacy',
     items: [
-      { label: 'Updating your profile information', detail: 'Go to the Profile tab and tap "Edit Profile" to update your name, university, course, and other details.' },
+      { label: 'Updating your profile information', detail: 'Go to the Profile tab and tap "Edit Profile" to update your display name and profile photo. Institution and course details set during sign-up cannot be changed here yet.' },
       { label: 'Changing your password',            detail: 'From the sign-in screen, tap "Forgot Password" and follow the steps. An email link will be sent to your registered address.' },
-      { label: 'Deleting your account',             detail: 'To permanently delete your account, email hello@uniblueprint.ie from your registered address with the subject "Account Deletion Request".' },
+      { label: 'Deleting your account',             detail: 'To permanently delete your account, email uniblueprintoperations@gmail.com from your registered address with the subject "Account Deletion Request".' },
       { label: 'How your data is stored and used',  detail: 'We use Supabase for secure storage and authentication. We never sell or share your data with third parties. See our Privacy Policy for full details.' },
     ],
   },
@@ -75,7 +75,7 @@ export default function HelpScreen({ navigation }) {
           <TouchableOpacity
             style={styles.contactBtn}
             activeOpacity={0.8}
-            onPress={() => Linking.openURL('mailto:hello@uniblueprint.ie')}
+            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com')}
           >
             <Text style={styles.contactBtnText}>Email</Text>
           </TouchableOpacity>
@@ -112,9 +112,9 @@ export default function HelpScreen({ navigation }) {
             Email us at{' '}
             <Text
               style={styles.footerLink}
-              onPress={() => Linking.openURL('mailto:hello@uniblueprint.ie')}
+              onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com')}
             >
-              hello@uniblueprint.ie
+              uniblueprintoperations@gmail.com
             </Text>{' '}
             and we'll get back to you as quickly as possible.
           </Text>

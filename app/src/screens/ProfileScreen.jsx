@@ -239,7 +239,7 @@ export default function ProfileScreen({ navigation }) {
   const [profileAvatar, setProfileAvatar] = useState(null)  // loaded from profiles table
   const [editVisible,  setEditVisible]  = useState(false)
 
-  const displayName      = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
+  const displayName      = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const institution      = user?.user_metadata?.institution || user?.user_metadata?.university || ''
   const course           = user?.user_metadata?.course || ''
   const situation        = user?.user_metadata?.situation || ''
@@ -332,7 +332,7 @@ export default function ProfileScreen({ navigation }) {
         screen: 'Elevation',
       })
     } else if (link.action === 'become_coach') {
-      Linking.openURL('mailto:hello@uniblueprint.ie?subject=Become a Coach Application')
+      Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=Become a Coach Application')
     }
   }
 

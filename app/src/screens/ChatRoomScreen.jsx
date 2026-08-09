@@ -103,7 +103,7 @@ export default function ChatRoomScreen({ navigation, route }) {
     setMoreVisible(false)
     Alert.alert(
       'Block a User',
-      'Full block and moderation tools are coming soon. For urgent issues, contact the team at hello@uniblueprint.ie.',
+      'Full block and moderation tools are coming soon. For urgent issues, contact the team at uniblueprintoperations@gmail.com.',
       [{ text: 'OK' }]
     )
   }
@@ -261,7 +261,7 @@ export default function ChatRoomScreen({ navigation, route }) {
                 Block a user
               </Text>
               <Text style={s.moreRowSub}>
-                Coming soon. Contact hello@uniblueprint.ie for urgent issues.
+                Coming soon. Contact uniblueprintoperations@gmail.com for urgent issues.
               </Text>
             </View>
           </TouchableOpacity>

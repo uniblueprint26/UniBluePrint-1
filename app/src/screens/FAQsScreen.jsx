@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: 'What is the September Trial?',
-    a: 'The September Trial gives students 50% off every Foundation Blueprint service throughout September. It\'s designed to make professional career support accessible from the start of the academic year. Trial pricing is applied automatically.',
+    a: 'The September Trial gives young people 50% off every Foundation Blueprint service throughout September. It\'s designed to make professional career support accessible from the start of the academic year. Trial pricing is applied automatically.',
   },
   {
     q: 'How do partner deals work?',
@@ -36,11 +36,11 @@ const FAQS = [
   },
   {
     q: 'How do I cancel or get a refund?',
-    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at hello@uniblueprint.ie and we will work with you to resolve it. See our refund policy for full details.',
+    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at uniblueprintoperations@gmail.com and we will work with you to resolve it. See our refund policy for full details.',
   },
   {
     q: 'Can I become a Campus Handler or Coach?',
-    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at hello@uniblueprint.ie.',
+    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at uniblueprintoperations@gmail.com.',
   },
   {
     q: 'Which universities does UniBlueprint cover?',
@@ -99,9 +99,9 @@ export default function FAQsScreen({ navigation }) {
             We're happy to help. Reach out at{' '}
             <Text
               style={styles.contactEmail}
-              onPress={() => Linking.openURL('mailto:hello@uniblueprint.ie')}
+              onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com')}
             >
-              hello@uniblueprint.ie
+              uniblueprintoperations@gmail.com
             </Text>
           </Text>
         </Card>

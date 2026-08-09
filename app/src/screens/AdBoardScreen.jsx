@@ -113,7 +113,7 @@ const ADS = [
     brand: 'Campus Connect',
     title: 'Find Your Campus Carpool',
     description:
-      'Match with students on your route and split the cost every day.',
+      'Match with people on your route and split the cost every day.',
     link: null,
   },
   {
@@ -124,7 +124,7 @@ const ADS = [
     brand: 'Course Connect',
     title: 'Share Notes Across Ireland',
     description:
-      'Over 1,200 notes uploaded by students. Search by module and university.',
+      'Share and discover notes across every Irish university and college. Search by module and course.',
     link: null,
   },
 ]
@@ -292,7 +292,7 @@ function PostAdModal({ visible, onClose }) {
           <View style={m.header}>
             <View style={{ flex: 1 }}>
               <Text style={m.headerTitle}>Post an Ad</Text>
-              <Text style={m.headerSub}>Reach students across Ireland</Text>
+              <Text style={m.headerSub}>Reach young people across Ireland</Text>
             </View>
             <TouchableOpacity style={m.closeBtn} onPress={onClose} activeOpacity={0.8}>
               <X size={15} color={colors.navy} strokeWidth={2.5} />
@@ -386,7 +386,7 @@ function PostAdModal({ visible, onClose }) {
                       </Text>
                       <Text style={m.boardSub}>
                         {b.key === 'cross-ireland'
-                          ? 'Visible to all students across Ireland'
+                          ? 'Visible to all users across Ireland'
                           : b.key === 'campus'
                           ? 'Visible on the Campus Connect board'
                           : 'Visible on the Course Connect board'}

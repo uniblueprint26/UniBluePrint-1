@@ -25,7 +25,7 @@ const COACHES = [
   // ── Academic ──
   {
     id: 1, name: 'Emmanuel Fasanmi', category: 'Academic Grinds', filter: 'Academic Grinds',
-    location: 'Dublin, Ireland', rating: '4.9', reviews: 24, from: 'Pricing TBC',
+    location: 'Dublin, Ireland', from: 'Enquire for pricing',
     services: ['Maths Grinds', 'Physics Grinds', 'Biology Grinds'],
     bio: 'Emmanuel offers one-to-one and small group grinds in Maths, Physics, and Biology for Leaving Certificate and university students across Dublin. Sessions are structured, focused, and built around where you actually need to improve.',
   },
@@ -59,7 +59,7 @@ const COACHES = [
   // ── Trading ──
   {
     id: 4, name: 'Daniel Gough', category: 'Trading & Finance', filter: 'Trading',
-    location: 'Ireland', rating: '4.8', reviews: 17, from: 'From €40',
+    location: 'Ireland', from: 'From €40',
     services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'],
     bio: 'Active trader breaking down markets and investment strategy for students starting their financial journey.',
   },
@@ -67,14 +67,14 @@ const COACHES = [
   // ── Fitness ──
   {
     id: 5, name: 'Ali', category: 'Personal Training', filter: 'Fitness',
-    location: 'Ireland', rating: '4.9', reviews: 31, from: 'From €35',
+    location: 'Ireland', from: 'From €35',
     services: ['Personal Training', 'Training Plans', 'Form Coaching'],
     bio: 'Certified personal trainer building strength, fitness, and consistency into student lifestyle.',
   },
 
   {
     id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
-    location: 'Ireland, open to worldwide', rating: '5.0', reviews: 22, from: 'Via consultation',
+    location: 'Ireland, open to worldwide', from: 'Via consultation',
     services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
     bio: '20-year-old qualified personal trainer with 5+ years of fitness experience. Specialising in weightlifting and calisthenics — also works with clients in kickboxing and other sports. Provides personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme. Available in and outside working hours.',
     package: [
@@ -116,7 +116,7 @@ const COACHES = [
       'Frequent check-ins',
     ],
     contact: { instagram: 'milanpir_fitness', phone: '0857633757', email: 'milanpirfitness@gmail.com' },
-    pricingNote: 'Available in 8, 10, or 12-week blocks. Payable in 2 instalments or in full. Pricing pending final sign-off.',
+    pricingNote: 'Available in 8, 10, or 12-week blocks. Payable in 2 instalments or in full.',
   },
 
   {
@@ -133,21 +133,21 @@ const COACHES = [
       { label: 'Personalised Training Programme', price: '€25' },
       { label: 'Initial consultation', price: 'Free' },
     ],
-    bookingNote: 'Booking currently being set up. Get in touch directly to enquire.',
+    bookingNote: 'Direct booking coming soon. Get in touch to enquire.',
     pricingNote: 'Currently coaching clients as part of building experience and client base. Testimonials available on request.',
   },
 
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
-    location: 'Ireland', rating: '4.9', reviews: 35, from: 'From €40',
+    location: 'Ireland', from: 'From €40',
     services: ['Social Media Strategy', 'Content Creation', 'Brand Building'],
     bio: 'Digital marketing specialist helping students and early-stage founders grow their presence online.',
   },
 
   {
     id: 11, name: 'Nikola Jurek', category: 'Personal Branding', filter: 'Branding',
-    location: 'Ireland', rating: '4.8', reviews: 21, from: 'From €40',
+    location: 'Ireland', from: 'From €40',
     services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],
     bio: 'Personal branding coach helping students define and communicate their professional identity with confidence.',
   },
@@ -155,7 +155,7 @@ const COACHES = [
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
-    location: 'County Sligo', rating: '4.8', reviews: 18, from: 'On request',
+    location: 'County Sligo', from: 'On request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
     bio: 'Qualified Personal Trainer with over a decade of experience. Passionate about helping people balance school, work, fitness, sport, and social life. League of Ireland player. Available for both online and local in-person coaching in County Sligo.',
     contact: { instagram: 'JayRfitness6', tiktok: 'JayRfitness6' },

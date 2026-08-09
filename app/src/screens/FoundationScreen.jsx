@@ -161,7 +161,7 @@ export default function FoundationScreen({ navigation }) {
             <View style={styles.turnaroundSep} />
             <View style={styles.turnaroundChip}>
               <Text style={styles.turnaroundLabel}>Premium</Text>
-              <Text style={styles.turnaroundValue}>24hr</Text>
+              <Text style={styles.turnaroundValue}>Same day</Text>
             </View>
           </View>
 

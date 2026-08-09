@@ -84,7 +84,7 @@ export default function AboutScreen({ navigation }) {
         <Card style={styles.contactCard}>
           <Text style={styles.contactTitle}>Get in touch</Text>
           <Text style={styles.contactSub}>Have a question or want to partner with us?</Text>
-          <Text style={styles.contactEmail}>hello@uniblueprint.ie</Text>
+          <Text style={styles.contactEmail}>uniblueprintoperations@gmail.com</Text>
         </Card>
       </View>
     </ScrollView>

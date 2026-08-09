@@ -211,7 +211,7 @@ const COURSE_FEATURES = [
   {
     key: 'industry', label: 'INDUSTRY DISCUSSIONS', Icon: Briefcase, color: '#FEF9C3',
     headline: 'Talk to people already in your field',
-    sub: 'Industry-specific threads for students exploring careers. Ask, listen, and connect with those ahead of you.',
+    sub: 'Industry-specific threads for young people exploring careers. Ask, listen, and connect with those ahead of you.',
     count: 'Coming soon', coming: true,
   },
   {

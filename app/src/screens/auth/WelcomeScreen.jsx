@@ -2,7 +2,6 @@ import { useState, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Calculator } from 'lucide-react-native'
-import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import UBPLogo from '../../components/ui/UBPLogo'
 
@@ -20,8 +19,8 @@ const SLIDES = [
     icon: Target,
     color: '#F0FDF4',
     eyebrow: 'ELEVATION BLUEPRINT',
-    title: 'Coaches who\nget students.',
-    sub: 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more. Starting from €20.',
+    title: 'Coaches who\nget you.',
+    sub: 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more. Starting from €25.',
   },
   {
     icon: Users,
@@ -34,7 +33,7 @@ const SLIDES = [
     icon: Heart,
     color: '#FDF4FF',
     eyebrow: 'LIFESTYLE BLUEPRINT',
-    title: 'Deals built\nfor student life.',
+    title: 'Deals built\nfor your life.',
     sub: 'Exclusive discounts from verified partners, mental health resources, and weekly money tips. All in one place.',
   },
   {
@@ -42,7 +41,7 @@ const SLIDES = [
     color: '#F0FDF4',
     eyebrow: 'BUDGETING TOOL',
     title: 'Know where\nyour money goes.',
-    sub: 'Track your spending, set savings goals, and understand your SUSI entitlement. Built around what student life actually costs.',
+    sub: 'Track your spending, set savings goals, and understand your SUSI entitlement. Built around what life actually costs.',
   },
 ]
 
@@ -50,8 +49,6 @@ export default function WelcomeScreen({ navigation }) {
   const [slide, setSlide] = useState(0)
   const scrollRef = useRef(null)
   const insets = useSafeAreaInsets()
-  const { login } = useAuth()
-
   function goTo(i) {
     setSlide(i)
     scrollRef.current?.scrollTo({ x: i * width, animated: true })

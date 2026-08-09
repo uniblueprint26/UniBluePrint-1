@@ -34,7 +34,7 @@ const ALL_SHORTCUTS = [
   { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',             sub: 'Partner listings and offers',    Icon: Megaphone,     bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
   { key: 'messages',   label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab',       tabName: 'Messages' },
-  { key: 'directory',  label: 'Directory',            sub: 'Student directory',              Icon: Users,         bg: '#EFF6FF', action: 'tab',       tabName: 'Directory' },
+  { key: 'directory',  label: 'Directory',            sub: 'People directory',               Icon: Users,         bg: '#EFF6FF', action: 'tab',       tabName: 'Directory' },
   { key: 'profile',    label: 'Profile',              sub: 'Your profile and settings',      Icon: User,          bg: '#FDF4FF', action: 'tab',       tabName: 'Profile' },
 ]
 
@@ -63,7 +63,7 @@ const ACTIVITY_DOT = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getFirstName(displayName) {
-  if (!displayName) return 'Student'
+  if (!displayName) return 'there'
   return displayName.split(' ')[0]
 }
 
@@ -238,7 +238,7 @@ export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const firstName   = getFirstName(displayName)
 
   const hour     = new Date().getHours()

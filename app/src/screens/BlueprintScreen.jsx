@@ -93,7 +93,7 @@ const COACHES = [
   // ── Academic ──
   {
     id: 1, name: 'Emmanuel Fasanmi', category: 'Academic Grinds', filter: 'Academic Grinds',
-    location: 'Dublin, Ireland', rating: '4.9', reviews: 24, from: 'Pricing TBC',
+    location: 'Dublin, Ireland', rating: '4.9', reviews: 24, from: 'Enquire for pricing',
     services: ['Maths Grinds', 'Physics Grinds', 'Biology Grinds'],
     bio: 'Emmanuel offers one-to-one and small group grinds in Maths, Physics, and Biology for Leaving Certificate and university students across Dublin. Sessions are structured, focused, and built around where you actually need to improve.',
   },
@@ -184,7 +184,7 @@ const COACHES = [
       'Frequent check-ins',
     ],
     contact: { instagram: 'milanpir_fitness', phone: '0857633757', email: 'milanpirfitness@gmail.com' },
-    pricingNote: 'Available in 8, 10, or 12-week blocks. Payable in 2 instalments or in full. Pricing pending final sign-off.',
+    pricingNote: 'Available in 8, 10, or 12-week blocks. Payable in 2 instalments or in full. ',
   },
 
   {
@@ -502,7 +502,7 @@ function FoundationTab() {
           <Compass size={22} color={colors.navy} />
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.ccCardTitle}>Powered by CourseCompass</Text>
-            <Text style={styles.ccCardSub}>AI-powered CAO course matching for students across Ireland</Text>
+            <Text style={styles.ccCardSub}>AI-powered CAO course matching for young people across Ireland</Text>
           </View>
         </View>
         <Text style={styles.ccCardDesc}>
@@ -629,7 +629,7 @@ export default function BlueprintScreen({ route, navigation }) {
           <Text style={styles.heroEyebrow}>SERVICES</Text>
           <Text style={styles.heroTitle}>Blueprint Services</Text>
           <Text style={styles.heroSub}>
-            Professional documents and verified coaching, built around student life in Ireland.
+            Professional documents and verified coaching, built for every young person in Ireland.
           </Text>
         </View>
 
