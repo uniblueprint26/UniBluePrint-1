@@ -8,6 +8,7 @@ import {
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
+import { useWeekendDeliveryCopy } from '../hooks/useWeekendDeliveryCopy'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
@@ -107,6 +108,10 @@ const FOUNDATION_STATS = [
 export default function FoundationScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [selected, setSelected] = useState(null)
+  // From 11pm Saturday to 8am Monday the team is closed for the weekend, so
+  // Premium's turnaround copy switches to Monday delivery and reverts
+  // automatically once the window ends.
+  const { isWeekendWindow } = useWeekendDeliveryCopy()
 
   return (
     <View style={styles.screen}>
@@ -161,7 +166,7 @@ export default function FoundationScreen({ navigation }) {
             <View style={styles.turnaroundSep} />
             <View style={styles.turnaroundChip}>
               <Text style={styles.turnaroundLabel}>Premium</Text>
-              <Text style={styles.turnaroundValue}>Same day</Text>
+              <Text style={styles.turnaroundValue}>{isWeekendWindow ? 'Monday' : 'Same day'}</Text>
             </View>
           </View>
 
@@ -213,7 +218,9 @@ export default function FoundationScreen({ navigation }) {
                             <Text style={[styles.priceOriginal, { color: 'rgba(245,240,232,0.5)' }]}>{originalPrem}</Text>
                             <Text style={[styles.priceTrial, { color: colors.cream }]}>{trialPrem}</Text>
                           </View>
-                          <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>Priority + revisions · Same day</Text>
+                          <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
+                            {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
+                          </Text>
                         </View>
                       </View>
                       <Text style={styles.trialNote}>* September trial prices — 50% off standard rates</Text>

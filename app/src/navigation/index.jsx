@@ -4,6 +4,7 @@ import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native
 import { Platform, View, Animated } from 'react-native'
 import { useRef, useEffect } from 'react'
 import UBPLogo from '../components/ui/UBPLogo'
+import UnverifiedEmailBanner from '../components/ui/UnverifiedEmailBanner'
 
 import { useAuth } from '../context/AuthContext'
 import { colors, fonts } from '../constants/theme'
@@ -26,6 +27,13 @@ import NotificationsScreen  from '../screens/NotificationsScreen'
 import CoachProfileScreen   from '../screens/CoachProfileScreen'
 import ChatRoomScreen       from '../screens/ChatRoomScreen'
 import CompassScreen        from '../screens/CompassScreen'
+
+// Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches)
+import StudioQueueScreen    from '../screens/studio/StudioQueueScreen'
+import PromptLibraryScreen  from '../screens/studio/PromptLibraryScreen'
+import AvailabilityScreen   from '../screens/studio/AvailabilityScreen'
+import SpecialismScreen     from '../screens/studio/SpecialismScreen'
+import CoachStudioScreen    from '../screens/studio/CoachStudioScreen'
 
 // Profile sub-screens
 import AboutScreen  from '../screens/AboutScreen'
@@ -65,6 +73,13 @@ function HomeStack() {
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
+
+      {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
+      <Stack.Screen name="StudioQueue"      component={StudioQueueScreen}   />
+      <Stack.Screen name="PromptLibrary"    component={PromptLibraryScreen} />
+      <Stack.Screen name="Availability"     component={AvailabilityScreen}  />
+      <Stack.Screen name="Specialism"       component={SpecialismScreen}    />
+      <Stack.Screen name="CoachStudio"      component={CoachStudioScreen}   />
     </Stack.Navigator>
   )
 }
@@ -107,6 +122,27 @@ function ProfileStack() {
 }
 
 function MainTabs() {
+  // Rendered once here, above the Tab.Navigator, so it persists across every
+  // tab and every screen within it — matching the spec: "Banner appears on
+  // every screen within the app every session until email is verified."
+  // A per-screen banner would need re-adding to every screen individually
+  // and would be trivial to accidentally miss on a new one; this can't be.
+  //
+  // No paddingTop is applied here: every screen already manages its own
+  // top safe-area inset independently. The banner reserves the status-bar
+  // gap for itself (see UnverifiedEmailBanner) and simply adds its own
+  // height above the Tab.Navigator, pushing screens down exactly as any
+  // other stacked element would — it does not touch how those screens
+  // compute their own insets.
+  return (
+    <View style={{ flex: 1 }}>
+      <UnverifiedEmailBanner />
+      <MainTabsInner />
+    </View>
+  )
+}
+
+function MainTabsInner() {
   return (
     <Tab.Navigator
       screenOptions={{

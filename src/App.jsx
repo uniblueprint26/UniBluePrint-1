@@ -4,6 +4,7 @@ import { useScrollToTop } from './hooks/useScrollToTop'
 import { useUTMCapture } from './hooks/useUTMCapture'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import RequireRole from './components/auth/RequireRole'
 import PageLoader from './components/layout/PageLoader'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -30,6 +31,10 @@ const SubscriptionSuccessPage = lazy(() => import('./pages/SubscriptionSuccessPa
 const SubscriptionManagementPage = lazy(() => import('./pages/SubscriptionManagementPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('./pages/ServerErrorPage'))
+
+const FounderDashboardPage = lazy(() => import('./pages/admin/FounderDashboardPage'))
+const OperationsDashboardPage = lazy(() => import('./pages/admin/OperationsDashboardPage'))
+const PartnerPortalPage = lazy(() => import('./pages/portal/PartnerPortalPage'))
 
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'))
@@ -107,6 +112,30 @@ function AppRoutes() {
             <ProtectedRoute>
               <SubscriptionManagementPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/founder"
+          element={
+            <RequireRole allow={['founder', 'admin']}>
+              <FounderDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/operations"
+          element={
+            <RequireRole allow={['operations', 'founder', 'admin']}>
+              <OperationsDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/portal/partner"
+          element={
+            <RequireRole allow={['business', 'operations', 'founder', 'admin']}>
+              <PartnerPortalPage />
+            </RequireRole>
           }
         />
         <Route path="/500" element={<ServerErrorPage />} />

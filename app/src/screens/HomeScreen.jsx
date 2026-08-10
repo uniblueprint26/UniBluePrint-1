@@ -14,6 +14,8 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
+import PortalSwitcher from '../components/ui/PortalSwitcher'
+import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import { colors, fonts, spacing } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -236,10 +238,22 @@ const m = StyleSheet.create({
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
+  const {
+    user, isStudioEligible, isHandler, studioLabel,
+    isComplimentaryPro, portalMode, setPortalMode,
+  } = useAuth()
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const firstName   = getFirstName(displayName)
+
+  // Dual portal — one tap in the top nav switches My Blueprint <-> the
+  // Handler/Coach professional workspace. Landing screen depends on role.
+  function handlePortalSwitch(mode) {
+    setPortalMode(mode)
+    if (mode === 'studio') {
+      navigation.navigate(isHandler ? 'StudioQueue' : 'CoachStudio')
+    }
+  }
 
   const hour     = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
@@ -271,6 +285,30 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     if (!user?.id) { setLoadingActivity(false); return }
     fetchActivity()
+  }, [user?.id])
+
+  // Unread notification count for the bell badge, kept live via realtime so
+  // it clears the moment a notification is read elsewhere and increments the
+  // moment a new one lands, without needing to revisit this screen.
+  const [unreadCount, setUnreadCount] = useState(0)
+  useEffect(() => {
+    if (!user?.id) return
+    async function fetchUnread() {
+      const { count } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('read', false)
+      setUnreadCount(count || 0)
+    }
+    fetchUnread()
+    const channel = supabase
+      .channel(`unread-badge-${user.id}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}`,
+      }, fetchUnread)
+      .subscribe()
+    return () => supabase.removeChannel(channel)
   }, [user?.id])
 
   async function fetchActivity() {
@@ -359,6 +397,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.topTitle} numberOfLines={1}>
                 {firstName}'s UniBlueprint Dashboard
               </Text>
+              {isComplimentaryPro && <ActiveMemberBadge style={{ marginTop: 6 }} />}
             </View>
             <View style={styles.topActions}>
               <TouchableOpacity
@@ -367,6 +406,11 @@ export default function HomeScreen({ navigation }) {
                 onPress={() => navigation.navigate('Notifications')}
               >
                 <Bell size={19} color={colors.navy} strokeWidth={1.8} />
+                {unreadCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                  </View>
+                )}
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.avatarBtn}
@@ -377,6 +421,20 @@ export default function HomeScreen({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Dual portal switcher — Handlers and Coaches only. My Blueprint
+              is this screen; switching to Studio hands off to the
+              professional workspace, which contains no student-facing
+              submission forms. */}
+          {isStudioEligible && (
+            <View style={styles.portalSwitchRow}>
+              <PortalSwitcher
+                active={portalMode}
+                onSwitch={handlePortalSwitch}
+                studioLabel={studioLabel}
+              />
+            </View>
+          )}
 
           <ScrollView
             contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
@@ -520,6 +578,13 @@ const styles = StyleSheet.create({
   },
   topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
   topTitle:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
+
+  portalSwitchRow: {
+    paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
+    alignItems: 'flex-start',
+  },
 
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bellBtn: { position: 'relative', width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
