@@ -20,6 +20,13 @@ const TABS = [
  * so switching tabs swaps the current screen instead of stacking a new one
  * on top of it, matching how a tab bar should feel even though these are
  * plain stack screens, not a nested tab navigator.
+ *
+ * The "My Blueprint" exit is deliberately kept OUTSIDE the horizontal
+ * ScrollView, not appended as a 5th scrolling item. On a standard phone
+ * width the four tab labels alone fill nearly the full row, which pushed
+ * an in-row exit link mostly or entirely off-screen, undiscoverable without
+ * scrolling. The one way back out of the Studio can't be the thing that
+ * requires scrolling to find.
  */
 export default function StudioTabBar({ navigation, active }) {
   const { setPortalMode } = useAuth()
@@ -30,37 +37,43 @@ export default function StudioTabBar({ navigation, active }) {
   }
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.scroll}
-      contentContainerStyle={styles.row}
-    >
-      {TABS.map(tab => {
-        const isActive = tab.key === active
-        return (
-          <TouchableOpacity
-            key={tab.key}
-            style={[styles.pill, isActive && styles.pillActive]}
-            activeOpacity={0.75}
-            onPress={() => !isActive && navigation.replace(tab.key)}
-          >
-            <Text style={[styles.pillText, isActive && styles.pillTextActive]}>{tab.label}</Text>
-          </TouchableOpacity>
-        )
-      })}
+    <View style={styles.wrap}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.scroll}
+        contentContainerStyle={styles.row}
+      >
+        {TABS.map(tab => {
+          const isActive = tab.key === active
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              style={[styles.pill, isActive && styles.pillActive]}
+              activeOpacity={0.75}
+              onPress={() => !isActive && navigation.replace(tab.key)}
+            >
+              <Text style={[styles.pillText, isActive && styles.pillTextActive]}>{tab.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </ScrollView>
 
       <TouchableOpacity style={styles.backLink} activeOpacity={0.75} onPress={backToMyBlueprint}>
         <ArrowLeftRight size={12} color="rgba(245,240,232,0.6)" strokeWidth={2} />
         <Text style={styles.backLinkText}>My Blueprint</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  scroll: { marginHorizontal: -16, marginTop: 14 },
-  row: { paddingHorizontal: 16, paddingBottom: 14, gap: 8 },
+  wrap: {
+    flexDirection: 'row', alignItems: 'center',
+    marginTop: 14, marginHorizontal: -16, paddingHorizontal: 16, paddingBottom: 14,
+  },
+  scroll: { flex: 1 },
+  row: { gap: 8, paddingRight: 8 },
   pill: {
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 100,
     backgroundColor: 'rgba(245,240,232,0.1)',
@@ -72,7 +85,8 @@ const styles = StyleSheet.create({
 
   backLink: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
-    paddingHorizontal: 6, paddingVertical: 7, marginLeft: 4,
+    paddingLeft: 10, borderLeftWidth: 1, borderLeftColor: 'rgba(245,240,232,0.14)',
+    flexShrink: 0,
   },
   backLinkText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
 })
