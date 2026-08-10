@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [roles, setRoles] = useState([])
   const [subscription, setSubscription] = useState(null)
-  const [portalMode, setPortalMode] = useState('personal') // 'personal' | 'studio' — dual-portal switcher state
+  const [portalMode, setPortalMode] = useState('personal') // 'personal' | 'studio', dual-portal switcher state
   const subChannelRef = useRef(null)
 
   async function loadRolesAndSubscription(userId) {

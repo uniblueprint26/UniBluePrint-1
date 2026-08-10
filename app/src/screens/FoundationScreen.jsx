@@ -18,8 +18,8 @@ const CAREER_SERVICES = [
   {
     icon: FileText,
     title: 'CV Optimisation',
-    tagline: 'A CV that opens doors — not one that gets ignored',
-    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV — structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
+    tagline: 'A CV that opens doors, not one that gets ignored',
+    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
     originalStd: '€20', trialStd: '€10',
     originalPrem: '€30', trialPrem: '€15',
     color: '#EFF6FF',
@@ -28,7 +28,7 @@ const CAREER_SERVICES = [
     icon: Linkedin,
     title: 'LinkedIn Optimisation',
     tagline: 'Turn your LinkedIn from invisible to irresistible',
-    description: 'Recruiters search LinkedIn every day. UniBlueprint optimises your entire profile — headline, about section, experience, skills, and featured section — so you show up in searches and make the right impression.',
+    description: 'Recruiters search LinkedIn every day. UniBlueprint optimises your entire profile: headline, about section, experience, skills, and featured section, so you show up in searches and make the right impression.',
     originalStd: '€20', trialStd: '€10',
     originalPrem: '€30', trialPrem: '€15',
     color: '#EEF2FF',
@@ -37,7 +37,7 @@ const CAREER_SERVICES = [
     icon: FileText,
     title: 'Cover Letter Assistance',
     tagline: 'A cover letter that actually gets read',
-    description: 'Most cover letters are ignored because they are generic. UniBlueprint writes you a tailored, compelling cover letter for a specific role or company — one that adds to your CV rather than repeating it.',
+    description: 'Most cover letters are ignored because they are generic. UniBlueprint writes you a tailored, compelling cover letter for a specific role or company, one that adds to your CV rather than repeating it.',
     originalStd: '€20', trialStd: '€10',
     originalPrem: '€30', trialPrem: '€15',
     color: '#F0FDF4',
@@ -46,7 +46,7 @@ const CAREER_SERVICES = [
     icon: Award,
     title: 'Application Form Assistance',
     tagline: 'Answer every question with confidence and clarity',
-    description: 'Competency questions, situational questions, motivation questions — UniBlueprint gives you structured, polished answers using the STAR method that demonstrate exactly what employers are looking for.',
+    description: 'Competency questions, situational questions, motivation questions: UniBlueprint gives you structured, polished answers using the STAR method that demonstrate exactly what employers are looking for.',
     originalStd: 'From €20', trialStd: 'From €10',
     originalPrem: 'From €30', trialPrem: 'From €15',
     color: '#FFF7ED',
@@ -55,7 +55,7 @@ const CAREER_SERVICES = [
     icon: MessageSquare,
     title: 'Interview Preparation',
     tagline: 'Walk in prepared. Walk out confident.',
-    description: 'UniBlueprint prepares you for the exact interview you are facing — predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler.',
+    description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler.',
     originalStd: 'From €20', trialStd: 'From €10',
     originalPrem: 'From €30', trialPrem: 'From €15',
     color: '#FDF4FF',
@@ -64,7 +64,7 @@ const CAREER_SERVICES = [
     icon: Search,
     title: 'Job Search Support',
     tagline: 'Stop applying blindly. Start searching strategically.',
-    description: 'UniBlueprint builds you a personalised job search strategy — the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year, and goals.',
+    description: 'UniBlueprint builds you a personalised job search strategy: the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year, and goals.',
     originalStd: '€15', trialStd: '€8',
     originalPrem: '€22', trialPrem: '€11',
     color: '#F0F9FF',
@@ -172,7 +172,7 @@ export default function FoundationScreen({ navigation }) {
 
           <View style={styles.trialBanner}>
             <Sparkles size={14} color={colors.cream} />
-            <Text style={styles.trialBannerText}>September Trial — 50% off every service</Text>
+            <Text style={styles.trialBannerText}>September Trial: 50% off every service</Text>
           </View>
 
           <Text style={styles.servicesSubHeader}>Career Services</Text>
@@ -223,7 +223,7 @@ export default function FoundationScreen({ navigation }) {
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.trialNote}>* September trial prices — 50% off standard rates</Text>
+                      <Text style={styles.trialNote}>* September trial prices, 50% off standard rates</Text>
                       <TouchableOpacity style={styles.orderBtn} activeOpacity={0.8}>
                         <Text style={styles.orderBtnText}>Order {title} →</Text>
                       </TouchableOpacity>
@@ -244,7 +244,7 @@ export default function FoundationScreen({ navigation }) {
               </View>
             </View>
             <Text style={styles.ccCardDesc}>
-              CAO Personal Statements, College Interview Preparation, Scholarship Applications, and Course Selection Guidance are all handled in partnership with CourseCompass — Ireland's leading CAO platform.
+              CAO Personal Statements, College Interview Preparation, Scholarship Applications, and Course Selection Guidance are all handled in partnership with CourseCompass, Ireland's leading CAO platform.
             </Text>
             <View style={styles.ccToolGrid}>
               {CC_TOOLS.map(({ name, icon: Icon, url, desc }) => (
