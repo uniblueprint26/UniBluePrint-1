@@ -97,6 +97,17 @@ const LIVE_PARTNERS = [
     crossLinkHref: '/elevation-blueprint#coach-10',
     crossLinkLabel: "Also a UniBlueprint Uni Coach — see Alex's profile",
   },
+  {
+    id: 'henrysisters',
+    name: 'Henry Sisters Co',
+    initials: 'HS',
+    initBg: '#92400E',
+    category: 'Creative Content Creation',
+    description: 'Creative content studio based in County Mayo. Photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. A creative eye and professional finish for brands, businesses, and events.',
+    deal: '10% off your first content creation booking',
+    instagram: 'henrysistersco',
+    email: 'henrysistersco@gmail.com',
+  },
 ]
 
 // ─── Shell partners: name + category only ──────────────────────────────────────

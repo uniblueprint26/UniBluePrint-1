@@ -175,6 +175,22 @@ const PARTNERS = [
     contact: { instagram: 'leva.impact', tiktok: 'leva.media', phone: '0899662635', email: 'levaalex13@gmail.com', website: 'https://alexleva.myportfolio.com/home-page' },
     crossLink: { label: "Also a UniBlueprint Uni Coach, see Alex's Digital Marketing profile", coachId: 10 },
   },
+  {
+    id: 'henrysisters',
+    brand: 'Henry Sisters Co',
+    logo: null,
+    initials: 'HS',
+    initBg: '#92400E',
+    filterKey: 'services',
+    category: 'Creative Content Creation',
+    tagline: 'Photography, videography, and social media content. County Mayo.',
+    deal: '10% off your first content creation booking',
+    status: 'live',
+    description: 'Henry Sisters Co is a creative content studio based in County Mayo, specialising in photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. Whether you need content for your brand, business, or event, they bring a creative eye and a professional finish.',
+    services: ['Photography', 'Videography', 'Social Media Content', 'Instagram Reels', 'Event Content', 'UGC Content', 'Drone Footage', 'Promotional Content'],
+    howToStart: 'Enquire via Instagram DM @henrysistersco or email henrysistersco@gmail.com. Pricing on request.',
+    contact: { instagram: 'henrysistersco', email: 'henrysistersco@gmail.com' },
+  },
 
   // ── Shell: Services ─────────────────────────────────────────────────────
   { id: 'kelan',      brand: 'madebykelan',             initials: 'MK', initBg: '#1E3A5F', filterKey: 'services', category: 'Creative',          status: 'shell' },

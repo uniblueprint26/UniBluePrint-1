@@ -105,7 +105,8 @@ export const COACHES = [
     id: 7, name: 'Tadgh Darcy', category: 'Physique Development', filter: 'Fitness',
     location: 'Dublin', from: 'Pricing on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
-    bio: "Main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process. Online physique development coaching built around you.",
+    quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
+    bio: "Qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. Teaches efficient training and nutrition that fits into real life. Personally lost over 30kg and completed photoshoot prep, so he knows exactly what the process takes. Strong believer in building a healthy relationship with food alongside the physical side. Main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process. Online physique development coaching built around you.",
     contact: { instagram: 'tdarcycoaching', tiktok: 'darcy.lifts', linktree: 'https://linktr.ee/tadghdarcy123' },
   },
 
