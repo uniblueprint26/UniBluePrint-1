@@ -40,11 +40,11 @@ const SUSI_FEE_PER_DEP   =   4785  // Additional dependant allowance for fee-onl
 const SUSI_TERMS = [
   {
     term: 'Reckonable Income',
-    plain: 'The total gross income of everyone in your household — parents, guardians, or your own income if you\'re classed as independent — assessed from the previous tax year. This is what SUSI uses to work out your eligibility.',
+    plain: 'The total gross income of everyone in your household (parents, guardians, or your own income if you\'re classed as independent), assessed from the previous tax year. This is what SUSI uses to work out your eligibility.',
   },
   {
     term: 'Adjacent vs. Non-Adjacent',
-    plain: 'Adjacent means you live within 30km of your college — SUSI assumes you can commute, so the grant is lower. Non-adjacent means you live 30km or more from college and need to rent nearby. The non-adjacent rate is significantly higher.',
+    plain: 'Adjacent means you live within 30km of your college, so SUSI assumes you can commute and the grant is lower. Non-adjacent means you live 30km or more from college and need to rent nearby. The non-adjacent rate is significantly higher.',
   },
   {
     term: 'Special Rate',
@@ -52,7 +52,7 @@ const SUSI_TERMS = [
   },
   {
     term: 'Standard Rate',
-    plain: 'A partial maintenance grant for households above the special rate threshold but below the standard threshold. Still worth applying for — it can make a real difference to term spending.',
+    plain: 'A partial maintenance grant for households above the special rate threshold but below the standard threshold. Still worth applying for, it can make a real difference to term spending.',
   },
   {
     term: 'Fee Contribution Grant',
@@ -70,7 +70,7 @@ const APPLICATION_STEPS = [
   'Gather household income evidence: P60s, Form 11, or Revenue records from the relevant tax year',
   'Have your CAO/college offer letter or student ID ready to confirm your course',
   'Submit your application and supporting documents through the online portal',
-  'Monitor your application status — SUSI will contact you if more documents are needed',
+  'Monitor your application status: SUSI will contact you if more documents are needed',
   'Decisions typically arrive within 4 to 8 weeks of submitting all documents',
 ]
 
@@ -223,7 +223,7 @@ function SUSIEstimator() {
         band: 'over',
         maintenance: 0,
         feeOnly: false,
-        note: 'Based on your income, your household may be above all SUSI thresholds for this year. Thresholds change annually — it is always worth checking susi.ie directly.',
+        note: 'Based on your income, your household may be above all SUSI thresholds for this year. Thresholds change annually, so it is always worth checking susi.ie directly.',
       })
     }
   }
@@ -235,7 +235,7 @@ function SUSIEstimator() {
       <View style={styles.estimatorDisclaimer}>
         <Info size={13} color='#92400E' />
         <Text style={styles.estimatorDisclaimerText}>
-          Estimator only — not an official assessment. Rates are published 2026/27 figures from susi.ie. Your actual award depends on full means testing.
+          Estimator only, not an official assessment. Rates are published 2026/27 figures from susi.ie. Your actual award depends on full means testing.
         </Text>
       </View>
 
@@ -443,7 +443,7 @@ function BudgetTab() {
           <Wallet size={40} color="rgba(30,58,95,0.2)" />
           <Text style={styles.emptyTitle}>Your financial picture starts here.</Text>
           <Text style={styles.emptySub}>
-            Enter your income and expenses below. Your balance updates live as you type — no submit button needed.
+            Enter your income and expenses below. Your balance updates live as you type, no submit button needed.
           </Text>
         </Card>
       )}
@@ -535,7 +535,7 @@ function BudgetTab() {
       <Card style={styles.tipCard}>
         <Text style={styles.tipEyebrow}>MONEY TIP</Text>
         <Text style={styles.tipText}>
-          The 50/30/20 rule: 50% of income on needs, 30% on wants, 20% on savings. Adjust the split to fit your actual situation — there is no one-size-fits-all.
+          The 50/30/20 rule: 50% of income on needs, 30% on wants, 20% on savings. Adjust the split to fit your actual situation, there is no one-size-fits-all.
         </Text>
       </Card>
     </View>
@@ -558,10 +558,10 @@ function SUSITab() {
       <Card style={styles.susiIntro}>
         <Text style={styles.susiIntroTitle}>What is SUSI?</Text>
         <Text style={styles.susiIntroBody}>
-          SUSI — Student Universal Support Ireland — is the national student grant scheme. If your household income falls below a certain threshold, SUSI contributes toward your maintenance costs: rent, food, and the everyday expenses of student life.
+          SUSI (Student Universal Support Ireland) is the national student grant scheme. If your household income falls below a certain threshold, SUSI contributes toward your maintenance costs: rent, food, and the everyday expenses of student life.
         </Text>
         <Text style={[styles.susiIntroBody, { marginTop: 12 }]}>
-          A lot of students who qualify never apply — either because the process feels complicated or they assume they won't be eligible. This guide is here to change that. If there's a chance you're eligible, it's worth fifteen minutes to find out.
+          A lot of students who qualify never apply, either because the process feels complicated or they assume they won't be eligible. This guide is here to change that. If there's a chance you're eligible, it's worth fifteen minutes to find out.
         </Text>
       </Card>
 
@@ -571,7 +571,7 @@ function SUSITab() {
         <Card style={styles.susiGrantCard}>
           <Text style={styles.susiGrantType}>Maintenance Grant</Text>
           <Text style={styles.susiGrantDesc}>
-            A direct contribution toward your living costs — rent, food, transport, and general expenses while you study. Paid as a lump sum or in instalments, depending on the rate you're awarded.
+            A direct contribution toward your living costs: rent, food, transport, and general expenses while you study. Paid as a lump sum or in instalments, depending on the rate you're awarded.
           </Text>
           <View style={styles.susiRates}>
             <View style={styles.susiRateRow}>
@@ -599,7 +599,7 @@ function SUSITab() {
         <Card style={styles.susiGrantCard}>
           <Text style={styles.susiGrantType}>Fee Contribution Grant</Text>
           <Text style={styles.susiGrantDesc}>
-            SUSI can also cover part or all of your Student Contribution Charge — the €3,000 annual registration fee most undergraduates pay. Higher household income can still qualify for a partial fee contribution even if you're above the maintenance grant threshold.
+            SUSI can also cover part or all of your Student Contribution Charge (the €3,000 annual registration fee most undergraduates pay). Higher household income can still qualify for a partial fee contribution even if you're above the maintenance grant threshold.
           </Text>
         </Card>
       </View>
@@ -672,7 +672,7 @@ export default function BudgetingScreen() {
           <Text style={styles.heroEyebrow}>FINANCIAL COMPANION</Text>
           <Text style={styles.heroTitle}>Know where your money goes, every week.</Text>
           <Text style={styles.heroSub}>
-            Track your term spending, set savings goals, and understand what you're owed — including a full guide to your SUSI entitlement.
+            Track your term spending, set savings goals, and understand what you're owed, including a full guide to your SUSI entitlement.
           </Text>
           {/* NOTE: Attribution copy — confirm "Suzi Grant" spelling and permission before going live */}
           {/*

@@ -42,7 +42,7 @@ export default function TrialBanner() {
         textAlign: 'center',
         lineHeight: 1.4,
       }}>
-        50% OFF all services — September Trial. Your Blueprint. Half the price.
+        50% OFF all services, September Trial. Your Blueprint. Half the price.
       </p>
 
       <button

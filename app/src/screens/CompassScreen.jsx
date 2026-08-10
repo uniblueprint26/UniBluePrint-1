@@ -1,12 +1,12 @@
 /**
- * CompassScreen — in-app landing page for the CourseCompass integration.
+ * CompassScreen, in-app landing page for the CourseCompass integration.
  *
  * CourseCompass is an independent product by Stephen McKeon, integrated in
  * partnership with UniBlueprint. This screen frames each tool before handing
- * off to the external site via Linking.openURL — matching the existing external
+ * off to the external site via Linking.openURL, matching the existing external
  * link behaviour used throughout the app.
  *
- * Tool list and copy sourced from coursecompass.ie — verify URLs before each
+ * Tool list and copy sourced from coursecompass.ie, verify URLs before each
  * release in case paths change.
  */
 
@@ -23,7 +23,7 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 // All tool names, descriptions, and URLs verified against coursecompass.ie.
-// Prices sourced from the live site — confirm before each release.
+// Prices sourced from the live site, confirm before each release.
 
 const BUNDLE = {
   name:     'Senior Cycle Bundle',
@@ -38,7 +38,7 @@ const TOOLS = [
     label:    'AI COURSE MATCHING',
     Icon:     Compass,
     color:    '#EFF6FF',
-    headline: 'Find the CAO course that fits you — not just your points',
+    headline: 'Find the CAO course that fits you, not just your points',
     sub:      'AI-matched course recommendations based on your personality, interests, and learning style. Includes a full PDF results booklet.',
     url:      'https://coursecompass.ie/course-compass',
   },
@@ -93,7 +93,7 @@ const TOOLS = [
     Icon:     FileText,
     color:    '#F5F0E8',
     headline: 'Build a CV that clears ATS filters and gets noticed',
-    sub:      'Guided CV creation with real-time ATS scoring — designed specifically for school leavers and early-career applicants.',
+    sub:      'Guided CV creation with real-time ATS scoring, designed specifically for school leavers and early-career applicants.',
     url:      'https://coursecompass.ie/cv-builder-test',
   },
   {
@@ -164,7 +164,7 @@ export default function CompassScreen({ navigation }) {
         <Text style={s.heroEyebrow}>COURSE COMPASS</Text>
         <Text style={s.heroTitle}>Find Your Ideal Path</Text>
         <Text style={s.heroSub}>
-          AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are — not just your predicted points.
+          AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points.
         </Text>
 
         {/* Partnership attribution */}
@@ -283,7 +283,7 @@ const s = StyleSheet.create({
   scroll: {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
-  // Bundle card (cream bg, navy accent — inverted from the tool cards)
+  // Bundle card (cream bg, navy accent, inverted from the tool cards)
   bundleCard: {
     backgroundColor: colors.cream,
     borderRadius: radius.card,

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 
 // DEMO DATA — replace with a live Supabase query filtered by
@@ -111,6 +112,8 @@ export default function StudioQueueScreen({ navigation }) {
             <Text style={styles.clockBtnText}>{online ? 'Clock Out' : 'Clock In'}</Text>
           </TouchableOpacity>
         </View>
+
+        <StudioTabBar navigation={navigation} active="StudioQueue" />
       </View>
 
       <ScrollView

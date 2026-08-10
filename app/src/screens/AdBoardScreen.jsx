@@ -47,7 +47,7 @@ const ADS = [
     brand: 'UniBlueprint',
     title: '50% Off Your First Service',
     description:
-      'September trial — every Foundation Blueprint service at half price. CV, LinkedIn, cover letter and more.',
+      'September trial, every Foundation Blueprint service at half price. CV, LinkedIn, cover letter and more.',
     link: null,
   },
   {
@@ -222,8 +222,8 @@ function AdCard({ ad, onPress }) {
 //   - 'link' → 'target_url'  (was sending a column that doesn't exist in ads)
 //   - 'boards' column added to ads via migration 20260805100000_image_storage.sql
 //   - 'status' column added to ads via same migration
-//   - 'active: false' — newly submitted ads are pending review, not live
-//   - 'user_id' — required by the new RLS INSERT policy
+//   - 'active: false', newly submitted ads are pending review, not live
+//   - 'user_id', required by the new RLS INSERT policy
 
 function PostAdModal({ visible, onClose }) {
   const { user }                        = useAuth()
@@ -309,7 +309,7 @@ function PostAdModal({ visible, onClose }) {
             <Text style={m.label}>Ad Title</Text>
             <TextInput
               style={m.input}
-              placeholder="e.g. Photography Sessions — €90 per shoot"
+              placeholder="e.g. Photography Sessions, €90 per shoot"
               placeholderTextColor={colors.light}
               value={title}
               onChangeText={setTitle}
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy },
   screenSub:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
 
-  // Filter pills — identical to Directory
+  // Filter pills, identical to Directory
   filterRow: { paddingHorizontal: spacing.md, paddingBottom: 14, gap: 8 },
   filterPill: {
     borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 7,

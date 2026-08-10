@@ -90,7 +90,7 @@ export const COACHES = [
     id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
     location: 'Ireland, open to worldwide', from: 'Via consultation',
     services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
-    bio: '20-year-old qualified personal trainer with 5+ years of fitness experience. Specialising in weightlifting and calisthenics — also works with clients in kickboxing and other sports. Provides personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme. Available in and outside working hours.',
+    bio: '20-year-old qualified personal trainer with 5+ years of fitness experience. Specialising in weightlifting and calisthenics, also works with clients in kickboxing and other sports. Provides personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme. Available in and outside working hours.',
     package: [
       'Full 1-month coaching guide with workout and meal plan',
       'Fully explained and tracked daily',
@@ -139,7 +139,7 @@ export const COACHES = [
     tagline: 'Strength. Physique. Confidence. Mindset.',
     services: ['1-to-1 Personal Training', 'Beginner Gym Coaching', 'Personalised Training Programmes', 'Accountability & Progress Coaching'],
     bio: 'Coach behind TrainWitKev and the mindset behind WORKSYY. Helps people get stronger, build a physique they are proud of, and gain real confidence in and out of the gym. Suits complete beginners through to people who have plateaued on consistency or progress. Focus on structure, technique, understanding, and sustainable progress.',
-    quote: 'A mad yoke with something to prove. — WORKSYY',
+    quote: 'A mad yoke with something to prove. WORKSYY.',
     pricelist: [
       { label: '1-to-1 PT: Single session', price: '€25' },
       { label: '1-to-1 PT: 4 sessions', price: '€90' },
@@ -161,7 +161,7 @@ export const COACHES = [
     sections: [
       {
         title: 'How I Work With Companies',
-        body: 'I usually start with a chat to understand the business and what they\'re missing, then build out a content plan across their social platforms — Instagram, Facebook, and TikTok. From there I handle everything from captions and graphics to coordinating creators for video content, and I report back regularly so the business can see what\'s working.',
+        body: 'I usually start with a chat to understand the business and what they\'re missing, then build out a content plan across their social platforms, Instagram, Facebook, and TikTok. From there I handle everything from captions and graphics to coordinating creators for video content, and I report back regularly so the business can see what\'s working.',
       },
       {
         title: 'Helping Students Get Real Experience',
@@ -177,7 +177,7 @@ export const COACHES = [
       },
     ],
     crossLink: {
-      label: 'Also runs LEVA Impact — see the Lifestyle Blueprint listing',
+      label: 'Also runs LEVA Impact, see the Lifestyle Blueprint listing',
       screen: 'Lifestyle',
       params: { highlightId: 'leva' },
     },
@@ -314,10 +314,10 @@ function CoachCard({ coach, navigation }) {
           <Text style={styles.coachTagline}>{coach.tagline}</Text>
         )}
 
-        {/* Bio — preview, 3 lines max */}
+        {/* Bio, preview, 3 lines max */}
         <Text style={styles.coachBio} numberOfLines={3}>{coach.bio}</Text>
 
-        {/* Service pills — first 3 + overflow count */}
+        {/* Service pills, first 3 + overflow count */}
         <View style={styles.servicePills}>
           {coach.services.slice(0, 3).map(s => (
             <View key={s} style={styles.servicePill}>
@@ -408,7 +408,7 @@ export default function ElevationScreen({ navigation }) {
           Every coach is reviewed before joining the platform.
         </Text>
 
-        {/* Filter pills — inside hero so they visually anchor to the navy header */}
+        {/* Filter pills, inside hero so they visually anchor to the navy header */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

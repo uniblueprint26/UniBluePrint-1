@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Info, Star } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 
 // DEMO_SPECIALISMS — Handler's declared specialisms and real performance
@@ -90,6 +91,8 @@ export default function SpecialismScreen({ navigation }) {
         <Text style={styles.headerSub}>
           Your declared confidence levels and real performance, by service type.
         </Text>
+
+        <StudioTabBar navigation={navigation} active="Specialism" />
       </View>
 
       <ScrollView

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 
 // Set true locally to preview the Ghost Handler welfare-check state.
@@ -155,6 +156,8 @@ export default function AvailabilityScreen({ navigation }) {
         <Text style={styles.headerSub}>
           Set your weekly working template and manage your clock in status.
         </Text>
+
+        <StudioTabBar navigation={navigation} active="Availability" />
       </View>
 
       <ScrollView

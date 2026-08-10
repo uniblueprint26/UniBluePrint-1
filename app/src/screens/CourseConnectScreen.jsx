@@ -18,7 +18,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
-// ─── Course feature products (7 total — 4 live, 3 coming soon) ───────────────
+// ─── Course feature products (7 total, 4 live, 3 coming soon) ───────────────
 
 const COURSE_FEATURES = [
   {
@@ -27,8 +27,8 @@ const COURSE_FEATURES = [
     sub: 'Upload and access module summaries, lecture notes, and revision guides shared by students like you.',
     count: 'Growing',
     preview: [
-      { text: 'MG4021 — Consumer Behaviour · Week 7 Summary · UL', meta: '142 views' },
-      { text: 'CS2001 — Data Structures · Linked Lists & Trees · UCD', meta: '98 views' },
+      { text: 'MG4021, Consumer Behaviour · Week 7 Summary · UL', meta: '142 views' },
+      { text: 'CS2001, Data Structures · Linked Lists & Trees · UCD', meta: '98 views' },
     ],
   },
   {
@@ -57,8 +57,8 @@ const COURSE_FEATURES = [
     sub: 'Access a growing library of past papers, exam tips, and revision guides across all Irish universities.',
     count: 'Coming soon',
     preview: [
-      { text: 'UCD Business — 2023 Past Papers Bundle', meta: 'Past Paper' },
-      { text: 'TCD Law — Essay structure and exam technique guide', meta: 'Guide' },
+      { text: 'UCD Business, 2023 Past Papers Bundle', meta: 'Past Paper' },
+      { text: 'TCD Law, Essay structure and exam technique guide', meta: 'Guide' },
     ],
   },
   {
@@ -81,7 +81,7 @@ const COURSE_FEATURES = [
   },
 ]
 
-// ─── Academic Support: Course Tools (shells — exact tool set TBD) ─────────────
+// ─── Academic Support: Course Tools (shells, exact tool set TBD) ─────────────
 // NOTE: Exact tool set to be confirmed. Pattern and card structure built here.
 const ACADEMIC_TOOLS = [
   {
@@ -125,10 +125,10 @@ const ACADEMIC_TOOLS = [
 // ─── Popular Notes ────────────────────────────────────────────────────────────
 
 const RECENT_NOTES = [
-  { module: 'MG4021', title: 'Consumer Behaviour — Week 7 Summary', university: 'UL', views: 142, saved: 38 },
-  { module: 'CS2001', title: 'Data Structures — Linked Lists & Trees', university: 'UCD', views: 98, saved: 22 },
-  { module: 'LA1102', title: 'Contract Law — Offer & Acceptance Notes', university: 'TCD', views: 203, saved: 61 },
-  { module: 'AC3010', title: 'Financial Accounting — Ratio Analysis', university: 'UCC', views: 87, saved: 19 },
+  { module: 'MG4021', title: 'Consumer Behaviour, Week 7 Summary', university: 'UL', views: 142, saved: 38 },
+  { module: 'CS2001', title: 'Data Structures, Linked Lists & Trees', university: 'UCD', views: 98, saved: 22 },
+  { module: 'LA1102', title: 'Contract Law, Offer & Acceptance Notes', university: 'TCD', views: 203, saved: 61 },
+  { module: 'AC3010', title: 'Financial Accounting, Ratio Analysis', university: 'UCC', views: 87, saved: 19 },
 ]
 
 // ─── Graduate Mentors ─────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ const GRADUATE_MENTORS = [
   {
     id: 'ciara', name: 'Ciara Nolan', shell: false,
     institution: 'UCD', course: 'Business & Finance', year: '2023',
-    role: 'Graduate — KPMG Dublin',
+    role: 'Graduate at KPMG Dublin',
     areas: ['Graduate Applications', 'Finance Careers', 'CV & LinkedIn'],
     bio: "Ciara completed her Business & Finance degree at UCD in 2023 and joined KPMG's graduate programme. She mentors students on navigating graduate applications, crafting strong CVs, and getting the most out of final year.",
     initials: 'CN', initBg: '#EFF6FF',
@@ -145,7 +145,7 @@ const GRADUATE_MENTORS = [
   {
     id: 'james', name: 'James Healy', shell: false,
     institution: 'TCD', course: 'Computer Science', year: '2022',
-    role: 'Software Engineer — Stripe',
+    role: 'Software Engineer at Stripe',
     areas: ['Tech Careers', 'Technical Interviews', 'CS Projects'],
     bio: "James graduated from TCD's Computer Science programme in 2022 and joined Stripe's engineering team. He mentors on cracking technical interviews, building side projects that matter, and getting into top-tier tech roles.",
     initials: 'JH', initBg: '#F0FDF4',
@@ -200,7 +200,7 @@ const STUDENT_PROFILES = [
 
 const DISCUSSIONS = [
   { module: 'CS2001', question: "What's the best way to approach Big O notation for the upcoming exam?", replies: 14, university: 'UCD', time: '2h ago' },
-  { module: 'MG4021', question: 'Looking for Week 6 lecture notes for Consumer Behaviour — anyone have them?', replies: 7, university: 'UL', time: '5h ago' },
+  { module: 'MG4021', question: 'Looking for Week 6 lecture notes for Consumer Behaviour, anyone have them?', replies: 7, university: 'UL', time: '5h ago' },
   { module: 'LA1102', question: 'Can anyone explain the difference between void and voidable contracts?', replies: 22, university: 'TCD', time: '1d ago' },
 ]
 
@@ -326,16 +326,16 @@ export default function CourseConnectScreen({ navigation }) {
         <Text style={styles.heroEyebrow}>COURSE CONNECT</Text>
         <Text style={styles.heroTitle}>Course Connect</Text>
         <Text style={styles.heroSub}>
-          Notes, study groups, exam resources, and graduate mentors — built around your course and institution.
+          Notes, study groups, exam resources, and graduate mentors, built around your course and institution.
         </Text>
 
         {/*
-          Stats — real Irish HE figures, not platform usage metrics.
+          Stats: real Irish HE figures, not platform usage metrics.
           Source: HEA.ie Annual Report 2022/23 and CAO.ie course listings.
 
           TODO (permanent): Confirm exact CAO course count at cao.ie before publishing.
           TODO (permanent): Confirm HE enrolment figure at hea.ie before publishing.
-          "All 32" refers to counties — CourseConnect covers the full island.
+          "All 32" refers to counties, CourseConnect covers the full island.
         */}
         <View style={styles.heroStats}>
           <View style={styles.heroStatItem}>
@@ -385,7 +385,7 @@ export default function CourseConnectScreen({ navigation }) {
             <Text style={[styles.academicSubLabel, { marginTop: spacing.xl }]}>POPULAR NOTES</Text>
             <Text style={styles.academicSubSub}>Surfaced from students on similar courses. Shown as examples until your course community grows.</Text>
             <MockContentBanner
-              title="Example notes — shown until your course goes live"
+              title="Example notes, shown until your course goes live"
               subtitle="These notes are illustrative. Notes relevant to your module and institution will surface here once students start sharing."
               style={{ marginTop: spacing.md }}
             />
@@ -413,7 +413,7 @@ export default function CourseConnectScreen({ navigation }) {
             <Text style={[styles.academicSubLabel, { marginTop: spacing.xl }]}>GRADUATE MENTORS</Text>
             <Text style={styles.academicSubSub}>Recently graduated from your course. Mentors who have been exactly where you are now.</Text>
             <MockContentBanner
-              title="Mentorship programme — building now"
+              title="Mentorship programme: building now"
               subtitle="Mentors matched to your course and institution. Full programme launching soon."
               style={{ marginTop: spacing.md }}
             />
@@ -458,7 +458,7 @@ export default function CourseConnectScreen({ navigation }) {
           {/* ── Course Discussions ── */}
           <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
-            title="Discussions — Building Now"
+            title="Discussions: Building Now"
             subtitle="Module-specific Q&A threads launching with Course Connect. Ask questions, share answers."
           />
           <View style={{ gap: 10 }}>
@@ -496,7 +496,7 @@ export default function CourseConnectScreen({ navigation }) {
             <Text style={styles.crossIrelandEyebrow}>ACROSS IRELAND</Text>
             <Text style={styles.crossIrelandTitle}>Built for every young person in Ireland</Text>
             <Text style={styles.crossIrelandSub}>
-              Not just current university students. Whether you're a recent graduate, a prospective student, or in an apprenticeship — this section is for you.
+              Not just current university students. Whether you're a recent graduate, a prospective student, or in an apprenticeship, this section is for you.
             </Text>
             <View style={{ gap: 14, marginTop: spacing.lg }}>
               {CROSS_IRELAND_FEATURES.map(f => (

@@ -145,14 +145,14 @@ export default function SignUpScreen({ navigation }) {
   // Step 2
   const [situation, setSituation] = useState('')
 
-  // Step 3 — institution (in_college)
+  // Step 3, institution (in_college)
   const [institutionQuery, setInstitutionQuery]     = useState('')
   const [selectedInstitution, setSelectedInstitution] = useState(null)
   const [showInstList, setShowInstList]             = useState(false)
 
-  // Step 3 — PLC (reuses institutionQuery / selectedInstitution / showInstList from in_college)
+  // Step 3, PLC (reuses institutionQuery / selectedInstitution / showInstList from in_college)
 
-  // Step 3 — apprenticeship
+  // Step 3, apprenticeship
   const [tradeQuery, setTradeQuery]           = useState('')
   const [selectedTrade, setSelectedTrade]     = useState(null)
   const [showTradeList, setShowTradeList]     = useState(false)
@@ -160,11 +160,11 @@ export default function SignUpScreen({ navigation }) {
   const [selectedProvider, setSelectedProvider] = useState(null)
   const [showProviderList, setShowProviderList] = useState(false)
 
-  // Step 3 — shared
+  // Step 3, shared
   const [course, setCourse]         = useState('')
   const [yearOfStudy, setYearOfStudy] = useState('')
 
-  // Step 3 — interests and availability (all situations)
+  // Step 3, interests and availability (all situations)
   const [selectedInterests, setSelectedInterests] = useState(new Set())
   const [selectedStatuses, setSelectedStatuses]   = useState(new Set())
 
@@ -265,7 +265,7 @@ export default function SignUpScreen({ navigation }) {
         }
       }
 
-      // Interests and availability — collected in step 3 for all situations
+      // Interests and availability, collected in step 3 for all situations
       const interestLabels = [...selectedInterests]
         .map(id => INTERESTS.find(i => i.id === id)?.label)
         .filter(Boolean)
@@ -556,7 +556,7 @@ export default function SignUpScreen({ navigation }) {
                     {showInstList && !institutionQuery.trim() && (
                       <View style={styles.instHint}>
                         <Text style={styles.instHintText}>
-                          Type to search — e.g. "UCD", "TU Dublin", "MTU"
+                          Type to search, e.g. "UCD", "TU Dublin", "MTU"
                         </Text>
                       </View>
                     )}
@@ -593,7 +593,7 @@ export default function SignUpScreen({ navigation }) {
                     Search for your FE college or PLC provider. Type freely if yours isn't listed.
                   </Text>
 
-                  {/* Institution search — same mechanism as in_college */}
+                  {/* Institution search, same mechanism as in_college */}
                   <View style={styles.field}>
                     <Text style={styles.label}>College or Provider</Text>
                     <View style={[
@@ -653,7 +653,7 @@ export default function SignUpScreen({ navigation }) {
                     {showInstList && !institutionQuery.trim() && (
                       <View style={styles.instHint}>
                         <Text style={styles.instHintText}>
-                          Type to search — e.g. "BCFE", "CSN", "Rathmines"
+                          Type to search, e.g. "BCFE", "CSN", "Rathmines"
                         </Text>
                       </View>
                     )}
@@ -759,7 +759,7 @@ export default function SignUpScreen({ navigation }) {
                     {showTradeList && !tradeQuery.trim() && (
                       <View style={styles.instHint}>
                         <Text style={styles.instHintText}>
-                          Type to search — e.g. "Electrical", "Plumbing", "Software"
+                          Type to search, e.g. "Electrical", "Plumbing", "Software"
                         </Text>
                       </View>
                     )}
@@ -829,7 +829,7 @@ export default function SignUpScreen({ navigation }) {
                     {showProviderList && !providerQuery.trim() && (
                       <View style={styles.instHint}>
                         <Text style={styles.instHintText}>
-                          Type to search — e.g. "Dublin ETB", "Cork ETB", "Kildare"
+                          Type to search, e.g. "Dublin ETB", "Cork ETB", "Kildare"
                         </Text>
                       </View>
                     )}

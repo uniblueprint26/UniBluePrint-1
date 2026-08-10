@@ -26,8 +26,8 @@ const CAMPUS_FEATURES = [
     sub: 'Twelve community boards covering accommodation, marketplace, societies, and more.',
     count: 'Live at launch',
     preview: [
-      { text: 'Room near UCD — €600/month, bills included. Available from August.', meta: '2h ago' },
-      { text: 'Selling all 2nd yr Business textbooks — €15 each or €50 bundle.', meta: '1h ago' },
+      { text: 'Room near UCD, €600/month, bills included. Available from August.', meta: '2h ago' },
+      { text: 'Selling all 2nd yr Business textbooks, €15 each or €50 bundle.', meta: '1h ago' },
     ],
   },
   {
@@ -43,11 +43,11 @@ const CAMPUS_FEATURES = [
   {
     key: 'events', label: 'CAMPUS EVENTS', Icon: CalendarDays, color: '#EFF6FF',
     headline: "Never miss what's on this week",
-    sub: 'Society events, open days, campus talks, and student-run nights — all in one feed.',
+    sub: 'Society events, open days, campus talks, and student-run nights, all in one feed.',
     count: 'Live at launch',
     preview: [
-      { text: 'UCD Law Society mixer — Thursday · Free entry with student card', meta: 'Thu' },
-      { text: 'TCD Drama Society auditions — Monday 7pm · All welcome', meta: 'Mon' },
+      { text: 'UCD Law Society mixer, Thursday · Free entry with student card', meta: 'Thu' },
+      { text: 'TCD Drama Society auditions, Monday 7pm · All welcome', meta: 'Mon' },
     ],
   },
   {
@@ -68,85 +68,85 @@ const BOARDS_DATA = [
   {
     title: 'Accommodation', icon: '🏠', color: '#EFF6FF', postCount: 14,
     posts: [
-      { text: 'Room available near UCD — €600/month, bills included. Available from August.', time: '2h ago' },
+      { text: 'Room available near UCD, €600/month, bills included. Available from August.', time: '2h ago' },
       { text: 'Looking for 2 flatmates in Smithfield. Modern apt, €750pp. DM for info.', time: '5h ago' },
     ],
   },
   {
     title: 'Marketplace', icon: '🛒', color: '#F0FDF4', postCount: 21,
     posts: [
-      { text: 'Selling all 2nd year Business textbooks — €15 each or €50 bundle.', time: '1h ago' },
-      { text: 'MacBook Pro 2020 — excellent condition — €900. DM for photos.', time: '3h ago' },
+      { text: 'Selling all 2nd year Business textbooks, €15 each or €50 bundle.', time: '1h ago' },
+      { text: 'MacBook Pro 2020, excellent condition, €900. DM for photos.', time: '3h ago' },
     ],
   },
   {
     title: 'Events', icon: '🎉', color: '#FDF4FF', postCount: 8,
     posts: [
-      { text: 'UCD Law Society mixer this Thursday — free entry with student card.', time: '30m ago' },
-      { text: 'TCD Drama Society auditions — Monday 7pm — all welcome.', time: '4h ago' },
+      { text: 'UCD Law Society mixer this Thursday, free entry with student card.', time: '30m ago' },
+      { text: 'TCD Drama Society auditions, Monday 7pm, all welcome.', time: '4h ago' },
     ],
   },
   {
     title: 'Lost & Found', icon: '🔍', color: '#FFF7ED', postCount: 5,
     posts: [
       { text: 'Found: Blue North Face jacket in Library. Posted to security desk.', time: '6h ago' },
-      { text: 'Lost: AirPods Pro near Arts building — please DM if found.', time: '1d ago' },
+      { text: 'Lost: AirPods Pro near Arts building, please DM if found.', time: '1d ago' },
     ],
   },
   {
     title: 'Societies', icon: '🤝', color: '#F0F9FF', postCount: 9,
     posts: [
-      { text: 'Chess Society looking for new members — all levels welcome!', time: '2h ago' },
-      { text: 'St. Vincent de Paul UCC — volunteering every Tuesday evening.', time: '1d ago' },
+      { text: 'Chess Society looking for new members, all levels welcome!', time: '2h ago' },
+      { text: 'St. Vincent de Paul UCC, volunteering every Tuesday evening.', time: '1d ago' },
     ],
   },
   {
     title: 'Opportunities', icon: '💼', color: '#FEF9C3', postCount: 12,
     posts: [
-      { text: 'Part-time barista role — €13.50/hr — 3 mins from UCD. Apply now.', time: '45m ago' },
-      { text: 'Marketing intern wanted by Dublin startup — 20 hrs/week, paid.', time: '3h ago' },
+      { text: 'Part-time barista role, €13.50/hr, 3 mins from UCD. Apply now.', time: '45m ago' },
+      { text: 'Marketing intern wanted by Dublin startup, 20 hrs/week, paid.', time: '3h ago' },
     ],
   },
   {
     title: 'Problems & Solutions', icon: '💡', color: '#FEF9C3', postCount: 6,
     posts: [
       { text: 'Anyone know how to appeal a CAO change of mind decision? Need help urgently.', time: '1h ago' },
-      { text: 'Accommodation deposit taken but landlord gone silent — what are my rights?', time: '3h ago' },
+      { text: 'Accommodation deposit taken but landlord gone silent, what are my rights?', time: '3h ago' },
     ],
   },
   {
     title: 'Shared Subscriptions', icon: '🔗', color: '#F0F9FF', postCount: 4,
     posts: [
-      { text: 'Sharing Spotify Premium family plan — 2 spots left, €4/month each.', time: '2h ago' },
-      { text: 'Netflix account share — 1 spot open, €5/month. UCD area.', time: '5h ago' },
+      { text: 'Sharing Spotify Premium family plan, 2 spots left, €4/month each.', time: '2h ago' },
+      { text: 'Netflix account share, 1 spot open, €5/month. UCD area.', time: '5h ago' },
     ],
   },
   {
     title: 'Shared Notes', icon: '📝', color: '#EFF6FF', postCount: 9,
     posts: [
-      { text: 'MG4021 Week 8 notes — Google Drive link in comments.', time: '30m ago' },
-      { text: 'CS2001 Binary Trees summary — anyone want a copy? DM me.', time: '2h ago' },
+      { text: 'MG4021 Week 8 notes, Google Drive link in comments.', time: '30m ago' },
+      { text: 'CS2001 Binary Trees summary, anyone want a copy? DM me.', time: '2h ago' },
     ],
   },
   {
     title: 'College Reviews', icon: '⭐', color: '#F0FDF4', postCount: 11,
     posts: [
-      { text: 'UCD Commerce — solid for networking, weak on small group teaching. 7/10.', time: '4h ago' },
-      { text: 'TCD Law — incredibly challenging but library resources are unmatched.', time: '1d ago' },
+      { text: 'UCD Commerce, solid for networking, weak on small group teaching. 7/10.', time: '4h ago' },
+      { text: 'TCD Law, incredibly challenging but library resources are unmatched.', time: '1d ago' },
     ],
   },
   {
     title: 'Campus Suggestions', icon: '💬', color: '#FDF4FF', postCount: 3,
     posts: [
-      { text: '24hr study room in the Arts block — high demand during exam season.', time: '6h ago' },
-      { text: 'More microwaves in the SU — lunch queues are 20 minutes.', time: '1d ago' },
+      { text: '24hr study room in the Arts block, high demand during exam season.', time: '6h ago' },
+      { text: 'More microwaves in the SU, lunch queues are 20 minutes.', time: '1d ago' },
     ],
   },
   {
     title: 'Student Ads', icon: '📢', color: '#F5F0E8', postCount: 7,
     posts: [
-      { text: 'Guitar lessons available — €25/session, Dublin. Beginners welcome.', time: '1h ago' },
-      { text: 'Professional CV & cover letter service — €25. Fast turnaround.', time: '2h ago' },
+      { text: 'Guitar lessons available, €25/session, Dublin. Beginners welcome.', time: '1h ago' },
+      { text: 'Professional CV & cover letter service, €25. Fast turnaround.', time: '2h ago' },
     ],
   },
 ]
@@ -163,7 +163,7 @@ const CARPOOL_POSTS = [
 
 const PROJECTS = [
   { title: 'Campus Sustainability App', tags: ['Mobile Dev', 'UI/UX', 'Sustainability'], team: 2, need: 2, university: 'UCD' },
-  { title: 'AI Study Planner — Final Year Project', tags: ['AI/ML', 'Python', 'React'], team: 1, need: 3, university: 'TCD' },
+  { title: 'AI Study Planner, Final Year Project', tags: ['AI/ML', 'Python', 'React'], team: 1, need: 3, university: 'TCD' },
   { title: 'Student Budget Tracker', tags: ['Finance', 'App Dev', 'Open to All'], team: 3, need: 1, university: 'UL' },
 ]
 
@@ -260,7 +260,7 @@ export default function CampusConnectScreen({ navigation }) {
 
           <SectionHeader eyebrow="Community Boards" title="12 Boards, One Place" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
-            title="Example content — live when your campus goes live"
+            title="Example content, live when your campus goes live"
             subtitle="These posts are shown as examples. All 12 boards launch when real students join your campus community."
           />
           <ScrollView
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   seatBadge:        { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   seatBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
 
-  // Chat CTA — consistent across board cards and carpool posts
+  // Chat CTA, consistent across board cards and carpool posts
   chatBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     backgroundColor: 'rgba(30,58,95,0.08)',

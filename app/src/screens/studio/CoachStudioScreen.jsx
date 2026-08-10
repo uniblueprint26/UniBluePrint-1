@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, ChevronRight,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, ChevronRight, ArrowLeftRight,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useAuth } from '../../context/AuthContext'
 
 // DEMO DATA — replace with a live Supabase query filtered by coach_id once
 // the coaching booking and messaging schema exists.
@@ -28,14 +29,26 @@ const DEMO_SPECIALISMS = ['Career Strategy', 'Interview Coaching', 'Postgraduate
 
 export default function CoachStudioScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { setPortalMode } = useAuth()
 
   const activeClientCount = 12
   const monthlyBookings = 9
 
+  function backToMyBlueprint() {
+    setPortalMode('personal')
+    navigation.navigate('HomeMain')
+  }
+
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Text style={styles.headerEyebrow}>THE ELEVATION STUDIO</Text>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.headerEyebrow}>THE ELEVATION STUDIO</Text>
+          <TouchableOpacity style={styles.backLink} activeOpacity={0.75} onPress={backToMyBlueprint}>
+            <ArrowLeftRight size={12} color="rgba(245,240,232,0.6)" strokeWidth={2} />
+            <Text style={styles.backLinkText}>My Blueprint</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.headerTitle}>Your Workspace</Text>
 
         <View style={styles.headerStatsRow}>
@@ -145,11 +158,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
     textTransform: 'uppercase', marginBottom: 6,
   },
+  backLink: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  backLinkText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
   headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 16 },
 
   headerStatsRow: { flexDirection: 'row' },

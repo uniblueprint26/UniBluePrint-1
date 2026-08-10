@@ -11,7 +11,7 @@ const TOPICS = [
     items: [
       { label: 'How to submit a document request',              detail: 'Open Foundation Blueprint from the Home screen or sidebar. Choose your service, tap "Order", and follow the submission steps.' },
       { label: 'What information to include in your submission', detail: 'Include your current CV or relevant experience, the role or industry you are targeting, and any specific instructions for your Campus Handler.' },
-      { label: 'Standard vs Premium — what\'s the difference',  detail: 'Standard delivers your document within 48 hours. Premium is same-day and includes unlimited revisions until you are satisfied.' },
+      { label: 'Standard vs Premium, what\'s the difference',  detail: 'Standard delivers your document within 48 hours. Premium is same-day and includes unlimited revisions until you are satisfied.' },
       { label: 'Turnaround times and delivery',                 detail: 'Standard: 48 hours. Premium: same day. You will receive a notification and message when your document is ready.' },
       { label: 'Requesting revisions on a delivered document',  detail: 'Premium orders include revisions. Contact your Campus Handler directly through Messages to request changes to a delivered document.' },
     ],

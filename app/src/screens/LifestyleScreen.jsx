@@ -63,7 +63,7 @@ const PARTNERS = [
     tagline: 'Full gym access at a student rate.',
     deal: 'From €37.99/month',
     status: 'live',
-    description: 'Join Energie Fitness with an exclusive student membership at €37.99/month — compared to the standard rate of €39.99–€44.99/month. Joining fee is €15 (normally €30). Must be set up in person at the gym.',
+    description: 'Join Energie Fitness with an exclusive student membership at €37.99/month, compared to the standard rate of €39.99–€44.99/month. Joining fee is €15 (normally €30). Must be set up in person at the gym.',
     pricelist: [
       { label: 'Student Monthly',    price: '€37.99/month' },
       { label: 'Student Joining Fee', price: '€15' },
@@ -173,7 +173,7 @@ const PARTNERS = [
     services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
     howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
     contact: { instagram: 'leva.impact', tiktok: 'leva.media', phone: '0899662635', email: 'levaalex13@gmail.com', website: 'https://alexleva.myportfolio.com/home-page' },
-    crossLink: { label: "Also a UniBlueprint Uni Coach — see Alex's Digital Marketing profile", coachId: 10 },
+    crossLink: { label: "Also a UniBlueprint Uni Coach, see Alex's Digital Marketing profile", coachId: 10 },
   },
 
   // ── Shell: Services ─────────────────────────────────────────────────────
@@ -254,9 +254,9 @@ const BUDGET_TOOLS = [
 // initials circle for every partner that doesn't have a logo yet.
 //
 // partner.logo can be:
-//   null / undefined  — render initials fallback (permanent for shell/tbc cards)
-//   string (URL)      — remote image from Supabase Storage (partner-logos bucket)
-//   number            — static require() result, if ever used for bundled assets
+//   null / undefined , render initials fallback (permanent for shell/tbc cards)
+//   string (URL)     , remote image from Supabase Storage (partner-logos bucket)
+//   number           , static require() result, if ever used for bundled assets
 //
 // New partners are added with logo: null and updated via the admin-only
 // partner-logos Storage bucket. No logo assets should be committed to the repo.
@@ -269,7 +269,7 @@ function PartnerLogo({ partner, size = 44 }) {
   if (!isTbc && partner.logo) {
     const source = typeof partner.logo === 'string'
       ? { uri: partner.logo }   // remote URL from Storage
-      : partner.logo            // static require() (number) — kept for future use
+      : partner.logo            // static require() (number), kept for future use
     return (
       <View style={[styles.logoCircle, { width: size, height: size, borderRadius: size / 2 }]}>
         <Image source={source} style={{ width: size, height: size }} resizeMode="contain" />
@@ -319,7 +319,7 @@ function PartnerCard({ partner, navigation, autoOpen }) {
 
   return (
     <View style={styles.partnerCard}>
-      {/* Card row — always visible */}
+      {/* Card row, always visible */}
       <TouchableOpacity
         style={styles.cardRow}
         activeOpacity={isLive ? 0.75 : 1}
@@ -367,7 +367,7 @@ function PartnerCard({ partner, navigation, autoOpen }) {
         </View>
       </TouchableOpacity>
 
-      {/* Expanded detail — live cards only */}
+      {/* Expanded detail, live cards only */}
       {isLive && open && (
         <View style={styles.expandedSection}>
           {partner.credentials && (
@@ -491,7 +491,7 @@ export default function LifestyleScreen({ navigation, route }) {
           <Text style={styles.heroEyebrow}>LIFESTYLE</Text>
           <Text style={styles.heroTitle}>Lifestyle Blueprint</Text>
           <Text style={styles.heroSub}>
-            Partner deals, wellbeing support, and money tools — built around what life actually costs.
+            Partner deals, wellbeing support, and money tools, built around what life actually costs.
           </Text>
         </View>
 

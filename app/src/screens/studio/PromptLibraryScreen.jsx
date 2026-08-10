@@ -10,6 +10,7 @@ import { Search, Copy, Check } from 'lucide-react-native'
 // confirmation without an actual clipboard write.
 
 import Card from '../../components/ui/Card'
+import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 
 // PROMPT_LIBRARY — demo data. Shared prompt templates Handlers use while
@@ -123,6 +124,8 @@ export default function PromptLibraryScreen({ navigation }) {
             returnKeyType="search"
           />
         </View>
+
+        <StudioTabBar navigation={navigation} active="PromptLibrary" />
       </View>
 
       <ScrollView
