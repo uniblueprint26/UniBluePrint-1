@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native'
+import { useState, useMemo, useEffect } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, Copy, Check } from 'lucide-react-native'
 
@@ -12,53 +12,12 @@ import { Search, Copy, Check } from 'lucide-react-native'
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { supabase } from '../../lib/supabase'
 
-// PROMPT_LIBRARY — demo data. Shared prompt templates Handlers use while
-// working tickets, grouped by service type.
-const PROMPT_LIBRARY = [
-  {
-    id: 'p1', serviceType: 'CV Optimisation', title: 'Structured CV Review',
-    prompt: 'Review this CV against the target role. Assess formatting consistency, quantify achievements where missing, flag weak action verbs, and check for a clear, single-page narrative. Return specific line-by-line edits, not general advice.',
-  },
-  {
-    id: 'p2', serviceType: 'CV Optimisation', title: 'ATS Keyword Pass',
-    prompt: 'Compare this CV against the job description provided. List missing keywords and skills the ATS is likely to screen for, and suggest where in the CV each one can be naturally worked in without keyword stuffing.',
-  },
-  {
-    id: 'p3', serviceType: 'CV Optimisation', title: 'Graduate CV, No Experience',
-    prompt: 'This student has limited work experience. Rework the CV to lead with academic projects, part-time work, and transferable skills. Reframe each bullet point around impact and outcome rather than duty.',
-  },
-  {
-    id: 'p4', serviceType: 'Interview Prep', title: 'Behavioural Question Bank',
-    prompt: 'Generate 8 behavioural interview questions tailored to this role and industry. For each, note what the interviewer is really assessing and one STAR-format example the student could adapt.',
-  },
-  {
-    id: 'p5', serviceType: 'Interview Prep', title: 'Mock Interview Feedback',
-    prompt: 'Based on the student\'s practice answers below, give structured feedback: clarity, structure (STAR), specificity of examples, and confidence of delivery. End with the single highest-impact thing to fix before the real interview.',
-  },
-  {
-    id: 'p6', serviceType: 'Interview Prep', title: 'Tough Question Prep',
-    prompt: 'Identify the 3 hardest questions this student is likely to face given gaps or weaknesses in their background, and draft honest, confident sample answers for each.',
-  },
-  {
-    id: 'p7', serviceType: 'Cover Letter Assistance', title: 'Cover Letter Structure Check',
-    prompt: 'Review this cover letter for structure: strong opening hook, specific reason for applying to this company, 2 to 3 concrete examples tied to the role, and a confident close. Rewrite any section that reads generic.',
-  },
-  {
-    id: 'p8', serviceType: 'Cover Letter Assistance', title: 'Tone and Voice Pass',
-    prompt: 'Check this cover letter for tone. It should sound like a confident, articulate student, not a template. Flag any clichés, filler phrases, or overly formal language, and suggest more natural alternatives.',
-  },
-  {
-    id: 'p9', serviceType: 'LinkedIn Optimisation', title: 'Headline and About Rewrite',
-    prompt: 'Rewrite this LinkedIn headline and About section to be specific, keyword-rich for the target industry, and written in first person with a clear sense of what the student is looking for next.',
-  },
-  {
-    id: 'p10', serviceType: 'LinkedIn Optimisation', title: 'Experience Section Polish',
-    prompt: 'Review each experience entry on this LinkedIn profile. Convert task-based descriptions into achievement-based bullet points, matching the tone and keywords of the CV Optimisation review for consistency.',
-  },
-]
-
-const SERVICE_TYPES = [...new Set(PROMPT_LIBRARY.map(p => p.serviceType))]
+// Prompts are read live from public.prompt_library (joined to services for
+// the service name), seeded by migration 20260811090000 with the same
+// content this screen used to hardcode — so this is a source change, not a
+// content change. Operations/Founder can add more via that table directly.
 
 function PromptCard({ item }) {
   const [copied, setCopied] = useState(false)
@@ -89,18 +48,39 @@ function PromptCard({ item }) {
 
 export default function PromptLibraryScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const [query, setQuery] = useState('')
+  const [query, setQuery]     = useState('')
+  const [prompts, setPrompts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    supabase
+      .from('prompt_library')
+      .select('id, title, prompt_text, services(name)')
+      .eq('active', true)
+      .then(({ data }) => {
+        if (cancelled) return
+        setPrompts((data || []).map(p => ({
+          id: p.id, title: p.title, prompt: p.prompt_text,
+          serviceType: p.services?.name || 'General',
+        })))
+        setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const serviceTypes = useMemo(() => [...new Set(prompts.map(p => p.serviceType))], [prompts])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return PROMPT_LIBRARY
-    return PROMPT_LIBRARY.filter(p =>
+    if (!q) return prompts
+    return prompts.filter(p =>
       p.title.toLowerCase().includes(q) ||
       p.prompt.toLowerCase().includes(q) ||
       p.serviceType.toLowerCase().includes(q))
-  }, [query])
+  }, [query, prompts])
 
-  const groups = SERVICE_TYPES
+  const groups = serviceTypes
     .map(type => ({ type, items: filtered.filter(p => p.serviceType === type) }))
     .filter(g => g.items.length > 0)
 
@@ -133,7 +113,9 @@ export default function PromptLibraryScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {groups.length === 0 ? (
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
+        ) : groups.length === 0 ? (
           <Text style={styles.emptyText}>No prompts match your search.</Text>
         ) : (
           groups.map(group => (

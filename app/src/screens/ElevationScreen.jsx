@@ -21,6 +21,14 @@ const FILTER_PILLS = [
 // Updated: Milan Piroska, Emanuel Tolic, Jayden Reynolds
 // Added: Tadgh Darcy, Eitne Jarrett, Kevin (TrainWitKev), Aoife Keogh
 
+// Stable key linking a coach's static listing here to their live
+// coach_profiles row in Supabase (coach_profiles.coach_slug), so a coach's
+// self-edited bio/photo, and a coach's booking enquiries, can be looked up
+// without every coach needing a fully structured database record.
+export function coachSlug(id) {
+  return `coach-${id}`
+}
+
 export const COACHES = [
   // ── Academic ──
   {

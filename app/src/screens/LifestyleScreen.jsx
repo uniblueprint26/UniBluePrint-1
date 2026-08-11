@@ -28,7 +28,7 @@ const FILTERS = [
 // 'shell' → name + category only, "details coming soon"
 // 'tbc'   → confirmed partner, amber TBC badge, "details to follow"
 
-const PARTNERS = [
+export const PARTNERS = [
   // ── Live: Health & Fitness ──────────────────────────────────────────────
   {
     id: 'mpfitness',

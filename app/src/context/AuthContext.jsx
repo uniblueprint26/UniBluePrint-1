@@ -85,12 +85,13 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, metadata) {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: metadata },
     })
     if (error) throw error
+    return data
   }
 
   async function signOut() {
@@ -118,8 +119,19 @@ export function AuthProvider({ children }) {
 
   const isHandler = hasRole('handler')
   const isCoach = hasRole('coach')
+  const isFounder = hasRole('founder')
+  const isOperations = hasRole('operations')
+  const isBusiness = hasRole('business')
   const isStudioEligible = isHandler || isCoach
-  const studioLabel = isHandler ? 'The Blueprint Studio' : isCoach ? 'The Elevation Studio' : 'The Studio'
+  // Any of the five internal-team roles that get a second, professional-side
+  // interface in addition to their personal "My Blueprint" experience.
+  const isAnyPortalEligible = isHandler || isCoach || isFounder || isOperations || isBusiness
+  const studioLabel = isHandler ? 'The Blueprint Studio'
+    : isCoach ? 'The Elevation Studio'
+    : isFounder ? 'Founder Dashboard'
+    : isOperations ? 'Operations Dashboard'
+    : isBusiness ? 'Partner Portal'
+    : 'The Studio'
   const portalRole = roles.find(r => PORTAL_ROLES.includes(r)) || null
 
   return (
@@ -127,7 +139,8 @@ export function AuthProvider({ children }) {
       user, loading, roles, hasRole, portalRole,
       subscription, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
       signIn, signUp, signOut, resetPassword, resendVerification,
-      isHandler, isCoach, isStudioEligible, studioLabel,
+      isHandler, isCoach, isFounder, isOperations, isBusiness,
+      isStudioEligible, isAnyPortalEligible, studioLabel,
       portalMode, setPortalMode,
     }}>
       {children}

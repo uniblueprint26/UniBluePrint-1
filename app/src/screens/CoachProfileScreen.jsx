@@ -1,9 +1,16 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
+import { useEffect, useState } from 'react'
+import {
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking,
+  Image, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User,
+  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send,
 } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
+import { coachSlug } from './ElevationScreen'
 
 // ── Link helper ───────────────────────────────────────────────────────────────
 
@@ -21,9 +28,161 @@ function openLink(type, value) {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
+// ── Booking / Enquiry Modal ─────────────────────────────────────────────────
+// Writes a real row to coach_enquiries — Operations/Founder and, if the
+// coach is a registered platform user, the coach themself are notified.
+// Sits alongside the direct-contact links, not instead of them, since most
+// coaches in this listing are not yet registered platform users.
+
+function EnquiryModal({ visible, onClose, coach, userId }) {
+  const [message, setMessage]   = useState('')
+  const [sending, setSending]   = useState(false)
+  const [sent, setSent]         = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
+
+  async function submit() {
+    if (!userId) {
+      setErrorMsg('Please sign in to send a booking enquiry.')
+      return
+    }
+    setSending(true)
+    setErrorMsg(null)
+    try {
+      const { error } = await supabase.from('coach_enquiries').insert({
+        user_id: userId,
+        coach_slug: coachSlug(coach.id),
+        coach_name: coach.name,
+        message: message.trim() || null,
+      })
+      if (error) throw error
+      setSent(true)
+    } catch {
+      setErrorMsg('Could not send your enquiry. Please try again, or contact the coach directly below.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  function handleClose() {
+    setMessage('')
+    setSent(false)
+    setErrorMsg(null)
+    onClose()
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={m.backdrop}
+      >
+        <View style={m.sheet}>
+          <View style={m.headerRow}>
+            <Text style={m.title}>{sent ? 'Enquiry sent' : `Enquire with ${coach.name}`}</Text>
+            <TouchableOpacity onPress={handleClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+
+          {sent ? (
+            <View style={{ paddingVertical: 20 }}>
+              <Text style={m.sentText}>
+                Your enquiry has gone straight to {coach.name} and the UniBlueprint team. They'll follow up with you directly.
+              </Text>
+              <TouchableOpacity style={m.doneBtn} activeOpacity={0.85} onPress={handleClose}>
+                <Text style={m.doneBtnText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={m.sub}>
+                Tell {coach.name} a bit about what you're looking for. This goes directly to them and the UniBlueprint team.
+              </Text>
+              <TextInput
+                style={m.input}
+                placeholder="e.g. I'd like to enquire about the 8-week package, starting availability..."
+                placeholderTextColor={colors.light}
+                value={message}
+                onChangeText={setMessage}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              {!!errorMsg && <Text style={m.error}>{errorMsg}</Text>}
+              <TouchableOpacity
+                style={[m.sendBtn, sending && { opacity: 0.7 }]}
+                activeOpacity={0.85}
+                onPress={submit}
+                disabled={sending}
+              >
+                {sending
+                  ? <ActivityIndicator size="small" color={colors.cream} />
+                  : <>
+                      <Send size={14} color={colors.cream} strokeWidth={2} />
+                      <Text style={m.sendBtnText}>Send Enquiry</Text>
+                    </>
+                }
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+const m = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+  sheet: {
+    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: spacing.lg, paddingBottom: 34,
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
+  input: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 14, minHeight: 100,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    marginBottom: 12,
+  },
+  error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
+  sendBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14,
+  },
+  sendBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
+  doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+})
+
 export default function CoachProfileScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
-  const { coach } = route.params
+  const { user } = useAuth()
+  const { coach: baseCoach } = route.params
+
+  // Live self-edited bio/photo, if this coach has a linked coach_profiles
+  // row with a coach_slug matching this listing. Falls back to the static
+  // listing data when no override exists yet.
+  const [override, setOverride] = useState(null)
+  const [enquiryOpen, setEnquiryOpen] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    supabase
+      .from('coach_profiles')
+      .select('bio, photo_url')
+      .eq('coach_slug', coachSlug(baseCoach.id))
+      .maybeSingle()
+      .then(({ data }) => { if (!cancelled && data) setOverride(data) })
+    return () => { cancelled = true }
+  }, [baseCoach.id])
+
+  const coach = override
+    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: override.photo_url }
+    : baseCoach
 
   function handleEnquire() {
     if (!coach.contact) return
@@ -47,14 +206,18 @@ export default function CoachProfileScreen({ route, navigation }) {
           <Text style={styles.backBtnText}>Coaches</Text>
         </TouchableOpacity>
 
-        {/* Frosted glass avatar — double-ring treatment */}
+        {/* Frosted glass avatar — double-ring treatment, real photo when available */}
         <View style={styles.avatarOuter}>
           <View style={styles.avatarInner}>
-            <User
-              size={44}
-              color={coach.shell ? 'rgba(245,240,232,0.3)' : 'rgba(245,240,232,0.6)'}
-              strokeWidth={1.2}
-            />
+            {coach.photoUrl ? (
+              <Image source={{ uri: coach.photoUrl }} style={styles.avatarImg} resizeMode="cover" />
+            ) : (
+              <User
+                size={44}
+                color={coach.shell ? 'rgba(245,240,232,0.3)' : 'rgba(245,240,232,0.6)'}
+                strokeWidth={1.2}
+              />
+            )}
           </View>
         </View>
 
@@ -302,12 +465,30 @@ export default function CoachProfileScreen({ route, navigation }) {
 
         {/* ── CTA ── */}
         {!coach.shell && (
-          <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.8} onPress={handleEnquire}>
-            <Text style={styles.ctaBtnText}>Book / Enquire</Text>
-          </TouchableOpacity>
+          <View style={{ gap: 10 }}>
+            <TouchableOpacity
+              style={styles.ctaBtn}
+              activeOpacity={0.8}
+              onPress={() => setEnquiryOpen(true)}
+            >
+              <Text style={styles.ctaBtnText}>Book / Enquire</Text>
+            </TouchableOpacity>
+            {coach.contact && (
+              <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={handleEnquire}>
+                <Text style={styles.ctaSecondaryBtnText}>Or contact directly</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         )}
 
       </ScrollView>
+
+      <EnquiryModal
+        visible={enquiryOpen}
+        onClose={() => setEnquiryOpen(false)}
+        coach={coach}
+        userId={user?.id}
+      />
     </View>
   )
 }
@@ -461,4 +642,11 @@ const styles = StyleSheet.create({
   // CTA
   ctaBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 54, alignItems: 'center', justifyContent: 'center', marginHorizontal: spacing.md },
   ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  ctaSecondaryBtn: {
+    height: 48, borderRadius: radius.button, marginHorizontal: spacing.md,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  ctaSecondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  avatarImg: { width: 84, height: 84, borderRadius: 42 },
 })

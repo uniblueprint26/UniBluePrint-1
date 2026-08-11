@@ -1,12 +1,15 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
+import { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, ChevronRight, ArrowLeftRight,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, ChevronRight, ArrowLeftRight, UserCog, Save,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import ImageUploader from '../../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
 
 // DEMO DATA — replace with a live Supabase query filtered by coach_id once
 // the coaching booking and messaging schema exists.
@@ -27,9 +30,119 @@ const DEMO_CLIENT_ACTIVITY = [
 
 const DEMO_SPECIALISMS = ['Career Strategy', 'Interview Coaching', 'Postgraduate Planning', 'Confidence Building']
 
+// ── Edit My Profile ──────────────────────────────────────────────────────────
+// Self-serve bio/photo editing for a coach whose coach_profiles row has
+// already been linked (coach_slug set) by Operations/Founder. A coach cannot
+// create that link themselves — RLS only grants coaches UPDATE on their own
+// row, not INSERT — so an unlinked coach sees a clear next step instead of a
+// broken form. Every save is picked up by a database trigger that notifies
+// Operations/Founder, so self-edit is never silent.
+function EditProfileSection({ userId }) {
+  const [loading, setLoading]   = useState(true)
+  const [profile, setProfile]   = useState(null) // { coach_slug, bio, photo_url } or null if unlinked
+  const [bio, setBio]           = useState('')
+  const [photoUrl, setPhotoUrl] = useState(null)
+  const [saving, setSaving]     = useState(false)
+  const [saved, setSaved]       = useState(false)
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+    supabase
+      .from('coach_profiles')
+      .select('coach_slug, bio, photo_url')
+      .eq('user_id', userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return
+        setProfile(data || null)
+        setBio(data?.bio || '')
+        setPhotoUrl(data?.photo_url || null)
+        setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [userId])
+
+  async function save() {
+    if (!profile?.coach_slug) return
+    setSaving(true)
+    setSaved(false)
+    try {
+      const { error } = await supabase
+        .from('coach_profiles')
+        .update({ bio: bio.trim(), photo_url: photoUrl })
+        .eq('user_id', userId)
+      if (error) throw error
+      setSaved(true)
+    } catch {
+      // Best-effort UI feedback only — ImageUploader/save button already
+      // guard the common failure paths (auth, network).
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <>
+      <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+        <UserCog size={14} color={colors.navy} />
+        <Text style={styles.sectionEyebrow}>EDIT MY PROFILE</Text>
+      </View>
+
+      <Card style={styles.editCard}>
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.navy} />
+        ) : !profile ? (
+          <Text style={styles.editUnlinkedText}>
+            Your coach profile hasn't been linked yet. Contact Operations to get your bio and photo
+            connected to your live listing, once that's done you can edit both here anytime.
+          </Text>
+        ) : (
+          <>
+            <ImageUploader
+              bucket="coach-photos"
+              storagePath={`${profile.coach_slug}/photo.jpg`}
+              currentUrl={photoUrl}
+              onUpload={setPhotoUrl}
+              label="Profile Photo"
+              size={84}
+            />
+            <Text style={styles.editLabel}>Bio</Text>
+            <TextInput
+              style={styles.editInput}
+              value={bio}
+              onChangeText={setBio}
+              multiline
+              numberOfLines={5}
+              textAlignVertical="top"
+              placeholder="Tell people what you help with and how you work..."
+              placeholderTextColor={colors.light}
+            />
+            <TouchableOpacity
+              style={[styles.editSaveBtn, saving && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              onPress={save}
+              disabled={saving}
+            >
+              {saving
+                ? <ActivityIndicator size="small" color={colors.cream} />
+                : <>
+                    <Save size={14} color={colors.cream} strokeWidth={2} />
+                    <Text style={styles.editSaveBtnText}>Save Changes</Text>
+                  </>
+              }
+            </TouchableOpacity>
+            {saved && <Text style={styles.editSavedText}>Saved. Operations has been notified.</Text>}
+          </>
+        )}
+      </Card>
+    </>
+  )
+}
+
 export default function CoachStudioScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const { setPortalMode } = useAuth()
+  const { setPortalMode, user } = useAuth()
 
   const activeClientCount = 12
   const monthlyBookings = 9
@@ -145,6 +258,9 @@ export default function CoachStudioScreen({ navigation }) {
           ))}
         </View>
 
+        {/* Edit My Profile — self-serve bio + photo */}
+        <EditProfileSection userId={user?.id} />
+
       </ScrollView>
     </View>
   )
@@ -219,4 +335,27 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   specialismPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+
+  editCard: { alignItems: 'stretch' },
+  editUnlinkedText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
+  editLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.7, marginTop: 18, marginBottom: 8,
+  },
+  editInput: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 14, minHeight: 110,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+  },
+  editSaveBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 13,
+    marginTop: 14,
+  },
+  editSaveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  editSavedText: {
+    fontFamily: fonts.sans, fontSize: 12, color: '#15803D',
+    textAlign: 'center', marginTop: 10,
+  },
 })

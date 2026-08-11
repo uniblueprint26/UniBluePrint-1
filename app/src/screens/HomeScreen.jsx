@@ -239,19 +239,26 @@ const m = StyleSheet.create({
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const {
-    user, isStudioEligible, isHandler, studioLabel,
-    isComplimentaryPro, portalMode, setPortalMode,
+    user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness,
+    studioLabel, isComplimentaryPro, portalMode, setPortalMode,
   } = useAuth()
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const firstName   = getFirstName(displayName)
 
   // Dual portal — one tap in the top nav switches My Blueprint <-> the
-  // Handler/Coach professional workspace. Landing screen depends on role.
+  // internal-team professional workspace. Landing screen depends on role;
+  // a user can only hold one of these at a time in practice, so the first
+  // match wins.
   function handlePortalSwitch(mode) {
     setPortalMode(mode)
     if (mode === 'studio') {
-      navigation.navigate(isHandler ? 'StudioQueue' : 'CoachStudio')
+      const landing = isHandler ? 'StudioQueue'
+        : isFounder ? 'FounderPortal'
+        : isOperations ? 'OperationsPortal'
+        : isBusiness ? 'PartnerPortalApp'
+        : 'CoachStudio'
+      navigation.navigate(landing)
     }
   }
 
@@ -426,7 +433,7 @@ export default function HomeScreen({ navigation }) {
               is this screen; switching to Studio hands off to the
               professional workspace, which contains no student-facing
               submission forms. */}
-          {isStudioEligible && (
+          {isAnyPortalEligible && (
             <View style={styles.portalSwitchRow}>
               <PortalSwitcher
                 active={portalMode}

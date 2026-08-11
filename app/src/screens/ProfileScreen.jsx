@@ -14,6 +14,7 @@ import ImageUploader from '../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { WEBSITE_LINKS } from '../constants/site'
 
 // ── Explore links ──────────────────────────────────────────────────────────────
 
@@ -58,7 +59,7 @@ const EXPLORE_LINKS = [
 
 const ACCOUNT_LINKS = [
   { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
-  { Icon: Lock,     label: 'Privacy',          sub: 'Control your data and visibility',  screen: null },
+  { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
 ]
 
@@ -393,12 +394,17 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.membershipEyebrow}>CURRENT PLAN</Text>
               <Text style={styles.membershipTitle}>Free Member</Text>
             </View>
-            <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.upgradeBtn}
+              activeOpacity={0.8}
+              onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}
+            >
               <Text style={styles.upgradeBtnText}>Upgrade</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.membershipSub}>
-            Upgrade to unlock priority coach access and premium document services.
+            Upgrade to unlock priority coach access and premium document services. Plans and
+            payment are handled securely on the UniBlueprint website, never in the app.
           </Text>
         </View>
 

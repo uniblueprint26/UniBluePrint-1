@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
-  ScrollView,
+  ScrollView, Linking,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -10,10 +10,13 @@ import {
   Eye, EyeOff, AlertCircle, ChevronLeft, Check,
 } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
+import { WEBSITE_LINKS } from '../../constants/site'
+import { TERMS_VERSION, PRIVACY_VERSION } from '../../constants/legal'
 
 // ── Situations ────────────────────────────────────────────────────────────────
 
@@ -171,6 +174,7 @@ export default function SignUpScreen({ navigation }) {
   // Meta
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   // Scroll to top on step change
   useEffect(() => {
@@ -186,6 +190,7 @@ export default function SignUpScreen({ navigation }) {
     if (!password)                             return 'Password is required.'
     if (password.length < 8)                   return 'Password must be at least 8 characters.'
     if (password !== confirmPassword)          return 'Passwords do not match.'
+    if (!agreedToTerms)                        return 'Please agree to the Terms of Service and Privacy Policy to continue.'
     return null
   }
 
@@ -272,7 +277,20 @@ export default function SignUpScreen({ navigation }) {
       if (interestLabels.length)   metadata.interests = interestLabels
       if (selectedStatuses.size)   metadata.statuses  = [...selectedStatuses]
 
-      await signUp(email.trim(), password, metadata)
+      const signUpData = await signUp(email.trim(), password, metadata)
+
+      // Record versioned consent. Best-effort — a failure here must not block
+      // account creation, which has already succeeded by this point.
+      const newUserId = signUpData?.user?.id
+      if (newUserId) {
+        try {
+          await supabase.from('legal_acknowledgements').insert([
+            { user_id: newUserId, document_type: 'terms_of_service', version: TERMS_VERSION },
+            { user_id: newUserId, document_type: 'privacy_policy',   version: PRIVACY_VERSION },
+          ])
+        } catch { /* best effort, account creation already succeeded */ }
+      }
+
       navigation.navigate('VerifyEmail', { email: email.trim() })
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -401,11 +419,25 @@ export default function SignUpScreen({ navigation }) {
                 </View>
               </View>
 
-              <Text style={styles.terms}>
-                By creating an account you agree to our{' '}
-                <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
-                <Text style={styles.termsLink}>Privacy Policy</Text>.
-              </Text>
+              <TouchableOpacity
+                style={styles.termsRow}
+                activeOpacity={0.75}
+                onPress={() => setAgreedToTerms(v => !v)}
+              >
+                <View style={[styles.termsCheckbox, agreedToTerms && styles.termsCheckboxOn]}>
+                  {agreedToTerms && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                </View>
+                <Text style={styles.terms}>
+                  I agree to the{' '}
+                  <Text style={styles.termsLink} onPress={() => Linking.openURL(WEBSITE_LINKS.terms)}>
+                    Terms of Service
+                  </Text>{' '}
+                  and{' '}
+                  <Text style={styles.termsLink} onPress={() => Linking.openURL(WEBSITE_LINKS.privacy)}>
+                    Privacy Policy
+                  </Text>.
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.primaryBtn}
@@ -1043,8 +1075,15 @@ const styles = StyleSheet.create({
   },
   situationRadioActive: { backgroundColor: colors.navy, borderColor: colors.navy },
 
-  terms: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: spacing.lg },
-  termsLink: { fontFamily: fonts.sansMedium, color: colors.navy },
+  termsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: spacing.lg },
+  termsCheckbox: {
+    width: 20, height: 20, borderRadius: 5, marginTop: 1,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.25)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  termsCheckboxOn: { backgroundColor: colors.navy, borderColor: colors.navy },
+  terms: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
+  termsLink: { fontFamily: fonts.sansMedium, color: colors.navy, textDecorationLine: 'underline' },
 
   primaryBtn: {
     backgroundColor: colors.navy, borderRadius: radius.button,

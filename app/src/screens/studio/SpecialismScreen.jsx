@@ -1,38 +1,20 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
+import { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Info, Star } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../context/AuthContext'
 
-// DEMO_SPECIALISMS — Handler's declared specialisms and real performance
-// data per service type. Confidence level is a tiebreaker at assignment
-// time, not a hard filter, and is gradually replaced by real performance
-// once a Handler has completed 10 tickets of that service type.
-const DEMO_SPECIALISMS = [
-  {
-    id: 's1', serviceType: 'CV Optimisation', confidence: 'Strong',
-    ticketsCompleted: 34, avgRating: 4.9,
-  },
-  {
-    id: 's2', serviceType: 'Interview Prep', confidence: 'Comfortable',
-    ticketsCompleted: 17, avgRating: 4.7,
-  },
-  {
-    id: 's3', serviceType: 'Cover Letter Assistance', confidence: 'Strong',
-    ticketsCompleted: 28, avgRating: 4.8,
-  },
-  {
-    id: 's4', serviceType: 'LinkedIn Optimisation', confidence: 'Developing',
-    ticketsCompleted: 6, avgRating: 4.5,
-  },
-  {
-    id: 's5', serviceType: 'Personal Statement Review', confidence: 'Comfortable',
-    ticketsCompleted: 11, avgRating: 4.6,
-  },
-]
-
+// Read live from handler_specialisms (joined to services), matching the
+// column shapes exactly: confidence, tickets_completed, rating_sum. Average
+// rating is derived client-side (rating_sum / tickets_completed) rather than
+// stored, same as the database's own reassess_specialism_confidence()
+// trigger already computes it server-side.
+const CONFIDENCE_LABEL = { developing: 'Developing', comfortable: 'Comfortable', strong: 'Strong' }
 const CONFIDENCE_STYLE = {
   Strong:      { bg: '#F0FDF4', text: '#15803D' },
   Comfortable: { bg: '#EFF6FF', text: '#1d4ed8' },
@@ -82,6 +64,30 @@ function SpecialismCard({ item }) {
 
 export default function SpecialismScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
+  const [specialisms, setSpecialisms] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    supabase
+      .from('handler_specialisms')
+      .select('id, confidence, tickets_completed, rating_sum, services(name)')
+      .eq('handler_id', user.id)
+      .then(({ data }) => {
+        if (cancelled) return
+        setSpecialisms((data || []).map(s => ({
+          id: s.id,
+          serviceType: s.services?.name || 'Unknown service',
+          confidence: CONFIDENCE_LABEL[s.confidence] || 'Developing',
+          ticketsCompleted: s.tickets_completed,
+          avgRating: s.tickets_completed > 0 ? s.rating_sum / s.tickets_completed : 0,
+        })))
+        setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [user?.id])
 
   return (
     <View style={styles.screen}>
@@ -109,11 +115,20 @@ export default function SpecialismScreen({ navigation }) {
           </Text>
         </Card>
 
-        <View style={{ gap: 10, marginTop: 16 }}>
-          {DEMO_SPECIALISMS.map(item => (
-            <SpecialismCard key={item.id} item={item} />
-          ))}
-        </View>
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 30 }} />
+        ) : specialisms.length === 0 ? (
+          <Text style={styles.emptyText}>
+            No declared specialisms yet. These are set up with Operations when you join the queue
+            for a service type.
+          </Text>
+        ) : (
+          <View style={{ gap: 10, marginTop: 16 }}>
+            {specialisms.map(item => (
+              <SpecialismCard key={item.id} item={item} />
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   )
@@ -147,6 +162,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   infoText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 18 },
+  emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 30, lineHeight: 19, paddingHorizontal: 10 },
 
   specCard: {},
   specTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },

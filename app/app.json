@@ -14,13 +14,21 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.uniblueprint.app"
+      "bundleIdentifier": "com.uniblueprint.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.",
+        "NSCameraUsageDescription": "UniBlueprint needs camera access so you can take a photo to use as your profile picture or ad image."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#F5F0E8"
       },
-      "package": "com.uniblueprint.app"
+      "package": "com.uniblueprint.app",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "bundler": "metro"

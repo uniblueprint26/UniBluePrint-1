@@ -35,10 +35,16 @@ import AvailabilityScreen   from '../screens/studio/AvailabilityScreen'
 import SpecialismScreen     from '../screens/studio/SpecialismScreen'
 import CoachStudioScreen    from '../screens/studio/CoachStudioScreen'
 
+// Dual Portal — Founder / Operations / Partner (business)
+import FounderPortalScreen    from '../screens/portals/FounderPortalScreen'
+import OperationsPortalScreen from '../screens/portals/OperationsPortalScreen'
+import PartnerPortalScreen    from '../screens/portals/PartnerPortalScreen'
+
 // Profile sub-screens
-import AboutScreen  from '../screens/AboutScreen'
-import FAQsScreen   from '../screens/FAQsScreen'
-import HelpScreen   from '../screens/HelpScreen'
+import AboutScreen       from '../screens/AboutScreen'
+import FAQsScreen        from '../screens/FAQsScreen'
+import HelpScreen        from '../screens/HelpScreen'
+import PrivacyDataScreen from '../screens/PrivacyDataScreen'
 
 // Auth screens
 import WelcomeScreen        from '../screens/auth/WelcomeScreen'
@@ -80,6 +86,11 @@ function HomeStack() {
       <Stack.Screen name="Availability"     component={AvailabilityScreen}  />
       <Stack.Screen name="Specialism"       component={SpecialismScreen}    />
       <Stack.Screen name="CoachStudio"      component={CoachStudioScreen}   />
+
+      {/* Dual Portal — Founder / Operations / Partner (business) */}
+      <Stack.Screen name="FounderPortal"    component={FounderPortalScreen}    />
+      <Stack.Screen name="OperationsPortal" component={OperationsPortalScreen} />
+      <Stack.Screen name="PartnerPortalApp" component={PartnerPortalScreen}    />
     </Stack.Navigator>
   )
 }
@@ -113,10 +124,11 @@ function DirectoryStack() {
 function ProfileStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
-      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
-      <Stack.Screen name="About"  component={AboutScreen}  />
-      <Stack.Screen name="FAQs"   component={FAQsScreen}   />
-      <Stack.Screen name="Help"   component={HelpScreen}   />
+      <Stack.Screen name="ProfileMain"  component={ProfileScreen}     />
+      <Stack.Screen name="About"        component={AboutScreen}       />
+      <Stack.Screen name="FAQs"         component={FAQsScreen}        />
+      <Stack.Screen name="Help"         component={HelpScreen}        />
+      <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
     </Stack.Navigator>
   )
 }
