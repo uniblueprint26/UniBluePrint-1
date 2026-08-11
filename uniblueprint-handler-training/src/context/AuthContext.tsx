@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from('training_users')
       .select('id, email, full_name, university, role, access_code')
       .eq('email', email.trim().toLowerCase())
-      .eq('access_code', accessCode.trim())
+      .eq('access_code', accessCode.trim().toUpperCase())
       .maybeSingle()
 
     if (error || !data) {
