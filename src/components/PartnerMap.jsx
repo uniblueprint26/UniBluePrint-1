@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Lock } from 'lucide-react'
 
@@ -12,7 +12,6 @@ const GOLD_GLOW = 'rgba(201,162,75,0.4)'
 const AMBER = '#F59E0B'
 const AMBER_GLOW = 'rgba(245,158,11,0.28)'
 const LOCKED = '#8B9BB5'
-const CREAM = '#F5F0E8'
 const NAVY = '#1E3A5F'
 
 // ─── Simplified Republic of Ireland outline (viewBox 0 0 360 400) ────────────
@@ -81,28 +80,50 @@ const MYSTERY_COUNTIES = [
 ]
 const MYSTERY_PINS = MYSTERY_COUNTIES.map((county, i) => ({ key: `mystery-${county}`, pos: at(county), delay: i }))
 
+const PING_INTERVAL_MS = 27000
+
 const PMAP_STYLES = `
   .pmap-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
   .pmap-stage { position: relative; width: 100%; max-width: 380px; }
   .pmap-svg { width: 100%; height: auto; display: block; overflow: visible; }
-  .pmap-land { fill: rgba(245,240,232,0.065); stroke: rgba(245,240,232,0.22); stroke-width: 1.4; }
-  .pmap-pin { cursor: pointer; }
+  .pmap-land { stroke: rgba(245,240,232,0.22); stroke-width: 1.4; }
+  .pmap-coastline-inner { fill: none; stroke: rgba(245,240,232,0.14); stroke-width: 0.8; transform: scale(0.965); transform-box: fill-box; transform-origin: center; }
+  .pmap-compass { opacity: 0.4; }
+
+  .pmap-pin { cursor: pointer; opacity: 1; transition: opacity 260ms ease; }
   .pmap-pin:focus { outline: none; }
   .pmap-pin:focus-visible circle.pmap-core { stroke: #fff; stroke-width: 1.6px; }
+  .pmap-pin.pmap-dim { opacity: 0.32; }
+
+  .pmap-pin-inner {
+    opacity: 0; transform: scale(0.4);
+    transform-box: fill-box; transform-origin: center;
+    transition: opacity 520ms ease, transform 520ms cubic-bezier(.34,1.56,.64,1);
+    transition-delay: var(--pmap-delay, 0ms);
+  }
+  .pmap-wrap.pmap-arrived .pmap-pin-inner { opacity: 1; transform: scale(1); }
+
   .pmap-pin.gold circle.pmap-core { fill: ${GOLD}; stroke: ${GOLD_DEEP}; stroke-width: 0.8; transition: r 140ms ease; }
   .pmap-pin.gold circle.pmap-halo { fill: ${GOLD_GLOW}; animation: pmapGoldPulse 2.8s ease-in-out infinite; }
   .pmap-pin.gold:hover circle.pmap-core { r: 6.5; }
+  .pmap-ping { fill: none; stroke: ${GOLD}; stroke-width: 1.4; animation: pmapPingOnce 1.9s ease-out forwards; }
+
   .pmap-pin.amber circle.pmap-core { fill: ${AMBER}; stroke: rgba(0,0,0,0.15); stroke-width: 0.6; }
   .pmap-pin.amber circle.pmap-ring { fill: none; stroke: ${AMBER_GLOW}; stroke-width: 3; }
   .pmap-pin.amber:hover circle.pmap-core { r: 5; }
+
   .pmap-pin.grey circle.pmap-core { fill: ${LOCKED}; opacity: 0.85; }
   .pmap-pin.grey circle.pmap-shimmer { fill: transparent; stroke: ${LOCKED}; stroke-width: 1; opacity: 0; animation: pmapShimmer 5.5s ease-in-out infinite; }
   .pmap-pin.grey:hover circle.pmap-core { opacity: 1; }
+
   @keyframes pmapGoldPulse { 0%,100% { r: 8.5; opacity: 0.6; } 50% { r: 13; opacity: 0.12; } }
   @keyframes pmapShimmer { 0%,100% { r: 5; opacity: 0; } 55% { r: 5; opacity: 0; } 72% { r: 9; opacity: 0.45; } 90% { r: 11.5; opacity: 0; } }
+  @keyframes pmapPingOnce { 0% { r: 6; stroke-opacity: 0.7; } 100% { r: 22; stroke-opacity: 0; } }
   .pmap-shadow { fill: rgba(0,0,0,0.28); }
+
   @media (prefers-reduced-motion: reduce) {
-    .pmap-pin.gold circle.pmap-halo, .pmap-pin.grey circle.pmap-shimmer { animation: none !important; }
+    .pmap-pin.gold circle.pmap-halo, .pmap-pin.grey circle.pmap-shimmer, .pmap-ping { animation: none !important; }
+    .pmap-pin-inner { transition: none; opacity: 1; transform: scale(1); }
   }
 
   .pmap-card {
@@ -121,40 +142,78 @@ const PMAP_STYLES = `
   .pmap-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 `
 
-function Pin({ tier, x, y, onClick, onKeyDown, label, delay = 0 }) {
+function CompassMark() {
+  return (
+    <g className="pmap-compass" transform="translate(327,32)" aria-hidden="true">
+      <circle r="11" fill="none" stroke="rgba(245,240,232,0.4)" strokeWidth="0.8" />
+      <path d="M0,-8 L2.4,-1 L0,2 L-2.4,-1 Z" fill="rgba(245,240,232,0.55)" />
+      <text x="0" y="-13" textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="6" fontWeight="700" fill="rgba(245,240,232,0.5)">N</text>
+    </g>
+  )
+}
+
+function Pin({ pinKey, tier, x, y, dimmed, arriveDelay, ping, onClick, onKeyDown, label }) {
   const cls = tier === 'live' ? 'gold' : tier === 'named' ? 'amber' : 'grey'
   return (
     <g
-      className={`pmap-pin ${cls}`}
+      className={`pmap-pin ${cls}${dimmed ? ' pmap-dim' : ''}`}
       transform={`translate(${x},${y})`}
       onClick={onClick}
       onKeyDown={onKeyDown}
       tabIndex={0}
       role="button"
       aria-label={label}
-      style={cls === 'grey' ? { animationDelay: `${(delay % 6) * 0.7}s` } : undefined}
+      data-pin={pinKey}
     >
-      <ellipse className="pmap-shadow" cx={0} cy={3.5} rx={5} ry={1.5} />
-      {cls === 'gold' && <circle className="pmap-halo" r={8.5} />}
-      {cls === 'amber' && <circle className="pmap-ring" r={7.5} />}
-      {cls === 'grey' && <circle className="pmap-shimmer" r={5} style={{ animationDelay: `${(delay % 6) * 0.9}s` }} />}
-      <circle className="pmap-core" r={cls === 'grey' ? 3.6 : 5.5} />
+      <g className="pmap-pin-inner" style={{ '--pmap-delay': `${arriveDelay}ms` }}>
+        <ellipse className="pmap-shadow" cx={0} cy={3.5} rx={5} ry={1.5} />
+        {cls === 'gold' && <circle className="pmap-halo" r={8.5} />}
+        {cls === 'amber' && <circle className="pmap-ring" r={7.5} />}
+        {cls === 'grey' && <circle className="pmap-shimmer" r={5} style={{ animationDelay: `${(arriveDelay % 6) * 0.9}s` }} />}
+        {ping && <circle key={ping} className="pmap-ping" r={6} />}
+        <circle className="pmap-core" r={cls === 'grey' ? 3.6 : 5.5} />
+      </g>
     </g>
   )
 }
 
 export default function PartnerMap() {
   const [active, setActive] = useState(null)
+  const [arrived, setArrived] = useState(false)
+  const [ping, setPing] = useState(null)
+  const wrapRef = useRef(null)
+  const nonceRef = useRef(0)
 
-  function select(pin) {
-    setActive(prev => (prev && prev.tier === pin.tier && prev.name === pin.name ? null : pin))
+  // One-time arrival — the map "switches on" the first time it scrolls into view.
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setArrived(true); obs.disconnect() }
+    }, { threshold: 0.3 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  // A rare signal ping from a random live partner — quiet proof the network's active.
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => {
+      nonceRef.current += 1
+      setPing({ pinId: LIVE_PINS[Math.floor(Math.random() * LIVE_PINS.length)].id, nonce: nonceRef.current })
+    }, PING_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [])
+
+  function select(pinKey, data) {
+    setActive(prev => (prev && prev.pinKey === pinKey ? null : { pinKey, ...data }))
   }
-  function onKey(e, pin) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(pin) }
+  function onKey(e, pinKey, data) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(pinKey, data) }
   }
 
   return (
-    <div className="pmap-wrap">
+    <div ref={wrapRef} className={`pmap-wrap${arrived ? ' pmap-arrived' : ''}`}>
       <style>{PMAP_STYLES}</style>
 
       <div className="pmap-stage">
@@ -164,39 +223,61 @@ export default function PartnerMap() {
           role="group"
           aria-label="Interactive map of Ireland showing UniBlueprint partner locations"
         >
-          <path className="pmap-land" d={IRELAND_PATH} />
+          <defs>
+            <radialGradient id="pmapLandFill" cx="35%" cy="22%" r="90%">
+              <stop offset="0%" stopColor="rgba(245,240,232,0.115)" />
+              <stop offset="55%" stopColor="rgba(245,240,232,0.06)" />
+              <stop offset="100%" stopColor="rgba(245,240,232,0.03)" />
+            </radialGradient>
+          </defs>
 
-          {MYSTERY_PINS.map(p => (
+          <path className="pmap-land" d={IRELAND_PATH} fill="url(#pmapLandFill)" />
+          <path className="pmap-coastline-inner" d={IRELAND_PATH} />
+          <CompassMark />
+
+          {MYSTERY_PINS.map((p, i) => (
             <Pin
               key={p.key}
+              pinKey={p.key}
               tier="mystery"
               x={p.pos[0]} y={p.pos[1]}
-              delay={p.delay}
+              arriveDelay={i * 12}
+              dimmed={active && active.pinKey !== p.key}
               label="Unconfirmed partner — coming soon"
-              onClick={() => select({ tier: 'mystery' })}
-              onKeyDown={e => onKey(e, { tier: 'mystery' })}
+              onClick={() => select(p.key, { tier: 'mystery' })}
+              onKeyDown={e => onKey(e, p.key, { tier: 'mystery' })}
             />
           ))}
 
-          {NAMED_SOON_PINS.map((p, i) => (
-            <Pin
-              key={`${p.name}-${i}`}
-              tier="named"
-              x={p.pos[0]} y={p.pos[1]}
-              label={`${p.name}, ${p.category} — confirmed, launching soon`}
-              onClick={() => select({ tier: 'named', ...p })}
-              onKeyDown={e => onKey(e, { tier: 'named', ...p })}
-            />
-          ))}
+          {NAMED_SOON_PINS.map((p, i) => {
+            const pinKey = `${p.name}-${i}`
+            return (
+              <Pin
+                key={pinKey}
+                pinKey={pinKey}
+                tier="named"
+                x={p.pos[0]} y={p.pos[1]}
+                arriveDelay={220 + i * 16}
+                dimmed={active && active.pinKey !== pinKey}
+                label={`${p.name}, ${p.category} — confirmed, launching soon`}
+                onClick={() => select(pinKey, { tier: 'named', ...p })}
+                onKeyDown={e => onKey(e, pinKey, { tier: 'named', ...p })}
+              />
+            )
+          })}
 
-          {LIVE_PINS.map(p => (
+          {LIVE_PINS.map((p, i) => (
             <Pin
               key={p.id}
+              pinKey={p.id}
               tier="live"
               x={p.pos[0]} y={p.pos[1]}
+              arriveDelay={420 + i * 45}
+              dimmed={active && active.pinKey !== p.id}
+              ping={ping && ping.pinId === p.id ? `ping-${ping.nonce}` : null}
               label={`${p.name}, ${p.category} — live partner. View details.`}
-              onClick={() => select({ tier: 'live', ...p })}
-              onKeyDown={e => onKey(e, { tier: 'live', ...p })}
+              onClick={() => select(p.id, { tier: 'live', ...p })}
+              onKeyDown={e => onKey(e, p.id, { tier: 'live', ...p })}
             />
           ))}
         </svg>
