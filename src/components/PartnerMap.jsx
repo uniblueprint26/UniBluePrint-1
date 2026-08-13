@@ -3,36 +3,40 @@ import { Link } from 'react-router-dom'
 import { Lock } from 'lucide-react'
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
-// Gold is new and scoped to this map only — it means "real, live, on the ground".
-// Amber reuses the site's existing TBC/shell colour, so "confirmed, not live yet"
-// reads the same way it already does on the Partners page.
+// Gold means "real, live, on the ground" — new, scoped to this map only.
 const GOLD = '#C9A24B'
 const GOLD_DEEP = '#A5813B'
+const GOLD_LIGHT = '#E4C77E'
 const GOLD_GLOW = 'rgba(201,162,75,0.4)'
-const AMBER = '#F59E0B'
-const AMBER_GLOW = 'rgba(245,158,11,0.28)'
 const LOCKED = '#8B9BB5'
 const NAVY = '#1E3A5F'
 
-// ─── Simplified Republic of Ireland outline (viewBox 0 0 360 400) ────────────
+// ─── Ireland outline — derived from real county coordinates, not traced free-hand.
+// viewBox 0 0 400 480. Smoothed through 53 coastal reference points (Malin Head,
+// Fair Head, Carlingford Lough, Dublin Bay, Carnsore Point, Hook Head, the Cork/
+// Kerry peninsulas, the Shannon Estuary, Galway Bay, Clew Bay, Donegal Bay…).
 const IRELAND_PATH =
-  'M 185 12 L 215 24 L 232 44 L 248 75 L 262 108 L 252 130 L 260 156 ' +
-  'L 263 180 L 259 204 L 253 226 L 243 252 L 232 276 L 218 302 L 200 325 ' +
-  'L 180 346 L 160 360 L 138 368 L 112 370 L 88 374 L 66 369 L 46 363 ' +
-  'L 28 350 L 20 330 L 16 308 L 20 284 L 28 260 L 40 240 L 56 226 ' +
-  'L 64 236 L 42 242 L 26 226 L 16 205 L 20 184 L 30 168 L 40 156 ' +
-  'L 30 138 L 40 123 L 56 113 L 78 108 L 100 103 L 118 96 L 128 86 ' +
-  'L 122 73 L 106 60 L 100 48 L 116 36 L 136 26 L 152 18 L 166 12 ' +
-  'L 178 9 L 185 12 Z'
+  'M 214.5 12 Q 249 4 259.5 7 Q 270 10 290 11 Q 310 12 327.5 17 Q 345 22 356.5 36 ' +
+  'Q 368 50 359 61 Q 350 72 370 88.5 Q 390 105 379 120 Q 368 135 370 146.5 ' +
+  'Q 372 158 352 168 Q 332 178 336 186.5 Q 340 195 332.5 207.5 Q 325 220 335 229 ' +
+  'Q 345 238 336.5 246.5 Q 328 255 330.5 266.5 Q 333 278 341.5 285 Q 350 292 344 308.5 ' +
+  'Q 338 325 330 351.5 Q 322 378 303.5 385 Q 285 392 267.5 395 Q 250 398 232.5 401 ' +
+  'Q 215 404 196.5 412 Q 178 420 164 426 Q 150 432 130 433.5 Q 110 435 85 447.5 ' +
+  'Q 60 460 56.5 467 Q 53 474 64 461 Q 75 448 61.5 451.5 Q 48 455 63 440 Q 78 425 54 420 ' +
+  'Q 30 415 45 405 Q 60 395 37.5 391.5 Q 15 388 32.5 376.5 Q 50 365 30 360 Q 10 355 32.5 347.5 ' +
+  'Q 55 340 57.5 330 Q 60 320 77.5 315 Q 95 310 70 304 Q 45 298 50 286.5 Q 55 275 70 265 ' +
+  'Q 85 255 65 247.5 Q 45 240 32.5 231 Q 20 222 32.5 211 Q 45 200 55 192.5 Q 65 185 45 181.5 ' +
+  'Q 25 178 35 166.5 Q 45 155 32.5 150 Q 20 145 52.5 146.5 Q 85 148 112.5 135 Q 140 122 145 115 ' +
+  'Q 150 108 135 96.5 Q 120 85 132.5 70 Q 145 55 162.5 37.5 Q 180 20 214.5 12 Z'
 
 const COUNTY_POS = {
-  dublin: [259, 200], cork: [142, 362], galway: [64, 232], limerick: [94, 296],
-  waterford: [212, 344], tipperary: [152, 298], kerry: [58, 342], wexford: [246, 330],
-  kilkenny: [198, 308], meath: [228, 174], kildare: [218, 224], louth: [254, 148],
-  wicklow: [262, 252], carlow: [218, 298], laois: [188, 268], offaly: [168, 238],
-  westmeath: [176, 200], longford: [156, 188], roscommon: [110, 186], mayo: [60, 148],
-  sligo: [90, 112], leitrim: [118, 130], cavan: [196, 140], monaghan: [214, 128],
-  donegal: [108, 52], clare: [80, 258],
+  dublin: [316, 244], cork: [126, 426], galway: [118, 240], limerick: [141, 348],
+  waterford: [243, 384], tipperary: [204, 336], kerry: [71, 390], wexford: [314, 354],
+  kilkenny: [255, 336], meath: [302, 216], kildare: [282, 264], louth: [322, 180],
+  wicklow: [322, 288], carlow: [282, 324], laois: [251, 288], offaly: [235, 264],
+  westmeath: [247, 222], longford: [212, 204], roscommon: [173, 198], mayo: [86, 180],
+  sligo: [157, 138], leitrim: [196, 150], cavan: [247, 168], monaghan: [278, 138],
+  donegal: [188, 66], clare: [122, 306],
 }
 
 function at(county, jitter) {
@@ -40,60 +44,61 @@ function at(county, jitter) {
   return jitter ? [cx + jitter[0], cy + jitter[1]] : [cx, cy]
 }
 
-// ─── Tier 1 — live: real listing, deep-links to the full Partners card ───────
+// ─── Live: real listing, deep-links to the full Partners card ────────────────
 const LIVE_PINS = [
   { id: 'mpfitness',    name: 'MPFitness',       category: 'Personal Training',        deal: 'Full package from €150/month',      pos: at('kildare') },
-  { id: 'energie',      name: 'Energie Fitness', category: 'Gym Membership · Dublin 8', deal: 'From €37.99/month',                 pos: at('dublin', [16, -8]) },
-  { id: 'jmc',          name: 'JMC Fitness',     category: 'Sports Coaching',           deal: 'From €50/hr',                       pos: at('dublin', [-16, -8]) },
-  { id: 'nyz3ditz',     name: 'Nyz3ditz',        category: 'Photography & Video',       deal: 'From €55/month',                    pos: at('dublin', [0, 20]) },
-  { id: 'efgrinds',     name: 'Emmanuel Fasanmi Grinds', category: 'Education & Coaching', deal: 'Pro member rates',               pos: at('dublin', [30, 12]) },
+  { id: 'energie',      name: 'Energie Fitness', category: 'Gym Membership · Dublin 8', deal: 'From €37.99/month',                 pos: at('dublin', [-4, -16]) },
+  { id: 'jmc',          name: 'JMC Fitness',     category: 'Sports Coaching',           deal: 'From €50/hr',                       pos: at('dublin', [-26, -6]) },
+  { id: 'nyz3ditz',     name: 'Nyz3ditz',        category: 'Photography & Video',       deal: 'From €55/month',                    pos: at('dublin', [-10, 20]) },
+  { id: 'efgrinds',     name: 'Emmanuel Fasanmi Grinds', category: 'Education & Coaching', deal: 'Pro member rates',               pos: at('dublin', [2, 4]) },
   { id: 'whipwizardz',  name: 'Whip Wizardz',    category: 'Automotive · Dundalk',      deal: 'Student-friendly pricing',          pos: at('louth', [-8, 10]) },
   { id: 'nailnurse',    name: 'The Nail Nurse',  category: 'Nail Tech',                 deal: 'Student discount with valid ID',    pos: at('galway', [-10, -8]) },
   { id: 'leva',         name: 'LEVA Impact',     category: 'Digital Marketing & Design', deal: 'One week free social media trial', pos: at('mayo', [-12, -8]) },
   { id: 'henrysisters', name: 'Henry Sisters Co',category: 'Creative Content',          deal: '10% off your first booking',        pos: at('mayo', [12, 8]) },
 ]
 
-// ─── Tier 2 — confirmed: real name + category, full profile not published yet.
-// Some have an exact county, some are confirmed-but-still-placing (scattered).
-const NAMED_SOON_PINS = [
-  { name: 'madebykelan',              category: 'Creative',          pos: at('mayo', [10, -18]) },
-  { name: 'Manni The Barber',         category: 'Barber · Dundalk',  pos: at('louth', [16, 12]) },
-  { name: 'Angelic Touch',            category: 'Hair',              pos: at('sligo', [-6, 6]) },
-  { name: 'Angelic Touch',            category: 'Hair · 2nd location', pos: at('dublin', [-30, 14]) },
-  { name: 'Archangel',                category: 'Clothing Brand',    pos: at('kildare', [16, 14]) },
-  { name: "Clara's Beauty Room",      category: 'Nail Tech',         pos: at('mayo', [-4, 18]) },
-  // confirmed with UniBlueprint, location still being finalised
-  { name: 'Carolynes Beauty Studio',  category: 'Beauty Studio',     pos: at('clare') },
-  { name: 'Makeup By Kasia',          category: 'Makeup',            pos: at('galway', [14, 10]) },
-  { name: 'The PK Glam',              category: 'Beauty',            pos: at('kildare', [-16, -14]) },
-  { name: 'Hardluck Club',            category: 'Venue',             pos: at('louth', [-16, -12]) },
-  { name: 'Lashes By Steph',          category: 'Lash Tech',         pos: at('sligo', [14, -10]) },
-  { name: 'Purple Brunch',            category: 'Food & Drink',      pos: at('sligo', [-16, 16]) },
-]
-
-// ─── Tier 3 — unconfirmed: name withheld until it's real. One per county below,
-// standing in for madebykelan (Ocean1, Fortesce, etc.) awaiting confirmation. ─
-const MYSTERY_COUNTIES = [
-  'cork', 'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
-  'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
-  'roscommon', 'leitrim', 'cavan', 'monaghan', 'donegal',
-]
-const MYSTERY_PINS = MYSTERY_COUNTIES.map((county, i) => ({ key: `mystery-${county}`, pos: at(county), delay: i }))
+// ─── Incoming: one tier on the map. Some are named + placed exactly (they get
+// the "Official Blueprint Partner" badge on tap); the rest stay anonymous
+// until they're real. Visually identical — the pin never gives it away. ─────
+const INCOMING_PINS = [
+  // named, exact location
+  { name: 'madebykelan',             category: 'Creative',          pos: at('mayo', [10, -18]) },
+  { name: 'Manni The Barber',        category: 'Barber · Dundalk',  pos: at('louth', [2, 14]) },
+  { name: 'Angelic Touch',           category: 'Hair',              pos: at('sligo', [-6, 6]) },
+  { name: 'Angelic Touch',           category: 'Hair · 2nd location', pos: at('dublin', [-32, 10]) },
+  { name: 'Archangel',               category: 'Clothing Brand',    pos: at('kildare', [16, 14]) },
+  { name: "Clara's Beauty Room",     category: 'Nail Tech',         pos: at('mayo', [-4, 18]) },
+  // named, confirmed with UniBlueprint but still placing
+  { name: 'Carolynes Beauty Studio', category: 'Beauty Studio',     pos: at('clare') },
+  { name: 'Makeup By Kasia',         category: 'Makeup',            pos: at('galway', [14, 10]) },
+  { name: 'The PK Glam',             category: 'Beauty',            pos: at('kildare', [-16, -14]) },
+  { name: 'Hardluck Club',           category: 'Venue',             pos: at('louth', [-16, -12]) },
+  { name: 'Lashes By Steph',         category: 'Lash Tech',         pos: at('sligo', [14, -10]) },
+  { name: 'Purple Brunch',           category: 'Food & Drink',      pos: at('sligo', [-16, 16]) },
+  // anonymous — name withheld until it's real
+  ...[
+    'cork', 'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
+    'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
+    'roscommon', 'leitrim', 'cavan', 'monaghan', 'donegal',
+  ].map(county => ({ name: null, category: null, pos: at(county) })),
+].map((p, i) => ({ ...p, key: `incoming-${i}`, delay: i }))
 
 const PING_INTERVAL_MS = 27000
 
 const PMAP_STYLES = `
-  .pmap-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-  .pmap-stage { position: relative; width: 100%; max-width: 380px; }
+  .pmap-wrap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .pmap-stage { position: relative; width: 100%; max-width: 800px; margin: 0 auto; }
   .pmap-svg { width: 100%; height: auto; display: block; overflow: visible; }
-  .pmap-land { stroke: rgba(245,240,232,0.22); stroke-width: 1.4; }
-  .pmap-coastline-inner { fill: none; stroke: rgba(245,240,232,0.14); stroke-width: 0.8; transform: scale(0.965); transform-box: fill-box; transform-origin: center; }
+  .pmap-land { stroke: rgba(245,240,232,0.24); stroke-width: 1.3; }
+  .pmap-coastline-inner { fill: none; stroke: rgba(245,240,232,0.13); stroke-width: 0.7; transform: scale(0.975); transform-box: fill-box; transform-origin: center; }
   .pmap-compass { opacity: 0.4; }
 
   .pmap-pin { cursor: pointer; opacity: 1; transition: opacity 260ms ease; }
   .pmap-pin:focus { outline: none; }
-  .pmap-pin:focus-visible circle.pmap-core { stroke: #fff; stroke-width: 1.6px; }
-  .pmap-pin.pmap-dim { opacity: 0.32; }
+  .pmap-pin:focus-visible .pmap-tack-core,
+  .pmap-pin:focus-visible .pmap-tack-sketch { stroke: #fff; stroke-width: 1.8px; }
+  .pmap-pin.pmap-dim { opacity: 0.3; }
+  .pmap-hit { fill: rgba(0,0,0,0.001); pointer-events: all; }
 
   .pmap-pin-inner {
     opacity: 0; transform: scale(0.4);
@@ -103,31 +108,31 @@ const PMAP_STYLES = `
   }
   .pmap-wrap.pmap-arrived .pmap-pin-inner { opacity: 1; transform: scale(1); }
 
-  .pmap-pin.gold circle.pmap-core { fill: ${GOLD}; stroke: ${GOLD_DEEP}; stroke-width: 0.8; transition: r 140ms ease; }
-  .pmap-pin.gold circle.pmap-halo { fill: ${GOLD_GLOW}; animation: pmapGoldPulse 2.8s ease-in-out infinite; }
-  .pmap-pin.gold:hover circle.pmap-core { r: 6.5; }
+  /* Live — a solid, glossy blueprint tack. Fully seated. */
+  .pmap-pin.gold .pmap-tack-core { fill: url(#pmapTackGold); stroke: ${GOLD_DEEP}; stroke-width: 0.9; transition: r 140ms ease; }
+  .pmap-pin.gold .pmap-tack-shine { fill: rgba(255,250,235,0.75); }
+  .pmap-pin.gold .pmap-halo { fill: ${GOLD_GLOW}; animation: pmapGoldPulse 2.8s ease-in-out infinite; }
+  .pmap-pin.gold:hover .pmap-tack-core { r: 7.4; }
   .pmap-ping { fill: none; stroke: ${GOLD}; stroke-width: 1.4; animation: pmapPingOnce 1.9s ease-out forwards; }
 
-  .pmap-pin.amber circle.pmap-core { fill: ${AMBER}; stroke: rgba(0,0,0,0.15); stroke-width: 0.6; }
-  .pmap-pin.amber circle.pmap-ring { fill: none; stroke: ${AMBER_GLOW}; stroke-width: 3; }
-  .pmap-pin.amber:hover circle.pmap-core { r: 5; }
+  /* Incoming — the same tack, drafted but not inked: dashed outline, no fill. */
+  .pmap-pin.grey .pmap-tack-sketch { fill: rgba(139,155,181,0.06); stroke: ${LOCKED}; stroke-width: 1.1; stroke-dasharray: 2.6 2.2; }
+  .pmap-pin.grey .pmap-tack-cross { stroke: ${LOCKED}; stroke-width: 0.9; opacity: 0.75; }
+  .pmap-pin.grey .pmap-shimmer { fill: transparent; stroke: ${LOCKED}; stroke-width: 1; opacity: 0; animation: pmapShimmer 6s ease-in-out infinite; }
+  .pmap-pin.grey:hover .pmap-tack-sketch { stroke-width: 1.5; }
 
-  .pmap-pin.grey circle.pmap-core { fill: ${LOCKED}; opacity: 0.85; }
-  .pmap-pin.grey circle.pmap-shimmer { fill: transparent; stroke: ${LOCKED}; stroke-width: 1; opacity: 0; animation: pmapShimmer 5.5s ease-in-out infinite; }
-  .pmap-pin.grey:hover circle.pmap-core { opacity: 1; }
-
-  @keyframes pmapGoldPulse { 0%,100% { r: 8.5; opacity: 0.6; } 50% { r: 13; opacity: 0.12; } }
-  @keyframes pmapShimmer { 0%,100% { r: 5; opacity: 0; } 55% { r: 5; opacity: 0; } 72% { r: 9; opacity: 0.45; } 90% { r: 11.5; opacity: 0; } }
-  @keyframes pmapPingOnce { 0% { r: 6; stroke-opacity: 0.7; } 100% { r: 22; stroke-opacity: 0; } }
-  .pmap-shadow { fill: rgba(0,0,0,0.28); }
+  @keyframes pmapGoldPulse { 0%,100% { r: 9.5; opacity: 0.6; } 50% { r: 14.5; opacity: 0.12; } }
+  @keyframes pmapShimmer { 0%,100% { r: 5.5; opacity: 0; } 55% { r: 5.5; opacity: 0; } 72% { r: 10; opacity: 0.4; } 90% { r: 13; opacity: 0; } }
+  @keyframes pmapPingOnce { 0% { r: 6.5; stroke-opacity: 0.7; } 100% { r: 24; stroke-opacity: 0; } }
+  .pmap-shadow { fill: rgba(0,0,0,0.26); }
 
   @media (prefers-reduced-motion: reduce) {
-    .pmap-pin.gold circle.pmap-halo, .pmap-pin.grey circle.pmap-shimmer, .pmap-ping { animation: none !important; }
+    .pmap-pin.gold .pmap-halo, .pmap-pin.grey .pmap-shimmer, .pmap-ping { animation: none !important; }
     .pmap-pin-inner { transition: none; opacity: 1; transform: scale(1); }
   }
 
   .pmap-card {
-    width: 100%; max-width: 380px;
+    width: 100%; max-width: 460px;
     background: rgba(245,240,232,0.98);
     border-radius: 14px;
     box-shadow: 0 16px 34px rgba(0,0,0,0.28);
@@ -137,26 +142,48 @@ const PMAP_STYLES = `
     justify-content: center;
   }
   .pmap-card.idle { background: rgba(245,240,232,0.06); box-shadow: none; border: 1px dashed rgba(245,240,232,0.18); }
-  .pmap-legend { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
-  .pmap-legend-item { display: flex; align-items: center; gap: 7px; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 600; color: rgba(245,240,232,0.55); }
-  .pmap-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .pmap-legend { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .pmap-legend-item { display: flex; align-items: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 600; color: rgba(245,240,232,0.55); }
+
+  @media (max-width: 640px) {
+    .pmap-wrap { gap: 16px; }
+    .pmap-card { padding: 15px 16px; min-height: 84px; }
+    .pmap-legend { gap: 14px; }
+    .pmap-legend-item { font-size: 10.5px; }
+  }
 `
 
 function CompassMark() {
   return (
-    <g className="pmap-compass" transform="translate(327,32)" aria-hidden="true">
-      <circle r="11" fill="none" stroke="rgba(245,240,232,0.4)" strokeWidth="0.8" />
-      <path d="M0,-8 L2.4,-1 L0,2 L-2.4,-1 Z" fill="rgba(245,240,232,0.55)" />
-      <text x="0" y="-13" textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="6" fontWeight="700" fill="rgba(245,240,232,0.5)">N</text>
+    <g className="pmap-compass" transform="translate(372,40)" aria-hidden="true">
+      <circle r="12" fill="none" stroke="rgba(245,240,232,0.4)" strokeWidth="0.8" />
+      <path d="M0,-9 L2.6,-1 L0,2.2 L-2.6,-1 Z" fill="rgba(245,240,232,0.55)" />
+      <text x="0" y="-14.5" textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="6.5" fontWeight="700" fill="rgba(245,240,232,0.5)">N</text>
     </g>
   )
 }
 
-function Pin({ pinKey, tier, x, y, dimmed, arriveDelay, ping, onClick, onKeyDown, label }) {
-  const cls = tier === 'live' ? 'gold' : tier === 'named' ? 'amber' : 'grey'
+// A blueprint tack — live pins are solid and seated, incoming pins are the
+// same shape drafted in dashed line, not yet inked. Legend logo icon too.
+function TackGlyph({ live, size = 1 }) {
+  const r = 6.2 * size
+  return live ? (
+    <>
+      <circle className="pmap-tack-core" r={r} />
+      <ellipse className="pmap-tack-shine" cx={-r * 0.3} cy={-r * 0.36} rx={r * 0.34} ry={r * 0.21} />
+    </>
+  ) : (
+    <>
+      <circle className="pmap-tack-sketch" r={r} />
+      <path className="pmap-tack-cross" d={`M0,${-r * 0.42} L0,${r * 0.42} M${-r * 0.42},0 L${r * 0.42},0`} />
+    </>
+  )
+}
+
+function Pin({ pinKey, live, x, y, dimmed, arriveDelay, ping, onClick, onKeyDown, label }) {
   return (
     <g
-      className={`pmap-pin ${cls}${dimmed ? ' pmap-dim' : ''}`}
+      className={`pmap-pin ${live ? 'gold' : 'grey'}${dimmed ? ' pmap-dim' : ''}`}
       transform={`translate(${x},${y})`}
       onClick={onClick}
       onKeyDown={onKeyDown}
@@ -165,13 +192,13 @@ function Pin({ pinKey, tier, x, y, dimmed, arriveDelay, ping, onClick, onKeyDown
       aria-label={label}
       data-pin={pinKey}
     >
+      <circle className="pmap-hit" r={17} />
       <g className="pmap-pin-inner" style={{ '--pmap-delay': `${arriveDelay}ms` }}>
-        <ellipse className="pmap-shadow" cx={0} cy={3.5} rx={5} ry={1.5} />
-        {cls === 'gold' && <circle className="pmap-halo" r={8.5} />}
-        {cls === 'amber' && <circle className="pmap-ring" r={7.5} />}
-        {cls === 'grey' && <circle className="pmap-shimmer" r={5} style={{ animationDelay: `${(arriveDelay % 6) * 0.9}s` }} />}
-        {ping && <circle key={ping} className="pmap-ping" r={6} />}
-        <circle className="pmap-core" r={cls === 'grey' ? 3.6 : 5.5} />
+        <ellipse className="pmap-shadow" cx={0} cy={4} rx={5.6} ry={1.7} />
+        {live && <circle className="pmap-halo" r={9.5} />}
+        {!live && <circle className="pmap-shimmer" r={5.5} style={{ animationDelay: `${(arriveDelay % 6) * 0.9}s` }} />}
+        {ping && <circle key={ping} className="pmap-ping" r={6.5} />}
+        <TackGlyph live={live} />
       </g>
     </g>
   )
@@ -186,23 +213,23 @@ export default function PartnerMap() {
 
   // One-time arrival — the map "switches on" the first time it scrolls into view.
   useEffect(() => {
-    const el = wrapRef.current
-    if (!el) return
+    const wrapEl = wrapRef.current
+    if (!wrapEl) return
     const obs = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setArrived(true); obs.disconnect() }
     }, { threshold: 0.3 })
-    obs.observe(el)
+    obs.observe(wrapEl)
     return () => obs.disconnect()
   }, [])
 
   // A rare signal ping from a random live partner — quiet proof the network's active.
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-    const id = setInterval(() => {
+    const intervalId = setInterval(() => {
       nonceRef.current += 1
       setPing({ pinId: LIVE_PINS[Math.floor(Math.random() * LIVE_PINS.length)].id, nonce: nonceRef.current })
     }, PING_INTERVAL_MS)
-    return () => clearInterval(id)
+    return () => clearInterval(intervalId)
   }, [])
 
   function select(pinKey, data) {
@@ -219,15 +246,20 @@ export default function PartnerMap() {
       <div className="pmap-stage">
         <svg
           className="pmap-svg"
-          viewBox="0 0 360 400"
+          viewBox="0 0 400 480"
           role="group"
           aria-label="Interactive map of Ireland showing UniBlueprint partner locations"
         >
           <defs>
-            <radialGradient id="pmapLandFill" cx="35%" cy="22%" r="90%">
+            <radialGradient id="pmapLandFill" cx="35%" cy="20%" r="90%">
               <stop offset="0%" stopColor="rgba(245,240,232,0.115)" />
               <stop offset="55%" stopColor="rgba(245,240,232,0.06)" />
               <stop offset="100%" stopColor="rgba(245,240,232,0.03)" />
+            </radialGradient>
+            <radialGradient id="pmapTackGold" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stopColor={GOLD_LIGHT} />
+              <stop offset="55%" stopColor={GOLD} />
+              <stop offset="100%" stopColor={GOLD_DEEP} />
             </radialGradient>
           </defs>
 
@@ -235,49 +267,32 @@ export default function PartnerMap() {
           <path className="pmap-coastline-inner" d={IRELAND_PATH} />
           <CompassMark />
 
-          {MYSTERY_PINS.map((p, i) => (
+          {INCOMING_PINS.map(p => (
             <Pin
               key={p.key}
               pinKey={p.key}
-              tier="mystery"
+              live={false}
               x={p.pos[0]} y={p.pos[1]}
-              arriveDelay={i * 12}
+              arriveDelay={p.delay * 12}
               dimmed={active && active.pinKey !== p.key}
-              label="Unconfirmed partner — coming soon"
-              onClick={() => select(p.key, { tier: 'mystery' })}
-              onKeyDown={e => onKey(e, p.key, { tier: 'mystery' })}
+              label={p.name ? `${p.name}, ${p.category} — Official Blueprint Partner, launching soon` : 'Unconfirmed partner — coming soon'}
+              onClick={() => select(p.key, { live: false, name: p.name, category: p.category })}
+              onKeyDown={e => onKey(e, p.key, { live: false, name: p.name, category: p.category })}
             />
           ))}
-
-          {NAMED_SOON_PINS.map((p, i) => {
-            const pinKey = `${p.name}-${i}`
-            return (
-              <Pin
-                key={pinKey}
-                pinKey={pinKey}
-                tier="named"
-                x={p.pos[0]} y={p.pos[1]}
-                arriveDelay={220 + i * 16}
-                dimmed={active && active.pinKey !== pinKey}
-                label={`${p.name}, ${p.category} — confirmed, launching soon`}
-                onClick={() => select(pinKey, { tier: 'named', ...p })}
-                onKeyDown={e => onKey(e, pinKey, { tier: 'named', ...p })}
-              />
-            )
-          })}
 
           {LIVE_PINS.map((p, i) => (
             <Pin
               key={p.id}
               pinKey={p.id}
-              tier="live"
+              live
               x={p.pos[0]} y={p.pos[1]}
-              arriveDelay={420 + i * 45}
+              arriveDelay={260 + i * 50}
               dimmed={active && active.pinKey !== p.id}
               ping={ping && ping.pinId === p.id ? `ping-${ping.nonce}` : null}
               label={`${p.name}, ${p.category} — live partner. View details.`}
-              onClick={() => select(p.id, { tier: 'live', ...p })}
-              onKeyDown={e => onKey(e, p.id, { tier: 'live', ...p })}
+              onClick={() => select(p.id, { live: true, ...p })}
+              onKeyDown={e => onKey(e, p.id, { live: true, ...p })}
             />
           ))}
         </svg>
@@ -286,7 +301,7 @@ export default function PartnerMap() {
       {/* ── Info card ────────────────────────────────────────────────────── */}
       {active ? (
         <div className="pmap-card">
-          {active.tier === 'live' && (
+          {active.live && (
             <>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' }}>
                 <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: NAVY, margin: 0 }}>{active.name}</p>
@@ -309,11 +324,11 @@ export default function PartnerMap() {
             </>
           )}
 
-          {active.tier === 'named' && (
+          {!active.live && active.name && (
             <>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' }}>
                 <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: NAVY, margin: 0 }}>{active.name}</p>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: AMBER, textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0 }}>Confirmed</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: LOCKED, textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0, textAlign: 'right' }}>Official Blueprint Partner</span>
               </div>
               <span style={{ alignSelf: 'flex-start', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: NAVY, background: 'rgba(30,58,95,0.08)', borderRadius: '6px', padding: '3px 9px' }}>{active.category}</span>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', margin: 0, lineHeight: 1.55 }}>
@@ -322,7 +337,7 @@ export default function PartnerMap() {
             </>
           )}
 
-          {active.tier === 'mystery' && (
+          {!active.live && !active.name && (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(139,155,181,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -345,9 +360,14 @@ export default function PartnerMap() {
       )}
 
       <div className="pmap-legend">
-        <span className="pmap-legend-item"><span className="pmap-legend-dot" style={{ background: GOLD }} /> Live partner</span>
-        <span className="pmap-legend-item"><span className="pmap-legend-dot" style={{ background: AMBER }} /> Confirmed, launching soon</span>
-        <span className="pmap-legend-item"><span className="pmap-legend-dot" style={{ background: LOCKED }} /> New partner incoming</span>
+        <span className="pmap-legend-item">
+          <svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><circle r="6" fill={GOLD} stroke={GOLD_DEEP} strokeWidth="0.8" /></svg>
+          Live Partner
+        </span>
+        <span className="pmap-legend-item">
+          <svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><circle r="6" fill="none" stroke={LOCKED} strokeWidth="1.2" strokeDasharray="2.4 2" /></svg>
+          New Partner Incoming
+        </span>
       </div>
     </div>
   )
