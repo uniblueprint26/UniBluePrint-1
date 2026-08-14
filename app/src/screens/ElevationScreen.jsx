@@ -12,14 +12,19 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 
 const FILTER_PILLS = [
-  'All', 'Fitness', 'Academic Grinds', 'Trading', 'Branding',
-  'Marketing', 'Career', 'Network', 'Creative', 'Sports', 'Yoga', 'Postgrad',
+  'All', 'Fitness', 'Academic Grinds', 'Trading',
+  'Marketing', 'Network', 'Creative', 'Sports', 'Yoga', 'Postgrad',
 ]
 
 // ─── Coaches ──────────────────────────────────────────────────────────────────
 // Removed: Shauna Rogers, Ethan Henry, Fayed, Stephen McKeown
 // Updated: Milan Piroska, Emanuel Tolic, Jayden Reynolds
 // Added: Tadgh Darcy, Eitne Jarrett, Kevin (TrainWitKev), Aoife Keogh
+//
+// Round 2 — Removed: Ali, Eitne Jarrett, Nikola Jurek
+// Round 2 — Renamed: Emmanuel Fasanmi -> 500+ with Eman, Daniel Gough -> DG Trading
+// Round 2 — Updated: Dinero Trading Group (shell -> full), Aoife Keogh (shell -> full)
+// Round 2 — Added: Camila (also a Lifestyle partner), Luana (shell)
 
 // Stable key linking a coach's static listing here to their live
 // coach_profiles row in Supabase (coach_profiles.coach_slug), so a coach's
@@ -32,10 +37,11 @@ export function coachSlug(id) {
 export const COACHES = [
   // ── Academic ──
   {
-    id: 1, name: 'Emmanuel Fasanmi', category: 'Academic Grinds', filter: 'Academic Grinds',
+    id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
     location: 'Dublin, Ireland', from: 'Enquire for pricing',
-    services: ['Maths Grinds', 'Physics Grinds', 'Biology Grinds'],
-    bio: 'Emmanuel offers one-to-one and small group grinds in Maths, Physics, and Biology for Leaving Certificate and university students across Dublin. Sessions are structured, focused, and built around where you actually need to improve.',
+    tagline: 'From under 400 points to 500+ — proven study strategy.',
+    services: ['Leaving Cert Maths', 'Leaving Cert Biology', 'Leaving Cert Physics'],
+    bio: "Hi, I'm Emmanuel, a UCD student who transformed my own Leaving Cert performance — taking my points from under 400 to 500+ in just a few months. Now I help students do the same, specialising in Leaving Cert Maths, Biology, and Physics, combining proven study strategies, smarter revision techniques, and exam-focused approaches to help students understand the material, maximise their marks, and make significant grade improvements. I'm not here to just teach you what's in the textbook — I'm here to show you how to study smarter, approach questions strategically, and perform when it matters most. If you're aiming for 500+, I'll help you build the structure, confidence, and exam technique to give yourself the best possible shot at getting there.",
   },
 
   // ── Sports ──
@@ -66,17 +72,56 @@ export const COACHES = [
 
   // ── Trading ──
   {
-    id: 4, name: 'Daniel Gough', category: 'Trading & Finance', filter: 'Trading',
-    location: 'Ireland', from: 'From €40',
-    services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'],
-    bio: 'Active trader breaking down markets and investment strategy for students starting their financial journey.',
+    id: 4, name: 'DG Trading', category: 'Trading & Finance', filter: 'Trading',
+    location: 'Ireland', from: 'Upon enquiry',
+    title: 'Funded Futures Trader | NQ / MNQ | Trading Coach',
+    bio: "I'm Daniel, a funded futures trader specialising in NQ and MNQ. Having achieved a Topstep payout, I've developed a structured approach to trading built around confluence, patience, and disciplined execution. My strategy is ICT-based, combining market structure and liquidity concepts with standard deviation extensions and order flow confluence to identify high-probability opportunities during the New York pre-market.",
+    quote: "The goal isn't to predict every move in the market. It's to build the ability to recognise when the conditions align, when to act, and when to stay out.",
+    services: ['NQ & MNQ Futures Trading', 'ICT-Based Market Concepts', 'Standard Deviation Extensions', 'Order Flow & Confluence', 'Trade Selection', 'New York Pre-Market Analysis', 'Risk Management & Psychology', 'Trade Execution & Management'],
+    sections: [
+      {
+        title: 'My Approach',
+        body: "Strategy. Process. Discipline. Execution. Through coaching, I aim to help traders understand why the market is moving, how to identify quality setups, and how to approach trading with a clear, repeatable process, rather than relying on guesswork or chasing trades. Whether you're new to futures or looking to bring more structure to your current trading, my coaching is designed to help you develop a clearer understanding of the market and a more disciplined approach to execution.",
+      },
+      {
+        title: 'Risk Disclosure',
+        body: 'Trading involves significant risk. Coaching is educational and does not guarantee trading profits or results.',
+      },
+    ],
+    contact: { phone: '+353838393794' },
+    // Also linked from the Investment page in the Budgeting tool.
   },
 
   {
     id: 15, name: 'Dinero Trading Group', category: 'Trading & Investment Education', filter: 'Trading',
-    location: 'Ireland', from: 'Coming soon',
-    shell: true,
-    shellMessage: 'Student investment and trading education, delivered via PDF guides. Full profile coming soon.',
+    location: 'Ireland', from: 'Copier target: 5–15%/month (not guaranteed)',
+    tagline: 'DTG — structured trading systems, education, and business opportunities.',
+    bio: "I'm a trader and entrepreneur focused on building structured trading systems, educational programmes, and business opportunities around the financial markets — from automated lower-risk copy trading and high-risk trading challenges, to 1-to-1 mentorship and opportunities to build a business around my services. My goal is to provide different routes for people depending on their experience, goals, and risk tolerance, with systems that are simple to understand, scalable, and built with a long-term vision.",
+    services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship / Trading Course', 'IB Partner / White-Label Programme'],
+    sections: [
+      {
+        title: 'Low-Risk Copier',
+        body: "A hands-free, automated copy trading service designed around long-term growth and compounding — similar to treating the account like a savings account, letting profits remain and compound rather than constantly withdrawing. Targets approximately 5–15% monthly returns via broker STARTRADER (a target, not a guarantee). Sign up through the designated broker link, open a live account, connect it to the copy system, choose a risk level, then let profits compound or withdraw any time. Remains a trading service — losses are possible.",
+      },
+      {
+        title: '10X Challenge',
+        body: 'A separate, high-risk trading challenge that runs once per month, aiming to multiply a starting balance by 10 (for example, €100 → €1,000). Short-term and high-risk, not a compounding strategy — significant drawdowns can occur and starting capital can be lost.',
+      },
+      {
+        title: '1-to-1 Mentorship / Trading Course',
+        body: 'For students who want to learn how to trade rather than simply copy trades — structured educational material combined with personalised mentorship covering basics, psychology, trends and candlesticks, concepts, technical analysis, and strategy. Includes 1-to-1 calls, trade reviews, personal feedback, and ongoing support.',
+      },
+      {
+        title: 'IB Partner / White-Label Programme',
+        body: "Build a business around Dinero's existing trading services without needing previous trading experience — introduce clients, earn commissions, and access marketing and promotional resources. A white-label option is available for suitable partners to offer the services under their own branding.",
+      },
+      {
+        title: 'Important Risk Disclosure',
+        body: 'All forms of trading involve risk. Past performance does not guarantee future results, and no specific return or income is guaranteed. The Low-Risk Copier, despite its lower-risk approach, can still result in losses. The 10X Challenge involves substantially higher risk and can result in the loss of the entire starting capital. Mentorship and educational services provide knowledge and guidance but cannot guarantee trading success. IB and white-label opportunities do not guarantee income or commissions. Only commit capital you can afford to lose.',
+      },
+    ],
+    contact: { instagram: 'rellzdinero8', tiktok: 'rellzdinero' },
+    // Also linked from the Investment page in the Budgeting tool (the Low-Risk Copier specifically).
   },
 
   {
@@ -88,10 +133,28 @@ export const COACHES = [
 
   // ── Fitness ──
   {
-    id: 5, name: 'Ali', category: 'Personal Training', filter: 'Fitness',
-    location: 'Ireland', from: 'From €35',
-    services: ['Personal Training', 'Training Plans', 'Form Coaching'],
-    bio: 'Certified personal trainer building strength, fitness, and consistency into student lifestyle.',
+    id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga', filter: 'Fitness',
+    location: 'Dublin 8, Ireland', from: 'PT from €60/session',
+    title: 'Certified Personal Trainer / Sport Nutritionist Coach / Muay Thai / Yoga / Functional Training',
+    tagline: 'HEALTHY · WELLNESS · FITNESS',
+    services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
+    bio: 'With over 10 years of experience in fitness, martial arts, and lifestyle coaching, Camila helps people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. Focus areas include physique development, weight loss, muscle building, self-defence, confidence, lifestyle improvement, and pre-contest preparation, for both athletes and everyday people.',
+    quote: 'My goal is not just to motivate you for a few weeks, but to give you the knowledge, structure, and real reason to keep going, even when motivation is not there. When you know your WHY, you don\'t need motivation, you need DIRECTION — that\'s where I come in to help you.',
+    pricelist: [
+      { label: 'PT — 1x/week', price: '€220/month' },
+      { label: 'PT — 2x/week', price: '€370/month' },
+      { label: 'PT — Pay as you go', price: '€60/session' },
+      { label: 'Body Scan', price: '€70/session' },
+      { label: 'Food Plan + e-book', price: '€120' },
+      { label: 'Online Coach', price: '€320/month' },
+    ],
+    package: ['Video call for PARQ', 'WhatsApp support', 'Food plan', 'Workout plan (app)', 'Schedule routine (app)', 'Supplement suggestions'],
+    contact: { instagram: 'camilaaruk.coach', email: 'camila.coachfitness@gmail.com', phone: '0838602227' },
+    crossLink: {
+      label: "Also a Lifestyle Blueprint partner, see Camila's Lifestyle listing",
+      screen: 'Lifestyle',
+      params: { highlightId: 'camila' },
+    },
   },
 
   {
@@ -192,13 +255,6 @@ export const COACHES = [
     },
   },
 
-  {
-    id: 11, name: 'Nikola Jurek', category: 'Personal Branding', filter: 'Branding',
-    location: 'Ireland', from: 'From €40',
-    services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],
-    bio: 'Personal branding coach helping students define and communicate their professional identity with confidence.',
-  },
-
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
@@ -211,14 +267,29 @@ export const COACHES = [
   // ── Yoga ──
   {
     id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Yoga',
-    location: 'Dublin', from: 'Coming soon',
-    shell: true,
-    shellMessage: 'Full profile and booking details coming soon.',
+    location: 'Dublin, Ireland currently — relocating to Sydney, Australia from 19 August, continuing online sessions',
+    from: 'Book via bookwhen.com',
+    title: '200 Hour Certified Yoga Teacher | Psychology | Life Coaching',
+    tagline: 'The Brave Flow Yoga',
+    services: ['Beginner Friendly Yoga', 'Relaxation & Stress Relief', 'Yoga for Focus & Concentration', 'Evening & Bedtime Yoga', '1-to-1 Yoga Sessions', 'Small Group Sessions', 'Meditation Classes', 'Journaling Sessions'],
+    bio: "I'm a 200-hour certified yoga teacher with a Diploma in Psychology and a passion for creating welcoming spaces where people can slow down, reconnect with themselves, and feel more grounded. I'm currently training in Life Coaching and continuing my yoga education through further training in Yin and Restorative Yoga. Through The Brave Flow Yoga, I aim to make yoga and mindfulness accessible to everyone, especially students who may be navigating busy schedules, academic pressure, stress, and the challenges of everyday life. My teaching style is calm, supportive, and beginner friendly. I have experience teaching multiple classes and holding a calm, supportive space for people to relax and feel comfortable. My sessions are designed to meet you where you are, whether you're looking to unwind after a long day, improve your focus, move your body, or create a little more balance in your routine. I offer both online and in-person sessions.",
+    quote: "You don't need to be flexible, experienced, or \"good at yoga\" to benefit from the practice. Yoga can be a chance to pause, breathe, move, reflect, and simply give yourself some time and space.",
+    sections: [
+      {
+        title: 'My Approach',
+        body: "My classes are non-judgemental, welcoming, and accessible. I want you to feel comfortable exactly as you are. Whether you're looking for a break from studying, feeling overwhelmed, struggling to switch off, wanting to improve your focus, or simply looking for a moment of calm, my sessions offer a space to pause and reset.",
+      },
+      {
+        title: 'Qualifications & Training',
+        body: '200-Hour Yoga Teacher Training · Diploma in Psychology · Currently training in Life Coaching · Further training in Yin Yoga · Further training in Restorative Yoga.',
+      },
+    ],
+    bookingNote: 'Book online at bookwhen.com/thebraveflowyoga.',
+    contact: { instagram: 'aoife_thebraveflow', linktree: 'https://linktr.ee/thebraveflowaoife' },
   },
 
-  // ── Career / Counselling ──
   {
-    id: 14, name: 'Eitne Jarrett', category: 'Careers & Counselling', filter: 'Career',
+    id: 18, name: 'Luana', category: 'Personal Training', filter: 'Fitness',
     location: 'Ireland', from: 'Coming soon',
     shell: true,
     shellMessage: 'Full profile and session details coming soon.',
@@ -232,10 +303,9 @@ const GROUPS = [
   { label: 'Sports Coaching',       filters: ['Sports']                     },
   { label: 'Academic Grinds',       filters: ['Academic Grinds']            },
   { label: 'Trading & Finance',     filters: ['Trading']                    },
-  { label: 'Marketing & Branding',  filters: ['Marketing', 'Branding']      },
+  { label: 'Marketing & Branding',  filters: ['Marketing']                  },
   { label: 'Creative',              filters: ['Creative']                   },
   { label: 'Yoga',                  filters: ['Yoga']                       },
-  { label: 'Careers & Counselling', filters: ['Career']                     },
 ]
 
 // ─── Coach Card ───────────────────────────────────────────────────────────────

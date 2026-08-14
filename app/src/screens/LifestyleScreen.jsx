@@ -4,7 +4,7 @@ import {
 } from 'react-native'
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
-  ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2,
+  ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
@@ -194,52 +194,309 @@ export const PARTNERS = [
     howToStart: 'Enquire via Instagram DM @henrysistersco or email henrysistersco@gmail.com. Pricing on request.',
     contact: { instagram: 'henrysistersco', email: 'henrysistersco@gmail.com' },
   },
+  {
+    id: 'camila',
+    brand: 'Camila Aruk',
+    initials: 'CA',
+    initBg: '#B91C1C',
+    filterKey: 'fitness',
+    county: 'Dublin',
+    category: 'Personal Training · Muay Thai · Yoga',
+    tagline: 'Fitness, Muay Thai, and yoga, built around real routines.',
+    deal: 'PT from €60/session',
+    status: 'live',
+    credentials: 'Certified Personal Trainer · Sport Nutritionist Coach · Muay Thai · Yoga · Functional Training',
+    description: 'With over 10 years of experience in fitness, martial arts, and lifestyle coaching, Camila helps people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. Covers physique development, weight loss, muscle building, self-defence, confidence, and pre-contest prep. Based in Dublin 8, online and in person.',
+    services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
+    pricelist: [
+      { label: 'PT — 1x/week',        price: '€220/month' },
+      { label: 'PT — 2x/week',        price: '€370/month' },
+      { label: 'PT — Pay as you go',  price: '€60/session' },
+      { label: 'Body Scan',           price: '€70/session' },
+      { label: 'Food Plan + e-book',  price: '€120' },
+      { label: 'Online Coach',        price: '€320/month' },
+    ],
+    pricingNote: 'Online coaching includes a PARQ video call, WhatsApp support, food plan, workout plan, and supplement suggestions.',
+    howToStart: 'DM @camilaaruk.coach on Instagram or email camila.coachfitness@gmail.com.',
+    contact: { instagram: 'camilaaruk.coach', email: 'camila.coachfitness@gmail.com', phone: '0838602227' },
+    crossLink: { label: "Also a UniBlueprint Uni Coach, see Camila's Elevation Blueprint profile", coachId: 17 },
+  },
+  {
+    id: 'saiemsent',
+    brand: 'Saiemsent',
+    initials: 'SS',
+    initBg: '#0369A1',
+    filterKey: 'fashion',
+    category: 'Clothing',
+    tagline: 'Bold graphics, unique silhouettes, Irish streetwear.',
+    status: 'live',
+    description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures — bold graphics, unique silhouettes, and experimental details. Building a new visual identity for Irish fashion rooted in creativity, individuality, and self-expression.',
+    howToStart: 'DM @saiemsent on Instagram or visit saiemsent.ie.',
+    contact: { instagram: 'saiemsent', tiktok: 'saiemsent', website: 'https://saiemsent.ie' },
+  },
+  {
+    id: 'elect',
+    brand: 'Elect',
+    initials: 'EL',
+    initBg: '#111827',
+    filterKey: 'fashion',
+    county: 'Dublin',
+    category: 'Clothing Brand',
+    tagline: 'Christian streetwear, built around faith and purpose.',
+    deal: '10% off with code ELECTXUNIBLUEPRINT',
+    status: 'live',
+    description: 'Irish Christian streetwear brand built around faith, purpose, and individuality — modern, high-quality clothing inspired by Scripture and Christian values. Every piece has a meaning behind it, drawing on themes of identity, strength, purpose, and walking with God.',
+    howToStart: 'DM @elect_co on Instagram or email electgodschosen@gmail.com.',
+    contact: { instagram: 'elect_co', tiktok: 'elect_co', email: 'electgodschosen@gmail.com' },
+  },
+  {
+    id: 'eabakeditt',
+    brand: 'Eabakeditt',
+    initials: 'EB',
+    initBg: '#B45309',
+    filterKey: 'food',
+    county: 'Dublin',
+    category: 'Home Baking · Dublin 15',
+    tagline: 'Beautifully made treats for every occasion, Mulhuddart.',
+    deal: '€5 off every item (cookie pouches to €1.50)',
+    status: 'live',
+    description: 'Home baking business in Mulhuddart, Dublin 15, creating delicious, beautifully made treats for every occasion — from sweet treats to custom bakes, made with love and care. Every item on the menu is customisable; price may change with customisation. DM for cake enquiries not on the price list.',
+    pricelist: [
+      { label: 'Loaded Brownie Box',   price: '€20' },
+      { label: 'Brownie Box',          price: '€15' },
+      { label: 'Brookies',             price: '€15' },
+      { label: 'Blondies',             price: '€15' },
+      { label: '10 Cookie Box (any)',  price: '€15' },
+      { label: 'Cake Tray',            price: '€4' },
+      { label: '6 Cupcakes',           price: '€14' },
+      { label: '12 Cupcakes',          price: '€24' },
+      { label: 'Cookie Pouch',         price: '€2' },
+    ],
+    pricingNote: 'Flavours and add-ons (toppers, customised toppers) priced separately — ask for the full list.',
+    howToStart: 'DM @eabakeditt on Instagram or TikTok @eabakedittt.',
+    contact: { instagram: 'eabakeditt', tiktok: 'eabakedittt', phone: '0899485617', email: 'lizawakz@yahoo.com' },
+  },
+  {
+    id: 'ilashedbydiya',
+    brand: 'ilashedbydiya',
+    initials: 'ID',
+    initBg: '#9333EA',
+    filterKey: 'beauty',
+    county: 'Louth',
+    category: 'Lash Tech · Dundalk',
+    tagline: 'Classic, hybrid, and volume lash extensions.',
+    deal: '10% off first appointment',
+    status: 'live',
+    description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions, as well as lash lifts.',
+    pricelist: [
+      { label: 'Classics',   price: '€25' },
+      { label: 'Volumes',    price: '€25' },
+      { label: 'Hybrids',    price: '€25' },
+      { label: 'Lash Lifts', price: '€25' },
+      { label: 'Infills',    price: '€15' },
+      { label: 'Removals',   price: '€10' },
+    ],
+    howToStart: 'DM @ilashedbydiya on Instagram, TikTok, or Facebook.',
+    contact: { instagram: 'ilashedbydiya', tiktok: 'ilashedbydiya', email: 'ilashedbydiya@gmail.com', phone: '0899428910' },
+  },
+  {
+    id: 'roomy',
+    brand: 'Roomy.ie',
+    initials: 'RM',
+    initBg: '#0891B2',
+    filterKey: 'services',
+    category: 'Housing Platform',
+    tagline: 'Safe. Simple. Connected.',
+    deal: 'Free listings + €5 Priority Request',
+    status: 'live',
+    description: 'Modern housing platform built to make finding a room or home in Ireland simpler, safer, and more transparent — connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
+    services: ['Property & Room Listings', 'Room Seeker Posts', 'Accommodation Search', 'Priority Requests', 'Flatmate Groups', 'Landlord Onboarding', 'Safety & Scam Awareness Resources'],
+    pricelist: [
+      { label: 'Property Listings', price: 'Free' },
+      { label: 'Priority Request',  price: '€5' },
+    ],
+    howToStart: 'Visit roomy.ie or DM @Roomy.ie on Instagram.',
+    contact: { instagram: 'Roomy.ie', phone: '+353899809654', email: 'admin@roomy.ie', website: 'https://roomy.ie' },
+  },
+  {
+    id: 'royaltyproductions',
+    brand: 'Royalty Productions',
+    initials: 'RP',
+    initBg: '#78350F',
+    filterKey: 'services',
+    county: 'Dublin',
+    category: 'Photography · Dublin',
+    tagline: 'Capturing people, experiences, and important moments.',
+    deal: '10% off for verified UniBlueprint users',
+    status: 'live',
+    description: 'Dublin-based photography service focused on capturing people, experiences, and important moments in a natural, creative, and professional way — events, graduations, portraits, personal branding, and creative shoots.',
+    services: ['Event Photography', 'Graduation Photography', 'Portrait & Lifestyle Photography', 'Professional Headshots', 'Personal Branding & Content', 'Birthday & Celebration Photography', 'Creative Shoots', 'Social Media Content'],
+    pricelist: [
+      { label: 'Portrait Mini (30 min)',            price: '€70' },
+      { label: 'Portrait Standard (1hr)',           price: '€100' },
+      { label: 'Graduation (45 min)',                price: '€90' },
+      { label: 'Event Essential (1.5hr)',            price: '€150' },
+      { label: 'Event Standard (2.5hr)',             price: '€220' },
+      { label: 'Extended Event Coverage (3hr+)',     price: 'From €300' },
+      { label: 'Personal Branding / Content (1hr)',  price: '€120' },
+    ],
+    pricingNote: 'Larger events, commercial work, or custom requirements priced on enquiry.',
+    howToStart: 'DM @royalty.productions1 on Instagram, email, or phone.',
+    contact: { instagram: 'royalty.productions1', email: 'chidoziemenyoazu1@gmail.com', phone: '085 185 2451' },
+  },
+  {
+    id: 'veeslash',
+    brand: 'Vees Lash Studio',
+    initials: 'VL',
+    initBg: '#DB2777',
+    filterKey: 'beauty',
+    county: 'Galway',
+    category: 'Lash Tech · Galway',
+    tagline: 'Classic to mega volume lash extensions, Renmore.',
+    deal: 'From €40',
+    status: 'live',
+    description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
+    pricelist: [
+      { label: 'Classics',     price: '€40' },
+      { label: 'Hybrids',      price: '€50' },
+      { label: 'Volumes',      price: '€55' },
+      { label: 'Mega Volumes', price: '€60' },
+      { label: 'Deposit',      price: '€15.70' },
+    ],
+    pricingNote: 'Last-minute cancellation fee: €10.',
+    howToStart: 'Email vickylukau123@gmail.com or call to book.',
+    contact: { email: 'vickylukau123@gmail.com', phone: '+3530852758798' },
+  },
+  {
+    id: 'cutbyire',
+    brand: 'CutbyIre',
+    initials: 'CI',
+    initBg: '#374151',
+    filterKey: 'beauty',
+    county: 'Sligo',
+    category: 'Barber · Sligo',
+    tagline: 'Standard cuts, lineups, and home service.',
+    deal: 'From €15',
+    status: 'live',
+    description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, and kids cuts, plus a home service depending on distance.',
+    pricelist: [
+      { label: 'Standard Haircut + Beard',     price: '€25 · 30 min' },
+      { label: 'Kids Haircut (under 10)',      price: '€17 · 30 min' },
+      { label: 'Lineup / Scissor Cut + Beard', price: '€20 · 30 min' },
+      { label: 'Standard Haircut',             price: '€20 · 30 min' },
+      { label: 'Lineup (no fade)',             price: '€15 · 20 min' },
+      { label: 'Scissor Cut (no fade)',        price: '€15 · 30 min' },
+      { label: 'Home Service',                 price: 'From €35 · 40 min' },
+    ],
+    howToStart: 'DM @cutbyire on Instagram to book.',
+    contact: { instagram: 'cutbyire' },
+  },
+  {
+    id: 'poiemadexigns',
+    brand: 'Poiema Dexigns',
+    initials: 'PD',
+    initBg: '#1D4ED8',
+    filterKey: 'services',
+    county: 'Dublin',
+    category: 'Web Design & Branding',
+    tagline: 'Modern websites and cohesive visual branding.',
+    status: 'live',
+    description: 'Creative web design and branding studio helping businesses, organisations, and entrepreneurs build strong, professional digital identities. Worked with small businesses, community organisations, churches, and entrepreneurs on everything from website design and redesigns to logos and complete brand identities.',
+    services: ['Website Design & Development', 'Website Redesigns', 'E-commerce Design', 'UI/UX Design', 'Logo Design', 'Brand Identity & Visual Branding', 'Brand Style Guides', 'Website Maintenance'],
+    pricingNote: 'Pricing upon enquiry — each project is quoted based on scope, requirements, and needs.',
+    howToStart: 'Book a call at calendly.com/oedesignns or DM @poiema_dexigns on Instagram.',
+    contact: { instagram: 'poiema_dexigns', email: 'oedesignns@gmail.com', phone: '+353834801235', website: 'https://www.olaoluwaesho.com/' },
+  },
+  {
+    id: 'kelan',
+    brand: 'Made By Kelan',
+    initials: 'MK',
+    initBg: '#1E3A5F',
+    filterKey: 'services',
+    county: 'Mayo',
+    category: 'Photography & Video · Co. Mayo',
+    tagline: 'Events, filming, and promotional content, Co. Mayo.',
+    status: 'live',
+    description: 'Long-time photography and videography enthusiast with experience in events, filming, and promotional content creation — including work with Machenry and the Dogroses folk band, and promotional content for Cadell Bar in Galway City.',
+    pricingNote: 'Pricing upon enquiry.',
+    howToStart: 'DM @made_by_kelan on Instagram.',
+    contact: { instagram: 'made_by_kelan', email: 'kelanhenry1@gmail.com', phone: '0830416835' },
+  },
+  {
+    id: 'claras',
+    brand: "Clara's Beauty Room",
+    initials: 'CB',
+    initBg: '#EC4899',
+    filterKey: 'beauty',
+    county: 'Mayo',
+    category: 'Nail Tech · Mayo',
+    tagline: 'Gel extensions, overlay, BIAB, and shellac.',
+    deal: 'Gel extensions from €40',
+    status: 'live',
+    description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac.',
+    pricelist: [
+      { label: 'Gel Extensions', price: '€40' },
+      { label: 'Gel Overlay',    price: '€35' },
+      { label: 'BIAB',           price: '€30' },
+      { label: 'Shellac',        price: '€25' },
+    ],
+    howToStart: 'DM @claras_beauty_room on Instagram to book.',
+    contact: { instagram: 'claras_beauty_room' },
+  },
+  {
+    id: 'lashessteph',
+    brand: 'Lashes By Steph',
+    initials: 'LS',
+    initBg: '#7C3AED',
+    filterKey: 'beauty',
+    county: 'Kildare',
+    category: 'Lash Tech · Kildare',
+    tagline: 'Classic to mega volume lash sets.',
+    deal: 'Classics from €35',
+    status: 'live',
+    description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets.',
+    pricelist: [
+      { label: 'Classics',     price: '€35' },
+      { label: 'Hybrids',      price: '€45' },
+      { label: 'Russians',     price: '€50' },
+      { label: 'Mega Volumes', price: '€60' },
+    ],
+    howToStart: 'DM @lashedbystephhx on Instagram to book.',
+    contact: { instagram: 'lashedbystephhx' },
+  },
 
-  // ── Shell: Services ─────────────────────────────────────────────────────
-  { id: 'kelan',      brand: 'madebykelan',             initials: 'MK', initBg: '#1E3A5F', filterKey: 'services', category: 'Creative',          status: 'shell' },
-  { id: 'mbcuts',     brand: 'MBCuts',                  initials: 'MB', initBg: '#374151', filterKey: 'beauty',   category: 'Barber',             status: 'shell' },
-
-  // ── Shell: Hair ─────────────────────────────────────────────────────────
-  { id: 'lucy',    brand: 'Hair by Lucy Staunton Kelly', initials: 'LS', initBg: '#B45309', filterKey: 'beauty', category: 'Hair', status: 'shell' },
-  { id: 'angelic', brand: 'Angelic Touch',               initials: 'AT', initBg: '#92400E', filterKey: 'beauty', category: 'Hair', status: 'shell' },
-
-  // ── Shell: Clothing ──────────────────────────────────────────────────────
-  { id: 'ocean1',      brand: 'Ocean1',           initials: 'O1', initBg: '#0369A1', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'archangel',   brand: 'Archangel',        initials: 'AA', initBg: '#111827', filterKey: 'fashion', category: 'Clothing Brand', status: 'shell' },
-  { id: 'pouvoirs',    brand: 'Pouvoirs Gallery', initials: 'PG', initBg: '#4B5563', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'saiemsent',   brand: 'Saiemsent',        initials: 'SM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'fortesce',    brand: 'Fortesce',         initials: 'FT', initBg: '#1D4ED8', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'streetclth',  brand: 'Street Clothing',  initials: 'SC', initBg: '#111827', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'timing',      brand: 'Timing',           initials: 'TM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-
-  // ── Shell: Food & Drink ──────────────────────────────────────────────────
-  { id: 'lume',       brand: 'Lume',            initials: 'LM', initBg: '#D97706', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'njoy',       brand: 'N-joy',           initials: 'NJ', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'tuckin',     brand: 'Tuck Inn',        initials: 'TI', initBg: '#92400E', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'coffeespot', brand: 'The Coffee Spot', initials: 'CS', initBg: '#78350F', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'islandsips', brand: 'Island Sips',     initials: 'IS', initBg: '#0891B2', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-
-  // ── Shell: Lash Tech ────────────────────────────────────────────────────
-  { id: 'chloehouse', brand: 'Chloe May House',  initials: 'CM', initBg: '#7C3AED', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
-  { id: 'lashlux',    brand: 'Lash Lux Dublin',  initials: 'LL', initBg: '#9333EA', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
-
-  // ── Shell: Nail Tech ────────────────────────────────────────────────────
-  { id: 'dolledm',  brand: 'Dolled by M',        initials: 'DM', initBg: '#BE185D', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
-  { id: 'eveburac', brand: 'Eve Burac',           initials: 'EB', initBg: '#DB2777', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
-  { id: 'claras',   brand: "Clara's Beauty Room", initials: 'CB', initBg: '#EC4899', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
-
-  // ── Shell: Makeup ───────────────────────────────────────────────────────
-  { id: 'erinburke', brand: 'Erin Burke Makeup', initials: 'EB', initBg: '#C2410C', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-  { id: 'nicole',    brand: 'Nicole',            initials: 'NI', initBg: '#9A3412', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-  { id: 'wzorek',    brand: 'Wzorek',            initials: 'WZ', initBg: '#7C2D12', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-
-  // ── TBC: confirmed coming soon ──────────────────────────────────────────
-  { id: 'carolynes',   brand: 'Carolynes Beauty Studio', initials: 'CB', initBg: '#D97706', filterKey: 'beauty', category: 'Beauty Studio', status: 'tbc' },
-  { id: 'kasia',       brand: 'Makeup By Kasia',         initials: 'MK', initBg: '#D97706', filterKey: 'beauty', category: 'Makeup',        status: 'tbc' },
-  { id: 'pkglam',      brand: 'The PK Glam',             initials: 'PK', initBg: '#D97706', filterKey: 'beauty', category: 'Beauty',        status: 'tbc' },
-  { id: 'hardluck',    brand: 'Hardluck Club',           initials: 'HC', initBg: '#D97706', filterKey: 'food',   category: 'Venue',         status: 'tbc' },
-  { id: 'lashessteph', brand: 'Lashes By Steph',         initials: 'LS', initBg: '#D97706', filterKey: 'beauty', category: 'Lash Tech',     status: 'tbc' },
-  { id: 'purplebrunch',brand: 'Purple Brunch',           initials: 'PB', initBg: '#D97706', filterKey: 'food',   category: 'Food & Drink',  status: 'tbc' },
+  // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
+  { id: 'mbcuts',       brand: 'Manni The Barber',        initials: 'MB', initBg: '#374151', filterKey: 'beauty',   category: 'Barber · Dundalk', status: 'shell' },
+  { id: 'mmcutz',       brand: 'MM Cutz',                 initials: 'MC', initBg: '#374151', filterKey: 'beauty',   category: 'Barber · Dublin',  status: 'shell' },
+  { id: 'cutbyalind',   brand: 'Cut by Alind',             initials: 'CA', initBg: '#374151', filterKey: 'beauty',   category: 'Barber · Mayo',    status: 'shell' },
+  { id: 'lucy',         brand: 'Hair by Lucy Staunton Kelly', initials: 'LS', initBg: '#B45309', filterKey: 'beauty', category: 'Hair', status: 'shell' },
+  { id: 'angelic',      brand: 'Angelic Touch',           initials: 'AT', initBg: '#92400E', filterKey: 'beauty', category: 'Hair', status: 'shell' },
+  { id: 'ocean1',       brand: 'Ocean1',                  initials: 'O1', initBg: '#0369A1', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
+  { id: 'archangel',    brand: 'Archangel',               initials: 'AA', initBg: '#111827', filterKey: 'fashion', category: 'Clothing Brand', status: 'shell' },
+  { id: 'pouvoirs',     brand: 'Pouvoirs Gallery',        initials: 'PG', initBg: '#4B5563', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
+  { id: 'fortesce',     brand: 'Fortesce',                initials: 'FT', initBg: '#1D4ED8', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
+  { id: 'streetclth',   brand: 'Street Clothing',         initials: 'SC', initBg: '#111827', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
+  { id: 'timing',       brand: 'Timing',                  initials: 'TM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
+  { id: 'lume',         brand: 'Lume',                    initials: 'LM', initBg: '#D97706', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'njoy',         brand: 'N-joy',                   initials: 'NJ', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'tuckin',       brand: 'Tuck Inn',                initials: 'TI', initBg: '#92400E', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'coffeespot',   brand: 'The Coffee Spot',         initials: 'CS', initBg: '#78350F', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'islandsips',   brand: 'Island Sips',             initials: 'IS', initBg: '#0891B2', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'joyoffoods',   brand: 'JoyofFoods',              initials: 'JF', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'droghedafoodie', brand: 'The Drogheda Foodie',   initials: 'DF', initBg: '#92400E', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'hardluck',     brand: 'Hardluck Club',           initials: 'HC', initBg: '#78350F', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'purplebrunch', brand: 'Purple Brunch',           initials: 'PB', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
+  { id: 'chloehouse',   brand: 'Chloe May House',         initials: 'CM', initBg: '#7C3AED', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
+  { id: 'lashlux',      brand: 'Lash Lux Dublin',         initials: 'LL', initBg: '#9333EA', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
+  { id: 'dolledm',      brand: 'Dolled by M',             initials: 'DM', initBg: '#BE185D', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
+  { id: 'eveburac',     brand: 'Eve Burac',               initials: 'EB', initBg: '#DB2777', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
+  { id: 'erinburke',    brand: 'Erin Burke Makeup',       initials: 'EB', initBg: '#C2410C', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
+  { id: 'nicole',       brand: 'Nicole',                  initials: 'NI', initBg: '#9A3412', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
+  { id: 'wzorek',       brand: 'Wzorek',                  initials: 'WZ', initBg: '#7C2D12', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
+  { id: 'carolynes',    brand: 'Carolynes Beauty Studio', initials: 'CB', initBg: '#D97706', filterKey: 'beauty', category: 'Beauty Studio', status: 'shell' },
+  { id: 'kasia',        brand: 'Makeup By Kasia',         initials: 'MK', initBg: '#D97706', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
+  { id: 'pkglam',       brand: 'The PK Glam',             initials: 'PK', initBg: '#D97706', filterKey: 'beauty', category: 'Beauty', status: 'shell' },
+  { id: 'dylanpower',   brand: 'Dylan Power',             initials: 'DP', initBg: '#374151', filterKey: 'services', category: 'Sports Photographer · Cork', status: 'shell' },
 ]
 
 // ─── Wellbeing & Support ─────────────────────────────────────────────────────
@@ -273,19 +530,18 @@ const BUDGET_TOOLS = [
 // initials circle for every partner that doesn't have a logo yet.
 //
 // partner.logo can be:
-//   null / undefined , render initials fallback (permanent for shell/tbc cards)
+//   null / undefined , render initials fallback (permanent for shell cards)
 //   string (URL)     , remote image from Supabase Storage (partner-logos bucket)
 //   number           , static require() result, if ever used for bundled assets
 //
 // New partners are added with logo: null and updated via the admin-only
 // partner-logos Storage bucket. No logo assets should be committed to the repo.
 function PartnerLogo({ partner, size = 44 }) {
-  const isTbc    = partner.status === 'tbc'
-  const bg       = isTbc ? '#F59E0B' : partner.initBg
-  const label    = isTbc ? 'TBC'     : partner.initials
+  const bg       = partner.initBg
+  const label    = partner.initials
   const fontSize = label.length > 2 ? 10 : 13
 
-  if (!isTbc && partner.logo) {
+  if (partner.logo) {
     const source = typeof partner.logo === 'string'
       ? { uri: partner.logo }   // remote URL from Storage
       : partner.logo            // static require() (number), kept for future use
@@ -334,10 +590,9 @@ function PartnerCard({ partner, navigation, autoOpen }) {
   const [open, setOpen] = useState(!!autoOpen)
   const isLive  = partner.status === 'live'
   const isShell = partner.status === 'shell'
-  const isTbc   = partner.status === 'tbc'
 
   return (
-    <View style={styles.partnerCard}>
+    <View style={[styles.partnerCard, isShell && styles.partnerCardLocked]}>
       {/* Card row, always visible */}
       <TouchableOpacity
         style={styles.cardRow}
@@ -350,18 +605,14 @@ function PartnerCard({ partner, navigation, autoOpen }) {
         <View style={styles.cardBody}>
           <View style={styles.cardTopRow}>
             <Text
-              style={[styles.brandName, (isShell || isTbc) && styles.brandMuted]}
+              style={[styles.brandName, isShell && styles.brandMuted]}
               numberOfLines={1}
             >
               {partner.brand}
             </Text>
-            {isTbc && (
-              <View style={styles.tbcBadge}>
-                <Text style={styles.tbcBadgeText}>TBC</Text>
-              </View>
-            )}
             {isShell && (
               <View style={styles.shellBadge}>
+                <Lock size={9} color={colors.muted} />
                 <Text style={styles.shellBadgeText}>Coming Soon</Text>
               </View>
             )}
@@ -377,11 +628,8 @@ function PartnerCard({ partner, navigation, autoOpen }) {
           {isLive && partner.deal && (
             <Text style={styles.dealLabel}>{partner.deal}</Text>
           )}
-          {isTbc && (
-            <Text style={styles.secondaryLabel}>Confirmed partner, details to follow</Text>
-          )}
           {isShell && (
-            <Text style={styles.secondaryLabel}>Profile and details coming soon</Text>
+            <Text style={styles.secondaryLabel}>Locked until launch</Text>
           )}
         </View>
       </TouchableOpacity>
@@ -719,15 +967,10 @@ const styles = StyleSheet.create({
   dealLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 3 },
   secondaryLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 3, fontStyle: 'italic' },
 
-  // Status badges
-  tbcBadge: {
-    backgroundColor: '#F59E0B',
-    borderRadius: radius.pill,
-    paddingHorizontal: 8, paddingVertical: 3,
-  },
-  tbcBadgeText: { fontFamily: fonts.sansBold, fontSize: 10, color: '#FFFFFF', letterSpacing: 0.4 },
-
+  // Status badge — coming soon, locked
+  partnerCardLocked: { opacity: 0.86 },
   shellBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
     backgroundColor: 'rgba(30,58,95,0.08)',
     borderRadius: radius.pill,
     paddingHorizontal: 8, paddingVertical: 3,

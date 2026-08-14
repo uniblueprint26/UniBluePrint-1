@@ -28,27 +28,25 @@ const PAGE_STYLES = `
 // ─── Coaches (aligned to app ElevationScreen) ─────────────────────────────────
 
 const COACHES = [
-  { id: 1,  name: 'Emmanuel',    category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  services: ['Maths and Science Grinds', 'Exam Prep', 'LC and University Level'], accent: '#1E3A5F' },
+  { id: 1,  name: '500+ with Eman', category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },
   { id: 2,  name: 'JMC Fitness', category: 'Sports Coaching',      location: 'North Dublin',  filter: 'Sports',           services: ['In-Person Training', 'Football Coaching', 'Agent Connections'],    accent: '#166534' },
   { id: 3,  name: 'Nathan',      category: 'Photography and Video', location: 'Ireland',      filter: 'Creative',         services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Creative Direction'], accent: '#C2410C' },
-  { id: 4,  name: 'Daniel',      category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading',          services: ['Trading Fundamentals', 'Portfolio Strategy', '1-to-1 Sessions'],  accent: '#1B4B5A' },
-  { id: 5,  name: 'Ali',         category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ['Personal Training', 'Training Plans', 'Form Coaching'],           accent: '#145A3E' },
+  { id: 4,  name: 'DG Trading',  category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading',          services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
   { id: 6,  name: 'Emanuel T.',  category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ['Online Workout Plans', 'Nutrition Plans', 'Calisthenics Coaching'], accent: '#2D4B8E' },
   { id: 7,  name: 'Tadgh',       category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
   { id: 8,  name: 'Milan',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
   { id: 9,  name: 'Kevin',       category: 'Personal Training',    location: 'Dublin',        filter: 'Fitness',          services: ['1-to-1 PT Sessions', 'Beginner Gym Coaching', 'Accountability Coaching'], accent: '#145A3E' },
   { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Co. Mayo',      filter: 'Marketing',        services: ['Social Media Management', 'Content & Graphics', 'Creator Coordination', 'Client Reporting'], accent: '#4C1D95', badge: 'Student Mentor Listing', crossLinkHref: '/partners#leva', crossLinkLabel: 'See LEVA Impact on Partners' },
-  { id: 11, name: 'Nikola',      category: 'Personal Branding',    location: 'Ireland',       filter: 'Branding',         services: ['LinkedIn Optimisation', 'Brand Strategy', 'Online Presence'],    accent: '#2D4B8E' },
   { id: 12, name: 'Jayden',      category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
   { id: 13, name: 'Stephen',      category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
-  { id: 14, name: 'Camila',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ["Women's Fitness", 'Personal Training', 'Lifestyle Support'],   accent: '#145A3E' },
-  { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Coming soon'],                                                    accent: '#145A3E', shell: true },
-  { id: 16, name: 'Eitne',       category: 'Careers and Counselling', location: 'Ireland',   filter: 'Career',           services: ['Coming soon'],                                                    accent: '#1B4B5A', shell: true },
-  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading', services: ['Coming soon'],                                              accent: '#1B4B5A', shell: true },
+  { id: 14, name: 'Camila',      category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
+  { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
+  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
   { id: 18, name: 'Zainab Ade',  category: 'Investing and Finance Coach', location: 'Ireland', filter: 'Trading',          services: ['Coming soon'],                                                  accent: '#1B4B5A', shell: true },
+  { id: 19, name: 'Luana',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ['Coming soon'],                                                  accent: '#145A3E', shell: true },
 ]
 
-const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Branding', 'Creative', 'Yoga', 'Career']
+const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Yoga', 'Career']
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
 

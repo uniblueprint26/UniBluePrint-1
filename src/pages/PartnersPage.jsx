@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ExternalLink, Handshake, Instagram, Phone, Link2, ArrowRight } from 'lucide-react'
+import { ExternalLink, Handshake, Instagram, Phone, Mail, Link2, ArrowRight, Lock } from 'lucide-react'
 import whipWizardzLogo from '../assets/whip-wizardz-logo.png.png'
 import jmcFitnessLogo from '../assets/jmc-fitness-logo.png.jpeg'
 import energieFitnessLogo from '../assets/energie-fitness-logo.png.jpeg'
@@ -108,54 +108,200 @@ const LIVE_PARTNERS = [
     instagram: 'henrysistersco',
     email: 'henrysistersco@gmail.com',
   },
+  {
+    id: 'camila',
+    name: 'Camila Aruk',
+    initials: 'CA',
+    initBg: '#B91C1C',
+    category: 'Personal Training · Muay Thai · Yoga',
+    description: 'Certified Personal Trainer and Sport Nutritionist Coach based in Dublin 8 — Muay Thai, yoga, and functional training alongside physique development, weight loss, and muscle building. Online and in person, built around realistic, sustainable routines.',
+    deal: 'PT from €60/session',
+    instagram: 'camilaaruk.coach',
+    email: 'camila.coachfitness@gmail.com',
+    phone: '0838602227',
+  },
+  {
+    id: 'saiemsent',
+    name: 'Saiemsent',
+    initials: 'SS',
+    initBg: '#0369A1',
+    category: 'Clothing',
+    description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures — bold graphics, unique silhouettes, and experimental details, building a visual identity for Irish fashion rooted in individuality and self-expression.',
+    instagram: 'saiemsent',
+    tiktok: 'saiemsent',
+    website: 'https://saiemsent.ie',
+  },
+  {
+    id: 'elect',
+    name: 'Elect',
+    initials: 'EL',
+    initBg: '#111827',
+    category: 'Clothing Brand',
+    description: 'Irish Christian streetwear brand built around faith, purpose, and individuality — modern, high-quality clothing inspired by Scripture and Christian values, with a meaning behind every piece.',
+    deal: '10% off with code ELECTXUNIBLUEPRINT',
+    instagram: 'elect_co',
+    tiktok: 'elect_co',
+    email: 'electgodschosen@gmail.com',
+  },
+  {
+    id: 'eabakeditt',
+    name: 'Eabakeditt',
+    initials: 'EB',
+    initBg: '#B45309',
+    category: 'Home Baking · Dublin 15',
+    description: 'Home baking business in Mulhuddart, Dublin 15 — brownies, blondies, cookies, cupcakes, and fully customisable cakes made with love and care for every occasion. Every item on the menu is customisable, with pricing adjusted accordingly.',
+    deal: '€5 off every item (cookie pouches to €1.50)',
+    instagram: 'eabakeditt',
+    tiktok: 'eabakedittt',
+    phone: '0899485617',
+    email: 'lizawakz@yahoo.com',
+  },
+  {
+    id: 'ilashedbydiya',
+    name: 'ilashedbydiya',
+    initials: 'ID',
+    initBg: '#9333EA',
+    category: 'Lash Tech · Dundalk',
+    description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions as well as lash lifts.',
+    deal: '10% off first appointment',
+    instagram: 'ilashedbydiya',
+    tiktok: 'ilashedbydiya',
+    phone: '0899428910',
+    email: 'ilashedbydiya@gmail.com',
+  },
+  {
+    id: 'roomy',
+    name: 'Roomy.ie',
+    initials: 'RM',
+    initBg: '#0891B2',
+    category: 'Housing Platform',
+    description: 'Modern housing platform making it simpler, safer, and more transparent to find a room or home in Ireland — connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
+    deal: 'Free listings + €5 Priority Request',
+    instagram: 'Roomy.ie',
+    phone: '+353899809654',
+    email: 'admin@roomy.ie',
+    website: 'https://roomy.ie',
+  },
+  {
+    id: 'royaltyproductions',
+    name: 'Royalty Productions',
+    initials: 'RP',
+    initBg: '#78350F',
+    category: 'Photography · Dublin',
+    description: 'Dublin-based photography service capturing events, graduations, portraits, personal branding, and creative shoots with a natural, professional finish — imagery clients are genuinely excited to share and use.',
+    deal: '10% off for verified UniBlueprint users',
+    instagram: 'royalty.productions1',
+    phone: '085 185 2451',
+    email: 'chidoziemenyoazu1@gmail.com',
+  },
+  {
+    id: 'veeslash',
+    name: 'Vees Lash Studio',
+    initials: 'VL',
+    initBg: '#DB2777',
+    category: 'Lash Tech · Galway',
+    description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
+    deal: 'From €40',
+    phone: '+3530852758798',
+    email: 'vickylukau123@gmail.com',
+  },
+  {
+    id: 'cutbyire',
+    name: 'CutbyIre',
+    initials: 'CI',
+    initBg: '#374151',
+    category: 'Barber · Sligo',
+    description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, kids cuts, and a home service for an extra fee depending on distance.',
+    deal: 'From €15',
+    instagram: 'cutbyire',
+  },
+  {
+    id: 'poiemadexigns',
+    name: 'Poiema Dexigns',
+    initials: 'PD',
+    initBg: '#1D4ED8',
+    category: 'Web Design & Branding',
+    description: 'Creative web design and branding studio building modern, user-friendly websites and cohesive visual identities for businesses, churches, and entrepreneurs — from full brand identities to logo design and website builds.',
+    instagram: 'poiema_dexigns',
+    email: 'oedesignns@gmail.com',
+    phone: '+353834801235',
+    website: 'https://www.olaoluwaesho.com/',
+  },
+  {
+    id: 'madebykelan',
+    name: 'Made By Kelan',
+    initials: 'MK',
+    initBg: '#1E3A5F',
+    category: 'Photography & Video · Co. Mayo',
+    description: 'Photography and videography from Co. Mayo — events, filming, and promotional content, including work with Machenry and the Dogroses folk band and promotional content for Cadell Bar in Galway City.',
+    instagram: 'made_by_kelan',
+    email: 'kelanhenry1@gmail.com',
+    phone: '0830416835',
+  },
+  {
+    id: 'clarasbeautyroom',
+    name: "Clara's Beauty Room",
+    initials: 'CB',
+    initBg: '#EC4899',
+    category: 'Nail Tech · Mayo',
+    description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac. Booking via Instagram DM.',
+    deal: 'Gel extensions from €40',
+    instagram: 'claras_beauty_room',
+  },
+  {
+    id: 'lashesbysteph',
+    name: 'Lashes By Steph',
+    initials: 'LS',
+    initBg: '#7C3AED',
+    category: 'Lash Tech · Kildare',
+    description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets. Booking via Instagram DM.',
+    deal: 'Classics from €35',
+    instagram: 'lashedbystephhx',
+  },
 ]
 
-// ─── Shell partners: name + category only ──────────────────────────────────────
-const SHELL_PARTNERS = [
-  { name: 'madebykelan',                  category: 'Creative' },
-  { name: 'MBCuts',                       category: 'Barber' },
-  { name: 'Hair by Lucy Staunton Kelly',  category: 'Hair' },
-  { name: 'Angelic Touch',                category: 'Hair' },
-  { name: 'Ocean1',                       category: 'Clothing' },
-  { name: 'Archangel',                    category: 'Clothing Brand' },
-  { name: 'Pouvoirs Gallery',             category: 'Clothing' },
-  { name: 'Saiemsent',                    category: 'Clothing' },
-  { name: 'Fortesce',                     category: 'Clothing' },
-  { name: 'Street Clothing',              category: 'Clothing' },
-  { name: 'Timing',                       category: 'Clothing' },
-  { name: 'Lume',                         category: 'Food & Drink' },
-  { name: 'N-joy',                        category: 'Food & Drink' },
-  { name: 'Tuck Inn',                     category: 'Food & Drink' },
-  { name: 'The Coffee Spot',              category: 'Food & Drink' },
-  { name: 'Island Sips',                  category: 'Food & Drink' },
-  { name: 'Chloe May House',              category: 'Lash Tech' },
-  { name: 'Lash Lux Dublin',              category: 'Lash Tech' },
-  { name: 'Dolled by M',                  category: 'Nail Tech' },
-  { name: 'Eve Burac',                    category: 'Nail Tech' },
-  { name: "Clara's Beauty Room",          category: 'Nail Tech' },
-  { name: 'Erin Burke Makeup',            category: 'Makeup' },
-  { name: 'Nicole',                       category: 'Makeup' },
-  { name: 'Wzorek',                       category: 'Makeup' },
-]
-
-// ─── TBC partners: confirmed, amber badge ──────────────────────────────────────
-const TBC_PARTNERS = [
-  { name: 'Carolynes Beauty Studio', category: 'Beauty Studio' },
-  { name: 'Makeup By Kasia',         category: 'Makeup' },
-  { name: 'The PK Glam',             category: 'Beauty' },
-  { name: 'Hardluck Club',           category: 'Food & Drink' },
-  { name: 'Lashes By Steph',         category: 'Lash Tech' },
-  { name: 'Purple Brunch',           category: 'Food & Drink' },
+// ─── Coming Soon: everyone else — confirmed and onboarding, locked until launch
+const COMING_SOON_PARTNERS = [
+  { name: 'Manni The Barber',            category: 'Barber · Dundalk' },
+  { name: 'MM Cutz',                     category: 'Barber · Dublin' },
+  { name: 'Cut by Alind',                category: 'Barber · Mayo' },
+  { name: 'Hair by Lucy Staunton Kelly', category: 'Hair' },
+  { name: 'Angelic Touch',               category: 'Hair' },
+  { name: 'Ocean1',                      category: 'Clothing' },
+  { name: 'Archangel',                   category: 'Clothing Brand' },
+  { name: 'Pouvoirs Gallery',            category: 'Clothing' },
+  { name: 'Fortesce',                    category: 'Clothing' },
+  { name: 'Street Clothing',             category: 'Clothing' },
+  { name: 'Timing',                      category: 'Clothing' },
+  { name: 'Lume',                        category: 'Food & Drink' },
+  { name: 'N-joy',                       category: 'Food & Drink' },
+  { name: 'Tuck Inn',                    category: 'Food & Drink' },
+  { name: 'The Coffee Spot',             category: 'Food & Drink' },
+  { name: 'Island Sips',                 category: 'Food & Drink' },
+  { name: 'JoyofFoods',                  category: 'Food & Drink' },
+  { name: 'The Drogheda Foodie',         category: 'Food & Drink' },
+  { name: 'Hardluck Club',               category: 'Food & Drink' },
+  { name: 'Purple Brunch',               category: 'Food & Drink' },
+  { name: 'Chloe May House',             category: 'Lash Tech' },
+  { name: 'Lash Lux Dublin',             category: 'Lash Tech' },
+  { name: 'Dolled by M',                 category: 'Nail Tech' },
+  { name: 'Eve Burac',                   category: 'Nail Tech' },
+  { name: 'Erin Burke Makeup',           category: 'Makeup' },
+  { name: 'Nicole',                      category: 'Makeup' },
+  { name: 'Wzorek',                      category: 'Makeup' },
+  { name: 'Makeup By Kasia',             category: 'Makeup' },
+  { name: 'Carolynes Beauty Studio',     category: 'Beauty Studio' },
+  { name: 'The PK Glam',                 category: 'Beauty' },
+  { name: 'Dylan Power',                 category: 'Sports Photographer · Cork' },
 ]
 
 const PAGE_STYLES = `
   .partners-live-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1040px; margin: 32px auto 0; }
-  .partners-shell-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1040px; margin: 24px auto 0; }
-  .partners-tbc-row { display: flex; flex-wrap: wrap; gap: 10px; max-width: 1040px; margin: 20px auto 0; justify-content: center; }
+  .partners-soon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1040px; margin: 24px auto 0; }
   .partner-tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  @media (max-width: 900px) { .partners-live-grid { grid-template-columns: repeat(2, 1fr); } .partners-shell-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 640px) { .partners-live-grid { grid-template-columns: 1fr; } .partners-shell-grid { grid-template-columns: repeat(2, 1fr); } .partner-tools-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 440px) { .partners-shell-grid { grid-template-columns: 1fr; } .partner-tools-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .partners-live-grid { grid-template-columns: repeat(2, 1fr); } .partners-soon-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .partners-live-grid { grid-template-columns: 1fr; } .partners-soon-grid { grid-template-columns: repeat(2, 1fr); } .partner-tools-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 440px) { .partners-soon-grid { grid-template-columns: 1fr; } .partner-tools-grid { grid-template-columns: 1fr; } }
 `
 
 function SectionLabel({ children, light }) {
@@ -195,7 +341,7 @@ function ToolCard({ name, description, url }) {
   )
 }
 
-function LivePartnerCard({ id, name, initials, initBg, category, description, deal, logo, instagram, tiktok, phone, website, crossLinkHref, crossLinkLabel }) {
+function LivePartnerCard({ id, name, initials, initBg, category, description, deal, logo, instagram, tiktok, phone, email, website, crossLinkHref, crossLinkLabel }) {
   return (
     <div id={id} style={{
       position: 'relative',
@@ -256,7 +402,7 @@ function LivePartnerCard({ id, name, initials, initBg, category, description, de
       </p>
 
       {/* Contact chips */}
-      {(instagram || tiktok || phone || website) && (
+      {(instagram || tiktok || phone || email || website) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
           {instagram && (
             <a
@@ -304,6 +450,20 @@ function LivePartnerCard({ id, name, initials, initBg, category, description, de
               {phone}
             </a>
           )}
+          {email && (
+            <a
+              href={`mailto:${email}`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
+                padding: '5px 12px', textDecoration: 'none',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
+              }}
+            >
+              <Mail size={12} />
+              Email
+            </a>
+          )}
           {website && (
             <a
               href={website}
@@ -317,7 +477,7 @@ function LivePartnerCard({ id, name, initials, initBg, category, description, de
               }}
             >
               <Link2 size={12} />
-              Portfolio
+              Website
             </a>
           )}
         </div>
@@ -356,7 +516,7 @@ function LivePartnerCard({ id, name, initials, initBg, category, description, de
   )
 }
 
-function ShellPartnerCard({ name, category }) {
+function ComingSoonCard({ name, category }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '10px',
@@ -372,33 +532,12 @@ function ShellPartnerCard({ name, category }) {
           {category}
         </span>
         <span style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#9CA3AF', fontStyle: 'italic',
+          display: 'inline-flex', alignItems: 'center', gap: '3px',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#9CA3AF',
         }}>
+          <Lock size={9} />
           Coming soon
         </span>
-      </div>
-    </div>
-  )
-}
-
-function TbcChip({ name, category }) {
-  return (
-    <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: '8px',
-      background: '#FFFFFF', borderRadius: '8px',
-      border: '1.5px solid #F59E0B',
-      padding: '8px 14px',
-    }}>
-      <span style={{
-        background: '#F59E0B', color: '#fff', borderRadius: '4px',
-        padding: '2px 6px', fontFamily: "'DM Sans', sans-serif",
-        fontSize: '9px', fontWeight: '700', flexShrink: 0,
-      }}>
-        TBC
-      </span>
-      <div>
-        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '13px', color: '#1E3A5F', margin: 0 }}>{name}</p>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#9CA3AF', margin: '1px 0 0' }}>{category}</p>
       </div>
     </div>
   )
@@ -501,37 +640,22 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 4 — SHELL PARTNERS ─────────────────────────────────── */}
-        <section style={{ padding: '0 24px 64px', textAlign: 'center' }}>
-          <SectionLabel>More Partners</SectionLabel>
+        {/* ── SECTION 4 — COMING SOON ─────────────────────────────────────── */}
+        <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
+          <SectionLabel>Coming Soon</SectionLabel>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', marginTop: '10px' }}>
-            Deals launching soon
+            The rest of the network
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', margin: '8px auto 0', maxWidth: '480px', lineHeight: 1.65 }}>
-            These partners are confirmed and onboarding. Their full listings will be live in the app at launch.
+            These partners are confirmed and onboarding — locked until their full listing and deal go live.
           </p>
 
-          <div className="partners-shell-grid">
-            {SHELL_PARTNERS.map(p => <ShellPartnerCard key={p.name} {...p} />)}
+          <div className="partners-soon-grid">
+            {COMING_SOON_PARTNERS.map(p => <ComingSoonCard key={p.name} {...p} />)}
           </div>
         </section>
 
-        {/* ── SECTION 5 — TBC PARTNERS ───────────────────────────────────── */}
-        <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
-          <SectionLabel>Confirmed Partners</SectionLabel>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F', marginTop: '10px' }}>
-            Details to follow
-          </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', margin: '6px auto 0', maxWidth: '440px', lineHeight: 1.65 }}>
-            These partners are confirmed with UniBlueprint. Full details and deal terms will be announced ahead of launch.
-          </p>
-
-          <div className="partners-tbc-row">
-            {TBC_PARTNERS.map(p => <TbcChip key={p.name} {...p} />)}
-          </div>
-        </section>
-
-        {/* ── SECTION 6 — BECOME A PARTNER ───────────────────────────────── */}
+        {/* ── SECTION 5 — BECOME A PARTNER ───────────────────────────────── */}
         <section style={{ background: '#1E3A5F', padding: '64px 24px', textAlign: 'center' }}>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#F5F0E8' }}>
             Partner with UniBlueprint
