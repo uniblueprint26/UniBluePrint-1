@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
+import PartnerMap from '../components/PartnerMap'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -186,39 +187,7 @@ const STEPS = [
   { n: 3, title: 'Unlock and redeem in the app',  desc: 'Show your deal badge to the partner to claim your saving.' },
 ]
 
-// ─── Ireland partner map ───────────────────────────────────────────────────────
-
 // ─── Reach section data ───────────────────────────────────────────────────────
-
-// All 26 Republic of Ireland counties — positions only, no counts
-const COUNTY_DOTS = [
-  { id: 'dublin',    cx: 259, cy: 200, pulse: true  },
-  { id: 'cork',      cx: 142, cy: 362, pulse: true  },
-  { id: 'galway',    cx: 64,  cy: 232, pulse: true  },
-  { id: 'limerick',  cx: 94,  cy: 296 },
-  { id: 'waterford', cx: 212, cy: 344 },
-  { id: 'tipperary', cx: 152, cy: 298 },
-  { id: 'kerry',     cx: 58,  cy: 342 },
-  { id: 'wexford',   cx: 246, cy: 330 },
-  { id: 'kilkenny',  cx: 198, cy: 308 },
-  { id: 'meath',     cx: 228, cy: 174 },
-  { id: 'kildare',   cx: 218, cy: 224 },
-  { id: 'louth',     cx: 254, cy: 148 },
-  { id: 'wicklow',   cx: 262, cy: 252 },
-  { id: 'carlow',    cx: 218, cy: 298 },
-  { id: 'laois',     cx: 188, cy: 268 },
-  { id: 'offaly',    cx: 168, cy: 238 },
-  { id: 'westmeath', cx: 176, cy: 200 },
-  { id: 'longford',  cx: 156, cy: 188 },
-  { id: 'roscommon', cx: 110, cy: 186 },
-  { id: 'mayo',      cx: 60,  cy: 148 },
-  { id: 'sligo',     cx: 90,  cy: 112 },
-  { id: 'leitrim',   cx: 118, cy: 130 },
-  { id: 'cavan',     cx: 196, cy: 140 },
-  { id: 'monaghan',  cx: 214, cy: 128 },
-  { id: 'donegal',   cx: 108, cy: 52  },
-  { id: 'clare',     cx: 80,  cy: 258 },
-]
 
 const DEAL_CATEGORIES = [
   { label: 'Fitness & PT',      Icon: Dumbbell        },
@@ -235,35 +204,15 @@ const DEAL_CATEGORIES = [
   { label: 'Wellness',          Icon: Leaf            },
 ]
 
-// Simplified Republic of Ireland SVG outline
-const IRELAND_PATH =
-  'M 185 12 L 215 24 L 232 44 L 248 75 L 262 108 L 252 130 L 260 156 ' +
-  'L 263 180 L 259 204 L 253 226 L 243 252 L 232 276 L 218 302 L 200 325 ' +
-  'L 180 346 L 160 360 L 138 368 L 112 370 L 88 374 L 66 369 L 46 363 ' +
-  'L 28 350 L 20 330 L 16 308 L 20 284 L 28 260 L 40 240 L 56 226 ' +
-  'L 64 236 L 42 242 L 26 226 L 16 205 L 20 184 L 30 168 L 40 156 ' +
-  'L 30 138 L 40 123 L 56 113 L 78 108 L 100 103 L 118 96 L 128 86 ' +
-  'L 122 73 L 106 60 L 100 48 L 116 36 L 136 26 L 152 18 L 166 12 ' +
-  'L 178 9 L 185 12 Z'
-
 const PAGE_STYLES = `
   .lbp-hero { display: flex; align-items: center; gap: 48px; max-width: 1040px; margin: 0 auto; position: relative; z-index: 1; }
   .lbp-phone { flex-shrink: 0; }
   .lbp-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .lbp-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
-  .lbp-reach-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 48px; align-items: center; margin-top: 64px; }
-  @keyframes lbpPulse {
-    0%, 100% { opacity: 0.6; transform: scale(1); }
-    50%       { opacity: 0.08; transform: scale(2.8); }
-  }
-  @media (max-width: 960px) {
-    .lbp-reach-grid { grid-template-columns: 1fr 1fr; }
-  }
+  .lbp-reach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
   @media (max-width: 860px) {
     .lbp-hero { flex-direction: column; }
     .lbp-phone { display: none; }
-  }
-  @media (max-width: 600px) {
     .lbp-reach-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 720px) { .lbp-feat-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -481,7 +430,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — REACH + CATEGORIES + PHONE ──────────────────────────── */}
+      {/* ── SECTION 4 — INTERACTIVE PARTNER MAP ──────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '96px 24px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -492,58 +441,29 @@ export default function LifestyleBlueprintPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
           {/* Header */}
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
             <SectionLabel light>Where we are</SectionLabel>
             <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
               Every county. Every category.
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.5)', marginTop: '12px', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
-              Lifestyle Blueprint covers the full range — fitness, beauty, photography, food, and more. Expanding across every corner of Ireland.
+              Lifestyle Blueprint covers the full range — fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
             </p>
           </div>
 
-          {/* 3-column: map | phone | categories */}
-          <div className="lbp-reach-grid">
+          {/* The map itself — the centrepiece, not a thumbnail */}
+          <div style={{ marginTop: 48 }}>
+            <PartnerMap />
+          </div>
 
-            {/* Ireland map — presence only, no counts */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <svg
-                viewBox="0 0 360 400"
-                style={{ width: '100%', maxWidth: '260px', height: 'auto', display: 'block' }}
-                role="img"
-                aria-label="Map of Ireland showing UniBlueprint presence across all 26 counties"
-              >
-                <path d={IRELAND_PATH} fill="rgba(245,240,232,0.07)" stroke="rgba(245,240,232,0.2)" strokeWidth="1.5" strokeLinejoin="round" />
-                {COUNTY_DOTS.map(({ id, cx, cy, pulse }) => (
-                  <g key={id}>
-                    {pulse && (
-                      <circle
-                        cx={cx} cy={cy} r={6}
-                        fill={ACCENT}
-                        style={{ animation: 'lbpPulse 2.6s ease-in-out infinite', transformOrigin: `${cx}px ${cy}px` }}
-                      />
-                    )}
-                    <circle cx={cx} cy={cy} r={4} fill={ACCENT} opacity={0.9} />
-                  </g>
-                ))}
-              </svg>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
-                color: 'rgba(245,240,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em',
-                marginTop: '14px', textAlign: 'center',
-              }}>
-                26 counties · more partners weekly
-              </p>
-            </div>
-
-            {/* Phone mockup */}
+          {/* Phone mockup + category chips, secondary row underneath */}
+          <div className="lbp-reach-grid" style={{ marginTop: 72 }}>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <PhoneMockup style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
                 <LifestyleScreen />
               </PhoneMockup>
             </div>
 
-            {/* Category chips */}
             <div>
               <p style={{
                 fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
@@ -568,7 +488,6 @@ export default function LifestyleBlueprintPage() {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </section>
