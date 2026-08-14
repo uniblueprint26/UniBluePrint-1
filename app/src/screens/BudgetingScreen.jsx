@@ -9,20 +9,34 @@
  * from susi.ie. Thresholds adjust per additional dependant as listed per band.
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   ScrollView, View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, Linking,
 } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   TrendingUp, TrendingDown, Wallet, Target, Plus, Minus,
   ChevronDown, ChevronUp, ChevronRight, ExternalLink,
-  CheckCircle, Circle, Info,
+  CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap, BadgeEuro,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { COACHES } from './ElevationScreen'
+
+const BUDGET_STORAGE_KEY = 'ub_budget_v1'
+
+// ─── "Your situation" — tailors the default income label instead of shipping
+// a separate tool per situation. Picking one relabels the first income row.
+const SITUATIONS = [
+  { key: 'student-pt', label: 'Student · Part-time work', incomeLabel: 'Part-time work' },
+  { key: 'student-ft', label: 'Student · Full-time work', incomeLabel: 'Full-time work' },
+  { key: 'apprentice', label: 'Apprentice',                incomeLabel: 'Apprenticeship wage' },
+  { key: 'gapyear',    label: 'Gap Year',                  incomeLabel: 'Gap year income' },
+  { key: 'sidehustle', label: 'Side Hustle / Self-employed', incomeLabel: 'Side hustle income' },
+]
 
 // ─── SUSI 2026/27 full-time undergraduate rates — source: susi.ie ────────────
 // Thresholds shown are for households with fewer than 4 dependant children.
@@ -314,31 +328,75 @@ function SUSIEstimator() {
 // ─── Budget Tab ───────────────────────────────────────────────────────────────
 let nextId = 100  // simple ID generator (not Date.now — breaks resume)
 
+const DEFAULT_INCOME = [
+  { id: 1, label: 'Part-time work',        amount: '' },
+  { id: 2, label: 'SUSI Grant',            amount: '' },
+  { id: 3, label: 'Family support',        amount: '' },
+  { id: 4, label: 'Scholarship / Bursary', amount: '' },
+]
+const DEFAULT_EXPENSES = [
+  { id: 10, label: 'Rent / Accommodation', amount: '' },
+  { id: 11, label: 'Food & Groceries',     amount: '' },
+  { id: 12, label: 'Transport',            amount: '' },
+  { id: 13, label: 'Course materials',     amount: '' },
+  { id: 14, label: 'Utilities',            amount: '' },
+  { id: 15, label: 'Going out',            amount: '' },
+  { id: 16, label: 'Subscriptions',        amount: '' },
+]
+const DEFAULT_GOALS = [
+  { id: 50, label: 'Emergency Fund', target: '', current: '' },
+  { id: 51, label: 'Holiday Savings', target: '', current: '' },
+]
+
 function BudgetTab() {
+  const [loaded, setLoaded]   = useState(false)
   const [period, setPeriod]   = useState('week')
   const [mode,   setMode]     = useState('both')
+  const [situation, setSituation] = useState('student-pt')
 
-  const [income, setIncome] = useState([
-    { id: 1, label: 'Part-time work',        amount: '' },
-    { id: 2, label: 'SUSI Grant',            amount: '' },
-    { id: 3, label: 'Family support',        amount: '' },
-    { id: 4, label: 'Scholarship / Bursary', amount: '' },
-  ])
+  const [income,   setIncome]   = useState(DEFAULT_INCOME)
+  const [expenses, setExpenses] = useState(DEFAULT_EXPENSES)
+  const [goals,    setGoals]    = useState(DEFAULT_GOALS)
 
-  const [expenses, setExpenses] = useState([
-    { id: 10, label: 'Rent / Accommodation', amount: '' },
-    { id: 11, label: 'Food & Groceries',     amount: '' },
-    { id: 12, label: 'Transport',            amount: '' },
-    { id: 13, label: 'Course materials',     amount: '' },
-    { id: 14, label: 'Utilities',            amount: '' },
-    { id: 15, label: 'Going out',            amount: '' },
-    { id: 16, label: 'Subscriptions',        amount: '' },
-  ])
+  // Load any previously saved budget the first time this tab mounts.
+  useEffect(() => {
+    let cancelled = false
+    AsyncStorage.getItem(BUDGET_STORAGE_KEY).then(raw => {
+      if (cancelled || !raw) { setLoaded(true); return }
+      try {
+        const saved = JSON.parse(raw)
+        if (saved.period)    setPeriod(saved.period)
+        if (saved.mode)      setMode(saved.mode)
+        if (saved.situation) setSituation(saved.situation)
+        if (saved.income)    setIncome(saved.income)
+        if (saved.expenses)  setExpenses(saved.expenses)
+        if (saved.goals)     setGoals(saved.goals)
+        const maxId = Math.max(100, ...(saved.income || []).map(i => i.id), ...(saved.expenses || []).map(i => i.id), ...(saved.goals || []).map(i => i.id))
+        nextId = maxId
+      } catch {
+        // ignore corrupt/old-shape saved data, fall back to defaults
+      }
+      setLoaded(true)
+    }).catch(() => setLoaded(true))
+    return () => { cancelled = true }
+  }, [])
 
-  const [goals, setGoals] = useState([
-    { id: 50, label: 'Emergency Fund', target: '', current: '' },
-    { id: 51, label: 'Holiday Savings', target: '', current: '' },
-  ])
+  // Auto-save on every change, once the initial load has finished — this is
+  // what "we track this, save anytime" means: there's no save button because
+  // it's always saved.
+  useEffect(() => {
+    if (!loaded) return
+    AsyncStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify({ period, mode, situation, income, expenses, goals })).catch(() => {})
+  }, [loaded, period, mode, situation, income, expenses, goals])
+
+  function changeSituation(key) {
+    setSituation(key)
+    const next = SITUATIONS.find(s => s.key === key)
+    if (!next) return
+    // Relabel the first income row to match the new situation, without
+    // touching anything the student has already typed in.
+    setIncome(prev => prev.map((item, i) => (i === 0 ? { ...item, label: next.incomeLabel } : item)))
+  }
 
   const totalIncome   = income.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
   const totalExpenses = expenses.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
@@ -382,8 +440,23 @@ function BudgetTab() {
 
   return (
     <View>
+      {/* Situation — tailors labels instead of shipping a separate tool per situation */}
+      <Text style={styles.situationLabel}>Your situation</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.situationScroll} contentContainerStyle={styles.situationContent}>
+        {SITUATIONS.map(s => (
+          <TouchableOpacity
+            key={s.key}
+            style={[styles.situationChip, situation === s.key && styles.situationChipActive]}
+            onPress={() => changeSituation(s.key)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.situationChipText, situation === s.key && styles.situationChipTextActive]}>{s.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       {/* Period selector */}
-      <View style={styles.segmentRow}>
+      <View style={[styles.segmentRow, { marginTop: spacing.md }]}>
         {[['week','This Week'], ['month','This Month'], ['term','This Term']].map(([k, label]) => (
           <TouchableOpacity
             key={k}
@@ -519,6 +592,16 @@ function BudgetTab() {
         </Card>
       )}
 
+      {/* Tracking note — this is the "we track this, save anytime" line: there's
+          no save button because everything above is auto-saved on your device
+          as you type, and will still be here next time you open the app. */}
+      <View style={styles.trackingNote}>
+        <Save size={13} color={colors.muted} />
+        <Text style={styles.trackingNoteText}>
+          We track this for you as you go — come back anytime and your numbers will still be here.
+        </Text>
+      </View>
+
       {/* Goals */}
       <SectionHeader eyebrow="Goals" title="Track Your Progress" style={{ marginTop: spacing.xl }} />
       <View style={{ gap: 12 }}>
@@ -649,8 +732,56 @@ function SUSITab() {
   )
 }
 
+// ─── Investment Tab ───────────────────────────────────────────────────────────
+// Links out to the trading/investment coaches on Elevation Blueprint rather
+// than duplicating their profiles here.
+function InvestmentTab({ navigation }) {
+  const zainab  = COACHES.find(c => c.name === 'Zainab Ade')
+  const dg      = COACHES.find(c => c.name === 'DG Trading')
+  const dinero  = COACHES.find(c => c.name === 'Dinero Trading Group')
+
+  const OPTIONS = [
+    { key: 'zainab', label: 'Learn with Zainab',              sub: zainab?.category || 'Investing & Finance Coach', coach: zainab, Icon: GraduationCap },
+    { key: 'dg',      label: 'DG Trading',                     sub: dg?.title || 'Funded Futures Trader',            coach: dg,     Icon: InvestIcon },
+    { key: 'dinero',  label: 'Invest with Dinero Trading Group', sub: 'Low-Risk Copier · targets 5–15%/month',       coach: dinero, Icon: BadgeEuro },
+  ]
+
+  return (
+    <View>
+      <Card style={styles.investIntro}>
+        <Text style={styles.investIntroTitle}>Investing & trading education</Text>
+        <Text style={styles.investIntroBody}>
+          UniBlueprint doesn't give financial advice. These are independent coaches and trading educators available through the platform. Do your own research, and only ever commit money you can afford to lose.
+        </Text>
+      </Card>
+
+      <View style={{ gap: 12, marginTop: spacing.md }}>
+        {OPTIONS.map(opt => (
+          <TouchableOpacity
+            key={opt.key}
+            activeOpacity={opt.coach ? 0.8 : 1}
+            disabled={!opt.coach}
+            onPress={() => opt.coach && navigation.navigate('CoachProfile', { coach: opt.coach })}
+          >
+            <Card style={styles.investCard}>
+              <View style={styles.investIconWrap}>
+                <opt.Icon size={20} color={colors.navy} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.investLabel}>{opt.label}</Text>
+                <Text style={styles.investSub} numberOfLines={1}>{opt.sub}</Text>
+              </View>
+              <ChevronRight size={16} color={colors.light} />
+            </Card>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  )
+}
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function BudgetingScreen() {
+export default function BudgetingScreen({ navigation }) {
   const [tab, setTab] = useState('budget')
 
   return (
@@ -672,7 +803,7 @@ export default function BudgetingScreen() {
           <Text style={styles.heroEyebrow}>FINANCIAL COMPANION</Text>
           <Text style={styles.heroTitle}>Know where your money goes, every week.</Text>
           <Text style={styles.heroSub}>
-            Track your term spending, set savings goals, and understand what you're owed, including a full guide to your SUSI entitlement.
+            Track your term spending, set savings goals, understand what you're owed, and explore investing, all in one place.
           </Text>
           {/* NOTE: Attribution copy — confirm "Suzi Grant" spelling and permission before going live */}
           {/*
@@ -698,10 +829,19 @@ export default function BudgetingScreen() {
             <Target size={15} color={tab === 'susi' ? colors.white : colors.navy} />
             <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]}>SUSI Guide</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabBtn, tab === 'invest' && styles.tabBtnActive]}
+            onPress={() => setTab('invest')}
+          >
+            <InvestIcon size={15} color={tab === 'invest' ? colors.white : colors.navy} />
+            <Text style={[styles.tabBtnText, tab === 'invest' && styles.tabBtnTextActive]}>Investment</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
-          {tab === 'budget' ? <BudgetTab /> : <SUSITab />}
+          {tab === 'budget' && <BudgetTab />}
+          {tab === 'susi'   && <SUSITab />}
+          {tab === 'invest' && <InvestmentTab navigation={navigation} />}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -739,6 +879,39 @@ const styles = StyleSheet.create({
   tabBtnTextActive: { color: colors.white },
 
   content: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
+
+  // Situation picker
+  situationLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, marginBottom: 8 },
+  situationScroll: { marginHorizontal: -spacing.md },
+  situationContent: { paddingHorizontal: spacing.md, gap: 8, flexDirection: 'row' },
+  situationChip: {
+    paddingHorizontal: 14, paddingVertical: 9,
+    borderRadius: radius.pill, backgroundColor: colors.white,
+    borderWidth: 1, borderColor: colors.border,
+  },
+  situationChipActive:     { backgroundColor: colors.navy, borderColor: colors.navy },
+  situationChipText:       { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, whiteSpace: 'nowrap' },
+  situationChipTextActive: { color: colors.white },
+
+  // Tracking note
+  trackingNote: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
+    marginTop: spacing.lg, paddingHorizontal: 4,
+  },
+  trackingNoteText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, flex: 1, lineHeight: 17 },
+
+  // Investment tab
+  investIntro:      { padding: 18 },
+  investIntroTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, marginBottom: 8 },
+  investIntroBody:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
+  investCard:    { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
+  investIconWrap: {
+    width: 44, height: 44, borderRadius: 10,
+    backgroundColor: colors.cream,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  investLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  investSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
 
   // Segment / filter
   segmentRow: {
