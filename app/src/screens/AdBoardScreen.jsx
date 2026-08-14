@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   Modal, TextInput, KeyboardAvoidingView, Platform, Linking, Alert,
+  Animated, Dimensions,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Plus, X, Globe, Building2, BookOpen,
   Wrench, Sparkles, Dumbbell, Camera, Activity,
-  ChevronRight,
+  ChevronRight, ChevronLeft, Megaphone, Mail,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
-import Card from '../components/ui/Card'
 import ImageUploader from '../components/ui/ImageUploader'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
@@ -128,85 +128,6 @@ const ADS = [
     link: null,
   },
 ]
-
-// ── Filter config ─────────────────────────────────────────────────────────────
-
-const FILTERS = [
-  { key: 'all',           label: 'All' },
-  { key: 'cross-ireland', label: 'Cross-Ireland' },
-  { key: 'campus',        label: 'Campus Connect' },
-  { key: 'course',        label: 'Course Connect' },
-]
-
-// ── Ad Card ───────────────────────────────────────────────────────────────────
-
-function AdCard({ ad, onPress }) {
-  const isFeatured = ad.type === 'featured'
-  const cat        = ad.category ? CATEGORY[ad.category] : null
-
-  const titleClr  = isFeatured ? colors.cream              : colors.navy
-  const descClr   = isFeatured ? 'rgba(245,240,232,0.65)'  : colors.muted
-  const brandClr  = isFeatured ? 'rgba(245,240,232,0.48)'  : colors.light
-
-  return (
-    <TouchableOpacity activeOpacity={0.88} style={styles.cardWrap} onPress={onPress}>
-      <Card style={[styles.adCard, isFeatured && styles.adCardFeatured]}>
-
-        {/* Icon + brand row */}
-        <View style={styles.adHeader}>
-          {isFeatured ? (
-            <View style={styles.logoWrap}>
-              <UBPLogo height={18} color={colors.cream} />
-            </View>
-          ) : cat ? (
-            <View style={[styles.iconCircle, { backgroundColor: cat.bg }]}>
-              <cat.Icon size={18} color={cat.color} strokeWidth={1.8} />
-            </View>
-          ) : null}
-
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={[styles.adBrand, { color: brandClr }]} numberOfLines={1}>
-              {ad.brand}
-            </Text>
-            {isFeatured && (
-              <View style={styles.featuredBadge}>
-                <Text style={styles.featuredBadgeText}>FEATURED</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Title */}
-        <Text style={[styles.adTitle, { color: titleClr }]}>{ad.title}</Text>
-
-        {/* Description */}
-        <Text style={[styles.adDesc, { color: descClr }]} numberOfLines={3}>
-          {ad.description}
-        </Text>
-
-        {/* Footer: board pills + arrow */}
-        <View style={styles.adFooter}>
-          <View style={styles.boardPills}>
-            {ad.boards.map(b => {
-              const board  = BOARDS.find(x => x.key === b)
-              if (!board) return null
-              const pillBg  = isFeatured ? 'rgba(245,240,232,0.1)'  : 'rgba(30,58,95,0.05)'
-              const pillClr = isFeatured ? 'rgba(245,240,232,0.65)' : colors.muted
-              return (
-                <View key={b} style={[styles.boardPill, { backgroundColor: pillBg }]}>
-                  <board.Icon size={9} color={pillClr} strokeWidth={2} />
-                  <Text style={[styles.boardPillText, { color: pillClr }]}>{board.label}</Text>
-                </View>
-              )
-            })}
-          </View>
-          <ChevronRight size={15} color={isFeatured ? 'rgba(245,240,232,0.35)' : colors.light} />
-        </View>
-
-      </Card>
-    </TouchableOpacity>
-  )
-}
 
 // ── Post Ad Modal ─────────────────────────────────────────────────────────────
 // Image upload notes:
@@ -421,7 +342,49 @@ function PostAdModal({ visible, onClose }) {
   )
 }
 
-// ── Main Screen ───────────────────────────────────────────────────────────────
+// ── Magazine data ─────────────────────────────────────────────────────────────
+// Built from the real board/ad data above — cover, contents, one section per
+// board (a divider page plus a two-page spread per listing), a post-your-ad
+// spread, an advertise-with-us page, credits, and a back cover. Page count
+// moves with how many ads exist; it isn't a padded fixed number.
+
+const CROSS_ADS   = ADS.filter(ad => ad.boards.includes('cross-ireland') && ad.type !== 'featured')
+const CAMPUS_ADS  = ADS.filter(ad => ad.boards.includes('campus')        && ad.type !== 'featured')
+const COURSE_ADS  = ADS.filter(ad => ad.boards.includes('course')        && ad.type !== 'featured')
+const FEATURED_AD = ADS.find(ad => ad.type === 'featured')
+
+function buildMagazine() {
+  const pages = [{ type: 'cover' }, { type: 'toc', entries: [] }]
+  const toc = pages[1]
+  const addSpread = ad => { pages.push({ type: 'ad-left', ad }); pages.push({ type: 'ad-right', ad }) }
+
+  toc.entries.push({ label: 'Cross-Ireland', Icon: Globe, page: pages.length })
+  pages.push({ type: 'divider', board: BOARDS[0], count: CROSS_ADS.length + (FEATURED_AD ? 1 : 0) })
+  if (FEATURED_AD) addSpread(FEATURED_AD)
+  CROSS_ADS.forEach(addSpread)
+
+  toc.entries.push({ label: 'Campus Connect', Icon: Building2, page: pages.length })
+  pages.push({ type: 'divider', board: BOARDS[1], count: CAMPUS_ADS.length })
+  CAMPUS_ADS.forEach(addSpread)
+
+  toc.entries.push({ label: 'Course Connect', Icon: BookOpen, page: pages.length })
+  pages.push({ type: 'divider', board: BOARDS[2], count: COURSE_ADS.length })
+  COURSE_ADS.forEach(addSpread)
+
+  toc.entries.push({ label: 'Post Your Ad', Icon: Megaphone, page: pages.length })
+  pages.push({ type: 'post-left' })
+  pages.push({ type: 'post-right' })
+
+  toc.entries.push({ label: 'Advertise With Us', Icon: Mail, page: pages.length })
+  pages.push({ type: 'advertise' })
+
+  pages.push({ type: 'credits' })
+  pages.push({ type: 'back-cover' })
+  return pages
+}
+
+const MAGAZINE = buildMagazine()
+const { width: SCREEN_W } = Dimensions.get('window')
 
 function getAdPressHandler(ad, navigation) {
   if (ad.id === 'ubp_promo') {
@@ -452,73 +415,291 @@ function getAdPressHandler(ad, navigation) {
   return () => Alert.alert(ad.brand, ad.description)
 }
 
+// ── Page content ──────────────────────────────────────────────────────────────
+
+function PageContent({ page, navigation, onJump, onOpenPost }) {
+  switch (page.type) {
+    case 'cover':
+      return (
+        <View style={[styles.pageInner, styles.coverPage]}>
+          <View style={styles.coverBadge}>
+            <Text style={styles.coverBadgeText}>THIS TERM · ISSUE 1</Text>
+          </View>
+          <View style={{ flex: 1 }} />
+          <UBPLogo height={30} color={colors.cream} />
+          <Text style={styles.coverTitle}>The{'\n'}Advertisement{'\n'}Board</Text>
+          <Text style={styles.coverSub}>
+            Partner offers, services, and student listings from across Ireland.
+          </Text>
+          <View style={{ flex: 1 }} />
+          <View style={styles.coverSwipeHint}>
+            <Text style={styles.coverSwipeText}>Swipe to open</Text>
+            <ChevronRight size={13} color="rgba(245,240,232,0.6)" />
+          </View>
+        </View>
+      )
+
+    case 'toc':
+      return (
+        <View style={styles.pageInner}>
+          <Text style={styles.pageKicker}>CONTENTS</Text>
+          <Text style={styles.pageHeading}>What's inside this issue</Text>
+          <View style={{ gap: 2, marginTop: 26 }}>
+            {page.entries.map(e => (
+              <TouchableOpacity
+                key={e.label}
+                style={styles.tocRow}
+                activeOpacity={0.7}
+                onPress={() => onJump(e.page)}
+              >
+                <View style={styles.tocIconBox}><e.Icon size={15} color={colors.navy} /></View>
+                <Text style={styles.tocLabel} numberOfLines={1}>{e.label}</Text>
+                <Text style={styles.tocPageNum}>{e.page + 1}</Text>
+                <ChevronRight size={13} color={colors.light} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.tocHint}>Tap a section to jump straight there — no need to flip through.</Text>
+        </View>
+      )
+
+    case 'divider': {
+      const b = page.board
+      return (
+        <View style={[styles.pageInner, styles.dividerPage, { backgroundColor: b.color }]}>
+          <View style={{ flex: 1 }} />
+          <b.Icon size={38} color="rgba(245,240,232,0.9)" strokeWidth={1.5} />
+          <Text style={styles.dividerTitle}>{b.label}</Text>
+          <Text style={styles.dividerSub}>{page.count} listing{page.count !== 1 ? 's' : ''} in this section</Text>
+          <View style={{ flex: 1 }} />
+        </View>
+      )
+    }
+
+    case 'ad-left': {
+      const ad = page.ad
+      const cat = ad.category ? CATEGORY[ad.category] : null
+      const isFeatured = ad.type === 'featured'
+      return (
+        <View style={[styles.pageInner, styles.adLeftPage, isFeatured && styles.adLeftPageFeatured]}>
+          <View style={{ flex: 1 }} />
+          {isFeatured ? (
+            <View style={styles.adVisualBadgeFeatured}>
+              <UBPLogo height={24} color={colors.cream} />
+            </View>
+          ) : cat ? (
+            <View style={[styles.adVisualBadge, { backgroundColor: cat.bg }]}>
+              <cat.Icon size={32} color={cat.color} strokeWidth={1.5} />
+            </View>
+          ) : null}
+          <Text style={[styles.adVisualBrand, isFeatured && { color: 'rgba(245,240,232,0.6)' }]}>
+            {ad.brand}
+          </Text>
+          {isFeatured && (
+            <View style={styles.featuredBadge}>
+              <Text style={styles.featuredBadgeText}>FEATURED</Text>
+            </View>
+          )}
+          <View style={{ flex: 1 }} />
+          <Text style={[styles.adPageFold, isFeatured && { color: 'rgba(245,240,232,0.25)' }]}>
+            {ad.boards.map(b => BOARDS.find(x => x.key === b)?.label).filter(Boolean).join(' · ')}
+          </Text>
+        </View>
+      )
+    }
+
+    case 'ad-right': {
+      const ad = page.ad
+      const isFeatured = ad.type === 'featured'
+      return (
+        <View style={[styles.pageInner, isFeatured && styles.adRightPageFeatured]}>
+          <Text style={[styles.pageKicker, isFeatured && { color: 'rgba(245,240,232,0.5)' }]}>
+            {isFeatured ? 'UNIBLUEPRINT' : (ad.category || 'LISTING')}
+          </Text>
+          <Text style={[styles.adRightTitle, isFeatured && { color: colors.cream }]}>{ad.title}</Text>
+          <Text style={[styles.adRightDesc, isFeatured && { color: 'rgba(245,240,232,0.75)' }]}>
+            {ad.description}
+          </Text>
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity
+            style={[styles.adRightCta, isFeatured && styles.adRightCtaFeatured]}
+            activeOpacity={0.85}
+            onPress={getAdPressHandler(ad, navigation)}
+          >
+            <Text style={[styles.adRightCtaText, isFeatured && { color: colors.navy }]}>
+              {isFeatured ? 'See the offer' : 'Get in touch'}
+            </Text>
+            <ChevronRight size={14} color={isFeatured ? colors.navy : colors.cream} />
+          </TouchableOpacity>
+        </View>
+      )
+    }
+
+    case 'post-left':
+      return (
+        <View style={[styles.pageInner, styles.postPage]}>
+          <View style={{ flex: 1 }} />
+          <Megaphone size={36} color={colors.cream} strokeWidth={1.5} />
+          <Text style={styles.postPageTitle}>Got something{'\n'}to advertise?</Text>
+          <View style={{ flex: 1 }} />
+        </View>
+      )
+
+    case 'post-right':
+      return (
+        <View style={[styles.pageInner, styles.postPage]}>
+          <View style={{ flex: 1 }} />
+          <Text style={styles.postPageBody}>
+            Reach students across Ireland, your service, your event, your business. Every submission is reviewed by the UniBlueprint team before it goes live.
+          </Text>
+          <TouchableOpacity style={styles.postPageCta} activeOpacity={0.85} onPress={onOpenPost}>
+            <Plus size={15} color={colors.navy} strokeWidth={2.5} />
+            <Text style={styles.postPageCtaText}>Post an Ad</Text>
+          </TouchableOpacity>
+          <View style={{ flex: 1 }} />
+        </View>
+      )
+
+    case 'advertise':
+      return (
+        <View style={styles.pageInner}>
+          <Text style={styles.pageKicker}>ADVERTISE WITH US</Text>
+          <Text style={styles.pageHeading}>Why partners advertise here</Text>
+          <View style={{ gap: 16, marginTop: 22 }}>
+            {[
+              'Direct reach to students across every Irish college and campus.',
+              'Every ad is reviewed by the UniBlueprint team, so listings stay trustworthy.',
+              'Choose exactly where you appear: Cross-Ireland, Campus Connect, or Course Connect.',
+            ].map((line, i) => (
+              <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={styles.bulletDot} />
+                <Text style={styles.bulletText}>{line}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )
+
+    case 'credits':
+      return (
+        <View style={[styles.pageInner, { alignItems: 'center', justifyContent: 'center' }]}>
+          <UBPLogo height={24} color={colors.navy} />
+          <Text style={styles.creditsText}>Published in-app by UniBlueprint.{'\n'}Updated every term.</Text>
+        </View>
+      )
+
+    case 'back-cover':
+      return (
+        <View style={[styles.pageInner, styles.coverPage]}>
+          <View style={{ flex: 1 }} />
+          <UBPLogo height={28} color={colors.cream} />
+          <Text style={styles.backCoverText}>See you next issue.</Text>
+          <View style={{ flex: 1 }} />
+        </View>
+      )
+
+    default:
+      return null
+  }
+}
+
+// ── Page wrapper — the turn animation ─────────────────────────────────────────
+// No page-curl library is installed, and adding one now risks breaking the
+// native module set Expo Go already has loaded. This uses only core
+// Animated transforms (rotateY / scale / opacity, all native-driver safe) to
+// give neighbouring pages a subtle turning-away feel as you swipe, rather
+// than true paper-curl physics.
+
+function MagazinePage({ page, index, scrollX, navigation, onJump, onOpenPost }) {
+  const inputRange = [(index - 1) * SCREEN_W, index * SCREEN_W, (index + 1) * SCREEN_W]
+  const rotateY = scrollX.interpolate({ inputRange, outputRange: ['6deg', '0deg', '-6deg'], extrapolate: 'clamp' })
+  const scale   = scrollX.interpolate({ inputRange, outputRange: [0.95, 1, 0.95], extrapolate: 'clamp' })
+  const opacity = scrollX.interpolate({ inputRange, outputRange: [0.75, 1, 0.75], extrapolate: 'clamp' })
+
+  return (
+    <Animated.View style={[styles.page, { transform: [{ perspective: 900 }, { rotateY }, { scale }], opacity }]}>
+      <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} />
+    </Animated.View>
+  )
+}
+
+// ── Main Screen ───────────────────────────────────────────────────────────────
+
 export default function AdBoardScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-
-  const [filter,      setFilter]      = useState('all')
   const [modalVisible, setModalVisible] = useState(false)
+  const [pageIndex, setPageIndex] = useState(0)
+  const scrollRef = useRef(null)
+  const scrollX = useRef(new Animated.Value(0)).current
+  const postPageIndex = useMemo(() => MAGAZINE.findIndex(p => p.type === 'post-right'), [])
 
-  const filtered = ADS.filter(ad =>
-    filter === 'all' || ad.boards.includes(filter)
-  )
+  function jumpTo(index) {
+    scrollRef.current?.scrollTo({ x: index * SCREEN_W, animated: true })
+  }
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        <UBPLogo height={30} color={colors.cream} />
-        <TouchableOpacity
-          style={styles.postBtn}
-          activeOpacity={0.8}
-          onPress={() => setModalVisible(true)}
-        >
-          <Plus size={15} color={colors.navy} strokeWidth={2.5} />
+        <UBPLogo height={24} color={colors.cream} />
+        <Text style={styles.topBarPageNum}>{pageIndex + 1} / {MAGAZINE.length}</Text>
+        <TouchableOpacity style={styles.postBtn} activeOpacity={0.8} onPress={() => setModalVisible(true)}>
+          <Plus size={14} color={colors.navy} strokeWidth={2.5} />
           <Text style={styles.postBtnText}>Post an Ad</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Heading */}
-      <View style={styles.headingWrap}>
-        <Text style={styles.screenTitle}>Advertisement Board</Text>
-        <Text style={styles.screenSub}>
-          Partner offers, services, and student listings across Ireland
-        </Text>
-      </View>
-
-      {/* Filter pills */}
-      <ScrollView
+      {/* Pages */}
+      <Animated.ScrollView
+        ref={scrollRef}
         horizontal
+        pagingEnabled
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterRow}
-        style={{ flexGrow: 0 }}
+        scrollEventThrottle={16}
+        style={{ flex: 1 }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: true, listener: e => setPageIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W)) },
+        )}
       >
-        {FILTERS.map(f => (
-          <TouchableOpacity
-            key={f.key}
-            style={[styles.filterPill, filter === f.key && styles.filterPillActive]}
-            onPress={() => setFilter(f.key)}
-            activeOpacity={0.75}
-          >
-            <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
+        {MAGAZINE.map((page, i) => (
+          <MagazinePage
+            key={i}
+            page={page}
+            index={i}
+            scrollX={scrollX}
+            navigation={navigation}
+            onJump={jumpTo}
+            onOpenPost={() => jumpTo(postPageIndex)}
+          />
         ))}
-      </ScrollView>
+      </Animated.ScrollView>
 
-      {/* List */}
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.resultCount}>
-          {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'}
-        </Text>
-        {filtered.map(ad => (
-          <AdCard key={ad.id} ad={ad} onPress={getAdPressHandler(ad, navigation)} />
-        ))}
-      </ScrollView>
+      {/* Prev / next + progress */}
+      <View style={[styles.pagerControls, { paddingBottom: insets.bottom + 12 }]}>
+        <TouchableOpacity
+          style={styles.pagerBtn}
+          activeOpacity={0.7}
+          onPress={() => jumpTo(Math.max(0, pageIndex - 1))}
+          disabled={pageIndex === 0}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <ChevronLeft size={18} color={pageIndex === 0 ? colors.light : colors.navy} />
+        </TouchableOpacity>
+        <View style={styles.pagerTrack}>
+          <View style={[styles.pagerFill, { width: `${((pageIndex + 1) / MAGAZINE.length) * 100}%` }]} />
+        </View>
+        <TouchableOpacity
+          style={styles.pagerBtn}
+          activeOpacity={0.7}
+          onPress={() => jumpTo(Math.min(MAGAZINE.length - 1, pageIndex + 1))}
+          disabled={pageIndex === MAGAZINE.length - 1}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <ChevronRight size={18} color={pageIndex === MAGAZINE.length - 1 ? colors.light : colors.navy} />
+        </TouchableOpacity>
+      </View>
 
       <PostAdModal
         visible={modalVisible}
@@ -536,89 +717,141 @@ const styles = StyleSheet.create({
   topBar: {
     backgroundColor: colors.navy,
     paddingHorizontal: spacing.md,
-    paddingTop: 14, paddingBottom: 16,
+    paddingTop: 12, paddingBottom: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 10,
+  },
+  topBarPageNum: {
+    fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.5)',
+    fontVariant: ['tabular-nums'],
   },
   postBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: colors.cream, borderRadius: radius.pill,
-    paddingHorizontal: 14, paddingVertical: 8,
+    paddingHorizontal: 12, paddingVertical: 7,
   },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
 
-  headingWrap: {
-    paddingHorizontal: spacing.md, paddingTop: 18, paddingBottom: 10,
+  // Page frame
+  page: { width: SCREEN_W, flex: 1 },
+  pageInner: {
+    flex: 1, backgroundColor: colors.cream,
+    paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xl,
   },
-  screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy },
-  screenSub:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
-
-  // Filter pills, identical to Directory
-  filterRow: { paddingHorizontal: spacing.md, paddingBottom: 14, gap: 8 },
-  filterPill: {
-    borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 7,
-    backgroundColor: colors.white,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+  pageKicker: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
+    letterSpacing: 1, textTransform: 'uppercase',
   },
-  filterPillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  filterText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  filterTextActive: { color: colors.cream },
-
-  scroll:       { paddingHorizontal: spacing.md, paddingTop: 2 },
-  resultCount:  { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginBottom: 14 },
-
-  // Ad card
-  cardWrap: { marginBottom: 14 },
-
-  adCard: {
-    padding: 18,
-  },
-  adCardFeatured: {
-    backgroundColor: colors.navy,
+  pageHeading: {
+    fontFamily: fonts.serif, fontSize: 26, color: colors.navy, marginTop: 8, lineHeight: 33,
   },
 
-  adHeader: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14,
+  // Cover / back cover
+  coverPage: { backgroundColor: colors.navy, alignItems: 'flex-start' },
+  coverBadge: {
+    borderWidth: 1, borderColor: 'rgba(245,240,232,0.3)', borderRadius: radius.pill,
+    paddingHorizontal: 12, paddingVertical: 5,
   },
-  iconCircle: {
-    width: 42, height: 42, borderRadius: 10,
+  coverBadgeText: {
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.7)', letterSpacing: 1,
+  },
+  coverTitle: {
+    fontFamily: fonts.serif, fontSize: 40, color: colors.cream, marginTop: 18, lineHeight: 46,
+  },
+  coverSub: {
+    fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.6)', marginTop: 14, lineHeight: 21, maxWidth: '86%',
+  },
+  coverSwipeHint: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  coverSwipeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
+  backCoverText: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.6)', marginTop: 12 },
+
+  // Table of contents
+  tocRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
+  },
+  tocIconBox: {
+    width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(30,58,95,0.06)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  logoWrap: {
-    width: 42, height: 42, borderRadius: 10,
-    backgroundColor: 'rgba(245,240,232,0.1)',
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  tocLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1 },
+  tocPageNum: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, fontVariant: ['tabular-nums'] },
+  tocHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 20, lineHeight: 17, fontStyle: 'italic' },
+
+  // Section divider
+  dividerPage: { alignItems: 'center' },
+  dividerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 16, textAlign: 'center' },
+  dividerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.6)', marginTop: 6 },
+
+  // Ad spread — left (visual)
+  adLeftPage: { alignItems: 'center' },
+  adLeftPageFeatured: { backgroundColor: colors.navy },
+  adVisualBadge: {
+    width: 76, height: 76, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'center',
   },
-  adBrand: {
-    fontFamily: fonts.sans, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.6,
-    marginBottom: 4,
+  adVisualBadgeFeatured: {
+    width: 76, height: 76, borderRadius: 18, backgroundColor: 'rgba(245,240,232,0.1)',
+    alignItems: 'center', justifyContent: 'center',
   },
+  adVisualBrand: {
+    fontFamily: fonts.sans, fontSize: 12, color: colors.muted, textTransform: 'uppercase',
+    letterSpacing: 0.8, marginTop: 16, textAlign: 'center',
+  },
+  adPageFold: { fontFamily: fonts.sans, fontSize: 10, color: colors.light, letterSpacing: 0.4 },
+
+  // Ad spread — right (copy)
+  adRightPageFeatured: { backgroundColor: colors.navy },
+  adRightTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, marginTop: 8, lineHeight: 30 },
+  adRightDesc: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 12, lineHeight: 21 },
+  adRightCta: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: colors.navy, borderRadius: radius.button,
+    paddingVertical: 13, alignSelf: 'stretch',
+  },
+  adRightCtaFeatured: { backgroundColor: colors.cream },
+  adRightCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+
   featuredBadge: {
-    alignSelf: 'flex-start',
+    marginTop: 10,
     backgroundColor: '#F59E0B', borderRadius: radius.badge,
-    paddingHorizontal: 7, paddingVertical: 2,
+    paddingHorizontal: 8, paddingVertical: 3,
   },
-  featuredBadgeText: {
-    fontFamily: fonts.sansBold, fontSize: 9, color: colors.white, letterSpacing: 0.5,
-  },
+  featuredBadgeText: { fontFamily: fonts.sansBold, fontSize: 9, color: colors.white, letterSpacing: 0.5 },
 
-  adTitle: {
-    fontFamily: fonts.sansSemiBold, fontSize: 16, lineHeight: 22, marginBottom: 8,
+  // Post-an-ad spread
+  postPage: { backgroundColor: colors.navy, alignItems: 'center' },
+  postPageTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginTop: 14, textAlign: 'center', lineHeight: 32 },
+  postPageBody: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.7)', textAlign: 'center', lineHeight: 21 },
+  postPageCta: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: colors.cream, borderRadius: radius.pill,
+    paddingHorizontal: 20, paddingVertical: 13, marginTop: 20,
   },
-  adDesc: {
-    fontFamily: fonts.sans, fontSize: 13, lineHeight: 20, marginBottom: 16,
-  },
+  postPageCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 
-  adFooter: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+  // Advertise-with-us
+  bulletDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.navy, marginTop: 7, flexShrink: 0 },
+  bulletText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, flex: 1, lineHeight: 21 },
+
+  // Credits
+  creditsText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 12, textAlign: 'center', lineHeight: 19 },
+
+  // Pager controls
+  pagerControls: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingHorizontal: spacing.md, paddingTop: 12,
+    backgroundColor: colors.cream,
+    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
   },
-  boardPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, flex: 1 },
-  boardPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 4,
+  pagerBtn: {
+    width: 36, height: 36, borderRadius: 18, backgroundColor: colors.white,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  boardPillText: { fontFamily: fonts.sans, fontSize: 10 },
+  pagerTrack: { flex: 1, height: 4, borderRadius: 2, backgroundColor: 'rgba(30,58,95,0.1)', overflow: 'hidden' },
+  pagerFill: { height: 4, borderRadius: 2, backgroundColor: colors.navy },
 })
 
 // ── Modal styles ──────────────────────────────────────────────────────────────
