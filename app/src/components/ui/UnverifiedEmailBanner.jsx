@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AlertTriangle } from 'lucide-react-native'
@@ -32,13 +33,25 @@ function bannerCopy() {
 export default function UnverifiedEmailBanner() {
   const { user, resendVerification } = useAuth()
   const insets = useSafeAreaInsets()
+  const [status, setStatus] = useState('idle') // 'idle' | 'sending' | 'sent' | 'error'
 
   if (!user) return null
   if (user.email_confirmed_at) return null
 
   async function handleResend() {
-    try { await resendVerification(user.email) } catch { /* surfaced via toast elsewhere if wired */ }
+    if (status === 'sending') return
+    setStatus('sending')
+    try {
+      await resendVerification(user.email)
+      setStatus('sent')
+      setTimeout(() => setStatus('idle'), 4000)
+    } catch {
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 4000)
+    }
   }
+
+  const resendLabel = status === 'sending' ? 'Sending…' : status === 'sent' ? 'Sent ✓' : status === 'error' ? 'Try again' : 'Resend'
 
   return (
     // paddingTop covers the status bar itself, since this is the topmost
@@ -49,8 +62,8 @@ export default function UnverifiedEmailBanner() {
     <View style={[styles.banner, { paddingTop: insets.top + 8 }]}>
       <AlertTriangle size={14} color="#92400E" strokeWidth={2} />
       <Text style={styles.text} numberOfLines={2}>{bannerCopy()}</Text>
-      <TouchableOpacity onPress={handleResend} activeOpacity={0.75} style={styles.resendBtn}>
-        <Text style={styles.resendText}>Resend</Text>
+      <TouchableOpacity onPress={handleResend} activeOpacity={0.75} style={styles.resendBtn} disabled={status === 'sending'}>
+        <Text style={styles.resendText}>{resendLabel}</Text>
       </TouchableOpacity>
     </View>
   )

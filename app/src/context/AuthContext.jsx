@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -73,8 +74,26 @@ export function AuthProvider({ children }) {
       }
     })
 
+    // Verifying an email happens in the device's browser, outside this app
+    // instance, so nothing here fires automatically when it happens. Without
+    // this, a just-verified user would keep seeing the "unverified" banner
+    // until something else happened to refresh the session (a token refresh,
+    // a fresh app launch). Re-checking on foreground closes that gap: verify
+    // in the browser, switch back to the app, banner clears within moments.
+    const appStateSub = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        // refreshSession (not getSession) — this needs a real round trip to
+        // Supabase to pick up email_confirmed_at set by the server after the
+        // user clicked the link; getSession only reads what's cached locally.
+        supabase.auth.refreshSession().then(({ data: { session } }) => {
+          if (session?.user) setUser(session.user)
+        }).catch(() => {})
+      }
+    })
+
     return () => {
       authSub.unsubscribe()
+      appStateSub.remove()
       if (subChannelRef.current) supabase.removeChannel(subChannelRef.current)
     }
   }, [])
