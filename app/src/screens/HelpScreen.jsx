@@ -33,7 +33,7 @@ const TOPICS = [
       { label: 'Updating your profile information', detail: 'Go to the Profile tab and tap "Edit Profile" to update your display name and profile photo. Institution and course details set during sign-up cannot be changed here yet.' },
       { label: 'Changing your password',            detail: 'From the sign-in screen, tap "Forgot Password" and follow the steps. An email link will be sent to your registered address.' },
       { label: 'Deleting your account',             detail: 'To permanently delete your account, email uniblueprintoperations@gmail.com from your registered address with the subject "Account Deletion Request".' },
-      { label: 'How your data is stored and used',  detail: 'We use Supabase for secure storage and authentication. We never sell or share your data with third parties. See our Privacy Policy for full details.' },
+      { label: 'How your data is stored and used',  detail: 'Your data is stored securely, and we never sell or share it with third parties. See our Privacy Policy for full details.' },
     ],
   },
 ]

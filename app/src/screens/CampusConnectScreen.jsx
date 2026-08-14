@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, TextInput,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform, Linking,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -180,11 +180,27 @@ function carpoolContextId(post) {
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
+// Feature-card "Open" buttons jump down to the matching section already on
+// this screen rather than pushing a new one — Events lives inside the
+// Community Boards section (it's one of the 12 boards), not its own section.
+const FEATURE_SECTION = { boards: 'boards', carpool: 'carpool', events: 'boards', projects: 'projects' }
+
 export default function CampusConnectScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const institutionShort = user?.user_metadata?.institution_short
   const [search, setSearch] = useState('')
+
+  const scrollRef = useRef(null)
+  const sectionY = useRef({})
+  function registerSection(key) {
+    return e => { sectionY.current[key] = e.nativeEvent.layout.y }
+  }
+  function scrollToFeature(featureKey) {
+    const sectionKey = FEATURE_SECTION[featureKey]
+    const y = sectionY.current[sectionKey]
+    if (y != null) scrollRef.current?.scrollTo({ y: y - 12, animated: true })
+  }
 
   return (
     <KeyboardAvoidingView
@@ -235,6 +251,7 @@ export default function CampusConnectScreen({ navigation }) {
 
       {/* ── Scrollable content ── */}
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 56 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -255,9 +272,10 @@ export default function CampusConnectScreen({ navigation }) {
 
           <SectionHeader eyebrow="What's Available" title="Campus Features" style={{ marginTop: spacing.lg }} />
           <View style={{ gap: 14 }}>
-            {CAMPUS_FEATURES.map(f => <FeatureCard key={f.key} feature={f} />)}
+            {CAMPUS_FEATURES.map(f => <FeatureCard key={f.key} feature={f} onPress={() => scrollToFeature(f.key)} />)}
           </View>
 
+          <View onLayout={registerSection('boards')} />
           <SectionHeader eyebrow="Community Boards" title="12 Boards, One Place" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
             title="Example content, live when your campus goes live"
@@ -302,6 +320,7 @@ export default function CampusConnectScreen({ navigation }) {
             ))}
           </ScrollView>
 
+          <View onLayout={registerSection('carpool')} />
           <SectionHeader eyebrow="Active Routes" title="Carpooling" style={{ marginTop: spacing.xl }} />
           <View style={styles.safetyBanner}>
             <AlertCircle size={15} color="#92400E" />
@@ -344,11 +363,16 @@ export default function CampusConnectScreen({ navigation }) {
               </Card>
             ))}
           </View>
-          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={[styles.secondaryBtn, { marginTop: spacing.md }]}
+            activeOpacity={0.8}
+            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Add my carpooling route'))}
+          >
             <Plus size={14} color={colors.navy} />
             <Text style={styles.secondaryBtnText}>Add Your Route</Text>
           </TouchableOpacity>
 
+          <View onLayout={registerSection('projects')} />
           <SectionHeader eyebrow="Project Collaboration" title="Open Projects" style={{ marginTop: spacing.xl }} />
           <View style={{ gap: 12 }}>
             {PROJECTS.map((p, i) => (
@@ -371,7 +395,11 @@ export default function CampusConnectScreen({ navigation }) {
                       {p.need} spot{p.need !== 1 ? 's' : ''} open
                     </Text>
                   </View>
-                  <TouchableOpacity style={styles.joinBtn} activeOpacity={0.8}>
+                  <TouchableOpacity
+                    style={styles.joinBtn}
+                    activeOpacity={0.8}
+                    onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Join project: ${p.title}`)}`)}
+                  >
                     <Text style={styles.joinBtnText}>Join</Text>
                   </TouchableOpacity>
                 </View>
@@ -379,7 +407,11 @@ export default function CampusConnectScreen({ navigation }) {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.primaryBtn}
+            activeOpacity={0.8}
+            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Post to Campus Board'))}
+          >
             <Plus size={16} color={colors.cream} />
             <Text style={styles.primaryBtnText}>Post to Campus Board</Text>
           </TouchableOpacity>

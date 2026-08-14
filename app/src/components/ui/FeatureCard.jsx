@@ -9,7 +9,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { colors, fonts, radius, shadows } from '../../constants/theme'
 
-export default function FeatureCard({ feature, dark = false }) {
+export default function FeatureCard({ feature, dark = false, onPress }) {
   const cardBg    = dark ? 'rgba(245,240,232,0.08)' : colors.white
   const labelClr  = dark ? 'rgba(245,240,232,0.5)'  : colors.muted
   const titleClr  = dark ? colors.cream              : colors.navy
@@ -78,7 +78,7 @@ export default function FeatureCard({ feature, dark = false }) {
 
       {/* CTA */}
       {!feature.coming && (
-        <TouchableOpacity style={[s.cta, { backgroundColor: ctaBg }]} activeOpacity={0.8}>
+        <TouchableOpacity style={[s.cta, { backgroundColor: ctaBg }]} activeOpacity={0.8} onPress={onPress} disabled={!onPress}>
           <Text style={[s.ctaText, { color: ctaTx }]}>Open</Text>
           <ChevronRight size={13} color={ctaTx} />
         </TouchableOpacity>

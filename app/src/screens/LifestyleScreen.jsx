@@ -520,9 +520,13 @@ const WELLBEING_RESOURCES = [
 
 // ─── Budget Tools ─────────────────────────────────────────────────────────────
 const BUDGET_TOOLS = [
-  { title: 'Budget Calculator', sub: 'Plan rent, food, transport and more', Icon: PiggyBank },
-  { title: 'SUSI Grant Guide',          sub: 'Check eligibility and application steps', Icon: Tag },
-  { title: 'Part-Time Work Finder',     sub: 'Flexible roles near your campus', Icon: ShoppingBag },
+  { title: 'Budget Calculator', sub: 'Plan rent, food, transport and more', Icon: PiggyBank, screen: 'Budgeting', params: { tab: 'budget' } },
+  { title: 'SUSI Grant Guide',  sub: 'Check eligibility and application steps', Icon: Tag, screen: 'Budgeting', params: { tab: 'susi' } },
+  // No dedicated job-board feature exists yet — the Ad Board is the closest
+  // real "browse listings" screen in the app until one is built. Navigated
+  // via the parent tab so it switches tabs correctly, not just pushes a
+  // screen within Home's own stack.
+  { title: 'Part-Time Work Finder', sub: 'Flexible roles near your campus', Icon: ShoppingBag, screen: 'AdBoard', params: { screen: 'AdBoardMain' } },
 ]
 
 // ─── Partner Logo / Initials Fallback ────────────────────────────────────────
@@ -839,7 +843,7 @@ export default function LifestyleScreen({ navigation, route }) {
           <SectionHeader eyebrow="Resources" title="Wellbeing Reads" style={{ marginTop: spacing.xl }} />
           <View style={styles.supportList}>
             {WELLBEING_RESOURCES.map((r, i) => (
-              <TouchableOpacity key={i} activeOpacity={0.8}>
+              <TouchableOpacity key={i} activeOpacity={0.8} onPress={() => Linking.openURL('https://spunout.ie')}>
                 <Card style={styles.articleCard}>
                   <View style={styles.articleTag}>
                     <Text style={styles.articleTagText}>{r.tag}</Text>
@@ -859,8 +863,8 @@ export default function LifestyleScreen({ navigation, route }) {
         <View style={styles.section}>
           <SectionHeader eyebrow="Money & Finance" title="Budgeting Tools" />
           <View style={styles.supportList}>
-            {BUDGET_TOOLS.map(({ title, sub, Icon }) => (
-              <TouchableOpacity key={title} activeOpacity={0.8}>
+            {BUDGET_TOOLS.map(({ title, sub, Icon, screen, params }) => (
+              <TouchableOpacity key={title} activeOpacity={0.8} onPress={() => navigation.navigate(screen, params)}>
                 <Card style={styles.budgetCard}>
                   <View style={styles.budgetIconWrap}>
                     <Icon size={20} color={colors.navy} />

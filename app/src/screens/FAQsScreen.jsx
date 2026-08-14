@@ -32,7 +32,7 @@ const FAQS = [
   },
   {
     q: 'Is my data safe with UniBlueprint?',
-    a: 'Yes. We use Supabase for secure data storage and authentication, and we never sell or share your personal data with third parties. Your documents and profile information are used only to deliver our services to you.',
+    a: 'Yes. Your data is stored securely and we never sell or share your personal data with third parties. Your documents and profile information are used only to deliver our services to you.',
   },
   {
     q: 'How do I cancel or get a refund?',

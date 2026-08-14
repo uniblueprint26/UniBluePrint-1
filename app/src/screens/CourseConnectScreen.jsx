@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity,
-  StyleSheet,
+  StyleSheet, Linking,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -291,7 +291,11 @@ function MentorCard({ mentor }) {
           <View style={styles.mentorDivider} />
           <Text style={styles.mentorBioLabel}>ABOUT</Text>
           <Text style={styles.mentorBio}>{mentor.bio}</Text>
-          <TouchableOpacity style={styles.mentorConnectBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.mentorConnectBtn}
+            activeOpacity={0.8}
+            onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Mentorship request: ${mentor.name}`)}`)}
+          >
             <Text style={styles.mentorConnectBtnText}>Request Mentorship</Text>
           </TouchableOpacity>
         </View>
@@ -505,7 +509,11 @@ export default function CourseConnectScreen({ navigation }) {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.primaryBtn}
+            activeOpacity={0.8}
+            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Sharing my notes'))}
+          >
             <Plus size={16} color={colors.cream} />
             <Text style={styles.primaryBtnText}>Share Your Notes</Text>
           </TouchableOpacity>

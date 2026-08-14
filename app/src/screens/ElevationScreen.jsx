@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, ChevronRight, MapPin, User,
@@ -551,7 +551,11 @@ export default function ElevationScreen({ navigation }) {
             )}
           </View>
 
-          <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.primaryBtn}
+            activeOpacity={0.8}
+            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent("I'd like to be matched with a coach"))}
+          >
             <Text style={styles.primaryBtnText}>Book a Coach</Text>
           </TouchableOpacity>
 

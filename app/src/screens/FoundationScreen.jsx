@@ -224,7 +224,11 @@ export default function FoundationScreen({ navigation }) {
                         </View>
                       </View>
                       <Text style={styles.trialNote}>* September trial prices, 50% off standard rates</Text>
-                      <TouchableOpacity style={styles.orderBtn} activeOpacity={0.8}>
+                      <TouchableOpacity
+                        style={styles.orderBtn}
+                        activeOpacity={0.8}
+                        onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)}
+                      >
                         <Text style={styles.orderBtnText}>Order {title} →</Text>
                       </TouchableOpacity>
                     </View>
@@ -264,7 +268,11 @@ export default function FoundationScreen({ navigation }) {
             </TouchableOpacity>
           </Card>
 
-          <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.primaryBtn}
+            activeOpacity={0.8}
+            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Foundation Blueprint request'))}
+          >
             <Text style={styles.primaryBtnText}>Submit a Request</Text>
           </TouchableOpacity>
 

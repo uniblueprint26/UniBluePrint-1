@@ -781,8 +781,8 @@ function InvestmentTab({ navigation }) {
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function BudgetingScreen({ navigation }) {
-  const [tab, setTab] = useState('budget')
+export default function BudgetingScreen({ navigation, route }) {
+  const [tab, setTab] = useState(route?.params?.tab || 'budget')
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
