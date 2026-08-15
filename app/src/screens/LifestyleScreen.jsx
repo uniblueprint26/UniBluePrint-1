@@ -21,24 +21,28 @@ import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
 export { PARTNERS, MYSTERY_MAP_COUNTIES }
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
+// Labels widened to actually cover everyone grouped under them: "Beauty"
+// on its own reads as nail/lash/makeup only, but the group also holds every
+// barber; "Services" was too vague for a group that's mostly photography,
+// marketing, and design work with automotive/housing mixed in.
 const FILTERS = [
   { key: 'all',      label: 'All' },
   { key: 'fitness',  label: 'Health & Fitness' },
-  { key: 'beauty',   label: 'Beauty' },
+  { key: 'beauty',   label: 'Beauty & Grooming' },
   { key: 'fashion',  label: 'Fashion' },
   { key: 'food',     label: 'Food & Drink' },
-  { key: 'services', label: 'Services' },
+  { key: 'services', label: 'Creative & Services' },
 ]
 
 // Section grouping metadata for the "All" view — same categories as the
 // filter pills, minus "All" itself, each with an icon and its own accent so
 // scanning a long list reads as curated sections, not one flat pile.
 const CATEGORY_META = {
-  fitness:  { label: 'Health & Fitness', Icon: Dumbbell,        accent: '#15803D' },
-  beauty:   { label: 'Beauty',           Icon: Sparkles,        accent: '#BE185D' },
-  fashion:  { label: 'Fashion',          Icon: ShoppingBag,     accent: '#1D4ED8' },
-  food:     { label: 'Food & Drink',     Icon: UtensilsCrossed, accent: '#B45309' },
-  services: { label: 'Services',         Icon: Wrench,          accent: '#0369A1' },
+  fitness:  { label: 'Health & Fitness',   Icon: Dumbbell,        accent: '#15803D' },
+  beauty:   { label: 'Beauty & Grooming',  Icon: Sparkles,        accent: '#BE185D' },
+  fashion:  { label: 'Fashion',            Icon: ShoppingBag,     accent: '#1D4ED8' },
+  food:     { label: 'Food & Drink',       Icon: UtensilsCrossed, accent: '#B45309' },
+  services: { label: 'Creative & Services', Icon: Wrench,         accent: '#0369A1' },
 }
 
 // ─── Wellbeing & Support ─────────────────────────────────────────────────────

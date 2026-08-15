@@ -736,7 +736,7 @@ function SUSITab() {
 // Links out to the trading/investment coaches on Elevation Blueprint rather
 // than duplicating their profiles here.
 function InvestmentTab({ navigation }) {
-  const zainab  = COACHES.find(c => c.name === 'Zainab Ade')
+  const zainab  = COACHES.find(c => c.id === 16)
   const dg      = COACHES.find(c => c.name === 'DG Trading')
   const dinero  = COACHES.find(c => c.name === 'Dinero Trading Group')
 

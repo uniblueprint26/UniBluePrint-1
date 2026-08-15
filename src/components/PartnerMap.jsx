@@ -45,29 +45,35 @@ function at(county, jitter) {
 }
 
 // ─── Live: real listing, deep-links to the full Partners card. Every offset
-// below (including the crowded Dublin cluster) was validated programmatically
-// against the actual coastline curve so nothing sits in the sea. ─────────────
+// below was generated with a packing script (Vogel-spiral candidates,
+// ray-cast against the real coastline, greedy nearest-valid-slot placement)
+// enforcing a minimum clearance between every pair of pins on the ENTIRE
+// map — not just within a county — including against the anonymous
+// "mystery" pins below. Re-run that script rather than hand-tweaking one
+// offset if a county's partner list changes again; nudging a single value
+// by eye easily reintroduces a collision with a neighbour you can't see here.
 const LIVE_PINS = [
   { id: 'mpfitness',         name: 'MPFitness',               category: 'Personal Training',                deal: 'Full package from €150/month',      pos: at('kildare') },
-  { id: 'energie',           name: 'Energie Fitness',          category: 'Gym Membership · Dublin 8',        deal: 'From €37.99/month',                  pos: at('dublin', [-4, -16]) },
-  { id: 'jmc',               name: 'JMC Fitness',              category: 'Sports Coaching',                  deal: 'From €50/hr',                        pos: at('dublin', [-26, -6]) },
-  { id: 'nyz3ditz',          name: 'Nyz3ditz',                 category: 'Photography & Video',              deal: 'From €55/month',                     pos: at('dublin', [-10, 20]) },
-  { id: 'efgrinds',          name: 'Emmanuel Fasanmi Grinds',  category: 'Education & Coaching',             deal: 'Pro member rates',                   pos: at('dublin', [2, 4]) },
-  { id: 'camila',            name: 'Camila Aruk',              category: 'Personal Training · Muay Thai · Yoga', deal: 'PT from €60/session',            pos: at('dublin', [-12, 2]) },
-  { id: 'elect',             name: 'Elect',                    category: 'Clothing Brand',                   deal: '10% off with code ELECTXUNIBLUEPRINT', pos: at('dublin', [9, -10]) },
-  { id: 'eabakeditt',        name: 'Eabakeditt',               category: 'Home Baking · Dublin 15',          deal: '€5 off every item (cookie pouches to €1.50)', pos: at('dublin', [16, 3]) },
-  { id: 'royaltyproductions',name: 'Royalty Productions',      category: 'Photography · Dublin',             deal: '10% off for verified UniBlueprint users', pos: at('dublin', [10, 17]) },
-  { id: 'poiemadexigns',     name: 'Poiema Dexigns',           category: 'Web Design & Branding',            pos: at('dublin', [8, -25]) },
-  { id: 'whipwizardz',       name: 'Whip Wizardz',             category: 'Automotive · Dundalk',             deal: 'Student-friendly pricing',           pos: at('louth', [-8, 10]) },
-  { id: 'ilashedbydiya',     name: 'ilashedbydiya',            category: 'Lash Tech · Dundalk',              deal: '10% off first appointment',          pos: at('louth', [5, 0]) },
-  { id: 'nailnurse',         name: 'The Nail Nurse',           category: 'Nail Tech',                        deal: 'Student discount with valid ID',     pos: at('galway', [-10, -8]) },
-  { id: 'veeslash',          name: 'Vees Lash Studio',         category: 'Lash Tech · Galway',               deal: 'From €40',                           pos: at('galway', [5, 0]) },
-  { id: 'leva',              name: 'LEVA Impact',              category: 'Digital Marketing & Design',       deal: 'One week free social media trial',   pos: at('mayo', [-12, -8]) },
-  { id: 'henrysisters',      name: 'Henry Sisters Co',         category: 'Creative Content',                 deal: '10% off your first booking',         pos: at('mayo', [12, 8]) },
-  { id: 'kelan',             name: 'Made By Kelan',            category: 'Photography & Video · Co. Mayo',   pos: at('mayo', [10, -18]) },
-  { id: 'claras',            name: "Clara's Beauty Room",      category: 'Nail Tech · Mayo',                 deal: 'Gel extensions from €40',            pos: at('mayo', [-4, 18]) },
-  { id: 'lashessteph',       name: 'Lashes By Steph',          category: 'Lash Tech · Kildare',              deal: 'Classics from €35',                  pos: at('kildare', [13, 0]) },
-  { id: 'cutbyire',          name: 'CutbyIre',                 category: 'Barber · Sligo',                   deal: 'From €15',                           pos: at('sligo', [1, -5]) },
+  { id: 'energie',           name: 'Energie Fitness',          category: 'Gym Membership · Dublin 8',        deal: 'From €37.99/month',                  pos: at('dublin') },
+  { id: 'jmc',               name: 'JMC Fitness',              category: 'Sports Coaching',                  deal: 'From €50/hr',                        pos: at('dublin', [-9.5, 9.5]) },
+  { id: 'nyz3ditz',          name: 'Nyz3ditz',                 category: 'Photography & Video',              deal: 'From €55/month',                     pos: at('dublin', [0.9, -13.5]) },
+  { id: 'camila',            name: 'Camila Aruk',              category: 'Personal Training · Muay Thai · Yoga', deal: 'PT from €60/session',            pos: at('dublin', [8.9, 10.1]) },
+  { id: 'elect',             name: 'Elect',                    category: 'Clothing Brand',                   deal: '10% off with code ELECTXUNIBLUEPRINT', pos: at('dublin', [-12.5, -5.2]) },
+  { id: 'eabakeditt',        name: 'Eabakeditt',               category: 'Home Baking · Dublin 15',          deal: '€5 off every item (cookie pouches to €1.50)', pos: at('dublin', [12.5, -5.2]) },
+  { id: 'royaltyproductions',name: 'Royalty Productions',      category: 'Photography · Dublin',             deal: '10% off for verified UniBlueprint users', pos: at('dublin', [-1.4, 21]) },
+  { id: 'poiemadexigns',     name: 'Poiema Dexigns',           category: 'Web Design & Branding',            pos: at('dublin', [-22.1, 4.4]) },
+  { id: 'coded69studios',    name: 'Coded69 Studios',          category: 'Photography, Printing & Studio Rental · Tallaght', deal: '10% discount for UniBlueprint members', pos: at('dublin', [10, -24.3]) },
+  { id: 'whipwizardz',       name: 'Whip Wizardz',             category: 'Automotive · Dundalk',             deal: 'Student-friendly pricing',           pos: at('louth') },
+  { id: 'ilashedbydiya',     name: 'ilashedbydiya',            category: 'Lash Tech · Dundalk',              deal: '10% off first appointment',          pos: at('louth', [-9.5, 9.5]) },
+  { id: 'nailnurse',         name: 'The Nail Nurse',           category: 'Nail Tech',                        deal: 'Student discount with valid ID',     pos: at('galway') },
+  { id: 'veeslash',          name: 'Vees Lash Studio',         category: 'Lash Tech · Galway',               deal: 'From €40',                           pos: at('galway', [-11.2, 7.5]) },
+  { id: 'leva',              name: 'LEVA Impact',              category: 'Digital Marketing & Design',       deal: 'One week free social media trial',   pos: at('mayo') },
+  { id: 'henrysisters',      name: 'Henry Sisters Co',         category: 'Creative Content',                 deal: '10% off your first booking',         pos: at('mayo', [-11.2, 7.5]) },
+  { id: 'kelan',             name: 'Made By Kelan',            category: 'Photography & Video · Co. Mayo',   pos: at('mayo', [0.9, -13.5]) },
+  { id: 'claras',            name: "Clara's Beauty Room",      category: 'Nail Tech · Mayo',                 deal: 'Gel extensions from €40',            pos: at('mayo', [8.2, 10.7]) },
+  { id: 'zvisionapparel',    name: 'Z Vision Apparel',         category: 'Custom Embroidery & Clothing · Co. Mayo', pos: at('mayo', [-12.1, -6]) },
+  { id: 'lashessteph',       name: 'Lashes By Steph',          category: 'Lash Tech · Kildare',              deal: 'Classics from €35',                  pos: at('kildare', [-10.1, 8.9]) },
+  { id: 'cutbyire',          name: 'CutbyIre',                 category: 'Barber · Sligo',                   deal: 'From €15',                           pos: at('sligo') },
 ]
 // Not on the map yet — no county on file: Saiemsent, Roomy.ie (nationwide).
 
@@ -76,23 +82,27 @@ const LIVE_PINS = [
 // until they're real. Visually identical — the pin never gives it away. ─────
 const INCOMING_PINS = [
   // named, exact location
-  { name: 'Manni The Barber',        category: 'Barber · Dundalk',           pos: at('louth', [2, 14]) },
-  { name: 'MM Cutz',                 category: 'Barber · Dublin',            pos: at('dublin', [-15, -11]) },
-  { name: 'Cut by Alind',            category: 'Barber · Mayo',              pos: at('mayo', [-1, 5]) },
-  { name: 'The Drogheda Foodie',     category: 'Food & Drink · Louth',       pos: at('louth', [-2, -11]) },
-  { name: 'Dylan Power',             category: 'Sports Photographer · Cork', pos: at('cork', [13, 0]) },
-  { name: 'Angelic Touch',           category: 'Hair',                      pos: at('sligo', [-6, 6]) },
-  { name: 'Angelic Touch',           category: 'Hair · 2nd location',       pos: at('dublin', [-32, 10]) },
-  { name: 'Archangel',               category: 'Clothing Brand',            pos: at('kildare', [16, 14]) },
+  { name: 'Manni The Barber',        category: 'Barber · Dundalk',           pos: at('louth', [0.7, -11.2]) },
+  { name: 'MM Cutz',                 category: 'Barber · Dublin',            pos: at('dublin', [-10.8, -16.2]) },
+  { name: 'Cut by Alind',            category: 'Barber · Mayo',              pos: at('mayo', [9.4, -6.3]) },
+  { name: 'The Drogheda Foodie',     category: 'Food & Drink · Louth',       pos: at('louth', [6.8, 8.9]) },
+  // Dylan Power sits exactly at the Cork anchor — Cork is deliberately left
+  // out of the anonymous list below so nothing else is placed on top of him.
+  { name: 'Dylan Power',             category: 'Sports Photographer · Cork', pos: at('cork') },
+  { name: 'Angelic Touch',           category: 'Hair',                      pos: at('sligo', [-8.5, 7.4]) },
+  { name: 'Angelic Touch',           category: 'Hair · 2nd location',       pos: at('dublin', [10.6, 21.5]) },
+  { name: 'Archangel',               category: 'Clothing Brand',            pos: at('kildare', [0.7, -11.2]) },
   // named, confirmed with UniBlueprint but still placing
   { name: 'Carolynes Beauty Studio', category: 'Beauty Studio',             pos: at('clare') },
-  { name: 'Makeup By Kasia',         category: 'Makeup',                    pos: at('galway', [14, 10]) },
-  { name: 'The PK Glam',             category: 'Beauty',                    pos: at('kildare', [-16, -14]) },
-  { name: 'Hardluck Club',           category: 'Food & Drink',              pos: at('louth', [-16, -12]) },
-  { name: 'Purple Brunch',           category: 'Food & Drink',              pos: at('sligo', [-16, 16]) },
-  // anonymous — name withheld until it's real
+  { name: 'Makeup By Kasia',         category: 'Makeup',                    pos: at('galway', [0.7, -11.2]) },
+  { name: 'The PK Glam',             category: 'Beauty',                    pos: at('kildare', [6.8, 8.9]) },
+  { name: 'Hardluck Club',           category: 'Food & Drink',              pos: at('louth', [-11, -2.2]) },
+  { name: 'Purple Brunch',           category: 'Food & Drink',              pos: at('sligo', [0.7, -11.2]) },
+  // anonymous — name withheld until it's real. Cork is excluded: Dylan Power
+  // already occupies it, so it isn't one of the counties "still without a
+  // named partner."
   ...[
-    'cork', 'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
+    'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
     'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
     'roscommon', 'leitrim', 'cavan', 'monaghan', 'donegal',
   ].map(county => ({ name: null, category: null, pos: at(county) })),

@@ -125,10 +125,24 @@ export const COACHES = [
   },
 
   {
-    id: 16, name: 'Zainab Ade', category: 'Investing & Finance Coach', filter: 'Trading',
-    location: 'Ireland', from: 'Coming soon',
-    shell: true,
-    shellMessage: 'Full profile and session details coming soon.',
+    id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing & Finance Coach', filter: 'Trading',
+    location: 'Ireland', from: 'Pricing on request',
+    title: 'Chartered Accountant · Founder, Soft Life Investing',
+    tagline: 'Personal finance without the finance bro jargon.',
+    services: ['1:1 Personal Finance Coaching', 'Budgeting & Saving', 'Getting Started with Investing', 'Irish Investing Tax Rules (Deemed Disposal, Exit Tax, DIRT)'],
+    bio: 'Chartered accountant and founder of Soft Life Investing, helping thousands of first-generation wealth builders make sense of personal finance without the finance bro jargon — covering everything from budgeting basics to Irish-specific investing rules like deemed disposal, exit tax, and DIRT.',
+    sections: [
+      {
+        title: 'How Sessions Work',
+        body: '1:1 personal finance coaching sessions for students, covering budgeting, saving, and getting started with investing, including the Irish-specific tax rules most guides skip over. Delivered over video call.',
+      },
+      {
+        title: 'Free Investing Guide',
+        body: 'A free beginner-friendly investing guide is available — ask about it when you book.',
+      },
+    ],
+    bookingNote: 'Sessions are booked directly through the app, based on the hours listed — set flexibly week to week rather than a fixed recurring slot.',
+    contact: { instagram: 'iamzayade', tiktok: 'iamzayade' },
   },
 
   // ── Fitness ──
@@ -289,10 +303,19 @@ export const COACHES = [
   },
 
   {
-    id: 18, name: 'Luana', category: 'Personal Training', filter: 'Fitness',
-    location: 'Ireland', from: 'Coming soon',
-    shell: true,
-    shellMessage: 'Full profile and session details coming soon.',
+    id: 18, name: 'Luana Ciweck', category: 'Online Fitness Coaching', filter: 'Fitness',
+    location: 'Co. Mayo, Ireland', from: 'Online coaching — pricing on enquiry',
+    tagline: 'Confidence. Strength. Sustainable change.',
+    services: ['Online Fitness Coaching'],
+    bio: "I'm Luana, 21, a qualified fitness professional with a huge passion for training, health, and helping others become the best version of themselves. I completed my training with Image Fitness and have gained hands-on experience working with clients on the gym floor. Everyone is different, which is why I build an approach tailored to each individual's goals, lifestyle, and experience level. Training is a huge part of my own life too — I've personally gone through both bulking and cutting phases, and having experienced those stages myself helps me understand the highs, lows, challenges, and rewards that come with pursuing your own fitness goals.",
+    sections: [
+      {
+        title: 'My Coaching Goal',
+        body: "My goal with online coaching is to help you build confidence, become stronger, make sustainable changes, and achieve results you can be proud of. Whether you're looking to build muscle, lose body fat, improve your strength, or simply feel more confident in yourself, I'm here to support, guide, and motivate you every step of the way.",
+      },
+    ],
+    bookingNote: 'Enquire directly via Instagram DM to book.',
+    contact: { instagram: 'luana.ciweck' },
   },
 ]
 

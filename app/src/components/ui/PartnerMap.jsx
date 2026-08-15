@@ -47,21 +47,25 @@ function at(county, jitter) {
   return jitter ? [pos[0] + jitter[0], pos[1] + jitter[1]] : pos
 }
 
-// Curated so multiple partners sharing a county don't stack on the same
-// point — every offset here was validated (programmatically, against the
-// real coastline) when this same layout was built for the website map.
+// Every offset below was generated with a packing script (Vogel-spiral
+// candidates, ray-cast against the real coastline, greedy nearest-valid-slot
+// placement) enforcing a minimum clearance between every pair of pins on the
+// ENTIRE map, not just within a county — including against the anonymous
+// "mystery" pins. Re-run that script rather than hand-tweaking a single
+// offset if a county's partner list changes again; nudging one value by eye
+// easily reintroduces a collision with a neighbour you can't see in this table.
 const LIVE_JITTER = {
-  energie: [-4, -16], jmc: [-26, -6], nyz3ditz: [-10, 20], efgrinds: [2, 4],
-  camila: [-12, 2], elect: [9, -10], eabakeditt: [16, 3], royaltyproductions: [10, 17],
-  poiemadexigns: [8, -25], whipwizardz: [-8, 10], ilashedbydiya: [5, 0],
-  nailnurse: [-10, -8], veeslash: [5, 0], leva: [-12, -8], henrysisters: [12, 8],
-  kelan: [10, -18], claras: [-4, 18], lashessteph: [13, 0], cutbyire: [1, -5],
+  jmc: [-9.5, 9.5], nyz3ditz: [0.9, -13.5], camila: [8.9, 10.1], elect: [-12.5, -5.2],
+  eabakeditt: [12.5, -5.2], royaltyproductions: [-1.4, 21], poiemadexigns: [-22.1, 4.4],
+  coded69studios: [10, -24.3], henrysisters: [-11.2, 7.5], kelan: [0.9, -13.5],
+  claras: [8.2, 10.7], zvisionapparel: [-12.1, -6], ilashedbydiya: [-9.5, 9.5],
+  lashessteph: [-10.1, 8.9], veeslash: [-11.2, 7.5],
 }
 const INCOMING_JITTER = {
-  mbcuts: [2, 14], mmcutz: [-15, -11], cutbyalind: [-1, 5], droghedafoodie: [-2, -11],
-  dylanpower: [13, 0], archangel: [16, 14], kasia: [14, 10], pkglam: [-16, -14],
-  hardluck: [-16, -12], purplebrunch: [-16, 16],
-  angelic: [[-6, 6], [-32, 10]], // paired positionally with p.counties
+  mbcuts: [0.7, -11.2], mmcutz: [-10.8, -16.2], cutbyalind: [9.4, -6.3],
+  droghedafoodie: [6.8, 8.9], archangel: [0.7, -11.2], kasia: [0.7, -11.2],
+  pkglam: [6.8, 8.9], hardluck: [-11, -2.2], purplebrunch: [0.7, -11.2],
+  angelic: [[-8.5, 7.4], [10.6, 21.5]], // paired positionally with p.counties
 }
 
 // ─── Derive every pin from PARTNERS — one source of truth with the list view,

@@ -181,23 +181,6 @@ export const PARTNERS = [
     contact: { instagram: 'henrysistersco', email: 'henrysistersco@gmail.com' },
   },
   {
-    // Was missing from the app entirely — only ever existed on the website's
-    // partner list. Added here so both surfaces actually match.
-    id: 'efgrinds',
-    brand: 'Emmanuel Fasanmi Grinds',
-    initials: 'EF',
-    initBg: '#1E3A5F',
-    filterKey: 'services',
-    county: 'Dublin',
-    category: 'Education & Coaching',
-    tagline: 'Junior and Leaving Cert grinds, one-to-one.',
-    deal: 'Pro member rates',
-    status: 'live',
-    description: 'Junior and Leaving Cert grinds and one-to-one academic coaching. Structured sessions covering exam prep, subject strategy, and study support across all levels.',
-    howToStart: 'Enquire via the app for current availability and rates.',
-    contact: null,
-  },
-  {
     id: 'camila',
     brand: 'Camila Aruk',
     initials: 'CA',
@@ -468,6 +451,41 @@ export const PARTNERS = [
     contact: { instagram: 'lashedbystephhx' },
   },
 
+  // ── Live: Photography, Printing & Creative ──────────────────────────────
+  {
+    id: 'coded69studios',
+    brand: 'Coded69 Studios',
+    initials: 'C6',
+    initBg: '#312E81',
+    filterKey: 'services',
+    county: 'Dublin',
+    category: 'Photography, Printing & Studio Rental · Tallaght',
+    tagline: 'Professional photography, digital printing, and creative space rental.',
+    deal: '10% discount for UniBlueprint members',
+    status: 'live',
+    description: 'Coded69 Studios provides a wide range of professional photography and digital printing services, alongside creative space rental. As a photography company, their mission is to serve people, businesses, and communities with images of the highest calibre — constantly challenging themselves, never becoming stagnant, and building a strong connection with clients to truly understand their vision and goals. Based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74.',
+    pricingNote: 'Pricing and full services list available on the studio website.',
+    hours: 'Mon–Fri 10am–7pm · Sat 11am–6pm · Closed Sundays',
+    howToStart: 'Book through the main website, or contact by phone or email.',
+    contact: { instagram: 'coded69studios', phone: '0897011898', email: 'info@coded69studios.com', website: 'https://www.coded69studios.com' },
+  },
+
+  // ── Live: Fashion ────────────────────────────────────────────────────────
+  {
+    id: 'zvisionapparel',
+    brand: 'Z Vision Apparel',
+    initials: 'ZV',
+    initBg: '#065F46',
+    filterKey: 'fashion',
+    county: 'Mayo',
+    category: 'Custom Embroidery & Clothing · Co. Mayo',
+    tagline: 'Personalised embroidered clothing, Co. Mayo.',
+    status: 'live',
+    description: 'Personalised clothing business based in Co. Mayo, focused mainly on embroidery. Has worked with a number of businesses around Mayo, including McHughs, Angels Garage, and Apache Pizza, along with many other small businesses. Bring a logo or design and have it embroidered onto a shirt or hoodie.',
+    howToStart: 'DM @zvision.apparel on Instagram or email zvisionapparel@gmail.com.',
+    contact: { instagram: 'zvision.apparel', email: 'zvisionapparel@gmail.com', phone: '+353877021874' },
+  },
+
   // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
   // county set where a real one is on file — this is also what the map reads.
   { id: 'mbcuts',       brand: 'Manni The Barber',        initials: 'MB', initBg: '#374151', filterKey: 'beauty',   county: 'Louth',  category: 'Barber · Dundalk', status: 'shell' },
@@ -506,8 +524,10 @@ export const PARTNERS = [
 // Every county still without a named partner above gets one anonymous
 // "coming soon" pin on the map — one per county, in this fixed order, so the
 // map reads as full without pretending to know who's actually going there.
+// Cork is deliberately excluded: Dylan Power already has county: 'Cork'
+// above, so it isn't one of the counties "still without a named partner."
 export const MYSTERY_MAP_COUNTIES = [
-  'Cork', 'Limerick', 'Waterford', 'Tipperary', 'Kerry', 'Wexford', 'Kilkenny',
+  'Limerick', 'Waterford', 'Tipperary', 'Kerry', 'Wexford', 'Kilkenny',
   'Meath', 'Wicklow', 'Carlow', 'Laois', 'Offaly', 'Westmeath', 'Longford',
   'Roscommon', 'Leitrim', 'Cavan', 'Monaghan', 'Donegal',
 ]

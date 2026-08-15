@@ -42,8 +42,8 @@ const COACHES = [
   { id: 14, name: 'Camila',      category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
   { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
   { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
-  { id: 18, name: 'Zainab Ade',  category: 'Investing and Finance Coach', location: 'Ireland', filter: 'Trading',          services: ['Coming soon'],                                                  accent: '#1B4B5A', shell: true },
-  { id: 19, name: 'Luana',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          services: ['Coming soon'],                                                  accent: '#145A3E', shell: true },
+  { id: 18, name: 'Zainab Adeyemi', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading',       services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
+  { id: 19, name: 'Luana Ciweck', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
 ]
 
 const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Yoga', 'Career']
