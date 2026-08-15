@@ -11,7 +11,7 @@ import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { COACHES, coachSlug } from '../ElevationScreen'
-import { PARTNERS } from '../LifestyleScreen'
+import { PARTNERS } from '../../data/lifestylePartners'
 
 const LIVE_COACHES  = COACHES.filter(c => !c.shell)
 const LIVE_PARTNERS = PARTNERS.filter(p => p.status === 'live')

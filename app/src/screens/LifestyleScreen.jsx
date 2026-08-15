@@ -5,12 +5,20 @@ import {
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
   ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock,
+  Dumbbell, Sparkles, UtensilsCrossed, Wrench, Map as MapIcon, List as ListIcon,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
+import PartnerMap from '../components/ui/PartnerMap'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { COACHES } from './ElevationScreen'
+import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
+
+// Re-exported so existing imports elsewhere in the app (FounderPortalScreen,
+// PartnerMap) keep working — the actual data now lives in one shared module
+// so this screen and the map component don't import each other.
+export { PARTNERS, MYSTERY_MAP_COUNTIES }
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
 const FILTERS = [
@@ -22,482 +30,16 @@ const FILTERS = [
   { key: 'services', label: 'Services' },
 ]
 
-// ─── Partner Data ─────────────────────────────────────────────────────────────
-// status: 'live' | 'shell' | 'tbc'
-// 'live'  → full card with expand/pricing
-// 'shell' → name + category only, "details coming soon"
-// 'tbc'   → confirmed partner, amber TBC badge, "details to follow"
-
-export const PARTNERS = [
-  // ── Live: Health & Fitness ──────────────────────────────────────────────
-  {
-    id: 'mpfitness',
-    brand: 'MPFitness',
-    initials: 'MP',
-    initBg: '#15803D',
-    filterKey: 'fitness',
-    category: 'Personal Training',
-    tagline: 'MPFitness. More Than Fitness.',
-    deal: 'Full Client Package from €150/month',
-    status: 'live',
-    credentials: 'Certified Personal Trainer · Advanced Nutrition Coach · International Men\'s Physique Athlete',
-    description: 'MPFitness coaching packages built around your goals, lifestyle, and schedule. Milan Piroska brings a competition athlete\'s mindset to every client, combining personalised training with advanced nutrition coaching. Now taking on prep clients.',
-    pricelist: [
-      { label: 'Full Client Package',             price: '€150/month · €40/week' },
-      { label: 'Nutrition Client Package',         price: '€100/month · €30/week' },
-      { label: 'In-Person PT + Assessment',        price: '€50/session' },
-      { label: 'Online Consultation Call',         price: '€30/call' },
-      { label: 'Deposit (all bookings)',           price: '€20 required' },
-    ],
-    howToStart: 'Fill out the free client consultation form in bio, then DM "READY" on Instagram or WhatsApp.',
-    contact: { instagram: 'milanpir_fitness', phone: '0857633757', email: 'milanpirfitness@gmail.com' },
-  },
-  {
-    id: 'energie',
-    brand: 'Energie Fitness',
-    logo: null,    // upload via partner-logos bucket when available
-    initials: 'EF',
-    initBg: '#0369A1',
-    filterKey: 'fitness',
-    category: 'Gym Membership',
-    tagline: 'Full gym access at a student rate.',
-    deal: 'From €37.99/month',
-    status: 'live',
-    description: 'Join Energie Fitness with an exclusive student membership at €37.99/month, compared to the standard rate of €39.99–€44.99/month. Joining fee is €15 (normally €30). Must be set up in person at the gym.',
-    pricelist: [
-      { label: 'Student Monthly',    price: '€37.99/month' },
-      { label: 'Student Joining Fee', price: '€15' },
-      { label: 'Standard Monthly',   price: '€39.99–€44.99' },
-      { label: 'Standard Joining Fee', price: '€30' },
-    ],
-    howToStart: 'Set up in-person at your nearest Energie Fitness location. Open Mon–Fri 6am–10pm, Sat–Sun 9am–5pm.',
-    contact: null,
-  },
-  {
-    id: 'jmc',
-    brand: 'JMC Fitness',
-    initials: 'JMC',
-    initBg: '#166534',
-    filterKey: 'fitness',
-    county: 'Dublin',
-    category: 'Sports Coaching',
-    tagline: 'Elite sports coaching, fully personalised.',
-    deal: 'From €50/hr',
-    status: 'live',
-    description: 'JMC Fitness delivers elite sports coaching with fully personalised programmes: online coaching, in-person training on North Dublin 4G Astro, dietary guidance, specialist football coaching, and connections to professional agents.',
-    pricelist: [
-      { label: 'In-Person Session (1hr)', price: '€50' },
-      { label: '12-Week Online Plan',     price: '€300' },
-      { label: 'Analytics Breakdown',     price: '€100' },
-    ],
-    howToStart: 'Book via the Elevation Blueprint section of the app.',
-    contact: null,
-  },
-
-  // ── Live: Photography & Services ────────────────────────────────────────
-  {
-    id: 'nyz3ditz',
-    brand: 'Nyz3ditz',
-    initials: 'N3',
-    initBg: '#C2410C',
-    filterKey: 'services',
-    category: 'Photography & Video',
-    tagline: 'Creative mentorship for building your portfolio.',
-    deal: 'From €55/month',
-    status: 'live',
-    description: 'Nathan Yanzo (@Nyz3ditz) is a professional photographer and videographer offering mentorship and 1-1 shoot sessions for young people building their creative skills. Monthly subscription includes Zoom calls and editing guidance.',
-    pricelist: [
-      { label: 'Monthly Subscription', price: '€55/month' },
-      { label: '1-1 Shoot Session',    price: '€90' },
-    ],
-    howToStart: 'WhatsApp +353 85 7272 875 or DM @Nyz3ditz on Instagram to book.',
-    contact: { instagram: 'Nyz3ditz', phone: '+353857272875' },
-  },
-  {
-    id: 'whipwizardz',
-    brand: 'Whip Wizardz',
-    logo: null,    // upload via partner-logos bucket when available
-    initials: 'WW',
-    initBg: '#1E3A5F',
-    filterKey: 'services',
-    county: 'Louth',
-    category: 'Automotive',
-    tagline: 'Everything automotive in one place, Jonesborough.',
-    deal: 'Student-friendly pricing',
-    status: 'live',
-    description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Whip Wizardz covers vehicle sales, sourcing, inspections, repairs, bodywork, detailing, import services, and consignment.',
-    services: ['Vehicle Sales & Sourcing', 'Inspections', 'Repairs & Bodywork', 'Detailing', 'Import & Consignment'],
-    howToStart: 'Book via WhatsApp, phone, or social media for your appointment.',
-    contact: null,
-  },
-
-  // ── Live: Beauty ────────────────────────────────────────────────────────
-  {
-    id: 'nailnurse',
-    brand: 'The Nail Nurse',
-    logo: null,    // upload via partner-logos bucket when available
-    initials: 'NN',
-    initBg: '#BE185D',
-    filterKey: 'beauty',
-    county: 'Galway',
-    category: 'Nail Tech · Galway',
-    tagline: 'Full nail treatments at student prices.',
-    deal: 'Student Discount',
-    status: 'live',
-    description: 'Professional nail technician based in Galway (@theenailnurse__). Full range of nail treatments at student-friendly prices. Student discount available with valid student ID.',
-    pricelist: [
-      { label: 'Acrylic Full Set',         price: '€25–€35' },
-      { label: 'Infill / Rebalance',       price: '€20–€30' },
-      { label: 'Gel Polish (hands)',        price: '€20–€25' },
-      { label: 'Gel Polish (toes)',         price: '€20–€21' },
-      { label: 'Gel Polish removal',        price: '€6–€8' },
-      { label: 'Basic Manicure',           price: '€15' },
-      { label: 'Luxury Manicure',          price: '€20–€21' },
-      { label: 'Nail Art (per nail)',       price: '€3.50+' },
-      { label: 'Nail Art (full set add-on)', price: '€10+' },
-    ],
-    howToStart: 'Show your valid student ID when booking. DM @theenailnurse__ on Instagram.',
-    contact: { instagram: 'theenailnurse__' },
-  },
-
-  // ── Live: Services ───────────────────────────────────────────────────────
-  {
-    id: 'leva',
-    brand: 'LEVA Impact',
-    logo: null,    // upload via partner-logos bucket when available
-    initials: 'LI',
-    initBg: '#0369A1',
-    filterKey: 'services',
-    category: 'Digital Marketing & Design',
-    tagline: 'Social media, content, and design for small businesses.',
-    deal: 'One week free social media trial',
-    status: 'live',
-    description: 'LEVA Impact is a freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, from content creation and UGC coordination to AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
-    services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
-    howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
-    contact: { instagram: 'leva.impact', tiktok: 'leva.media', phone: '0899662635', email: 'levaalex13@gmail.com', website: 'https://alexleva.myportfolio.com/home-page' },
-    crossLink: { label: "Also a UniBlueprint Uni Coach, see Alex's Digital Marketing profile", coachId: 10 },
-  },
-  {
-    id: 'henrysisters',
-    brand: 'Henry Sisters Co',
-    logo: null,
-    initials: 'HS',
-    initBg: '#92400E',
-    filterKey: 'services',
-    category: 'Creative Content Creation',
-    tagline: 'Photography, videography, and social media content. County Mayo.',
-    deal: '10% off your first content creation booking',
-    status: 'live',
-    description: 'Henry Sisters Co is a creative content studio based in County Mayo, specialising in photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. Whether you need content for your brand, business, or event, they bring a creative eye and a professional finish.',
-    services: ['Photography', 'Videography', 'Social Media Content', 'Instagram Reels', 'Event Content', 'UGC Content', 'Drone Footage', 'Promotional Content'],
-    howToStart: 'Enquire via Instagram DM @henrysistersco or email henrysistersco@gmail.com. Pricing on request.',
-    contact: { instagram: 'henrysistersco', email: 'henrysistersco@gmail.com' },
-  },
-  {
-    id: 'camila',
-    brand: 'Camila Aruk',
-    initials: 'CA',
-    initBg: '#B91C1C',
-    filterKey: 'fitness',
-    county: 'Dublin',
-    category: 'Personal Training · Muay Thai · Yoga',
-    tagline: 'Fitness, Muay Thai, and yoga, built around real routines.',
-    deal: 'PT from €60/session',
-    status: 'live',
-    credentials: 'Certified Personal Trainer · Sport Nutritionist Coach · Muay Thai · Yoga · Functional Training',
-    description: 'With over 10 years of experience in fitness, martial arts, and lifestyle coaching, Camila helps people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. Covers physique development, weight loss, muscle building, self-defence, confidence, and pre-contest prep. Based in Dublin 8, online and in person.',
-    services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
-    pricelist: [
-      { label: 'PT — 1x/week',        price: '€220/month' },
-      { label: 'PT — 2x/week',        price: '€370/month' },
-      { label: 'PT — Pay as you go',  price: '€60/session' },
-      { label: 'Body Scan',           price: '€70/session' },
-      { label: 'Food Plan + e-book',  price: '€120' },
-      { label: 'Online Coach',        price: '€320/month' },
-    ],
-    pricingNote: 'Online coaching includes a PARQ video call, WhatsApp support, food plan, workout plan, and supplement suggestions.',
-    howToStart: 'DM @camilaaruk.coach on Instagram or email camila.coachfitness@gmail.com.',
-    contact: { instagram: 'camilaaruk.coach', email: 'camila.coachfitness@gmail.com', phone: '0838602227' },
-    crossLink: { label: "Also a UniBlueprint Uni Coach, see Camila's Elevation Blueprint profile", coachId: 17 },
-  },
-  {
-    id: 'saiemsent',
-    brand: 'Saiemsent',
-    initials: 'SS',
-    initBg: '#0369A1',
-    filterKey: 'fashion',
-    category: 'Clothing',
-    tagline: 'Bold graphics, unique silhouettes, Irish streetwear.',
-    status: 'live',
-    description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures — bold graphics, unique silhouettes, and experimental details. Building a new visual identity for Irish fashion rooted in creativity, individuality, and self-expression.',
-    howToStart: 'DM @saiemsent on Instagram or visit saiemsent.ie.',
-    contact: { instagram: 'saiemsent', tiktok: 'saiemsent', website: 'https://saiemsent.ie' },
-  },
-  {
-    id: 'elect',
-    brand: 'Elect',
-    initials: 'EL',
-    initBg: '#111827',
-    filterKey: 'fashion',
-    county: 'Dublin',
-    category: 'Clothing Brand',
-    tagline: 'Christian streetwear, built around faith and purpose.',
-    deal: '10% off with code ELECTXUNIBLUEPRINT',
-    status: 'live',
-    description: 'Irish Christian streetwear brand built around faith, purpose, and individuality — modern, high-quality clothing inspired by Scripture and Christian values. Every piece has a meaning behind it, drawing on themes of identity, strength, purpose, and walking with God.',
-    howToStart: 'DM @elect_co on Instagram or email electgodschosen@gmail.com.',
-    contact: { instagram: 'elect_co', tiktok: 'elect_co', email: 'electgodschosen@gmail.com' },
-  },
-  {
-    id: 'eabakeditt',
-    brand: 'Eabakeditt',
-    initials: 'EB',
-    initBg: '#B45309',
-    filterKey: 'food',
-    county: 'Dublin',
-    category: 'Home Baking · Dublin 15',
-    tagline: 'Beautifully made treats for every occasion, Mulhuddart.',
-    deal: '€5 off every item (cookie pouches to €1.50)',
-    status: 'live',
-    description: 'Home baking business in Mulhuddart, Dublin 15, creating delicious, beautifully made treats for every occasion — from sweet treats to custom bakes, made with love and care. Every item on the menu is customisable; price may change with customisation. DM for cake enquiries not on the price list.',
-    pricelist: [
-      { label: 'Loaded Brownie Box',   price: '€20' },
-      { label: 'Brownie Box',          price: '€15' },
-      { label: 'Brookies',             price: '€15' },
-      { label: 'Blondies',             price: '€15' },
-      { label: '10 Cookie Box (any)',  price: '€15' },
-      { label: 'Cake Tray',            price: '€4' },
-      { label: '6 Cupcakes',           price: '€14' },
-      { label: '12 Cupcakes',          price: '€24' },
-      { label: 'Cookie Pouch',         price: '€2' },
-    ],
-    pricingNote: 'Flavours and add-ons (toppers, customised toppers) priced separately — ask for the full list.',
-    howToStart: 'DM @eabakeditt on Instagram or TikTok @eabakedittt.',
-    contact: { instagram: 'eabakeditt', tiktok: 'eabakedittt', phone: '0899485617', email: 'lizawakz@yahoo.com' },
-  },
-  {
-    id: 'ilashedbydiya',
-    brand: 'ilashedbydiya',
-    initials: 'ID',
-    initBg: '#9333EA',
-    filterKey: 'beauty',
-    county: 'Louth',
-    category: 'Lash Tech · Dundalk',
-    tagline: 'Classic, hybrid, and volume lash extensions.',
-    deal: '10% off first appointment',
-    status: 'live',
-    description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions, as well as lash lifts.',
-    pricelist: [
-      { label: 'Classics',   price: '€25' },
-      { label: 'Volumes',    price: '€25' },
-      { label: 'Hybrids',    price: '€25' },
-      { label: 'Lash Lifts', price: '€25' },
-      { label: 'Infills',    price: '€15' },
-      { label: 'Removals',   price: '€10' },
-    ],
-    howToStart: 'DM @ilashedbydiya on Instagram, TikTok, or Facebook.',
-    contact: { instagram: 'ilashedbydiya', tiktok: 'ilashedbydiya', email: 'ilashedbydiya@gmail.com', phone: '0899428910' },
-  },
-  {
-    id: 'roomy',
-    brand: 'Roomy.ie',
-    initials: 'RM',
-    initBg: '#0891B2',
-    filterKey: 'services',
-    category: 'Housing Platform',
-    tagline: 'Safe. Simple. Connected.',
-    deal: 'Free listings + €5 Priority Request',
-    status: 'live',
-    description: 'Modern housing platform built to make finding a room or home in Ireland simpler, safer, and more transparent — connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
-    services: ['Property & Room Listings', 'Room Seeker Posts', 'Accommodation Search', 'Priority Requests', 'Flatmate Groups', 'Landlord Onboarding', 'Safety & Scam Awareness Resources'],
-    pricelist: [
-      { label: 'Property Listings', price: 'Free' },
-      { label: 'Priority Request',  price: '€5' },
-    ],
-    howToStart: 'Visit roomy.ie or DM @Roomy.ie on Instagram.',
-    contact: { instagram: 'Roomy.ie', phone: '+353899809654', email: 'admin@roomy.ie', website: 'https://roomy.ie' },
-  },
-  {
-    id: 'royaltyproductions',
-    brand: 'Royalty Productions',
-    initials: 'RP',
-    initBg: '#78350F',
-    filterKey: 'services',
-    county: 'Dublin',
-    category: 'Photography · Dublin',
-    tagline: 'Capturing people, experiences, and important moments.',
-    deal: '10% off for verified UniBlueprint users',
-    status: 'live',
-    description: 'Dublin-based photography service focused on capturing people, experiences, and important moments in a natural, creative, and professional way — events, graduations, portraits, personal branding, and creative shoots.',
-    services: ['Event Photography', 'Graduation Photography', 'Portrait & Lifestyle Photography', 'Professional Headshots', 'Personal Branding & Content', 'Birthday & Celebration Photography', 'Creative Shoots', 'Social Media Content'],
-    pricelist: [
-      { label: 'Portrait Mini (30 min)',            price: '€70' },
-      { label: 'Portrait Standard (1hr)',           price: '€100' },
-      { label: 'Graduation (45 min)',                price: '€90' },
-      { label: 'Event Essential (1.5hr)',            price: '€150' },
-      { label: 'Event Standard (2.5hr)',             price: '€220' },
-      { label: 'Extended Event Coverage (3hr+)',     price: 'From €300' },
-      { label: 'Personal Branding / Content (1hr)',  price: '€120' },
-    ],
-    pricingNote: 'Larger events, commercial work, or custom requirements priced on enquiry.',
-    howToStart: 'DM @royalty.productions1 on Instagram, email, or phone.',
-    contact: { instagram: 'royalty.productions1', email: 'chidoziemenyoazu1@gmail.com', phone: '085 185 2451' },
-  },
-  {
-    id: 'veeslash',
-    brand: 'Vees Lash Studio',
-    initials: 'VL',
-    initBg: '#DB2777',
-    filterKey: 'beauty',
-    county: 'Galway',
-    category: 'Lash Tech · Galway',
-    tagline: 'Classic to mega volume lash extensions, Renmore.',
-    deal: 'From €40',
-    status: 'live',
-    description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
-    pricelist: [
-      { label: 'Classics',     price: '€40' },
-      { label: 'Hybrids',      price: '€50' },
-      { label: 'Volumes',      price: '€55' },
-      { label: 'Mega Volumes', price: '€60' },
-      { label: 'Deposit',      price: '€15.70' },
-    ],
-    pricingNote: 'Last-minute cancellation fee: €10.',
-    howToStart: 'Email vickylukau123@gmail.com or call to book.',
-    contact: { email: 'vickylukau123@gmail.com', phone: '+3530852758798' },
-  },
-  {
-    id: 'cutbyire',
-    brand: 'CutbyIre',
-    initials: 'CI',
-    initBg: '#374151',
-    filterKey: 'beauty',
-    county: 'Sligo',
-    category: 'Barber · Sligo',
-    tagline: 'Standard cuts, lineups, and home service.',
-    deal: 'From €15',
-    status: 'live',
-    description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, and kids cuts, plus a home service depending on distance.',
-    pricelist: [
-      { label: 'Standard Haircut + Beard',     price: '€25 · 30 min' },
-      { label: 'Kids Haircut (under 10)',      price: '€17 · 30 min' },
-      { label: 'Lineup / Scissor Cut + Beard', price: '€20 · 30 min' },
-      { label: 'Standard Haircut',             price: '€20 · 30 min' },
-      { label: 'Lineup (no fade)',             price: '€15 · 20 min' },
-      { label: 'Scissor Cut (no fade)',        price: '€15 · 30 min' },
-      { label: 'Home Service',                 price: 'From €35 · 40 min' },
-    ],
-    howToStart: 'DM @cutbyire on Instagram to book.',
-    contact: { instagram: 'cutbyire' },
-  },
-  {
-    id: 'poiemadexigns',
-    brand: 'Poiema Dexigns',
-    initials: 'PD',
-    initBg: '#1D4ED8',
-    filterKey: 'services',
-    county: 'Dublin',
-    category: 'Web Design & Branding',
-    tagline: 'Modern websites and cohesive visual branding.',
-    status: 'live',
-    description: 'Creative web design and branding studio helping businesses, organisations, and entrepreneurs build strong, professional digital identities. Worked with small businesses, community organisations, churches, and entrepreneurs on everything from website design and redesigns to logos and complete brand identities.',
-    services: ['Website Design & Development', 'Website Redesigns', 'E-commerce Design', 'UI/UX Design', 'Logo Design', 'Brand Identity & Visual Branding', 'Brand Style Guides', 'Website Maintenance'],
-    pricingNote: 'Pricing upon enquiry — each project is quoted based on scope, requirements, and needs.',
-    howToStart: 'Book a call at calendly.com/oedesignns or DM @poiema_dexigns on Instagram.',
-    contact: { instagram: 'poiema_dexigns', email: 'oedesignns@gmail.com', phone: '+353834801235', website: 'https://www.olaoluwaesho.com/' },
-  },
-  {
-    id: 'kelan',
-    brand: 'Made By Kelan',
-    initials: 'MK',
-    initBg: '#1E3A5F',
-    filterKey: 'services',
-    county: 'Mayo',
-    category: 'Photography & Video · Co. Mayo',
-    tagline: 'Events, filming, and promotional content, Co. Mayo.',
-    status: 'live',
-    description: 'Long-time photography and videography enthusiast with experience in events, filming, and promotional content creation — including work with Machenry and the Dogroses folk band, and promotional content for Cadell Bar in Galway City.',
-    pricingNote: 'Pricing upon enquiry.',
-    howToStart: 'DM @made_by_kelan on Instagram.',
-    contact: { instagram: 'made_by_kelan', email: 'kelanhenry1@gmail.com', phone: '0830416835' },
-  },
-  {
-    id: 'claras',
-    brand: "Clara's Beauty Room",
-    initials: 'CB',
-    initBg: '#EC4899',
-    filterKey: 'beauty',
-    county: 'Mayo',
-    category: 'Nail Tech · Mayo',
-    tagline: 'Gel extensions, overlay, BIAB, and shellac.',
-    deal: 'Gel extensions from €40',
-    status: 'live',
-    description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac.',
-    pricelist: [
-      { label: 'Gel Extensions', price: '€40' },
-      { label: 'Gel Overlay',    price: '€35' },
-      { label: 'BIAB',           price: '€30' },
-      { label: 'Shellac',        price: '€25' },
-    ],
-    howToStart: 'DM @claras_beauty_room on Instagram to book.',
-    contact: { instagram: 'claras_beauty_room' },
-  },
-  {
-    id: 'lashessteph',
-    brand: 'Lashes By Steph',
-    initials: 'LS',
-    initBg: '#7C3AED',
-    filterKey: 'beauty',
-    county: 'Kildare',
-    category: 'Lash Tech · Kildare',
-    tagline: 'Classic to mega volume lash sets.',
-    deal: 'Classics from €35',
-    status: 'live',
-    description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets.',
-    pricelist: [
-      { label: 'Classics',     price: '€35' },
-      { label: 'Hybrids',      price: '€45' },
-      { label: 'Russians',     price: '€50' },
-      { label: 'Mega Volumes', price: '€60' },
-    ],
-    howToStart: 'DM @lashedbystephhx on Instagram to book.',
-    contact: { instagram: 'lashedbystephhx' },
-  },
-
-  // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
-  { id: 'mbcuts',       brand: 'Manni The Barber',        initials: 'MB', initBg: '#374151', filterKey: 'beauty',   category: 'Barber · Dundalk', status: 'shell' },
-  { id: 'mmcutz',       brand: 'MM Cutz',                 initials: 'MC', initBg: '#374151', filterKey: 'beauty',   category: 'Barber · Dublin',  status: 'shell' },
-  { id: 'cutbyalind',   brand: 'Cut by Alind',             initials: 'CA', initBg: '#374151', filterKey: 'beauty',   category: 'Barber · Mayo',    status: 'shell' },
-  { id: 'lucy',         brand: 'Hair by Lucy Staunton Kelly', initials: 'LS', initBg: '#B45309', filterKey: 'beauty', category: 'Hair', status: 'shell' },
-  { id: 'angelic',      brand: 'Angelic Touch',           initials: 'AT', initBg: '#92400E', filterKey: 'beauty', category: 'Hair', status: 'shell' },
-  { id: 'ocean1',       brand: 'Ocean1',                  initials: 'O1', initBg: '#0369A1', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'archangel',    brand: 'Archangel',               initials: 'AA', initBg: '#111827', filterKey: 'fashion', category: 'Clothing Brand', status: 'shell' },
-  { id: 'pouvoirs',     brand: 'Pouvoirs Gallery',        initials: 'PG', initBg: '#4B5563', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'fortesce',     brand: 'Fortesce',                initials: 'FT', initBg: '#1D4ED8', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'streetclth',   brand: 'Street Clothing',         initials: 'SC', initBg: '#111827', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'timing',       brand: 'Timing',                  initials: 'TM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
-  { id: 'lume',         brand: 'Lume',                    initials: 'LM', initBg: '#D97706', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'njoy',         brand: 'N-joy',                   initials: 'NJ', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'tuckin',       brand: 'Tuck Inn',                initials: 'TI', initBg: '#92400E', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'coffeespot',   brand: 'The Coffee Spot',         initials: 'CS', initBg: '#78350F', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'islandsips',   brand: 'Island Sips',             initials: 'IS', initBg: '#0891B2', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'joyoffoods',   brand: 'JoyofFoods',              initials: 'JF', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'droghedafoodie', brand: 'The Drogheda Foodie',   initials: 'DF', initBg: '#92400E', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'hardluck',     brand: 'Hardluck Club',           initials: 'HC', initBg: '#78350F', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'purplebrunch', brand: 'Purple Brunch',           initials: 'PB', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'chloehouse',   brand: 'Chloe May House',         initials: 'CM', initBg: '#7C3AED', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
-  { id: 'lashlux',      brand: 'Lash Lux Dublin',         initials: 'LL', initBg: '#9333EA', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
-  { id: 'dolledm',      brand: 'Dolled by M',             initials: 'DM', initBg: '#BE185D', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
-  { id: 'eveburac',     brand: 'Eve Burac',               initials: 'EB', initBg: '#DB2777', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
-  { id: 'erinburke',    brand: 'Erin Burke Makeup',       initials: 'EB', initBg: '#C2410C', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-  { id: 'nicole',       brand: 'Nicole',                  initials: 'NI', initBg: '#9A3412', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-  { id: 'wzorek',       brand: 'Wzorek',                  initials: 'WZ', initBg: '#7C2D12', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-  { id: 'carolynes',    brand: 'Carolynes Beauty Studio', initials: 'CB', initBg: '#D97706', filterKey: 'beauty', category: 'Beauty Studio', status: 'shell' },
-  { id: 'kasia',        brand: 'Makeup By Kasia',         initials: 'MK', initBg: '#D97706', filterKey: 'beauty', category: 'Makeup', status: 'shell' },
-  { id: 'pkglam',       brand: 'The PK Glam',             initials: 'PK', initBg: '#D97706', filterKey: 'beauty', category: 'Beauty', status: 'shell' },
-  { id: 'dylanpower',   brand: 'Dylan Power',             initials: 'DP', initBg: '#374151', filterKey: 'services', category: 'Sports Photographer · Cork', status: 'shell' },
-]
+// Section grouping metadata for the "All" view — same categories as the
+// filter pills, minus "All" itself, each with an icon and its own accent so
+// scanning a long list reads as curated sections, not one flat pile.
+const CATEGORY_META = {
+  fitness:  { label: 'Health & Fitness', Icon: Dumbbell,        accent: '#15803D' },
+  beauty:   { label: 'Beauty',           Icon: Sparkles,        accent: '#BE185D' },
+  fashion:  { label: 'Fashion',          Icon: ShoppingBag,     accent: '#1D4ED8' },
+  food:     { label: 'Food & Drink',     Icon: UtensilsCrossed, accent: '#B45309' },
+  services: { label: 'Services',         Icon: Wrench,          accent: '#0369A1' },
+}
 
 // ─── Wellbeing & Support ─────────────────────────────────────────────────────
 const SUPPORT_LINES = [
@@ -589,168 +131,214 @@ function ContactChip({ type, value }) {
   )
 }
 
-// ─── Partner Card ─────────────────────────────────────────────────────────────
+// ─── Category Section Header ──────────────────────────────────────────────────
+// Marks the start of a category group in the "All" view — an icon + accent
+// colour matching that category's filter pill, so a long list of 20+ live
+// partners reads as curated sections rather than one flat pile.
+function CategorySectionHeader({ filterKey }) {
+  const meta = CATEGORY_META[filterKey]
+  if (!meta) return null
+  return (
+    <View style={styles.categoryHeader}>
+      <View style={[styles.categoryHeaderIcon, { backgroundColor: `${meta.accent}1A` }]}>
+        <meta.Icon size={14} color={meta.accent} strokeWidth={2} />
+      </View>
+      <Text style={styles.categoryHeaderText}>{meta.label}</Text>
+    </View>
+  )
+}
+
+// ─── Coming Soon grid card — compact, two-up, visually distinct from the live
+// cards rather than the same row style just greyed out. ───────────────────────
+function ComingSoonGridCard({ partner }) {
+  return (
+    <View style={styles.soonCard}>
+      <View style={styles.soonTopRow}>
+        <PartnerLogo partner={partner} size={32} />
+        <View style={styles.soonLockBadge}>
+          <Lock size={8} color={colors.muted} />
+        </View>
+      </View>
+      <Text style={styles.soonBrand} numberOfLines={2}>{partner.brand}</Text>
+      <Text style={styles.soonCategory} numberOfLines={1}>{partner.category}</Text>
+    </View>
+  )
+}
+
+// ─── Partner Card — live listings only now; Coming Soon has its own compact
+// grid card above, so this can commit fully to looking like a real listing. ──
 function PartnerCard({ partner, navigation, autoOpen }) {
   const [open, setOpen] = useState(!!autoOpen)
-  const isLive  = partner.status === 'live'
-  const isShell = partner.status === 'shell'
+  const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
   return (
-    <View style={[styles.partnerCard, isShell && styles.partnerCardLocked]}>
-      {/* Card row, always visible */}
-      <TouchableOpacity
-        style={styles.cardRow}
-        activeOpacity={isLive ? 0.75 : 1}
-        onPress={() => isLive && setOpen(v => !v)}
-        disabled={!isLive}
-      >
-        <PartnerLogo partner={partner} size={44} />
+    <View style={styles.partnerCard}>
+      <View style={[styles.accentBar, { backgroundColor: accent }]} />
 
-        <View style={styles.cardBody}>
-          <View style={styles.cardTopRow}>
-            <Text
-              style={[styles.brandName, isShell && styles.brandMuted]}
-              numberOfLines={1}
-            >
-              {partner.brand}
-            </Text>
-            {isShell && (
-              <View style={styles.shellBadge}>
-                <Lock size={9} color={colors.muted} />
-                <Text style={styles.shellBadgeText}>Coming Soon</Text>
+      {/* Column: card row + (optional) expanded detail stack vertically,
+          sitting beside the accent bar rather than each being a sibling
+          row-item of it. */}
+      <View style={styles.cardColumn}>
+        <TouchableOpacity
+          style={styles.cardRow}
+          activeOpacity={0.75}
+          onPress={() => setOpen(v => !v)}
+        >
+          <PartnerLogo partner={partner} size={56} />
+
+          <View style={styles.cardBody}>
+            <View style={styles.cardTopRow}>
+              <Text style={styles.brandName} numberOfLines={1}>{partner.brand}</Text>
+              {open
+                ? <ChevronUp   size={16} color={colors.navy} />
+                : <ChevronDown size={16} color={colors.muted} />}
+            </View>
+
+            <Text style={styles.categoryLabel}>{partner.category}</Text>
+
+            {partner.deal && (
+              <View style={styles.dealPill}>
+                <Text style={styles.dealPillText}>{partner.deal}</Text>
               </View>
             )}
-            {isLive && (
-              open
-                ? <ChevronUp   size={15} color={colors.navy} />
-                : <ChevronDown size={15} color={colors.muted} />
-            )}
           </View>
+        </TouchableOpacity>
 
-          <Text style={styles.categoryLabel}>{partner.category}</Text>
+        {/* Expanded detail */}
+        {open && (
+          <View style={styles.expandedSection}>
+            {partner.credentials && (
+              <Text style={styles.credentialsText}>{partner.credentials}</Text>
+            )}
 
-          {isLive && partner.deal && (
-            <Text style={styles.dealLabel}>{partner.deal}</Text>
-          )}
-          {isShell && (
-            <Text style={styles.secondaryLabel}>Locked until launch</Text>
-          )}
-        </View>
-      </TouchableOpacity>
+            <View style={styles.expandDivider} />
 
-      {/* Expanded detail, live cards only */}
-      {isLive && open && (
-        <View style={styles.expandedSection}>
-          {partner.credentials && (
-            <Text style={styles.credentialsText}>{partner.credentials}</Text>
-          )}
+            {partner.description && (
+              <>
+                <Text style={styles.expandLabel}>ABOUT</Text>
+                <Text style={styles.expandBody}>{partner.description}</Text>
+              </>
+            )}
 
-          <View style={styles.expandDivider} />
-
-          {partner.description && (
-            <>
-              <Text style={styles.expandLabel}>ABOUT</Text>
-              <Text style={styles.expandBody}>{partner.description}</Text>
-            </>
-          )}
-
-          {partner.services && (
-            <View style={styles.servicePills}>
-              {partner.services.map(s => (
-                <View key={s} style={styles.servicePill}>
-                  <Text style={styles.servicePillText}>{s}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {partner.pricelist && (
-            <>
-              <Text style={[styles.expandLabel, { marginTop: 16 }]}>PRICING</Text>
-              <View style={styles.priceTable}>
-                {partner.pricelist.map((row, i) => (
-                  <View
-                    key={i}
-                    style={[
-                      styles.priceRow,
-                      i < partner.pricelist.length - 1 && styles.priceRowBorder,
-                    ]}
-                  >
-                    <Text style={styles.priceRowLabel}>{row.label}</Text>
-                    <Text style={styles.priceRowValue}>{row.price}</Text>
+            {partner.services && (
+              <View style={styles.servicePills}>
+                {partner.services.map(s => (
+                  <View key={s} style={styles.servicePill}>
+                    <Text style={styles.servicePillText}>{s}</Text>
                   </View>
                 ))}
               </View>
-            </>
-          )}
+            )}
 
-          {partner.pricingNote && (
-            <Text style={styles.pricingNote}>{partner.pricingNote}</Text>
-          )}
+            {partner.pricelist && (
+              <>
+                <Text style={[styles.expandLabel, { marginTop: 16 }]}>PRICING</Text>
+                <View style={styles.priceTable}>
+                  {partner.pricelist.map((row, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.priceRow,
+                        i < partner.pricelist.length - 1 && styles.priceRowBorder,
+                      ]}
+                    >
+                      <Text style={styles.priceRowLabel}>{row.label}</Text>
+                      <Text style={styles.priceRowValue}>{row.price}</Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
 
-          {partner.howToStart && (
-            <>
-              <Text style={[styles.expandLabel, { marginTop: 16 }]}>HOW TO START</Text>
-              <Text style={styles.expandBody}>{partner.howToStart}</Text>
-            </>
-          )}
+            {partner.pricingNote && (
+              <Text style={styles.pricingNote}>{partner.pricingNote}</Text>
+            )}
 
-          {partner.hours && (
-            <Text style={styles.hoursText}>{partner.hours}</Text>
-          )}
+            {partner.howToStart && (
+              <>
+                <Text style={[styles.expandLabel, { marginTop: 16 }]}>HOW TO START</Text>
+                <Text style={styles.expandBody}>{partner.howToStart}</Text>
+              </>
+            )}
 
-          {partner.contact && (
-            <View style={styles.contactRow}>
-              {partner.contact.instagram && (
-                <ContactChip type="instagram" value={partner.contact.instagram} />
-              )}
-              {partner.contact.tiktok && (
-                <ContactChip type="tiktok" value={partner.contact.tiktok} />
-              )}
-              {partner.contact.phone && (
-                <ContactChip type="phone" value={partner.contact.phone} />
-              )}
-              {partner.contact.email && (
-                <ContactChip type="email" value={partner.contact.email} />
-              )}
-              {partner.contact.website && (
-                <ContactChip type="website" value={partner.contact.website} />
-              )}
-            </View>
-          )}
+            {partner.hours && (
+              <Text style={styles.hoursText}>{partner.hours}</Text>
+            )}
 
-          {partner.crossLink && (
-            <TouchableOpacity
-              style={styles.crossLinkCard}
-              activeOpacity={0.75}
-              onPress={() => {
-                const coach = COACHES.find(c => c.id === partner.crossLink.coachId)
-                if (coach) navigation.navigate('CoachProfile', { coach })
-              }}
-            >
-              <Text style={styles.crossLinkText}>{partner.crossLink.label}</Text>
-              <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
+            {partner.contact && (
+              <View style={styles.contactRow}>
+                {partner.contact.instagram && (
+                  <ContactChip type="instagram" value={partner.contact.instagram} />
+                )}
+                {partner.contact.tiktok && (
+                  <ContactChip type="tiktok" value={partner.contact.tiktok} />
+                )}
+                {partner.contact.phone && (
+                  <ContactChip type="phone" value={partner.contact.phone} />
+                )}
+                {partner.contact.email && (
+                  <ContactChip type="email" value={partner.contact.email} />
+                )}
+                {partner.contact.website && (
+                  <ContactChip type="website" value={partner.contact.website} />
+                )}
+              </View>
+            )}
+
+            {partner.crossLink && (
+              <TouchableOpacity
+                style={styles.crossLinkCard}
+                activeOpacity={0.75}
+                onPress={() => {
+                  const coach = COACHES.find(c => c.id === partner.crossLink.coachId)
+                  if (coach) navigation.navigate('CoachProfile', { coach })
+                }}
+              >
+                <Text style={styles.crossLinkText}>{partner.crossLink.label}</Text>
+                <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </View>
     </View>
   )
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function LifestyleScreen({ navigation, route }) {
-  const highlightId = route?.params?.highlightId
+  const routeHighlightId = route?.params?.highlightId
+  const [mapHighlightId, setMapHighlightId] = useState(null)
+  const highlightId = mapHighlightId || routeHighlightId
 
   const [activeFilter, setActiveFilter] = useState(() => {
-    if (!highlightId) return 'all'
-    const target = PARTNERS.find(p => p.id === highlightId)
+    if (!routeHighlightId) return 'all'
+    const target = PARTNERS.find(p => p.id === routeHighlightId)
     return target ? target.filterKey : 'all'
   })
+  const [viewMode, setViewMode] = useState('list') // 'list' | 'map'
 
-  const visible = activeFilter === 'all'
-    ? PARTNERS
-    : PARTNERS.filter(p => p.filterKey === activeFilter)
+  const liveVisible = PARTNERS.filter(p =>
+    p.status === 'live' && (activeFilter === 'all' || p.filterKey === activeFilter))
+  const soonVisible = PARTNERS.filter(p =>
+    p.status === 'shell' && (activeFilter === 'all' || p.filterKey === activeFilter))
+
+  // Grouped into sections when browsing everything; a single filter already
+  // does the grouping for you, so headers would just repeat the filter pill.
+  const showSectionHeaders = activeFilter === 'all'
+  const liveGroups = showSectionHeaders
+    ? FILTERS
+        .filter(f => f.key !== 'all')
+        .map(f => ({ key: f.key, items: liveVisible.filter(p => p.filterKey === f.key) }))
+        .filter(g => g.items.length > 0)
+    : [{ key: activeFilter, items: liveVisible }]
+
+  function handleViewListing(id) {
+    const target = PARTNERS.find(p => p.id === id)
+    setMapHighlightId(id)
+    setActiveFilter(target ? target.filterKey : 'all')
+    setViewMode('list')
+  }
 
   return (
     <View style={styles.screen}>
@@ -770,41 +358,87 @@ export default function LifestyleScreen({ navigation, route }) {
         <View style={styles.section}>
           <SectionHeader eyebrow="Confirmed Partners" title="Partner Listings" />
 
-          {/* Filter pills */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterScroll}
-            contentContainerStyle={styles.filterContent}
-          >
-            {FILTERS.map(f => (
-              <TouchableOpacity
-                key={f.key}
-                style={[styles.filterPill, activeFilter === f.key && styles.filterPillActive]}
-                onPress={() => setActiveFilter(f.key)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.filterPillText, activeFilter === f.key && styles.filterPillTextActive]}>
-                  {f.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Partner cards */}
-          <View style={styles.partnerList}>
-            {visible.map(p => (
-              <PartnerCard
-                key={p.id}
-                partner={p}
-                navigation={navigation}
-                autoOpen={p.id === highlightId}
-              />
-            ))}
+          {/* List / Map toggle */}
+          <View style={styles.viewToggleRow}>
+            <TouchableOpacity
+              style={[styles.viewToggleBtn, viewMode === 'list' && styles.viewToggleBtnActive]}
+              onPress={() => setViewMode('list')}
+              activeOpacity={0.8}
+            >
+              <ListIcon size={14} color={viewMode === 'list' ? colors.white : colors.navy} />
+              <Text style={[styles.viewToggleText, viewMode === 'list' && styles.viewToggleTextActive]}>List</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.viewToggleBtn, viewMode === 'map' && styles.viewToggleBtnActive]}
+              onPress={() => setViewMode('map')}
+              activeOpacity={0.8}
+            >
+              <MapIcon size={14} color={viewMode === 'map' ? colors.white : colors.navy} />
+              <Text style={[styles.viewToggleText, viewMode === 'map' && styles.viewToggleTextActive]}>Map</Text>
+            </TouchableOpacity>
           </View>
 
-          {visible.length === 0 && (
-            <Text style={styles.emptyText}>No partners in this category yet.</Text>
+          {viewMode === 'map' ? (
+            <View style={styles.mapSection}>
+              <PartnerMap onViewListing={handleViewListing} />
+            </View>
+          ) : (
+            <>
+              {/* Filter pills */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.filterScroll}
+                contentContainerStyle={styles.filterContent}
+              >
+                {FILTERS.map(f => (
+                  <TouchableOpacity
+                    key={f.key}
+                    style={[styles.filterPill, activeFilter === f.key && styles.filterPillActive]}
+                    onPress={() => setActiveFilter(f.key)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.filterPillText, activeFilter === f.key && styles.filterPillTextActive]}>
+                      {f.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              {/* Live partners, grouped by category */}
+              {liveGroups.map(group => (
+                <View key={group.key} style={{ marginBottom: spacing.lg }}>
+                  {showSectionHeaders && <CategorySectionHeader filterKey={group.key} />}
+                  <View style={styles.partnerList}>
+                    {group.items.map(p => (
+                      <PartnerCard
+                        key={p.id}
+                        partner={p}
+                        navigation={navigation}
+                        autoOpen={p.id === highlightId}
+                      />
+                    ))}
+                  </View>
+                </View>
+              ))}
+
+              {liveVisible.length === 0 && soonVisible.length === 0 && (
+                <Text style={styles.emptyText}>No partners in this category yet.</Text>
+              )}
+
+              {/* Coming Soon — compact grid, separate from the live listings */}
+              {soonVisible.length > 0 && (
+                <View style={{ marginTop: spacing.sm }}>
+                  <View style={styles.soonHeaderRow}>
+                    <Lock size={12} color={colors.muted} />
+                    <Text style={styles.soonHeaderText}>Coming Soon · Locked Until Launch</Text>
+                  </View>
+                  <View style={styles.soonGrid}>
+                    {soonVisible.map(p => <ComingSoonGridCard key={p.id} partner={p} />)}
+                  </View>
+                </View>
+              )}
+            </>
           )}
         </View>
 
@@ -927,6 +561,34 @@ const styles = StyleSheet.create({
   filterPillText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
   filterPillTextActive: { color: colors.cream },
 
+  // List / Map toggle
+  viewToggleRow: {
+    flexDirection: 'row', backgroundColor: colors.white, padding: 4,
+    borderRadius: radius.button, gap: 4, marginBottom: spacing.md, ...shadows.card,
+  },
+  viewToggleBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, paddingVertical: 9, borderRadius: radius.button - 2,
+  },
+  viewToggleBtnActive: { backgroundColor: colors.navy },
+  viewToggleText:       { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  viewToggleTextActive: { color: colors.white },
+  mapSection: {
+    backgroundColor: colors.navy, borderRadius: radius.card,
+    padding: spacing.md, marginTop: 4,
+  },
+
+  // Category section headers (shown in the "All" view)
+  categoryHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  categoryHeaderIcon: {
+    width: 26, height: 26, borderRadius: 8,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  categoryHeaderText: {
+    fontFamily: fonts.sansBold, fontSize: 12, color: colors.navy,
+    textTransform: 'uppercase', letterSpacing: 0.6,
+  },
+
   // Partner list
   partnerList: { gap: 10 },
   emptyText:   { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', paddingVertical: 24 },
@@ -936,9 +598,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: radius.card,
     overflow: 'hidden',
+    flexDirection: 'row',
     ...shadows.card,
   },
+  accentBar: { width: 4 },
+  cardColumn: { flex: 1 },
   cardRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
@@ -964,22 +630,37 @@ const styles = StyleSheet.create({
   cardBody:   { flex: 1 },
   cardTopRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 
-  brandName: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, flex: 1 },
-  brandMuted: { color: colors.muted },
+  brandName: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, flex: 1 },
 
-  categoryLabel:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
-  dealLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 3 },
-  secondaryLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 3, fontStyle: 'italic' },
-
-  // Status badge — coming soon, locked
-  partnerCardLocked: { opacity: 0.86 },
-  shellBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    backgroundColor: 'rgba(30,58,95,0.08)',
-    borderRadius: radius.pill,
-    paddingHorizontal: 8, paddingVertical: 3,
+  categoryLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },
+  dealPill: {
+    alignSelf: 'flex-start', marginTop: 7,
+    backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.badge,
+    paddingHorizontal: 9, paddingVertical: 3,
   },
-  shellBadgeText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.muted },
+  dealPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: '#145A3E' },
+
+  // Coming Soon grid — compact, two-up
+  soonHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  soonHeaderText: {
+    fontFamily: fonts.sansBold, fontSize: 12, color: colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.6,
+  },
+  soonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  soonCard: {
+    width: '47%',
+    backgroundColor: colors.white, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    padding: 12,
+  },
+  soonTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  soonLockBadge: {
+    width: 18, height: 18, borderRadius: 9,
+    backgroundColor: 'rgba(30,58,95,0.06)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  soonBrand:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 8, lineHeight: 17 },
+  soonCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.light, marginTop: 3 },
 
   // Expanded section
   expandedSection: {
