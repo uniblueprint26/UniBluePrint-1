@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Lock } from 'lucide-react'
+import { Lock, Search, X } from 'lucide-react'
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 // Gold means "real, live, on the ground" — new, scoped to this map only.
@@ -10,6 +10,7 @@ const GOLD_LIGHT = '#E4C77E'
 const GOLD_GLOW = 'rgba(201,162,75,0.4)'
 const LOCKED = '#8B9BB5'
 const NAVY = '#1E3A5F'
+const CREAM = '#F5F0E8'
 
 // ─── Ireland outline — derived from real county coordinates, not traced free-hand.
 // viewBox 0 0 400 480. Smoothed through 53 coastal reference points (Malin Head,
@@ -38,80 +39,136 @@ const COUNTY_POS = {
   sligo: [157, 138], leitrim: [196, 150], cavan: [247, 168], monaghan: [278, 138],
   donegal: [188, 66], clare: [122, 306],
 }
+const COUNTY_LABEL = Object.fromEntries(
+  Object.keys(COUNTY_POS).map(k => [k, k[0].toUpperCase() + k.slice(1)])
+)
 
-function at(county, jitter) {
-  const [cx, cy] = COUNTY_POS[county]
-  return jitter ? [cx + jitter[0], cy + jitter[1]] : [cx, cy]
-}
-
-// ─── Live: real listing, deep-links to the full Partners card. Every offset
-// below was generated with a packing script (Vogel-spiral candidates,
-// ray-cast against the real coastline, greedy nearest-valid-slot placement)
-// enforcing a minimum clearance between every pair of pins on the ENTIRE
-// map — not just within a county — including against the anonymous
-// "mystery" pins below. Re-run that script rather than hand-tweaking one
-// offset if a county's partner list changes again; nudging a single value
-// by eye easily reintroduces a collision with a neighbour you can't see here.
+// ─── Every partner's real county — no jitter, no hand-placed offsets. Multiple
+// partners sharing a county are grouped into a single cluster marker below
+// instead of being crammed apart as separate dots (see buildClusters). ───────
 const LIVE_PINS = [
-  { id: 'mpfitness',         name: 'MPFitness',               category: 'Personal Training',                deal: 'Full package from €150/month',      pos: at('kildare') },
-  { id: 'energie',           name: 'Energie Fitness',          category: 'Gym Membership · Dublin 8',        deal: 'From €37.99/month',                  pos: at('dublin') },
-  { id: 'jmc',               name: 'JMC Fitness',              category: 'Sports Coaching',                  deal: 'From €50/hr',                        pos: at('dublin', [-9.5, 9.5]) },
-  { id: 'nyz3ditz',          name: 'Nyz3ditz',                 category: 'Photography & Video',              deal: 'From €55/month',                     pos: at('dublin', [0.9, -13.5]) },
-  { id: 'camila',            name: 'Camila Aruk',              category: 'Personal Training · Muay Thai · Yoga', deal: 'PT from €60/session',            pos: at('dublin', [8.9, 10.1]) },
-  { id: 'elect',             name: 'Elect',                    category: 'Clothing Brand',                   deal: '10% off with code ELECTXUNIBLUEPRINT', pos: at('dublin', [-12.5, -5.2]) },
-  { id: 'eabakeditt',        name: 'Eabakeditt',               category: 'Home Baking · Dublin 15',          deal: '€5 off every item (cookie pouches to €1.50)', pos: at('dublin', [12.5, -5.2]) },
-  { id: 'royaltyproductions',name: 'Royalty Productions',      category: 'Photography · Dublin',             deal: '10% off for verified UniBlueprint users', pos: at('dublin', [-1.4, 21]) },
-  { id: 'poiemadexigns',     name: 'Poiema Dexigns',           category: 'Web Design & Branding',            pos: at('dublin', [-22.1, 4.4]) },
-  { id: 'coded69studios',    name: 'Coded69 Studios',          category: 'Photography, Printing & Studio Rental · Tallaght', deal: '10% discount for UniBlueprint members', pos: at('dublin', [10, -24.3]) },
-  { id: 'whipwizardz',       name: 'Whip Wizardz',             category: 'Automotive · Dundalk',             deal: 'Student-friendly pricing',           pos: at('louth') },
-  { id: 'ilashedbydiya',     name: 'ilashedbydiya',            category: 'Lash Tech · Dundalk',              deal: '10% off first appointment',          pos: at('louth', [-9.5, 9.5]) },
-  { id: 'nailnurse',         name: 'The Nail Nurse',           category: 'Nail Tech',                        deal: 'Student discount with valid ID',     pos: at('galway') },
-  { id: 'veeslash',          name: 'Vees Lash Studio',         category: 'Lash Tech · Galway',               deal: 'From €40',                           pos: at('galway', [-11.2, 7.5]) },
-  { id: 'leva',              name: 'LEVA Impact',              category: 'Digital Marketing & Design',       deal: 'One week free social media trial',   pos: at('mayo') },
-  { id: 'henrysisters',      name: 'Henry Sisters Co',         category: 'Creative Content',                 deal: '10% off your first booking',         pos: at('mayo', [-11.2, 7.5]) },
-  { id: 'kelan',             name: 'Made By Kelan',            category: 'Photography & Video · Co. Mayo',   pos: at('mayo', [0.9, -13.5]) },
-  { id: 'claras',            name: "Clara's Beauty Room",      category: 'Nail Tech · Mayo',                 deal: 'Gel extensions from €40',            pos: at('mayo', [8.2, 10.7]) },
-  { id: 'zvisionapparel',    name: 'Z Vision Apparel',         category: 'Custom Embroidery & Clothing · Co. Mayo', pos: at('mayo', [-12.1, -6]) },
-  { id: 'lashessteph',       name: 'Lashes By Steph',          category: 'Lash Tech · Kildare',              deal: 'Classics from €35',                  pos: at('kildare', [-10.1, 8.9]) },
-  { id: 'cutbyire',          name: 'CutbyIre',                 category: 'Barber · Sligo',                   deal: 'From €15',                           pos: at('sligo') },
+  { id: 'mpfitness',         name: 'MPFitness',               county: 'kildare', category: 'Personal Training',                deal: 'Full package from €150/month' },
+  { id: 'energie',           name: 'Energie Fitness',          county: 'dublin',  category: 'Gym Membership · Dublin 8',        deal: 'From €37.99/month' },
+  { id: 'jmc',               name: 'JMC Fitness',              county: 'dublin',  category: 'Sports Coaching',                  deal: 'From €50/hr' },
+  { id: 'nyz3ditz',          name: 'Nyz3ditz',                 county: 'dublin',  category: 'Photography & Video',              deal: 'From €55/month' },
+  { id: 'camila',            name: 'Camila Aruk',              county: 'dublin',  category: 'Personal Training · Muay Thai · Yoga', deal: 'PT from €60/session' },
+  { id: 'elect',             name: 'Elect',                    county: 'dublin',  category: 'Clothing Brand',                   deal: '10% off with code ELECTXUNIBLUEPRINT' },
+  { id: 'eabakeditt',        name: 'Eabakeditt',               county: 'dublin',  category: 'Home Baking · Dublin 15',          deal: '€5 off every item (cookie pouches to €1.50)' },
+  { id: 'royaltyproductions',name: 'Royalty Productions',      county: 'dublin',  category: 'Photography · Dublin',             deal: '10% off for verified UniBlueprint users' },
+  { id: 'poiemadexigns',     name: 'Poiema Dexigns',           county: 'dublin',  category: 'Web Design & Branding' },
+  { id: 'coded69studios',    name: 'Coded69 Studios',          county: 'dublin',  category: 'Photography, Printing & Studio Rental · Tallaght', deal: '10% discount for UniBlueprint members' },
+  { id: 'whipwizardz',       name: 'Whip Wizardz',             county: 'louth',   category: 'Automotive · Dundalk',             deal: 'Student-friendly pricing' },
+  { id: 'ilashedbydiya',     name: 'ilashedbydiya',            county: 'louth',   category: 'Lash Tech · Dundalk',              deal: '10% off first appointment' },
+  { id: 'nailnurse',         name: 'The Nail Nurse',           county: 'galway',  category: 'Nail Tech',                        deal: 'Student discount with valid ID' },
+  { id: 'veeslash',          name: 'Vees Lash Studio',         county: 'galway',  category: 'Lash Tech · Galway',               deal: 'From €40' },
+  { id: 'leva',              name: 'LEVA Impact',              county: 'mayo',    category: 'Digital Marketing & Design',       deal: 'One week free social media trial' },
+  { id: 'henrysisters',      name: 'Henry Sisters Co',         county: 'mayo',    category: 'Creative Content',                 deal: '10% off your first booking' },
+  { id: 'kelan',             name: 'Made By Kelan',            county: 'mayo',    category: 'Photography & Video · Co. Mayo' },
+  { id: 'claras',            name: "Clara's Beauty Room",      county: 'mayo',    category: 'Nail Tech · Mayo',                 deal: 'Gel extensions from €40' },
+  { id: 'zvisionapparel',    name: 'Z Vision Apparel',         county: 'mayo',    category: 'Custom Embroidery & Clothing · Co. Mayo' },
+  { id: 'lashessteph',       name: 'Lashes By Steph',          county: 'kildare', category: 'Lash Tech · Kildare',              deal: 'Classics from €35' },
+  { id: 'cutbyire',          name: 'CutbyIre',                 county: 'sligo',   category: 'Barber · Sligo',                   deal: 'From €15' },
 ]
 // Not on the map yet — no county on file: Saiemsent, Roomy.ie (nationwide).
 
-// ─── Incoming: one tier on the map. Some are named + placed exactly (they get
-// the "Official Blueprint Partner" badge on tap); the rest stay anonymous
-// until they're real. Visually identical — the pin never gives it away. ─────
-const INCOMING_PINS = [
-  // named, exact location
-  { name: 'Manni The Barber',        category: 'Barber · Dundalk',           pos: at('louth', [0.7, -11.2]) },
-  { name: 'MM Cutz',                 category: 'Barber · Dublin',            pos: at('dublin', [-10.8, -16.2]) },
-  { name: 'Cut by Alind',            category: 'Barber · Mayo',              pos: at('mayo', [9.4, -6.3]) },
-  { name: 'The Drogheda Foodie',     category: 'Food & Drink · Louth',       pos: at('louth', [6.8, 8.9]) },
-  // Dylan Power sits exactly at the Cork anchor — Cork is deliberately left
-  // out of the anonymous list below so nothing else is placed on top of him.
-  { name: 'Dylan Power',             category: 'Sports Photographer · Cork', pos: at('cork') },
-  { name: 'Angelic Touch',           category: 'Hair',                      pos: at('sligo', [-8.5, 7.4]) },
-  { name: 'Angelic Touch',           category: 'Hair · 2nd location',       pos: at('dublin', [10.6, 21.5]) },
-  { name: 'Archangel',               category: 'Clothing Brand',            pos: at('kildare', [0.7, -11.2]) },
-  // named, confirmed with UniBlueprint but still placing
-  { name: 'Carolynes Beauty Studio', category: 'Beauty Studio',             pos: at('clare') },
-  { name: 'Makeup By Kasia',         category: 'Makeup',                    pos: at('galway', [0.7, -11.2]) },
-  { name: 'The PK Glam',             category: 'Beauty',                    pos: at('kildare', [6.8, 8.9]) },
-  { name: 'Hardluck Club',           category: 'Food & Drink',              pos: at('louth', [-11, -2.2]) },
-  { name: 'Purple Brunch',           category: 'Food & Drink',              pos: at('sligo', [0.7, -11.2]) },
-  // anonymous — name withheld until it's real. Cork is excluded: Dylan Power
-  // already occupies it, so it isn't one of the counties "still without a
-  // named partner."
-  ...[
-    'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
-    'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
-    'roscommon', 'leitrim', 'cavan', 'monaghan', 'donegal',
-  ].map(county => ({ name: null, category: null, pos: at(county) })),
-].map((p, i) => ({ ...p, key: `incoming-${i}`, delay: i }))
+// ─── Incoming: one tier on the map. Named ones get the "Official Blueprint
+// Partner" badge on tap; the rest stay anonymous until they're real — visually
+// identical, the pin never gives it away. ─────────────────────────────────────
+const INCOMING_NAMED = [
+  { name: 'Manni The Barber',        county: 'louth',   category: 'Barber · Dundalk' },
+  { name: 'MM Cutz',                 county: 'dublin',  category: 'Barber · Dublin' },
+  { name: 'Cut by Alind',            county: 'mayo',    category: 'Barber · Mayo' },
+  { name: 'The Drogheda Foodie',     county: 'louth',   category: 'Food & Drink · Louth' },
+  { name: 'Dylan Power',             county: 'cork',    category: 'Sports Photographer · Cork' },
+  { name: 'Angelic Touch',           county: 'sligo',   category: 'Hair' },
+  { name: 'Angelic Touch',           county: 'dublin',  category: 'Hair · 2nd location' },
+  { name: 'Archangel',               county: 'kildare', category: 'Clothing Brand' },
+  { name: 'Carolynes Beauty Studio', county: 'clare',   category: 'Beauty Studio' },
+  { name: 'Makeup By Kasia',         county: 'galway',  category: 'Makeup' },
+  { name: 'The PK Glam',             county: 'kildare', category: 'Beauty' },
+  { name: 'Hardluck Club',           county: 'louth',   category: 'Food & Drink' },
+  { name: 'Purple Brunch',           county: 'sligo',   category: 'Food & Drink' },
+]
+// Anonymous — name withheld until it's real, one per county still without a
+// named partner. Cork is excluded: Dylan Power already occupies it.
+const MYSTERY_COUNTIES = [
+  'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
+  'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
+  'roscommon', 'leitrim', 'cavan', 'monaghan', 'donegal',
+]
+
+// ─── Group everything into one marker per county — the actual fix for pins
+// reading as "bunched up." A county with 11 partners is ONE tack with an "11"
+// badge, not 11 dots fighting for the same few square pixels. Clicking it
+// opens a scrollable list instead of forcing every pin to be visually distinct
+// at a glance, which no amount of spacing could make crowded Dublin achieve. ──
+function buildClusters() {
+  const byCounty = {}
+  function bucket(county) {
+    if (!byCounty[county]) byCounty[county] = { county, live: [], incoming: [], anonymous: 0 }
+    return byCounty[county]
+  }
+  LIVE_PINS.forEach(p => bucket(p.county).live.push(p))
+  INCOMING_NAMED.forEach(p => bucket(p.county).incoming.push(p))
+  MYSTERY_COUNTIES.forEach(c => { bucket(c).anonymous += 1 })
+
+  return Object.values(byCounty).map(c => ({
+    ...c,
+    pos: COUNTY_POS[c.county],
+    label: COUNTY_LABEL[c.county],
+    total: c.live.length + c.incoming.length + c.anonymous,
+    hasLive: c.live.length > 0,
+  }))
+}
+const CLUSTERS = buildClusters()
+
+// Flat, searchable index — every live + named-incoming partner plus every
+// county label, so the search box can jump straight to any of them.
+const SEARCH_INDEX = [
+  ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: p.name, county: p.county, sub: p.category })),
+  ...INCOMING_NAMED.map((p, i) => ({ kind: 'incoming', id: `incoming-${i}`, name: p.name, county: p.county, sub: p.category })),
+  ...Object.values(COUNTY_LABEL).map(label => ({ kind: 'county', id: label, name: label, county: label.toLowerCase(), sub: 'County' })),
+]
 
 const PING_INTERVAL_MS = 27000
 
 const PMAP_STYLES = `
-  .pmap-wrap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .pmap-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .pmap-search { position: relative; width: 100%; max-width: 460px; }
+  .pmap-search-input-row {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(245,240,232,0.08); border: 1px solid rgba(245,240,232,0.18);
+    border-radius: 10px; padding: 9px 12px;
+  }
+  .pmap-search-input-row:focus-within { border-color: rgba(201,162,75,0.55); background: rgba(245,240,232,0.12); }
+  .pmap-search-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; color: ${CREAM};
+  }
+  .pmap-search-input::placeholder { color: rgba(245,240,232,0.45); }
+  .pmap-search-clear { display: flex; cursor: pointer; opacity: 0.6; }
+  .pmap-search-clear:hover { opacity: 1; }
+  .pmap-search-results {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 5;
+    background: ${CREAM}; border-radius: 10px; box-shadow: 0 16px 34px rgba(0,0,0,0.3);
+    overflow: hidden; max-height: 260px; overflow-y: auto;
+  }
+  .pmap-search-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; cursor: pointer; text-align: left; width: 100%;
+    background: none; border: none; border-bottom: 1px solid rgba(30,58,95,0.06);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .pmap-search-row:last-child { border-bottom: none; }
+  .pmap-search-row:hover, .pmap-search-row:focus-visible { background: rgba(30,58,95,0.06); }
+  .pmap-search-row-name { font-size: 13px; font-weight: 600; color: ${NAVY}; }
+  .pmap-search-row-sub { font-size: 11px; color: #6B7280; margin-top: 1px; }
+  .pmap-search-row-tag {
+    flex-shrink: 0; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 3px 7px; border-radius: 5px;
+  }
+  .pmap-search-empty { padding: 14px; font-size: 12.5px; color: #6B7280; text-align: center; }
+
   .pmap-stage { position: relative; width: 100%; max-width: 800px; margin: 0 auto; }
   .pmap-svg { width: 100%; height: auto; display: block; overflow: visible; }
   .pmap-land { stroke: rgba(245,240,232,0.24); stroke-width: 1.3; }
@@ -122,7 +179,8 @@ const PMAP_STYLES = `
   .pmap-pin:focus { outline: none; }
   .pmap-pin:focus-visible .pmap-tack-core,
   .pmap-pin:focus-visible .pmap-tack-sketch { stroke: #fff; stroke-width: 1.8px; }
-  .pmap-pin.pmap-dim { opacity: 0.3; }
+  .pmap-pin.pmap-dim { opacity: 0.28; }
+  .pmap-pin.pmap-match { opacity: 1; }
   .pmap-hit { fill: rgba(0,0,0,0.001); pointer-events: all; }
 
   .pmap-pin-inner {
@@ -146,13 +204,19 @@ const PMAP_STYLES = `
   .pmap-pin.grey .pmap-shimmer { fill: transparent; stroke: ${LOCKED}; stroke-width: 1; opacity: 0; animation: pmapShimmer 6s ease-in-out infinite; }
   .pmap-pin.grey:hover .pmap-tack-sketch { stroke-width: 1.5; }
 
+  /* Cluster badge — the count that replaces cramming N pins into one spot. */
+  .pmap-badge-ring { fill: ${CREAM}; stroke-width: 1.4; }
+  .pmap-badge-text { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: ${NAVY}; text-anchor: middle; dominant-baseline: central; }
+
   @keyframes pmapGoldPulse { 0%,100% { r: 9.5; opacity: 0.6; } 50% { r: 14.5; opacity: 0.12; } }
   @keyframes pmapShimmer { 0%,100% { r: 5.5; opacity: 0; } 55% { r: 5.5; opacity: 0; } 72% { r: 10; opacity: 0.4; } 90% { r: 13; opacity: 0; } }
   @keyframes pmapPingOnce { 0% { r: 6.5; stroke-opacity: 0.7; } 100% { r: 24; stroke-opacity: 0; } }
+  @keyframes pmapMatchPulse { 0%,100% { r: 15; opacity: 0.5; } 50% { r: 21; opacity: 0.05; } }
+  .pmap-match-ring { fill: none; stroke: ${CREAM}; stroke-width: 1.6; animation: pmapMatchPulse 1.3s ease-in-out infinite; }
   .pmap-shadow { fill: rgba(0,0,0,0.26); }
 
   @media (prefers-reduced-motion: reduce) {
-    .pmap-pin.gold .pmap-halo, .pmap-pin.grey .pmap-shimmer, .pmap-ping { animation: none !important; }
+    .pmap-pin.gold .pmap-halo, .pmap-pin.grey .pmap-shimmer, .pmap-ping, .pmap-match-ring { animation: none !important; }
     .pmap-pin-inner { transition: none; opacity: 1; transform: scale(1); }
   }
 
@@ -166,12 +230,28 @@ const PMAP_STYLES = `
     min-height: 96px;
     justify-content: center;
   }
-  .pmap-card.idle { background: rgba(245,240,232,0.06); box-shadow: none; border: 1px dashed rgba(245,240,232,0.18); }
+  .pmap-card.idle { background: rgba(245,240,232,0.06); box-shadow: none; border: 1px dashed rgba(245,240,232,0.18); justify-content: center; }
+  .pmap-card.cluster { justify-content: flex-start; padding: 16px 16px 8px; }
+
+  .pmap-cluster-list { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; margin: 4px -8px 8px; }
+  .pmap-cluster-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 8px; border-radius: 8px;
+    text-decoration: none; cursor: default;
+  }
+  .pmap-cluster-row.live { cursor: pointer; }
+  .pmap-cluster-row.live:hover, .pmap-cluster-row.live:focus-visible { background: rgba(30,58,95,0.05); }
+  .pmap-cluster-swatch { flex-shrink: 0; }
+  .pmap-cluster-row-body { flex: 1; min-width: 0; }
+  .pmap-cluster-row-name { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: ${NAVY}; }
+  .pmap-cluster-row-sub { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #6B7280; margin-top: 1px; }
+  .pmap-cluster-row-deal { font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 600; color: ${GOLD_DEEP}; margin-top: 2px; }
+
   .pmap-legend { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
   .pmap-legend-item { display: flex; align-items: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 600; color: rgba(245,240,232,0.55); }
 
   @media (max-width: 640px) {
-    .pmap-wrap { gap: 16px; }
+    .pmap-wrap { gap: 12px; }
     .pmap-card { padding: 15px 16px; min-height: 84px; }
     .pmap-legend { gap: 14px; }
     .pmap-legend-item { font-size: 10.5px; }
@@ -205,10 +285,24 @@ function TackGlyph({ live, size = 1 }) {
   )
 }
 
-function Pin({ pinKey, live, x, y, dimmed, arriveDelay, ping, onClick, onKeyDown, label }) {
+// Small ring + number sitting on a tack's shoulder — the entire fix for
+// "too many pins in one place": one marker communicates the count instead of
+// N markers fighting for the same few pixels.
+function CountBadge({ count, live }) {
+  const r = count > 9 ? 7.4 : 6.6
+  return (
+    <g transform="translate(6.5,-6.5)">
+      <circle className="pmap-badge-ring" r={r} stroke={live ? GOLD_DEEP : LOCKED} />
+      <text className="pmap-badge-text" style={{ fontSize: count > 9 ? '7px' : '7.6px' }} y="0.5">{count}</text>
+    </g>
+  )
+}
+
+function Pin({ pinKey, live, x, y, dimmed, matched, arriveDelay, ping, badge, onClick, onKeyDown, label }) {
+  const scale = badge ? 1.12 : 1
   return (
     <g
-      className={`pmap-pin ${live ? 'gold' : 'grey'}${dimmed ? ' pmap-dim' : ''}`}
+      className={`pmap-pin ${live ? 'gold' : 'grey'}${dimmed ? ' pmap-dim' : ''}${matched ? ' pmap-match' : ''}`}
       transform={`translate(${x},${y})`}
       onClick={onClick}
       onKeyDown={onKeyDown}
@@ -217,15 +311,28 @@ function Pin({ pinKey, live, x, y, dimmed, arriveDelay, ping, onClick, onKeyDown
       aria-label={label}
       data-pin={pinKey}
     >
-      <circle className="pmap-hit" r={17} />
+      <title>{label}</title>
+      <circle className="pmap-hit" r={badge ? 20 : 17} />
       <g className="pmap-pin-inner" style={{ '--pmap-delay': `${arriveDelay}ms` }}>
-        <ellipse className="pmap-shadow" cx={0} cy={4} rx={5.6} ry={1.7} />
-        {live && <circle className="pmap-halo" r={9.5} />}
+        {matched && <circle className="pmap-match-ring" r={15} />}
+        <ellipse className="pmap-shadow" cx={0} cy={4} rx={5.6 * scale} ry={1.7 * scale} />
+        {live && <circle className="pmap-halo" r={9.5 * scale} />}
         {!live && <circle className="pmap-shimmer" r={5.5} style={{ animationDelay: `${(arriveDelay % 6) * 0.9}s` }} />}
         {ping && <circle key={ping} className="pmap-ping" r={6.5} />}
-        <TackGlyph live={live} />
+        <TackGlyph live={live} size={scale} />
+        {badge && <CountBadge count={badge} live={live} />}
       </g>
     </g>
+  )
+}
+
+function ClusterSwatch({ live }) {
+  return (
+    <svg width="16" height="16" viewBox="-7 -7 14 14" aria-hidden="true" className="pmap-cluster-swatch">
+      {live
+        ? <circle r="6" fill={GOLD} stroke={GOLD_DEEP} strokeWidth="0.8" />
+        : <circle r="6" fill="none" stroke={LOCKED} strokeWidth="1.2" strokeDasharray="2.4 2" />}
+    </svg>
   )
 }
 
@@ -233,8 +340,11 @@ export default function PartnerMap() {
   const [active, setActive] = useState(null)
   const [arrived, setArrived] = useState(false)
   const [ping, setPing] = useState(null)
+  const [query, setQuery] = useState('')
+  const [matchedKey, setMatchedKey] = useState(null)
   const wrapRef = useRef(null)
   const nonceRef = useRef(0)
+  const searchRef = useRef(null)
 
   // One-time arrival — the map "switches on" the first time it scrolls into view.
   useEffect(() => {
@@ -257,16 +367,97 @@ export default function PartnerMap() {
     return () => clearInterval(intervalId)
   }, [])
 
+  // Close the results dropdown on outside click, without clearing what was typed.
+  const [resultsOpen, setResultsOpen] = useState(false)
+  useEffect(() => {
+    function onDocClick(e) {
+      if (searchRef.current && !searchRef.current.contains(e.target)) setResultsOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [])
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return []
+    return SEARCH_INDEX.filter(r => r.name.toLowerCase().includes(q)).slice(0, 8)
+  }, [query])
+
+  function selectCluster(county) {
+    const cluster = CLUSTERS.find(c => c.county === county)
+    if (!cluster) return
+    if (cluster.total === 1) {
+      if (cluster.live[0]) return select(cluster.live[0].id, { live: true, ...cluster.live[0] })
+      if (cluster.incoming[0]) return select(`i-${county}`, { live: false, name: cluster.incoming[0].name, category: cluster.incoming[0].category })
+      return select(`anon-${county}`, { live: false, name: null, category: null })
+    }
+    setActive({ pinKey: county, isCluster: true, ...cluster })
+  }
+
   function select(pinKey, data) {
     setActive(prev => (prev && prev.pinKey === pinKey ? null : { pinKey, ...data }))
   }
-  function onKey(e, pinKey, data) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(pinKey, data) }
+  function onKey(e, county) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCluster(county) }
+  }
+
+  function pickResult(r) {
+    selectCluster(r.county)
+    setMatchedKey(r.county)
+    setQuery('')
+    setResultsOpen(false)
+    window.setTimeout(() => setMatchedKey(null), 2200)
+    wrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   return (
     <div ref={wrapRef} className={`pmap-wrap${arrived ? ' pmap-arrived' : ''}`}>
       <style>{PMAP_STYLES}</style>
+
+      {/* ── Search ───────────────────────────────────────────────────────── */}
+      <div className="pmap-search" ref={searchRef}>
+        <div className="pmap-search-input-row">
+          <Search size={15} color="rgba(245,240,232,0.55)" />
+          <input
+            className="pmap-search-input"
+            type="text"
+            placeholder="Find a partner or county…"
+            value={query}
+            onChange={e => { setQuery(e.target.value); setResultsOpen(true) }}
+            onFocus={() => setResultsOpen(true)}
+          />
+          {query && (
+            <span className="pmap-search-clear" onClick={() => { setQuery(''); setResultsOpen(false) }} role="button" aria-label="Clear search">
+              <X size={14} color="rgba(245,240,232,0.7)" />
+            </span>
+          )}
+        </div>
+        {query && resultsOpen && (
+          <div className="pmap-search-results">
+            {results.length === 0 && <div className="pmap-search-empty">No matches for "{query}"</div>}
+            {results.map(r => (
+              <button key={`${r.kind}-${r.id}`} className="pmap-search-row" onClick={() => pickResult(r)}>
+                <span>
+                  <span className="pmap-search-row-name">{r.name}</span>
+                  <div className="pmap-search-row-sub">{r.kind === 'county' ? 'Jump to county' : r.sub}</div>
+                </span>
+                <span
+                  className="pmap-search-row-tag"
+                  style={
+                    r.kind === 'live'
+                      ? { background: GOLD_GLOW, color: GOLD_DEEP }
+                      : r.kind === 'incoming'
+                        ? { background: 'rgba(139,155,181,0.18)', color: LOCKED }
+                        : { background: 'rgba(30,58,95,0.08)', color: NAVY }
+                  }
+                >
+                  {r.kind === 'live' ? 'Live' : r.kind === 'incoming' ? 'Incoming' : 'County'}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="pmap-stage">
         <svg
@@ -286,47 +477,95 @@ export default function PartnerMap() {
               <stop offset="55%" stopColor={GOLD} />
               <stop offset="100%" stopColor={GOLD_DEEP} />
             </radialGradient>
+            {/* Blueprint graph-paper texture — a nod to the brand, not just an empty sea. */}
+            <pattern id="pmapGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+              <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(245,240,232,0.05)" strokeWidth="0.5" />
+            </pattern>
+            <pattern id="pmapGridMajor" width="80" height="80" patternUnits="userSpaceOnUse">
+              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(245,240,232,0.06)" strokeWidth="0.6" />
+            </pattern>
           </defs>
 
+          <rect x="0" y="0" width="400" height="480" fill="url(#pmapGrid)" />
+          <rect x="0" y="0" width="400" height="480" fill="url(#pmapGridMajor)" />
           <path className="pmap-land" d={IRELAND_PATH} fill="url(#pmapLandFill)" />
           <path className="pmap-coastline-inner" d={IRELAND_PATH} />
           <CompassMark />
 
-          {INCOMING_PINS.map(p => (
-            <Pin
-              key={p.key}
-              pinKey={p.key}
-              live={false}
-              x={p.pos[0]} y={p.pos[1]}
-              arriveDelay={p.delay * 12}
-              dimmed={active && active.pinKey !== p.key}
-              label={p.name ? `${p.name}, ${p.category} — Official Blueprint Partner, launching soon` : 'Unconfirmed partner — coming soon'}
-              onClick={() => select(p.key, { live: false, name: p.name, category: p.category })}
-              onKeyDown={e => onKey(e, p.key, { live: false, name: p.name, category: p.category })}
-            />
-          ))}
-
-          {LIVE_PINS.map((p, i) => (
-            <Pin
-              key={p.id}
-              pinKey={p.id}
-              live
-              x={p.pos[0]} y={p.pos[1]}
-              arriveDelay={260 + i * 40}
-              dimmed={active && active.pinKey !== p.id}
-              ping={ping && ping.pinId === p.id ? `ping-${ping.nonce}` : null}
-              label={`${p.name}, ${p.category} — live partner. View details.`}
-              onClick={() => select(p.id, { live: true, ...p })}
-              onKeyDown={e => onKey(e, p.id, { live: true, ...p })}
-            />
-          ))}
+          {CLUSTERS.map((c, i) => {
+            const pinKey = c.county
+            const isActive = active && active.pinKey === pinKey
+            const label = c.total === 1
+              ? (c.live[0]
+                  ? `${c.live[0].name}, ${c.live[0].category} — live partner. View details.`
+                  : c.incoming[0]
+                    ? `${c.incoming[0].name}, ${c.incoming[0].category} — Official Blueprint Partner, launching soon`
+                    : `${c.label} — unconfirmed partner, coming soon`)
+              : `${c.label} — ${c.total} UniBlueprint partners. View list.`
+            return (
+              <Pin
+                key={pinKey}
+                pinKey={pinKey}
+                live={c.hasLive}
+                x={c.pos[0]} y={c.pos[1]}
+                arriveDelay={80 + i * 22}
+                dimmed={active && active.pinKey !== pinKey}
+                matched={matchedKey === pinKey}
+                badge={c.total > 1 ? c.total : null}
+                ping={c.total === 1 && c.live[0] && ping && ping.pinId === c.live[0].id ? `ping-${ping.nonce}` : null}
+                label={label}
+                onClick={() => selectCluster(pinKey)}
+                onKeyDown={e => onKey(e, pinKey)}
+              />
+            )
+          })}
         </svg>
       </div>
 
-      {/* ── Info card ────────────────────────────────────────────────────── */}
+      {/* ── Info card / cluster list ────────────────────────────────────── */}
       {active ? (
-        <div className="pmap-card">
-          {active.live && (
+        <div className={`pmap-card${active.isCluster ? ' cluster' : ''}`}>
+          {active.isCluster && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px', padding: '0 2px' }}>
+                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: NAVY, margin: 0 }}>{active.label}</p>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: NAVY, background: 'rgba(30,58,95,0.08)', borderRadius: '20px', padding: '3px 10px', flexShrink: 0 }}>
+                  {active.total} partner{active.total === 1 ? '' : 's'}
+                </span>
+              </div>
+              <div className="pmap-cluster-list">
+                {active.live.map(p => (
+                  <Link key={p.id} to={`/partners#${p.id}`} className="pmap-cluster-row live">
+                    <ClusterSwatch live />
+                    <span className="pmap-cluster-row-body">
+                      <div className="pmap-cluster-row-name">{p.name}</div>
+                      <div className="pmap-cluster-row-sub">{p.category}</div>
+                      {p.deal && <div className="pmap-cluster-row-deal">{p.deal}</div>}
+                    </span>
+                  </Link>
+                ))}
+                {active.incoming.map((p, i) => (
+                  <div key={`${p.name}-${i}`} className="pmap-cluster-row">
+                    <ClusterSwatch live={false} />
+                    <span className="pmap-cluster-row-body">
+                      <div className="pmap-cluster-row-name">{p.name}</div>
+                      <div className="pmap-cluster-row-sub">{p.category} · launching soon</div>
+                    </span>
+                  </div>
+                ))}
+                {active.anonymous > 0 && (
+                  <div className="pmap-cluster-row">
+                    <Lock size={13} color={LOCKED} style={{ flexShrink: 0 }} />
+                    <span className="pmap-cluster-row-body">
+                      <div className="pmap-cluster-row-sub">Unconfirmed partner joining soon — check back as the map fills in.</div>
+                    </span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {!active.isCluster && active.live && (
             <>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' }}>
                 <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: NAVY, margin: 0 }}>{active.name}</p>
@@ -351,7 +590,7 @@ export default function PartnerMap() {
             </>
           )}
 
-          {!active.live && active.name && (
+          {!active.isCluster && !active.live && active.name && (
             <>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' }}>
                 <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: NAVY, margin: 0 }}>{active.name}</p>
@@ -364,7 +603,7 @@ export default function PartnerMap() {
             </>
           )}
 
-          {!active.live && !active.name && (
+          {!active.isCluster && !active.live && !active.name && (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(139,155,181,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -381,7 +620,7 @@ export default function PartnerMap() {
       ) : (
         <div className="pmap-card idle">
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: 'rgba(245,240,232,0.5)', textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
-            Tap a pin to see who's there.
+            Tap a pin to see who's there — or search above to jump straight to a partner.
           </p>
         </div>
       )}
@@ -394,6 +633,14 @@ export default function PartnerMap() {
         <span className="pmap-legend-item">
           <svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><circle r="6" fill="none" stroke={LOCKED} strokeWidth="1.2" strokeDasharray="2.4 2" /></svg>
           New Partner Incoming
+        </span>
+        <span className="pmap-legend-item">
+          <svg width="16" height="16" viewBox="-8 -8 16 16" aria-hidden="true">
+            <circle r="6" fill={GOLD} stroke={GOLD_DEEP} strokeWidth="0.8" />
+            <circle cx="5.5" cy="-5.5" r="4.4" fill={CREAM} stroke={GOLD_DEEP} strokeWidth="1" />
+            <text x="5.5" y="-5.3" textAnchor="middle" dominantBaseline="central" fontFamily="'DM Sans', sans-serif" fontSize="5.5" fontWeight="700" fill={NAVY}>3</text>
+          </svg>
+          Multiple Partners — tap to see the list
         </span>
       </div>
     </div>
