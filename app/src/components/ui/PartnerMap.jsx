@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollView, Keyboard } from 'react-native'
-import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line } from 'react-native-svg'
-import { Lock, Search, X, ChevronRight } from 'lucide-react-native'
+import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line, Rect } from 'react-native-svg'
+import { Lock, Search, X } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../../data/lifestylePartners'
 
@@ -40,9 +40,19 @@ const COUNTY_POS = {
   sligo: [157, 138], leitrim: [196, 150], cavan: [247, 168], monaghan: [278, 138],
   donegal: [188, 66], clare: [122, 306],
 }
-const COUNTY_LABEL = Object.fromEntries(
-  Object.keys(COUNTY_POS).map(k => [k, k[0].toUpperCase() + k.slice(1)])
-)
+const COUNTY_LABEL = Object.fromEntries(Object.keys(COUNTY_POS).map(k => [k, k[0].toUpperCase() + k.slice(1)]))
+
+// Every label's Y position, resolved offline against every pin group and
+// every other label so nothing overlaps (see the packing script this was
+// generated with) — re-run it rather than nudging one value by eye if the
+// roster changes again, the same way the pin positions below were.
+const LABEL_Y = {
+  dublin: 263.5, cork: 438, galway: 254.3, limerick: 360, waterford: 396, tipperary: 348,
+  kerry: 402, wexford: 366, kilkenny: 348, meath: 208, kildare: 278.3, louth: 194.3,
+  wicklow: 300, carlow: 336, laois: 300, offaly: 276, westmeath: 234, longford: 216,
+  roscommon: 190, mayo: 194.3, sligo: 152.3, leitrim: 162, cavan: 180, monaghan: 150,
+  donegal: 78, clare: 318,
+}
 
 // Thin blueprint graph-paper grid — decorative, computed once at module load.
 const GRID_LINES = (() => {
@@ -52,47 +62,98 @@ const GRID_LINES = (() => {
   return lines
 })()
 
-// ─── Group every partner into one marker per county — the actual fix for pins
-// reading as "bunched up." A county with 11 partners is ONE tack with an "11"
-// badge, not 11 dots fighting for the same few pixels. Tapping it opens a
-// scrollable list instead of forcing every pin to stay visually distinct at a
-// glance, which no amount of spacing could make a crowded county achieve. ────
-function buildClusters() {
-  const byCounty = {}
-  function bucket(countyRaw) {
-    const key = countyRaw?.toLowerCase()
-    if (!key || !COUNTY_POS[key]) return null
-    if (!byCounty[key]) byCounty[key] = { county: key, live: [], incoming: [], anonymous: 0 }
-    return byCounty[key]
-  }
-  PARTNERS.filter(p => p.status === 'live' && p.county).forEach(p => bucket(p.county)?.live.push(p))
-  PARTNERS.filter(p => p.status === 'shell').forEach(p => {
-    if (p.counties) p.counties.forEach(c => bucket(c)?.incoming.push(p))
-    else if (p.county) bucket(p.county)?.incoming.push(p)
-  })
-  MYSTERY_MAP_COUNTIES.forEach(c => { const b = bucket(c); if (b) b.anonymous += 1 })
-
-  return Object.values(byCounty).map(c => ({
-    ...c,
-    pos: COUNTY_POS[c.county],
-    label: COUNTY_LABEL[c.county],
-    total: c.live.length + c.incoming.length + c.anonymous,
-    hasLive: c.live.length > 0,
-  }))
+// ─── Every pin's position — a packing script arranges partners sharing a
+// county into a tight, centred grid (not scattered), ray-cast against the
+// real coastline, checked against every other pin on the whole map so
+// nothing overlaps or sits in the sea. Re-run it rather than hand-tweaking
+// one offset if the roster changes — identical numbers to the website's
+// PartnerMap so both stay visually in sync. ───────────────────────────────
+const LIVE_JITTER = {
+  mpfitness: [-5.2, -5.2], energie: [-15.7, -10.5], jmc: [-5.2, -10.5], nyz3ditz: [5.3, -10.5],
+  camila: [15.8, -10.5], elect: [-15.7, 0], eabakeditt: [-5.2, 0], royaltyproductions: [5.3, 0],
+  poiemadexigns: [15.8, 0], coded69studios: [-10.5, 10.5], whipwizardz: [-10.5, -5.2],
+  ilashedbydiya: [0, -5.2], nailnurse: [-5.2, -5.2], veeslash: [5.3, -5.2], leva: [-10.5, -5.2],
+  henrysisters: [0, -5.2], kelan: [10.5, -5.2], claras: [-10.5, 5.3], zvisionapparel: [0, 5.3],
+  lashessteph: [5.3, -5.2], cutbyire: [-5.2, -5.2],
 }
-const CLUSTERS = buildClusters()
+const INCOMING_JITTER = {
+  mbcuts: [10.5, -5.2], mmcutz: [0, 10.5], cutbyalind: [10.5, 5.3], droghedafoodie: [-5.2, 5.3],
+  archangel: [-5.2, 5.3], kasia: [0, 5.3], pkglam: [5.3, 5.3], hardluck: [5.3, 5.3],
+  purplebrunch: [0, 5.3],
+  angelic: [[5.3, -5.2], [10.5, 10.5]], // paired positionally with p.counties: ['Sligo', 'Dublin']
+}
+
+function at(county, jitter) {
+  const pos = COUNTY_POS[county?.toLowerCase()]
+  if (!pos) return null
+  return jitter ? [pos[0] + jitter[0], pos[1] + jitter[1]] : pos
+}
+
+function buildLivePins() {
+  return PARTNERS
+    .filter(p => p.status === 'live' && p.county)
+    .map(p => {
+      const pos = at(p.county, LIVE_JITTER[p.id] || null)
+      return pos ? { id: p.id, name: p.brand, category: p.category, deal: p.deal, county: p.county.toLowerCase(), pos } : null
+    })
+    .filter(Boolean)
+}
+
+function buildIncomingPins() {
+  const named = []
+  PARTNERS.filter(p => p.status === 'shell').forEach(p => {
+    if (p.counties) {
+      const jitters = INCOMING_JITTER[p.id] || p.counties.map(() => null)
+      p.counties.forEach((c, i) => {
+        const pos = at(c, jitters[i])
+        if (pos) named.push({ key: `${p.id}-${i}`, name: p.brand, category: p.category, county: c.toLowerCase(), pos })
+      })
+    } else if (p.county) {
+      const pos = at(p.county, INCOMING_JITTER[p.id] || null)
+      if (pos) named.push({ key: p.id, name: p.brand, category: p.category, county: p.county.toLowerCase(), pos })
+    }
+  })
+  return named
+}
+
+function buildMysteryPins() {
+  return MYSTERY_MAP_COUNTIES
+    .map(c => {
+      const pos = at(c, null)
+      return pos ? { county: c.toLowerCase(), pos } : null
+    })
+    .filter(Boolean)
+}
+
+const LIVE_PINS = buildLivePins()
+const INCOMING_PINS = buildIncomingPins()
+const MYSTERY_PINS = buildMysteryPins()
+
+// Every county with more than one pin — these render smaller, calmer (no
+// pulsing halo/shimmer), with a soft backing plate behind them so a crowded
+// county reads as one tidy, intentional group instead of clutter. A solo pin
+// elsewhere stays full-size and animated; it can afford to.
+const GROUP_BOUNDS = (() => {
+  const byCounty = {}
+  ;[...LIVE_PINS, ...INCOMING_PINS].forEach(p => {
+    if (!byCounty[p.county]) byCounty[p.county] = []
+    byCounty[p.county].push(p.pos)
+  })
+  const bounds = {}
+  Object.entries(byCounty).forEach(([county, positions]) => {
+    if (positions.length < 2) return
+    const xs = positions.map(p => p[0]), ys = positions.map(p => p[1])
+    bounds[county] = { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) }
+  })
+  return bounds
+})()
+const GROUPED_COUNTIES = new Set(Object.keys(GROUP_BOUNDS))
 
 // Flat, searchable index — every live + named-incoming partner plus every
 // county label, so the search box can jump straight to any of them.
 const SEARCH_INDEX = [
-  ...PARTNERS.filter(p => p.status === 'live' && p.county).map(p => ({
-    kind: 'live', id: p.id, name: p.brand, county: p.county.toLowerCase(), sub: p.category,
-  })),
-  ...PARTNERS.filter(p => p.status === 'shell' && (p.county || p.counties)).flatMap(p =>
-    (p.counties || [p.county]).map(c => ({
-      kind: 'incoming', id: p.id, name: p.brand, county: c.toLowerCase(), sub: p.category,
-    }))
-  ),
+  ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: p.name, county: p.county, sub: p.category })),
+  ...INCOMING_PINS.map(p => ({ kind: 'incoming', id: p.key, name: p.name, county: p.county, sub: p.category })),
   ...Object.keys(COUNTY_POS).map(k => ({ kind: 'county', id: k, name: COUNTY_LABEL[k], county: k, sub: 'County' })),
 ]
 
@@ -109,29 +170,14 @@ function CompassMark() {
   )
 }
 
-// ─── Count badge — the whole fix for "too many pins in one spot": one marker
-// communicates the number instead of N markers fighting for the same pixels. ─
-function CountBadge({ count, live }) {
-  const r = count > 9 ? 7.4 : 6.6
-  return (
-    <G transform="translate(6.5, -6.5)">
-      <Circle r={r} fill={colors.cream} stroke={live ? GOLD_DEEP : LOCKED} strokeWidth={1.4} />
-      <SvgText x={0} y={0.5} textAnchor="middle" alignmentBaseline="central" fontSize={count > 9 ? 7 : 7.6} fontWeight="700" fill={colors.navy}>
-        {count}
-      </SvgText>
-    </G>
-  )
-}
-
 // ─── A single pin — blueprint tack. Live = solid and seated. Incoming = the
-// same shape drafted as a dashed sketch, not yet inked. ───────────────────────
-// No looping/pulsing animation on individual pins here (unlike the website):
-// with up to 26 county markers on screen, this keeps JS-thread SVG animation
-// cheap. Liveliness comes from the one-time arrival sequence and the periodic
-// ping — both cheap, neither sustained.
-function Pin({ pinKey, live, x, y, badge, dimOpacity, matchRing, onPress }) {
+// same shape drafted as a dashed sketch, not yet inked. Compact = smaller,
+// calmer version used inside a crowded county so the group reads as tidy,
+// not busy; a solo pin elsewhere stays full-size and animated. ───────────────
+function Pin({ pinKey, live, x, y, compact, dimOpacity, matchRing, ping, onPress }) {
   const arriveOpacity = useRef(new Animated.Value(0)).current
-  const scale = badge ? 1.12 : 1
+  const r = compact ? 4.3 : 6.2
+  const hitR = compact ? 8 : 17
 
   return (
     <AnimatedG
@@ -140,31 +186,30 @@ function Pin({ pinKey, live, x, y, badge, dimOpacity, matchRing, onPress }) {
       onPress={onPress}
       accessibilityLabel={pinKey}
     >
-      {/* generous invisible hit area, independent of the small visual pin */}
-      <Circle r={badge ? 20 : 17} fill="rgba(0,0,0,0.001)" />
+      <Circle r={hitR} fill="rgba(0,0,0,0.001)" />
       {matchRing}
-      <Ellipse cx={0} cy={4} rx={5.6 * scale} ry={1.7 * scale} fill="rgba(0,0,0,0.26)" />
+      <Ellipse cx={0} cy={compact ? 3 : 4} rx={compact ? 3.9 : 5.6} ry={compact ? 1.2 : 1.7} fill="rgba(0,0,0,0.26)" />
 
       {live ? (
         <>
-          <Circle r={9.5 * scale} fill="rgba(201,162,75,0.35)" />
-          <Circle r={6.2 * scale} fill="url(#pmapGold)" stroke={GOLD_DEEP} strokeWidth={0.9} />
-          <Ellipse cx={-1.9 * scale} cy={-2.2 * scale} rx={2.1 * scale} ry={1.3 * scale} fill="rgba(255,250,235,0.75)" />
+          <Circle r={compact ? 6.6 : 9.5} fill="rgba(201,162,75,0.35)" />
+          <Circle r={r} fill="url(#pmapGold)" stroke={GOLD_DEEP} strokeWidth={0.9} />
+          <Ellipse cx={-r * 0.3} cy={-r * 0.36} rx={r * 0.34} ry={r * 0.21} fill="rgba(255,250,235,0.75)" />
         </>
       ) : (
         <>
-          <Circle r={6.2 * scale} fill="rgba(139,155,181,0.06)" stroke={LOCKED} strokeWidth={1.1} strokeDasharray="2.6 2.2" />
-          <Path d={`M0,${-2.6 * scale} L0,${2.6 * scale} M${-2.6 * scale},0 L${2.6 * scale},0`} stroke={LOCKED} strokeWidth={0.9} opacity={0.75} />
+          <Circle r={r} fill="rgba(139,155,181,0.06)" stroke={LOCKED} strokeWidth={1.1} strokeDasharray="2.6 2.2" />
+          <Path d={`M0,${-r * 0.42} L0,${r * 0.42} M${-r * 0.42},0 L${r * 0.42},0`} stroke={LOCKED} strokeWidth={0.9} opacity={0.75} />
         </>
       )}
-      {badge && <CountBadge count={badge} live={live} />}
+      {ping && <SignalRing x={0} y={0} color={GOLD} />}
       <ArrivalTrigger opacity={arriveOpacity} delay={0} />
     </AnimatedG>
   )
 }
 
 // Fires its one-time fade-in as soon as it mounts. Split out so each pin can
-// own its animation without the parent needing 26 refs.
+// own its animation without the parent needing 50+ refs.
 function ArrivalTrigger({ opacity, delay }) {
   useEffect(() => {
     Animated.timing(opacity, { toValue: 1, duration: 480, delay, useNativeDriver: false }).start()
@@ -190,27 +235,12 @@ function SignalRing({ x, y, color, maxR = 24, duration = 1900 }) {
   return <AnimatedCircle cx={x} cy={y} r={r} fill="none" stroke={color} strokeWidth={1.4} strokeOpacity={opacity} />
 }
 
-function ClusterRow({ live, name, category, deal, onPress }) {
-  const Wrapper = onPress ? TouchableOpacity : View
-  return (
-    <Wrapper style={styles.clusterRow} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
-      <View style={[styles.clusterSwatch, live ? styles.clusterSwatchLive : styles.clusterSwatchIncoming]} />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.clusterRowName} numberOfLines={1}>{name}</Text>
-        <Text style={styles.clusterRowSub} numberOfLines={1}>{category}{!live ? ' · launching soon' : ''}</Text>
-        {deal && <Text style={styles.clusterRowDeal} numberOfLines={1}>{deal}</Text>}
-      </View>
-      {onPress && <ChevronRight size={15} color={colors.light} />}
-    </Wrapper>
-  )
-}
-
 export default function PartnerMap({ onViewListing }) {
   const [active, setActive] = useState(null)
   const [ping, setPing] = useState(null)
   const [query, setQuery] = useState('')
   const [resultsOpen, setResultsOpen] = useState(false)
-  const [matchedKey, setMatchedKey] = useState(null)
+  const [matchedKeys, setMatchedKeys] = useState(new Set())
   const dimValues = useRef({}).current // pinKey -> Animated.Value, built lazily
 
   function dimFor(pinKey) {
@@ -219,11 +249,14 @@ export default function PartnerMap({ onViewListing }) {
   }
 
   useEffect(() => {
-    // Animate every cluster's dim value toward the right target whenever
-    // selection changes — cheap, one-shot transitions, not loops.
-    CLUSTERS.forEach(c => {
-      Animated.timing(dimFor(c.county), {
-        toValue: !active || active.pinKey === c.county ? 1 : 0.3,
+    const allKeys = [
+      ...LIVE_PINS.map(p => p.id),
+      ...INCOMING_PINS.map(p => p.key),
+      ...MYSTERY_PINS.map(p => `mystery-${p.county}`),
+    ]
+    allKeys.forEach(key => {
+      Animated.timing(dimFor(key), {
+        toValue: !active || active.pinKey === key ? 1 : 0.3,
         duration: 220,
         useNativeDriver: false,
       }).start()
@@ -232,10 +265,8 @@ export default function PartnerMap({ onViewListing }) {
 
   // A rare signal ping from a random live partner.
   useEffect(() => {
-    const liveList = PARTNERS.filter(p => p.status === 'live' && p.county)
     const id = setInterval(() => {
-      const p = liveList[Math.floor(Math.random() * liveList.length)]
-      if (p) setPing({ county: p.county.toLowerCase(), nonce: Date.now() })
+      setPing({ id: LIVE_PINS[Math.floor(Math.random() * LIVE_PINS.length)]?.id, nonce: Date.now() })
     }, PING_INTERVAL_MS)
     return () => clearInterval(id)
   }, [])
@@ -246,28 +277,26 @@ export default function PartnerMap({ onViewListing }) {
     return SEARCH_INDEX.filter(r => r.name.toLowerCase().includes(q)).slice(0, 8)
   }, [query])
 
-  function selectCluster(county) {
-    const cluster = CLUSTERS.find(c => c.county === county)
-    if (!cluster) return
-    if (cluster.total === 1) {
-      if (cluster.live[0]) return select(county, { live: true, ...cluster.live[0], id: cluster.live[0].id, name: cluster.live[0].brand, category: cluster.live[0].category })
-      if (cluster.incoming[0]) return select(county, { live: false, name: cluster.incoming[0].brand, category: cluster.incoming[0].category })
-      return select(county, { live: false, name: null, category: null })
-    }
-    setActive(prev => (prev && prev.pinKey === county ? null : { pinKey: county, isCluster: true, ...cluster }))
-  }
-
   function select(pinKey, data) {
     setActive(prev => (prev && prev.pinKey === pinKey ? null : { pinKey, ...data }))
   }
 
   function pickResult(r) {
-    selectCluster(r.county)
-    setMatchedKey(r.county)
+    if (r.kind === 'county') {
+      const keys = SEARCH_INDEX.filter(x => x.county === r.county && x.kind !== 'county').map(x => x.id)
+      setActive(null)
+      setMatchedKeys(new Set(keys.length ? keys : [`mystery-${r.county}`]))
+    } else if (r.kind === 'live') {
+      select(r.id, { live: true, ...LIVE_PINS.find(p => p.id === r.id) })
+      setMatchedKeys(new Set([r.id]))
+    } else {
+      select(r.id, { live: false, name: r.name, category: r.sub })
+      setMatchedKeys(new Set([r.id]))
+    }
     setQuery('')
     setResultsOpen(false)
     Keyboard.dismiss()
-    setTimeout(() => setMatchedKey(null), 2200)
+    setTimeout(() => setMatchedKeys(new Set()), 2200)
   }
 
   return (
@@ -344,59 +373,84 @@ export default function PartnerMap({ onViewListing }) {
           <Path d={IRELAND_PATH} fill="url(#pmapLand)" stroke="rgba(245,240,232,0.24)" strokeWidth={1.3} />
           <CompassMark />
 
-          {CLUSTERS.map((c, i) => {
-            const isPinging = c.total === 1 && c.live[0] && ping && ping.county === c.county
-            const isMatched = matchedKey === c.county
+          {/* Soft backing plates behind every crowded county — gives the eye a
+              boundary so a busy group reads as one designed unit, not clutter. */}
+          {Object.entries(GROUP_BOUNDS).map(([county, b]) => (
+            <Rect
+              key={`plate-${county}`}
+              x={b.minX - 8} y={b.minY - 8}
+              width={b.maxX - b.minX + 16} height={b.maxY - b.minY + 16}
+              rx={9}
+              fill="rgba(245,240,232,0.05)" stroke="rgba(245,240,232,0.14)" strokeWidth={0.8}
+            />
+          ))}
+
+          {MYSTERY_PINS.map(p => {
+            const key = `mystery-${p.county}`
             return (
               <Pin
-                key={c.county}
-                pinKey={c.county}
-                live={c.hasLive}
-                x={c.pos[0]} y={c.pos[1]}
-                badge={c.total > 1 ? c.total : null}
-                dimOpacity={dimFor(c.county)}
-                matchRing={isMatched ? <SignalRing x={0} y={0} color={colors.cream} maxR={19} duration={1300} /> : null}
-                onPress={() => selectCluster(c.county)}
+                key={key}
+                pinKey={key}
+                live={false}
+                x={p.pos[0]} y={p.pos[1]}
+                dimOpacity={dimFor(key)}
+                matchRing={matchedKeys.has(key) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
+                onPress={() => select(key, { live: false, name: null, category: null })}
               />
             )
           })}
 
-          {ping && (() => {
-            const cluster = CLUSTERS.find(c => c.county === ping.county && c.total === 1)
-            return cluster ? <SignalRing key={ping.nonce} x={cluster.pos[0]} y={cluster.pos[1]} color={GOLD} /> : null
-          })()}
+          {INCOMING_PINS.map(p => {
+            const compact = GROUPED_COUNTIES.has(p.county)
+            return (
+              <Pin
+                key={p.key}
+                pinKey={p.key}
+                live={false}
+                x={p.pos[0]} y={p.pos[1]}
+                compact={compact}
+                dimOpacity={dimFor(p.key)}
+                matchRing={matchedKeys.has(p.key) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
+                onPress={() => select(p.key, { live: false, name: p.name, category: p.category })}
+              />
+            )
+          })}
+
+          {LIVE_PINS.map(p => {
+            const compact = GROUPED_COUNTIES.has(p.county)
+            return (
+              <Pin
+                key={p.id}
+                pinKey={p.id}
+                live
+                x={p.pos[0]} y={p.pos[1]}
+                compact={compact}
+                dimOpacity={dimFor(p.id)}
+                matchRing={matchedKeys.has(p.id) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
+                ping={ping && ping.id === p.id}
+                onPress={() => select(p.id, { live: true, ...p })}
+              />
+            )
+          })}
+
+          {/* County name labels — always visible, resolved offline so none overlap. */}
+          {Object.entries(COUNTY_LABEL).map(([county, label]) => (
+            <SvgText
+              key={`label-${county}`}
+              x={COUNTY_POS[county][0]} y={LABEL_Y[county]}
+              textAnchor="middle" fontSize={7.2} fontWeight="600"
+              fill="rgba(245,240,232,0.5)"
+            >
+              {label}
+            </SvgText>
+          ))}
         </Svg>
       </View>
 
-      {/* ── Info card / cluster list ──────────────────────────────────── */}
+      {/* ── Info card ──────────────────────────────────────────────────── */}
       {active ? (
-        <View style={[styles.card, active.isCluster && styles.cardCluster]}>
-          {active.isCluster ? (
-            <>
-              <View style={styles.clusterHeader}>
-                <Text style={styles.cardName}>{active.label}</Text>
-                <View style={styles.clusterCountPill}>
-                  <Text style={styles.clusterCountText}>{active.total} partner{active.total === 1 ? '' : 's'}</Text>
-                </View>
-              </View>
-              <ScrollView style={styles.clusterList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                {active.live.map(p => (
-                  <ClusterRow key={p.id} live name={p.brand} category={p.category} deal={p.deal} onPress={() => onViewListing?.(p.id)} />
-                ))}
-                {active.incoming.map((p, i) => (
-                  <ClusterRow key={`${p.id}-${i}`} live={false} name={p.brand} category={p.category} />
-                ))}
-                {active.anonymous > 0 && (
-                  <View style={styles.clusterRow}>
-                    <Lock size={13} color={LOCKED} />
-                    <Text style={[styles.clusterRowSub, { flex: 1, marginLeft: 10 }]}>
-                      Unconfirmed partner joining soon — check back as the map fills in.
-                    </Text>
-                  </View>
-                )}
-              </ScrollView>
-            </>
-          ) : active.live ? (
+        <View style={styles.card}>
+          {active.live ? (
             <>
               <View style={styles.cardTopRow}>
                 <Text style={styles.cardName}>{active.name}</Text>
@@ -406,7 +460,10 @@ export default function PartnerMap({ onViewListing }) {
                 <Text style={styles.chip}>{active.category}</Text>
                 {!!active.deal && <Text style={[styles.chip, styles.dealChip]}>{active.deal}</Text>}
               </View>
-              <Text style={styles.viewListingLink} onPress={() => onViewListing?.(active.id)}>
+              <Text
+                style={styles.viewListingLink}
+                onPress={() => onViewListing?.(active.id)}
+              >
                 View full listing →
               </Text>
             </>
@@ -446,15 +503,6 @@ export default function PartnerMap({ onViewListing }) {
           <View style={[styles.legendDot, { borderColor: LOCKED, borderWidth: 1.2, borderStyle: 'dashed' }]} />
           <Text style={styles.legendText}>New Partner Incoming</Text>
         </View>
-        <View style={styles.legendItem}>
-          <View style={styles.legendBadgeSample}>
-            <View style={[styles.legendDot, { backgroundColor: GOLD, borderColor: GOLD_DEEP, borderWidth: 1 }]} />
-            <View style={styles.legendBadgeDot}>
-              <Text style={styles.legendBadgeDotText}>3</Text>
-            </View>
-          </View>
-          <Text style={styles.legendText}>Multiple Partners — tap for the list</Text>
-        </View>
       </View>
     </View>
   )
@@ -472,10 +520,7 @@ const styles = StyleSheet.create({
     borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9,
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.cream, padding: 0 },
-  searchResults: {
-    marginTop: 6, backgroundColor: colors.white, borderRadius: 10,
-    overflow: 'hidden',
-  },
+  searchResults: { marginTop: 6, backgroundColor: colors.white, borderRadius: 10, overflow: 'hidden' },
   searchEmpty: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, textAlign: 'center', padding: 14 },
   searchResultRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
@@ -499,7 +544,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  cardCluster: { justifyContent: 'flex-start' },
   cardIdle: { backgroundColor: 'rgba(30,58,95,0.04)', borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border },
   idleText: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, textAlign: 'center' },
 
@@ -528,31 +572,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
 
-  // Cluster drawer
-  clusterHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, marginBottom: 6 },
-  clusterCountPill: { backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3, flexShrink: 0 },
-  clusterCountText: { fontFamily: fonts.sansBold, fontSize: 10, color: colors.navy },
-  clusterList: { maxHeight: 260 },
-  clusterRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
-  clusterSwatch: { width: 12, height: 12, borderRadius: 6, flexShrink: 0 },
-  clusterSwatchLive: { backgroundColor: GOLD, borderWidth: 1, borderColor: GOLD_DEEP },
-  clusterSwatchIncoming: { borderWidth: 1.4, borderColor: LOCKED, borderStyle: 'dashed' },
-  clusterRowName: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  clusterRowSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
-  clusterRowDeal: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: GOLD_DEEP, marginTop: 2 },
-
   // These sit directly on the map's navy backdrop (see LifestyleScreen's
   // wrapping section), not on a card, so they need light-on-navy colours,
   // not the usual colors.muted.
-  legend: { flexDirection: 'row', gap: 16, flexWrap: 'wrap', justifyContent: 'center' },
+  legend: { flexDirection: 'row', gap: 20, flexWrap: 'wrap', justifyContent: 'center' },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   legendDot: { width: 9, height: 9, borderRadius: 4.5 },
   legendText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)' },
-  legendBadgeSample: { width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
-  legendBadgeDot: {
-    position: 'absolute', top: -4, right: -5, width: 10, height: 10, borderRadius: 5,
-    backgroundColor: colors.cream, borderWidth: 1, borderColor: GOLD_DEEP,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  legendBadgeDotText: { fontFamily: fonts.sansBold, fontSize: 6.5, color: colors.navy },
 })
