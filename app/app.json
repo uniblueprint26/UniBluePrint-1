@@ -32,6 +32,12 @@
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "69a062e2-f045-44c6-aeed-81e557ab3575"
+      }
+    },
+    "owner": "uniblueprint"
   }
 }
