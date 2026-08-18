@@ -6,7 +6,45 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+
+// TEMPORARY — remove once the "network request failed" sign-in issue is resolved.
+// Runs three isolated network checks so a single screenshot tells us exactly
+// which layer is failing instead of guessing through another round trip.
+async function runDiagnostic() {
+  const lines = []
+
+  lines.push(`URL configured: ${process.env.EXPO_PUBLIC_SUPABASE_URL || '(none — using placeholder)'}`)
+  lines.push(`Key configured: ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ? 'yes (' + process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY.length + ' chars)' : 'no'}`)
+
+  try {
+    const r = await fetch('https://www.google.com')
+    lines.push(`1. Plain internet fetch: OK (status ${r.status})`)
+  } catch (e) {
+    lines.push(`1. Plain internet fetch: FAILED — ${e.name}: ${e.message}`)
+  }
+
+  try {
+    const url = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/rest/v1/`
+    const r = await fetch(url, { headers: { apikey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '' } })
+    const body = await r.text()
+    lines.push(`2. Raw fetch to Supabase: OK (status ${r.status}) — ${body.slice(0, 80)}`)
+  } catch (e) {
+    lines.push(`2. Raw fetch to Supabase: FAILED — ${e.name}: ${e.message}`)
+  }
+
+  try {
+    const { error } = await supabase.auth.signInWithPassword({ email: 'diagnostic-probe@example.com', password: 'wrongpassword123' })
+    lines.push(error
+      ? `3. Supabase client call: server responded — ${error.name}: ${error.message}`
+      : `3. Supabase client call: unexpectedly succeeded`)
+  } catch (e) {
+    lines.push(`3. Supabase client call: FAILED — ${e.name}: ${e.message}${e.cause ? ' | cause: ' + JSON.stringify(e.cause) : ''}`)
+  }
+
+  Alert.alert('Diagnostic results', lines.join('\n\n'))
+}
 
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('')
@@ -110,6 +148,15 @@ export default function SignInScreen({ navigation }) {
             <Text style={styles.primaryBtnText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
           </TouchableOpacity>
 
+          {/* TEMPORARY — diagnostic button, remove once network issue is resolved */}
+          <TouchableOpacity
+            style={styles.diagnosticBtn}
+            activeOpacity={0.7}
+            onPress={runDiagnostic}
+          >
+            <Text style={styles.diagnosticBtnText}>Run connection diagnostic</Text>
+          </TouchableOpacity>
+
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>or</Text>
@@ -181,6 +228,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+
+  diagnosticBtn: { alignItems: 'center', marginTop: spacing.md, padding: 8 },
+  diagnosticBtnText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, textDecorationLine: 'underline' },
 
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: spacing.lg },
   dividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(30,58,95,0.1)' },
