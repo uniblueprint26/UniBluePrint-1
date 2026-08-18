@@ -1,22 +1,13 @@
 import { useState, useRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert } from 'react-native'
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ScrollView, Dimensions, KeyboardAvoidingView, Platform,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Calculator } from 'lucide-react-native'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import UBPLogo from '../../components/ui/UBPLogo'
-
-// TEMPORARY — remove once the "network request failed" sign-in issue is
-// resolved. Two chained iOS prompts (name, then college) so people can get
-// past the login wall and into the app for filming without hitting Supabase.
-function promptGuestAccess(guestSignIn) {
-  Alert.prompt('Your name', 'Just for this preview session.', name => {
-    if (!name?.trim()) return
-    Alert.prompt('Your college', 'e.g. ATU Sligo, UCD, TU Dublin…', institution => {
-      guestSignIn(name.trim(), institution?.trim() || '')
-    })
-  })
-}
 
 const { width } = Dimensions.get('window')
 
@@ -58,11 +49,18 @@ const SLIDES = [
   },
 ]
 
-export default function WelcomeScreen({ navigation }) {
+// TEMPORARY — the only way in right now is name + college, no sign-in/sign-up
+// screens are reachable from here. Restore the normal auth flow once the
+// "network request failed" issue is resolved.
+export default function WelcomeScreen() {
   const [slide, setSlide] = useState(0)
   const scrollRef = useRef(null)
   const insets = useSafeAreaInsets()
   const { guestSignIn } = useAuth()
+
+  const [name, setName] = useState('')
+  const [institution, setInstitution] = useState('')
+
   function goTo(i) {
     setSlide(i)
     scrollRef.current?.scrollTo({ x: i * width, animated: true })
@@ -73,87 +71,90 @@ export default function WelcomeScreen({ navigation }) {
     setSlide(idx)
   }
 
+  function handleContinue() {
+    if (!name.trim()) return
+    guestSignIn(name.trim(), institution.trim())
+  }
+
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={[styles.screen, { paddingTop: insets.top }]}>
 
-      {/* Logo header */}
-      <View style={styles.logoHeader}>
-        <UBPLogo height={44} color={colors.navy} variant="wordmark" />
-        <TouchableOpacity
-          style={styles.skipBtn}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('SignIn')}
+        {/* Logo header */}
+        <View style={styles.logoHeader}>
+          <UBPLogo height={44} color={colors.navy} variant="wordmark" />
+        </View>
+
+        {/* Slides */}
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={onScroll}
+          style={{ flex: 1 }}
         >
-          <Text style={styles.skipText}>Sign in</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Slides */}
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={onScroll}
-        style={{ flex: 1 }}
-      >
-        {SLIDES.map(({ icon: Icon, color, eyebrow, title, sub }, i) => (
-          <View key={i} style={[styles.slide, { width }]}>
-            <View style={[styles.iconWrap, { backgroundColor: color }]}>
-              <Icon size={40} color={colors.navy} />
+          {SLIDES.map(({ icon: Icon, color, eyebrow, title, sub }, i) => (
+            <View key={i} style={[styles.slide, { width }]}>
+              <View style={[styles.iconWrap, { backgroundColor: color }]}>
+                <Icon size={40} color={colors.navy} />
+              </View>
+              <Text style={styles.slideEyebrow}>{eyebrow}</Text>
+              <Text style={styles.slideTitle}>{title}</Text>
+              <Text style={styles.slideSub}>{sub}</Text>
             </View>
-            <Text style={styles.slideEyebrow}>{eyebrow}</Text>
-            <Text style={styles.slideTitle}>{title}</Text>
-            <Text style={styles.slideSub}>{sub}</Text>
+          ))}
+        </ScrollView>
+
+        {/* Dots */}
+        <View style={styles.dots}>
+          {SLIDES.map((_, i) => (
+            <TouchableOpacity key={i} onPress={() => goTo(i)} activeOpacity={0.7}>
+              <View style={[styles.dot, slide === i && styles.dotActive]} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Entry — name + college only */}
+        <View style={[styles.actions, { paddingBottom: insets.bottom + 24 }]}>
+          <View style={styles.inputWrap}>
+            <TextInput
+              style={styles.input}
+              placeholder="Your name"
+              placeholderTextColor={colors.light}
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              returnKeyType="next"
+            />
           </View>
-        ))}
-      </ScrollView>
-
-      {/* Dots */}
-      <View style={styles.dots}>
-        {SLIDES.map((_, i) => (
-          <TouchableOpacity key={i} onPress={() => goTo(i)} activeOpacity={0.7}>
-            <View style={[styles.dot, slide === i && styles.dotActive]} />
+          <View style={styles.inputWrap}>
+            <TextInput
+              style={styles.input}
+              placeholder="Your college (optional)"
+              placeholderTextColor={colors.light}
+              value={institution}
+              onChangeText={setInstitution}
+              autoCapitalize="words"
+              returnKeyType="done"
+              onSubmitEditing={handleContinue}
+            />
+          </View>
+          <TouchableOpacity
+            style={[styles.primaryBtn, !name.trim() && { opacity: 0.5 }]}
+            activeOpacity={0.85}
+            onPress={handleContinue}
+            disabled={!name.trim()}
+          >
+            <Text style={styles.primaryBtnText}>Continue</Text>
           </TouchableOpacity>
-        ))}
+        </View>
+
       </View>
-
-      {/* Actions */}
-      <View style={[styles.actions, { paddingBottom: insets.bottom + 24 }]}>
-        {slide < SLIDES.length - 1 ? (
-          <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={() => goTo(slide + 1)}>
-            <Text style={styles.primaryBtnText}>Next</Text>
-          </TouchableOpacity>
-        ) : (
-          <>
-            <TouchableOpacity
-              style={styles.primaryBtn}
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('SignUp')}
-            >
-              <Text style={styles.primaryBtnText}>Create Account</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.secondaryBtn}
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('SignIn')}
-            >
-              <Text style={styles.secondaryBtnText}>I already have an account</Text>
-            </TouchableOpacity>
-          </>
-        )}
-
-        {/* TEMPORARY — remove once sign-in network issue is resolved */}
-        <TouchableOpacity
-          style={styles.guestBtn}
-          activeOpacity={0.7}
-          onPress={() => promptGuestAccess(guestSignIn)}
-        >
-          <Text style={styles.guestBtnText}>Preview without an account</Text>
-        </TouchableOpacity>
-      </View>
-
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -163,12 +164,10 @@ const styles = StyleSheet.create({
   logoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: 8,
   },
-  skipBtn: { paddingVertical: 12 },
-  skipText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
 
   slide: {
     flex: 1, paddingHorizontal: spacing.md + 8,
@@ -203,16 +202,18 @@ const styles = StyleSheet.create({
   dotActive: { width: 24, backgroundColor: colors.navy },
 
   actions: { paddingHorizontal: spacing.md, gap: 12 },
+
+  inputWrap: {
+    backgroundColor: colors.white, borderRadius: radius.button,
+    paddingHorizontal: 16, minHeight: 52, justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
+    ...shadows.card,
+  },
+  input: { fontFamily: fonts.sans, fontSize: 15, color: colors.navy, paddingVertical: 14 },
+
   primaryBtn: {
     backgroundColor: colors.navy, borderRadius: radius.button,
     height: 54, alignItems: 'center', justifyContent: 'center',
   },
   primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
-  secondaryBtn: {
-    height: 48, alignItems: 'center', justifyContent: 'center',
-  },
-  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
-
-  guestBtn: { height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
-  guestBtnText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, textDecorationLine: 'underline' },
 })
