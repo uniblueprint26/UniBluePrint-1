@@ -1,9 +1,22 @@
 import { useState, useRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Calculator } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { useAuth } from '../../context/AuthContext'
 import UBPLogo from '../../components/ui/UBPLogo'
+
+// TEMPORARY — remove once the "network request failed" sign-in issue is
+// resolved. Two chained iOS prompts (name, then college) so people can get
+// past the login wall and into the app for filming without hitting Supabase.
+function promptGuestAccess(guestSignIn) {
+  Alert.prompt('Your name', 'Just for this preview session.', name => {
+    if (!name?.trim()) return
+    Alert.prompt('Your college', 'e.g. ATU Sligo, UCD, TU Dublin…', institution => {
+      guestSignIn(name.trim(), institution?.trim() || '')
+    })
+  })
+}
 
 const { width } = Dimensions.get('window')
 
@@ -49,6 +62,7 @@ export default function WelcomeScreen({ navigation }) {
   const [slide, setSlide] = useState(0)
   const scrollRef = useRef(null)
   const insets = useSafeAreaInsets()
+  const { guestSignIn } = useAuth()
   function goTo(i) {
     setSlide(i)
     scrollRef.current?.scrollTo({ x: i * width, animated: true })
@@ -128,6 +142,15 @@ export default function WelcomeScreen({ navigation }) {
             </TouchableOpacity>
           </>
         )}
+
+        {/* TEMPORARY — remove once sign-in network issue is resolved */}
+        <TouchableOpacity
+          style={styles.guestBtn}
+          activeOpacity={0.7}
+          onPress={() => promptGuestAccess(guestSignIn)}
+        >
+          <Text style={styles.guestBtnText}>Preview without an account</Text>
+        </TouchableOpacity>
       </View>
 
     </View>
@@ -189,4 +212,7 @@ const styles = StyleSheet.create({
     height: 48, alignItems: 'center', justifyContent: 'center',
   },
   secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+
+  guestBtn: { height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  guestBtnText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, textDecorationLine: 'underline' },
 })

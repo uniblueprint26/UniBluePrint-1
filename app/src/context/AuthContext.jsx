@@ -114,6 +114,10 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    if (user?.user_metadata?.guest) { // temporary guest session — nothing server-side to sign out of
+      setUser(null)
+      return
+    }
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
@@ -126,6 +130,23 @@ export function AuthProvider({ children }) {
   async function resendVerification(email) {
     const { error } = await supabase.auth.resend({ type: 'signup', email })
     if (error) throw error
+  }
+
+  // TEMPORARY — lets someone in with just a name and college, no Supabase
+  // call at all, so content can be filmed while the "network request failed"
+  // sign-in issue is being tracked down separately. Sets a local-only fake
+  // session; nothing here is persisted server-side. Remove once real sign-in
+  // is confirmed working.
+  function guestSignIn(name, institution) {
+    const fakeUser = {
+      id: `guest-${Date.now()}`,
+      email: 'guest@local',
+      email_confirmed_at: new Date(0).toISOString(), // truthy, skips the "verify your email" banner
+      user_metadata: { full_name: name, institution, guest: true },
+    }
+    setUser(fakeUser)
+    setRoles([])
+    setSubscription(null)
   }
 
   function hasRole(role) {
@@ -157,7 +178,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
       subscription, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
-      signIn, signUp, signOut, resetPassword, resendVerification,
+      signIn, signUp, signOut, resetPassword, resendVerification, guestSignIn,
       isHandler, isCoach, isFounder, isOperations, isBusiness,
       isStudioEligible, isAnyPortalEligible, studioLabel,
       portalMode, setPortalMode,
