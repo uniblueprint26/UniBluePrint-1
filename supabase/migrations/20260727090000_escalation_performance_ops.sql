@@ -432,7 +432,7 @@ begin
       insert into public.operations_notifications (type, message, handler_id, priority)
       values (
         'handler_performance_alert',
-        format('Handler scored %s this week (%s). Review recommended.', v_score, v_band),
+        format('Handler scored %s this week (%s). Review recommended.', round(v_score, 1), v_band),
         h.handler_id,
         case when v_score < 50 then 'urgent' else 'high' end
       );
@@ -556,8 +556,8 @@ begin
      set resolved = true, resolved_by = auth.uid(), resolved_at = now(), operations_action = 'reassigned'
    where ticket_id = p_ticket_id and resolved = false;
 
-  insert into public.handler_notifications (handler_id, type, message, priority)
-  values (p_new_handler_id, 'reassigned_to_you', 'A ticket has been assigned to you by Operations. Open the Handler Queue to review.', 'high');
+  insert into public.handler_notifications (handler_id, type, message, priority, ticket_id)
+  values (p_new_handler_id, 'reassigned_to_you', 'A ticket has been assigned to you by Operations. Open the Handler Queue to review.', 'high', p_ticket_id);
 end;
 $$;
 
@@ -621,8 +621,11 @@ begin
   select user_id into v_user_id from public.submissions where id = p_submission_id;
   if v_user_id is null then raise exception 'Submission not found'; end if;
 
+  -- Deliberately neutral title: this channel carries answers and status
+  -- updates as well as information requests, so a fixed "we need more
+  -- information" would mislabel most of what actually goes through it.
   insert into public.notifications (user_id, category, title, message)
-  values (v_user_id, 'foundation_blueprint', 'We need more information', p_message);
+  values (v_user_id, 'foundation_blueprint', 'A message about your submission', p_message);
 end;
 $$;
 
@@ -646,8 +649,8 @@ begin
   if v_tier = 'premium' then
     for h in select id from public.profiles where public.has_role(id, 'handler') and handler_status = 'active'
     loop
-      insert into public.handler_notifications (handler_id, type, message, priority)
-      values (h.id, 'premium_ticket_available', 'A new Premium ticket is available. Premium tickets have a 24-hour deadline. Open the queue to claim it.', 'high');
+      insert into public.handler_notifications (handler_id, type, message, priority, ticket_id)
+      values (h.id, 'premium_ticket_available', 'A new Premium ticket is available. Premium tickets have a 24-hour deadline. Open the queue to claim it.', 'high', new.id);
     end loop;
   end if;
   return new;

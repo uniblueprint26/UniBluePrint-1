@@ -46,11 +46,16 @@ export default function PipelineStatusTimeline({ submissionId }) {
   }
   if (!status) return null
 
+  // marked_incomplete covers two different endings — a Handler asking for more
+  // information, and Operations cancelling the submission (cancel_submission
+  // reuses this flag). The copy stays neutral because this component can't
+  // tell which one happened; the notification the student receives carries the
+  // specific reason, so pointing there beats guessing and contradicting it.
   if (status.marked_incomplete) {
     return (
       <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '20px 24px', marginTop: '20px' }}>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#374151', lineHeight: 1.65 }}>
-          We need a little more information to complete your request. Our team will be in touch shortly.
+          This submission is on hold while our team follows up with you. Check your notifications for the details.
         </p>
       </div>
     )
