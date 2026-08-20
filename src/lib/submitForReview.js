@@ -9,18 +9,25 @@ import { supabase } from './supabase'
  * both writes inside one function body — a single transaction — so they commit
  * together or not at all, and it verifies ownership of the document server-side.
  *
+ * Also records the turnaround tier at the point of submission (not on
+ * payment — nothing currently charges for premium) and stamps a turnaround
+ * deadline computed from it, and queues the submission into handler_queue so
+ * it's immediately visible to Handlers.
+ *
  * @param {string} table    whitelisted document table, e.g. 'cv_documents'
  * @param {string} documentId
  * @param {string} serviceName  matched against services.name for pricing linkage
  * @param {string} notes        short human label shown in the Handler queue
+ * @param {'standard'|'premium'} [tier]
  * @returns {Promise<string>}   the new submission id
  */
-export async function submitForReview(table, documentId, serviceName, notes) {
+export async function submitForReview(table, documentId, serviceName, notes, tier = 'standard') {
   const { data, error } = await supabase.rpc('submit_document_for_review', {
     p_table: table,
     p_document_id: documentId,
     p_service_name: serviceName,
     p_notes: notes,
+    p_tier: tier,
   })
   if (error) throw new Error(error.message || 'Could not submit for review. Please try again.')
   return data

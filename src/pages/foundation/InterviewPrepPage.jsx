@@ -11,6 +11,7 @@ import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import TierPicker from '../../components/foundation/TierPicker'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const TYPE_LABELS = { behavioural: 'Behavioural', technical: 'Technical', strengths_based: 'Strengths-based' }
@@ -26,6 +27,7 @@ export default function InterviewPrepPage() {
   const [error, setError] = useState('')
   const [pack, setPack] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
@@ -67,7 +69,12 @@ export default function InterviewPrepPage() {
     if (!pack) return
     setSubmitting(true)
     try {
-      await submitForReview('interview_prep_packs', pack.id, 'Interview Preparation — Standard Pack', `Interview Prep — ${targetRole}`)
+      // The seeded services also include "+ Mock Session" variants for both
+      // tiers, but the live mock-session feature itself isn't built anywhere
+      // yet — simplifying to the two base packs rather than offering an
+      // upsell for a feature that doesn't exist.
+      const serviceName = tier === 'premium' ? 'Interview Preparation — Premium Pack' : 'Interview Preparation — Standard Pack'
+      await submitForReview('interview_prep_packs', pack.id, serviceName, `Interview Prep — ${targetRole}`, tier)
             setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
@@ -159,6 +166,10 @@ export default function InterviewPrepPage() {
                 {pack.generated.confidence_tips?.map((t, i) => <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>{t}</li>)}
               </ul>
             </FormCard>
+
+            <div style={{ maxWidth: '360px' }}>
+              <TierPicker value={tier} onChange={setTier} />
+            </div>
 
             <button
               type="button" onClick={handleSubmitForReview} disabled={submitting}

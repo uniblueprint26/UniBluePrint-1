@@ -11,6 +11,7 @@ import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import TierPicker from '../../components/foundation/TierPicker'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 export default function CoverLetterBuilderPage() {
@@ -29,6 +30,7 @@ export default function CoverLetterBuilderPage() {
   const [error, setError] = useState('')
   const [letter, setLetter] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
   const [copied, setCopied] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
@@ -83,7 +85,8 @@ export default function CoverLetterBuilderPage() {
     setSubmitting(true)
     setError('')
     try {
-      await submitForReview('cover_letters', letter.id, 'Cover Letter Assistance — Standard', `Cover Letter — ${targetRole} at ${targetCompany}`)
+      const serviceName = tier === 'premium' ? 'Cover Letter Assistance — Premium' : 'Cover Letter Assistance — Standard'
+      await submitForReview('cover_letters', letter.id, serviceName, `Cover Letter — ${targetRole} at ${targetCompany}`, tier)
             setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
@@ -171,6 +174,9 @@ export default function CoverLetterBuilderPage() {
               </div>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#374151', marginTop: '12px', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{letter.generated.full_text}</p>
             </FormCard>
+            <div style={{ maxWidth: '360px' }}>
+              <TierPicker value={tier} onChange={setTier} />
+            </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button
                 type="button" onClick={handleSubmitForReview} disabled={submitting}

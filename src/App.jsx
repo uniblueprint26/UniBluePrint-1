@@ -4,6 +4,7 @@ import { useScrollToTop } from './hooks/useScrollToTop'
 import { useUTMCapture } from './hooks/useUTMCapture'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import RequireRole from './components/auth/RequireRole'
 import PageLoader from './components/layout/PageLoader'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -36,6 +37,7 @@ const PersonalStatementPage = lazy(() => import('./pages/foundation/PersonalStat
 const PortfolioBuildingPage = lazy(() => import('./pages/foundation/PortfolioBuildingPage'))
 const MyDocumentsPage = lazy(() => import('./pages/foundation/MyDocumentsPage'))
 const CareerProfilePage = lazy(() => import('./pages/foundation/CareerProfilePage'))
+const HandlerQueuePage = lazy(() => import('./pages/handler/HandlerQueuePage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -194,6 +196,14 @@ function AppRoutes() {
             <ProtectedRoute>
               <CareerProfilePage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/handler/queue"
+          element={
+            <RequireRole roles={['handler', 'operations']}>
+              <HandlerQueuePage />
+            </RequireRole>
           }
         />
         <Route path="/join-handler" element={<Navigate to="/join#handler-form" replace />} />

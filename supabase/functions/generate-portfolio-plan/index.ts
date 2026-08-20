@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
@@ -23,7 +24,9 @@ ${ANTI_HALLUCINATION_RULE}
 
 ${PROFILE_CONTEXT_RULE}
 
-${NON_TRADITIONAL_EVIDENCE_RULE}`
+${NON_TRADITIONAL_EVIDENCE_RULE}
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

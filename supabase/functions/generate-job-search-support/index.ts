@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 
@@ -58,7 +59,9 @@ APPLICATION QUALITY: 10 tailored, high-quality applications outperform 50 generi
 
 EMOTIONAL TONE: if the student's input suggests they're discouraged, frustrated, or have been job searching a long time with no results, the handler_guide's opening should acknowledge this before strategy — a student who doesn't feel heard won't absorb advice. The student_strategy's closing encouragement must reference at least one SPECIFIC detail about this student's actual situation — never a generic "job searching is hard" line that could apply to anyone.
 
-Write in clear, practical, second-person language for the student_strategy — this is a person's actual next 7 days, not a theoretical guide.`
+Write in clear, practical, second-person language for the student_strategy — this is a person's actual next 7 days, not a theoretical guide.
+
+${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
   type: 'object',

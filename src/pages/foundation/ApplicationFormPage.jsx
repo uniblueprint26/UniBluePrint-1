@@ -11,6 +11,7 @@ import { LIMITS } from '../../lib/fieldLimits'
 import { fetchActiveTarget } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import TierPicker from '../../components/foundation/TierPicker'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const COMPETENCY_TAGS = ['Teamwork', 'Leadership', 'Problem Solving', 'Communication', 'Initiative', 'Resilience', 'Client / Stakeholder Focus', 'Adaptability']
@@ -189,6 +190,7 @@ function AnswerFormTab({ userId }) {
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
@@ -234,7 +236,8 @@ function AnswerFormTab({ userId }) {
     if (!result) return
     setSubmitting(true)
     try {
-      await submitForReview('application_forms', result.id, 'Application Form Assistance — Standard', `Application Form — ${targetCompany || 'Untitled'}`)
+      const serviceName = tier === 'premium' ? 'Application Form Assistance — Premium' : 'Application Form Assistance — Standard'
+      await submitForReview('application_forms', result.id, serviceName, `Application Form — ${targetCompany || 'Untitled'}`, tier)
             setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
@@ -273,6 +276,9 @@ function AnswerFormTab({ userId }) {
             )}
           </FormCard>
         ))}
+        <div style={{ maxWidth: '360px' }}>
+          <TierPicker value={tier} onChange={setTier} />
+        </div>
         <button
           type="button" onClick={handleSubmitForReview} disabled={submitting}
           style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', alignSelf: 'flex-start' }}

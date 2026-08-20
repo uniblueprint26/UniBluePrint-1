@@ -11,6 +11,7 @@ import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
+import TierPicker from '../../components/foundation/TierPicker'
 
 export default function PortfolioBuildingPage() {
   const { runLocked } = useSubmitLock()
@@ -23,6 +24,7 @@ export default function PortfolioBuildingPage() {
   const [error, setError] = useState('')
   const [plan, setPlan] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
@@ -65,7 +67,8 @@ export default function PortfolioBuildingPage() {
     if (!plan) return
     setSubmitting(true)
     try {
-      await submitForReview('portfolio_plans', plan.id, 'Portfolio Building — Standard', `Portfolio Building — ${field}`)
+      const serviceName = tier === 'premium' ? 'Portfolio Building — Premium' : 'Portfolio Building — Standard'
+      await submitForReview('portfolio_plans', plan.id, serviceName, `Portfolio Building — ${field}`, tier)
             setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
@@ -137,6 +140,9 @@ export default function PortfolioBuildingPage() {
                 {plan.generated.presentation_tips?.map((t, i) => <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>{t}</li>)}
               </ul>
             </FormCard>
+            <div style={{ maxWidth: '360px' }}>
+              <TierPicker value={tier} onChange={setTier} />
+            </div>
             <button
               type="button" onClick={handleSubmitForReview} disabled={submitting}
               style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', alignSelf: 'flex-start' }}

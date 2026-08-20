@@ -11,6 +11,7 @@ import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
+import TierPicker from '../../components/foundation/TierPicker'
 
 const PATHWAYS = [
   ['ucas', 'UCAS (UK undergraduate)', 'Three structured questions — the new 2026 entry format.'],
@@ -33,6 +34,7 @@ export default function PersonalStatementPage() {
   const [error, setError] = useState('')
   const [doc, setDoc] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
@@ -91,7 +93,8 @@ export default function PersonalStatementPage() {
     if (!doc) return
     setSubmitting(true)
     try {
-      await submitForReview('personal_statements', doc.id, 'Personal Statement — Standard', `Personal Statement — ${targetCourse} at ${targetInstitution}`)
+      const serviceName = tier === 'premium' ? 'Personal Statement — Premium' : 'Personal Statement — Standard'
+      await submitForReview('personal_statements', doc.id, serviceName, `Personal Statement — ${targetCourse} at ${targetInstitution}`, tier)
             setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
@@ -194,6 +197,9 @@ export default function PersonalStatementPage() {
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#374151', marginTop: '12px', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{doc.generated.single_statement}</p>
               </FormCard>
             )}
+            <div style={{ maxWidth: '360px' }}>
+              <TierPicker value={tier} onChange={setTier} />
+            </div>
             <button
               type="button" onClick={handleSubmitForReview} disabled={submitting}
               style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', alignSelf: 'flex-start' }}

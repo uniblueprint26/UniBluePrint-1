@@ -16,6 +16,7 @@ import {
 import ScoreGauge from '../../components/foundation/ScoreGauge'
 import CvPreview from '../../components/foundation/CvPreview'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import TierPicker from '../../components/foundation/TierPicker'
 
 const STEPS = ['Personal', 'Target role', 'Education', 'Experience', 'Skills', 'Achievements', 'Style', 'Review']
 
@@ -50,6 +51,7 @@ export default function CvBuilderPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
+  const [tier, setTier] = useState('standard')
 
   // §08 Career Profile: start from what the user already told us. Only fills
   // blanks — anything already typed in this session is left alone — and stays
@@ -191,7 +193,8 @@ export default function CvBuilderPage() {
     setSubmitting(true)
     setError('')
     try {
-      await submitForReview('cv_documents', cvDoc.id, 'CV Optimisation — Standard', `CV Builder — ${cvDoc.title}`)
+      const serviceName = tier === 'premium' ? 'CV Optimisation — Premium' : 'CV Optimisation — Standard'
+      await submitForReview('cv_documents', cvDoc.id, serviceName, `CV Builder — ${cvDoc.title}`, tier)
       setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review. Please try again.')
@@ -278,6 +281,8 @@ export default function CvBuilderPage() {
             cvDoc={cvDoc}
             submitted={submitted}
             submitting={submitting}
+            tier={tier}
+            onTierChange={setTier}
             onSubmitForReview={handleSubmitForReview}
             onStartOver={() => { setDocument(null); setForm(initialForm); setStep(0); setSubmitted(false) }}
           />
@@ -469,7 +474,7 @@ function StyleStep({ form, set }) {
   )
 }
 
-function ReviewStep({ cvDoc, submitted, submitting, onSubmitForReview, onStartOver }) {
+function ReviewStep({ cvDoc, submitted, submitting, tier, onTierChange, onSubmitForReview, onStartOver }) {
   if (!cvDoc) return null
   if (submitted) {
     return (
@@ -531,7 +536,11 @@ function ReviewStep({ cvDoc, submitted, submitting, onSubmitForReview, onStartOv
         <CvPreview cvDoc={cvDoc} />
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+      <div style={{ maxWidth: '360px', marginTop: '24px' }}>
+        <TierPicker value={tier} onChange={onTierChange} />
+      </div>
+
+      <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
         <button
           type="button" onClick={() => window.print()}
           style={{ height: '48px', padding: '0 24px', background: '#FFFFFF', color: '#1E3A5F', border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}

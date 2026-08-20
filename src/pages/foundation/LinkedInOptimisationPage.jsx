@@ -11,6 +11,7 @@ import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults, flattenProfileSkills, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import TierPicker from '../../components/foundation/TierPicker'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const initialInput = {
@@ -31,6 +32,7 @@ export default function LinkedInOptimisationPage() {
   // finished document straight here via router state.
   const [cvDoc, setDocument] = useState(location.state?.document ?? null)
   const [submitting, setSubmitting] = useState(false)
+  const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
@@ -99,7 +101,8 @@ export default function LinkedInOptimisationPage() {
     setSubmitting(true)
     setError('')
     try {
-      await submitForReview('linkedin_documents', cvDoc.id, 'LinkedIn Optimisation — Standard', 'LinkedIn Optimisation')
+      const serviceName = tier === 'premium' ? 'LinkedIn Optimisation — Premium' : 'LinkedIn Optimisation — Standard'
+      await submitForReview('linkedin_documents', cvDoc.id, serviceName, 'LinkedIn Optimisation', tier)
             setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
@@ -200,6 +203,9 @@ export default function LinkedInOptimisationPage() {
                 {cvDoc.generated.featured_section_ideas?.map((f, i) => <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>{f}</li>)}
               </ul>
             </FormCard>
+            <div style={{ maxWidth: '360px' }}>
+              <TierPicker value={tier} onChange={setTier} />
+            </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button
                 type="button" onClick={handleSubmitForReview} disabled={submitting}
