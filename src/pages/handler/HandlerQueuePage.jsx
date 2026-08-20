@@ -3,12 +3,17 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import {
   Loader2, ArrowLeft, Clock, Zap, Check, Flag, AlertTriangle, ShieldAlert,
+  Bell, UserCog, XCircle, MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useUserRole } from '../../hooks/useUserRole'
 import {
   fetchUnclaimedQueue, fetchMyActiveAssignments, fetchSubmissionDetail,
   claimSubmission, startReview, deliverSubmission, flagSubmission, markIncomplete,
   hasTwoSentences,
+  fetchPremiumQueue, fetchStandardQueue, fetchOperationsQueue, listActiveHandlers,
+  reassignSubmission, cancelSubmission, contactStudent,
+  fetchHandlerNotifications, markNotificationRead,
 } from '../../lib/handlerQueue'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { FormCard, ErrorBanner } from '../../components/ui/Form'
@@ -16,35 +21,46 @@ import { FormCard, ErrorBanner } from '../../components/ui/Form'
 /**
  * The Campus Handler review queue — /handler/queue.
  *
- * Two lists (unclaimed, mine), one detail view. Deliberately functional
- * rather than polished: the content view renders input/generated jsonb
- * generically across all 7 document types rather than 7 bespoke renderers,
- * matching the same "visibility over prettiness" call MyDocumentsPage made.
+ * Four tabs: Premium Queue, Standard Queue, Mine, and (Operations only)
+ * Escalated. Deliberately functional rather than polished: the content view
+ * renders input/generated jsonb generically across all 7 document types
+ * rather than 7 bespoke renderers, matching the same "visibility over
+ * prettiness" call MyDocumentsPage made.
  */
 export default function HandlerQueuePage() {
   const { user } = useAuth()
+  const { isOperations } = useUserRole()
   const { runLocked } = useSubmitLock()
-  const [tab, setTab] = useState('queue')
-  const [unclaimed, setUnclaimed] = useState([])
+  const [tab, setTab] = useState('premium')
+  const [premium, setPremium] = useState([])
+  const [standard, setStandard] = useState([])
   const [mine, setMine] = useState([])
+  const [escalated, setEscalated] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState(null)
   const [claimingId, setClaimingId] = useState(null)
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [notifications, setNotifications] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [q, m] = await Promise.all([fetchUnclaimedQueue(), fetchMyActiveAssignments(user.id)])
-      setUnclaimed(q)
+      const tasks = [fetchPremiumQueue(), fetchStandardQueue(), fetchMyActiveAssignments(user.id), fetchHandlerNotifications(user.id)]
+      if (isOperations) tasks.push(fetchOperationsQueue())
+      const [p, s, m, n, e] = await Promise.all(tasks)
+      setPremium(p)
+      setStandard(s)
       setMine(m)
+      setNotifications(n)
+      if (isOperations) setEscalated(e || [])
     } catch (err) {
       setError(err.message || 'Could not load the queue.')
     } finally {
       setLoading(false)
     }
-  }, [user.id])
+  }, [user.id, isOperations])
 
   useEffect(() => { load() }, [load])
 
@@ -62,31 +78,78 @@ export default function HandlerQueuePage() {
     }
   })
 
+  const unreadCount = notifications.filter((n) => !n.read).length
+
+  const handleOpenNotifications = async () => {
+    setNotifOpen((v) => !v)
+    const unread = notifications.filter((n) => !n.read)
+    if (unread.length > 0) {
+      await Promise.all(unread.map((n) => markNotificationRead(n.id).catch(() => {})))
+      setNotifications((ns) => ns.map((n) => ({ ...n, read: true })))
+    }
+  }
+
   if (selected) {
     return (
       <SubmissionDetail
-        submission={selected}
+        submission={selected.row}
+        mode={selected.mode}
         onBack={() => setSelected(null)}
         onResolved={async () => { setSelected(null); await load() }}
       />
     )
   }
 
+  const tabs = [
+    { key: 'premium', label: `Premium Queue (${premium.length})` },
+    { key: 'standard', label: `Standard Queue (${standard.length})` },
+    { key: 'mine', label: `Mine (${mine.length})` },
+    ...(isOperations ? [{ key: 'escalated', label: `Escalated (${escalated.length})` }] : []),
+  ]
+
   return (
     <>
       <Helmet><title>Handler Queue | UniBlueprint</title></Helmet>
       <div style={{ maxWidth: '820px', margin: '0 auto', padding: '48px 24px 96px' }}>
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', textDecoration: 'none', marginBottom: '20px' }}>
-          <ArrowLeft size={14} aria-hidden="true" /> Home
-        </Link>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', textDecoration: 'none', marginBottom: '20px' }}>
+            <ArrowLeft size={14} aria-hidden="true" /> Home
+          </Link>
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button" onClick={handleOpenNotifications} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
+              style={{ position: 'relative', background: '#FFFFFF', border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Bell size={17} color="#1E3A5F" aria-hidden="true" />
+              {unreadCount > 0 && (
+                <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#DC2626', color: '#FFFFFF', fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, borderRadius: '9px', minWidth: '17px', height: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px' }}>
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            {notifOpen && (
+              <div style={{ position: 'absolute', right: 0, top: '46px', width: '320px', maxHeight: '360px', overflowY: 'auto', background: '#FFFFFF', borderRadius: '10px', boxShadow: '0px 8px 30px rgba(30,58,95,0.18)', zIndex: 10, padding: '10px' }}>
+                {notifications.length === 0 ? (
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', padding: '10px' }}>No notifications yet.</p>
+                ) : notifications.map((n) => (
+                  <div key={n.id} style={{ padding: '9px 10px', borderRadius: '7px', background: n.read ? 'transparent' : 'rgba(30,58,95,0.05)' }}>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#374151', lineHeight: 1.5 }}>{n.message}</p>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10.5px', color: '#9CA3AF', marginTop: '3px' }}>{new Date(n.created_at).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Handler Queue</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
           Claim a submission to review it. Every decision needs a note before it can go through.
         </p>
 
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '24px' }}>
-          <TabButton active={tab === 'queue'} onClick={() => setTab('queue')} label={`Unclaimed (${unclaimed.length})`} />
-          <TabButton active={tab === 'mine'} onClick={() => setTab('mine')} label={`My assignments (${mine.length})`} />
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', flexWrap: 'wrap' }}>
+          {tabs.map((t) => (
+            <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)} label={t.label} />
+          ))}
         </div>
 
         {error && <ErrorBanner message={error} onRetry={load} />}
@@ -95,41 +158,66 @@ export default function HandlerQueuePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
             <Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true" /> Loading…
           </div>
-        ) : tab === 'queue' ? (
-          unclaimed.length === 0 ? (
-            <EmptyState text="Nothing waiting — the queue is clear." />
+        ) : tab === 'premium' ? (
+          premium.length === 0 ? (
+            <EmptyState text="No premium tickets waiting. Premium submissions will appear here." />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {unclaimed.map((s) => (
-                <QueueRow
-                  key={s.id} submission={s}
-                  action={
-                    <button
-                      type="button" onClick={() => handleClaim(s.id)} disabled={claimingId === s.id}
-                      style={primaryButtonSmall(claimingId === s.id)}
-                    >
-                      {claimingId === s.id ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : 'Claim'}
-                    </button>
-                  }
-                />
+            <ListBlock>
+              {premium.map((s) => (
+                <QueueRow key={s.id} submission={s} action={<ClaimButton s={s} claimingId={claimingId} onClaim={handleClaim} />} />
               ))}
-            </div>
+            </ListBlock>
           )
-        ) : mine.length === 0 ? (
-          <EmptyState text="Nothing currently assigned to you." />
+        ) : tab === 'standard' ? (
+          standard.length === 0 ? (
+            <EmptyState text="No standard tickets waiting. Standard submissions will appear here." />
+          ) : (
+            <ListBlock>
+              {standard.map((s) => (
+                <QueueRow key={s.id} submission={s} action={<ClaimButton s={s} claimingId={claimingId} onClaim={handleClaim} />} />
+              ))}
+            </ListBlock>
+          )
+        ) : tab === 'mine' ? (
+          mine.length === 0 ? (
+            <EmptyState text="Nothing currently assigned to you." />
+          ) : (
+            <ListBlock>
+              {mine.map((s) => (
+                <QueueRow key={s.id} submission={s} onClick={() => setSelected({ row: s, mode: 'handler' })} clickable />
+              ))}
+            </ListBlock>
+          )
+        ) : escalated.length === 0 ? (
+          <EmptyState text="Nothing escalated, flagged, or incomplete right now." />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {mine.map((s) => (
-              <QueueRow key={s.id} submission={s} onClick={() => setSelected(s)} clickable />
+          <ListBlock>
+            {escalated.map((s) => (
+              <QueueRow key={s.ticket_id} submission={{ id: s.submission_id, ...s }} onClick={() => setSelected({ row: { id: s.submission_id, ...s }, mode: 'operations' })} clickable operationsView />
             ))}
-          </div>
+          </ListBlock>
         )}
       </div>
     </>
   )
 }
 
-function QueueRow({ submission: s, action, onClick, clickable }) {
+function ClaimButton({ s, claimingId, onClaim }) {
+  return (
+    <button
+      type="button" onClick={() => onClaim(s.id)} disabled={claimingId === s.id}
+      style={primaryButtonSmall(claimingId === s.id)}
+    >
+      {claimingId === s.id ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : 'Claim'}
+    </button>
+  )
+}
+
+function ListBlock({ children }) {
+  return <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>{children}</div>
+}
+
+function QueueRow({ submission: s, action, onClick, clickable, operationsView }) {
   const overdue = s.turnaround_deadline && new Date(s.turnaround_deadline) < new Date()
   return (
     <div
@@ -138,6 +226,7 @@ function QueueRow({ submission: s, action, onClick, clickable }) {
         background: '#FFFFFF', borderRadius: '10px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
         padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px',
         cursor: clickable ? 'pointer' : 'default',
+        border: operationsView ? '1.5px solid rgba(220,38,38,0.3)' : 'none',
       }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -150,13 +239,21 @@ function QueueRow({ submission: s, action, onClick, clickable }) {
               <Zap size={10} aria-hidden="true" /> Premium
             </span>
           )}
-          {s.marked_incomplete && (
+          {operationsView && s.queue_status && (
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10.5px', fontWeight: 700, color: '#DC2626', background: 'rgba(220,38,38,0.1)', padding: '2px 7px', borderRadius: '9px', textTransform: 'capitalize' }}>
+              {s.queue_status}
+            </span>
+          )}
+          {!operationsView && s.marked_incomplete && (
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10.5px', fontWeight: 700, color: '#DC2626', background: 'rgba(220,38,38,0.1)', padding: '2px 7px', borderRadius: '9px' }}>
               Marked incomplete
             </span>
           )}
         </div>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#374151', marginTop: '4px' }}>{s.notes || 'No label given'}</p>
+        {operationsView && s.handler_name && (
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px' }}>Was with: {s.handler_name}</p>
+        )}
         {s.turnaround_deadline && (
           <p style={{ display: 'flex', alignItems: 'center', gap: '4px', fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: overdue ? '#DC2626' : '#9CA3AF', marginTop: '4px' }}>
             <Clock size={11} aria-hidden="true" />
@@ -174,9 +271,9 @@ function TabButton({ active, onClick, label }) {
     <button
       type="button" onClick={onClick}
       style={{
-        padding: '10px 18px', borderRadius: '8px', border: active ? 'none' : '1.5px solid rgba(30,58,95,0.15)',
+        padding: '10px 16px', borderRadius: '8px', border: active ? 'none' : '1.5px solid rgba(30,58,95,0.15)',
         background: active ? '#1E3A5F' : '#FFFFFF', color: active ? '#F5F0E8' : '#1E3A5F',
-        fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', fontWeight: 600, cursor: 'pointer',
+        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
       }}
     >
       {label}
@@ -192,13 +289,17 @@ function EmptyState({ text }) {
   )
 }
 
-function SubmissionDetail({ submission, onBack, onResolved }) {
+function SubmissionDetail({ submission, mode, onBack, onResolved }) {
   const { runLocked } = useSubmitLock()
   const [detail, setDetail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
   const [acting, setActing] = useState(null)
+  const [handlers, setHandlers] = useState([])
+  const [reassignTo, setReassignTo] = useState('')
+  const [showCancel, setShowCancel] = useState(false)
+  const [refund, setRefund] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -207,20 +308,61 @@ function SubmissionDetail({ submission, onBack, onResolved }) {
       .then((d) => { if (!cancelled) setDetail(d) })
       .catch((err) => { if (!cancelled) setError(err.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
-    // Best-effort — moves the pipeline stage to in_review, but the review is
-    // still usable even if this particular call fails.
-    if (submission.stage === 'assigned') startReview(submission.id).catch(() => {})
+    if (mode === 'handler' && submission.stage === 'assigned') startReview(submission.id).catch(() => {})
+    if (mode === 'operations') listActiveHandlers().then(setHandlers).catch(() => {})
     return () => { cancelled = true }
-  }, [submission])
+  }, [submission, mode])
 
   const noteValid = hasTwoSentences(note)
 
   const handleAction = (label, fn) => runLocked(async () => {
-    if (!noteValid) { setError('Add a Handler note — at least two sentences — before submitting a decision.'); return }
+    if (!noteValid) { setError('Add a note — at least two sentences — before submitting a decision.'); return }
     setActing(label)
     setError('')
     try {
       await fn(submission.id, note)
+      onResolved()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setActing(null)
+    }
+  })
+
+  const handleReassign = () => runLocked(async () => {
+    if (!reassignTo) { setError('Choose a Handler to reassign to.'); return }
+    setActing('reassign')
+    setError('')
+    try {
+      await reassignSubmission(submission.ticket_id, reassignTo)
+      onResolved()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setActing(null)
+    }
+  })
+
+  const handleContact = () => runLocked(async () => {
+    if (!note.trim()) { setError('Write a message to send the student.'); return }
+    setActing('contact')
+    setError('')
+    try {
+      await contactStudent(submission.id, note)
+      onResolved()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setActing(null)
+    }
+  })
+
+  const handleCancel = () => runLocked(async () => {
+    if (!noteValid) { setError('A cancellation reason of at least two sentences is required.'); return }
+    setActing('cancel')
+    setError('')
+    try {
+      await cancelSubmission(submission.id, note, refund)
       onResolved()
     } catch (err) {
       setError(err.message)
@@ -249,60 +391,104 @@ function SubmissionDetail({ submission, onBack, onResolved }) {
           <div>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{detail.label}</span>
             <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', marginTop: '4px' }}>{detail.title}</h1>
+            {mode === 'operations' && submission.escalation_reason && (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#DC2626', marginTop: '6px' }}>
+                Escalated: {submission.escalation_reason} — was due {submission.deadline_was ? new Date(submission.deadline_was).toLocaleString('en-IE') : 'unknown'}
+              </p>
+            )}
           </div>
-
-          {detail.handlerNotes?.length > 0 && (
-            <div style={{ border: '2px dashed #9C6B26', borderRadius: '10px', padding: '16px 18px', background: 'rgba(156,107,38,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
-                <ShieldAlert size={15} color="#9C6B26" aria-hidden="true" />
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', fontWeight: 700, color: '#9C6B26', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Notes from the generator</span>
-              </div>
-              <ul style={{ margin: 0, paddingLeft: '18px' }}>
-                {detail.handlerNotes.map((n, i) => (
-                  <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>{n}</li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           <FormCard title="Student's submission">
             <DataView value={detail.input} />
           </FormCard>
 
+          {/* Handler Guidance sits between the student's submission and the AI
+              output on purpose — it's meant to inform the review, not confirm
+              it after the fact. Always rendered, with a fallback, rather than
+              only appearing when the generator happened to produce notes. */}
+          <div style={{ border: '2px dashed #9C6B26', borderRadius: '12px', padding: '20px', background: '#FFFFFF', borderLeft: '3px solid #1E3A5F' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+              <ShieldAlert size={15} color="#9C6B26" aria-hidden="true" />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9C6B26', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Handler Guidance</span>
+            </div>
+            {detail.handlerNotes?.length > 0 ? (
+              <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                {detail.handlerNotes.map((n, i) => (
+                  <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>{n}</li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6 }}>
+                No specific guidance for this submission type. Apply the standard quality checklist.
+              </p>
+            )}
+          </div>
+
           <FormCard title="Generated output">
             <DataView value={detail.generated} skipKeys={['handler_notes', 'benchmarked_against']} />
           </FormCard>
 
-          <FormCard title="Your decision">
-            <label htmlFor="handler_note" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 500, color: '#1E3A5F', display: 'block', marginBottom: '6px' }}>
-              Handler note <span style={{ color: '#DC2626' }}>*</span>
-              <span style={{ fontWeight: 400, color: '#9CA3AF' }}> — at least two sentences, required for any decision</span>
-            </label>
-            <textarea
-              id="handler_note" value={note} onChange={(e) => setNote(e.target.value)} rows={4} maxLength={2000}
-              style={{ width: '100%', border: '1.5px solid rgba(30,58,95,0.2)', borderRadius: '8px', padding: '12px 14px', fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#1E3A5F', boxSizing: 'border-box', resize: 'vertical' }}
-            />
-            {note && !noteValid && (
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#DC2626', marginTop: '5px' }}>Needs at least two sentences.</p>
-            )}
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
-              <ActionButton
-                label="Approve and deliver" icon={Check} tone="primary"
-                busy={acting === 'deliver'} onClick={handleAction('deliver', deliverSubmission)}
-              />
-              <ActionButton
-                label="Flag to Operations" icon={Flag} tone="secondary"
-                busy={acting === 'flag'} onClick={handleAction('flag', flagSubmission)}
-              />
-              <ActionButton
-                label="Mark incomplete" icon={AlertTriangle} tone="secondary"
-                busy={acting === 'incomplete'} onClick={handleAction('incomplete', markIncomplete)}
-              />
-            </div>
-          </FormCard>
+          {mode === 'handler' ? (
+            <FormCard title="Your decision">
+              <NoteField note={note} setNote={setNote} noteValid={noteValid} />
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
+                <ActionButton label="Approve and deliver" icon={Check} tone="primary" busy={acting === 'deliver'} onClick={handleAction('deliver', deliverSubmission)} />
+                <ActionButton label="Flag to Operations" icon={Flag} tone="secondary" busy={acting === 'flag'} onClick={handleAction('flag', flagSubmission)} />
+                <ActionButton label="Mark incomplete" icon={AlertTriangle} tone="secondary" busy={acting === 'incomplete'} onClick={handleAction('incomplete', markIncomplete)} />
+              </div>
+            </FormCard>
+          ) : (
+            <FormCard title="Operations actions">
+              <div style={{ marginBottom: '16px' }}>
+                <label htmlFor="reassign_to" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', fontWeight: 500, color: '#1E3A5F', display: 'block', marginBottom: '6px' }}>Reassign to</label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <select
+                    id="reassign_to" value={reassignTo} onChange={(e) => setReassignTo(e.target.value)}
+                    style={{ flex: 1, height: '42px', border: '1.5px solid rgba(30,58,95,0.2)', borderRadius: '8px', padding: '0 10px', fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#1E3A5F' }}
+                  >
+                    <option value="">Select a Handler…</option>
+                    {handlers.map((h) => <option key={h.id} value={h.id}>{h.full_name || h.id}</option>)}
+                  </select>
+                  <ActionButton label="Reassign" icon={UserCog} tone="primary" busy={acting === 'reassign'} onClick={handleReassign} />
+                </div>
+              </div>
+
+              <NoteField note={note} setNote={setNote} noteValid={noteValid} label="Note (used for delivery, cancellation, or the message to the student)" />
+
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
+                <ActionButton label="Deliver as Operations" icon={Check} tone="primary" busy={acting === 'deliver'} onClick={handleAction('deliver', deliverSubmission)} />
+                <ActionButton label="Contact student" icon={MessageCircle} tone="secondary" busy={acting === 'contact'} onClick={handleContact} />
+                <ActionButton label={showCancel ? 'Confirm cancel' : 'Cancel submission'} icon={XCircle} tone="secondary" busy={acting === 'cancel'} onClick={showCancel ? handleCancel : () => setShowCancel(true)} />
+              </div>
+              {showCancel && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#374151' }}>
+                  <input type="checkbox" checked={refund} onChange={(e) => setRefund(e.target.checked)} />
+                  Flag for full refund
+                </label>
+              )}
+            </FormCard>
+          )}
         </div>
       ) : null}
     </div>
+  )
+}
+
+function NoteField({ note, setNote, noteValid, label }) {
+  return (
+    <>
+      <label htmlFor="handler_note" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 500, color: '#1E3A5F', display: 'block', marginBottom: '6px' }}>
+        {label || 'Handler note'} <span style={{ color: '#DC2626' }}>*</span>
+        <span style={{ fontWeight: 400, color: '#9CA3AF' }}> — at least two sentences, required for any decision</span>
+      </label>
+      <textarea
+        id="handler_note" value={note} onChange={(e) => setNote(e.target.value)} rows={4} maxLength={2000}
+        style={{ width: '100%', border: '1.5px solid rgba(30,58,95,0.2)', borderRadius: '8px', padding: '12px 14px', fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#1E3A5F', boxSizing: 'border-box', resize: 'vertical' }}
+      />
+      {note && !noteValid && (
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#DC2626', marginTop: '5px' }}>Needs at least two sentences.</p>
+      )}
+    </>
   )
 }
 

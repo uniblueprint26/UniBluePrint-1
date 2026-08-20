@@ -12,6 +12,7 @@ import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfil
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const TYPE_LABELS = { behavioural: 'Behavioural', technical: 'Technical', strengths_based: 'Strengths-based' }
@@ -29,6 +30,7 @@ export default function InterviewPrepPage() {
   const [submitting, setSubmitting] = useState(false)
   const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [prefilled, setPrefilled] = useState(false)
 
   useEffect(() => {
@@ -74,8 +76,9 @@ export default function InterviewPrepPage() {
       // yet — simplifying to the two base packs rather than offering an
       // upsell for a feature that doesn't exist.
       const serviceName = tier === 'premium' ? 'Interview Preparation — Premium Pack' : 'Interview Preparation — Standard Pack'
-      await submitForReview('interview_prep_packs', pack.id, serviceName, `Interview Prep — ${targetRole}`, tier)
-            setSubmitted(true)
+      const subId = await submitForReview('interview_prep_packs', pack.id, serviceName, `Interview Prep — ${targetRole}`, tier)
+      setSubmissionId(subId)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
@@ -127,12 +130,15 @@ export default function InterviewPrepPage() {
             </form>
           </FormCard>
         ) : submitted ? (
-          <FormCard>
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
-            </div>
-          </FormCard>
+          <>
+            <FormCard>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
+              </div>
+            </FormCard>
+            <PipelineStatusTimeline submissionId={submissionId} />
+          </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <BenchmarkNote sources={pack.generated?.benchmarked_against} />

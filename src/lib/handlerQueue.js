@@ -111,3 +111,74 @@ export function hasTwoSentences(text) {
   const sentences = trimmed.split(/[.!?]+\s*/).filter(Boolean)
   return sentences.length >= 2
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Everything below is additive — escalation, performance tracking, the
+// Operations queue, and premium/standard queue separation. Nothing above this
+// line is touched.
+
+/** The unclaimed queue, filtered to one tier. Same shape as fetchUnclaimedQueue. */
+async function fetchUnclaimedByTier(tier) {
+  const { data, error } = await supabase
+    .from('handler_queue')
+    .select('submission_id, priority, queued_at, picked_at, submissions!inner(' + SUBMISSION_COLS + ')')
+    .is('picked_at', null)
+    .eq('submissions.tier', tier)
+    .order('queued_at', { ascending: true })
+  if (error) throw error
+  return (data || [])
+    .filter((row) => row.submissions)
+    .map((row) => ({ ...row.submissions, priority: row.priority, queued_at: row.queued_at }))
+}
+
+export const fetchPremiumQueue = () => fetchUnclaimedByTier('premium')
+export const fetchStandardQueue = () => fetchUnclaimedByTier('standard')
+
+/** Escalated / flagged / incomplete submissions — Operations only, gated server-side by fetch_operations_queue(). */
+export async function fetchOperationsQueue() {
+  const { data, error } = await supabase.rpc('fetch_operations_queue')
+  if (error) throw new Error(error.message)
+  return data || []
+}
+
+/** Active Handlers available to reassign a ticket to — Operations only, gated server-side. */
+export async function listActiveHandlers() {
+  const { data, error } = await supabase.rpc('list_active_handlers')
+  if (error) throw new Error(error.message)
+  return data || []
+}
+
+export async function reassignSubmission(ticketId, newHandlerId) {
+  const { error } = await supabase.rpc('reassign_submission', { p_ticket_id: ticketId, p_new_handler_id: newHandlerId })
+  if (error) throw new Error(error.message)
+}
+
+export async function cancelSubmission(submissionId, reason, fullRefund = false) {
+  const { error } = await supabase.rpc('cancel_submission', { p_submission_id: submissionId, p_reason: reason, p_full_refund: fullRefund })
+  if (error) throw new Error(error.message)
+}
+
+export async function contactStudent(submissionId, message) {
+  const { error } = await supabase.rpc('contact_student', { p_submission_id: submissionId, p_message: message })
+  if (error) throw new Error(error.message)
+}
+
+/** A Handler's own notifications (deadline warnings, escalation notices, reassignments, premium alerts). */
+export async function fetchHandlerNotifications(handlerId) {
+  const { data, error } = await supabase
+    .from('handler_notifications')
+    .select('id, type, message, priority, read, created_at')
+    .eq('handler_id', handlerId)
+    .order('created_at', { ascending: false })
+    .limit(30)
+  if (error) throw error
+  return data || []
+}
+
+export async function markNotificationRead(id) {
+  const { error } = await supabase
+    .from('handler_notifications')
+    .update({ read: true, read_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) throw error
+}

@@ -17,6 +17,7 @@ import ScoreGauge from '../../components/foundation/ScoreGauge'
 import CvPreview from '../../components/foundation/CvPreview'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 
 const STEPS = ['Personal', 'Target role', 'Education', 'Experience', 'Skills', 'Achievements', 'Style', 'Review']
 
@@ -50,6 +51,7 @@ export default function CvBuilderPage() {
   const [cvDoc, setDocument] = useState(location.state?.document ?? null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [prefilled, setPrefilled] = useState(false)
   const [tier, setTier] = useState('standard')
 
@@ -194,7 +196,8 @@ export default function CvBuilderPage() {
     setError('')
     try {
       const serviceName = tier === 'premium' ? 'CV Optimisation — Premium' : 'CV Optimisation — Standard'
-      await submitForReview('cv_documents', cvDoc.id, serviceName, `CV Builder — ${cvDoc.title}`, tier)
+      const subId = await submitForReview('cv_documents', cvDoc.id, serviceName, `CV Builder — ${cvDoc.title}`, tier)
+      setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review. Please try again.')
@@ -280,6 +283,7 @@ export default function CvBuilderPage() {
           <ReviewStep
             cvDoc={cvDoc}
             submitted={submitted}
+            submissionId={submissionId}
             submitting={submitting}
             tier={tier}
             onTierChange={setTier}
@@ -474,19 +478,22 @@ function StyleStep({ form, set }) {
   )
 }
 
-function ReviewStep({ cvDoc, submitted, submitting, tier, onTierChange, onSubmitForReview, onStartOver }) {
+function ReviewStep({ cvDoc, submitted, submissionId, submitting, tier, onTierChange, onSubmitForReview, onStartOver }) {
   if (!cvDoc) return null
   if (submitted) {
     return (
-      <FormCard>
-        <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <CheckCircle size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px' }}>
-            A Campus Handler will review your CV before it's delivered. You'll be notified when it's ready.
-          </p>
-        </div>
-      </FormCard>
+      <>
+        <FormCard>
+          <div style={{ textAlign: 'center', padding: '24px 0' }}>
+            <CheckCircle size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px' }}>
+              A Campus Handler will review your CV before it's delivered. You'll be notified when it's ready.
+            </p>
+          </div>
+        </FormCard>
+        <PipelineStatusTimeline submissionId={submissionId} />
+      </>
     )
   }
 

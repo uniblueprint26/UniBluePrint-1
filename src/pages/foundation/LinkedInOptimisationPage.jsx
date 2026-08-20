@@ -12,6 +12,7 @@ import { loadProfileDefaults, flattenProfileSkills, experienceNarrative } from '
 import { FormCard, FormField, FormInput, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const initialInput = {
@@ -34,6 +35,7 @@ export default function LinkedInOptimisationPage() {
   const [submitting, setSubmitting] = useState(false)
   const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [prefilled, setPrefilled] = useState(false)
 
   // §08 Career Profile: fill blanks only, on first load. Silent if there's no
@@ -102,8 +104,9 @@ export default function LinkedInOptimisationPage() {
     setError('')
     try {
       const serviceName = tier === 'premium' ? 'LinkedIn Optimisation — Premium' : 'LinkedIn Optimisation — Standard'
-      await submitForReview('linkedin_documents', cvDoc.id, serviceName, 'LinkedIn Optimisation', tier)
-            setSubmitted(true)
+      const subId = await submitForReview('linkedin_documents', cvDoc.id, serviceName, 'LinkedIn Optimisation', tier)
+      setSubmissionId(subId)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
@@ -172,12 +175,15 @@ export default function LinkedInOptimisationPage() {
             </form>
           </FormCard>
         ) : submitted ? (
-          <FormCard>
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
-            </div>
-          </FormCard>
+          <>
+            <FormCard>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
+              </div>
+            </FormCard>
+            <PipelineStatusTimeline submissionId={submissionId} />
+          </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <BenchmarkNote sources={cvDoc.generated?.benchmarked_against} />

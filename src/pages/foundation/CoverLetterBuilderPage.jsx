@@ -12,6 +12,7 @@ import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfil
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 export default function CoverLetterBuilderPage() {
@@ -32,6 +33,7 @@ export default function CoverLetterBuilderPage() {
   const [submitting, setSubmitting] = useState(false)
   const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [copied, setCopied] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
@@ -86,8 +88,9 @@ export default function CoverLetterBuilderPage() {
     setError('')
     try {
       const serviceName = tier === 'premium' ? 'Cover Letter Assistance — Premium' : 'Cover Letter Assistance — Standard'
-      await submitForReview('cover_letters', letter.id, serviceName, `Cover Letter — ${targetRole} at ${targetCompany}`, tier)
-            setSubmitted(true)
+      const subId = await submitForReview('cover_letters', letter.id, serviceName, `Cover Letter — ${targetRole} at ${targetCompany}`, tier)
+      setSubmissionId(subId)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
@@ -156,12 +159,15 @@ export default function CoverLetterBuilderPage() {
             </form>
           </FormCard>
         ) : submitted ? (
-          <FormCard>
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
-            </div>
-          </FormCard>
+          <>
+            <FormCard>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
+              </div>
+            </FormCard>
+            <PipelineStatusTimeline submissionId={submissionId} />
+          </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <BenchmarkNote sources={letter.generated?.benchmarked_against} />

@@ -12,6 +12,7 @@ import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfil
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 
 const PATHWAYS = [
   ['ucas', 'UCAS (UK undergraduate)', 'Three structured questions — the new 2026 entry format.'],
@@ -36,6 +37,7 @@ export default function PersonalStatementPage() {
   const [submitting, setSubmitting] = useState(false)
   const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [prefilled, setPrefilled] = useState(false)
 
   // §08 Career Profile: fills course/institution/goals and a life-experience
@@ -94,8 +96,9 @@ export default function PersonalStatementPage() {
     setSubmitting(true)
     try {
       const serviceName = tier === 'premium' ? 'Personal Statement — Premium' : 'Personal Statement — Standard'
-      await submitForReview('personal_statements', doc.id, serviceName, `Personal Statement — ${targetCourse} at ${targetInstitution}`, tier)
-            setSubmitted(true)
+      const subId = await submitForReview('personal_statements', doc.id, serviceName, `Personal Statement — ${targetCourse} at ${targetInstitution}`, tier)
+      setSubmissionId(subId)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
@@ -170,12 +173,15 @@ export default function PersonalStatementPage() {
             </form>
           </FormCard>
         ) : submitted ? (
-          <FormCard>
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
-            </div>
-          </FormCard>
+          <>
+            <FormCard>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
+              </div>
+            </FormCard>
+            <PipelineStatusTimeline submissionId={submissionId} />
+          </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {doc.pathway === 'ucas' ? (

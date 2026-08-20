@@ -12,6 +12,7 @@ import { fetchActiveTarget } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 
 const COMPETENCY_TAGS = ['Teamwork', 'Leadership', 'Problem Solving', 'Communication', 'Initiative', 'Resilience', 'Client / Stakeholder Focus', 'Adaptability']
@@ -192,6 +193,7 @@ function AnswerFormTab({ userId }) {
   const [submitting, setSubmitting] = useState(false)
   const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [prefilled, setPrefilled] = useState(false)
 
   useEffect(() => {
@@ -237,8 +239,9 @@ function AnswerFormTab({ userId }) {
     setSubmitting(true)
     try {
       const serviceName = tier === 'premium' ? 'Application Form Assistance — Premium' : 'Application Form Assistance — Standard'
-      await submitForReview('application_forms', result.id, serviceName, `Application Form — ${targetCompany || 'Untitled'}`, tier)
-            setSubmitted(true)
+      const subId = await submitForReview('application_forms', result.id, serviceName, `Application Form — ${targetCompany || 'Untitled'}`, tier)
+      setSubmissionId(subId)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
@@ -248,12 +251,15 @@ function AnswerFormTab({ userId }) {
 
   if (submitted) {
     return (
-      <FormCard>
-        <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
-        </div>
-      </FormCard>
+      <>
+        <FormCard>
+          <div style={{ textAlign: 'center', padding: '24px 0' }}>
+            <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Handler review</h2>
+          </div>
+        </FormCard>
+        <PipelineStatusTimeline submissionId={submissionId} />
+      </>
     )
   }
 

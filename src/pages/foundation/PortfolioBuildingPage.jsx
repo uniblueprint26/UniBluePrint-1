@@ -12,6 +12,7 @@ import { loadProfileDefaults } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
 import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 
 export default function PortfolioBuildingPage() {
   const { runLocked } = useSubmitLock()
@@ -26,6 +27,7 @@ export default function PortfolioBuildingPage() {
   const [submitting, setSubmitting] = useState(false)
   const [tier, setTier] = useState('standard')
   const [submitted, setSubmitted] = useState(false)
+  const [submissionId, setSubmissionId] = useState(null)
   const [prefilled, setPrefilled] = useState(false)
 
   useEffect(() => {
@@ -68,8 +70,9 @@ export default function PortfolioBuildingPage() {
     setSubmitting(true)
     try {
       const serviceName = tier === 'premium' ? 'Portfolio Building — Premium' : 'Portfolio Building — Standard'
-      await submitForReview('portfolio_plans', plan.id, serviceName, `Portfolio Building — ${field}`, tier)
-            setSubmitted(true)
+      const subId = await submitForReview('portfolio_plans', plan.id, serviceName, `Portfolio Building — ${field}`, tier)
+      setSubmissionId(subId)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message || 'Could not submit for review.')
     } finally {
@@ -113,12 +116,15 @@ export default function PortfolioBuildingPage() {
             </form>
           </FormCard>
         ) : submitted ? (
-          <FormCard>
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Coach review</h2>
-            </div>
-          </FormCard>
+          <>
+            <FormCard>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Check size={48} color="#16A34A" aria-hidden="true" style={{ marginBottom: '12px' }} />
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>Sent for Coach review</h2>
+              </div>
+            </FormCard>
+            <PipelineStatusTimeline submissionId={submissionId} />
+          </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <FormCard>
