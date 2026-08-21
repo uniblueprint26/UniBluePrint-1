@@ -163,6 +163,46 @@ export async function contactStudent(submissionId, message) {
   if (error) throw new Error(error.message)
 }
 
+/**
+ * The quality scorecard and the decision, in one call.
+ *
+ * These have to be atomic — a review without a decision, or a decision without
+ * a review, is exactly the orphan state the scorecard exists to prevent. A
+ * browser cannot hold a transaction across two rpc() calls, so the pairing
+ * happens server-side inside submit_handler_decision, which calls the original
+ * deliver/flag/incomplete RPC itself.
+ *
+ * @param {'approved'|'flagged'|'incomplete'} decision
+ * @param {{accuracy:number,quality:number,completeness:number,tone:number,deliverability:number}} scores
+ * @param {boolean} lowScoreOverride  handler explicitly confirmed a composite below 11
+ */
+export async function submitHandlerDecision(submissionId, decision, note, scores, lowScoreOverride = false) {
+  const { error } = await supabase.rpc('submit_handler_decision', {
+    p_submission_id: submissionId,
+    p_decision: decision,
+    p_handler_note: note,
+    p_accuracy: scores.accuracy,
+    p_quality: scores.quality,
+    p_completeness: scores.completeness,
+    p_tone: scores.tone,
+    p_deliverability: scores.deliverability,
+    p_low_score_override: lowScoreOverride,
+  })
+  if (error) throw new Error(error.message)
+}
+
+/**
+ * Records that this Handler tried to claim, before the claim itself runs.
+ *
+ * Deliberately a separate call: a lost race makes claim_submission raise, which
+ * rolls its whole transaction back, so an attempt recorded inside it would
+ * vanish precisely in the case worth measuring.
+ */
+export async function recordClaimAttempt(submissionId) {
+  const { error } = await supabase.rpc('record_claim_attempt', { p_submission_id: submissionId })
+  if (error) throw new Error(error.message)
+}
+
 /** A Handler's own notifications (deadline warnings, escalation notices, reassignments, premium alerts). */
 export async function fetchHandlerNotifications(handlerId) {
   const { data, error } = await supabase
