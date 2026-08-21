@@ -1,7 +1,9 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
-import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
-import { fetchIndustryExamples, fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
+import { bankForResolvedIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
+import type { ResolvedIndustry } from '../_shared/industries.ts'
+import { fetchIndustryExamples, citableSources } from '../_shared/exampleLibrary.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import {
   ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
@@ -143,15 +145,21 @@ Deno.serve(async (req: Request) => {
     const validationError = validateInput(input)
     if (validationError) return jsonResponse({ error: validationError }, 422)
 
-    const [examples, intelligence] = await Promise.all([
-      fetchIndustryExamples(supabase, 'cv_bullet', targetIndustry, 3),
-      fetchIndustryIntelligence(supabase, targetIndustry, 8),
-    ])
+    // Resolution now goes through the controlled vocabulary, with the student's
+    // course as a fallback when the stated industry doesn't map to anything.
+    const industryCtx = await resolveIndustryContext(
+      supabase,
+      targetIndustry,
+      doc.target_course || target?.target_course,
+    )
+    const examples = await fetchIndustryExamples(supabase, 'cv_bullet', industryCtx.industry, 3)
+    const intelligence = industryCtx.intelligence
 
     const userContent = JSON.stringify({
       personal_info: input.personal_info,
       target: {
-        industry: targetIndustry,
+        industry: industryCtx.industry,
+        industry_as_stated: targetIndustry,
         role: targetRole,
         company: targetCompany,
         emphasis: input.target_emphasis,
@@ -169,7 +177,7 @@ Deno.serve(async (req: Request) => {
     })
 
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}\n\n${industryCtx.promptBlock}`,
       userContent,
       toolName: 'submit_cv',
       toolDescription: 'Submit the generated CV content, structured by section.',
@@ -177,11 +185,11 @@ Deno.serve(async (req: Request) => {
       maxTokens: 4096,
     })
 
-    const atsReport = computeAtsReport(result, input, targetIndustry, targetRole, jobDescription)
+    const atsReport = computeAtsReport(result, input, industryCtx.industry, targetRole, jobDescription)
     const allSources = [...examples, ...intelligence]
     const resultWithBenchmark = {
-      ...result,
-      benchmarked_against: allSources.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+      ...withIndustryHandlerNote(result, industryCtx),
+      benchmarked_against: citableSources(allSources),
     }
 
     const { data: updated, error: updateErr } = await supabase
@@ -278,15 +286,17 @@ function validateInput(input: Record<string, unknown>): string | null {
 function computeAtsReport(
   generated: Record<string, unknown>,
   input: Record<string, unknown>,
-  targetIndustry: string | null,
+  // Already resolved through the controlled vocabulary by the caller, so this
+  // takes the resolved value rather than re-deriving it from free text.
+  resolvedIndustry: ResolvedIndustry,
   targetRole: string | null,
   jobDescription: string | null,
 ) {
   const generatedText = JSON.stringify(generated).toLowerCase()
 
   const keywords = jobDescription
-    ? extractJdKeywords(jobDescription, targetIndustry)
-    : bankForIndustry(targetIndustry)
+    ? extractJdKeywords(jobDescription, resolvedIndustry)
+    : bankForResolvedIndustry(resolvedIndustry)
   const { score: keywordScore, matched, missing } = scoreKeywordMatch(generatedText, keywords)
 
   const roleTerms = (targetRole || '').toLowerCase().split(/\s+/).filter(w => w.length > 3)

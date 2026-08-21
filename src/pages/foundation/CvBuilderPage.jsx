@@ -16,6 +16,7 @@ import {
 import ScoreGauge from '../../components/foundation/ScoreGauge'
 import CvPreview from '../../components/foundation/CvPreview'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
+import IndustrySelect from '../../components/foundation/IndustrySelect'
 import TierPicker from '../../components/foundation/TierPicker'
 import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 
@@ -346,7 +347,14 @@ function TargetStep({ form, set }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       <h2 style={sectionHeading}>Target role</h2>
-      <FormField id="target_industry" label="Industry / field" required><FormInput id="target_industry" value={form.target_industry} onChange={set('target_industry')} placeholder="e.g. Technology, Healthcare, Finance" required maxLength={LIMITS.SHORT} /></FormField>
+      <FormField id="target_industry" label="Industry / field" required>
+        <IndustrySelect
+          id="target_industry"
+          value={form.target_industry}
+          onChange={set('target_industry')}
+          required
+        />
+      </FormField>
       <FormField id="target_role" label="Job title / role" hint="Optional — leave blank for a general CV"><FormInput id="target_role" value={form.target_role} onChange={set('target_role')} maxLength={LIMITS.SHORT} /></FormField>
       <FormField id="opportunity_type" label="Type of opportunity" hint="Optional — leave blank for a general CV">
         <FormSelect id="opportunity_type" value={form.opportunity_type} onChange={set('opportunity_type')}>

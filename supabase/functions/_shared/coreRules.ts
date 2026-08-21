@@ -33,7 +33,9 @@ export function buzzwordRule(extra?: string): string {
  * (what kind of example, from where) is passed in.
  */
 export function realExamplesRule(whatTheyAre: string): string {
-  return `REAL EXAMPLES — you will be given ${whatTheyAre} in the input as real_examples. They are there so you can calibrate what genuinely effective writing looks like in this context: the level of specificity, what kind of detail actually earns attention, how evidence gets used. Study why each one works. NEVER copy an example's wording, numbers, structure, or facts into your output — everything you write must be built entirely from this specific person's own input.`
+  return `CALIBRATION EXAMPLES — you will be given ${whatTheyAre} in the input as real_examples. They are there so you can calibrate what genuinely effective writing looks like in this context: the level of specificity, what kind of detail actually earns attention, how evidence gets used. Study why each one works.
+
+Some are externally published and sourced; others are exemplars written in-house to demonstrate the standard. Both are calibration material only. Treat every name, employer, number and setting in them as illustrative — none of it describes the person you are writing for. NEVER copy an example's wording, numbers, structure, or facts into your output; everything you write must be built entirely from this specific person's own input.`
 }
 
 /** Shared description for the handler_notes field in every output schema. */

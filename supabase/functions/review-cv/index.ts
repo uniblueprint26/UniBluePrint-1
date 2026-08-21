@@ -1,7 +1,8 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
-import { bankForIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
-import { fetchIndustryIntelligence } from '../_shared/exampleLibrary.ts'
+import { bankForResolvedIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
+import { resolveIndustryContext } from '../_shared/industryContext.ts'
+import { citableSources } from '../_shared/exampleLibrary.ts'
 import { LIMITS, checkLengths } from '../_shared/fieldLimits.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV reviewer combining the judgement of a recruiter, an ATS specialist, and a university careers advisor. You are reviewing a CV someone already has — not writing one from scratch.
@@ -55,15 +56,18 @@ Deno.serve(async (req: Request) => {
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
-    const industryGuess = industry || target_role || null
-    const intelligence = await fetchIndustryIntelligence(supabase, industry, 8)
+    // The role is a usable fallback signal when no industry was given — a
+    // pasted CV often names the role and nothing else.
+    const industryCtx = await resolveIndustryContext(supabase, industry || target_role, null)
+    const intelligence = industryCtx.intelligence
 
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         cv_text: raw_text,
         target_role: target_role || null,
         job_description: job_description || null,
+        resolved_industry: industryCtx.industry,
         industry_intelligence: intelligence.map(i => ({ dimension: i.dimension, content: i.content })),
       }),
       toolName: 'submit_cv_review',
@@ -75,8 +79,8 @@ Deno.serve(async (req: Request) => {
     // Deterministic scoring, same 40/35/25 weighting as CV Review's real-world
     // ATS-checker source — kept separate from the model's qualitative findings above.
     const keywords = job_description
-      ? extractJdKeywords(job_description, industryGuess)
-      : bankForIndustry(industryGuess)
+      ? extractJdKeywords(job_description, industryCtx.industry)
+      : bankForResolvedIndustry(industryCtx.industry)
     const { score: keywordScore, matched, missing } = scoreKeywordMatch(raw_text.toLowerCase(), keywords)
 
     const roleTerms = (target_role || '').toLowerCase().split(/\s+/).filter((w: string) => w.length > 3)
@@ -102,7 +106,7 @@ Deno.serve(async (req: Request) => {
 
     const report = {
       ...result,
-      benchmarked_against: intelligence.map(i => ({ source_name: i.source_name, source_url: i.source_url })),
+      benchmarked_against: citableSources(intelligence),
       ats_report: {
         overall_score: overall,
         keyword_match_score: keywordScore,

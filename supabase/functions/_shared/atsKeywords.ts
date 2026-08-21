@@ -1,44 +1,93 @@
 // ATS keyword banks by field, gathered from published 2026 ATS/recruiter guidance
 // (see the Foundation Blueprint research artifact for sourcing). Used for deterministic
 // keyword-match scoring — never left to the model to self-grade.
+//
+// Keyed by the controlled INDUSTRIES vocabulary. Previously these were keyed by
+// eight loose names matched with a substring scan, which silently sent anything
+// unrecognised to `general` — and mis-keyed real inputs along the way
+// ('hospitality' contains 'it', so it resolved to technology).
 
-export const ATS_KEYWORD_BANKS: Record<string, string[]> = {
-  technology: [
+import { GENERAL, type Industry, type ResolvedIndustry } from './industries.ts'
+
+export const ATS_KEYWORD_BANKS: Record<Industry | typeof GENERAL, string[]> = {
+  'Technology and Software': [
     'python', 'javascript', 'typescript', 'java', 'react', 'node.js', 'aws', 'azure',
     'gcp', 'ci/cd', 'agile', 'scrum', 'git', 'docker', 'kubernetes', 'sql', 'rest api',
     'microservices', 'unit testing', 'debugging', 'cloud', 'devops',
   ],
-  healthcare: [
-    'ehr', 'emr', 'hipaa', 'patient care', 'telehealth', 'remote patient monitoring',
-    'value-based care', 'clinical', 'nmbi', 'infection control', 'care plan',
-    'multidisciplinary team', 'patient safety',
+  'Healthcare and Nursing': [
+    'ehr', 'emr', 'patient care', 'telehealth', 'remote patient monitoring',
+    'value-based care', 'clinical', 'nmbi', 'coru', 'infection control', 'care plan',
+    'multidisciplinary team', 'patient safety', 'clinical placement', 'safeguarding',
+    'manual handling', 'basic life support',
   ],
-  engineering: [
-    'cad', 'solidworks', 'autocad', 'catia', 'matlab', 'finite element analysis',
-    'lean manufacturing', 'six sigma', 'quality assurance', 'process improvement',
-    'gmp', 'leed', 'project engineering', 'root cause analysis',
+  Engineering: [
+    'cad', 'solidworks', 'autocad', 'catia', 'matlab', 'revit', 'civil 3d',
+    'finite element analysis', 'lean manufacturing', 'six sigma', 'quality assurance',
+    'process improvement', 'gmp', 'leed', 'project engineering', 'root cause analysis',
+    'engineers ireland', 'chartered engineer',
   ],
-  finance: [
+  'Finance and Accounting': [
     'financial modelling', 'excel', 'valuation', 'dcf', 'budgeting', 'forecasting',
     'reconciliation', 'ifrs', 'gaap', 'audit', 'risk management', 'compliance',
-    'financial reporting', 'variance analysis',
+    'financial reporting', 'variance analysis', 'aca', 'acca', 'cima',
   ],
-  business: [
+  'Business and Management': [
     'stakeholder management', 'project management', 'kpi', 'process improvement',
     'client relations', 'business development', 'market research', 'crm',
-    'presentation', 'negotiation', 'cross-functional',
+    'presentation', 'negotiation', 'cross-functional', 'commercial awareness',
+    'power bi', 'tableau',
   ],
-  law: [
+  Law: [
     'legal research', 'drafting', 'due diligence', 'contract review', 'litigation',
-    'compliance', 'regulatory', 'case management', 'legal writing',
+    'compliance', 'regulatory', 'case management', 'legal writing', 'fe-1', 'ppc',
+    'training contract',
   ],
-  education: [
+  'Education and Teaching': [
     'lesson planning', 'curriculum design', 'classroom management', 'differentiated instruction',
-    'assessment', 'sen', 'behaviour management', 'student engagement',
+    'assessment', 'sen', 'behaviour management', 'student engagement', 'teaching council',
+    'garda vetting', 'school placement', 'droichead',
   ],
-  creative: [
+  'Creative and Media': [
     'adobe creative suite', 'figma', 'brand identity', 'portfolio', 'content creation',
-    'copywriting', 'visual design', 'ux', 'ui', 'storytelling',
+    'copywriting', 'visual design', 'ux', 'ui', 'storytelling', 'after effects',
+    'premiere pro', 'davinci resolve',
+  ],
+  'Science and Research': [
+    'pcr', 'elisa', 'western blot', 'chromatography', 'cell culture', 'assay development',
+    'bioinformatics', 'spss', 'graphpad', 'gmp', 'glp', 'data analysis', 'statistical analysis',
+    'literature review', 'regulatory affairs', 'validation',
+  ],
+  'Construction and Architecture': [
+    'revit', 'archicad', 'autocad', 'bim', 'safe pass', 'quantity surveying',
+    'cost planning', 'tendering', 'site management', 'building regulations',
+    'planning permission', 'riai', 'scsi', 'snagging',
+  ],
+  'Hospitality and Tourism': [
+    'haccp', 'food safety', 'front of house', 'covers', 'guest experience', 'occupancy',
+    'revenue per available room', 'opera pms', 'micros', 'upselling', 'rostering',
+    'stock control', 'customer service',
+  ],
+  'Public Sector and Civil Service': [
+    'delivery of results', 'interpersonal and communication skills',
+    'specialist knowledge', 'drive and commitment to public service values',
+    'analysis and decision making', 'competency framework', 'public appointments service',
+    'stakeholder engagement', 'policy', 'freedom of information', 'gdpr',
+  ],
+  'Social Work and Community': [
+    'coru', 'garda vetting', 'safeguarding', 'child protection', 'children first',
+    'person-centred', 'anti-discriminatory practice', 'reflective practice',
+    'case management', 'risk assessment', 'advocacy', 'multidisciplinary team',
+  ],
+  'Sports and Fitness': [
+    'strength and conditioning', 'personal training', 'ncef', 'first aid', 'cpr',
+    'programme design', 'periodisation', 'injury prevention', 'movement screening',
+    'client retention', 'coaching qualification', 'safeguarding in sport',
+  ],
+  'Marketing and Communications': [
+    'google analytics', 'ga4', 'seo', 'sem', 'meta ads manager', 'hubspot', 'mailchimp',
+    'content strategy', 'campaign management', 'social media', 'copywriting',
+    'engagement rate', 'conversion rate', 'press release', 'media relations',
   ],
   general: [
     'communication', 'teamwork', 'leadership', 'problem solving', 'initiative',
@@ -46,11 +95,19 @@ export const ATS_KEYWORD_BANKS: Record<string, string[]> = {
   ],
 }
 
-export function bankForIndustry(industry: string | null | undefined): string[] {
-  if (!industry) return ATS_KEYWORD_BANKS.general
-  const key = industry.toLowerCase()
-  const match = Object.keys(ATS_KEYWORD_BANKS).find(k => key.includes(k))
-  return match ? [...ATS_KEYWORD_BANKS[match], ...ATS_KEYWORD_BANKS.general] : ATS_KEYWORD_BANKS.general
+/**
+ * Keyword bank for an industry that has already been through the controlled
+ * vocabulary. Always returns the general bank alongside the specific one —
+ * transferable terms matter in every field.
+ *
+ * There is deliberately no free-text variant any more. Callers resolve the
+ * industry once, via resolveIndustryContext, so that the resolution (and which
+ * of stated/inferred/fallback produced it) is decided in one place and reported
+ * to the Handler, rather than being re-derived silently here.
+ */
+export function bankForResolvedIndustry(industry: ResolvedIndustry): string[] {
+  if (industry === GENERAL) return ATS_KEYWORD_BANKS.general
+  return [...ATS_KEYWORD_BANKS[industry], ...ATS_KEYWORD_BANKS.general]
 }
 
 export interface WeightedKeyword {
@@ -69,9 +126,9 @@ export interface WeightedKeyword {
 // faked here). Weight is capped so one very-repeated term can't dominate the
 // whole score. Deliberately conservative on extraction — false negatives are
 // safer than inventing keywords that aren't there.
-export function extractJdKeywords(jobDescription: string, industry: string | null | undefined): WeightedKeyword[] {
+export function extractJdKeywords(jobDescription: string, industry: ResolvedIndustry): WeightedKeyword[] {
   const text = jobDescription.toLowerCase()
-  const candidateBank = [...bankForIndustry(industry), ...Object.values(ATS_KEYWORD_BANKS).flat()]
+  const candidateBank = [...bankForResolvedIndustry(industry), ...Object.values(ATS_KEYWORD_BANKS).flat()]
   const unique = Array.from(new Set(candidateBank))
   return unique
     .map(term => ({ term, count: countOccurrences(text, term.toLowerCase()) }))

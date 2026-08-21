@@ -4,6 +4,32 @@ import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shar
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
+
+/**
+ * What a portfolio even *is* changes completely by field, so a generic
+ * "build a portfolio site" plan is close to useless. These are the platform and
+ * artefact conventions per field, applied on top of whatever the intelligence
+ * table carries.
+ */
+const PORTFOLIO_BY_INDUSTRY: Record<string, string> = {
+  'Technology and Software':
+    'GitHub is the portfolio. Pinned repositories with real READMEs, at least one deployed and reachable project with a live URL, commit history that shows sustained work rather than a single dump, and a short technical write-up per project explaining the problem and the trade-off taken. A personal site is optional; a dead GitHub is disqualifying.',
+  'Creative and Media':
+    'Behance, Dribbble, or a self-hosted site, plus a PDF or physical portfolio for client and interview settings. Curate hard — six strong pieces beat twenty mixed ones, because the weakest piece sets the perceived ceiling. Each piece needs the brief, the constraint, and the outcome, not just the artwork.',
+  'Science and Research':
+    'A publications and outputs list in a citable format, conference posters archived as PDFs, and a described final-year project or thesis with hypothesis, method, and result. ORCID iD where held. Lab technique inventory as a standalone section.',
+  'Marketing and Communications':
+    'Campaign case studies with baseline, intervention, and measured result. Published content and secured coverage linked directly. Platform certifications listed. One or two deep case studies outperform a list of logos.',
+  'Construction and Architecture':
+    'A project portfolio with drawings, models, and site photography, organised by project and RIBA/RIAI work stage. State your own role on each project explicitly — reviewers assume the whole sheet is yours otherwise. BIM outputs where relevant.',
+  Engineering:
+    'A project and placement portfolio: CAD or simulation outputs, calculations, and testing results, each with the tool named and your specific contribution isolated. Placement reports where they can be shared.',
+  'Education and Teaching':
+    'A teaching portfolio: sample lesson plans and schemes of work, differentiated resources you produced, school placement reports, and evidence of assessment practice. Anonymise all pupil material.',
+  'Sports and Fitness':
+    'Programme design samples, client or athlete outcomes with honest timeframes and starting points, coaching qualifications with awarding bodies, and video of coaching practice where consent allows.',
+}
 
 const SYSTEM_PROMPT = `You are a portfolio strategist. Portfolio building is a decision-tree problem, not a document to generate — there is no single "portfolio" you can write for someone.
 
@@ -73,10 +99,17 @@ Deno.serve(async (req: Request) => {
 
     const careerGoal = input.career_goal || profile?.goals || null
 
+    const industryCtx = await resolveIndustryContext(supabase, field, target?.target_course)
+    const portfolioConvention = PORTFOLIO_BY_INDUSTRY[industryCtx.industry]
+    const portfolioRule = portfolioConvention
+      ? `\n\nPORTFOLIO CONVENTION FOR THIS FIELD — ${industryCtx.industry}\n${portfolioConvention}\n\nRecommend against this convention. If the student's existing presence already partly meets it, build on what they have rather than starting them over.`
+      : ''
+
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}${portfolioRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
-        field, work_type: input.work_type, career_goal: careerGoal, existing_presence: input.existing_presence,
+        field, resolved_industry: industryCtx.industry,
+        work_type: input.work_type, career_goal: careerGoal, existing_presence: input.existing_presence,
         career_profile_context: profileNarrative(profile),
       }),
       toolName: 'submit_portfolio_plan',
@@ -87,7 +120,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: updated, error: updateErr } = await supabase
       .from('portfolio_plans')
-      .update({ generated: result, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: withIndustryHandlerNote(result, industryCtx), status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', plan_id)
       .select()
       .single()

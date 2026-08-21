@@ -1,11 +1,34 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, CIVIL_SERVICE_CAPABILITIES, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
-import { fetchCompetencyExamples } from '../_shared/exampleLibrary.ts'
+import { fetchCompetencyExamples, citableSources } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, isBlank } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, profileNarrative, fetchCareerProfile, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
+
+/**
+ * Which assessment framework an application form is actually scored against
+ * changes by field. The public-sector case was already handled inline; these
+ * are the other fields where the framework is specific enough to name.
+ */
+const FRAMEWORK_BY_INDUSTRY: Record<string, string> = {
+  'Public Sector and Civil Service':
+    'Scored per competency heading against the published Civil Service model for that grade. Each answer must sit squarely under its heading and isolate what the applicant personally did — assessors score the individual, not the team.',
+  'Healthcare and Nursing':
+    'Values-based recruitment. Answers are assessed for person-centred care, candour, and safe practice within a multidisciplinary team, not just task completion. Reflection on what the candidate would do differently carries real weight.',
+  'Finance and Accounting':
+    'Commercial awareness scenarios and situational judgement. Answers should show reasoning under constraint, attention to accuracy and control, and awareness of the regulatory environment where relevant.',
+  Law:
+    'Scenario-based legal reasoning. Answers are read for structured analysis, precision of language, and the ability to identify the actual issue before proposing a resolution. Attention to detail is assessed by the writing itself, not only its content.',
+  'Education and Teaching':
+    'Assessed for classroom practice: differentiation, inclusion, behaviour management, and assessment. Concrete pupil-outcome evidence outperforms philosophy.',
+  'Social Work and Community':
+    'Values-based, probing person-centred and anti-discriminatory practice, risk awareness, professional boundaries, and use of supervision.',
+  Engineering:
+    'Technical competence evidence. Answers should name the tool, the constraint, and the measurable outcome rather than describing responsibility held.',
+}
 
 const SYSTEM_PROMPT = `You are drafting answers to graduate scheme / internship / apprenticeship application form questions, using the candidate's own evidence bank of real STAR stories — never inventing a story that isn't in the bank.
 
@@ -88,11 +111,22 @@ Deno.serve(async (req: Request) => {
 
     const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3)
 
+    const industryCtx = await resolveIndustryContext(
+      supabase,
+      target?.target_industry || targetRole,
+      target?.target_course,
+    )
+    const framework = FRAMEWORK_BY_INDUSTRY[industryCtx.industry]
+    const frameworkRule = framework
+      ? `\n\nASSESSMENT FRAMEWORK FOR THIS FIELD — ${industryCtx.industry}\n${framework}\nShape each answer to how this field actually scores, while keeping every fact drawn from the student's own evidence bank.`
+      : ''
+
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}${frameworkRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         target_company: targetCompany,
         target_role: targetRole,
+        resolved_industry: industryCtx.industry,
         questions: answerable,
         evidence_bank: stories,
         career_profile_context: profileNarrative(profile),
@@ -105,8 +139,8 @@ Deno.serve(async (req: Request) => {
     })
 
     const resultWithBenchmark = {
-      ...result,
-      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+      ...withIndustryHandlerNote(result, industryCtx),
+      benchmarked_against: citableSources([...examples, ...industryCtx.intelligence]),
     }
 
     const { data: updated, error: updateErr } = await supabase

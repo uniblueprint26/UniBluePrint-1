@@ -17,6 +17,25 @@ export interface LibraryExample {
   competency_tag: string | null
   source_name: string
   source_url: string
+  /** 'sourced' = externally published. 'platform_authored' = written in-house. */
+  provenance?: 'sourced' | 'platform_authored'
+}
+
+/**
+ * The subset of examples that may be shown to a student as a citation.
+ *
+ * generated.benchmarked_against is rendered in the UI by BenchmarkNote, so
+ * anything that reaches it is a claim to the student that this source published
+ * something. Platform-authored calibration exemplars are useful to the model
+ * but are not published sources, and citing them would be a fabricated
+ * reference in the student's own document.
+ */
+export function citableSources(
+  rows: Array<{ source_name: string; source_url: string; provenance?: string }>,
+): Array<{ source_name: string; source_url: string }> {
+  return rows
+    .filter((r) => r.provenance !== 'platform_authored')
+    .map((r) => ({ source_name: r.source_name, source_url: r.source_url }))
 }
 
 /**
@@ -32,7 +51,7 @@ export async function fetchIndustryExamples(
   industry: string | null | undefined,
   limit = 3,
 ): Promise<LibraryExample[]> {
-  const cols = 'excerpt, why_it_works, industry, competency_tag, source_name, source_url'
+  const cols = 'excerpt, why_it_works, industry, competency_tag, source_name, source_url, provenance'
   const results: LibraryExample[] = []
 
   if (industry) {
@@ -67,7 +86,7 @@ export async function fetchCompetencyExamples(
   if (competencyTags.length === 0) return []
   const { data } = await supabase
     .from('example_library')
-    .select('excerpt, why_it_works, industry, competency_tag, source_name, source_url')
+    .select('excerpt, why_it_works, industry, competency_tag, source_name, source_url, provenance')
     .eq('category', 'star_answer')
     .in('competency_tag', competencyTags)
     .limit(limit)

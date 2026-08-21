@@ -4,6 +4,48 @@ import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shar
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
+
+/**
+ * Where people in this field actually look for work in Ireland.
+ *
+ * This sits alongside the existing user-type branching (apprentice, young
+ * worker, 5th/6th year) rather than replacing it — a nursing apprentice and a
+ * nursing graduate need the same sector boards but a different strategy, so
+ * both dimensions apply at once.
+ */
+const CHANNELS_BY_INDUSTRY: Record<string, string> = {
+  'Technology and Software':
+    'IrishJobs.ie and LinkedIn for volume; Jobs.ie and TechIreland for the indigenous scene; company careers pages direct for the Dublin multinationals, which often never post elsewhere. Dublin tech meetups and open-source contribution function as networking that actually converts.',
+  Engineering:
+    'Engineers Ireland careers portal and its regional branch events; ESB, EirGrid, Uisce Éireann and TII recruit through their own portals; medtech and pharma cluster roles in Galway, Cork and Limerick go through company sites and specialist agencies.',
+  'Healthcare and Nursing':
+    'HSE recruitment portals are the primary route and operate on their own timetable; Public Jobs for HSE-adjacent public roles; NMBI and CORU for registration status before applying; voluntary hospitals (St Vincent\'s, Beaumont, Mater) recruit separately from the HSE.',
+  'Finance and Accounting':
+    'Big 4 and mid-tier firm graduate portals with fixed annual milkround deadlines — missing the window costs a year; Chartered Accountants Ireland training vacancy listings; IrishJobs.ie and eFinancialCareers for industry roles; Bank of Ireland and AIB graduate programmes direct.',
+  Law:
+    'Law Society of Ireland traineeship listings; individual firm graduate portals, which open on a fixed annual cycle; the Bar of Ireland and King\'s Inns for the barrister route; Public Jobs for Chief State Solicitor\'s Office and DPP roles.',
+  'Education and Teaching':
+    'EducationPosts.ie is the dominant board for Irish school vacancies; ETB websites for further education and training roles; Public Jobs for Department and agency posts; Teaching Council registration must be in place or in train before applying.',
+  'Business and Management':
+    'gradireland for structured graduate programmes; IrishJobs.ie and LinkedIn for general roles; Enterprise Ireland and Local Enterprise Office networks for indigenous companies; the large Irish employers (CRH, Kerry, Glanbia, Musgrave) run their own graduate portals.',
+  'Creative and Media':
+    'Screen Ireland production listings and crew databases; IrishJobs.ie creative category; Behance and Dribbble job boards; agency sites direct. In this field speculative approaches with a portfolio link convert better than board applications.',
+  'Science and Research':
+    'Science Foundation Ireland and Irish Research Council for funded research posts; university HR pages for postdoc and technician roles; company portals for the pharma and medtech cluster; jobs.ac.uk for UK and Irish academic posts.',
+  'Construction and Architecture':
+    'RIAI and SCSI careers listings; CIF member directories for contractors; company sites for the main contractors (Sisk, BAM, Walls, John Paul); Public Jobs and local authority sites for OPW and council roles.',
+  'Hospitality and Tourism':
+    'Caterer.com Ireland and IrishJobs.ie hospitality category; Fáilte Ireland industry listings; direct approach to individual properties, which is still how a large share of hospitality hiring happens; hotel group careers pages (Dalata, Tifco).',
+  'Public Sector and Civil Service':
+    'publicjobs.ie is the mandatory route for Civil Service and most public service competitions — there is no alternative channel and no speculative application. Local authority sites and individual agency pages carry the rest. Competitions open and close on fixed dates.',
+  'Social Work and Community':
+    'Tusla and HSE recruitment portals; publicjobs.ie for statutory roles; Activelink and Boardmatch for the community and voluntary sector; individual NGO sites (Focus Ireland, Barnardos, Peter McVerry Trust) recruit direct.',
+  'Sports and Fitness':
+    'Sport Ireland and national governing body sites (GAA, IRFU, FAI, Athletics Ireland); gym group careers pages; Jobs.ie fitness category; self-employed coaching is built through local club networks rather than boards.',
+  'Marketing and Communications':
+    'IrishJobs.ie marketing category and LinkedIn; Marketing Institute of Ireland and PRII job listings; agency sites direct; Irish marketing Slack and LinkedIn groups carry roles that never reach the boards.',
+}
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps
 // found, 6 confirmed critical, all applied. See the Foundation Blueprint research
@@ -184,8 +226,16 @@ Deno.serve(async (req: Request) => {
       career_profile_context: profileNarrative(profile),
     })
 
+    // Industry branching layered on top of the existing user-type branching —
+    // both apply at once, and neither replaces the other.
+    const industryCtx = await resolveIndustryContext(supabase, fieldOrIndustry, target?.target_course)
+    const channels = CHANNELS_BY_INDUSTRY[industryCtx.industry]
+    const channelRule = channels
+      ? `\n\nWHERE THIS FIELD ACTUALLY HIRES — ${industryCtx.industry}\n${channels}\n\nUse these alongside the general Irish platform directory above, not instead of it, and keep the user-type branching (apprentice, young worker, 5th/6th year) applied on top. Where a channel is the only route — publicjobs.ie for the Civil Service, HSE portals for HSE roles — say so plainly rather than listing it as one option among several. Mark anything with an annual intake window as verify_before_use, since dates move each year.`
+      : ''
+
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}${channelRule}\n\n${industryCtx.promptBlock}`,
       userContent,
       toolName: 'submit_job_search_support',
       toolDescription: 'Submit the Handler guide and student strategy document.',
@@ -208,7 +258,10 @@ Deno.serve(async (req: Request) => {
     const { error: saveErr } = await supabase.rpc('save_job_search_generation', {
       p_session_id: session_id,
       p_student_strategy: studentStrategy,
-      p_handler_guide: result.handler_guide,
+      p_handler_guide: withIndustryHandlerNote(
+        result.handler_guide as { handler_notes?: string[] },
+        industryCtx,
+      ),
     })
     if (saveErr) throw saveErr
 

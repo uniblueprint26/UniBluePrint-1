@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
-import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
+import { fetchIndustryExamples, citableSources } from '../_shared/exampleLibrary.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import {
   ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
@@ -106,16 +107,25 @@ Deno.serve(async (req: Request) => {
     const hasNoExperience = input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience
     const experience = !isBlank(input.experience) ? input.experience : experienceNarrative(profile)
 
+    const industryCtx = await resolveIndustryContext(supabase, targetIndustry, target?.target_course)
+
     const [headlineExamples, aboutExamples] = await Promise.all([
-      fetchIndustryExamples(supabase, 'linkedin_headline', targetIndustry, 2),
-      fetchIndustryExamples(supabase, 'linkedin_about', targetIndustry, 1),
+      fetchIndustryExamples(supabase, 'linkedin_headline', industryCtx.industry, 2),
+      fetchIndustryExamples(supabase, 'linkedin_about', industryCtx.industry, 1),
     ])
     const examples = [...headlineExamples, ...aboutExamples]
 
+    // A LinkedIn profile is read by recruiters searching within a field, so how
+    // that field screens is directly actionable here — it decides which terms
+    // belong in the headline and which sections get read at all.
+    const searchRule = industryCtx.intelligence.some((i) => i.dimension === 'screening_mechanism')
+      ? `\n\nRECRUITER SEARCH BEHAVIOUR — the industry context below describes how this field actually screens and searches. Use it to decide which keywords belong in the headline and About section, and which credentials or registrations a recruiter in this field filters on. Only include a credential this person's own input supports.`
+      : ''
+
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}${searchRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
-        target_industry: targetIndustry,
+        target_industry: industryCtx.industry,
         target_role: targetRole,
         current_status: input.current_status,
         key_skills: mergedSkills,
@@ -134,8 +144,8 @@ Deno.serve(async (req: Request) => {
     })
 
     const resultWithBenchmark = {
-      ...result,
-      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+      ...withIndustryHandlerNote(result, industryCtx),
+      benchmarked_against: citableSources([...examples, ...industryCtx.intelligence]),
     }
 
     const { data: updated, error: updateErr } = await supabase

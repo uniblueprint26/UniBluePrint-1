@@ -16,6 +16,7 @@ import {
   ErrorBanner,
 } from '../../components/ui/Form'
 import { OPPORTUNITY_TYPES } from '../../lib/jobSearchConstants'
+import IndustrySelect from '../../components/foundation/IndustrySelect'
 
 /**
  * Foundation Blueprint §08 — the Career Profile.
@@ -527,7 +528,13 @@ export default function CareerProfilePage() {
                     <FormField id="t_course" label="Course" hint="If it's a college application"><FormInput id="t_course" value={newTarget.target_course} onChange={(e) => setNewTarget((t) => ({ ...t, target_course: e.target.value }))} maxLength={LIMITS.SHORT} /></FormField>
                     <FormField id="t_institution" label="Institution" hint="If it's a college application"><FormInput id="t_institution" value={newTarget.target_institution} onChange={(e) => setNewTarget((t) => ({ ...t, target_institution: e.target.value }))} maxLength={LIMITS.SHORT} /></FormField>
                   </div>
-                  <FormField id="t_industry" label="Industry / field"><FormInput id="t_industry" value={newTarget.target_industry} onChange={(e) => setNewTarget((t) => ({ ...t, target_industry: e.target.value }))} placeholder="e.g. Technology, Law, Healthcare" maxLength={LIMITS.SHORT} /></FormField>
+                  <FormField id="t_industry" label="Industry / field">
+                    <IndustrySelect
+                      id="t_industry"
+                      value={newTarget.target_industry}
+                      onChange={(v) => setNewTarget((t) => ({ ...t, target_industry: v }))}
+                    />
+                  </FormField>
                   <FormField id="t_jd" label="Paste the job description" hint="Optional — this is what sharpens keyword matching the most">
                     <FormTextarea id="t_jd" value={newTarget.job_description} onChange={(e) => setNewTarget((t) => ({ ...t, job_description: e.target.value }))} rows={5} maxLength={LIMITS.PASTE_JD} />
                   </FormField>

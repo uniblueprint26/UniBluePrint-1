@@ -1,6 +1,7 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
-import { fetchIndustryExamples } from '../_shared/exampleLibrary.ts'
+import { fetchIndustryExamples, citableSources } from '../_shared/exampleLibrary.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import {
   ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE,
@@ -85,15 +86,24 @@ Deno.serve(async (req: Request) => {
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
-    const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', industry, 2)
+    const industryCtx = await resolveIndustryContext(supabase, industry, target?.target_course)
+    const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', industryCtx.industry, 2)
     const hasNoExperience = input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience
     const backgroundSummary = input.background_summary || experienceNarrative(profile) || null
 
+    // The tone-by-sector guidance in SYSTEM_PROMPT is a coarse default; where
+    // real intelligence exists for this field it carries the wording
+    // conventions and must-haves that actually apply, so it goes in after.
+    const mustHaveRule = industryCtx.intelligence.some((i) => i.dimension === 'must_have')
+      ? `\n\nMUST-HAVES — the industry context below lists what this field treats as non-negotiable in an application. Where this student's own input genuinely evidences one of them, the letter must surface it rather than leaving it buried. Where their input does not evidence it, say nothing — do not assert a credential they have not claimed.`
+      : ''
+
     const result = await callClaudeForStructuredOutput({
-      system: SYSTEM_PROMPT,
+      system: `${SYSTEM_PROMPT}${mustHaveRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         target_role: targetRole,
         target_company: targetCompany,
+        target_industry: industryCtx.industry,
         job_description: jobDescription,
         background_summary: backgroundSummary,
         why_this_company: input.why_this_company,
@@ -110,8 +120,8 @@ Deno.serve(async (req: Request) => {
     })
 
     const resultWithBenchmark = {
-      ...result,
-      benchmarked_against: examples.map(e => ({ source_name: e.source_name, source_url: e.source_url })),
+      ...withIndustryHandlerNote(result, industryCtx),
+      benchmarked_against: citableSources([...examples, ...industryCtx.intelligence]),
     }
 
     const { data: updated, error: updateErr } = await supabase

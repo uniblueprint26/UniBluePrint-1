@@ -7,6 +7,7 @@ import {
 } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, experienceNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
+import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
 
 const PATHWAY_PROMPTS: Record<string, string> = {
   ucas: `UCAS PATHWAY — 2026 entry onwards uses a NEW three-question structured format, not a single free-form essay. Produce exactly three answers:
@@ -100,12 +101,19 @@ Deno.serve(async (req: Request) => {
     const goals = input.goals || profile?.goals || null
     const lifeWorkExperience = input.life_work_experience || experienceNarrative(profile) || null
 
+    // A personal statement is an argument for belonging in a specific field, so
+    // the industry it is aimed at matters more here than almost anywhere else.
+    // The course is usually the better signal than a stated target industry for
+    // this document, but stated still wins when the student gave one.
+    const industryCtx = await resolveIndustryContext(supabase, target?.target_industry, targetCourse)
+
     const result = await callClaudeForStructuredOutput({
-      system: `${SYSTEM_PROMPT_BASE}\n\n${pathwayPrompt}`,
+      system: `${SYSTEM_PROMPT_BASE}\n\n${pathwayPrompt}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         pathway: doc.pathway,
         target_course: targetCourse,
         target_institution: targetInstitution,
+        target_industry: industryCtx.industry,
         background_and_motivation: input.background_and_motivation,
         relevant_experience: input.relevant_experience,
         life_work_experience: lifeWorkExperience,
@@ -121,7 +129,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: updated, error: updateErr } = await supabase
       .from('personal_statements')
-      .update({ generated: result, status: 'generated', updated_at: new Date().toISOString() })
+      .update({ generated: withIndustryHandlerNote(result, industryCtx), status: 'generated', updated_at: new Date().toISOString() })
       .eq('id', document_id)
       .select()
       .single()
