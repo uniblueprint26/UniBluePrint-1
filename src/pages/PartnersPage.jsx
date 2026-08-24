@@ -1,10 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ExternalLink, Handshake, Instagram, Phone, Mail, Link2, ArrowRight, Lock } from 'lucide-react'
-import whipWizardzLogo from '../assets/whip-wizardz-logo.png.png'
-import jmcFitnessLogo from '../assets/jmc-fitness-logo.png.jpeg'
-import energieFitnessLogo from '../assets/energie-fitness-logo.png.jpeg'
-import nyz3ditzLogo from '../assets/nyz3ditz-logo.png.jpeg'
 
 const COURSECOMPASS_URL = 'https://coursecompass.ie/course-compass'
 
@@ -32,7 +28,7 @@ const LIVE_PARTNERS = [
   {
     id: 'energie',
     name: 'Energie Fitness',
-    logo: energieFitnessLogo,
+    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Gym Membership',
     description: 'Full gym access at an exclusive member rate — €37.99/month versus the standard €39.99–€44.99. Joining fee reduced to €15 (normally €30). Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
     deal: 'From €37.99/month',
@@ -40,7 +36,7 @@ const LIVE_PARTNERS = [
   {
     id: 'jmc',
     name: 'JMC Fitness',
-    logo: jmcFitnessLogo,
+    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Sports Coaching',
     description: 'Elite sports coaching with fully personalised programmes. Online coaching, in-person training on North Dublin 4G astro, dietary guidance, specialist football coaching, and connections to professional agents.',
     deal: 'From €50/hr',
@@ -48,7 +44,7 @@ const LIVE_PARTNERS = [
   {
     id: 'nyz3ditz',
     name: 'Nyz3ditz',
-    logo: nyz3ditzLogo,
+    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Photography & Video',
     description: 'Professional photography and videography mentorship from Nathan Yanzo. Monthly subscriptions include Zoom mentorship calls and editing guidance. One-to-one shoot sessions also available for those building their creative portfolio.',
     deal: 'From €55/month',
@@ -58,7 +54,7 @@ const LIVE_PARTNERS = [
   {
     id: 'whipwizardz',
     name: 'Whip Wizardz',
-    logo: whipWizardzLogo,
+    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Automotive',
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment — all with student-friendly pricing.',
     deal: 'Student-friendly pricing',

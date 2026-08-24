@@ -1,6 +1,7 @@
 // TODO: This page receives redirect from Stripe after successful payment.
 // Stripe webhook updates user Pro status in Supabase. Remove manual check once webhook is live.
-// Requires 'profiles' table with is_pro boolean field.
+// Pro status lives in the 'subscriptions' table, not 'profiles' — same
+// table and shape AuthContext.jsx reads for the isPro flag used site-wide.
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -16,11 +17,13 @@ export default function SubscriptionSuccessPage() {
   useEffect(() => {
     async function checkPro() {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('is_pro')
-        .eq('id', user.id)
-        .single()
-      setStatus(!error && data?.is_pro ? 'active' : 'none')
+        .from('subscriptions')
+        .select('status, current_period_end')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      const active = !error && data?.status === 'active' &&
+        (!data.current_period_end || new Date(data.current_period_end) > new Date())
+      setStatus(active ? 'active' : 'none')
     }
     if (user) checkPro()
   }, [user])

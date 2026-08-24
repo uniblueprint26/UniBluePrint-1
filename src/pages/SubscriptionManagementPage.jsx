@@ -1,6 +1,7 @@
 // TODO: Connect to Stripe Customer Portal when payments go live.
 // For now show plan info and contact support link.
-// Requires 'profiles' table with is_pro, pro_plan, pro_since, pro_expires_at fields.
+// Pro status lives in the 'subscriptions' table, not 'profiles' — same
+// table and shape AuthContext.jsx reads for the isPro flag used site-wide.
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -11,30 +12,32 @@ import { supabase } from '../lib/supabase'
 
 export default function SubscriptionManagementPage() {
   const { user } = useAuth()
-  const [profile, setProfile] = useState(null)
+  const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
-    async function fetchProfile() {
+    async function fetchSubscription() {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('is_pro, pro_plan, pro_since, pro_expires_at')
-        .eq('id', user.id)
-        .single()
+        .from('subscriptions')
+        .select('tier, status, current_period_end')
+        .eq('user_id', user.id)
+        .maybeSingle()
       if (error) setFetchError(true)
-      else setProfile(data)
+      else setSubscription(data)
       setLoading(false)
     }
-    if (user) fetchProfile()
+    if (user) fetchSubscription()
   }, [user])
 
-  const isPro = profile?.is_pro
-  const planLabel = profile?.pro_plan === 'annual' ? 'Pro — Annual'
-    : profile?.pro_plan === 'monthly' ? 'Pro — Monthly'
+  const isPro = !!subscription && subscription.status === 'active' && (
+    !subscription.current_period_end || new Date(subscription.current_period_end) > new Date()
+  )
+  const planLabel = subscription?.tier === 'pro_annual' ? 'Pro — Annual'
+    : subscription?.tier === 'pro_monthly' ? 'Pro — Monthly'
     : 'Pro'
-  const renewalDate = profile?.pro_expires_at
-    ? new Date(profile.pro_expires_at).toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' })
+  const renewalDate = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' })
     : null
 
   return (
