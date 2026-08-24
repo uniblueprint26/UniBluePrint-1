@@ -17,6 +17,7 @@ export const DOCUMENT_SOURCES = {
   interview_prep_packs: { label: 'Interview prep', title: (r) => r.target_role || 'Interview prep pack' },
   personal_statements: { label: 'Personal statement', title: (r) => [r.target_course, r.target_institution].filter(Boolean).join(' at ') || 'Untitled statement' },
   portfolio_plans: { label: 'Portfolio plan', title: (r) => r.field || 'Portfolio plan' },
+  job_search_sessions: { label: 'Job search strategy', title: (r) => r.input?.field_or_industry || 'Job search strategy' },
 }
 
 const SUBMISSION_COLS =
@@ -68,9 +69,29 @@ export async function fetchSubmissionDetail(submission) {
     label: source.label,
     title: source.title(data),
     input: data.input ?? null,
-    generated: data.generated ?? null,
+    // job_search_sessions has no `generated` column — the equivalent content
+    // is `student_strategy`, written by save_job_search_generation() rather
+    // than the generic deliver path. Normalised here so the generic viewer
+    // (DataView) works unchanged for every document type.
+    generated: data.generated ?? data.student_strategy ?? null,
     handlerNotes: data.generated?.handler_notes ?? null,
   }
+}
+
+/**
+ * The Handler-only guide for a Job Search Support session — richer than the
+ * generic handler_notes array, so it is fetched and rendered separately
+ * rather than folded into `generated`. RLS scopes this to the assigned
+ * Handler (via handler_assignments) or Operations.
+ */
+export async function fetchJobSearchHandlerGuide(sessionId) {
+  const { data, error } = await supabase
+    .from('job_search_handler_guides')
+    .select('handler_guide')
+    .eq('session_id', sessionId)
+    .maybeSingle()
+  if (error) throw error
+  return data?.handler_guide ?? null
 }
 
 export async function claimSubmission(submissionId) {

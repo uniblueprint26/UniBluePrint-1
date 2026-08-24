@@ -46,6 +46,7 @@ non-zero exit.
 | `06_rls_operations.sql` | Operations reads everything, and the Operations-only RPCs return rows for Operations and none for a handler |
 | `07_auth_guard.sql` | The three-way guard on the scheduled functions: pg_cron (no JWT) runs, an authenticated non-Operations caller is blocked, Operations is allowed |
 | `08_operations_queue_security.sql` | `operations_queue` is not readable by `anon` or `authenticated` directly; it is reachable only through `fetch_operations_queue()`, and `list_active_handlers()` exposes no personal data |
+| `09_job_search_support_pipeline.sql` | `is_valid_document_table()` accepts `job_search_sessions` without breaking existing entries; `submit_document_for_review` links, queues, and updates status end-to-end for it; `job_search_handler_guides` is invisible before a claim and visible only to the claiming Handler afterward; `claim_submission` / `submit_handler_decision` complete a ticket for this table unmodified |
 
 ## A note on pg_cron
 

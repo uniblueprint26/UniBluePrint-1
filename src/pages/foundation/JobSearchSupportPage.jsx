@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useLocation } from 'react-router-dom'
-import { Loader2, ArrowLeft, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Loader2, ArrowLeft, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
+import { submitForReview } from '../../lib/submitForReview'
 import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults } from '../../lib/careerProfile'
 import { OPPORTUNITY_TYPES } from '../../lib/jobSearchConstants'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner } from '../../components/ui/Form'
 import ProfilePrefillNote from '../../components/foundation/ProfilePrefillNote'
+import TierPicker from '../../components/foundation/TierPicker'
+import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
+import JobSearchHandlerGuide from '../../components/handler/JobSearchHandlerGuide'
 
 const initialInput = {
   field_or_industry: '', opportunity_type: '', location: '', timeline: '',
@@ -32,6 +36,8 @@ export default function JobSearchSupportPage() {
   const [session, setSession] = useState(location.state?.session ?? null)
   const [handlerGuide, setHandlerGuide] = useState(location.state?.handlerGuide ?? null)
   const [prefilled, setPrefilled] = useState(false)
+  const [tier, setTier] = useState('standard')
+  const [submissionId, setSubmissionId] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -79,6 +85,23 @@ export default function JobSearchSupportPage() {
         .eq('session_id', data.session.id)
         .maybeSingle()
       if (guideRow) setHandlerGuide(guideRow.handler_guide)
+
+      // The strategy is shown to the student immediately, above — unlike the
+      // other 8 generators, this one was never gated on Handler approval, and
+      // that stays true here. Submitting to the queue runs alongside it so a
+      // Handler can pick up the live advisory conversation the service
+      // description promises; it is not a precondition for the student seeing
+      // their result. A failure here is therefore soft: the student keeps
+      // their strategy, and this is the one thing worth surfacing to fix later
+      // rather than silently losing the ticket.
+      try {
+        const serviceName = tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard'
+        const label = `Job Search — ${input.field_or_industry}`
+        const subId = await submitForReview('job_search_sessions', data.session.id, serviceName, label, tier)
+        setSubmissionId(subId)
+      } catch (queueErr) {
+        console.error('Could not queue this session for a Campus Handler:', queueErr)
+      }
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
@@ -174,6 +197,8 @@ export default function JobSearchSupportPage() {
                 </FormSelect>
               </FormField>
 
+              <TierPicker value={tier} onChange={setTier} />
+
               <button
                 type="submit" disabled={loading}
                 style={{ height: '48px', background: loading ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
@@ -184,7 +209,10 @@ export default function JobSearchSupportPage() {
             </form>
           </FormCard>
         ) : (
-          <StrategyResult strategy={session.student_strategy} handlerGuide={handlerGuide} />
+          <>
+            <StrategyResult strategy={session.student_strategy} handlerGuide={handlerGuide} />
+            <PipelineStatusTimeline submissionId={submissionId} />
+          </>
         )}
       </div>
     </>
@@ -256,36 +284,7 @@ function StrategyResult({ strategy, handlerGuide }) {
         </div>
       )}
 
-      {handlerGuide && <HandlerGuidePanel guide={handlerGuide} />}
-    </div>
-  )
-}
-
-function HandlerGuidePanel({ guide }) {
-  return (
-    <div style={{ border: '2px dashed #9C6B26', borderRadius: '10px', padding: '18px', background: 'rgba(156,107,38,0.05)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        <ShieldAlert size={16} color="#9C6B26" aria-hidden="true" />
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9C6B26', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Handler only — do not share this section with the student
-        </p>
-      </div>
-      {guide.redirect_to_interview_prep && (
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#7A1D1D', marginBottom: '10px', fontWeight: 600 }}>
-          Redirect flag: {guide.redirect_reason}
-        </p>
-      )}
-      {guide.wellbeing_note && (
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', marginBottom: '10px' }}>{guide.wellbeing_note}</p>
-      )}
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#1E3A5F', marginBottom: '6px' }}>Opening questions</p>
-      <ul style={{ margin: '0 0 12px', paddingLeft: '18px' }}>
-        {guide.diagnostic_opening_questions?.map((q, i) => <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>{q}</li>)}
-      </ul>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#1E3A5F', marginBottom: '6px' }}>Talking points</p>
-      <ul style={{ margin: 0, paddingLeft: '18px' }}>
-        {guide.talking_points?.map((t, i) => <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>{t}</li>)}
-      </ul>
+      {handlerGuide && <JobSearchHandlerGuide guide={handlerGuide} />}
     </div>
   )
 }

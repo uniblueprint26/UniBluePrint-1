@@ -14,10 +14,11 @@ import {
   hasTwoSentences,
   fetchPremiumQueue, fetchStandardQueue, fetchOperationsQueue, listActiveHandlers,
   reassignSubmission, cancelSubmission, contactStudent,
-  fetchHandlerNotifications, markNotificationRead,
+  fetchHandlerNotifications, markNotificationRead, fetchJobSearchHandlerGuide,
 } from '../../lib/handlerQueue'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { FormCard, ErrorBanner } from '../../components/ui/Form'
+import JobSearchHandlerGuide from '../../components/handler/JobSearchHandlerGuide'
 import QualityScorecard, { DIMENSIONS } from '../../components/handler/QualityScorecard'
 
 /**
@@ -328,6 +329,8 @@ function SubmissionDetail({ submission, mode, onBack, onResolved }) {
   const [refund, setRefund] = useState(false)
   const [scores, setScores] = useState({ accuracy: null, quality: null, completeness: null, tone: null, deliverability: null })
   const [showLowScore, setShowLowScore] = useState(false)
+  const [jobSearchGuide, setJobSearchGuide] = useState(null)
+  const isJobSearch = submission.document_table === 'job_search_sessions'
 
   useEffect(() => {
     let cancelled = false
@@ -338,8 +341,14 @@ function SubmissionDetail({ submission, mode, onBack, onResolved }) {
       .finally(() => { if (!cancelled) setLoading(false) })
     if (mode === 'handler' && submission.stage === 'assigned') startReview(submission.id).catch(() => {})
     if (mode === 'operations') listActiveHandlers().then(setHandlers).catch(() => {})
+    // Richer than the generic handler_notes array, so it's fetched and
+    // rendered separately (JobSearchHandlerGuide) rather than folded into the
+    // generic dashed-border Handler Guidance box below.
+    if (isJobSearch) {
+      fetchJobSearchHandlerGuide(submission.document_id).then((g) => { if (!cancelled) setJobSearchGuide(g) }).catch(() => {})
+    }
     return () => { cancelled = true }
-  }, [submission, mode])
+  }, [submission, mode, isJobSearch])
 
   const noteValid = hasTwoSentences(note)
 
@@ -465,25 +474,40 @@ function SubmissionDetail({ submission, mode, onBack, onResolved }) {
 
           {/* Handler Guidance sits between the student's submission and the AI
               output on purpose — it's meant to inform the review, not confirm
-              it after the fact. Always rendered, with a fallback, rather than
-              only appearing when the generator happened to produce notes. */}
-          <div style={{ border: '2px dashed #9C6B26', borderRadius: '12px', padding: '20px', background: '#FFFFFF', borderLeft: '3px solid #1E3A5F' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
-              <ShieldAlert size={15} color="#9C6B26" aria-hidden="true" />
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9C6B26', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Handler Guidance</span>
-            </div>
-            {detail.handlerNotes?.length > 0 ? (
-              <ul style={{ margin: 0, paddingLeft: '18px' }}>
-                {detail.handlerNotes.map((n, i) => (
-                  <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>{n}</li>
-                ))}
-              </ul>
+              it after the fact. Job Search Support carries a richer, purpose-
+              built guide (diagnostic questions, talking points, a wellbeing
+              flag) instead of the generic handler_notes array every other
+              document type uses, so it gets its own component here rather
+              than being flattened into a bullet list. */}
+          {isJobSearch ? (
+            jobSearchGuide ? (
+              <JobSearchHandlerGuide guide={jobSearchGuide} />
             ) : (
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6 }}>
-                No specific guidance for this submission type. Apply the standard quality checklist.
-              </p>
-            )}
-          </div>
+              <div style={{ border: '2px dashed #9C6B26', borderRadius: '12px', padding: '20px', background: '#FFFFFF', borderLeft: '3px solid #1E3A5F' }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6 }}>
+                  No Handler guide found for this session — the strategy has already been delivered to the student; use the diagnostic questions in the intake form above to run the advisory conversation.
+                </p>
+              </div>
+            )
+          ) : (
+            <div style={{ border: '2px dashed #9C6B26', borderRadius: '12px', padding: '20px', background: '#FFFFFF', borderLeft: '3px solid #1E3A5F' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+                <ShieldAlert size={15} color="#9C6B26" aria-hidden="true" />
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9C6B26', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Handler Guidance</span>
+              </div>
+              {detail.handlerNotes?.length > 0 ? (
+                <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                  {detail.handlerNotes.map((n, i) => (
+                    <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>{n}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6 }}>
+                  No specific guidance for this submission type. Apply the standard quality checklist.
+                </p>
+              )}
+            </div>
+          )}
 
           <FormCard title="Generated output">
             <DataView value={detail.generated} skipKeys={['handler_notes', 'benchmarked_against']} />
@@ -499,7 +523,7 @@ function SubmissionDetail({ submission, mode, onBack, onResolved }) {
                 <NoteField note={note} setNote={setNote} noteValid={noteValid} disabled={!scorecardComplete} />
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
                   <ActionButton
-                    label="Approve and deliver" icon={Check} tone="primary"
+                    label={isJobSearch ? 'Mark consultation complete' : 'Approve and deliver'} icon={Check} tone="primary"
                     busy={acting === 'approved'}
                     disabled={!scorecardComplete || hasCriticalScore}
                     onClick={handleApprove}
