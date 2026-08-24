@@ -75,10 +75,10 @@ const LIVE_PINS = [
   { id: 'veeslash',          name: 'Vees Lash Studio',         county: 'galway',  category: 'Lash Tech · Galway',               deal: 'From €40',                           pos: [123.3, 234.8] },
   { id: 'leva',              name: 'LEVA Impact',              county: 'mayo',    category: 'Digital Marketing & Design',       deal: 'One week free social media trial',   pos: [75.5, 174.8] },
   { id: 'henrysisters',      name: 'Henry Sisters Co',         county: 'mayo',    category: 'Creative Content',                 deal: '10% off your first booking',         pos: [86, 174.8] },
-  { id: 'kelan',             name: 'Made By Kelan',            county: 'mayo',    category: 'Photography & Video · Co. Mayo',   pos: [96.5, 174.8] },
-  { id: 'claras',            name: "Clara's Beauty Room",      county: 'mayo',    category: 'Nail Tech · Mayo',                 deal: 'Gel extensions from €40',            pos: [75.5, 185.3] },
+  { id: 'madebykelan',       name: 'Made By Kelan',            county: 'mayo',    category: 'Photography & Video · Co. Mayo',   pos: [96.5, 174.8] },
+  { id: 'clarasbeautyroom',  name: "Clara's Beauty Room",      county: 'mayo',    category: 'Nail Tech · Mayo',                 deal: 'Gel extensions from €40',            pos: [75.5, 185.3] },
   { id: 'zvisionapparel',    name: 'Z Vision Apparel',         county: 'mayo',    category: 'Custom Embroidery & Clothing · Co. Mayo', pos: [86, 185.3] },
-  { id: 'lashessteph',       name: 'Lashes By Steph',          county: 'kildare', category: 'Lash Tech · Kildare',              deal: 'Classics from €35',                  pos: [287.3, 258.8] },
+  { id: 'lashesbysteph',     name: 'Lashes By Steph',          county: 'kildare', category: 'Lash Tech · Kildare',              deal: 'Classics from €35',                  pos: [287.3, 258.8] },
   { id: 'cutbyire',          name: 'CutbyIre',                 county: 'sligo',   category: 'Barber · Sligo',                   deal: 'From €15',                           pos: [151.8, 132.8] },
 ]
 // Not on the map yet — no county on file: Saiemsent, Roomy.ie (nationwide).

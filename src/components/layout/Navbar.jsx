@@ -28,7 +28,7 @@ const ELEVATION_SERVICES = [
   { label: 'Internship Applications', icon: Briefcase, href: '/elevation-blueprint' },
   { label: 'Career Planning', icon: Calendar, href: '/elevation-blueprint' },
   { label: 'Mentorship', icon: Users, href: '/elevation-blueprint' },
-  { label: 'Our Coaches', icon: UserCheck, href: '/our-coaches' },
+  { label: 'Our Coaches', icon: UserCheck, href: '/elevation-blueprint' },
 ]
 
 const JOIN_LINKS = [
@@ -40,7 +40,7 @@ const JOIN_LINKS = [
 const MOBILE_SERVICE_LINKS = [
   { label: 'Foundation Blueprint', href: '/foundation-blueprint' },
   { label: 'Elevation Blueprint', href: '/elevation-blueprint' },
-  { label: 'Our Coaches', href: '/our-coaches' },
+  { label: 'Our Coaches', href: '/elevation-blueprint' },
   { label: 'Lifestyle Blueprint', href: '/lifestyle-blueprint' },
   { label: 'Campus Connect', href: '/campus-connect' },
   { label: 'Course Connect', href: '/course-connect' },
