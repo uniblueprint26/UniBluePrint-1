@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare } from 'lucide-react-native'
+import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare, Check } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+
+const GDPR_LABELS = {
+  export: 'Data export', deletion: 'Account deletion',
+  correction: 'Data correction', restriction: 'Restrict processing',
+}
 
 function MetricTile({ label, value, border }) {
   return (
@@ -19,7 +24,7 @@ function MetricTile({ label, value, border }) {
 
 export default function OperationsPortalScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const { setPortalMode } = useAuth()
+  const { setPortalMode, user } = useAuth()
 
   const [queue, setQueue] = useState(null)
   const [gdprRequests, setGdprRequests] = useState([])
@@ -30,17 +35,46 @@ export default function OperationsPortalScreen({ navigation }) {
     navigation.navigate('HomeMain')
   }
 
+  async function loadGdpr() {
+    const { data } = await supabase
+      .from('gdpr_requests')
+      .select('id, request_type, status, requested_at, due_at, name, email, user_id')
+      .eq('status', 'pending')
+      .order('due_at', { ascending: true })
+      .limit(10)
+    setGdprRequests(data || [])
+  }
+
+  function confirmMarkDone(req) {
+    Alert.alert(
+      'Mark request completed',
+      `Confirm the ${GDPR_LABELS[req.request_type] || req.request_type} request from ${req.name || req.email || 'this user'} has actually been actioned before marking it done.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Mark Done', onPress: () => markDone(req.id) },
+      ],
+    )
+  }
+
+  async function markDone(id) {
+    const { error } = await supabase
+      .from('gdpr_requests')
+      .update({ status: 'completed', processed_at: new Date().toISOString(), processed_by: user?.id })
+      .eq('id', id)
+    if (!error) setGdprRequests(prev => prev.filter(r => r.id !== id))
+    else Alert.alert('Something went wrong', 'Please try again.')
+  }
+
   useEffect(() => {
     let cancelled = false
     async function load() {
-      const [{ data: queueSnapshot }, { data: gdpr }, { data: enq }] = await Promise.all([
+      const [{ data: queueSnapshot }, , { data: enq }] = await Promise.all([
         supabase.rpc('get_ops_queue_snapshot'),
-        supabase.from('gdpr_requests').select('id, request_type, status, requested_at').eq('status', 'pending').order('requested_at', { ascending: true }).limit(10),
+        loadGdpr(),
         supabase.from('coach_enquiries').select('id, coach_name, status, created_at').order('created_at', { ascending: false }).limit(10),
       ])
       if (cancelled) return
       setQueue(queueSnapshot?.[0] || null)
-      setGdprRequests(gdpr || [])
       setEnquiries(enq || [])
     }
     load()
@@ -91,12 +125,26 @@ export default function OperationsPortalScreen({ navigation }) {
         <Card style={{ padding: 0 }}>
           {gdprRequests.length === 0 ? (
             <Text style={styles.emptyRow}>Nothing pending.</Text>
-          ) : gdprRequests.map((r, i, arr) => (
-            <View key={r.id} style={[styles.listRow, i < arr.length - 1 && styles.divider]}>
-              <Text style={styles.listRowTitle}>{r.request_type === 'export' ? 'Data export' : 'Account deletion'}</Text>
-              <Text style={styles.listRowSub}>Requested {new Date(r.requested_at).toLocaleDateString()}</Text>
-            </View>
-          ))}
+          ) : gdprRequests.map((r, i, arr) => {
+            const overdue = new Date(r.due_at) < new Date()
+            return (
+              <View key={r.id} style={[styles.gdprRow, i < arr.length - 1 && styles.divider]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.listRowTitle}>{GDPR_LABELS[r.request_type] || r.request_type}</Text>
+                  <Text style={styles.listRowSub}>
+                    {r.name || r.email || 'Registered app user'} · Requested {new Date(r.requested_at).toLocaleDateString()}
+                  </Text>
+                  <Text style={[styles.dueText, overdue && styles.dueTextOverdue]}>
+                    {overdue ? 'Overdue — was due' : 'Due'} {new Date(r.due_at).toLocaleDateString()}
+                  </Text>
+                </View>
+                <TouchableOpacity style={styles.markDoneBtn} activeOpacity={0.8} onPress={() => confirmMarkDone(r)}>
+                  <Check size={13} color={colors.navy} />
+                  <Text style={styles.markDoneBtnText}>Mark Done</Text>
+                </TouchableOpacity>
+              </View>
+            )
+          })}
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
@@ -145,6 +193,15 @@ const styles = StyleSheet.create({
   urgencyText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginRight: 8 },
 
   listRow: { padding: 14 },
+  gdprRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
+  dueText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3 },
+  dueTextOverdue: { color: '#DC2626', fontFamily: fonts.sansSemiBold },
+  markDoneBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 0,
+    backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
+    paddingHorizontal: 12, paddingVertical: 7,
+  },
+  markDoneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   listRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textTransform: 'capitalize' },
   listRowSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, textTransform: 'capitalize' },

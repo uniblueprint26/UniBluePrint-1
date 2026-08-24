@@ -7,34 +7,21 @@ import {
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, parseDbError,
 } from '../../components/ui/Form'
 
-// TODO: Manual processing workflow for GDPR requests:
-// 1. New row inserted into gdpr_requests with status 'pending'
-// 2. Team member reviews request and verifies identity via email reply
-// 3. Action performed (deletion, export, correction, or restriction) within 30 days per GDPR Art. 12
-// 4. Status updated to 'completed' in Supabase after processing
-// 5. Confirmation email sent to user
-
-/*
-  TODO: Create Supabase table:
-
-  create table gdpr_requests (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    name text not null,
-    email text not null,
-    request_type text not null,
-    message text,
-    status text default 'pending'
-  );
-  alter table gdpr_requests enable row level security;
-  create policy "anon_insert" on gdpr_requests for insert to anon with check (true);
-*/
+// GDPR request workflow:
+// 1. New row inserted into gdpr_requests (name/email for anonymous website
+//    visitors, or user_id for logged-in app users — see PrivacyDataScreen.jsx)
+// 2. Operations reviews it from their portal, verifies identity if needed
+// 3. Action performed (deletion, export, correction, or restriction) within
+//    the 30-day due_at deadline the table computes automatically
+// 4. Status updated to 'completed' from the Operations portal
+// 5. Confirmation sent to the requester
+// See migration 20260824130000_gdpr_system.sql for the real table this writes to.
 
 const REQUEST_TYPES = [
-  'Delete my data',
-  'Access my data',
-  'Correct my data',
-  'Restrict processing',
+  { value: 'deletion',    label: 'Delete my data' },
+  { value: 'export',      label: 'Access my data' },
+  { value: 'correction',  label: 'Correct my data' },
+  { value: 'restriction', label: 'Restrict processing' },
 ]
 
 const H  = { fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', marginBottom: '12px' }
@@ -120,7 +107,7 @@ function GdprForm() {
       <FormField label="Request type">
         <FormSelect value={form.request_type} onChange={set('request_type')} required>
           <option value="">Select request type</option>
-          {REQUEST_TYPES.map(r => <option key={r} value={r}>{r}</option>)}
+          {REQUEST_TYPES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
         </FormSelect>
       </FormField>
       <FormField label="Message" hint="Tell us more about your request (optional).">
