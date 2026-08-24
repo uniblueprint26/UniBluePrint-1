@@ -32,3 +32,4 @@ app/.expo/
 *.njsproj
 *.sln
 *.sw?
+supabase/.temp/
