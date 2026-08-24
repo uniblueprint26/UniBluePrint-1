@@ -24,6 +24,7 @@ export default function PrivacyDataScreen({ navigation }) {
     supabase
       .from('gdpr_requests')
       .select('id, request_type, status, requested_at')
+      .eq('user_id', user.id)
       .order('requested_at', { ascending: false })
       .then(({ data }) => { setRequests(data || []); setLoading(false) })
   }, [user?.id])

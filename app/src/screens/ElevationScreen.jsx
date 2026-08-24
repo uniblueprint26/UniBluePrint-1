@@ -11,9 +11,12 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 
+// 'Network' and 'Postgrad' removed — no coach currently has either filter
+// value, so both pills led to a dead, unexplained empty state. Re-add once
+// a coach actually exists in one of those categories.
 const FILTER_PILLS = [
   'All', 'Fitness', 'Academic Grinds', 'Trading',
-  'Marketing', 'Network', 'Creative', 'Sports', 'Yoga', 'Postgrad',
+  'Marketing', 'Creative', 'Sports', 'Yoga',
 ]
 
 // ─── Coaches ──────────────────────────────────────────────────────────────────
@@ -141,7 +144,7 @@ export const COACHES = [
         body: 'A free beginner-friendly investing guide is available — ask about it when you book.',
       },
     ],
-    bookingNote: 'Sessions are booked directly through the app, based on the hours listed — set flexibly week to week rather than a fixed recurring slot.',
+    bookingNote: 'Reach out via Instagram to book — availability is flexible week to week rather than a fixed recurring slot.',
     contact: { instagram: 'iamzayade', tiktok: 'iamzayade' },
   },
 

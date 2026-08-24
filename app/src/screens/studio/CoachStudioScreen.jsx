@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Users, Calendar, Clock, MessageSquare, TrendingUp, ChevronRight, ArrowLeftRight, UserCog, Save,
@@ -232,14 +232,18 @@ export default function CoachStudioScreen({ navigation }) {
           <View style={styles.earningsRow}>
             <View style={styles.earningsTile}>
               <Text style={styles.earningsTileLabel}>This Period</Text>
-              <Text style={styles.earningsTileValue}>€[AMOUNT]</Text>
+              <Text style={[styles.earningsTileValue, { fontSize: 15 }]}>Coming soon</Text>
             </View>
             <View style={[styles.earningsTile, styles.earningsTileBorder]}>
               <Text style={styles.earningsTileLabel}>Sessions Delivered</Text>
               <Text style={styles.earningsTileValue}>{monthlyBookings}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.earningsCta} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.earningsCta}
+            activeOpacity={0.8}
+            onPress={() => Alert.alert('Coming soon', 'Full earnings breakdowns arrive once payments are live.')}
+          >
             <Text style={styles.earningsCtaText}>View Full Earnings Breakdown</Text>
             <ChevronRight size={14} color={colors.cream} />
           </TouchableOpacity>

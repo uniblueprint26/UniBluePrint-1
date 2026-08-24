@@ -175,7 +175,7 @@ function PostAdModal({ visible, onClose }) {
     if (!canSubmit || submitting) return
     setSubmitting(true)
     try {
-      await supabase.from('ads').insert({
+      const { error } = await supabase.from('ads').insert({
         user_id:     user?.id,
         title:       title.trim(),
         description: description.trim(),
@@ -185,12 +185,15 @@ function PostAdModal({ visible, onClose }) {
         active:      false,
         image_url:   imageUrl || null,
       })
-    } catch {}
-    finally {
+      if (error) throw error
       setTitle(''); setDescription(''); setLink(''); setBoards([])
       setImageUrl(null)
-      setSubmitting(false)
       onClose()
+      Alert.alert('Ad submitted', 'Your ad is in for review — it goes live once approved.')
+    } catch {
+      Alert.alert('Something went wrong', 'Your ad was not submitted. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 

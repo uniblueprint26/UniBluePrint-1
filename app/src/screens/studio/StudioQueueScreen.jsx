@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, Inbox, Power, Clock,
@@ -59,12 +59,15 @@ function StatusChip({ online }) {
   )
 }
 
-function TicketCard({ ticket, navigation }) {
+function TicketCard({ ticket }) {
   const isPro = ticket.tier === 'Pro'
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() => navigation?.navigate('TicketDetail', { ticket })}
+      onPress={() => Alert.alert(
+        `${ticket.studentFirstName} — ${ticket.serviceType}`,
+        `${ticket.tier} · Due ${ticket.deadline}\n\nFull ticket detail view is coming soon.`,
+      )}
     >
       <Card style={styles.ticketCard}>
         <View style={[styles.urgencyDot, { backgroundColor: URGENCY_COLOR[ticket.urgency] }]} />
@@ -132,7 +135,7 @@ export default function StudioQueueScreen({ navigation }) {
         ) : (
           <View style={{ gap: 10, marginTop: 10 }}>
             {tickets.map(ticket => (
-              <TicketCard key={ticket.id} ticket={ticket} navigation={navigation} />
+              <TicketCard key={ticket.id} ticket={ticket} />
             ))}
           </View>
         )}

@@ -12,7 +12,7 @@ const PILLARS = [
   },
   {
     title: 'Elevation Blueprint',
-    desc: 'Verified coaches across fitness, nutrition, academic grinds, personal branding, trading, marketing, career guidance, and more. Book one-to-one or group sessions directly through the app.',
+    desc: 'Verified coaches across fitness, nutrition, academic grinds, personal branding, trading, marketing, career guidance, and more. Browse profiles and enquire directly through the app.',
     color: '#F0FDF4',
   },
   {
