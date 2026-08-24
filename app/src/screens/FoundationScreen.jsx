@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  FileText, Linkedin, Award, MessageSquare, Search,
+  FileText, Linkedin, Award, MessageSquare, Search, Briefcase,
   Compass, GraduationCap, Map, Wrench, Package,
   ChevronLeft, ChevronRight, Sparkles, ExternalLink,
 } from 'lucide-react-native'
@@ -19,10 +19,19 @@ const CAREER_SERVICES = [
     icon: FileText,
     title: 'CV Optimisation',
     tagline: 'A CV that opens doors, not one that gets ignored',
-    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
+    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Profile Builder before it reaches you.',
     originalStd: '€20', trialStd: '€10',
     originalPrem: '€30', trialPrem: '€15',
     color: '#EFF6FF',
+  },
+  {
+    icon: Briefcase,
+    title: 'Portfolio Building',
+    tagline: 'Show your work, not just tell it',
+    description: 'Employers and clients want to see proof, not just a list of skills. UniBlueprint helps you put together a portfolio that actually showcases your projects, work samples, and results, structured clearly and built to make an impression.',
+    originalStd: '€20', trialStd: '€10',
+    originalPrem: '€30', trialPrem: '€15',
+    color: '#FEF9C3',
   },
   {
     icon: Linkedin,
@@ -55,7 +64,7 @@ const CAREER_SERVICES = [
     icon: MessageSquare,
     title: 'Interview Preparation',
     tagline: 'Walk in prepared. Walk out confident.',
-    description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler.',
+    description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Profile Builder.',
     originalStd: 'From €20', trialStd: 'From €10',
     originalPrem: 'From €30', trialPrem: 'From €15',
     color: '#FDF4FF',
@@ -90,8 +99,8 @@ const FOUNDATION_STATS = [
     line: 'Built and refined for how Irish recruiters and ATS systems actually hire.',
   },
   {
-    stat: '8 documents. 1 standard.',
-    line: 'CV, cover letter, LinkedIn, interview prep, personal statement and more. Every one built to get you noticed.',
+    stat: '7 services. 1 standard.',
+    line: 'CVs, cover letters, LinkedIn profiles, portfolios, application forms and more. Every one built to get you noticed.',
   },
   {
     stat: '30+ verified strengths.',
@@ -99,7 +108,7 @@ const FOUNDATION_STATS = [
   },
   {
     stat: 'Reviewed by real people.',
-    line: 'Every submission gets eyes from a real Campus Handler before it reaches you.',
+    line: 'Every submission gets eyes from a real Profile Builder before it reaches you.',
   },
 ]
 
@@ -135,8 +144,8 @@ export default function FoundationScreen({ navigation }) {
         <Text style={styles.heroEyebrow}>FOUNDATION BLUEPRINT</Text>
         <Text style={styles.heroTitle}>Professional Documents</Text>
         <Text style={styles.heroSub}>
-          CVs, cover letters, LinkedIn profiles, interview prep, and application forms.
-          Every output reviewed by a Campus Handler before it reaches you.
+          CVs, cover letters, LinkedIn profiles, portfolios, interview prep, and application forms.
+          Every output reviewed by a Profile Builder before it reaches you.
         </Text>
       </View>
 
@@ -343,7 +352,7 @@ const styles = StyleSheet.create({
   // Service cards
   serviceCard:       { padding: 16 },
   serviceCardActive: { borderWidth: 1.5, borderColor: colors.navy },
-  fiftyBadge:        { position: 'absolute', top: 12, right: 12, backgroundColor: colors.navy, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3 },
+  fiftyBadge:        { position: 'absolute', top: -9, right: 14, backgroundColor: colors.navy, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3, ...shadows.card },
   fiftyBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.cream, letterSpacing: 0.3 },
   serviceCardTop:    { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   serviceIcon:       { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },

@@ -207,55 +207,55 @@ export default function CampusConnectScreen({ navigation }) {
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* ── Integrated header + hero ── */}
-      <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.navRow}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Home</Text>
-          </TouchableOpacity>
-          <UBPLogo height={30} color={colors.cream} />
-          <View style={{ width: 70 }} />
-        </View>
-
-        <Text style={styles.heroEyebrow}>CAMPUS CONNECT</Text>
-        <Text style={styles.heroTitle}>
-          {institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
-        </Text>
-        <Text style={styles.heroSub}>
-          From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place.
-        </Text>
-
-        {/* Stats */}
-        <View style={styles.heroStats}>
-          <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>All</Text>
-            <Text style={styles.heroStatLabel}>Irish Institutions{'\n'}Welcome</Text>
-          </View>
-          <View style={styles.heroStatDivider} />
-          <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>12</Text>
-            <Text style={styles.heroStatLabel}>Campus Boards{'\n'}per College</Text>
-          </View>
-          <View style={styles.heroStatDivider} />
-          <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>Free</Text>
-            <Text style={styles.heroStatLabel}>To join{'\n'}your campus</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* ── Scrollable content ── */}
+      {/* ── Scrollable content — header now scrolls with the page, same as every other screen ── */}
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 56 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {/* ── Integrated header + hero ── */}
+        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
+          <View style={styles.navRow}>
+            <TouchableOpacity
+              style={styles.backBtn}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+            >
+              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+              <Text style={styles.backBtnText}>Home</Text>
+            </TouchableOpacity>
+            <UBPLogo height={30} color={colors.cream} />
+            <View style={{ width: 70 }} />
+          </View>
+
+          <Text style={styles.heroEyebrow}>CAMPUS CONNECT</Text>
+          <Text style={styles.heroTitle}>
+            {institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
+          </Text>
+          <Text style={styles.heroSub}>
+            From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place.
+          </Text>
+
+          {/* Stats */}
+          <View style={styles.heroStats}>
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>All</Text>
+              <Text style={styles.heroStatLabel}>Irish Institutions{'\n'}Welcome</Text>
+            </View>
+            <View style={styles.heroStatDivider} />
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>12</Text>
+              <Text style={styles.heroStatLabel}>Campus Boards{'\n'}per College</Text>
+            </View>
+            <View style={styles.heroStatDivider} />
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>Free</Text>
+              <Text style={styles.heroStatLabel}>To join{'\n'}your campus</Text>
+            </View>
+          </View>
+        </View>
+
         <View style={styles.content}>
 
           {/* Search */}

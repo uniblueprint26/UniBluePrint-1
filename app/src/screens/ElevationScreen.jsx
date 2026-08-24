@@ -49,7 +49,7 @@ export const COACHES = [
     id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Sports',
     location: 'North Dublin', rating: '5.0', reviews: 41, from: 'From €50/hr',
     services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics Breakdown', 'Dietary Guidance', 'Agent Connections'],
-    bio: 'Elite sports coaching offering fully personalised programmes for students serious about performance. In-person sessions on North Dublin 4G Astro. Football coaching and professional agent connections available.',
+    bio: "I offer elite sports coaching with fully personalised programmes for students serious about performance. In-person sessions run on North Dublin 4G Astro, plus football coaching and professional agent connections.",
     pricelist: [
       { label: '12-Week Online Plan', price: '€300' },
       { label: 'In-Person Session (1hr)', price: '€50' },
@@ -62,7 +62,7 @@ export const COACHES = [
     id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Creative',
     location: 'Ireland', rating: '4.9', reviews: 19, from: 'From €55/month',
     services: ['Monthly Mentorship', '1-1 Shoot Session', 'Editing Guidance', 'Creative Direction'],
-    bio: 'Professional photographer and videographer offering mentorship and shoot sessions. Monthly subscription includes Zoom calls and editing guidance.',
+    bio: "I'm a professional photographer and videographer offering mentorship and shoot sessions. My monthly subscription includes Zoom calls and editing guidance.",
     pricelist: [
       { label: 'Monthly Subscription', price: '€55/month' },
       { label: '1-1 Shoot Session', price: '€90' },
@@ -94,7 +94,7 @@ export const COACHES = [
 
   {
     id: 15, name: 'Dinero Trading Group', category: 'Trading & Investment Education', filter: 'Trading',
-    location: 'Ireland', from: 'Copier target: 5–15%/month (not guaranteed)',
+    location: 'Ireland', from: 'Copier target: 5–15%/month*',
     tagline: 'DTG — structured trading systems, education, and business opportunities.',
     bio: "I'm a trader and entrepreneur focused on building structured trading systems, educational programmes, and business opportunities around the financial markets — from automated lower-risk copy trading and high-risk trading challenges, to 1-to-1 mentorship and opportunities to build a business around my services. My goal is to provide different routes for people depending on their experience, goals, and risk tolerance, with systems that are simple to understand, scalable, and built with a long-term vision.",
     services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship / Trading Course', 'IB Partner / White-Label Programme'],
@@ -130,7 +130,7 @@ export const COACHES = [
     title: 'Chartered Accountant · Founder, Soft Life Investing',
     tagline: 'Personal finance without the finance bro jargon.',
     services: ['1:1 Personal Finance Coaching', 'Budgeting & Saving', 'Getting Started with Investing', 'Irish Investing Tax Rules (Deemed Disposal, Exit Tax, DIRT)'],
-    bio: 'Chartered accountant and founder of Soft Life Investing, helping thousands of first-generation wealth builders make sense of personal finance without the finance bro jargon — covering everything from budgeting basics to Irish-specific investing rules like deemed disposal, exit tax, and DIRT.',
+    bio: "I'm a chartered accountant and founder of Soft Life Investing, helping thousands of first-generation wealth builders make sense of personal finance without the finance bro jargon — covering everything from budgeting basics to Irish-specific investing rules like deemed disposal, exit tax, and DIRT.",
     sections: [
       {
         title: 'How Sessions Work',
@@ -152,7 +152,7 @@ export const COACHES = [
     title: 'Certified Personal Trainer / Sport Nutritionist Coach / Muay Thai / Yoga / Functional Training',
     tagline: 'HEALTHY · WELLNESS · FITNESS',
     services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
-    bio: 'With over 10 years of experience in fitness, martial arts, and lifestyle coaching, Camila helps people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. Focus areas include physique development, weight loss, muscle building, self-defence, confidence, lifestyle improvement, and pre-contest preparation, for both athletes and everyday people.',
+    bio: "With over 10 years of experience in fitness, martial arts, and lifestyle coaching, I help people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. My focus areas include physique development, weight loss, muscle building, self-defence, confidence, lifestyle improvement, and pre-contest preparation, for both athletes and everyday people.",
     quote: 'My goal is not just to motivate you for a few weeks, but to give you the knowledge, structure, and real reason to keep going, even when motivation is not there. When you know your WHY, you don\'t need motivation, you need DIRECTION — that\'s where I come in to help you.',
     pricelist: [
       { label: 'PT — 1x/week', price: '€220/month' },
@@ -175,7 +175,7 @@ export const COACHES = [
     id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
     location: 'Ireland, open to worldwide', from: 'Via consultation',
     services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
-    bio: '20-year-old qualified personal trainer with 5+ years of fitness experience. Specialising in weightlifting and calisthenics, also works with clients in kickboxing and other sports. Provides personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme. Available in and outside working hours.',
+    bio: "I'm a 20-year-old qualified personal trainer with 5+ years of fitness experience. I specialise in weightlifting and calisthenics, and also work with clients in kickboxing and other sports. I provide personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme, and I'm available in and outside working hours.",
     package: [
       'Full 1-month coaching guide with workout and meal plan',
       'Fully explained and tracked daily',
@@ -191,7 +191,7 @@ export const COACHES = [
     location: 'Dublin', from: 'Pricing on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
-    bio: "Qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. Teaches efficient training and nutrition that fits into real life. Personally lost over 30kg and completed photoshoot prep, so he knows exactly what the process takes. Strong believer in building a healthy relationship with food alongside the physical side. Main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process. Online physique development coaching built around you.",
+    bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process — online physique development coaching built around you.",
     contact: { instagram: 'tdarcycoaching', tiktok: 'darcy.lifts', linktree: 'https://linktr.ee/tadghdarcy123' },
   },
 
@@ -201,7 +201,7 @@ export const COACHES = [
     title: 'Certified Personal Trainer / Advanced Nutrition Coach / International Men\'s Physique Athlete',
     tagline: 'MPFitness. More Than Fitness.',
     services: ['Physique Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Lifestyle Transformation', 'Holiday & Contest Prep'],
-    bio: 'Specialising in Physique and Lifestyle Transformations via Fat Loss and Lean Muscle Gain. 20+ client transformations. Works with clients on physique development, muscle gain, fat loss, nutrition, lifestyle change, and holiday, photoshoot, and contest prep.',
+    bio: "I specialise in Physique and Lifestyle Transformations via Fat Loss and Lean Muscle Gain, with 20+ client transformations behind me. I work with clients on physique development, muscle gain, fat loss, nutrition, lifestyle change, and holiday, photoshoot, and contest prep.",
     quote: 'Guarantee of achieving your true potential through proven systems and methodologies with personalised training solutions to fit your lifestyle, goals and preferences. Crafted with precision and backed by results.',
     pricelist: [
       { label: '1x per week', price: '€50/session' },
@@ -224,7 +224,7 @@ export const COACHES = [
     location: 'Dublin, Ireland', from: 'From €25',
     tagline: 'Strength. Physique. Confidence. Mindset.',
     services: ['1-to-1 Personal Training', 'Beginner Gym Coaching', 'Personalised Training Programmes', 'Accountability & Progress Coaching'],
-    bio: 'Coach behind TrainWitKev and the mindset behind WORKSYY. Helps people get stronger, build a physique they are proud of, and gain real confidence in and out of the gym. Suits complete beginners through to people who have plateaued on consistency or progress. Focus on structure, technique, understanding, and sustainable progress.',
+    bio: "I'm the coach behind TrainWitKev and the mindset behind WORKSYY. I help people get stronger, build a physique they're proud of, and gain real confidence in and out of the gym. I work with complete beginners through to people who've plateaued on consistency or progress, with a focus on structure, technique, understanding, and sustainable progress.",
     quote: 'A mad yoke with something to prove. WORKSYY.',
     pricelist: [
       { label: '1-to-1 PT: Single session', price: '€25' },
@@ -243,7 +243,7 @@ export const COACHES = [
     location: 'Co. Mayo, Ireland', from: 'From €40',
     badge: 'Student Mentor Listing',
     services: ['Social Media Content Plans', 'Captions & Graphics', 'Creator Coordination', 'Client Reporting', 'Student Mentorship'],
-    bio: 'Digital marketing specialist running his own freelance business, LEVA Impact, working across social media strategy, content creation, graphic design, and AI-powered video production. Brings students onto real, live client projects rather than mock briefs.',
+    bio: "I'm a digital marketing specialist running my own freelance business, LEVA Impact, working across social media strategy, content creation, graphic design, and AI-powered video production. I bring students onto real, live client projects rather than mock briefs.",
     sections: [
       {
         title: 'How I Work With Companies',
@@ -274,7 +274,7 @@ export const COACHES = [
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
     location: 'County Sligo', from: 'On request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
-    bio: 'Qualified Personal Trainer with over a decade of experience. Passionate about helping people balance school, work, fitness, sport, and social life. League of Ireland player. Available for both online and local in-person coaching in County Sligo.',
+    bio: "I'm a qualified Personal Trainer with over a decade of experience, passionate about helping people balance school, work, fitness, sport, and social life. I'm also a League of Ireland player, and I'm available for both online and local in-person coaching in County Sligo.",
     contact: { instagram: 'JayRfitness6', tiktok: 'JayRfitness6' },
   },
 
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
 
   // Coach cards
   coachCard:       { padding: 18, marginBottom: 0 },
-  coachTop:        { flexDirection: 'row' },
+  coachTop:        { flexDirection: 'row', alignItems: 'flex-start' },
   coachAvatarWrap: { position: 'relative' },
   coachAvatar:     { width: 52, height: 52, borderRadius: radius.circle, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)' },
   coachOnlineDot:  { position: 'absolute', bottom: 1, right: 1, width: 12, height: 12, borderRadius: 6, backgroundColor: '#16A34A', borderWidth: 2, borderColor: colors.white },

@@ -526,9 +526,9 @@ const styles = StyleSheet.create({
   editBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   statsRow: {
-    flexDirection: 'row', backgroundColor: colors.white,
-    marginHorizontal: spacing.md, marginTop: -1,
-    borderRadius: radius.card, ...shadows.card,
+    flexDirection: 'row', backgroundColor: colors.cream,
+    marginHorizontal: spacing.md, marginTop: spacing.md,
+    borderRadius: radius.card, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
   },
   statItem: { flex: 1, alignItems: 'center', paddingVertical: 18, paddingHorizontal: 4 },
   statBorder: { borderRightWidth: 1, borderRightColor: 'rgba(30,58,95,0.08)' },

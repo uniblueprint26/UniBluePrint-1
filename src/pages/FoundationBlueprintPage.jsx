@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  FileText, Linkedin, Mail, MessageSquare, Search, BookOpen,
+  FileText, Linkedin, Mail, MessageSquare, Search, BookOpen, Briefcase,
   ArrowRight, Check,
 } from 'lucide-react'
 
@@ -51,11 +51,22 @@ const FOUNDATION_SERVICES = [
   {
     name: 'CV Optimisation',
     icon: FileText,
-    description: 'A professionally structured CV that gets past automated screening, built from scratch or transformed from what you already have. Reviewed by a trained Campus Handler.',
+    description: 'A professionally structured CV that gets past automated screening, built from scratch or transformed from what you already have. Reviewed by a trained Profile Builder.',
     bullets: [
       'ATS-optimised formatting and structure',
       'Action-language rewrites on every bullet point',
-      'Reviewed by a Handler before delivery',
+      'Reviewed by a Profile Builder before delivery',
+    ],
+    price: '€20', trialPrice: '€10',
+  },
+  {
+    name: 'Portfolio Building',
+    icon: Briefcase,
+    description: 'Employers and clients want proof, not just a list of skills. A portfolio that showcases your projects, work samples, and results, structured clearly and built to make an impression.',
+    bullets: [
+      'Structured around your actual projects and results',
+      'Built to make an impression, not just list skills',
+      'Reviewed by a Profile Builder before delivery',
     ],
     price: '€20', trialPrice: '€10',
   },
@@ -73,7 +84,7 @@ const FOUNDATION_SERVICES = [
   {
     name: 'Cover Letter',
     icon: Mail,
-    description: 'A tailored cover letter for a specific role and company, one that adds to your CV rather than repeating it. Reviewed by a Campus Handler before delivery.',
+    description: 'A tailored cover letter for a specific role and company, one that adds to your CV rather than repeating it. Reviewed by a Profile Builder before delivery.',
     bullets: [
       'Tailored to the role and company',
       'Opens with impact, closes with confidence',
@@ -84,7 +95,7 @@ const FOUNDATION_SERVICES = [
   {
     name: 'Interview Preparation',
     icon: MessageSquare,
-    description: 'Predicted questions, STAR-structured model answers, company research, and what to ask at the end. Premium adds a live mock interview with a Campus Handler.',
+    description: 'Predicted questions, STAR-structured model answers, company research, and what to ask at the end. Premium adds a live mock interview with a Profile Builder.',
     bullets: [
       'Questions tailored to the role and interview type',
       'Company and role research briefing',
@@ -154,7 +165,7 @@ const MAX_SCORE = 7
 
 function getResult(pct) {
   if (pct < 40) return { msg: 'Your CV needs work. Let\'s fix it.', color: '#DC2626' }
-  if (pct < 70) return { msg: 'Solid foundation. A Handler can make it stronger.', color: '#D97706' }
+  if (pct < 70) return { msg: 'Solid foundation. A Profile Builder can make it stronger.', color: '#D97706' }
   return { msg: 'Good CV. Fine-tune it before your next application.', color: '#16A34A' }
 }
 
@@ -353,9 +364,9 @@ export default function FoundationBlueprintPage() {
     <>
       <Helmet>
         <title>Foundation Blueprint | UniBlueprint</title>
-        <meta name="description" content="CV, LinkedIn, cover letters, interview prep, and CAO support. Reviewed by trained Campus Handlers before delivery." />
+        <meta name="description" content="CV, LinkedIn, cover letters, interview prep, and CAO support. Reviewed by trained Profile Builders before delivery." />
         <meta property="og:title" content="Foundation Blueprint | UniBlueprint" />
-        <meta property="og:description" content="CV, LinkedIn, cover letters, interview prep, and CAO support. Reviewed by trained Campus Handlers before delivery." />
+        <meta property="og:description" content="CV, LinkedIn, cover letters, interview prep, and CAO support. Reviewed by trained Profile Builders before delivery." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
@@ -458,7 +469,7 @@ export default function FoundationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              Every CV, cover letter, and application document reviewed by a trained Campus Handler before it reaches you.
+              Every CV, cover letter, portfolio, and application document reviewed by a trained Profile Builder before it reaches you.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
               {[
@@ -559,7 +570,7 @@ export default function FoundationBlueprintPage() {
             <div className="fbp-steps-line" />
             {[
               { n: '1', title: 'Submit your brief in the app', desc: 'Choose your service and tell us what you need. Takes under two minutes.' },
-              { n: '2', title: 'Campus Handler reviews and builds', desc: 'A trained Handler builds or refines your document and checks it meets our quality standard.' },
+              { n: '2', title: 'Profile Builder reviews and builds', desc: 'A trained Profile Builder builds or refines your document and checks it meets our quality standard.' },
               { n: '3', title: 'Delivered to you in 48 hours', desc: 'Your output arrives in the app, reviewed and ready to use.' },
             ].map(step => (
               <div key={step.n} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 12px' }}>

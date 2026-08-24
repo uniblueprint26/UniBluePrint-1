@@ -221,11 +221,8 @@ export default function CoachProfileScreen({ route, navigation }) {
           </View>
         </View>
 
-        <View style={styles.headerChip}>
-          <Text style={styles.headerChipText}>
-            {coach.shell ? 'Coming Soon' : (coach.from || 'Enquire for pricing')}
-          </Text>
-        </View>
+        <Text style={styles.headerName}>{coach.name}</Text>
+        {coach.title && <Text style={styles.headerTitle} numberOfLines={2}>{coach.title}</Text>}
       </View>
 
       <ScrollView
@@ -235,8 +232,14 @@ export default function CoachProfileScreen({ route, navigation }) {
 
         {/* ── Identity ── */}
         <View style={styles.identityBlock}>
-          <Text style={styles.coachName}>{coach.name}</Text>
-          {coach.title && <Text style={styles.coachTitle}>{coach.title}</Text>}
+          <View style={styles.priceChip}>
+            <Text style={styles.priceChipText}>
+              {coach.shell ? 'Coming Soon' : (coach.from || 'Enquire for pricing')}
+            </Text>
+          </View>
+          {!coach.shell && coach.from?.includes('*') && (
+            <Text style={styles.priceFootnote}>*A target, not a guarantee — see Risk Disclosure below.</Text>
+          )}
           <Text style={styles.coachCategory}>{coach.category}</Text>
           <View style={styles.locationRow}>
             <MapPin size={12} color={colors.muted} strokeWidth={1.8} />
@@ -530,14 +533,18 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(245,240,232,0.13)',
     alignItems: 'center', justifyContent: 'center',
   },
-  headerChip: {
-    marginTop: 16,
-    backgroundColor: 'rgba(245,240,232,0.10)',
+  headerName:  { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, textAlign: 'center', lineHeight: 32, marginTop: 16 },
+  headerTitle: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.72)', textAlign: 'center', lineHeight: 19, marginTop: 4 },
+
+  priceChip: {
+    alignSelf: 'center',
+    backgroundColor: colors.navy,
     borderRadius: radius.pill,
-    borderWidth: 1, borderColor: 'rgba(245,240,232,0.18)',
     paddingHorizontal: 16, paddingVertical: 7,
+    marginBottom: 6,
   },
-  headerChipText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  priceChipText:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  priceFootnote:  { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
 
   // Identity
   identityBlock: {

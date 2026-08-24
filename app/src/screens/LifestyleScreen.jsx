@@ -46,15 +46,48 @@ const CATEGORY_META = {
 }
 
 // ─── Wellbeing & Support ─────────────────────────────────────────────────────
-const SUPPORT_LINES = [
-  { name: 'Samaritans Ireland',  number: '116 123',        hours: '24/7',        link: 'tel:116123' },
-  { name: 'Pieta House',         number: '1800 247 247',   hours: '24/7',        link: 'tel:1800247247' },
-  { name: 'Niteline',            number: '1800 793 793',   hours: 'Term nights', link: 'tel:1800793793' },
-  { name: 'SpunOut',             number: 'spunout.ie',     hours: 'Online',      link: 'https://spunout.ie' },
-  { name: 'Jigsaw',              number: 'jigsaw.ie',      hours: 'Online',      link: 'https://jigsaw.ie' },
-  { name: 'Turn2Me',             number: 'turn2me.ie',     hours: 'Online',      link: 'https://turn2me.ie' },
-  { name: 'MyMind',              number: '01 820 5277',    hours: 'Mon–Fri',     link: 'tel:018205277' },
-  { name: 'Student Counselling', number: 'Your college',   hours: 'On campus',   link: null },
+// Grouped into sections so someone in a crisis sees that option first, rather
+// than scanning a single flat list. Numbers verified as of Aug 2026 — recheck
+// periodically, these do occasionally change.
+const SUPPORT_SECTIONS = [
+  {
+    section: 'In a crisis, right now',
+    lines: [
+      { name: 'Samaritans Ireland', number: '116 123',      hours: '24/7, free to call',  link: 'tel:116123' },
+      { name: 'Pieta House',        number: '1800 247 247', hours: '24/7, free to call',  link: 'tel:1800247247' },
+      { name: 'Text About It',      number: 'Text HELLO to 50808', hours: '24/7, free to text', link: 'sms:50808' },
+    ],
+  },
+  {
+    section: 'Talk it through',
+    lines: [
+      { name: 'Aware',   number: '1800 80 48 48', hours: '10am–10pm daily', link: 'tel:1800804848' },
+      { name: 'Turn2Me', number: 'turn2me.ie',    hours: 'Online counselling', link: 'https://turn2me.ie' },
+      { name: 'MyMind',  number: '01 820 5277',   hours: 'Mon–Fri',         link: 'tel:018205277' },
+      { name: 'Niteline', number: '1800 793 793', hours: 'Term nights',    link: 'tel:1800793793' },
+    ],
+  },
+  {
+    section: 'Specific support',
+    lines: [
+      { name: 'BeLonG To',                  number: '01 670 6223',    hours: 'LGBTI+ youth support', link: 'tel:016706223' },
+      { name: 'Bodywhys',                   number: '01 210 7906',    hours: 'Eating disorder support', link: 'tel:012107906' },
+      { name: 'HSE Drug & Alcohol Helpline', number: '1800 459 459', hours: 'Freephone', link: 'tel:1800459459' },
+    ],
+  },
+  {
+    section: 'Learn and explore online',
+    lines: [
+      { name: 'SpunOut', number: 'spunout.ie', hours: 'Guides & articles', link: 'https://spunout.ie' },
+      { name: 'Jigsaw',  number: 'jigsaw.ie',  hours: 'Youth mental health', link: 'https://jigsaw.ie' },
+    ],
+  },
+  {
+    section: 'On campus',
+    lines: [
+      { name: 'Student Counselling', number: 'Your college', hours: 'Free, on campus', link: null },
+    ],
+  },
 ]
 
 const WELLBEING_RESOURCES = [
@@ -457,26 +490,31 @@ export default function LifestyleScreen({ navigation, route }) {
             </Text>
           </View>
 
-          <View style={styles.supportList}>
-            {SUPPORT_LINES.map(line => (
-              <TouchableOpacity
-                key={line.name}
-                activeOpacity={line.link ? 0.8 : 1}
-                onPress={() => line.link && Linking.openURL(line.link)}
-              >
-                <Card style={styles.supportCard}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.supportName}>{line.name}</Text>
-                    <Text style={styles.supportHours}>{line.hours}</Text>
-                  </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.supportNumber}>{line.number}</Text>
-                    {line.link && <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />}
-                  </View>
-                </Card>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {SUPPORT_SECTIONS.map(group => (
+            <View key={group.section} style={{ marginBottom: spacing.lg }}>
+              <Text style={styles.supportSectionLabel}>{group.section}</Text>
+              <View style={styles.supportList}>
+                {group.lines.map(line => (
+                  <TouchableOpacity
+                    key={line.name}
+                    activeOpacity={line.link ? 0.8 : 1}
+                    onPress={() => line.link && Linking.openURL(line.link)}
+                  >
+                    <Card style={styles.supportCard}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.supportName}>{line.name}</Text>
+                        <Text style={styles.supportHours}>{line.hours}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.supportNumber}>{line.number}</Text>
+                        {line.link && <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />}
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          ))}
 
           <SectionHeader eyebrow="Resources" title="Wellbeing Reads" style={{ marginTop: spacing.xl }} />
           <View style={styles.supportList}>
@@ -738,7 +776,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14,
   },
   supportBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.white, flex: 1, lineHeight: 19 },
-  supportList: { gap: 10, marginTop: spacing.md },
+  supportSectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
+  supportList: { gap: 10, marginTop: spacing.sm },
   supportCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   supportName:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   supportHours:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },

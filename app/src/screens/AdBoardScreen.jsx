@@ -411,8 +411,16 @@ function getAdPressHandler(ad, navigation) {
   if (ad.link) {
     return () => Linking.openURL(ad.link)
   }
-  // Partner ads with no link: surface description in an alert
-  return () => Alert.alert(ad.brand, ad.description)
+  // Partner ads with no direct link (e.g. in-person-only sign-up): surface
+  // the offer plus a real next step, instead of a dead-end repeat of the description.
+  return () => Alert.alert(
+    ad.brand,
+    `${ad.description}\n\nNo direct booking link for this one yet — message the UniBlueprint team and we'll connect you.`,
+    [
+      { text: 'Message the team', onPress: () => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Interested in: ' + ad.brand)) },
+      { text: 'Close', style: 'cancel' },
+    ],
+  )
 }
 
 // ── Page content ──────────────────────────────────────────────────────────────
