@@ -19,7 +19,7 @@ const CAREER_SERVICES = [
     icon: FileText,
     title: 'CV Optimisation',
     tagline: 'A CV that opens doors, not one that gets ignored',
-    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Profile Builder before it reaches you.',
+    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
     originalStd: '€20', trialStd: '€10',
     originalPrem: '€30', trialPrem: '€15',
     color: '#EFF6FF',
@@ -64,7 +64,7 @@ const CAREER_SERVICES = [
     icon: MessageSquare,
     title: 'Interview Preparation',
     tagline: 'Walk in prepared. Walk out confident.',
-    description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Profile Builder.',
+    description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler.',
     originalStd: 'From €20', trialStd: 'From €10',
     originalPrem: 'From €30', trialPrem: 'From €15',
     color: '#FDF4FF',
@@ -108,7 +108,7 @@ const FOUNDATION_STATS = [
   },
   {
     stat: 'Reviewed by real people.',
-    line: 'Every submission gets eyes from a real Profile Builder before it reaches you.',
+    line: 'Every submission gets eyes from a real Campus Handler before it reaches you.',
   },
 ]
 
@@ -145,7 +145,7 @@ export default function FoundationScreen({ navigation }) {
         <Text style={styles.heroTitle}>Professional Documents</Text>
         <Text style={styles.heroSub}>
           CVs, cover letters, LinkedIn profiles, portfolios, interview prep, and application forms.
-          Every output reviewed by a Profile Builder before it reaches you.
+          Every output reviewed by a Campus Handler before it reaches you.
         </Text>
       </View>
 
