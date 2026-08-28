@@ -5,6 +5,7 @@ import {
   Animated, Dimensions,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { LinearGradient } from 'expo-linear-gradient'
 import {
   Plus, X, Globe, Building2, BookOpen,
   Wrench, Sparkles, Dumbbell, Camera, Activity,
@@ -15,6 +16,18 @@ import ImageUploader from '../components/ui/ImageUploader'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
+
+// Darkens (negative percent) or lightens (positive) a hex color, for
+// building a two-stop gradient from a single board/category color without
+// needing a second colour hand-picked for every one of them.
+function shade(hex, percent) {
+  const num = parseInt(hex.replace('#', ''), 16)
+  const amt = Math.round(2.55 * percent)
+  const r = Math.max(0, Math.min(255, (num >> 16) + amt))
+  const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amt))
+  const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amt))
+  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`
+}
 
 // ── Board config ──────────────────────────────────────────────────────────────
 
@@ -432,12 +445,17 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
   switch (page.type) {
     case 'cover':
       return (
-        <View style={[styles.pageInner, styles.coverPage]}>
+        <LinearGradient
+          colors={[shade(colors.navy, -12), colors.navy, shade(colors.navy, 10)]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.pageInner, styles.coverPage]}
+        >
           <View style={styles.coverBadge}>
             <Text style={styles.coverBadgeText}>THIS TERM · ISSUE 1</Text>
           </View>
           <View style={{ flex: 1 }} />
           <UBPLogo height={30} color={colors.cream} />
+          <View style={styles.coverRule} />
           <Text style={styles.coverTitle}>The{'\n'}Advertisement{'\n'}Board</Text>
           <Text style={styles.coverSub}>
             Partner offers, services, and student listings from across Ireland.
@@ -447,7 +465,7 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
             <Text style={styles.coverSwipeText}>Swipe to open</Text>
             <ChevronRight size={13} color="rgba(245,240,232,0.6)" />
           </View>
-        </View>
+        </LinearGradient>
       )
 
     case 'toc':
@@ -476,14 +494,22 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
 
     case 'divider': {
       const b = page.board
+      const sectionNum = String(BOARDS.findIndex(x => x.key === b.key) + 1).padStart(2, '0')
       return (
-        <View style={[styles.pageInner, styles.dividerPage, { backgroundColor: b.color }]}>
+        <LinearGradient
+          colors={[shade(b.color, -14), b.color, shade(b.color, 14)]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.pageInner, styles.dividerPage]}
+        >
+          <Text style={styles.dividerGhostNum}>{sectionNum}</Text>
           <View style={{ flex: 1 }} />
-          <b.Icon size={38} color="rgba(245,240,232,0.9)" strokeWidth={1.5} />
+          <View style={styles.dividerIconRing}>
+            <b.Icon size={34} color="rgba(245,240,232,0.95)" strokeWidth={1.5} />
+          </View>
           <Text style={styles.dividerTitle}>{b.label}</Text>
           <Text style={styles.dividerSub}>{page.count} listing{page.count !== 1 ? 's' : ''} in this section</Text>
           <View style={{ flex: 1 }} />
-        </View>
+        </LinearGradient>
       )
     }
 
@@ -491,16 +517,22 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
       const ad = page.ad
       const cat = ad.category ? CATEGORY[ad.category] : null
       const isFeatured = ad.type === 'featured'
+      const Wrapper = isFeatured || cat ? LinearGradient : View
+      const wrapperProps = isFeatured
+        ? { colors: [shade(colors.navy, -10), colors.navy, shade(colors.navy, 12)], start: { x: 0, y: 0 }, end: { x: 1, y: 1 } }
+        : cat
+        ? { colors: [cat.bg, colors.cream], start: { x: 0, y: 0 }, end: { x: 0, y: 1 } }
+        : {}
       return (
-        <View style={[styles.pageInner, styles.adLeftPage, isFeatured && styles.adLeftPageFeatured]}>
+        <Wrapper {...wrapperProps} style={[styles.pageInner, styles.adLeftPage]}>
           <View style={{ flex: 1 }} />
           {isFeatured ? (
             <View style={styles.adVisualBadgeFeatured}>
               <UBPLogo height={24} color={colors.cream} />
             </View>
           ) : cat ? (
-            <View style={[styles.adVisualBadge, { backgroundColor: cat.bg }]}>
-              <cat.Icon size={32} color={cat.color} strokeWidth={1.5} />
+            <View style={[styles.adVisualBadge, { backgroundColor: colors.white }]}>
+              <cat.Icon size={34} color={cat.color} strokeWidth={1.5} />
             </View>
           ) : null}
           <Text style={[styles.adVisualBrand, isFeatured && { color: 'rgba(245,240,232,0.6)' }]}>
@@ -515,15 +547,19 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
           <Text style={[styles.adPageFold, isFeatured && { color: 'rgba(245,240,232,0.25)' }]}>
             {ad.boards.map(b => BOARDS.find(x => x.key === b)?.label).filter(Boolean).join(' · ')}
           </Text>
-        </View>
+        </Wrapper>
       )
     }
 
     case 'ad-right': {
       const ad = page.ad
       const isFeatured = ad.type === 'featured'
+      const RightWrapper = isFeatured ? LinearGradient : View
+      const rightProps = isFeatured
+        ? { colors: [shade(colors.navy, 12), colors.navy, shade(colors.navy, -10)], start: { x: 0, y: 0 }, end: { x: 1, y: 1 } }
+        : {}
       return (
-        <View style={[styles.pageInner, isFeatured && styles.adRightPageFeatured]}>
+        <RightWrapper {...rightProps} style={styles.pageInner}>
           <Text style={[styles.pageKicker, isFeatured && { color: 'rgba(245,240,232,0.5)' }]}>
             {isFeatured ? 'UNIBLUEPRINT' : (ad.category || 'LISTING')}
           </Text>
@@ -542,23 +578,31 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
             </Text>
             <ChevronRight size={14} color={isFeatured ? colors.navy : colors.cream} />
           </TouchableOpacity>
-        </View>
+        </RightWrapper>
       )
     }
 
     case 'post-left':
       return (
-        <View style={[styles.pageInner, styles.postPage]}>
+        <LinearGradient
+          colors={[shade(colors.navy, -10), colors.navy, shade(colors.navy, 12)]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.pageInner, styles.postPage]}
+        >
           <View style={{ flex: 1 }} />
           <Megaphone size={36} color={colors.cream} strokeWidth={1.5} />
           <Text style={styles.postPageTitle}>Got something{'\n'}to advertise?</Text>
           <View style={{ flex: 1 }} />
-        </View>
+        </LinearGradient>
       )
 
     case 'post-right':
       return (
-        <View style={[styles.pageInner, styles.postPage]}>
+        <LinearGradient
+          colors={[shade(colors.navy, 12), colors.navy, shade(colors.navy, -10)]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.pageInner, styles.postPage]}
+        >
           <View style={{ flex: 1 }} />
           <Text style={styles.postPageBody}>
             Reach students across Ireland, your service, your event, your business. Every submission is reviewed by the UniBlueprint team before it goes live.
@@ -568,7 +612,7 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
             <Text style={styles.postPageCtaText}>Post an Ad</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }} />
-        </View>
+        </LinearGradient>
       )
 
     case 'advertise':
@@ -601,12 +645,16 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
 
     case 'back-cover':
       return (
-        <View style={[styles.pageInner, styles.coverPage]}>
+        <LinearGradient
+          colors={[shade(colors.navy, 10), colors.navy, shade(colors.navy, -12)]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.pageInner, styles.coverPage]}
+        >
           <View style={{ flex: 1 }} />
           <UBPLogo height={28} color={colors.cream} />
           <Text style={styles.backCoverText}>See you next issue.</Text>
           <View style={{ flex: 1 }} />
-        </View>
+        </LinearGradient>
       )
 
     default:
@@ -760,16 +808,20 @@ const styles = StyleSheet.create({
   },
 
   // Cover / back cover
-  coverPage: { backgroundColor: colors.navy, alignItems: 'flex-start' },
+  coverPage: { alignItems: 'flex-start' },
   coverBadge: {
-    borderWidth: 1, borderColor: 'rgba(245,240,232,0.3)', borderRadius: radius.pill,
+    backgroundColor: 'rgba(245,240,232,0.12)',
+    borderWidth: 1, borderColor: 'rgba(245,240,232,0.25)', borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 5,
   },
   coverBadgeText: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.7)', letterSpacing: 1,
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.75)', letterSpacing: 1,
+  },
+  coverRule: {
+    width: 40, height: 2, borderRadius: 1, backgroundColor: 'rgba(245,240,232,0.35)', marginTop: 18,
   },
   coverTitle: {
-    fontFamily: fonts.serif, fontSize: 40, color: colors.cream, marginTop: 18, lineHeight: 46,
+    fontFamily: fonts.serif, fontSize: 42, color: colors.cream, marginTop: 16, lineHeight: 48,
   },
   coverSub: {
     fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.6)', marginTop: 14, lineHeight: 21, maxWidth: '86%',
@@ -793,15 +845,25 @@ const styles = StyleSheet.create({
 
   // Section divider
   dividerPage: { alignItems: 'center' },
-  dividerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 16, textAlign: 'center' },
-  dividerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.6)', marginTop: 6 },
+  dividerGhostNum: {
+    position: 'absolute', top: -6, alignSelf: 'center',
+    fontFamily: fonts.serif, fontSize: 130, color: 'rgba(245,240,232,0.08)', lineHeight: 150,
+  },
+  dividerIconRing: {
+    width: 76, height: 76, borderRadius: 38,
+    borderWidth: 1.5, borderColor: 'rgba(245,240,232,0.3)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  dividerTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, marginTop: 18, textAlign: 'center' },
+  dividerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.65)', marginTop: 6 },
 
   // Ad spread — left (visual)
   adLeftPage: { alignItems: 'center' },
-  adLeftPageFeatured: { backgroundColor: colors.navy },
   adVisualBadge: {
     width: 76, height: 76, borderRadius: 18,
     alignItems: 'center', justifyContent: 'center',
+    shadowColor: colors.navy, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12, shadowRadius: 10, elevation: 3,
   },
   adVisualBadgeFeatured: {
     width: 76, height: 76, borderRadius: 18, backgroundColor: 'rgba(245,240,232,0.1)',
@@ -814,7 +876,6 @@ const styles = StyleSheet.create({
   adPageFold: { fontFamily: fonts.sans, fontSize: 10, color: colors.light, letterSpacing: 0.4 },
 
   // Ad spread — right (copy)
-  adRightPageFeatured: { backgroundColor: colors.navy },
   adRightTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, marginTop: 8, lineHeight: 30 },
   adRightDesc: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 12, lineHeight: 21 },
   adRightCta: {
