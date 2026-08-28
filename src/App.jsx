@@ -9,6 +9,7 @@ import PageLoader from './components/layout/PageLoader'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
+const BehindTheBlueprintPage = lazy(() => import('./pages/BehindTheBlueprintPage'))
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'))
 const FoundationBlueprintPage = lazy(() => import('./pages/FoundationBlueprintPage'))
 const ElevationBlueprintPage = lazy(() => import('./pages/ElevationBlueprintPage'))
@@ -63,6 +64,7 @@ function AppRoutes() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/behind-the-blueprint" element={<BehindTheBlueprintPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/foundation-blueprint" element={<FoundationBlueprintPage />} />
         <Route path="/elevation-blueprint" element={<ElevationBlueprintPage />} />

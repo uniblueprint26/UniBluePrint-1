@@ -65,6 +65,7 @@ const DIFFERENTIATORS = [
 // real roles. NOTE: double-check spelling with Desmond before this goes
 // live — "Basmali" and "Emannuel" as given may be transcription slips.
 const LEADERSHIP = [
+  { name: 'Desmond',       role: 'Founder',                              description: 'Started it all after a conversation at a birthday dinner in Belfast. Leads the vision and the whole team.' },
   { name: 'Wami',          role: 'Finance Team Leader',                  description: 'Heads up all company finances, payments, and financial planning.' },
   { name: 'Basmali',       role: 'Legal Team Leader',                    description: 'Owns all compliance, agreements, and regulatory requirements ahead of launch.' },
   { name: 'Tayyab',        role: 'Technology & Dev Leader',              description: 'Running the entire platform build end to end.' },
@@ -491,20 +492,32 @@ export default function AboutPage() {
               Behind the Blueprint. From the pilot to launch day.
             </p>
 
-            <a
-              href="https://vsco.co/uniblueprint"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                marginTop: '24px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px', fontWeight: '700',
-                color: '#1E3A5F', textDecoration: 'none',
-              }}
-            >
-              Follow the journey on VSCO <ArrowRight size={13} />
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px', alignItems: 'flex-start' }}>
+              <Link
+                to="/behind-the-blueprint"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '700',
+                  color: '#1E3A5F', textDecoration: 'none',
+                }}
+              >
+                See more of the journey <ArrowRight size={13} />
+              </Link>
+              <a
+                href="https://vsco.co/uniblueprint"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '600',
+                  color: '#6B7280', textDecoration: 'none',
+                }}
+              >
+                Follow the journey on VSCO <ArrowRight size={13} />
+              </a>
+            </div>
           </div>
 
           {/* Right — pull quote */}
