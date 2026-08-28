@@ -61,32 +61,44 @@ const DIFFERENTIATORS = [
   },
 ]
 
-const TEAM_AREAS = [
-  { title: 'Tech & Development', description: 'Building and maintaining the platform, the app, and the infrastructure behind it.' },
-  { title: 'Marketing',          description: 'Growing awareness across Irish campuses and positioning the UniBlueprint brand.' },
-  { title: 'Outreach',           description: 'Connecting with young people, universities, and partners on the ground.' },
-  { title: 'Finance',            description: 'Keeping the business on solid footing and managing our resources responsibly.' },
-  { title: 'Legal',              description: 'Ensuring we operate safely, fairly, and in compliance with Irish and EU law.' },
-  { title: 'Partners',           description: 'Building relationships with businesses and institutions that benefit our users.' },
+// The leadership team running UniBlueprint into September — real names,
+// real roles. NOTE: double-check spelling with Desmond before this goes
+// live — "Basmali" and "Emannuel" as given may be transcription slips.
+const LEADERSHIP = [
+  { name: 'Wami',          role: 'Finance Team Leader',                  description: 'Heads up all company finances, payments, and financial planning.' },
+  { name: 'Basmali',       role: 'Legal Team Leader',                    description: 'Owns all compliance, agreements, and regulatory requirements ahead of launch.' },
+  { name: 'Tayyab',        role: 'Technology & Dev Leader',              description: 'Running the entire platform build end to end.' },
+  { name: 'Bene Matundu',  role: 'Marketing Lead — Creative & Ads',      description: 'Leads on paid ads, visual creativity, and creator partnerships.' },
+  { name: 'Elizabeth',     role: 'Marketing Lead — Content & Social',    description: 'Drives content and social presence across the platform.' },
+  { name: 'Emannuel',      role: 'Technology & Strategy Lead',           description: 'Drives platform strategy and supports the full tech build.' },
+  { name: 'Fabz',          role: 'Campus Growth Lead',                   description: 'Owns campus expansion and influencer partnerships.' },
+  { name: 'Daniel',        role: 'Commercial Operations Lead',           description: 'Heads up commercial relationships, partner activity, and operations.' },
+  { name: 'Aidan',         role: 'Product & Outreach Lead',              description: 'Drives product direction and outreach across campuses.' },
+  { name: 'Sienna',        role: 'Personal Outreach & Community Lead',   description: 'Leads personal outreach and community building across the network.' },
+  { name: 'Zafir',         role: 'Platform & Development Lead',          description: 'Supports the full platform build and development operations.' },
+  { name: 'Ethan',         role: 'Marketing & Outreach Lead',            description: 'Drives marketing activity and outreach across the board.' },
+  { name: 'Alex',          role: 'Digital Marketing Lead',               description: 'Drives digital marketing activity across the platform.' },
+  { name: 'Rachel',        role: 'Legal Team Lead',                      description: 'Supports compliance and agreements alongside the legal team.' },
 ]
 
 // Behind The Blueprint — real titles and dates from the VSCO series.
 // To add a real photo: set photo: '/images/btb-001.jpg' (or a full URL).
 // The label is shown as the blue VSCO-style tag on the polaroid.
 const BTB = [
-  { label: '#001', date: 'Feb 28, 2026',   title: 'Pilot',              photo: null },
-  { label: '#002', date: 'Feb 28, 2026',   title: 'Cakes and Candles',  photo: null },
-  { label: '#003', date: 'Mar — Apr 2026', title: 'Finding the Pieces', photo: null },
-  { label: '#025', date: 'Apr 10, 2026',   title: 'First Look',         photo: null },
-  { label: '#027', date: 'Apr 14, 2026',   title: "We're Online",        photo: null },
-  { label: '#036', date: 'May 5, 2026',    title: 'Ballyhaunis CS',     photo: null },
-  { label: '#037', date: 'May 7, 2026',    title: 'ATU Galway',         photo: null },
-  { label: '#038', date: 'May 8, 2026',    title: 'UCD',                photo: null },
-  { label: '#039', date: 'May 9, 2026',    title: 'Maynooth',           photo: null },
-  { label: '#040', date: 'May 13, 2026',   title: 'Preparations Pt. 1', photo: null },
-  { label: '#041', date: 'May 13, 2026',   title: 'Preparations Pt. 2', photo: null },
-  { label: '#042', date: 'May 14, 2026',   title: 'Showtime',           photo: null },
-  { label: '#043', date: 'May 16, 2026',   title: 'Cafe Conversations', photo: null },
+  { label: '#001', date: 'Feb 28, 2026',   title: 'Pilot',              photo: '/images/btb/btb-001.jpg' },
+  { label: '#002', date: 'Feb 28, 2026',   title: 'Cakes and Candles',  photo: '/images/btb/btb-002.jpg' },
+  { label: '#003', date: 'Mar — Apr 2026', title: 'Finding the Pieces', photo: '/images/btb/btb-003.jpg' },
+  { label: '#025', date: 'Apr 10, 2026',   title: 'First Look',         photo: '/images/btb/btb-025.jpg' },
+  { label: '#027', date: 'Apr 14, 2026',   title: "We're Online",        photo: '/images/btb/btb-027.jpg' },
+  { label: '#031', date: '2026',           title: 'Course Compass',    photo: '/images/btb/btb-031.jpg' },
+  { label: '#036', date: 'May 5, 2026',    title: 'Ballyhaunis CS',     photo: '/images/btb/btb-036.jpg' },
+  { label: '#037', date: 'May 7, 2026',    title: 'ATU Galway',         photo: '/images/btb/btb-037.jpg' },
+  { label: '#038', date: 'May 8, 2026',    title: 'UCD',                photo: '/images/btb/btb-038.jpg' },
+  { label: '#039', date: 'May 9, 2026',    title: 'Maynooth',           photo: '/images/btb/btb-039.jpg' },
+  { label: '#040', date: 'May 13, 2026',   title: 'Preparations Pt. 1', photo: '/images/btb/btb-040.jpg' },
+  { label: '#041', date: 'May 13, 2026',   title: 'Preparations Pt. 2', photo: '/images/btb/btb-041.jpg' },
+  { label: '#042', date: 'May 14, 2026',   title: 'Showtime',           photo: '/images/btb/btb-042.jpg' },
+  { label: '#043', date: 'May 16, 2026',   title: 'Cafe Conversations', photo: '/images/btb/btb-043.jpg' },
   { label: '',     date: 'September 2026', title: 'Launch',             photo: null },
 ]
 
@@ -156,6 +168,47 @@ function ClothesLine({ items }) {
       >
         {items.map((item, i) => {
           const rot = ROTATIONS[i % ROTATIONS.length]
+
+          // Real BTB photos are already finished polaroid graphics — their own
+          // tag, caption, and date are baked into the image itself (that's
+          // the actual VSCO post design). Re-wrapping those in another hand-
+          // drawn polaroid frame below would double up the caption. So a real
+          // photo just hangs on the line as-is; only the still-missing
+          // "Launch" placeholder gets the hand-drawn frame + text look.
+          if (item.photo) {
+            return (
+              <div
+                key={item.title + i}
+                style={{ flexShrink: 0, paddingTop: '24px', position: 'relative' }}
+              >
+                <div style={{
+                  position: 'absolute', top: '10px', left: '50%',
+                  transform: 'translateX(-50%)', zIndex: 3,
+                }}>
+                  <svg width="14" height="30" viewBox="0 0 14 30" fill="none" aria-hidden="true">
+                    <rect x="5" y="0" width="4" height="16" rx="2" fill="#8B7355" />
+                    <ellipse cx="7" cy="22" rx="6" ry="7" fill="#9E8060" />
+                    <rect x="6" y="14" width="2" height="8" fill="#7A6345" />
+                  </svg>
+                </div>
+                <div style={{
+                  width: '160px',
+                  boxShadow: '0 6px 28px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.07)',
+                  transform: `rotate(${rot}deg)`,
+                  marginTop: '12px',
+                  borderRadius: '3px',
+                  overflow: 'hidden',
+                }}>
+                  <img
+                    src={item.photo}
+                    alt={`Behind The Blueprint ${item.label.replace('#', '')} — "${item.title}"`}
+                    style={{ display: 'block', width: '100%', height: 'auto' }}
+                  />
+                </div>
+              </div>
+            )
+          }
+
           return (
             <div
               key={item.title + i}
@@ -173,7 +226,7 @@ function ClothesLine({ items }) {
                 </svg>
               </div>
 
-              {/* Polaroid */}
+              {/* Hand-drawn placeholder polaroid (used only for entries with no photo yet) */}
               <div style={{
                 width: '160px',
                 background: '#FFFFFF',
@@ -184,7 +237,6 @@ function ClothesLine({ items }) {
                 borderRadius: '2px',
                 position: 'relative',
               }}>
-                {/* BTB number tag */}
                 {item.label && (
                   <div style={{
                     position: 'absolute', top: '8px', left: '8px',
@@ -202,31 +254,22 @@ function ClothesLine({ items }) {
                   </div>
                 )}
 
-                {/* Photo area */}
                 <div style={{
                   width: '100%', paddingBottom: '100%', position: 'relative',
                   background: 'linear-gradient(135deg, #ddd8cf 0%, #c8c3ba 100%)',
                   overflow: 'hidden', borderRadius: '1px',
                 }}>
-                  {item.photo ? (
-                    <img
-                      src={item.photo} alt={item.title}
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <div style={{
-                      position: 'absolute', inset: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: '#D4CFc6',
-                    }}>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9E9990', letterSpacing: '0.04em' }}>
-                        photo
-                      </span>
-                    </div>
-                  )}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: '#D4CFc6',
+                  }}>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9E9990', letterSpacing: '0.04em' }}>
+                      photo
+                    </span>
+                  </div>
                 </div>
 
-                {/* Caption */}
                 <div style={{ paddingTop: '10px', textAlign: 'center' }}>
                   <p style={{
                     fontFamily: "'DM Serif Display', serif",
@@ -317,38 +360,34 @@ function DiffCard({ icon: Icon, title, description }) {
   )
 }
 
-function TeamCard({ title, description }) {
+function LeaderCard({ name, role, description }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
       boxShadow: '0 2px 12px rgba(30,58,95,0.07)',
-      padding: '22px 20px',
+      padding: '22px 20px', textAlign: 'left',
     }}>
       <p style={{
         fontFamily: "'DM Serif Display', serif",
-        fontSize: '16px', color: '#1E3A5F', margin: '0 0 8px',
+        fontSize: '17px', color: '#1E3A5F', margin: '0 0 4px',
       }}>
-        {title}
+        {name}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontWeight: '700', color: '#B08D57',
+        textTransform: 'uppercase', letterSpacing: '0.06em',
+        margin: '0 0 10px',
+      }}>
+        {role}
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#6B7280',
-        lineHeight: 1.6, margin: '0 0 16px',
+        lineHeight: 1.6, margin: 0,
       }}>
         {description}
       </p>
-      <Link
-        to="/join"
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          height: '34px',
-          border: '1.5px solid #1E3A5F', borderRadius: '7px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-          color: '#1E3A5F', textDecoration: 'none',
-        }}
-      >
-        Apply
-      </Link>
     </div>
   )
 }
@@ -591,12 +630,23 @@ export default function AboutPage() {
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
           fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
-          marginTop: '10px',
+          marginTop: '10px', textWrap: 'balance',
         }}>
           The people behind the Blueprint.
         </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '15px', color: '#4B5563',
+          marginTop: '16px', lineHeight: 1.8,
+          maxWidth: '640px', margin: '16px auto 0',
+        }}>
+          Every one of these people is still a student, or barely out of being one. That's not
+          a gap we're working around — it's the whole point. This is built by the people who
+          will actually use it, who get exactly what's missing because they're living it
+          themselves. The structure behind our success is each other.
+        </p>
         <div className="about-team-grid">
-          {TEAM_AREAS.map(t => <TeamCard key={t.title} {...t} />)}
+          {LEADERSHIP.map(t => <LeaderCard key={t.name} {...t} />)}
         </div>
 
         <div style={{
