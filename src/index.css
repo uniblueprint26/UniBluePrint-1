@@ -576,7 +576,7 @@ footer {
     text-decoration: underline !important;
   }
 
-  a[href^="http"]:not([href*="uniblueprint.com"])::after {
+  a[href^="http"]:not([href*="uniblueprint.ie"])::after {
     content: " (" attr(href) ")";
     font-size: 9pt;
     color: #444444;

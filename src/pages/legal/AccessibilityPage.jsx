@@ -76,7 +76,7 @@ export default function AccessibilityPage() {
               </p>
               <p style={P}>
                 Contact form:{' '}
-                <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprint.com/contact</Link>
+                <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprint.ie/contact</Link>
               </p>
               <p style={P}>We aim to acknowledge accessibility feedback within 2 business days and to provide a resolution or a practical workaround within 10 business days. If you are not satisfied with our response, you may contact the relevant national accessibility enforcement body in your jurisdiction.</p>
             </Section>

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { ArrowUp, ChevronLeft } from 'lucide-react'
 import { POSTS, calcReadTime, formatDate } from '../../data/blogPosts'
 
-const SITE_URL = 'https://uniblueprint.com'
+const SITE_URL = 'https://uniblueprint.ie'
 
 // Category accent palette (mirrors BlogPage)
 const CATEGORY_ACCENTS = {

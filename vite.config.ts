@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    sitemap({ hostname: "https://uniblueprint.com", dynamicRoutes: ROUTES }),
+    sitemap({ hostname: "https://uniblueprint.ie", dynamicRoutes: ROUTES }),
   ].filter(Boolean),
   resolve: {
     alias: {

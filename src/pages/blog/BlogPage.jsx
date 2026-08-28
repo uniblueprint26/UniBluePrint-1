@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { POSTS, calcReadTime, formatDate } from '../../data/blogPosts'
 
 const POSTS_PER_PAGE = 6
-const SITE_URL = 'https://uniblueprint.com'
+const SITE_URL = 'https://uniblueprint.ie'
 const CATEGORIES = ['All', ...Array.from(new Set(POSTS.map(p => p.category)))]
 
 // ─── Category accent palette ──────────────────────────────────────────────────

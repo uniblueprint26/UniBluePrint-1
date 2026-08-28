@@ -150,7 +150,7 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: 'How do I become a Campus Handler?',
-        a: 'You must be currently enrolled at an Irish university or college. Apply at uniblueprint.com/join. Applications for September 2026 are open now.',
+        a: 'You must be currently enrolled at an Irish university or college. Apply at uniblueprint.ie/join. Applications for September 2026 are open now.',
       },
       {
         q: 'How much do Campus Handlers earn?',
@@ -158,7 +158,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'How do I become a Uni Coach?',
-        a: 'Apply at uniblueprint.com/join. You need relevant professional experience or expertise in one or more Elevation Blueprint service areas. Applications are reviewed by the UniBlueprint team.',
+        a: 'Apply at uniblueprint.ie/join. You need relevant professional experience or expertise in one or more Elevation Blueprint service areas. Applications are reviewed by the UniBlueprint team.',
       },
     ],
   },
@@ -171,7 +171,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'I am having trouble with my account — what do I do?',
-        a: 'Contact support through the app or via the contact form at uniblueprint.com/contact. We typically respond within 2 business days.',
+        a: 'Contact support through the app or via the contact form at uniblueprint.ie/contact. We typically respond within 2 business days.',
       },
       {
         q: 'I subscribed on the website but my app is not showing Pro — what do I do?',

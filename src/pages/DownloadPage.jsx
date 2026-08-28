@@ -494,7 +494,7 @@ export default function DownloadPage() {
             fontSize: '15px', color: '#6B7280',
             marginTop: '14px', lineHeight: 1.7,
           }}>
-            The full UniBlueprint platform is available at uniblueprint.com right now. Same features, same quality. Download the app when it drops.
+            The full UniBlueprint platform is available at uniblueprint.ie right now. Same features, same quality. Download the app when it drops.
           </p>
           <a
             href="/sign-up"

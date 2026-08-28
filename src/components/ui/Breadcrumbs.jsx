@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { BREADCRUMB_MAP } from '../../data/breadcrumbs'
 
-const SITE_URL = 'https://uniblueprint.com'
+const SITE_URL = 'https://uniblueprint.ie'
 
 export default function Breadcrumbs() {
   const { pathname } = useLocation()

@@ -546,7 +546,7 @@ function AppDashboard() {
               <div className="ubp-chrome-dot" style={{ background: '#ffbd2e' }} />
               <div className="ubp-chrome-dot" style={{ background: '#28ca41' }} />
             </div>
-            <div className="ubp-chrome-bar">uniblueprint.com/dashboard</div>
+            <div className="ubp-chrome-bar">uniblueprint.ie/dashboard</div>
           </div>
 
           {/* App body */}
@@ -730,7 +730,7 @@ export default function HomePage() {
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'UniBlueprint',
-          url: 'https://uniblueprint.com',
+          url: 'https://uniblueprint.ie',
           description: 'The all-in-one platform for young people across Ireland — every pathway, every ambition.',
           sameAs: ['https://www.instagram.com/uniblueprint26', 'https://www.tiktok.com/@uniblueprint26'],
           address: { '@type': 'PostalAddress', addressCountry: 'IE' },

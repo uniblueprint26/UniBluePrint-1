@@ -20,4 +20,4 @@ Disallow: /verify-email
 Disallow: /subscription-management
 Disallow: /subscription-success
 
-Sitemap: https://uniblueprint.com/sitemap.xml
+Sitemap: https://uniblueprint.ie/sitemap.xml

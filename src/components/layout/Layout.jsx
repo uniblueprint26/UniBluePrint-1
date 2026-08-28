@@ -9,7 +9,7 @@ import BackToTop from '../ui/BackToTop'
 import Breadcrumbs from '../ui/Breadcrumbs'
 import SearchModal from '../ui/SearchModal'
 
-const SITE_URL = 'https://uniblueprint.com'
+const SITE_URL = 'https://uniblueprint.ie'
 
 export default function Layout() {
   const location = useLocation()
