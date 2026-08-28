@@ -1,39 +1,54 @@
-// TODO: Activate real checkout when Stripe is ready
-//
-// Implementation steps:
-//   1. Complete setup in src/lib/stripe.js (uncomment loadStripe)
-//   2. Fill in price IDs in src/lib/stripe-products.js
-//   3. Deploy supabase/functions/stripe-webhook/index.ts
-//   4. Replace the modal below with a real Stripe Checkout redirect:
-//
-//   import stripePromise from '../../lib/stripe'
-//   import { STRIPE_PRODUCTS } from '../../lib/stripe-products'
-//   import { supabase } from '../../lib/supabase'
-//
-//   async function handleCheckout() {
-//     setLoading(true)
-//     // Call a Supabase Edge Function to create a Checkout Session
-//     const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-//       body: { priceId: STRIPE_PRODUCTS[plan].priceId }
-//     })
-//     if (error || !data?.url) { setLoading(false); return }
-//     const stripe = await stripePromise
-//     await stripe.redirectToCheckout({ sessionId: data.sessionId })
-//     // OR: window.location.href = data.url  (for Stripe-hosted checkout)
-//   }
-
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Clock, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Clock, X, AlertCircle } from 'lucide-react'
+import stripePromise, { STRIPE_STATUS } from '../../lib/stripe'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../context/AuthContext'
 
-export default function CheckoutButton({ label = 'Get Pro', style: extraStyle }) {
+// Two fallback states, shown instead of real checkout:
+//  - not signed in: send to sign-up first (a checkout session needs a real
+//    user id to attribute the subscription to, via client_reference_id)
+//  - Stripe not configured yet (no VITE_STRIPE_PUBLISHABLE_KEY set): the
+//    original "coming soon" modal, so the button is never a dead click
+//    even before Stripe keys exist
+export default function CheckoutButton({ tier = 'pro_monthly', label = 'Get Pro', style: extraStyle }) {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleClick() {
+    if (STRIPE_STATUS !== 'configured') {
+      setOpen(true)
+      return
+    }
+    if (!user) {
+      navigate('/sign-up')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('create-checkout-session', {
+        body: { tier },
+      })
+      if (fnError || !data?.url) {
+        throw new Error(fnError?.message || 'Could not start checkout. Please try again.')
+      }
+      window.location.href = data.url
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+      setLoading(false)
+    }
+  }
 
   return (
     <>
-      {/* Trigger */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={handleClick}
+        disabled={loading}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -47,21 +62,30 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '15px',
           fontWeight: '600',
-          cursor: 'pointer',
+          cursor: loading ? 'default' : 'pointer',
+          opacity: loading ? 0.7 : 1,
           width: '100%',
           transition: 'opacity 150ms',
           ...extraStyle,
         }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+        onMouseEnter={e => !loading && (e.currentTarget.style.opacity = '0.85')}
+        onMouseLeave={e => !loading && (e.currentTarget.style.opacity = '1')}
       >
-        {label}
+        {loading ? 'Redirecting to checkout…' : label}
       </button>
 
-      {/* Coming Soon modal */}
+      {!!error && (
+        <p style={{
+          display: 'flex', alignItems: 'center', gap: '6px',
+          marginTop: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#DC2626',
+        }}>
+          <AlertCircle size={14} /> {error}
+        </p>
+      )}
+
+      {/* Coming Soon modal — only shown while Stripe isn't configured */}
       {open && (
         <>
-          {/* Backdrop */}
           <div
             aria-hidden="true"
             onClick={() => setOpen(false)}
@@ -73,7 +97,6 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
             }}
           />
 
-          {/* Card */}
           <div
             role="dialog"
             aria-modal="true"
@@ -93,7 +116,6 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
               boxShadow: '0px 8px 32px rgba(30,58,95,0.18)',
             }}
           >
-            {/* Close */}
             <button
               onClick={() => setOpen(false)}
               aria-label="Close"
@@ -115,7 +137,6 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
               <X size={20} aria-hidden="true" />
             </button>
 
-            {/* Icon */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -125,7 +146,6 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
               <Clock size={48} color="#1E3A5F" aria-hidden="true" />
             </div>
 
-            {/* Heading */}
             <h2
               id="checkout-modal-title"
               style={{
@@ -138,7 +158,6 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
               Payments Coming Soon
             </h2>
 
-            {/* Body */}
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '15px',
@@ -149,29 +168,28 @@ export default function CheckoutButton({ label = 'Get Pro', style: extraStyle })
               Download the app to get started with UniBlueprint.
             </p>
 
-            {/* CTA */}
-            <Link
-              to="/download"
-              onClick={() => setOpen(false)}
+            <button
+              onClick={() => { setOpen(false); navigate('/download') }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                width: '100%',
                 height: '52px',
                 background: '#1E3A5F',
                 color: '#F5F0E8',
+                border: 'none',
                 borderRadius: '8px',
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '15px',
                 fontWeight: '600',
-                textDecoration: 'none',
+                cursor: 'pointer',
                 marginBottom: '16px',
               }}
             >
               Download the App
-            </Link>
+            </button>
 
-            {/* Close link */}
             <button
               onClick={() => setOpen(false)}
               style={{

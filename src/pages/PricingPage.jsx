@@ -2,6 +2,7 @@ import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { Check, ChevronDown } from 'lucide-react'
+import CheckoutButton from '../components/pricing/CheckoutButton'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -375,18 +376,11 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            <Link
-              to="/sign-up"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                height: '46px', marginTop: '24px',
-                background: '#1E3A5F', borderRadius: '8px',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-                color: '#F5F0E8', textDecoration: 'none',
-              }}
-            >
-              Get Pro
-            </Link>
+            <CheckoutButton
+              tier="pro_monthly"
+              label="Get Pro"
+              style={{ height: '46px', marginTop: '24px', fontSize: '14px' }}
+            />
           </div>
 
           {/* Pro Annual */}
@@ -446,18 +440,11 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            <Link
-              to="/sign-up"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                height: '46px', marginTop: '24px',
-                background: '#F5F0E8', borderRadius: '8px',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-                color: '#1E3A5F', textDecoration: 'none',
-              }}
-            >
-              Get Pro Annual
-            </Link>
+            <CheckoutButton
+              tier="pro_annual"
+              label="Get Pro Annual"
+              style={{ height: '46px', marginTop: '24px', fontSize: '14px', background: '#F5F0E8', color: '#1E3A5F' }}
+            />
           </div>
 
         </div>
