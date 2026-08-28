@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, Home, ShoppingCart, Car, Calendar, BookOpen, Search, MapPin } from 'lucide-react'
+import { ArrowRight, Home, Car, Calendar, BookOpen, Search, MapPin } from 'lucide-react'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -47,7 +47,6 @@ function SectionLabel({ children, light }) {
 
 const CAT_ICONS = [
   { label: 'Rooms',   Icon: Home },
-  { label: 'Market',  Icon: ShoppingCart },
   { label: 'Carpool', Icon: Car },
   { label: 'Events',  Icon: Calendar },
   { label: 'Study',   Icon: BookOpen },
@@ -129,7 +128,6 @@ function CampusScreen() {
 
 const FEATURES = [
   { Icon: Home,        title: 'Accommodation',  desc: 'Rooms, houseshares, and student accommodation near your campus.' },
-  { Icon: ShoppingCart, title: 'Marketplace',  desc: 'Buy and sell textbooks, equipment, and everyday items.' },
   { Icon: Car,         title: 'Carpooling',     desc: 'Find or offer lifts between campuses and home towns.' },
   { Icon: Calendar,    title: 'Events',         desc: 'Society nights, careers fairs, open days, and more.' },
   { Icon: BookOpen,    title: 'Study Groups',   desc: 'Find or form study groups by module, level, or subject.' },
@@ -141,11 +139,6 @@ const BOARDS = {
     { author: 'Aoife',   color: AVATAR_COLORS[0], meta: '€450/mo',  time: '2h ago',  title: 'Room to rent near UCC, bills included' },
     { author: 'Seamus',  color: AVATAR_COLORS[2], meta: '€480/mo',  time: '5h ago',  title: 'Student apartment, 2 rooms available' },
     { author: 'Priya',   color: AVATAR_COLORS[3], meta: 'Looking',   time: '1d ago',  title: 'Looking for housemates, NUIG area' },
-  ],
-  'Marketplace': [
-    { author: 'Harry',   color: AVATAR_COLORS[1], meta: '€20 each', time: '1h ago',  title: 'Business Law textbooks, good condition' },
-    { author: 'Sinead',  color: AVATAR_COLORS[4], meta: '€15',      time: '3h ago',  title: 'Scientific calculator, barely used' },
-    { author: 'Kofi',    color: AVATAR_COLORS[2], meta: 'Free',      time: '6h ago',  title: 'Desk lamp, free to collect on campus' },
   ],
   'Carpooling': [
     { author: 'Abdullah', color: AVATAR_COLORS[0], meta: '3 seats', time: '1h ago',  title: 'Dublin to Galway every Monday' },

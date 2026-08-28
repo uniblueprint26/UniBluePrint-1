@@ -23,11 +23,11 @@ const CAMPUS_FEATURES = [
   {
     key: 'boards', label: 'CAMPUS BOARDS', Icon: Users, color: '#FFF7ED',
     headline: 'Find rooms, sell stuff, stay connected',
-    sub: 'Twelve community boards covering accommodation, marketplace, societies, and more.',
+    sub: 'Eleven community boards covering accommodation, societies, and more.',
     count: 'Live at launch',
     preview: [
       { text: 'Room near UCD, €600/month, bills included. Available from August.', meta: '2h ago' },
-      { text: 'Selling all 2nd yr Business textbooks, €15 each or €50 bundle.', meta: '1h ago' },
+      { text: 'Chess Society looking for new members, all levels welcome!', meta: '1h ago' },
     ],
   },
   {
@@ -62,7 +62,7 @@ const CAMPUS_FEATURES = [
   },
 ]
 
-// ─── Boards (12 boards) ───────────────────────────────────────────────────────
+// ─── Boards (11 boards) ───────────────────────────────────────────────────────
 
 const BOARDS_DATA = [
   {
@@ -70,13 +70,6 @@ const BOARDS_DATA = [
     posts: [
       { text: 'Room available near UCD, €600/month, bills included. Available from August.', time: '2h ago' },
       { text: 'Looking for 2 flatmates in Smithfield. Modern apt, €750pp. DM for info.', time: '5h ago' },
-    ],
-  },
-  {
-    title: 'Marketplace', icon: '🛒', color: '#F0FDF4', postCount: 21,
-    posts: [
-      { text: 'Selling all 2nd year Business textbooks, €15 each or €50 bundle.', time: '1h ago' },
-      { text: 'MacBook Pro 2020, excellent condition, €900. DM for photos.', time: '3h ago' },
     ],
   },
   {
@@ -182,7 +175,7 @@ function carpoolContextId(post) {
 
 // Feature-card "Open" buttons jump down to the matching section already on
 // this screen rather than pushing a new one — Events lives inside the
-// Community Boards section (it's one of the 12 boards), not its own section.
+// Community Boards section (it’s one of the 11 boards), not its own section.
 const FEATURE_SECTION = { boards: 'boards', carpool: 'carpool', events: 'boards', projects: 'projects' }
 
 export default function CampusConnectScreen({ navigation }) {
@@ -279,7 +272,7 @@ export default function CampusConnectScreen({ navigation }) {
           <SectionHeader eyebrow="Community Boards" title="12 Boards, One Place" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
             title="Example content, live when your campus goes live"
-            subtitle="These posts are shown as examples. All 12 boards launch when real students join your campus community."
+            subtitle="These posts are shown as examples. All 11 boards launch when real students join your campus community."
           />
           <ScrollView
             horizontal showsHorizontalScrollIndicator={false}
