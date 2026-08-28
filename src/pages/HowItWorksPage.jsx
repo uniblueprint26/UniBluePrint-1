@@ -1,7 +1,7 @@
 import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ChevronDown, FileText, Compass, Building2, Heart, BookOpen } from 'lucide-react'
+import { ChevronDown, FileText, Compass, Building2, Heart, Globe } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -12,18 +12,18 @@ const PILLARS = [
   {
     icon: FileText, tint: '#EFF6FF', accent: '#2563EB',
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    description: 'Every career document you need — CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements — built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    description: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
     chips: [
       'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
       'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
     ],
     features: [
       ['CV Builder', 'Structured, ATS-formatted, worded to get past the first screen.'],
-      ['Cover Letter Builder', 'Tailored per role — adds to your CV instead of repeating it.'],
+      ['Cover Letter Builder', 'Tailored per role, adds to your CV instead of repeating it.'],
       ['LinkedIn Builder', 'Headline, about, experience and skills, optimised to get found.'],
       ['Portfolio Builder', 'Shows your actual work, not just a list of skills.'],
       ['Application Form Builder', 'STAR-method answers for competency and situational questions.'],
-      ['Personal Statement', 'Your own words, structured to actually land — CAO, postgrad, or scholarship.'],
+      ['Personal Statement', 'Your own words, structured to actually land: CAO, postgrad, or scholarship.'],
       ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
       ['Job Search Support', 'A personalised search strategy, not blind applying.'],
       ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
@@ -32,11 +32,11 @@ const PILLARS = [
   {
     icon: Compass, tint: '#F0FDF4', accent: '#16A34A',
     title: 'Elevation Blueprint', tagline: 'Verified coaches, one enquiry away',
-    description: 'Browse real, verified coaches — fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
+    description: 'Browse real, verified coaches: fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
     chips: ['Fitness', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Sports', 'Yoga'],
     features: [
       ['Browse by category', 'Filter the full coach directory to find the right fit.'],
-      ['Verified profiles', 'Every coach is checked before they’re listed — real bios, real services.'],
+      ['Verified profiles', 'Every coach is checked before they’re listed, real bios, real services.'],
       ['Enquire, not book', 'You message the coach directly. UniBlueprint doesn’t process the booking or payment.'],
     ],
   },
@@ -46,7 +46,7 @@ const PILLARS = [
     description: 'Real discounts from verified local partners, a mental health and wellbeing support directory, and the money tools most students never get taught.',
     chips: ['Health & Fitness', 'Beauty & Grooming', 'Fashion', 'Food & Drink', 'Creative & Services'],
     features: [
-      ['Partner deals', 'Verified local businesses, real student discounts — filter by category.'],
+      ['Partner deals', 'Verified local businesses, real student discounts, filter by category.'],
       ['Support directory', 'Categorised mental health and wellbeing resources, Irish and verified.'],
       ['Budget Calculator', 'Plan rent, food, transport and more against what you actually have.'],
       ['Grants & Schemes', 'SUSI plus every other real Irish student grant worth knowing, with eligibility and how to apply.'],
@@ -55,11 +55,11 @@ const PILLARS = [
   {
     icon: Building2, tint: '#FFF7ED', accent: '#C2660B',
     title: 'Campus Connect', tagline: 'Your own college, in one place',
-    description: 'Everything happening at your own college specifically — organised into boards — plus carpooling, campus events, and finding people on your course to work on projects with.',
+    description: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with.',
     chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
     features: [
       ['Accommodation', 'Rooms, sublets and housing posted by other students at your college.'],
-      ['Marketplace', 'Buy, sell, swap — textbooks, gear, whatever’s going.'],
+      ['Marketplace', 'Buy, sell, swap: textbooks, gear, whatever’s going.'],
       ['Events', 'What’s on, on and around campus.'],
       ['Lost & Found', 'Report or claim something that went missing.'],
       ['Societies', 'Find and connect with student societies.'],
@@ -68,14 +68,14 @@ const PILLARS = [
     ],
   },
   {
-    icon: BookOpen, tint: '#F0F9FF', accent: '#0369A1',
+    icon: Globe, tint: '#F0F9FF', accent: '#0369A1',
     title: 'Course Connect', tagline: 'Cross-Ireland student network',
-    description: 'A networking board that spans every Irish college and university, not just your own — connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
+    description: 'A networking board that spans every Irish college and university, not just your own. Connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
     chips: ['Graduate Network', 'College Reviews', 'Notes Exchange', 'Study Groups'],
     features: [
       ['Graduate Network', 'Connect with students and graduates across every Irish institution, not just yours.'],
-      ['College Reviews', 'Honest reviews from students who’ve actually been there — any college, any course.'],
-      ['Notes Exchange', 'Shared notes by module code — see views and saves before you commit.'],
+      ['College Reviews', 'Honest reviews from students who’ve actually been there, any college, any course.'],
+      ['Notes Exchange', 'Shared notes by module code, see views and saves before you commit.'],
       ['Study Groups', 'Find or start a group for your module.'],
       ['Module Q&A', 'Ask something specific, get an answer from someone who’s done it.'],
       ['Exam Resources', 'Past papers, summaries, and revision material.'],
@@ -151,11 +151,11 @@ const FAQS = [
   },
   {
     q: 'What is the difference between a Campus Handler and a Uni Coach?',
-    a: 'Campus Handlers are trained reviewers at your institution who check every Foundation Blueprint output before it reaches you. Uni Coaches are verified specialists who deliver Elevation Blueprint services — coaching, mentorship, and strategy — over a defined engagement.',
+    a: 'Campus Handlers are trained reviewers at your institution who check every Foundation Blueprint output before it reaches you. Uni Coaches are verified specialists who deliver Elevation Blueprint services: coaching, mentorship, and strategy, over a defined engagement.',
   },
   {
     q: 'Who is UniBlueprint for?',
-    a: 'UniBlueprint is for young people across Ireland on every pathway — university, college, apprenticeship, PLC, 5th and 6th year, and those already in work. Whether you are applying to college, starting an apprenticeship, building your career, or looking for deals near your campus — UniBlueprint has something for you.',
+    a: 'UniBlueprint is for young people across Ireland on every pathway: university, college, apprenticeship, PLC, 5th and 6th year, and those already in work. Whether you are applying to college, starting an apprenticeship, building your career, or looking for deals near your campus, UniBlueprint has something for you.',
   },
   {
     q: 'Is my information kept private?',
@@ -163,7 +163,7 @@ const FAQS = [
   },
   {
     q: 'What happens if I am not happy with the output?',
-    a: 'Contact support through the app. Campus Handlers review outputs against a quality checklist before delivery so revision requests are uncommon — but we will always work with you to get it right.',
+    a: 'Contact support through the app. Campus Handlers review outputs against a quality checklist before delivery so revision requests are uncommon, but we will always work with you to get it right.',
   },
 ]
 
@@ -539,7 +539,7 @@ export default function HowItWorksPage() {
           '@context': 'https://schema.org',
           '@type': 'HowTo',
           name: 'How to use UniBlueprint',
-          description: 'From download to delivered — your Blueprint in four simple steps.',
+          description: 'From download to delivered, your Blueprint in four simple steps.',
           step: STEPS.map(s => ({
             '@type': 'HowToStep',
             position: s.n,
@@ -582,7 +582,7 @@ export default function HowItWorksPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.65)',
             marginTop: '16px', maxWidth: '480px', margin: '16px auto 0', lineHeight: 1.65,
           }}>
-            The five pillars, explained properly — then exactly what happens from sign-up to delivery.
+            The five pillars, explained properly, then exactly what happens from sign-up to delivery.
           </p>
         </div>
       </section>
@@ -602,7 +602,7 @@ export default function HowItWorksPage() {
             fontSize: '15px', color: '#6B7280',
             marginTop: '10px', maxWidth: '480px', margin: '10px auto 0', lineHeight: 1.65,
           }}>
-            Everything UniBlueprint covers, explained properly — not just the ordering flow below.
+            Everything UniBlueprint covers, explained properly, not just the ordering flow below.
           </p>
         </div>
         <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -787,7 +787,7 @@ export default function HowItWorksPage() {
             fontSize: '16px', color: 'rgba(245,240,232,0.6)',
             marginTop: '12px',
           }}>
-            Free to join. No credit card. September trial — 50% off everything.
+            Free to join. No credit card. September trial: 50% off everything.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
             <Link

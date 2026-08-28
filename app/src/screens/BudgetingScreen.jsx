@@ -89,7 +89,7 @@ const OTHER_SCHEMES = [
   {
     name: 'Student Assistance Fund',
     forWho: 'Any student facing financial hardship',
-    description: 'A discretionary fund every publicly funded college holds, for students struggling to cover rent, childcare, transport, or other costs of attending — regardless of whether you already get SUSI. Doesn\'t need to be paid back. Apply through your own college\'s Student Assistance Fund or access office, not centrally.',
+    description: 'A discretionary fund every publicly funded college holds, for students struggling to cover rent, childcare, transport, or other costs of attending, regardless of whether you already get SUSI. Doesn\'t need to be paid back. Apply through your own college\'s Student Assistance Fund or access office, not centrally.',
     link: 'hea.ie',
   },
   {
@@ -101,19 +101,19 @@ const OTHER_SCHEMES = [
   {
     name: 'Fund for Students with Disabilities',
     forWho: 'Students with a physical, sensory, or mental health disability, or a specific learning difficulty',
-    description: 'Covers costs SUSI doesn\'t: things like note-takers, assistive technology, or transport related to your disability. Separate from — and can be claimed alongside — SUSI. Apply through your college\'s disability support service.',
+    description: 'Covers costs SUSI doesn\'t: things like note-takers, assistive technology, or transport related to your disability. Separate from SUSI, and can be claimed alongside it. Apply through your college\'s disability support service.',
     link: 'hea.ie',
   },
   {
     name: 'Back to Education Allowance',
     forWho: 'Mature students or anyone coming from certain social welfare payments',
-    description: 'A weekly payment from the Department of Social Protection for people returning to education from jobseeker\'s or other qualifying payments, so you can study without losing your income support. A different route from SUSI, not a top-up to it — check which one actually applies to your situation.',
+    description: 'A weekly payment from the Department of Social Protection for people returning to education from jobseeker\'s or other qualifying payments, so you can study without losing your income support. A different route from SUSI, not a top-up to it, check which one actually applies to your situation.',
     link: 'gov.ie',
   },
   {
     name: 'Erasmus+ Grant',
     forWho: 'Anyone doing part of their course abroad',
-    description: 'EU funding toward the real cost of studying or working abroad as part of your degree — travel, accommodation, the higher cost of living in some destinations. Administered in Ireland by Léargas, arranged through your college\'s international office.',
+    description: 'EU funding toward the real cost of studying or working abroad as part of your degree: travel, accommodation, the higher cost of living in some destinations. Administered in Ireland by Léargas, arranged through your college\'s international office.',
     link: 'leargas.ie',
   },
 ]
@@ -656,7 +656,7 @@ function BudgetTab() {
       <View style={styles.trackingNote}>
         <Save size={13} color={colors.muted} />
         <Text style={styles.trackingNoteText}>
-          We track this for you as you go — come back anytime and your numbers will still be here.
+          We track this for you as you go. Come back anytime and your numbers will still be here.
         </Text>
       </View>
 
@@ -699,7 +699,7 @@ function SUSITab() {
       <Card style={styles.susiIntro}>
         <Text style={styles.susiIntroTitle}>Every grant and scheme worth knowing</Text>
         <Text style={styles.susiIntroBody}>
-          SUSI is the biggest one, and it's where most students should start — but it isn't the only real financial support available. Depending on your situation, several of these can apply alongside SUSI, not instead of it.
+          SUSI is the biggest one, and it's where most students should start, but it isn't the only real financial support available. Depending on your situation, several of these can apply alongside SUSI, not instead of it.
         </Text>
         <Text style={[styles.susiIntroBody, { marginTop: 12 }]}>
           A lot of students who qualify for something never apply, either because the process feels complicated or they assume they won't be eligible. This guide is here to change that. If there's a chance you're eligible, it's worth fifteen minutes to find out.

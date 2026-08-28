@@ -65,7 +65,7 @@ function TicketCard({ ticket }) {
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={() => Alert.alert(
-        `${ticket.studentFirstName} — ${ticket.serviceType}`,
+        `${ticket.studentFirstName}: ${ticket.serviceType}`,
         `${ticket.tier} · Due ${ticket.deadline}\n\nFull ticket detail view is coming soon.`,
       )}
     >

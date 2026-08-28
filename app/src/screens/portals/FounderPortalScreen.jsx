@@ -61,7 +61,7 @@ function PhotoPickerModal({ visible, onClose, entity }) {
             </TouchableOpacity>
           </View>
           <Text style={pm.sub}>
-            Replacing this photo updates it live for every user — no re-upload elsewhere needed.
+            Replacing this photo updates it live for every user. No re-upload elsewhere needed.
           </Text>
           {!loading && (
             <ImageUploader

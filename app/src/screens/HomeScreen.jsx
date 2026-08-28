@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   Bell, User, FileText, TrendingUp, Building2,
-  Heart, BookOpen, Compass, Calculator, Megaphone,
+  Heart, Globe, Compass, Calculator, Megaphone,
   ChevronRight, ChevronUp, ChevronDown, Pencil,
   LayoutGrid, MessageSquare, Users, X,
 } from 'lucide-react-native'
@@ -31,7 +31,7 @@ const ALL_SHORTCUTS = [
   { key: 'elevation',  label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'elevation'  },
   { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle'  },
   { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'campus_connect' },
-  { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: BookOpen,      bg: '#F0F9FF', action: 'course_connect' },
+  { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: Globe,         bg: '#F0F9FF', action: 'course_connect' },
   { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'compass' },
   { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',             sub: 'Partner listings and offers',    Icon: Megaphone,     bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
@@ -47,7 +47,7 @@ const NAV_ITEMS = [
   { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
   { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
   { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'campus_connect' },
-  { key: 'course',     label: 'Course\nConnect',       Icon: BookOpen,   action: 'course_connect' },
+  { key: 'course',     label: 'Course\nConnect',       Icon: Globe,      action: 'course_connect' },
   { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'compass' },
   { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'budgeting' },
   { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },

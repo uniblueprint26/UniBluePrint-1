@@ -22,12 +22,12 @@ const PILLARS = [
   },
   {
     title: 'Campus Connect',
-    desc: 'A campus community hub with boards for accommodation, marketplace, events, lost and found, carpooling, and project collaboration — specific to your own college.',
+    desc: 'A campus community hub with boards for accommodation, marketplace, events, lost and found, carpooling, and project collaboration, specific to your own college.',
     color: '#FFF7ED',
   },
   {
     title: 'Course Connect',
-    desc: 'A networking board spanning every Irish college and university, not just your own — connect with students and grads anywhere in the country, plus the shared academic resources that go with it: notes, study groups, module Q and A, and exam resources.',
+    desc: 'A networking board spanning every Irish college and university, not just your own. Connect with students and grads anywhere in the country, plus the shared academic resources that go with it: notes, study groups, module Q and A, and exam resources.',
     color: '#F0F9FF',
   },
 ]

@@ -7,7 +7,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
-  Plus, X, Globe, Building2, BookOpen,
+  Plus, X, Globe, Building2,
   Wrench, Sparkles, Dumbbell, Camera, Activity,
   ChevronRight, ChevronLeft, Megaphone, Mail,
 } from 'lucide-react-native'
@@ -34,7 +34,7 @@ function shade(hex, percent) {
 const BOARDS = [
   { key: 'cross-ireland', label: 'Cross-Ireland',  Icon: Globe,      color: colors.navy  },
   { key: 'campus',        label: 'Campus Connect', Icon: Building2,  color: '#B45309'    },
-  { key: 'course',        label: 'Course Connect', Icon: BookOpen,   color: '#0369A1'    },
+  { key: 'course',        label: 'Course Connect', Icon: Globe,      color: '#0369A1'    },
 ]
 
 // ── Category config ───────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ const CATEGORY = {
   'Creative':   { Icon: Camera,    color: '#C2410C', bg: '#FFF7ED' },
   'Gym':        { Icon: Activity,  color: '#0369A1', bg: '#F0F9FF' },
   'Campus':     { Icon: Building2, color: '#B45309', bg: '#FEF3C7' },
-  'Course':     { Icon: BookOpen,  color: '#1E3A5F', bg: '#F5F0E8' },
+  'Course':     { Icon: Globe,     color: '#1E3A5F', bg: '#F5F0E8' },
 }
 
 // ── Ads data ──────────────────────────────────────────────────────────────────
@@ -202,7 +202,7 @@ function PostAdModal({ visible, onClose }) {
       setTitle(''); setDescription(''); setLink(''); setBoards([])
       setImageUrl(null)
       onClose()
-      Alert.alert('Ad submitted', 'Your ad is in for review — it goes live once approved.')
+      Alert.alert('Ad submitted', 'Your ad is in for review. It goes live once approved.')
     } catch {
       Alert.alert('Something went wrong', 'Your ad was not submitted. Please try again.')
     } finally {
@@ -383,7 +383,7 @@ function buildMagazine() {
   pages.push({ type: 'divider', board: BOARDS[1], count: CAMPUS_ADS.length })
   CAMPUS_ADS.forEach(addSpread)
 
-  toc.entries.push({ label: 'Course Connect', Icon: BookOpen, page: pages.length })
+  toc.entries.push({ label: 'Course Connect', Icon: Globe, page: pages.length })
   pages.push({ type: 'divider', board: BOARDS[2], count: COURSE_ADS.length })
   COURSE_ADS.forEach(addSpread)
 
@@ -431,7 +431,7 @@ function getAdPressHandler(ad, navigation) {
   // the offer plus a real next step, instead of a dead-end repeat of the description.
   return () => Alert.alert(
     ad.brand,
-    `${ad.description}\n\nNo direct booking link for this one yet — message the UniBlueprint team and we'll connect you.`,
+    `${ad.description}\n\nNo direct booking link for this one yet. Message the UniBlueprint team and we'll connect you.`,
     [
       { text: 'Message the team', onPress: () => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Interested in: ' + ad.brand)) },
       { text: 'Close', style: 'cancel' },
@@ -488,7 +488,7 @@ function PageContent({ page, navigation, onJump, onOpenPost }) {
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={styles.tocHint}>Tap a section to jump straight there — no need to flip through.</Text>
+          <Text style={styles.tocHint}>Tap a section to jump straight there, no need to flip through.</Text>
         </View>
       )
 

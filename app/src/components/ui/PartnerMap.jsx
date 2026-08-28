@@ -474,7 +474,7 @@ export default function PartnerMap({ onViewListing }) {
                 <Text style={styles.incomingBadge}>OFFICIAL BLUEPRINT PARTNER</Text>
               </View>
               <Text style={styles.chip}>{active.category}</Text>
-              <Text style={styles.cardBody}>On board with UniBlueprint — full listing and deal launch soon.</Text>
+              <Text style={styles.cardBody}>On board with UniBlueprint. Full listing and deal launch soon.</Text>
             </>
           ) : (
             <>
@@ -484,13 +484,13 @@ export default function PartnerMap({ onViewListing }) {
                 </View>
                 <Text style={styles.cardName}>A new partner is joining soon</Text>
               </View>
-              <Text style={styles.cardBody}>We're not ready to share who yet — check back as the map fills in.</Text>
+              <Text style={styles.cardBody}>We're not ready to share who yet. Check back as the map fills in.</Text>
             </>
           )}
         </View>
       ) : (
         <View style={[styles.card, styles.cardIdle]}>
-          <Text style={styles.idleText}>Tap a pin to see who's there — or search above to jump straight to a partner.</Text>
+          <Text style={styles.idleText}>Tap a pin to see who's there, or search above to jump straight to a partner.</Text>
         </View>
       )}
 

@@ -238,7 +238,7 @@ export default function CoachProfileScreen({ route, navigation }) {
             </Text>
           </View>
           {!coach.shell && coach.from?.includes('*') && (
-            <Text style={styles.priceFootnote}>*A target, not a guarantee — see Risk Disclosure below.</Text>
+            <Text style={styles.priceFootnote}>*A target, not a guarantee. See Risk Disclosure below.</Text>
           )}
           <Text style={styles.coachCategory}>{coach.category}</Text>
           <View style={styles.locationRow}>

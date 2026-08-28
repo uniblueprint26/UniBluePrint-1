@@ -5,42 +5,45 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
-  FileText, Compass, Building2, Heart, BookOpen, ChevronDown, CheckCircle,
+  FileText, Compass, Building2, Heart, Globe, ChevronDown, CheckCircle,
+  Calculator, Megaphone,
 } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 
 // Same content as the website's /how-it-works five-pillar section and the
-// original tutorial draft — kept in sync manually across all three.
+// original tutorial draft, kept in sync manually across all three.
 const CARDS = [
   {
     key: 'welcome', tint: colors.cream, accent: colors.navy, Icon: null,
     title: 'Welcome to UniBlueprint', tagline: null,
-    body: 'Five tools, one app, built by students trying to get ahead — for students trying to get ahead. This is the two-minute version. Skip it any time and just start exploring.',
+    body: 'Five tools and two standalone features, built by students trying to get ahead for students trying to get ahead. This is the two-minute version, skip it any time and just start exploring.',
     chips: null, features: null,
     preview: [
       { label: 'Foundation Blueprint', Icon: FileText, accent: '#2563EB', tint: '#EFF6FF' },
       { label: 'Elevation Blueprint',  Icon: Compass,  accent: '#16A34A', tint: '#F0FDF4' },
       { label: 'Lifestyle Blueprint',  Icon: Heart,    accent: '#A21CAF', tint: '#FDF4FF' },
       { label: 'Campus Connect',       Icon: Building2, accent: '#C2660B', tint: '#FFF7ED' },
-      { label: 'Course Connect',       Icon: BookOpen, accent: '#0369A1', tint: '#F0F9FF' },
+      { label: 'Course Connect',       Icon: Globe,     accent: '#0369A1', tint: '#F0F9FF' },
+      { label: 'Budgeting',           Icon: Calculator, accent: '#B45309', tint: '#FEF3C7' },
+      { label: 'Ad Board',            Icon: Megaphone,  accent: '#7C3AED', tint: '#F5F3FF' },
     ],
   },
   {
     key: 'foundation', tint: '#EFF6FF', accent: '#2563EB', Icon: FileText,
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    body: 'Every career document you need — CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements — built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    body: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
     chips: [
       'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
       'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
     ],
     features: [
       ['CV Builder', 'Structured, ATS-formatted, worded to get past the first screen.'],
-      ['Cover Letter Builder', 'Tailored per role — adds to your CV instead of repeating it.'],
+      ['Cover Letter Builder', 'Tailored per role, adds to your CV instead of repeating it.'],
       ['LinkedIn Builder', 'Headline, about, experience and skills, optimised to get found.'],
       ['Portfolio Builder', 'Shows your actual work, not just a list of skills.'],
       ['Application Form Builder', 'STAR-method answers for competency and situational questions.'],
-      ['Personal Statement', 'Your own words, structured to actually land — CAO, postgrad, or scholarship.'],
+      ['Personal Statement', 'Your own words, structured to actually land: CAO, postgrad, or scholarship.'],
       ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
       ['Job Search Support', 'A personalised search strategy, not blind applying.'],
       ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
@@ -49,18 +52,18 @@ const CARDS = [
   {
     key: 'elevation', tint: '#F0FDF4', accent: '#16A34A', Icon: Compass,
     title: 'Elevation Blueprint', tagline: 'Verified coaches, one enquiry away',
-    body: 'Browse real, verified coaches — fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
+    body: 'Browse real, verified coaches: fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
     chips: ['Fitness', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Sports', 'Yoga'],
     features: [
       ['Browse by category', 'Filter the full coach directory to find the right fit.'],
       ['Verified profiles', 'Every coach is checked before they’re listed.'],
-      ['Enquire, not book', 'You message the coach directly — UniBlueprint doesn’t process the booking or payment.'],
+      ['Enquire, not book', 'You message the coach directly. UniBlueprint doesn’t process the booking or payment.'],
     ],
   },
   {
     key: 'lifestyle', tint: '#FDF4FF', accent: '#A21CAF', Icon: Heart,
     title: 'Lifestyle Blueprint', tagline: 'Student life, sorted',
-    body: 'Real discounts from verified local partners, a mental health and wellbeing support directory, and the money tools most students never get taught — including SUSI and every other real Irish grant worth knowing.',
+    body: 'Real discounts from verified local partners, a mental health and wellbeing support directory, and the money tools most students never get taught, including SUSI and every other real Irish grant worth knowing.',
     chips: ['Health & Fitness', 'Beauty & Grooming', 'Fashion', 'Food & Drink'],
     features: [
       ['Partner deals', 'Verified local businesses, real student discounts.'],
@@ -72,11 +75,11 @@ const CARDS = [
   {
     key: 'campus', tint: '#FFF7ED', accent: '#C2660B', Icon: Building2,
     title: 'Campus Connect', tagline: 'Your own college, in one place',
-    body: 'Everything happening at your own college specifically — organised into boards — plus carpooling, campus events, and finding people on your course to work on projects with.',
+    body: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with.',
     chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
     features: [
       ['Accommodation', 'Rooms, sublets and housing posted by other students at your college.'],
-      ['Marketplace', 'Buy, sell, swap — textbooks, gear, whatever’s going.'],
+      ['Marketplace', 'Buy, sell, swap: textbooks, gear, whatever’s going.'],
       ['Lost & Found', 'Report or claim something that went missing.'],
       ['Societies', 'Find and connect with student societies.'],
       ['Opportunities', 'Part-time roles, internships, one-off gigs.'],
@@ -84,13 +87,13 @@ const CARDS = [
     ],
   },
   {
-    key: 'course', tint: '#F0F9FF', accent: '#0369A1', Icon: BookOpen,
+    key: 'course', tint: '#F0F9FF', accent: '#0369A1', Icon: Globe,
     title: 'Course Connect', tagline: 'Cross-Ireland student network',
-    body: 'A networking board that spans every Irish college and university, not just your own — connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
+    body: 'A networking board that spans every Irish college and university, not just your own. Connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
     chips: ['Graduate Network', 'College Reviews', 'Notes Exchange', 'Study Groups'],
     features: [
       ['Graduate Network', 'Connect with students and graduates across every Irish institution, not just yours.'],
-      ['College Reviews', 'Honest reviews from students who’ve actually been there — any college, any course.'],
+      ['College Reviews', 'Honest reviews from students who’ve actually been there, any college, any course.'],
       ['Notes Exchange', 'Shared notes by module code, searchable across universities.'],
       ['Study Groups', 'Find or start a group for your module.'],
       ['Module Q&A', 'Ask something specific, get an answer from someone who’s done it.'],
@@ -98,9 +101,30 @@ const CARDS = [
     ],
   },
   {
+    key: 'budgeting', tint: '#FEF3C7', accent: '#B45309', Icon: Calculator,
+    title: 'Budgeting', tagline: 'Your financial companion, not a Blueprint',
+    body: 'A standalone tool, not one of the five pillars: track what you spend, plan your term, and see every real Irish grant and scheme you might actually qualify for, not just SUSI.',
+    chips: ['Budget Tracker', 'Grants & Schemes', 'Investment Education'],
+    features: [
+      ['Budget Tracker', 'Set your income and outgoings once, and it stays up to date as you go.'],
+      ['Grants & Schemes', 'SUSI plus real niche schemes: Student Assistance Fund, 1916 Bursary, Disability Fund, Back to Education Allowance, Erasmus+, and more.'],
+      ['Investment Education', 'Independent trading and investing coaches, for students who want to learn, not just copy trades.'],
+    ],
+  },
+  {
+    key: 'adboard', tint: '#F5F3FF', accent: '#7C3AED', Icon: Megaphone,
+    title: 'Ad Board', tagline: 'Your weekly issue, not one of the five pillars',
+    body: 'A standalone weekly magazine you flip through, not scroll: partner deals, coach spotlights, campus events, student stories, and everything else happening across UniBlueprint that week.',
+    chips: ['Weekly Deals', 'Coach Spotlights', 'Campus Events', 'Post an Ad'],
+    features: [
+      ['Weekly issue', 'New pages every week, swipe or tap the arrows to flip through.'],
+      ['Post an Ad', 'Anyone can submit a listing for review, students and partners alike.'],
+    ],
+  },
+  {
     key: 'done', tint: colors.cream, accent: colors.navy, Icon: CheckCircle,
     title: 'You’re set', tagline: null,
-    body: 'That’s the whole map. Come back to this any time from Profile → How UniBlueprint Works — nothing here is a one-time thing.',
+    body: 'That’s the whole map. Come back to this any time from Profile, then How UniBlueprint Works. Nothing here is a one-time thing.',
     chips: null, features: null,
   },
 ]
