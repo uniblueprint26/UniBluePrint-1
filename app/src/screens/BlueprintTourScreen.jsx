@@ -18,12 +18,22 @@ const CARDS = [
     title: 'Welcome to UniBlueprint', tagline: null,
     body: 'Five tools, one app, built by students trying to get ahead — for students trying to get ahead. This is the two-minute version. Skip it any time and just start exploring.',
     chips: null, features: null,
+    preview: [
+      { label: 'Foundation Blueprint', Icon: FileText, accent: '#2563EB', tint: '#EFF6FF' },
+      { label: 'Elevation Blueprint',  Icon: Compass,  accent: '#16A34A', tint: '#F0FDF4' },
+      { label: 'Lifestyle Blueprint',  Icon: Heart,    accent: '#A21CAF', tint: '#FDF4FF' },
+      { label: 'Campus Connect',       Icon: Building2, accent: '#C2660B', tint: '#FFF7ED' },
+      { label: 'Course Connect',       Icon: BookOpen, accent: '#0369A1', tint: '#F0F9FF' },
+    ],
   },
   {
     key: 'foundation', tint: '#EFF6FF', accent: '#2563EB', Icon: FileText,
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
     body: 'Every career document you need — CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements — built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
-    chips: ['CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder', 'Personal Statement'],
+    chips: [
+      'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
+      'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
+    ],
     features: [
       ['CV Builder', 'Structured, ATS-formatted, worded to get past the first screen.'],
       ['Cover Letter Builder', 'Tailored per role — adds to your CV instead of repeating it.'],
@@ -32,6 +42,7 @@ const CARDS = [
       ['Application Form Builder', 'STAR-method answers for competency and situational questions.'],
       ['Personal Statement', 'Your own words, structured to actually land — CAO, postgrad, or scholarship.'],
       ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
+      ['Job Search Support', 'A personalised search strategy, not blind applying.'],
       ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
     ],
   },
@@ -114,6 +125,19 @@ function TourCard({ item, width }) {
       <Text style={styles.cardTitle}>{item.title}</Text>
       {item.tagline && <Text style={[styles.cardTagline, { color: item.accent }]}>{item.tagline}</Text>}
       <Text style={styles.cardBody}>{item.body}</Text>
+
+      {item.preview && (
+        <View style={styles.previewList}>
+          {item.preview.map(p => (
+            <View key={p.label} style={styles.previewRow}>
+              <View style={[styles.previewIconWrap, { backgroundColor: p.tint }]}>
+                <p.Icon size={18} color={p.accent} strokeWidth={1.8} />
+              </View>
+              <Text style={styles.previewLabel}>{p.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       {item.chips && (
         <View style={styles.chipRow}>
@@ -257,6 +281,14 @@ const styles = StyleSheet.create({
   cardTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy, marginBottom: 4 },
   cardTagline: { fontFamily: fonts.sansSemiBold, fontSize: 14, marginBottom: spacing.sm },
   cardBody: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, lineHeight: 23 },
+
+  previewList: { marginTop: spacing.xl, gap: 4 },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
+  previewIconWrap: {
+    width: 38, height: 38, borderRadius: 11,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  previewLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
 
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: spacing.md },
   chip: {

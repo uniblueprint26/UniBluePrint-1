@@ -12,14 +12,18 @@ const PILLARS = [
   {
     icon: FileText, tint: '#EFF6FF', accent: '#2563EB',
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    description: 'Every career document you need — CV, cover letter, LinkedIn, portfolio, application answers, interview prep — built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
-    chips: ['CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder', 'Application Form Builder', 'Interview Prep'],
+    description: 'Every career document you need — CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements — built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    chips: [
+      'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
+      'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
+    ],
     features: [
       ['CV Builder', 'Structured, ATS-formatted, worded to get past the first screen.'],
       ['Cover Letter Builder', 'Tailored per role — adds to your CV instead of repeating it.'],
       ['LinkedIn Builder', 'Headline, about, experience and skills, optimised to get found.'],
       ['Portfolio Builder', 'Shows your actual work, not just a list of skills.'],
       ['Application Form Builder', 'STAR-method answers for competency and situational questions.'],
+      ['Personal Statement', 'Your own words, structured to actually land — CAO, postgrad, or scholarship.'],
       ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
       ['Job Search Support', 'A personalised search strategy, not blind applying.'],
       ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
