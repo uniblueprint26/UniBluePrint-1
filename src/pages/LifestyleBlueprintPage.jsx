@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
@@ -143,25 +143,29 @@ const FEATURES = [
   { Icon: Heart,           title: 'Mental Health',  desc: 'Free resources, helplines, and wellbeing tools.', free: true },
 ]
 
+// Category slots without a specific real partner yet stay honestly generic
+// rather than inventing a brand name. Percentages are masked with "?" —
+// per Desmond: enough to show a real deal exists without giving the exact
+// number away on web, that's the reason to open the app.
 const DEALS = {
   'Food & Drink': [
-    { brand: 'Food & Drink Partner', deal: 'Up to 10% off all orders',   locked: true },
-    { brand: 'Cafe Partner',         deal: 'Up to 15% off hot drinks',   locked: true },
+    { brand: 'Food & Drink Partner', deal: 'Up to ?% off all orders',   locked: true },
+    { brand: 'Cafe Partner',         deal: 'Up to ?% off hot drinks',   locked: true },
     { brand: 'Healthy Bowl Partner', deal: 'Free delivery over €15',     locked: true },
   ],
   'Fitness': [
-    { brand: 'Gym Partner',         deal: 'Up to 15% off membership',   locked: true },
-    { brand: 'Coaching Partner',    deal: 'First session free',         locked: true },
-    { brand: 'Wellness Studio',     deal: '€8 member class pass',       locked: true },
+    { brand: 'MPFitness',           deal: 'Up to ?% off membership',   locked: true },
+    { brand: 'Energie Fitness',     deal: 'First session free',         locked: true },
+    { brand: 'JMC Fitness',         deal: '€8 member class pass',       locked: true },
   ],
   'Shopping': [
-    { brand: 'Bookshop Partner',    deal: '10% off all titles',         locked: true },
-    { brand: 'Tech Retailer',       deal: '5% off laptops and devices', locked: true },
-    { brand: 'Clothing Partner',    deal: 'Up to 15% off clothing',     locked: true },
+    { brand: 'Saiemsent',           deal: 'Up to ?% off clothing',      locked: true },
+    { brand: 'Elect',               deal: 'Up to ?% off clothing',      locked: true },
+    { brand: 'Tech Retailer',       deal: '?% off laptops and devices', locked: true },
   ],
   'Travel': [
     { brand: 'Bus Services',        deal: 'Young adult Leap Card rate', locked: true },
-    { brand: 'Rail Services',       deal: '25% off off-peak fares',    locked: true },
+    { brand: 'Rail Services',       deal: '?% off off-peak fares',    locked: true },
     { brand: 'City Bikes',          deal: 'First 3 months free',       locked: true },
   ],
   'Entertainment': [
@@ -179,6 +183,70 @@ const DEALS = {
     { brand: 'MyMind',             deal: 'Low-cost counselling from €40 per session.', locked: false },
     { brand: 'Student Counselling', deal: 'Free through your college. Check your college website.', locked: false },
   ],
+}
+
+// Real partners (from PartnersPage.jsx), cycled in a slideshow. The
+// discount is deliberately masked with "?" — per Desmond, enough to show
+// there's a real saving without giving the number away on web.
+const PARTNER_SLIDES = [
+  { name: 'MPFitness',        category: 'Personal Training',              accent: '#145A3E' },
+  { name: 'Energie Fitness',  category: 'Gym Membership',                 accent: '#166534' },
+  { name: 'Nyz3ditz',         category: 'Photography & Video',            accent: '#C2410C' },
+  { name: 'The Nail Nurse',   category: 'Nail Tech · Galway',             accent: '#BE185D' },
+  { name: 'LEVA Impact',      category: 'Digital Marketing & Design',     accent: '#4C1D95' },
+  { name: 'Camila Aruk',      category: 'Personal Training · Muay Thai',  accent: '#145A3E' },
+  { name: 'Saiemsent',        category: 'Clothing',                       accent: '#1D4ED8' },
+  { name: 'Eabakeditt',       category: 'Home Baking · Dublin 15',        accent: '#B45309' },
+  { name: 'Roomy.ie',         category: 'Housing Platform',               accent: '#0369A1' },
+  { name: 'Vees Lash Studio', category: 'Lash Tech · Galway',             accent: '#BE185D' },
+]
+
+function PartnerSlideshow() {
+  const [index, setIndex] = useState(0)
+  const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const id = setInterval(() => setIndex(i => (i + 1) % PARTNER_SLIDES.length), 3200)
+    return () => clearInterval(id)
+  }, [reduceMotion])
+
+  const slide = PARTNER_SLIDES[index]
+
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '18px',
+      boxShadow: '0 4px 24px rgba(30,58,95,0.08)',
+      padding: '28px 32px', maxWidth: '520px', margin: '0 auto',
+      display: 'flex', alignItems: 'center', gap: '18px',
+    }}>
+      <div style={{
+        width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0,
+        background: slide.accent, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 300ms ease',
+      }}>
+        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#F5F0E8' }}>
+          {slide.name.charAt(0)}
+        </span>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', margin: 0 }}>
+          {slide.name}
+        </p>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#9CA3AF', margin: '2px 0 0' }}>
+          {slide.category}
+        </p>
+      </div>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0,
+        background: ACCENT_ALPHA, border: `1px solid ${ACCENT_BORDER}`,
+        borderRadius: '999px', padding: '7px 14px',
+      }}>
+        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: ACCENT }}>?</span>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: ACCENT }}>% off</span>
+      </div>
+    </div>
+  )
 }
 
 const STEPS = [
@@ -344,6 +412,23 @@ export default function LifestyleBlueprintPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── SECTION 2B — PARTNER SLIDESHOW ───────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '64px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <SectionLabel>Real partners, real deals</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(22px, 2.8vw, 30px)', color: '#1E3A5F', marginTop: '8px' }}>
+            One of many, right now.
+          </h2>
+        </div>
+        <PartnerSlideshow />
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#9CA3AF',
+          textAlign: 'center', marginTop: '18px',
+        }}>
+          The exact discount unlocks in the app.
+        </p>
       </section>
 
       {/* ── SECTION 3 — DEALS EXPLORER ───────────────────────────────────────── */}
