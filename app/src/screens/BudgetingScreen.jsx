@@ -116,6 +116,12 @@ const OTHER_SCHEMES = [
     description: 'EU funding toward the real cost of studying or working abroad as part of your degree: travel, accommodation, the higher cost of living in some destinations. Administered in Ireland by Léargas, arranged through your college\'s international office.',
     link: 'leargas.ie',
   },
+  {
+    name: 'Springboard+',
+    forWho: 'Anyone unemployed, returning to the workforce, or looking to upskill, not just current students',
+    description: 'State-funded higher education courses, free or heavily subsidised, in areas the economy actually needs people in. Not a grant toward a course you\'re already doing: it funds the course itself. Worth checking even if you\'re not currently in college.',
+    link: 'springboardcourses.ie',
+  },
 ]
 
 function SchemeCard({ item }) {
