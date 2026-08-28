@@ -66,6 +66,22 @@ import {
 // TODO: Add rate limiting to contact form submissions — max 3 per IP per hour.
 // Implement via Supabase Edge Function or middleware before going live.
 
+// Two-up field rows (name/email, organisation/contact name, role/university)
+// were hardcoded to `gridTemplateColumns: '1fr 1fr'` with no mobile
+// breakpoint — on narrow phones each field shrank to ~half-width, cramped
+// enough that placeholder text truncated and the fields became fiddly to
+// tap accurately. Stacks to one column below 480px.
+const CONTACT_FORM_STYLES = `
+  .contact-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 480px) {
+    .contact-form-row { grid-template-columns: 1fr; }
+  }
+`
+
 const SUBJECTS = [
   'General question',
   'My account',
@@ -130,7 +146,7 @@ function GeneralForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Your name">
           <FormInput value={form.name} onChange={set('name')} placeholder="Aoife Murphy" required />
         </FormField>
@@ -184,7 +200,7 @@ function PartnershipForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Organisation name">
           <FormInput value={form.organisation} onChange={set('organisation')} placeholder="Acme Ltd." required />
         </FormField>
@@ -241,7 +257,7 @@ function TeamForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Full name">
           <FormInput value={form.name} onChange={set('name')} placeholder="Ciarán Kelly" required />
         </FormField>
@@ -249,7 +265,7 @@ function TeamForm() {
           <FormInput type="email" value={form.email} onChange={set('email')} placeholder="ciaran@example.ie" required />
         </FormField>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Area of interest">
           <FormSelect value={form.role} onChange={set('role')} required>
             <option value="">Select area</option>
@@ -284,6 +300,7 @@ export default function ContactPage() {
         />
         <meta property="og:title" content="Contact | UniBlueprint" />
         <meta property="og:description" content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team." />
+        <style>{CONTACT_FORM_STYLES}</style>
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
