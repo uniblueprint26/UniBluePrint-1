@@ -16,18 +16,18 @@ const PILLARS = [
     color: '#F0FDF4',
   },
   {
-    title: 'Campus Connect',
-    desc: 'A campus community hub with boards for accommodation, marketplace, events, lost and found, carpooling, project collaboration, and student societies. Built for your university.',
-    color: '#FFF7ED',
-  },
-  {
     title: 'Lifestyle Blueprint',
     desc: 'Exclusive deals from verified partners, mental health support resources, budgeting tools, and weekly money tips. Built around what student life actually costs.',
     color: '#FDF4FF',
   },
   {
+    title: 'Campus Connect',
+    desc: 'A campus community hub with boards for accommodation, marketplace, events, lost and found, carpooling, and project collaboration — specific to your own college.',
+    color: '#FFF7ED',
+  },
+  {
     title: 'Course Connect',
-    desc: 'Notes sharing, study groups, module Q and A, exam resources, mentorship matching, and a student database. Everything you need to thrive academically.',
+    desc: 'A networking board spanning every Irish college and university, not just your own — connect with students and grads anywhere in the country, plus the shared academic resources that go with it: notes, study groups, module Q and A, and exam resources.',
     color: '#F0F9FF',
   },
 ]
