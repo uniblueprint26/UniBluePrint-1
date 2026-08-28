@@ -1,9 +1,82 @@
 import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, FileText, Compass, Building2, Heart, BookOpen } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
+
+// The five pillars — same content as the app's onboarding tutorial ("The
+// Blueprint Tour"), adapted for the website. Kept in sync manually; if the
+// tutorial's copy changes, update both.
+const PILLARS = [
+  {
+    icon: FileText, tint: '#EFF6FF', accent: '#2563EB',
+    title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
+    description: 'Every career document you need — CV, cover letter, LinkedIn, portfolio, application answers, interview prep — built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    chips: ['CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder', 'Application Form Builder', 'Interview Prep'],
+    features: [
+      ['CV Builder', 'Structured, ATS-formatted, worded to get past the first screen.'],
+      ['Cover Letter Builder', 'Tailored per role — adds to your CV instead of repeating it.'],
+      ['LinkedIn Builder', 'Headline, about, experience and skills, optimised to get found.'],
+      ['Portfolio Builder', 'Shows your actual work, not just a list of skills.'],
+      ['Application Form Builder', 'STAR-method answers for competency and situational questions.'],
+      ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
+      ['Job Search Support', 'A personalised search strategy, not blind applying.'],
+      ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
+    ],
+  },
+  {
+    icon: Compass, tint: '#F0FDF4', accent: '#16A34A',
+    title: 'Elevation Blueprint', tagline: 'Verified coaches, one enquiry away',
+    description: 'Browse real, verified coaches — fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
+    chips: ['Fitness', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Sports', 'Yoga'],
+    features: [
+      ['Browse by category', 'Filter the full coach directory to find the right fit.'],
+      ['Verified profiles', 'Every coach is checked before they’re listed — real bios, real services.'],
+      ['Enquire, not book', 'You message the coach directly. UniBlueprint doesn’t process the booking or payment.'],
+    ],
+  },
+  {
+    icon: Building2, tint: '#FFF7ED', accent: '#C2660B',
+    title: 'Campus Connect', tagline: 'Your campus, in one place',
+    description: 'Everything happening around your university, organised into boards — plus carpooling, campus events, and finding people to work on projects with.',
+    chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
+    features: [
+      ['Accommodation', 'Rooms, sublets and housing posted by other students.'],
+      ['Marketplace', 'Buy, sell, swap — textbooks, gear, whatever’s going.'],
+      ['Events', 'What’s on, on and around campus.'],
+      ['Lost & Found', 'Report or claim something that went missing.'],
+      ['Societies', 'Find and connect with student societies.'],
+      ['Opportunities', 'Part-time roles, internships, one-off gigs.'],
+      ['Student Ads', 'Local student-run businesses and side hustles.'],
+    ],
+  },
+  {
+    icon: Heart, tint: '#FDF4FF', accent: '#A21CAF',
+    title: 'Lifestyle Blueprint', tagline: 'Student life, sorted',
+    description: 'Real discounts from verified local partners, a mental health and wellbeing support directory, and the money tools most students never get taught.',
+    chips: ['Health & Fitness', 'Beauty & Grooming', 'Fashion', 'Food & Drink', 'Creative & Services'],
+    features: [
+      ['Partner deals', 'Verified local businesses, real student discounts — filter by category.'],
+      ['Support directory', 'Categorised mental health and wellbeing resources, Irish and verified.'],
+      ['Budget Calculator', 'Plan rent, food, transport and more against what you actually have.'],
+      ['SUSI Grant Guide', 'Check eligibility and walk through the application, step by step.'],
+    ],
+  },
+  {
+    icon: BookOpen, tint: '#F0F9FF', accent: '#0369A1',
+    title: 'Course Connect', tagline: 'Academic backup, from people who get it',
+    description: 'Notes, study groups, and module-specific help from students who’ve actually taken the module — searchable by module code and university.',
+    chips: ['Notes Exchange', 'Study Groups', 'Module Q&A', 'Exam Resources'],
+    features: [
+      ['Notes Exchange', 'Shared notes by module code — see views and saves before you commit.'],
+      ['Study Groups', 'Find or start a group for your module.'],
+      ['Module Q&A', 'Ask something specific, get an answer from someone who’s done it.'],
+      ['Exam Resources', 'Past papers, summaries, and revision material.'],
+      ['College Reviews', 'Module and course reviews from real students.'],
+    ],
+  },
+]
 
 const STEPS = [
   {
@@ -317,6 +390,75 @@ function StepScreen({ step }) {
   )
 }
 
+function PillarCard({ icon: Icon, tint, accent, title, tagline, description, chips, features }) {
+  const [open, setOpen] = useState(false)
+  const panelId = useId()
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '16px',
+      boxShadow: '0 2px 14px rgba(30,58,95,0.07)',
+      padding: '32px 28px',
+    }}>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+        <div style={{
+          width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0,
+          background: tint, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon size={24} color={accent} strokeWidth={1.8} />
+        </div>
+        <div style={{ flex: 1, minWidth: '240px' }}>
+          <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', margin: 0 }}>
+            {title}
+          </h3>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '700', color: accent, margin: '4px 0 0' }}>
+            {tagline}
+          </p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', color: '#4B5563', lineHeight: 1.7, margin: '12px 0 0' }}>
+            {description}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '14px' }}>
+            {chips.map(c => (
+              <span key={c} style={{
+                fontSize: '11px', fontWeight: '600', color: '#1E3A5F',
+                background: '#F5F0E8', border: '1px solid rgba(30,58,95,0.1)',
+                borderRadius: '999px', padding: '5px 11px',
+              }}>
+                {c}
+              </span>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setOpen(o => !o)}
+            aria-expanded={open}
+            aria-controls={panelId}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              marginTop: '18px', background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '700',
+              color: '#1E3A5F', padding: 0,
+            }}
+          >
+            {open ? 'Show less' : 'See everything it covers'}
+            <ChevronDown size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }} />
+          </button>
+
+          <div id={panelId} hidden={!open} style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {features.map(([t, d]) => (
+                <li key={t} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6, display: 'flex', gap: '8px' }}>
+                  <span aria-hidden="true" style={{ width: '4px', height: '4px', borderRadius: '50%', background: accent, marginTop: '7px', flexShrink: 0 }} />
+                  <span><b style={{ color: '#1E3A5F', fontWeight: '600' }}>{t}.</b> {d}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AccordionItem({ question, answer }) {
   const [open, setOpen] = useState(false)
   const panelId    = useId()
@@ -428,15 +570,38 @@ export default function HowItWorksPage() {
             color: '#F5F0E8', lineHeight: 1.08,
             marginTop: '12px', letterSpacing: '-0.01em',
           }}>
-            Four steps. Your Blueprint.
+            What's inside, and how it works.
           </h1>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '17px', color: 'rgba(245,240,232,0.65)',
-            marginTop: '16px', maxWidth: '460px', margin: '16px auto 0', lineHeight: 1.65,
+            marginTop: '16px', maxWidth: '480px', margin: '16px auto 0', lineHeight: 1.65,
           }}>
-            From sign-up to delivery in under 48 hours. Here's exactly what happens.
+            The five pillars, explained properly — then exactly what happens from sign-up to delivery.
           </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 1B — THE FIVE PILLARS ────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <SectionLabel>What's actually inside</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(28px, 4vw, 40px)', color: '#1E3A5F', marginTop: '10px',
+          }}>
+            Five pillars. One app.
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#6B7280',
+            marginTop: '10px', maxWidth: '480px', margin: '10px auto 0', lineHeight: 1.65,
+          }}>
+            Everything UniBlueprint covers, explained properly — not just the ordering flow below.
+          </p>
+        </div>
+        <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {PILLARS.map(p => <PillarCard key={p.title} {...p} />)}
         </div>
       </section>
 
