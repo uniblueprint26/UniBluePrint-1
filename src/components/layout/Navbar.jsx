@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Menu, X, ChevronDown, LogIn, UserCircle,
-  FileText, Mail, Award, BookOpen, Star, Pen,
-  Target, Mic, TrendingUp, Briefcase, Users, Calendar,
-  Instagram, Search, UserCheck,
+  FileText, Linkedin, Award, Briefcase, MessageSquare, Search,
+  Dumbbell, GraduationCap, TrendingUp, Megaphone, Sparkles, Trophy, Flower2,
+  Instagram, UserCheck,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -13,21 +13,23 @@ import UBPLogo from '../ui/UBPLogo'
 // ─── Nav data ─────────────────────────────────────────────────────────────────
 
 const FOUNDATION_SERVICES = [
-  { label: 'Assignments & Essays', icon: FileText, href: '/foundation-blueprint' },
-  { label: 'CV & Resumé', icon: Star, href: '/foundation-blueprint' },
-  { label: 'Cover Letters', icon: Mail, href: '/foundation-blueprint' },
-  { label: 'College Applications', icon: BookOpen, href: '/foundation-blueprint' },
-  { label: 'Scholarship Support', icon: Award, href: '/foundation-blueprint' },
-  { label: 'Personal Statements', icon: Pen, href: '/foundation-blueprint' },
+  { label: 'CV Optimisation', icon: FileText, href: '/foundation-blueprint' },
+  { label: 'Cover Letter Assistance', icon: FileText, href: '/foundation-blueprint' },
+  { label: 'LinkedIn Optimisation', icon: Linkedin, href: '/foundation-blueprint' },
+  { label: 'Portfolio Building', icon: Briefcase, href: '/foundation-blueprint' },
+  { label: 'Application Form Assistance', icon: Award, href: '/foundation-blueprint' },
+  { label: 'Interview Preparation', icon: MessageSquare, href: '/foundation-blueprint' },
+  { label: 'Job Search Support', icon: Search, href: '/foundation-blueprint' },
 ]
 
 const ELEVATION_SERVICES = [
-  { label: 'Career Coaching', icon: Target, href: '/elevation-blueprint' },
-  { label: 'Interview Preparation', icon: Mic, href: '/elevation-blueprint' },
-  { label: 'LinkedIn & Personal Brand', icon: TrendingUp, href: '/elevation-blueprint' },
-  { label: 'Internship Applications', icon: Briefcase, href: '/elevation-blueprint' },
-  { label: 'Career Planning', icon: Calendar, href: '/elevation-blueprint' },
-  { label: 'Mentorship', icon: Users, href: '/elevation-blueprint' },
+  { label: 'Fitness', icon: Dumbbell, href: '/elevation-blueprint' },
+  { label: 'Academic Grinds', icon: GraduationCap, href: '/elevation-blueprint' },
+  { label: 'Trading', icon: TrendingUp, href: '/elevation-blueprint' },
+  { label: 'Marketing', icon: Megaphone, href: '/elevation-blueprint' },
+  { label: 'Creative', icon: Sparkles, href: '/elevation-blueprint' },
+  { label: 'Sports', icon: Trophy, href: '/elevation-blueprint' },
+  { label: 'Yoga', icon: Flower2, href: '/elevation-blueprint' },
   { label: 'Our Coaches', icon: UserCheck, href: '/elevation-blueprint' },
 ]
 
