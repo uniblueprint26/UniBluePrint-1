@@ -78,6 +78,64 @@ const SUSI_TERMS = [
   },
 ]
 
+// Real, established Irish student financial supports beyond SUSI. Kept
+// deliberately general — who it's for and what it broadly covers — rather
+// than citing specific euro amounts, thresholds, or deadlines the way the
+// SUSI section above does. Those figures change yearly per scheme and we
+// don't have a maintained, verified source for each one the way we do for
+// SUSI's own published rates — better to send someone to the real page
+// than publish a number that might be wrong.
+const OTHER_SCHEMES = [
+  {
+    name: 'Student Assistance Fund',
+    forWho: 'Any student facing financial hardship',
+    description: 'A discretionary fund every publicly funded college holds, for students struggling to cover rent, childcare, transport, or other costs of attending — regardless of whether you already get SUSI. Doesn\'t need to be paid back. Apply through your own college\'s Student Assistance Fund or access office, not centrally.',
+    link: 'hea.ie',
+  },
+  {
+    name: '1916 Bursary Fund',
+    forWho: 'Students from groups significantly under-represented in higher education',
+    description: 'Extra financial and practical support on top of SUSI, for students who are the first in their family to attend college, from a socio-economically disadvantaged background, or from other under-represented groups. Administered through your college\'s access office.',
+    link: 'hea.ie',
+  },
+  {
+    name: 'Fund for Students with Disabilities',
+    forWho: 'Students with a physical, sensory, or mental health disability, or a specific learning difficulty',
+    description: 'Covers costs SUSI doesn\'t: things like note-takers, assistive technology, or transport related to your disability. Separate from — and can be claimed alongside — SUSI. Apply through your college\'s disability support service.',
+    link: 'hea.ie',
+  },
+  {
+    name: 'Back to Education Allowance',
+    forWho: 'Mature students or anyone coming from certain social welfare payments',
+    description: 'A weekly payment from the Department of Social Protection for people returning to education from jobseeker\'s or other qualifying payments, so you can study without losing your income support. A different route from SUSI, not a top-up to it — check which one actually applies to your situation.',
+    link: 'gov.ie',
+  },
+  {
+    name: 'Erasmus+ Grant',
+    forWho: 'Anyone doing part of their course abroad',
+    description: 'EU funding toward the real cost of studying or working abroad as part of your degree — travel, accommodation, the higher cost of living in some destinations. Administered in Ireland by Léargas, arranged through your college\'s international office.',
+    link: 'leargas.ie',
+  },
+]
+
+function SchemeCard({ item }) {
+  return (
+    <Card style={styles.schemeCard}>
+      <Text style={styles.schemeName}>{item.name}</Text>
+      <Text style={styles.schemeForWho}>{item.forWho}</Text>
+      <Text style={styles.schemeDesc}>{item.description}</Text>
+      <TouchableOpacity
+        style={styles.schemeLinkRow}
+        activeOpacity={0.7}
+        onPress={() => Linking.openURL(`https://${item.link}`)}
+      >
+        <Text style={styles.schemeLinkText}>{item.link}</Text>
+        <ExternalLink size={12} color={colors.navy} />
+      </TouchableOpacity>
+    </Card>
+  )
+}
+
 const APPLICATION_STEPS = [
   'Apply online at susi.ie (opens April/May each year)',
   'Have all household PPS numbers ready before you start',
@@ -639,12 +697,12 @@ function SUSITab() {
     <View>
       {/* Editorial intro */}
       <Card style={styles.susiIntro}>
-        <Text style={styles.susiIntroTitle}>What is SUSI?</Text>
+        <Text style={styles.susiIntroTitle}>Every grant and scheme worth knowing</Text>
         <Text style={styles.susiIntroBody}>
-          SUSI (Student Universal Support Ireland) is the national student grant scheme. If your household income falls below a certain threshold, SUSI contributes toward your maintenance costs: rent, food, and the everyday expenses of student life.
+          SUSI is the biggest one, and it's where most students should start — but it isn't the only real financial support available. Depending on your situation, several of these can apply alongside SUSI, not instead of it.
         </Text>
         <Text style={[styles.susiIntroBody, { marginTop: 12 }]}>
-          A lot of students who qualify never apply, either because the process feels complicated or they assume they won't be eligible. This guide is here to change that. If there's a chance you're eligible, it's worth fifteen minutes to find out.
+          A lot of students who qualify for something never apply, either because the process feels complicated or they assume they won't be eligible. This guide is here to change that. If there's a chance you're eligible, it's worth fifteen minutes to find out.
         </Text>
       </Card>
 
@@ -728,6 +786,15 @@ function SUSITab() {
         </View>
         <ExternalLink size={20} color={colors.cream} />
       </TouchableOpacity>
+
+      {/* Other real Irish grants and schemes, alongside SUSI */}
+      <SectionHeader eyebrow="Beyond SUSI" title="Other Grants & Schemes" style={{ marginTop: spacing.xl }} />
+      <Text style={styles.schemesIntro}>
+        These are separate applications, separate funding bodies, and worth checking even if you already get SUSI, or even if SUSI turned you down.
+      </Text>
+      <View style={{ gap: 12 }}>
+        {OTHER_SCHEMES.map(s => <SchemeCard key={s.name} item={s} />)}
+      </View>
     </View>
   )
 }
@@ -827,7 +894,7 @@ export default function BudgetingScreen({ navigation, route }) {
             onPress={() => setTab('susi')}
           >
             <Target size={15} color={tab === 'susi' ? colors.white : colors.navy} />
-            <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]}>SUSI Guide</Text>
+            <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]}>Grants & Schemes</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'invest' && styles.tabBtnActive]}
@@ -1080,4 +1147,13 @@ const styles = StyleSheet.create({
   },
   susiCtaLabel: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.6)', marginBottom: 2 },
   susiCtaTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+
+  // Other Grants & Schemes
+  schemesIntro: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 12 },
+  schemeCard:     { padding: 18 },
+  schemeName:     { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginBottom: 4 },
+  schemeForWho:   { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, marginBottom: 10 },
+  schemeDesc:     { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
+  schemeLinkRow:  { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 12 },
+  schemeLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
 })

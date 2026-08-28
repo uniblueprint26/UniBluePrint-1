@@ -60,7 +60,7 @@ const PILLARS = [
       ['Partner deals', 'Verified local businesses, real student discounts — filter by category.'],
       ['Support directory', 'Categorised mental health and wellbeing resources, Irish and verified.'],
       ['Budget Calculator', 'Plan rent, food, transport and more against what you actually have.'],
-      ['SUSI Grant Guide', 'Check eligibility and walk through the application, step by step.'],
+      ['Grants & Schemes', 'SUSI plus every other real Irish student grant worth knowing, with eligibility and how to apply.'],
     ],
   },
   {

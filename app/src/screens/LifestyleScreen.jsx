@@ -100,7 +100,7 @@ const WELLBEING_RESOURCES = [
 // ─── Budget Tools ─────────────────────────────────────────────────────────────
 const BUDGET_TOOLS = [
   { title: 'Budget Calculator', sub: 'Plan rent, food, transport and more', Icon: PiggyBank, screen: 'Budgeting', params: { tab: 'budget' } },
-  { title: 'SUSI Grant Guide',  sub: 'Check eligibility and application steps', Icon: Tag, screen: 'Budgeting', params: { tab: 'susi' } },
+  { title: 'Grants & Schemes',  sub: 'SUSI and every other Irish student grant worth knowing', Icon: Tag, screen: 'Budgeting', params: { tab: 'susi' } },
   // No dedicated job-board feature exists yet — the Ad Board is the closest
   // real "browse listings" screen in the app until one is built. Navigated
   // via the parent tab so it switches tabs correctly, not just pushes a
