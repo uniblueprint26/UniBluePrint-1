@@ -43,8 +43,29 @@ alter table public.gdpr_requests
 -- Statutory 30-day response window (GDPR Article 12) as a real, queryable
 -- column instead of something a person has to calculate by hand from
 -- requested_at every time.
+--
+-- Not a GENERATED column: Postgres requires generated-column expressions to
+-- be provably immutable, and `timestamptz + interval` doesn't qualify (the
+-- operator implementation is timezone-sensitive even for a fixed day count).
+-- A BEFORE INSERT/UPDATE trigger gets the same always-in-sync behaviour
+-- without that restriction, and also correctly re-derives due_at if
+-- requested_at is ever backfilled or corrected.
 alter table public.gdpr_requests
-  add column if not exists due_at timestamptz generated always as (requested_at + interval '30 days') stored;
+  add column if not exists due_at timestamptz;
+
+create or replace function public.set_gdpr_due_at()
+returns trigger language plpgsql as $$
+begin
+  new.due_at := new.requested_at + interval '30 days';
+  return new;
+end; $$;
+
+drop trigger if exists gdpr_requests_set_due_at on public.gdpr_requests;
+create trigger gdpr_requests_set_due_at
+  before insert or update of requested_at on public.gdpr_requests
+  for each row execute function public.set_gdpr_due_at();
+
+update public.gdpr_requests set due_at = requested_at + interval '30 days' where due_at is null;
 
 -- Replace the authenticated-only insert policy with one that also accepts
 -- anonymous website visitors, while still preventing a logged-in user from
@@ -59,4 +80,4 @@ create policy "submit_gdpr_request" on public.gdpr_requests
 
 comment on column public.gdpr_requests.name is 'Set for anonymous (non-account) requesters submitted via the website form. Null for logged-in app requests, which are identified by user_id.';
 comment on column public.gdpr_requests.email is 'Set for anonymous (non-account) requesters submitted via the website form.';
-comment on column public.gdpr_requests.due_at is 'Statutory response deadline: requested_at + 30 days (GDPR Article 12).';
+comment on column public.gdpr_requests.due_at is 'Statutory response deadline: requested_at + 30 days (GDPR Article 12). Maintained by the gdpr_requests_set_due_at trigger, not a generated column — see comment above.';
