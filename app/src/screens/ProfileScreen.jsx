@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen, X,
+  Star, FileText, Calendar, BookOpen, X, Compass,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ImageUploader from '../components/ui/ImageUploader'
@@ -59,6 +59,7 @@ const EXPLORE_LINKS = [
 
 const ACCOUNT_LINKS = [
   { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
+  { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
 ]

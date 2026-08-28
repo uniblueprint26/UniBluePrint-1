@@ -2,12 +2,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
 import { Platform, View, Animated } from 'react-native'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import UBPLogo from '../components/ui/UBPLogo'
 import UnverifiedEmailBanner from '../components/ui/UnverifiedEmailBanner'
 
 import { useAuth } from '../context/AuthContext'
 import { colors, fonts } from '../constants/theme'
+import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
 
 // Main screens
 import HomeScreen          from '../screens/HomeScreen'
@@ -129,6 +131,11 @@ function ProfileStack() {
       <Stack.Screen name="FAQs"         component={FAQsScreen}        />
       <Stack.Screen name="Help"         component={HelpScreen}        />
       <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
+      <Stack.Screen name="BlueprintTour">
+        {({ navigation }) => (
+          <BlueprintTourScreen mode="replay" onFinish={() => navigation.goBack()} />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   )
 }
@@ -237,10 +244,35 @@ function SplashScreen() {
 
 export default function RootNavigator() {
   const { user, loading } = useAuth()
+  // null = not checked yet, true/false once we know. Re-checked per user id
+  // so switching accounts (or a fresh guest session) re-evaluates rather
+  // than reusing a stale answer from a previous user on the same device.
+  const [tourSeen, setTourSeen] = useState(null)
+
+  useEffect(() => {
+    if (!user?.id) { setTourSeen(null); return }
+    let cancelled = false
+    AsyncStorage.getItem(`${TOUR_SEEN_KEY_PREFIX}${user.id}`)
+      .then(v => { if (!cancelled) setTourSeen(!!v) })
+      .catch(() => { if (!cancelled) setTourSeen(true) }) // fail open — never block entry to the app over a storage read error
+    return () => { cancelled = true }
+  }, [user?.id])
 
   if (loading) {
     return <SplashScreen />
   }
 
-  return user ? <MainTabs /> : <AuthStack />
+  if (!user) {
+    return <AuthStack />
+  }
+
+  if (tourSeen === null) {
+    return <SplashScreen />
+  }
+
+  if (!tourSeen) {
+    return <BlueprintTourScreen mode="first-launch" onFinish={() => setTourSeen(true)} />
+  }
+
+  return <MainTabs />
 }
