@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  FileText, Linkedin, Award, MessageSquare, Search, Briefcase,
+  FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
   Compass, GraduationCap, Map, Wrench, Package,
   ChevronLeft, ChevronRight, Sparkles, ExternalLink,
 } from 'lucide-react-native'
@@ -52,6 +52,15 @@ const CAREER_SERVICES = [
     color: '#F0FDF4',
   },
   {
+    icon: PenLine,
+    title: 'Personal Statement',
+    tagline: 'Tell your story in a way that actually lands',
+    description: 'A personal statement is where you make the case for yourself in your own words, not a bullet point. UniBlueprint helps you write one that is specific, honest, and structured to stand out, whether it is for a CAO application, a postgraduate course, or a scholarship.',
+    originalStd: '€20', trialStd: '€10',
+    originalPrem: '€30', trialPrem: '€15',
+    color: '#F0F9FF',
+  },
+  {
     icon: Award,
     title: 'Application Form Assistance',
     tagline: 'Answer every question with confidence and clarity',
@@ -99,8 +108,8 @@ const FOUNDATION_STATS = [
     line: 'Built and refined for how Irish recruiters and ATS systems actually hire.',
   },
   {
-    stat: '7 services. 1 standard.',
-    line: 'CVs, cover letters, LinkedIn profiles, portfolios, application forms and more. Every one built to get you noticed.',
+    stat: '8 services. 1 standard.',
+    line: 'CVs, cover letters, personal statements, LinkedIn profiles, portfolios, application forms and more. Every one built to get you noticed.',
   },
   {
     stat: '30+ verified strengths.',
@@ -144,7 +153,7 @@ export default function FoundationScreen({ navigation }) {
         <Text style={styles.heroEyebrow}>FOUNDATION BLUEPRINT</Text>
         <Text style={styles.heroTitle}>Professional Documents</Text>
         <Text style={styles.heroSub}>
-          CVs, cover letters, LinkedIn profiles, portfolios, interview prep, and application forms.
+          CVs, cover letters, personal statements, LinkedIn profiles, portfolios, interview prep, and application forms.
           Every output reviewed by a Campus Handler before it reaches you.
         </Text>
       </View>

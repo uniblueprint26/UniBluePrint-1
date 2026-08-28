@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, ChevronRight, Minus, Plus, Sunrise, AlertTriangle, Phone,
@@ -178,7 +178,12 @@ export default function AvailabilityScreen({ navigation }) {
               <TouchableOpacity
                 style={styles.ghostBtn}
                 activeOpacity={0.8}
-                onPress={() => { /* TODO: wire to Operations contact flow (call or message) */ }}
+                onPress={() => Linking.openURL(
+                  'mailto:uniblueprintoperations@gmail.com?subject=Check-in%20follow-up'
+                ).catch(() => Alert.alert(
+                  'Contact Operations',
+                  'Email uniblueprintoperations@gmail.com directly.',
+                ))}
               >
                 <Phone size={12} color={colors.navy} />
                 <Text style={styles.ghostBtnText}>Contact Operations</Text>

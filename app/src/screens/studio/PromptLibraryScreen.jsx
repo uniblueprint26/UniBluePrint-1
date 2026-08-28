@@ -2,12 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, Copy, Check } from 'lucide-react-native'
-
-// NOTE: expo-clipboard is not currently listed in app/package.json.
-// TODO once expo-clipboard is added as a dependency: import * as Clipboard
-// from 'expo-clipboard' and call Clipboard.setStringAsync(prompt.prompt) in
-// handleCopy below. Until then, tapping a card just gives brief visual
-// confirmation without an actual clipboard write.
+import * as Clipboard from 'expo-clipboard'
 
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
@@ -22,9 +17,8 @@ import { supabase } from '../../lib/supabase'
 function PromptCard({ item }) {
   const [copied, setCopied] = useState(false)
 
-  function handleCopy() {
-    // TODO: wire to Clipboard.setStringAsync(item.prompt) once expo-clipboard
-    // is added to app/package.json. For now this is a visual no-op.
+  async function handleCopy() {
+    await Clipboard.setStringAsync(item.prompt)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
