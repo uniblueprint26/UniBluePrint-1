@@ -193,6 +193,23 @@ export default function FoundationScreen({ navigation }) {
             <Text style={styles.trialBannerText}>September Trial: 50% off every service</Text>
           </View>
 
+          {/* Why not just use a generic AI tool yourself */}
+          <Card style={styles.whyCard}>
+            <Text style={styles.whyTitle}>Not a prompt you type in and hope.</Text>
+            <View style={{ gap: 12, marginTop: 12 }}>
+              {[
+                'A generic AI tool gives everyone the same generic output, with no idea what Irish employers or ATS systems actually screen for.',
+                'Every UniBlueprint output is built, then checked line by line by a real trained Campus Handler before it ever reaches you.',
+                'That is the difference between a document that looks fine and one that actually gets you shortlisted.',
+              ].map((line, i) => (
+                <View key={i} style={styles.whyRow}>
+                  <View style={styles.whyDot} />
+                  <Text style={styles.whyText}>{line}</Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+
           <Text style={styles.servicesSubHeader}>Career Services</Text>
           <View style={{ gap: 14 }}>
             {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, originalStd, trialStd, originalPrem, trialPrem, color }) => (
@@ -357,6 +374,12 @@ const styles = StyleSheet.create({
   trialBannerText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 12 },
+
+  whyCard: { marginTop: spacing.lg, padding: 18 },
+  whyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
+  whyRow: { flexDirection: 'row', gap: 10 },
+  whyDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.navy, marginTop: 7, flexShrink: 0 },
+  whyText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
 
   // Service cards
   serviceCard:       { padding: 16 },

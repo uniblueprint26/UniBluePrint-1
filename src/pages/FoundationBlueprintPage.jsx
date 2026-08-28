@@ -469,7 +469,7 @@ export default function FoundationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              Every CV, cover letter, portfolio, and application document reviewed by a trained Campus Handler before it reaches you.
+              Not a prompt you type into a chatbot and hope for the best. Every CV, cover letter, portfolio, and application document is built, then checked line by line by a trained Campus Handler before it ever reaches you.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
               {[
@@ -500,6 +500,34 @@ export default function FoundationBlueprintPage() {
         </div>
       </section>
 
+      {/* ── SECTION 1B: WHY NOT JUST USE AI YOURSELF ────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '72px 24px' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+          <SectionLabel>The actual difference</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display',serif",
+            fontSize: 'clamp(26px,3.2vw,36px)', color: '#1E3A5F',
+            marginTop: '10px', lineHeight: 1.15,
+          }}>
+            Not a prompt you type in and hope.
+          </h2>
+          <div style={{ textAlign: 'left', marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            {[
+              'A generic AI tool gives everyone the same generic output, with no idea what Irish employers or ATS systems actually screen for.',
+              'Every UniBlueprint output is built, then checked line by line by a real trained Campus Handler before it ever reaches you.',
+              'That is the difference between a document that looks fine and one that actually gets you shortlisted.',
+            ].map((line, i) => (
+              <div key={i} style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '3px', background: '#1E3A5F', marginTop: '9px', flexShrink: 0 }} />
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '15px', color: '#4B5563', lineHeight: 1.7, margin: 0 }}>
+                  {line}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── SECTION 2: SERVICES GRID ────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
         <div aria-hidden="true" style={{
@@ -522,7 +550,7 @@ export default function FoundationBlueprintPage() {
               fontSize: '15px', color: '#6B7280',
               marginTop: '12px', maxWidth: '460px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
             }}>
-              Six services, one platform. Every output reviewed before it reaches you.
+              Seven services, one platform. Every output reviewed before it reaches you.
             </p>
           </div>
           <div className="fbp-services-grid">
