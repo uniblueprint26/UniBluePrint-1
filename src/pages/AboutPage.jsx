@@ -62,8 +62,7 @@ const DIFFERENTIATORS = [
 ]
 
 // The leadership team running UniBlueprint into September — real names,
-// real roles. NOTE: double-check spelling with Desmond before this goes
-// live — "Basmali" and "Emannuel" as given may be transcription slips.
+// real roles, spellings confirmed with Desmond.
 const LEADERSHIP = [
   { name: 'Desmond',       role: 'Founder',                              description: 'Started it all after a conversation at a birthday dinner in Belfast. Leads the vision and the whole team.' },
   { name: 'Wami',          role: 'Finance Team Leader',                  description: 'Heads up all company finances, payments, and financial planning.' },
@@ -71,7 +70,7 @@ const LEADERSHIP = [
   { name: 'Tayyab',        role: 'Technology & Dev Leader',              description: 'Running the entire platform build end to end.' },
   { name: 'Bene Matundu',  role: 'Marketing Lead — Creative & Ads',      description: 'Leads on paid ads, visual creativity, and creator partnerships.' },
   { name: 'Elizabeth',     role: 'Marketing Lead — Content & Social',    description: 'Drives content and social presence across the platform.' },
-  { name: 'Emannuel',      role: 'Technology & Strategy Lead',           description: 'Drives platform strategy and supports the full tech build.' },
+  { name: 'Emmanuel',      role: 'Technology & Strategy Lead',           description: 'Drives platform strategy and supports the full tech build.' },
   { name: 'Fabz',          role: 'Campus Growth Lead',                   description: 'Owns campus expansion and influencer partnerships.' },
   { name: 'Daniel',        role: 'Commercial Operations Lead',           description: 'Heads up commercial relationships, partner activity, and operations.' },
   { name: 'Aidan',         role: 'Product & Outreach Lead',              description: 'Drives product direction and outreach across campuses.' },
