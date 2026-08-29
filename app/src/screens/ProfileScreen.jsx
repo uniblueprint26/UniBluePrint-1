@@ -231,6 +231,120 @@ const ep = StyleSheet.create({
 })
 
 
+// ── Handler Rating Prompt ────────────────────────────────────────────────────
+// Shows once a Foundation submission is delivered and hasn't been rated yet.
+// One rating per submission (handler_ratings has a unique constraint on
+// submission_id). Renders nothing when there's nothing to rate — most users
+// will see nothing here until the real submission flow is live end-to-end.
+function HandlerRatingPrompt({ userId }) {
+  const [pending, setPending] = useState([])
+  const [stars, setStars]     = useState(0)
+  const [comment, setComment] = useState('')
+  const [saving, setSaving]   = useState(false)
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+    ;(async () => {
+      const [subsRes, ratingsRes] = await Promise.all([
+        supabase
+          .from('submissions')
+          .select('id, handler_id, services(name)')
+          .eq('user_id', userId)
+          .eq('stage', 'delivered')
+          .not('handler_id', 'is', null),
+        supabase.from('handler_ratings').select('submission_id').eq('user_id', userId),
+      ])
+      if (cancelled || subsRes.error || ratingsRes.error) return
+      const ratedIds = new Set((ratingsRes.data || []).map(r => r.submission_id))
+      setPending((subsRes.data || []).filter(s => !ratedIds.has(s.id)))
+    })()
+    return () => { cancelled = true }
+  }, [userId])
+
+  if (pending.length === 0) return null
+  const current = pending[0]
+
+  async function submit() {
+    if (!stars) return
+    setSaving(true)
+    const { error } = await supabase.from('handler_ratings').insert({
+      submission_id: current.id,
+      user_id: userId,
+      handler_id: current.handler_id,
+      rating: stars,
+      comment: comment.trim() || null,
+    })
+    setSaving(false)
+    if (error) {
+      Alert.alert('Could not save your rating', 'Please try again.')
+      return
+    }
+    setPending(prev => prev.slice(1))
+    setStars(0)
+    setComment('')
+  }
+
+  return (
+    <View style={rp.card}>
+      <Text style={rp.eyebrow}>YOUR REQUEST WAS DELIVERED</Text>
+      <Text style={rp.title}>
+        How did your {current.services?.name || 'Foundation Blueprint request'} go?
+      </Text>
+      <View style={rp.starRow}>
+        {[1, 2, 3, 4, 5].map(n => (
+          <TouchableOpacity key={n} onPress={() => setStars(n)} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}>
+            <Star size={28} color="#F59E0B" fill={n <= stars ? '#F59E0B' : 'transparent'} strokeWidth={1.5} />
+          </TouchableOpacity>
+        ))}
+      </View>
+      <TextInput
+        style={rp.input}
+        placeholder="Optional: tell us more..."
+        placeholderTextColor={colors.light}
+        value={comment}
+        onChangeText={setComment}
+        multiline
+        numberOfLines={2}
+        textAlignVertical="top"
+      />
+      <TouchableOpacity
+        style={[rp.submitBtn, (saving || !stars) && { opacity: 0.5 }]}
+        activeOpacity={0.85}
+        onPress={submit}
+        disabled={saving || !stars}
+      >
+        <Text style={rp.submitBtnText}>{saving ? 'Saving…' : 'Submit Rating'}</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+const rp = StyleSheet.create({
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: radius.card, borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)',
+    marginHorizontal: spacing.md, marginTop: spacing.md,
+    padding: 18,
+  },
+  eyebrow: {
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: '#B45309',
+    textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 6,
+  },
+  title: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginBottom: 14, lineHeight: 22 },
+  starRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
+  input: {
+    backgroundColor: colors.cream, borderRadius: radius.button,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 12, minHeight: 56,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
+    marginBottom: 12,
+  },
+  submitBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 13, alignItems: 'center' },
+  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+})
+
+
 // ── Screen ─────────────────────────────────────────────────────────────────────
 
 export default function ProfileScreen({ navigation }) {
@@ -408,6 +522,9 @@ export default function ProfileScreen({ navigation }) {
             payment are handled securely on the UniBlueprint website, never in the app.
           </Text>
         </View>
+
+        {/* Handler rating prompt — shows only when there's a delivered, unrated request */}
+        <HandlerRatingPrompt userId={user?.id} />
 
         {/* Explore */}
         <View style={styles.section}>

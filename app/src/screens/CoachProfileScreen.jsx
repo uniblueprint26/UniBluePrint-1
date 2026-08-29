@@ -5,7 +5,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send,
+  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star,
 } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
@@ -131,6 +131,110 @@ function EnquiryModal({ visible, onClose, coach, userId }) {
   )
 }
 
+// ── Rate Coach Modal ─────────────────────────────────────────────────────────
+// Writes a real row to coach_ratings — self-initiated (no booking system to
+// gate it on, matches the enquire-not-book model), one rating per user per
+// coach. onRated tells the parent screen so it can swap the button for a
+// "you rated this coach" state without a re-fetch.
+function RateCoachModal({ visible, onClose, coach, userId, onRated }) {
+  const [stars, setStars]       = useState(0)
+  const [comment, setComment]   = useState('')
+  const [sending, setSending]   = useState(false)
+  const [sent, setSent]         = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
+
+  async function submit() {
+    if (!userId || !stars) return
+    setSending(true)
+    setErrorMsg(null)
+    try {
+      const { error } = await supabase.from('coach_ratings').insert({
+        coach_slug: coachSlug(coach.id),
+        user_id: userId,
+        rating: stars,
+        comment: comment.trim() || null,
+      })
+      if (error) throw error
+      setSent(true)
+      onRated(stars)
+    } catch {
+      setErrorMsg('Could not save your rating. Please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  function handleClose() {
+    setStars(0)
+    setComment('')
+    setSent(false)
+    setErrorMsg(null)
+    onClose()
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={m.backdrop}
+      >
+        <View style={m.sheet}>
+          <View style={m.headerRow}>
+            <Text style={m.title}>{sent ? 'Thanks for rating' : `Rate ${coach.name}`}</Text>
+            <TouchableOpacity onPress={handleClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+
+          {sent ? (
+            <View style={{ paddingVertical: 20 }}>
+              <Text style={m.sentText}>
+                Your rating helps other students choose the right coach.
+              </Text>
+              <TouchableOpacity style={m.doneBtn} activeOpacity={0.85} onPress={handleClose}>
+                <Text style={m.doneBtnText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={m.sub}>How was your experience with {coach.name}?</Text>
+              <View style={m.starRow}>
+                {[1, 2, 3, 4, 5].map(n => (
+                  <TouchableOpacity key={n} onPress={() => setStars(n)} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}>
+                    <Star size={32} color="#F59E0B" fill={n <= stars ? '#F59E0B' : 'transparent'} strokeWidth={1.5} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TextInput
+                style={m.input}
+                placeholder="Optional: say a bit more about your experience..."
+                placeholderTextColor={colors.light}
+                value={comment}
+                onChangeText={setComment}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+              {!!errorMsg && <Text style={m.error}>{errorMsg}</Text>}
+              <TouchableOpacity
+                style={[m.sendBtn, (sending || !stars) && { opacity: 0.5 }]}
+                activeOpacity={0.85}
+                onPress={submit}
+                disabled={sending || !stars}
+              >
+                {sending
+                  ? <ActivityIndicator size="small" color={colors.cream} />
+                  : <Text style={m.sendBtnText}>Submit Rating</Text>
+                }
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
 const m = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
@@ -140,6 +244,7 @@ const m = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
+  starRow: { flexDirection: 'row', gap: 10, justifyContent: 'center', marginBottom: 18 },
   input: {
     backgroundColor: colors.cream, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
@@ -168,6 +273,8 @@ export default function CoachProfileScreen({ route, navigation }) {
   // listing data when no override exists yet.
   const [override, setOverride] = useState(null)
   const [enquiryOpen, setEnquiryOpen] = useState(false)
+  const [rateOpen, setRateOpen] = useState(false)
+  const [myRating, setMyRating] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -179,6 +286,21 @@ export default function CoachProfileScreen({ route, navigation }) {
       .then(({ data }) => { if (!cancelled && data) setOverride(data) })
     return () => { cancelled = true }
   }, [baseCoach.id])
+
+  // Has this user already rated this coach? One rating per user per coach
+  // (coach_ratings has a unique constraint on coach_slug + user_id).
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    supabase
+      .from('coach_ratings')
+      .select('rating')
+      .eq('coach_slug', coachSlug(baseCoach.id))
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => { if (!cancelled && data) setMyRating(data.rating) })
+    return () => { cancelled = true }
+  }, [baseCoach.id, user?.id])
 
   const coach = override
     ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: override.photo_url }
@@ -481,6 +603,18 @@ export default function CoachProfileScreen({ route, navigation }) {
                 <Text style={styles.ctaSecondaryBtnText}>Or contact directly</Text>
               </TouchableOpacity>
             )}
+            {user?.id && (
+              myRating ? (
+                <View style={styles.ratedBanner}>
+                  <Star size={14} color="#F59E0B" fill="#F59E0B" />
+                  <Text style={styles.ratedBannerText}>You rated this coach {myRating} / 5</Text>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={() => setRateOpen(true)}>
+                  <Text style={styles.ctaSecondaryBtnText}>Rate this coach</Text>
+                </TouchableOpacity>
+              )
+            )}
           </View>
         )}
 
@@ -491,6 +625,13 @@ export default function CoachProfileScreen({ route, navigation }) {
         onClose={() => setEnquiryOpen(false)}
         coach={coach}
         userId={user?.id}
+      />
+      <RateCoachModal
+        visible={rateOpen}
+        onClose={() => setRateOpen(false)}
+        coach={coach}
+        userId={user?.id}
+        onRated={rating => setMyRating(rating)}
       />
     </View>
   )
@@ -655,5 +796,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   ctaSecondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  ratedBanner: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    height: 48, borderRadius: radius.button, marginHorizontal: spacing.md,
+    backgroundColor: 'rgba(245,158,11,0.08)',
+  },
+  ratedBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
   avatarImg: { width: 84, height: 84, borderRadius: 42 },
 })
