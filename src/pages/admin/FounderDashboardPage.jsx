@@ -1,86 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet-async'
 import {
-  ArrowUp, ArrowDown, Minus, Users, Crown, UserCheck, Briefcase,
-  GraduationCap, Handshake, FileText, CalendarCheck,
+  Users, Crown, UserCheck, Briefcase, GraduationCap, Handshake,
+  FileText, CalendarCheck, AlertCircle, Star,
 } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
 
-// DEMO DATA — replace with live Supabase queries once the analytics schema (see supabase/migrations/) is populated
+// Real data, sourced from supabase/migrations/20260829130000_founder_dashboard_views.sql
+// plus the pre-existing get_all_partner_stats() (20260810120100). No delta or
+// sparkline on the top-line tiles on purpose -- there is no historical
+// snapshot table yet to compare a period against, so this shows current
+// totals honestly rather than a fabricated trend.
 
-const DEMO = {
-  ranges: ['Today', 'This Week', 'This Month', 'This Year'],
-  defaultRange: 'This Month',
+const RANGES = [
+  { key: 'today', label: 'Today' },
+  { key: 'week',  label: 'This Week' },
+  { key: 'month', label: 'This Month' },
+  { key: 'year',  label: 'This Year' },
+]
 
-  topline: [
-    { key: 'members',    label: 'Total active members',              value: 4820, delta: 6.4,  positiveIsGood: true, icon: Users,         spark: [3980, 4080, 4160, 4310, 4460, 4590, 4700, 4820] },
-    { key: 'pro',        label: 'Pro subscribers',                   sub: '23.8% of total', value: 1146, delta: 9.1,  positiveIsGood: true, icon: Crown,         spark: [860, 910, 950, 990, 1040, 1080, 1110, 1146] },
-    { key: 'free',       label: 'Free tier members',                 value: 3674, delta: 4.7,  positiveIsGood: true, icon: UserCheck,     spark: [3120, 3170, 3230, 3310, 3400, 3510, 3600, 3674] },
-    { key: 'handlers',   label: 'Active Campus Handlers',             value: 18,   delta: 12.5, positiveIsGood: true, icon: Briefcase,     spark: [14, 14, 15, 15, 16, 17, 17, 18] },
-    { key: 'coaches',    label: 'Active Uni Coaches',                 value: 12,   delta: 0,    positiveIsGood: true, icon: GraduationCap, spark: [12, 12, 11, 12, 12, 12, 12, 12] },
-    { key: 'partners',   label: 'Active Lifestyle Partners',          value: 8,    delta: 0,    positiveIsGood: true, icon: Handshake,     spark: [8, 8, 8, 8, 8, 8, 8, 8] },
-    { key: 'foundation', label: 'Foundation Blueprint submissions',   sub: 'this period', value: 612, delta: 14.2, positiveIsGood: true, icon: FileText,      spark: [430, 460, 480, 510, 540, 560, 590, 612] },
-    { key: 'elevation',  label: 'Elevation Blueprint bookings',       sub: 'this period', value: 289, delta: -3.1, positiveIsGood: true, icon: CalendarCheck, spark: [310, 305, 300, 298, 295, 292, 291, 289] },
-  ],
-
-  featureEngagement: [
-    { name: 'Foundation Blueprint', value: 3820 },
-    { name: 'Elevation Blueprint',  value: 2210 },
-    { name: 'Lifestyle Blueprint',  value: 1560 },
-    { name: 'Campus Connect',       value: 1290 },
-    { name: 'Course Connect',       value: 980 },
-    { name: 'Budgeting Tool',       value: 860 },
-    { name: 'Ad Board',             value: 540 },
-    { name: 'Course Compass',       value: 410 },
-  ],
-
-  weeklySignups: [62, 58, 71, 75, 69, 82, 90, 88, 101, 96, 112, 124],
-
-  partners: [
-    { name: 'MPFitness',               views: 2140, claims: 186, trend: 8.4 },
-    { name: 'Energie Fitness',         views: 1980, claims: 231, trend: 5.1 },
-    { name: 'JMC Fitness',             views: 1720, claims: 142, trend: 11.6 },
-    { name: 'Nyz3ditz',                views: 1340, claims: 88,  trend: -2.3 },
-    { name: 'Whip Wizardz',            views: 990,  claims: 47,  trend: 3.8 },
-    { name: 'The Nail Nurse',          views: 860,  claims: 96,  trend: 14.9 },
-    { name: 'Emmanuel Fasanmi Grinds', views: 720,  claims: 61,  trend: 1.2 },
-    { name: 'LEVA Impact',             views: 640,  claims: 39,  trend: -4.7 },
-  ],
-
-  coaches: [
-    { name: 'Emmanuel Fasanmi', bookings: 61, rating: 4.9, repeat: 68 },
-    { name: 'JMC Fitness',      bookings: 54, rating: 4.8, repeat: 62 },
-    { name: 'Nathan Yanzo',     bookings: 47, rating: 4.9, repeat: 71 },
-    { name: 'Daniel Gough',     bookings: 42, rating: 4.7, repeat: 55 },
-    { name: 'Ali',              bookings: 39, rating: 4.6, repeat: 49 },
-    { name: 'Emanuel Tolic',    bookings: 35, rating: 4.8, repeat: 58 },
-    { name: 'Tadgh Darcy',      bookings: 33, rating: 4.5, repeat: 44 },
-    { name: 'Milan Piroska',    bookings: 30, rating: 4.9, repeat: 66 },
-    { name: 'Kevin',            bookings: 27, rating: 4.4, repeat: 38 },
-    { name: 'Alex Leva',        bookings: 24, rating: 4.7, repeat: 51 },
-    { name: 'Nikola Jurek',     bookings: 21, rating: 4.6, repeat: 47 },
-    { name: 'Jayden Reynolds',  bookings: 18, rating: 4.5, repeat: 41 },
-  ],
-
-  campuses: [
-    { name: 'University College Dublin',         members: 890, submissions: 142 },
-    { name: 'Trinity College Dublin',             members: 760, submissions: 118 },
-    { name: 'University College Cork',            members: 640, submissions: 96 },
-    { name: 'Dublin City University',             members: 520, submissions: 81 },
-    { name: 'University of Galway',               members: 480, submissions: 74 },
-    { name: 'University of Limerick',             members: 410, submissions: 63 },
-    { name: 'Technological University Dublin',    members: 380, submissions: 58 },
-    { name: 'Maynooth University',                members: 340, submissions: 49 },
-    { name: 'RCSI University',                    members: 210, submissions: 31 },
-    { name: 'South East Technological University', members: 190, submissions: 27 },
-    { name: 'Atlantic Technological University',  members: 160, submissions: 22 },
-    { name: 'Dundalk Institute of Technology',     members: 120, submissions: 16 },
-  ],
-
-  retention: {
-    churnRate: 3.2,
-    avgSubMonths: 7.4,
-    conversionRate: 8.6,
-  },
+const EVENT_LABELS = {
+  document_submitted: 'Documents submitted (Foundation)',
+  session_booked: 'Sessions booked (Elevation)',
+  note_saved: 'Notes saved',
+  handler_review: 'Handler reviews',
+  ad_posted: 'Ad Board posts',
+  partner_deal_viewed: 'Lifestyle deal views',
+  partner_deal_claimed: 'Lifestyle deal claims',
 }
 
 const NAVY = '#1E3A5F'
@@ -104,50 +50,12 @@ const PAGE_STYLES = `
 `
 
 function fmt(n) {
+  if (n === null || n === undefined) return '—'
   if (n >= 1000) return n.toLocaleString('en-IE')
   return String(n)
 }
 
-function TrendBadge({ value, positiveIsGood = true }) {
-  const flat = !value
-  const isUp = value > 0
-  const good = flat ? null : isUp === positiveIsGood
-  const color = flat ? MUTED : good ? GREEN : RED
-  const Icon = flat ? Minus : isUp ? ArrowUp : ArrowDown
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '3px',
-      fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
-      color,
-    }}>
-      <Icon size={11} strokeWidth={2.5} />
-      {flat ? 'No change' : `${Math.abs(value).toFixed(1)}%`}
-    </span>
-  )
-}
-
-function Sparkline({ data, color = NAVY, width = 64, height = 22 }) {
-  const min = Math.min(...data)
-  const max = Math.max(...data)
-  const range = max - min || 1
-  const pts = data.map((d, i) => {
-    const x = (i / (data.length - 1)) * width
-    const y = height - ((d - min) / range) * height
-    return [x, y]
-  })
-  const line = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
-  const area = `${line} L${width},${height} L0,${height} Z`
-  const [lastX, lastY] = pts[pts.length - 1]
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
-      <path d={area} fill={color} opacity="0.1" />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={lastX} cy={lastY} r="2.5" fill={color} stroke="#FFFFFF" strokeWidth="1.5" />
-    </svg>
-  )
-}
-
-function StatTile({ label, sub, value, delta, positiveIsGood, icon: Icon, spark }) {
+function StatTile({ label, sub, value, icon: Icon }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '10px',
@@ -155,14 +63,11 @@ function StatTile({ label, sub, value, delta, positiveIsGood, icon: Icon, spark 
       padding: '14px 16px',
       display: 'flex', flexDirection: 'column', gap: '6px',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{
-          width: '26px', height: '26px', borderRadius: '7px',
-          background: CREAM, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={13} color={NAVY} />
-        </div>
-        {spark && <Sparkline data={spark} color={NAVY} />}
+      <div style={{
+        width: '26px', height: '26px', borderRadius: '7px',
+        background: CREAM, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon size={13} color={NAVY} />
       </div>
       <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: NAVY, lineHeight: 1.1, marginTop: '2px' }}>
         {fmt(value)}
@@ -170,7 +75,6 @@ function StatTile({ label, sub, value, delta, positiveIsGood, icon: Icon, spark 
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: GREY, lineHeight: 1.3 }}>
         {label}{sub ? `, ${sub}` : ''}
       </p>
-      <TrendBadge value={delta} positiveIsGood={positiveIsGood} />
     </div>
   )
 }
@@ -209,7 +113,10 @@ function Card({ children, style }) {
   )
 }
 
-function HBarList({ data, valueFormatter = fmt }) {
+function HBarList({ data, valueFormatter = fmt, emptyLabel = 'Nothing recorded yet.' }) {
+  if (!data.length) {
+    return <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: MUTED }}>{emptyLabel}</p>
+  }
   const max = Math.max(...data.map(d => d.value))
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -245,17 +152,17 @@ function GrowthChart({ data }) {
   const padTop = 10
   const padBottom = 22
   const plotH = height - padTop - padBottom
-  const max = Math.max(...data)
+  const max = Math.max(...data, 1)
   const min = 0
   const pts = data.map((d, i) => {
-    const x = (i / (data.length - 1)) * width
+    const x = (i / Math.max(data.length - 1, 1)) * width
     const y = padTop + plotH - ((d - min) / (max - min)) * plotH
     return [x, y]
   })
   const line = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
   const area = `${line} L${width},${padTop + plotH} L0,${padTop + plotH} Z`
   const baselineY = padTop + plotH
-  const [lastX, lastY] = pts[pts.length - 1]
+  const [lastX, lastY] = pts[pts.length - 1] || [0, baselineY]
   return (
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }} role="img" aria-label="New sign-ups per week over the last 12 weeks">
       <line x1="0" y1={baselineY} x2={width} y2={baselineY} stroke="#E5E0D6" strokeWidth="1" />
@@ -263,7 +170,7 @@ function GrowthChart({ data }) {
       <path d={line} fill="none" stroke={NAVY} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
       <circle cx={lastX} cy={lastY} r="4" fill={NAVY} stroke="#FFFFFF" strokeWidth="2" />
       <text x={lastX} y={lastY - 10} textAnchor="end" fontFamily="'DM Sans', sans-serif" fontSize="11" fontWeight="700" fill={NAVY}>
-        {data[data.length - 1]}
+        {data[data.length - 1] ?? 0}
       </text>
       <text x="0" y={height - 4} fontFamily="'DM Sans', sans-serif" fontSize="10" fill={MUTED}>12 weeks ago</text>
       <text x={width} y={height - 4} textAnchor="end" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={MUTED}>This week</text>
@@ -271,8 +178,85 @@ function GrowthChart({ data }) {
   )
 }
 
+const EMPTY_TOPLINE = {
+  total_members: 0, pro_subscribers: 0, free_members: 0, active_handlers: 0,
+  coach_profiles_listed: 0, active_partners: 0, foundation_submissions: 0, coach_enquiries: 0,
+}
+const EMPTY_RETENTION = {
+  active_pro_count: 0, canceled_in_range: 0, cancellation_rate: null,
+  avg_active_sub_months: null, conversion_rate: null,
+}
+
 export default function FounderDashboardPage() {
-  const [range, setRange] = useState(DEMO.defaultRange)
+  const [range, setRange] = useState('month')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const [topline, setTopline] = useState(EMPTY_TOPLINE)
+  const [engagement, setEngagement] = useState([])
+  const [weeklySignups, setWeeklySignups] = useState([])
+  const [partners, setPartners] = useState([])
+  const [coaches, setCoaches] = useState([])
+  const [campuses, setCampuses] = useState([])
+  const [retention, setRetention] = useState(EMPTY_RETENTION)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [
+        toplineRes, engagementRes, signupsRes, partnersRes,
+        enquiriesRes, ratingsRes, campusesRes, retentionRes,
+      ] = await Promise.all([
+        supabase.rpc('get_founder_topline', { _range: range }),
+        supabase.rpc('get_feature_engagement', { _range: range }),
+        supabase.rpc('get_weekly_signups'),
+        supabase.rpc('get_all_partner_stats'),
+        supabase.rpc('get_coach_enquiry_counts'),
+        supabase.from('coach_rating_summary').select('*'),
+        supabase.rpc('get_campus_breakdown', { _range: range }),
+        supabase.rpc('get_retention_snapshot', { _range: range }),
+      ])
+
+      const firstError = [toplineRes, engagementRes, signupsRes, partnersRes, enquiriesRes, ratingsRes, campusesRes, retentionRes]
+        .find(r => r.error)
+      if (firstError) throw firstError.error
+
+      setTopline(toplineRes.data?.[0] || EMPTY_TOPLINE)
+      setEngagement((engagementRes.data || []).map(r => ({ name: EVENT_LABELS[r.event_type] || r.event_type, value: r.event_count })))
+      setWeeklySignups((signupsRes.data || []).map(r => r.signups))
+      setPartners(partnersRes.data || [])
+
+      const ratingsBySlug = Object.fromEntries((ratingsRes.data || []).map(r => [r.coach_slug, r]))
+      setCoaches((enquiriesRes.data || []).map(e => ({
+        ...e,
+        rating: ratingsBySlug[e.coach_slug]?.avg_rating ?? null,
+        ratingCount: ratingsBySlug[e.coach_slug]?.rating_count ?? 0,
+      })).sort((a, b) => b.enquiry_count - a.enquiry_count))
+
+      setCampuses((campusesRes.data || []).map(r => ({ name: r.institution, members: r.member_count, submissions: r.submission_count })))
+      setRetention(retentionRes.data?.[0] || EMPTY_RETENTION)
+    } catch (err) {
+      setError(err.message || 'Could not load dashboard data.')
+    } finally {
+      setLoading(false)
+    }
+  }, [range])
+
+  useEffect(() => { load() }, [load])
+
+  const proSharePct = topline.total_members > 0 ? Math.round((topline.pro_subscribers / topline.total_members) * 100) : 0
+
+  const toplineTiles = [
+    { key: 'members',    label: 'Total active members',              value: topline.total_members, icon: Users },
+    { key: 'pro',        label: 'Pro subscribers',                   sub: `${proSharePct}% of total`, value: topline.pro_subscribers, icon: Crown },
+    { key: 'free',       label: 'Free tier members',                 value: topline.free_members, icon: UserCheck },
+    { key: 'handlers',   label: 'Active Campus Handlers',             value: topline.active_handlers, icon: Briefcase },
+    { key: 'coaches',    label: 'Coach profiles listed',              value: topline.coach_profiles_listed, icon: GraduationCap },
+    { key: 'partners',   label: 'Active Lifestyle Partners',          value: topline.active_partners, icon: Handshake },
+    { key: 'foundation', label: 'Foundation Blueprint submissions',   sub: 'this period', value: topline.foundation_submissions, icon: FileText },
+    { key: 'elevation',  label: 'Elevation coach enquiries',          sub: 'this period', value: topline.coach_enquiries, icon: CalendarCheck },
+  ]
 
   return (
     <>
@@ -298,38 +282,50 @@ export default function FounderDashboardPage() {
             </p>
           </div>
           <div style={{ display: 'inline-flex', background: '#FFFFFF', borderRadius: '8px', padding: '3px', border: '1px solid rgba(30,58,95,0.08)' }}>
-            {DEMO.ranges.map(r => (
+            {RANGES.map(r => (
               <button
-                key={r}
-                onClick={() => setRange(r)}
+                key={r.key}
+                onClick={() => setRange(r.key)}
                 style={{
                   fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
                   padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                  background: range === r ? NAVY : 'transparent',
-                  color: range === r ? CREAM : GREY,
+                  background: range === r.key ? NAVY : 'transparent',
+                  color: range === r.key ? CREAM : GREY,
                   transition: 'background 150ms, color 150ms',
                 }}
               >
-                {r}
+                {r.label}
               </button>
             ))}
           </div>
         </div>
 
+        {!!error && (
+          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertCircle size={15} /> {error}
+            </p>
+          </Card>
+        )}
+
         {/* ── TOP-LINE STAT TILES ────────────────────────────────────── */}
-        <div className="fd-topline-grid" style={{ marginBottom: '20px' }}>
-          {DEMO.topline.map(t => <StatTile key={t.key} {...t} />)}
+        <div className="fd-topline-grid" style={{ marginBottom: '20px', opacity: loading ? 0.6 : 1 }}>
+          {toplineTiles.map(t => <StatTile key={t.key} {...t} />)}
         </div>
 
         {/* ── FEATURE ENGAGEMENT + GROWTH ────────────────────────────── */}
         <div className="fd-two-col" style={{ marginBottom: '20px' }}>
           <Card>
-            <SectionTitle eyebrow="Product usage" title="Feature engagement" caption="Sessions touching each feature this period, ranked." />
-            <HBarList data={DEMO.featureEngagement} />
+            <SectionTitle
+              eyebrow="Product usage"
+              title="Feature engagement"
+              caption="Logged events this period, by type. Not every pillar has event logging wired up yet, so this is a partial picture, not full cross-pillar usage."
+            />
+            <HBarList data={engagement} />
           </Card>
           <Card>
             <SectionTitle eyebrow="Growth" title="New sign-ups per week" caption="Last 12 weeks." />
-            <GrowthChart data={DEMO.weeklySignups} />
+            <GrowthChart data={weeklySignups} />
           </Card>
         </div>
 
@@ -338,87 +334,110 @@ export default function FounderDashboardPage() {
           <SectionTitle
             eyebrow="Partner impact"
             title="Lifestyle partner performance"
-            caption="Source of truth for partner impact reporting: views, deal claims, and engagement trend per live partner this period."
+            caption="All-time views, deal claims, and unique engaged users per live partner."
           />
-          <div className="fd-table-wrap">
-            <table className="fd-table">
-              <thead>
-                <tr>
-                  <th>Partner</th>
-                  <th>Views</th>
-                  <th>Deal claims / redemptions</th>
-                  <th>Engagement trend</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DEMO.partners.map(p => (
-                  <tr key={p.name}>
-                    <td style={{ fontWeight: '600' }}>{p.name}</td>
-                    <td>{fmt(p.views)}</td>
-                    <td>{fmt(p.claims)}</td>
-                    <td><TrendBadge value={p.trend} /></td>
+          {partners.length === 0 ? (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: MUTED }}>No partner activity recorded yet.</p>
+          ) : (
+            <div className="fd-table-wrap">
+              <table className="fd-table">
+                <thead>
+                  <tr>
+                    <th>Partner</th>
+                    <th>Views</th>
+                    <th>Deal claims</th>
+                    <th>Unique users engaged</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {[...partners].sort((a, b) => b.views - a.views).map(p => (
+                    <tr key={p.partner_id}>
+                      <td style={{ fontWeight: '600' }}>{p.partner_name}</td>
+                      <td>{fmt(p.views)}</td>
+                      <td>{fmt(p.claims)}</td>
+                      <td>{fmt(p.unique_engaged_users)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
 
         {/* ── COACH IMPACT ───────────────────────────────────────────── */}
         <Card style={{ marginBottom: '20px' }}>
-          <SectionTitle eyebrow="Coach impact" title="Uni Coach performance" caption="Bookings, average rating, and repeat client rate this period." />
-          <div className="fd-table-wrap">
-            <table className="fd-table">
-              <thead>
-                <tr>
-                  <th>Coach</th>
-                  <th>Bookings</th>
-                  <th>Average rating</th>
-                  <th>Repeat client rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DEMO.coaches.map(c => (
-                  <tr key={c.name}>
-                    <td style={{ fontWeight: '600' }}>{c.name}</td>
-                    <td>{c.bookings}</td>
-                    <td>{c.rating.toFixed(1)} / 5</td>
-                    <td>{c.repeat}%</td>
+          <SectionTitle
+            eyebrow="Coach impact"
+            title="Uni Coach performance"
+            caption="Enquiry counts and average rating this period. Coaches handle their own bookings outside the platform, so enquiries are the real, available signal, not a booking count."
+          />
+          {coaches.length === 0 ? (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: MUTED }}>No coach enquiries yet this period.</p>
+          ) : (
+            <div className="fd-table-wrap">
+              <table className="fd-table">
+                <thead>
+                  <tr>
+                    <th>Coach</th>
+                    <th>Enquiries</th>
+                    <th>Average rating</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {coaches.map(c => (
+                    <tr key={c.coach_slug}>
+                      <td style={{ fontWeight: '600' }}>{c.coach_name}</td>
+                      <td>{c.enquiry_count}</td>
+                      <td>
+                        {c.rating != null ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Star size={11} color="#F59E0B" fill="#F59E0B" />
+                            {Number(c.rating).toFixed(1)} / 5 ({c.ratingCount})
+                          </span>
+                        ) : (
+                          <span style={{ color: MUTED }}>Not yet rated</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
 
         {/* ── CAMPUS BREAKDOWN + RETENTION ───────────────────────────── */}
         <div className="fd-two-col">
           <Card>
-            <SectionTitle eyebrow="Institutions" title="Campus breakdown" caption="Member count by institution, submission volume this period alongside." />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
-              {(() => {
-                const max = Math.max(...DEMO.campuses.map(c => c.members))
-                return DEMO.campuses.map(c => (
-                  <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{
-                      fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: NAVY,
-                      width: '190px', flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                    }}>
-                      {c.name}
-                    </span>
-                    <div style={{ flex: 1, background: SAND, borderRadius: '4px', height: '10px' }}>
-                      <div style={{ width: `${Math.max((c.members / max) * 100, 3)}%`, height: '100%', background: NAVY, borderRadius: '0 4px 4px 0' }} />
+            <SectionTitle eyebrow="Institutions" title="Campus breakdown" caption="Member count by institution, all time; submission volume this period alongside." />
+            {campuses.length === 0 ? (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: MUTED }}>No members with an institution on file yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                {(() => {
+                  const max = Math.max(...campuses.map(c => c.members), 1)
+                  return campuses.map(c => (
+                    <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{
+                        fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: NAVY,
+                        width: '190px', flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {c.name}
+                      </span>
+                      <div style={{ flex: 1, background: SAND, borderRadius: '4px', height: '10px' }}>
+                        <div style={{ width: `${Math.max((c.members / max) * 100, 3)}%`, height: '100%', background: NAVY, borderRadius: '0 4px 4px 0' }} />
+                      </div>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: GREY, width: '38px', textAlign: 'right' }}>
+                        {c.members}
+                      </span>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10.5px', color: MUTED, width: '70px', textAlign: 'right' }}>
+                        {c.submissions} subs.
+                      </span>
                     </div>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: GREY, width: '38px', textAlign: 'right' }}>
-                      {c.members}
-                    </span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10.5px', color: MUTED, width: '70px', textAlign: 'right' }}>
-                      {c.submissions} subs.
-                    </span>
-                  </div>
-                ))
-              })()}
-            </div>
+                  ))
+                })()}
+              </div>
+            )}
           </Card>
 
           <Card>
@@ -426,23 +445,23 @@ export default function FounderDashboardPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: RED, margin: 0 }}>
-                  {DEMO.retention.churnRate}%
+                  {retention.cancellation_rate != null ? `${retention.cancellation_rate}%` : '—'}
                 </p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: GREY, margin: '2px 0 0' }}>
-                  Pro subscriber churn rate this period
+                  Pro subscriber cancellation rate this period ({retention.canceled_in_range} canceled)
                 </p>
               </div>
               <div>
                 <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: NAVY, margin: 0 }}>
-                  {DEMO.retention.avgSubMonths} mo
+                  {retention.avg_active_sub_months != null ? `${retention.avg_active_sub_months} mo` : '—'}
                 </p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: GREY, margin: '2px 0 0' }}>
-                  Average subscription length
+                  Average tenure of currently active subscriptions
                 </p>
               </div>
               <div>
                 <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: GREEN, margin: 0 }}>
-                  {DEMO.retention.conversionRate}%
+                  {retention.conversion_rate != null ? `${retention.conversion_rate}%` : '—'}
                 </p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: GREY, margin: '2px 0 0' }}>
                   Free to Pro conversion rate
