@@ -1,155 +1,81 @@
-import { useState, useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
-import { Megaphone, Camera, BookOpen, Home, Briefcase, ShoppingBag, Search } from 'lucide-react'
+import {
+  Megaphone, Star, GraduationCap, Award, Building2, Newspaper, MapPin,
+  Sparkles, ShoppingBag, Users, Wallet, Heart, ChevronRight, BookOpen, Briefcase,
+} from 'lucide-react'
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
 const PAGE_STYLES = `
-  .adboard-grid {
+  .wb-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px) { .wb-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .wb-grid { grid-template-columns: 1fr; } }
+
+  .wb-steps { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 639px) { .wb-steps { grid-template-columns: 1fr !important; } }
+
+  .wb-market-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
-  @media (max-width: 1023px) { .adboard-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 639px)  { .adboard-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .wb-market-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .wb-market-grid { grid-template-columns: 1fr; } }
 
-  .adboard-filter::-webkit-scrollbar { display: none; }
+  .wb-section-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(30,58,95,0.06);
+    transition: box-shadow 180ms, transform 180ms;
+  }
+  .wb-section-card:hover {
+    box-shadow: 0 8px 28px rgba(30,58,95,0.12);
+    transform: translateY(-3px);
+  }
 
-  .ad-card {
+  .wb-market-card {
     background: #FFFFFF;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(30,58,95,0.07);
     overflow: hidden;
-    transition: box-shadow 180ms, transform 180ms;
-    cursor: default;
-    display: flex;
-    flex-direction: column;
-  }
-  .ad-card:hover {
-    box-shadow: 0 8px 28px rgba(30,58,95,0.12);
-    transform: translateY(-3px);
   }
 `
 
-// ─── Sample listings data ───────────────────────────────────────────────────────
+// ─── What's inside every issue ─────────────────────────────────────────────────
+// Mirrors the real table of contents rendered by the in-app magazine
+// (app/src/screens/AdBoardScreen.jsx) — every section named here is a real,
+// built part of the product, not aspirational copy.
 
-const LISTINGS = [
-  {
-    id: 1, category: 'Textbooks',
-    title: 'Business Law textbook — 3rd Edition',
-    desc: 'Great condition. Highlighted chapters 1–8. Perfect for anyone starting business this year.',
-    price: '€25', type: 'For Sale',
-    poster: 'Emily', university: 'DCU',
-    postedAgo: '2 hours ago', accent: '#2D4B8E',
-  },
-  {
-    id: 2, category: 'Services',
-    title: 'Headshots for LinkedIn and internship apps',
-    desc: 'Professional portraits taken on campus. Edited and delivered within 48 hours. Bookings open for September.',
-    price: '€40 / session', type: 'Service',
-    poster: 'Nathan', university: 'UCD',
-    postedAgo: '4 hours ago', accent: '#7C3500',
-  },
-  {
-    id: 3, category: 'Accommodation',
-    title: 'Room available — Phibsborough, Dublin 7',
-    desc: 'Double room in shared house, 15 min from DCU and 20 min from TUD. Available from Sept 1. Bills included.',
-    price: '€750 / month', type: 'Room',
-    poster: 'Ciarán', university: 'DCU',
-    postedAgo: '6 hours ago', accent: '#1E3A5F',
-  },
-  {
-    id: 4, category: 'Gigs',
-    title: 'Social media content creator wanted',
-    desc: 'Looking for someone to manage Instagram and TikTok for a small fitness brand. Flexible hours, €15/hr.',
-    price: '€15 / hr', type: 'Paid gig',
-    poster: 'Alex', university: 'ATU Galway',
-    postedAgo: '8 hours ago', accent: '#4C1D95',
-  },
-  {
-    id: 5, category: 'Textbooks',
-    title: 'Anatomy and Physiology — Tortora, 16th Ed',
-    desc: 'Nursing and healthcare — used for one year, some annotation. Selling well below college shop price.',
-    price: '€35', type: 'For Sale',
-    poster: 'Nicole', university: 'Maynooth University',
-    postedAgo: '1 day ago', accent: '#2D4B8E',
-  },
-  {
-    id: 6, category: 'Items',
-    title: 'Study desk lamp — barely used',
-    desc: 'LED desk lamp with 3 brightness settings. Moving out, no room for it. Collect from Rathmines.',
-    price: '€12', type: 'For Sale',
-    poster: 'Sam', university: 'TU Dublin',
-    postedAgo: '1 day ago', accent: '#134E4A',
-  },
-  {
-    id: 7, category: 'Services',
-    title: 'Grinds — Maths and Applied Maths (LC)',
-    desc: 'Leaving Cert results: H1 Maths, H1 Applied Maths. Now in 2nd year Engineering. 1-to-1 or small group.',
-    price: '€20 / hr', type: 'Service',
-    poster: 'Luca', university: 'UCD',
-    postedAgo: '2 days ago', accent: '#1E3A5F',
-  },
-  {
-    id: 8, category: 'Gigs',
-    title: 'Campus rep wanted for events brand',
-    desc: 'Paid role promoting events on your campus. Flexible, commission-based. Contact via the app.',
-    price: 'Commission', type: 'Paid gig',
-    poster: 'Sofia', university: 'DCU',
-    postedAgo: '2 days ago', accent: '#4C1D95',
-  },
-  {
-    id: 9, category: 'Accommodation',
-    title: 'Seeking accommodation near UL campus',
-    desc: 'Looking for a room or studio near University of Limerick from September. Budget €700.',
-    price: 'Budget €700 / mo', type: 'Seeking',
-    poster: 'Emma', university: 'UL',
-    postedAgo: '3 days ago', accent: '#1E3A5F',
-  },
-  {
-    id: 10, category: 'Items',
-    title: 'MacBook Air M1 — 2021, 8GB, 256GB',
-    desc: 'Used for two years, excellent condition, original charger included. No issues.',
-    price: '€680', type: 'For Sale',
-    poster: 'Mohammed', university: 'DCU',
-    postedAgo: '3 days ago', accent: '#134E4A',
-  },
-  {
-    id: 11, category: 'Services',
-    title: 'Proofreading and editing for essays',
-    desc: 'English and Media grad. 24-hr turnaround, cover letters and essays. Rate per 1000 words.',
-    price: '€15 / 1000 words', type: 'Service',
-    poster: 'Mairead', university: 'DCU',
-    postedAgo: '4 days ago', accent: '#7C3500',
-  },
-  {
-    id: 12, category: 'Textbooks',
-    title: 'Company Law and Commercial Law bundle',
-    desc: 'Two textbooks for Law 2nd year. Minor highlighting, in great shape. Selling as a bundle only.',
-    price: '€45 bundle', type: 'For Sale',
-    poster: 'Gigi', university: 'UCD',
-    postedAgo: '5 days ago', accent: '#2D4B8E',
-  },
+const SECTIONS = [
+  { Icon: Star,          title: 'Deals & Discounts', desc: "This week's Lifestyle Partner offers, plus what's waiting in the Deal Room for Pro." },
+  { Icon: GraduationCap, title: 'Coach Spotlights',  desc: 'A different Uni Coach featured every week, real advice from their own field.' },
+  { Icon: Award,         title: 'Foundation Focus',  desc: 'Genuinely useful CV, LinkedIn, and interview advice, straight from the Foundation Blueprint.' },
+  { Icon: Building2,     title: 'Campus Connect',    desc: "What's happening on campuses across Ireland this week, and what's on if you're travelling." },
+  { Icon: Newspaper,     title: 'Student Spotlight', desc: 'Real student stories, with the full one always a tap away on the blog.' },
+  { Icon: MapPin,        title: 'Campus Guide',      desc: 'One useful campus guide a week — study spots, transport, hidden gems, and more.' },
+  { Icon: Sparkles,      title: 'The Lifestyle Edit', desc: 'An editorial-style edit of Lifestyle Partner fashion and student brands.' },
+  { Icon: ShoppingBag,   title: 'Marketplace',       desc: 'Offer a skill or find one. Photography, tutoring, design, freelancing, and more.' },
+  { Icon: Users,         title: 'UBP Team',          desc: 'Meet the people building UniBlueprint, and how to join them.' },
+  { Icon: Wallet,        title: 'Money Moves',       desc: 'A practical financial tip every week, from a real UniBlueprint finance coach.' },
+  { Icon: Heart,         title: 'Coach Board',       desc: 'Short, sharp tips from multiple coaches across every field, one page.' },
+  { Icon: Megaphone,     title: 'Ad Board',          desc: 'Partner ads and student businesses, curated in one clean noticeboard.' },
 ]
 
-const CATEGORIES = ['All', 'Textbooks', 'Services', 'Accommodation', 'Gigs', 'Items']
+// ─── Marketplace example listings ──────────────────────────────────────────────
+// Illustrative only — real listings are posted by verified users inside the
+// Marketplace section of the magazine, not managed from the website.
 
-const CATEGORY_ICONS = {
-  Textbooks: BookOpen,
-  Services: Camera,
-  Accommodation: Home,
-  Gigs: Briefcase,
-  Items: ShoppingBag,
-}
-
-const CATEGORY_ACCENT = {
-  Textbooks: '#2D4B8E',
-  Services: '#7C3500',
-  Accommodation: '#1E3A5F',
-  Gigs: '#4C1D95',
-  Items: '#134E4A',
-}
+const MARKET_EXAMPLES = [
+  { Icon: BookOpen,   type: 'For Sale', title: 'Business Law textbook, 3rd Edition', price: '€25', accent: '#2D4B8E' },
+  { Icon: Star,       type: 'Service',  title: 'Headshots for LinkedIn and internships', price: '€40 / session', accent: '#7C3500' },
+  { Icon: Briefcase,  type: 'Paid gig', title: 'Social media help for a small brand', price: '€15 / hr', accent: '#4C1D95' },
+]
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
@@ -166,156 +92,16 @@ function SectionLabel({ children, light }) {
   )
 }
 
-function ListingCard({ title, desc, price, type, poster, university, postedAgo, category, accent }) {
-  const CatIcon = CATEGORY_ICONS[category] || ShoppingBag
-
-  return (
-    <div className="ad-card">
-      {/* Colour stripe + category */}
-      <div style={{
-        height: '6px',
-        background: accent || CATEGORY_ACCENT[category] || '#1E3A5F',
-      }} />
-
-      <div style={{ padding: '18px 18px 14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Header row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-          <div style={{ flex: 1 }}>
-            {/* Category pill */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
-              <CatIcon size={11} color={accent || CATEGORY_ACCENT[category]} />
-              <span style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '10px', fontWeight: '700',
-                color: accent || CATEGORY_ACCENT[category],
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-              }}>
-                {type}
-              </span>
-            </div>
-
-            {/* Title */}
-            <p style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '15px', color: '#1E3A5F', lineHeight: 1.3,
-            }}>
-              {title}
-            </p>
-          </div>
-
-          {/* Price */}
-          <div style={{ flexShrink: 0, textAlign: 'right' }}>
-            <p style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '15px', color: '#1E3A5F',
-            }}>
-              {price}
-            </p>
-          </div>
-        </div>
-
-        {/* Description */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#6B7280',
-          lineHeight: 1.55, marginTop: '8px', flex: 1,
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-        }}>
-          {desc}
-        </p>
-
-        {/* Footer row */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginTop: '14px', paddingTop: '12px',
-          borderTop: '1px solid rgba(30,58,95,0.07)',
-        }}>
-          {/* Poster */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-            <div style={{
-              width: '26px', height: '26px', borderRadius: '50%',
-              background: accent || CATEGORY_ACCENT[category],
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <span style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '11px', color: '#F5F0E8',
-              }}>
-                {poster.charAt(0)}
-              </span>
-            </div>
-            <div>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '11px', color: '#1E3A5F', fontWeight: '600',
-              }}>{poster}</p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '10px', color: '#9CA3AF',
-              }}>{university}</p>
-            </div>
-          </div>
-
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '11px', color: '#9CA3AF',
-          }}>
-            {postedAgo}
-          </span>
-        </div>
-      </div>
-
-      {/* Contact CTA */}
-      <div style={{ padding: '0 18px 16px' }}>
-        <div style={{
-          height: '36px', borderRadius: '7px',
-          border: `1.5px solid ${accent || CATEGORY_ACCENT[category]}33`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', fontWeight: '600',
-          color: accent || CATEGORY_ACCENT[category],
-          background: `${accent || CATEGORY_ACCENT[category]}08`,
-        }}>
-          Contact via app
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─── AdBoardPage ───────────────────────────────────────────────────────────────
 
 export default function AdBoardPage() {
-  const [activeCategory, setActiveCategory] = useState('All')
-  const [searchQuery, setSearchQuery] = useState('')
-
-  const filtered = useMemo(() => {
-    let items = LISTINGS
-    if (activeCategory !== 'All') {
-      items = items.filter(l => l.category === activeCategory)
-    }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      items = items.filter(l =>
-        l.title.toLowerCase().includes(q) ||
-        l.desc.toLowerCase().includes(q) ||
-        l.category.toLowerCase().includes(q) ||
-        l.university.toLowerCase().includes(q)
-      )
-    }
-    return items
-  }, [activeCategory, searchQuery])
-
   return (
     <>
       <Helmet>
-        <title>Ad Board | UniBlueprint</title>
-        <meta name="description" content="Buy and sell textbooks, post gigs, find accommodation, and offer services — all within the UniBlueprint campus community." />
-        <meta property="og:title" content="Ad Board | UniBlueprint" />
-        <meta property="og:description" content="Buy and sell textbooks, post gigs, find accommodation, and offer services — all within the UniBlueprint campus community." />
+        <title>The Weekly Blueprint | UniBlueprint</title>
+        <meta name="description" content="A new issue every week, built into the UniBlueprint app. Deals, coach advice, campus events, student stories, and a marketplace to buy, sell, and offer your skills." />
+        <meta property="og:title" content="The Weekly Blueprint | UniBlueprint" />
+        <meta property="og:description" content="A new issue every week, built into the UniBlueprint app. Deals, coach advice, campus events, student stories, and a marketplace to buy, sell, and offer your skills." />
       </Helmet>
 
       <style>{PAGE_STYLES}</style>
@@ -334,181 +120,132 @@ export default function AdBoardPage() {
           backgroundSize: '48px 48px',
         }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <SectionLabel light>Ad Board</SectionLabel>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.2)',
+            borderRadius: '20px', padding: '6px 14px', marginBottom: '18px',
+          }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16A34A' }} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700', color: 'rgba(245,240,232,0.75)', letterSpacing: '0.06em' }}>
+              A NEW ISSUE, EVERY WEEK
+            </span>
+          </div>
+          <SectionLabel light>The Weekly Blueprint</SectionLabel>
           <h1 style={{
             fontFamily: "'DM Serif Display', serif",
             fontSize: 'clamp(32px, 5vw, 52px)', color: '#F5F0E8',
             marginTop: '10px', lineHeight: 1.1,
           }}>
-            Buy. Sell. Connect.
+            The structure behind{'\n'}your success.
           </h1>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '17px', color: 'rgba(245,240,232,0.6)',
-            marginTop: '16px', maxWidth: '460px',
+            marginTop: '16px', maxWidth: '520px',
             margin: '16px auto 0', lineHeight: 1.65,
           }}>
-            The peer marketplace built into UniBlueprint. Textbooks, services, accommodation, gigs, and more.
+            A weekly digital magazine built into the UniBlueprint app. Deals, coach advice, campus
+            events, student stories, and a marketplace to buy, sell, and offer your skills. Same
+            structure every week, new content every time.
           </p>
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
-            {CATEGORIES.slice(1).map(cat => {
-              const CatIcon = CATEGORY_ICONS[cat]
-              return (
-                <span key={cat} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '5px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '12px', color: 'rgba(245,240,232,0.6)',
-                  border: '1px solid rgba(245,240,232,0.15)',
-                  borderRadius: '20px', padding: '5px 14px',
-                }}>
-                  <CatIcon size={12} />
-                  {cat}
-                </span>
-              )
-            })}
-          </div>
         </div>
       </section>
 
-      {/* ── EXAMPLE CONTENT NOTICE ───────────────────────────────────────── */}
-      <div style={{
-        background: '#FFFFFF', borderBottom: '1px solid rgba(30,58,95,0.07)',
-        padding: '14px 24px',
-      }}>
-        <div style={{
-          maxWidth: '1100px', margin: '0 auto',
-          display: 'flex', gap: '10px', alignItems: 'flex-start',
-        }}>
-          <Megaphone size={16} color="#1E3A5F" style={{ flexShrink: 0, marginTop: '2px', opacity: 0.6 }} />
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '13px', color: '#6B7280', lineHeight: 1.5,
-          }}>
-            These listings are example content showing what the Ad Board looks like in the app. Real listings are posted by verified UniBlueprint users.
-          </p>
-        </div>
-      </div>
-
-      {/* ── FILTER + SEARCH BAR ──────────────────────────────────────────── */}
-      <div style={{
-        background: '#FFFFFF', borderBottom: '1px solid rgba(30,58,95,0.08)',
-        position: 'sticky', top: 0, zIndex: 10,
-      }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '12px 24px' }}>
-
-          {/* Search */}
-          <div style={{ position: 'relative', marginBottom: '10px' }}>
-            <Search size={15} color="#9CA3AF" style={{
-              position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
-              pointerEvents: 'none',
-            }} />
-            <input
-              type="search"
-              placeholder="Search listings, universities, categories..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%', height: '40px',
-                paddingLeft: '40px', paddingRight: '14px',
-                border: '1.5px solid rgba(30,58,95,0.12)',
-                borderRadius: '8px',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '14px',
-                color: '#1E3A5F', background: '#F5F0E8',
-                outline: 'none', boxSizing: 'border-box',
-              }}
-            />
+      {/* ── WHAT'S INSIDE ─────────────────────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <SectionLabel>Every Issue</SectionLabel>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', marginTop: '10px' }}>
+              What's inside
+            </h2>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
+              marginTop: '12px', maxWidth: '480px', margin: '12px auto 0', lineHeight: 1.65,
+            }}>
+              Twelve sections, in the same order every week, so you always know where to find
+              what you're looking for.
+            </p>
           </div>
 
-          {/* Category filter */}
-          <div
-            className="adboard-filter"
-            style={{
-              display: 'flex', gap: '8px',
-              overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '2px',
-            }}
-          >
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  flexShrink: 0,
-                  display: 'inline-flex', alignItems: 'center', gap: '5px',
-                  background: cat === activeCategory ? '#1E3A5F' : '#FFFFFF',
-                  color: cat === activeCategory ? '#F5F0E8' : '#6B7280',
-                  border: cat === activeCategory ? 'none' : '1px solid rgba(30,58,95,0.15)',
-                  borderRadius: '20px', padding: '6px 14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '13px', fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'background 140ms, color 140ms',
-                }}
-              >
-                {CATEGORY_ICONS[cat] && (() => {
-                  const CatIcon = CATEGORY_ICONS[cat]
-                  return <CatIcon size={12} />
-                })()}
-                {cat}
-              </button>
+          <div className="wb-grid">
+            {SECTIONS.map(s => (
+              <div key={s.title} className="wb-section-card">
+                <div style={{
+                  width: '38px', height: '38px', borderRadius: '10px',
+                  background: 'rgba(30,58,95,0.06)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px',
+                }}>
+                  <s.Icon size={17} color="#1E3A5F" strokeWidth={1.8} />
+                </div>
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#1E3A5F', lineHeight: 1.3 }}>
+                  {s.title}
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#6B7280', marginTop: '6px', lineHeight: 1.55 }}>
+                  {s.desc}
+                </p>
+              </div>
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* ── LISTINGS GRID ────────────────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '40px 24px 96px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-
-          {/* Count + context */}
-          <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            marginBottom: '24px', flexWrap: 'wrap', gap: '8px',
+          <p style={{
+            textAlign: 'center', marginTop: '36px',
+            fontFamily: "'DM Serif Display', serif", fontStyle: 'italic',
+            fontSize: '18px', color: '#1E3A5F',
           }}>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px', color: '#9CA3AF',
-            }}>
-              {filtered.length} listing{filtered.length !== 1 ? 's' : ''} shown
-              {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}
-              {searchQuery ? ` matching "${searchQuery}"` : ''}
-            </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '12px', color: '#9CA3AF',
-            }}>
-              Sample content only
-            </p>
+            The structure stays. The story changes.
+          </p>
+        </div>
+      </section>
+
+      {/* ── MARKETPLACE TEASER ───────────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+            flexWrap: 'wrap', gap: '12px', marginBottom: '28px',
+          }}>
+            <div>
+              <SectionLabel>One Section, Every Issue</SectionLabel>
+              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '30px', color: '#1E3A5F', marginTop: '8px' }}>
+                The Marketplace
+              </h2>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', maxWidth: '440px', lineHeight: 1.6 }}>
+                Textbooks, services, gigs, and more — offered by verified UniBlueprint students, posted from inside the app.
+              </p>
+            </div>
           </div>
 
-          {filtered.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-              <p style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '20px', color: '#1E3A5F',
-              }}>
-                No listings found
-              </p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#9CA3AF', marginTop: '8px',
-              }}>
-                Try clearing your search or selecting a different category.
-              </p>
-            </div>
-          ) : (
-            <div className="adboard-grid">
-              {filtered.map(listing => (
-                <ListingCard key={listing.id} {...listing} />
-              ))}
-            </div>
-          )}
+          <div className="wb-market-grid">
+            {MARKET_EXAMPLES.map(item => (
+              <div key={item.title} className="wb-market-card">
+                <div style={{ height: '6px', background: item.accent }} />
+                <div style={{ padding: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+                    <item.Icon size={12} color={item.accent} />
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '700', color: item.accent, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {item.type}
+                    </span>
+                  </div>
+                  <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#1E3A5F', lineHeight: 1.3 }}>
+                    {item.title}
+                  </p>
+                  <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '15px', color: '#1E3A5F', marginTop: '10px' }}>
+                    {item.price}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '16px' }}>
+            Illustrative examples. Real listings are posted by verified UniBlueprint users inside the app.
+          </p>
 
           {/* Post a listing prompt */}
           <div style={{
-            background: '#FFFFFF', borderRadius: '14px',
-            padding: '28px 32px', marginTop: '48px',
+            background: '#F5F0E8', borderRadius: '14px',
+            padding: '28px 32px', marginTop: '32px',
             display: 'flex', alignItems: 'center', gap: '24px',
-            boxShadow: '0 2px 12px rgba(30,58,95,0.07)',
             flexWrap: 'wrap',
           }}>
             <div style={{
@@ -519,18 +256,11 @@ export default function AdBoardPage() {
               <Megaphone size={22} color="#F5F0E8" />
             </div>
             <div style={{ flex: 1, minWidth: '200px' }}>
-              <p style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: '20px', color: '#1E3A5F',
-              }}>
-                Want to post a listing?
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F' }}>
+                Want to post something?
               </p>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', color: '#6B7280',
-                marginTop: '6px', lineHeight: 1.55,
-              }}>
-                The Ad Board is built into the UniBlueprint app. Download to post a listing or contact sellers directly.
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '6px', lineHeight: 1.55 }}>
+                Post to the Marketplace, or the wider Ad Board, from inside the app in under a minute.
               </p>
             </div>
             <Link
@@ -551,68 +281,48 @@ export default function AdBoardPage() {
       </section>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
+      <section style={{ background: '#F5F0E8', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <SectionLabel>How Ad Board works</SectionLabel>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: '36px', color: '#1E3A5F', marginTop: '10px',
-          }}>
-            Post, browse, connect
+          <SectionLabel>How It Works</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', marginTop: '10px' }}>
+            Open, swipe, jump straight there
           </h2>
           <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '16px', color: '#6B7280',
-            marginTop: '12px', maxWidth: '440px',
-            margin: '12px auto 0', lineHeight: 1.65,
+            fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
+            marginTop: '12px', maxWidth: '440px', margin: '12px auto 0', lineHeight: 1.65,
           }}>
-            Ad Board is verified and campus-specific. Everyone posting has a verified UniBlueprint account.
+            The Weekly Blueprint lives in the Ad Board tab of the app, and reads like a real magazine.
           </p>
 
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '20px', marginTop: '48px',
-            // mobile overrides below
-          }}>
-            <style>{`@media (max-width: 639px) { .hiw-steps { grid-template-columns: 1fr !important; } }`}</style>
+          <div className="wb-steps" style={{ display: 'grid', gap: '20px', marginTop: '48px' }}>
             {[
               {
-                n: '01', title: 'Download the app',
-                body: 'Sign up free and verify your account. Your campus board is automatically activated.',
+                n: '01', title: 'Open the Ad Board tab',
+                body: 'Every UniBlueprint user gets the current issue automatically, free tier included.',
                 colour: '#1E3A5F',
               },
               {
-                n: '02', title: 'Browse or post',
-                body: 'Search listings by category or university. Tap to post your own in under 60 seconds.',
+                n: '02', title: 'Swipe through the issue',
+                body: 'Tap an arrow or swipe left and right, page by page, like flipping through a real magazine.',
                 colour: '#2D4B8E',
               },
               {
-                n: '03', title: 'Connect directly',
-                body: 'Message the poster directly through the app. No middleman, no hidden fees.',
+                n: '03', title: 'Jump straight there',
+                body: 'Tap any section on the contents page to skip straight to it, no flipping required.',
                 colour: '#134E4A',
               },
             ].map(step => (
-              <div key={step.n} className="hiw-steps" style={{
-                background: '#F5F0E8', borderRadius: '12px', padding: '28px',
+              <div key={step.n} style={{
+                background: '#FFFFFF', borderRadius: '12px', padding: '28px',
                 textAlign: 'left',
               }}>
-                <p style={{
-                  fontFamily: "'DM Serif Display', serif",
-                  fontSize: '28px', color: step.colour, lineHeight: 1,
-                }}>
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: step.colour, lineHeight: 1 }}>
                   {step.n}
                 </p>
-                <p style={{
-                  fontFamily: "'DM Serif Display', serif",
-                  fontSize: '18px', color: '#1E3A5F', marginTop: '12px',
-                }}>
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#1E3A5F', marginTop: '12px' }}>
                   {step.title}
                 </p>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '14px', color: '#6B7280',
-                  marginTop: '8px', lineHeight: 1.6,
-                }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>
                   {step.body}
                 </p>
               </div>
@@ -623,19 +333,15 @@ export default function AdBoardPage() {
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
-        }}>
+        <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '40px', color: '#F5F0E8' }}>
           Free for every user
         </h2>
         <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: 'rgba(245,240,232,0.6)',
-          marginTop: '12px', maxWidth: '400px',
-          margin: '12px auto 0', lineHeight: 1.65,
+          fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.6)',
+          marginTop: '12px', maxWidth: '420px', margin: '12px auto 0', lineHeight: 1.65,
         }}>
-          Ad Board is included in the free tier. No subscription needed to browse or post.
+          The Weekly Blueprint, and posting to the Marketplace and Ad Board, are included in the free
+          tier. No subscription needed to read or post.
         </p>
         <div style={{ marginTop: '32px' }}>
           <Link
