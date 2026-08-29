@@ -38,9 +38,10 @@ import SpecialismScreen     from '../screens/studio/SpecialismScreen'
 import CoachStudioScreen    from '../screens/studio/CoachStudioScreen'
 
 // Dual Portal — Founder / Operations / Partner (business)
-import FounderPortalScreen    from '../screens/portals/FounderPortalScreen'
-import OperationsPortalScreen from '../screens/portals/OperationsPortalScreen'
-import PartnerPortalScreen    from '../screens/portals/PartnerPortalScreen'
+import FounderPortalScreen      from '../screens/portals/FounderPortalScreen'
+import OperationsPortalScreen   from '../screens/portals/OperationsPortalScreen'
+import PartnerPortalScreen      from '../screens/portals/PartnerPortalScreen'
+import WeeklyIssueEditorScreen  from '../screens/portals/WeeklyIssueEditorScreen'
 
 // Profile sub-screens
 import AboutScreen       from '../screens/AboutScreen'
@@ -93,6 +94,7 @@ function HomeStack() {
       <Stack.Screen name="FounderPortal"    component={FounderPortalScreen}    />
       <Stack.Screen name="OperationsPortal" component={OperationsPortalScreen} />
       <Stack.Screen name="PartnerPortalApp" component={PartnerPortalScreen}    />
+      <Stack.Screen name="WeeklyIssueEditor" component={WeeklyIssueEditorScreen} />
     </Stack.Navigator>
   )
 }

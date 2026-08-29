@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ArrowLeftRight, Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X,
+  ArrowLeftRight, Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -210,6 +210,20 @@ export default function FounderPortalScreen({ navigation }) {
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <Newspaper size={14} color={colors.navy} />
+          <Text style={styles.sectionEyebrow}>THE WEEKLY BLUEPRINT</Text>
+        </View>
+        <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('WeeklyIssueEditor')}>
+          <Card style={styles.weeklyLinkCard}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.weeklyLinkTitle}>Manage this week's issue</Text>
+              <Text style={styles.weeklyLinkSub}>Theme, events, student spotlight, coach board, founders' note, and more.</Text>
+            </View>
+            <ChevronRight size={16} color={colors.light} />
+          </Card>
+        </TouchableOpacity>
+
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <ImageIcon size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>MANAGE PHOTOS</Text>
         </View>
@@ -296,6 +310,10 @@ const styles = StyleSheet.create({
   complianceCard: { alignItems: 'center', paddingVertical: 20 },
   complianceValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.navy },
   complianceLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 4 },
+
+  weeklyLinkCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  weeklyLinkTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  weeklyLinkSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
 
   photoGroupLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, marginTop: 14, marginBottom: 2 },
   photoPill: { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
