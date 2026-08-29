@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare, Check } from 'lucide-react-native'
+import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare, Check, X } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
@@ -29,6 +29,9 @@ export default function OperationsPortalScreen({ navigation }) {
   const [queue, setQueue] = useState(null)
   const [gdprRequests, setGdprRequests] = useState([])
   const [enquiries, setEnquiries] = useState([])
+  const [markingDone, setMarkingDone] = useState(null) // the request being actioned, or null
+  const [doneNote, setDoneNote] = useState('')
+  const [savingDone, setSavingDone] = useState(false)
 
   function backToMyBlueprint() {
     setPortalMode('personal')
@@ -45,24 +48,30 @@ export default function OperationsPortalScreen({ navigation }) {
     setGdprRequests(data || [])
   }
 
-  function confirmMarkDone(req) {
-    Alert.alert(
-      'Mark request completed',
-      `Confirm the ${GDPR_LABELS[req.request_type] || req.request_type} request from ${req.name || req.email || 'this user'} has actually been actioned before marking it done.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Mark Done', onPress: () => markDone(req.id) },
-      ],
-    )
+  function openMarkDone(req) {
+    setDoneNote('')
+    setMarkingDone(req)
   }
 
-  async function markDone(id) {
+  async function confirmMarkDone() {
+    if (!markingDone || savingDone) return
+    setSavingDone(true)
     const { error } = await supabase
       .from('gdpr_requests')
-      .update({ status: 'completed', processed_at: new Date().toISOString(), processed_by: user?.id })
-      .eq('id', id)
-    if (!error) setGdprRequests(prev => prev.filter(r => r.id !== id))
-    else Alert.alert('Something went wrong', 'Please try again.')
+      .update({
+        status: 'completed',
+        processed_at: new Date().toISOString(),
+        processed_by: user?.id,
+        notes: doneNote.trim() || null,
+      })
+      .eq('id', markingDone.id)
+    setSavingDone(false)
+    if (!error) {
+      setGdprRequests(prev => prev.filter(r => r.id !== markingDone.id))
+      setMarkingDone(null)
+    } else {
+      Alert.alert('Something went wrong', 'Please try again.')
+    }
   }
 
   useEffect(() => {
@@ -138,7 +147,7 @@ export default function OperationsPortalScreen({ navigation }) {
                     {overdue ? 'Overdue — was due' : 'Due'} {new Date(r.due_at).toLocaleDateString()}
                   </Text>
                 </View>
-                <TouchableOpacity style={styles.markDoneBtn} activeOpacity={0.8} onPress={() => confirmMarkDone(r)}>
+                <TouchableOpacity style={styles.markDoneBtn} activeOpacity={0.8} onPress={() => openMarkDone(r)}>
                   <Check size={13} color={colors.navy} />
                   <Text style={styles.markDoneBtnText}>Mark Done</Text>
                 </TouchableOpacity>
@@ -162,6 +171,45 @@ export default function OperationsPortalScreen({ navigation }) {
           ))}
         </Card>
       </ScrollView>
+
+      {/* Mark-done note — records what was actually done for the GDPR paper trail,
+          instead of a bare confirm dialog with nothing kept for the record. */}
+      <Modal visible={!!markingDone} transparent animationType="slide" onRequestClose={() => setMarkingDone(null)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.modalBackdrop}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Mark request completed</Text>
+              <TouchableOpacity onPress={() => setMarkingDone(null)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <X size={18} color={colors.muted} />
+              </TouchableOpacity>
+            </View>
+            {!!markingDone && (
+              <Text style={styles.modalSub}>
+                Confirm the {(GDPR_LABELS[markingDone.request_type] || markingDone.request_type).toLowerCase()} request from{' '}
+                {markingDone.name || markingDone.email || 'this user'} has actually been actioned.
+              </Text>
+            )}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="What was done? e.g. exported to CSV and emailed, or deleted per retention policy"
+              placeholderTextColor={colors.light}
+              value={doneNote}
+              onChangeText={setDoneNote}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+            <TouchableOpacity
+              style={[styles.modalSaveBtn, savingDone && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              onPress={confirmMarkDone}
+              disabled={savingDone}
+            >
+              <Text style={styles.modalSaveBtnText}>{savingDone ? 'Saving…' : 'Mark Done'}</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   )
 }
@@ -206,4 +254,22 @@ const styles = StyleSheet.create({
   listRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textTransform: 'capitalize' },
   listRowSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, textTransform: 'capitalize' },
   emptyRow: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic', padding: 14 },
+
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+  modalSheet: {
+    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: spacing.lg, paddingBottom: 34,
+  },
+  modalHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 },
+  modalTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  modalSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
+  modalInput: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 14, minHeight: 84,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    marginBottom: 14,
+  },
+  modalSaveBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
+  modalSaveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 })
