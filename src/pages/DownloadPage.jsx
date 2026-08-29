@@ -405,6 +405,14 @@ export default function DownloadPage() {
               <StoreButton label="App Store" />
               <StoreButton label="Google Play" />
             </div>
+
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px',
+              color: 'rgba(245,240,232,0.5)', marginTop: '20px', lineHeight: 1.6,
+            }}>
+              Already testing UniBlueprint? You already have it — sign in there with the same email
+              and password you use on the website. No separate account, no reinstalling.
+            </p>
           </div>
         </div>
       </section>

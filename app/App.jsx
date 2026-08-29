@@ -8,6 +8,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from './src/context/AuthContext'
 import RootNavigator from './src/navigation'
+import { linking } from './src/navigation/linking'
 import { colors } from './src/constants/theme'
 
 export default function App() {
@@ -32,7 +33,7 @@ export default function App() {
     <SafeAreaProvider>
       <AuthProvider>
         <StatusBar style="light" backgroundColor={colors.navy} />
-        <NavigationContainer>
+        <NavigationContainer linking={linking} fallback={null}>
           <RootNavigator />
         </NavigationContainer>
       </AuthProvider>

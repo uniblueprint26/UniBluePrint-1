@@ -1,6 +1,6 @@
 import UBPLogo from '../ui/UBPLogo'
 
-export default function AuthLayout({ title, subtitle, children, footer }) {
+export default function AuthLayout({ title, subtitle, children, footer, note }) {
   return (
     <div style={{
       background: '#F5F0E8',
@@ -55,6 +55,19 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
             {footer}
           </div>
+        )}
+
+        {note && (
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12.5px',
+            color: '#9CA3AF',
+            textAlign: 'center',
+            marginTop: '16px',
+            lineHeight: 1.6,
+          }}>
+            {note}
+          </p>
         )}
       </div>
     </div>

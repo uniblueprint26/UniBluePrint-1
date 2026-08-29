@@ -59,6 +59,7 @@ export default function SignUpPage() {
     <AuthLayout
       title="Create your Blueprint"
       subtitle="Free to join. No card required."
+      note="One UniBlueprint account, everywhere. The email and password you create here sign you in on the app too — Foundation Blueprint, Elevation Blueprint, and everything else you build live there."
       footer={
         <p style={belowCardStyle}>
           Already have an account?{' '}
