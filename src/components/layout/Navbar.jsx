@@ -4,7 +4,7 @@ import {
   Menu, X, ChevronDown, LogIn, UserCircle,
   FileText, Linkedin, Award, Briefcase, MessageSquare, Search,
   Dumbbell, GraduationCap, TrendingUp, Megaphone, Sparkles, Trophy, Flower2,
-  Instagram, UserCheck,
+  Instagram, UserCheck, Tag, Users, Globe, PiggyBank, Newspaper,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -33,6 +33,20 @@ const ELEVATION_SERVICES = [
   { label: 'Our Coaches', icon: UserCheck, href: '/elevation-blueprint' },
 ]
 
+// The other five pillars/features — each is its own product, not a list of
+// sub-services the way Foundation and Elevation are, so they show as single
+// direct links rather than a drilled-down column. Canonical order matches
+// the rest of the app/site: Foundation, Elevation, Lifestyle, Campus,
+// Course, Budgeting, then the Weekly Blueprint (a standalone feature, not
+// one of the five pillars).
+const MORE_PILLARS = [
+  { label: 'Lifestyle Blueprint', icon: Tag,       href: '/lifestyle-blueprint' },
+  { label: 'Campus Connect',      icon: Users,      href: '/campus-connect' },
+  { label: 'Course Connect',      icon: Globe,      href: '/course-connect' },
+  { label: 'Budgeting Tool',      icon: PiggyBank,  href: '/budgeting' },
+  { label: 'The Weekly Blueprint', icon: Newspaper, href: '/ad-board' },
+]
+
 const JOIN_LINKS = [
   { label: 'Campus Handler', href: '/join#handler-form' },
   { label: 'Uni Coach', href: '/join#coach-form' },
@@ -46,6 +60,8 @@ const MOBILE_SERVICE_LINKS = [
   { label: 'Lifestyle Blueprint', href: '/lifestyle-blueprint' },
   { label: 'Campus Connect', href: '/campus-connect' },
   { label: 'Course Connect', href: '/course-connect' },
+  { label: 'Budgeting Tool', href: '/budgeting' },
+  { label: 'The Weekly Blueprint', href: '/ad-board' },
 ]
 
 // ─── Small reusable pieces ─────────────────────────────────────────────────────
@@ -133,18 +149,43 @@ export default function Navbar({ onSearchOpen }) {
   const userRef = useRef(null)
   const servicesRef = useRef(null)
   const joinRef = useRef(null)
+  // Escape closes the menu and returns focus to its trigger button — but
+  // focusing that button normally re-opens the menu (see onFocus below),
+  // which would undo the Escape instantly. These suppress that one re-open.
+  const suppressServicesOpenRef = useRef(false)
+  const suppressJoinOpenRef = useRef(false)
 
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name.charAt(0).toUpperCase()
     : user?.email?.charAt(0).toUpperCase() ?? 'U'
 
   // Services hover
-  const onServicesEnter = () => { clearTimeout(servicesTimer.current); setIsServicesOpen(true) }
+  const onServicesEnter = () => {
+    clearTimeout(servicesTimer.current)
+    if (suppressServicesOpenRef.current) return
+    setIsServicesOpen(true)
+  }
   const onServicesLeave = () => { servicesTimer.current = setTimeout(() => setIsServicesOpen(false), 200) }
+  const closeServicesAndReturnFocus = () => {
+    setIsServicesOpen(false)
+    suppressServicesOpenRef.current = true
+    document.getElementById('nav-services-trigger')?.focus()
+    setTimeout(() => { suppressServicesOpenRef.current = false }, 0)
+  }
 
   // Join hover
-  const onJoinEnter = () => { clearTimeout(joinTimer.current); setIsJoinOpen(true) }
+  const onJoinEnter = () => {
+    clearTimeout(joinTimer.current)
+    if (suppressJoinOpenRef.current) return
+    setIsJoinOpen(true)
+  }
   const onJoinLeave = () => { joinTimer.current = setTimeout(() => setIsJoinOpen(false), 200) }
+  const closeJoinAndReturnFocus = () => {
+    setIsJoinOpen(false)
+    suppressJoinOpenRef.current = true
+    document.getElementById('nav-join-trigger')?.focus()
+    setTimeout(() => { suppressJoinOpenRef.current = false }, 0)
+  }
 
   // Click-outside user dropdown
   useEffect(() => {
@@ -315,8 +356,7 @@ export default function Navbar({ onSearchOpen }) {
           }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              setIsServicesOpen(false)
-              document.getElementById('nav-services-trigger')?.focus()
+              closeServicesAndReturnFocus()
               return
             }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -334,7 +374,7 @@ export default function Navbar({ onSearchOpen }) {
             controls="nav-services-dropdown"
             label="Services"
             isOpen={isServicesOpen}
-            onClick={() => setIsServicesOpen(v => !v)}
+            onClick={() => setIsServicesOpen(true)}
             onFocus={onServicesEnter}
             onMouseEnter={onServicesEnter}
             onMouseLeave={onServicesLeave}
@@ -380,6 +420,21 @@ export default function Navbar({ onSearchOpen }) {
                   Elevation Blueprint
                 </p>
                 {ELEVATION_SERVICES.map(({ label, icon: Icon, href }) => (
+                  <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
+                    <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
+                    {label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Remaining pillars/features — full width, below the two service columns */}
+              <div style={{
+                gridColumn: '1 / -1',
+                borderTop: '1px solid rgba(30,58,95,0.08)',
+                marginTop: '16px', paddingTop: '16px',
+                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px 12px',
+              }}>
+                {MORE_PILLARS.map(({ label, icon: Icon, href }) => (
                   <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
                     <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
                     {label}
@@ -443,8 +498,7 @@ export default function Navbar({ onSearchOpen }) {
           }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              setIsJoinOpen(false)
-              document.getElementById('nav-join-trigger')?.focus()
+              closeJoinAndReturnFocus()
               return
             }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -462,7 +516,7 @@ export default function Navbar({ onSearchOpen }) {
             controls="nav-join-dropdown"
             label="Join the Team"
             isOpen={isJoinOpen}
-            onClick={() => setIsJoinOpen(v => !v)}
+            onClick={() => setIsJoinOpen(true)}
             onFocus={onJoinEnter}
             onMouseEnter={onJoinEnter}
             onMouseLeave={onJoinLeave}
