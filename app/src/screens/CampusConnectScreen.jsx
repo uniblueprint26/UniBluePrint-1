@@ -1,12 +1,12 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, TextInput,
-  StyleSheet, KeyboardAvoidingView, Platform, Linking,
+  StyleSheet, KeyboardAvoidingView, Platform, Linking, Modal, Alert, ActivityIndicator,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Users, Car, CalendarDays, Lightbulb,
-  Search, ChevronLeft, MapPin, AlertCircle, Plus, MessageSquare,
+  Search, ChevronLeft, MapPin, AlertCircle, Plus, MessageSquare, X, Flag, Trash2, Minus,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -16,6 +16,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
 // ─── Feature Products ─────────────────────────────────────────────────────────
 
@@ -144,13 +145,9 @@ const BOARDS_DATA = [
   },
 ]
 
-// ─── Carpooling posts ─────────────────────────────────────────────────────────
+const CARPOOL_TERMS_VERSION = 'v1'
 
-const CARPOOL_POSTS = [
-  { from: 'Limerick City', to: 'UL Campus', time: 'Mon–Fri · 8:30am', seats: 2 },
-  { from: 'Cork City Centre', to: 'UCC Main Gate', time: 'Mon/Wed/Fri · 9:00am', seats: 3 },
-  { from: 'Galway City', to: 'NUIG Concourse', time: 'Daily · 8:00am', seats: 1 },
-]
+const CARPOOL_REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 // ─── Open projects ────────────────────────────────────────────────────────────
 
@@ -166,10 +163,175 @@ function boardContextId(title) {
   return 'campus-board-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
-function carpoolContextId(post) {
-  return 'carpool-' + (post.from + '-to-' + post.to)
-    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+// ─── Carpool: terms sheet ───────────────────────────────────────────────────
+// Real gate, not decoration — the app shows this before ever attempting a
+// post, but supabase/migrations/20260829150000_carpool_routes.sql enforces
+// the same requirement at the database level via a trigger, so this can't be
+// bypassed by skipping the UI.
+function CarpoolTermsModal({ visible, onClose, onAccept, accepting }) {
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View style={cm.backdrop}>
+        <View style={cm.sheet}>
+          <View style={cm.headerRow}>
+            <Text style={cm.title}>Carpool Safety Terms</Text>
+            <TouchableOpacity onPress={onClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
+            <Text style={cm.body}>
+              UniBlueprint connects students who want to share a route. It does not vet drivers,
+              passengers, or vehicles, and does not guarantee anyone's identity or safety.{'\n\n'}
+              By posting or contacting a route, you agree to:{'\n'}
+              • Verify who you're travelling with before you get in a car, through your campus
+              student services or your own judgement.{'\n'}
+              • Share your trip details (who, when, route) with someone you trust before travelling.{'\n'}
+              • Meet in a public place for a first trip where possible.{'\n'}
+              • Report anything that feels wrong using the report option on a post.{'\n\n'}
+              UniBlueprint is not responsible for arrangements made between students through this
+              feature.
+            </Text>
+          </ScrollView>
+          <TouchableOpacity
+            style={[cm.acceptBtn, accepting && { opacity: 0.7 }]}
+            activeOpacity={0.85}
+            onPress={onAccept}
+            disabled={accepting}
+          >
+            <Text style={cm.acceptBtnText}>{accepting ? 'Saving…' : 'Accept & Continue'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
 }
+
+// ─── Carpool: post a route ──────────────────────────────────────────────────
+function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
+  const [from, setFrom]       = useState('')
+  const [to, setTo]           = useState('')
+  const [schedule, setSchedule] = useState('')
+  const [seats, setSeats]     = useState(1)
+  const [notes, setNotes]     = useState('')
+  const [saving, setSaving]   = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
+
+  function reset() {
+    setFrom(''); setTo(''); setSchedule(''); setSeats(1); setNotes(''); setErrorMsg(null)
+  }
+
+  async function submit() {
+    if (!from.trim() || !to.trim() || !schedule.trim()) {
+      setErrorMsg('From, to, and schedule are required.')
+      return
+    }
+    setSaving(true)
+    setErrorMsg(null)
+    try {
+      const { data, error } = await supabase
+        .from('carpool_routes')
+        .insert({
+          user_id: userId,
+          poster_name: posterName,
+          from_location: from.trim(),
+          to_location: to.trim(),
+          schedule: schedule.trim(),
+          seats_available: seats,
+          notes: notes.trim() || null,
+        })
+        .select()
+        .single()
+      if (error) throw error
+      onPosted(data)
+      reset()
+    } catch {
+      setErrorMsg('Could not post your route. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={cm.backdrop}>
+        <View style={cm.sheet}>
+          <View style={cm.headerRow}>
+            <Text style={cm.title}>Post your route</Text>
+            <TouchableOpacity onPress={() => { reset(); onClose() }} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <Text style={cm.fieldLabel}>From</Text>
+            <TextInput style={cm.input} value={from} onChangeText={setFrom} placeholder="e.g. Limerick City" placeholderTextColor={colors.light} />
+            <Text style={cm.fieldLabel}>To</Text>
+            <TextInput style={cm.input} value={to} onChangeText={setTo} placeholder="e.g. UL Campus" placeholderTextColor={colors.light} />
+            <Text style={cm.fieldLabel}>Schedule</Text>
+            <TextInput style={cm.input} value={schedule} onChangeText={setSchedule} placeholder="e.g. Mon–Fri · 8:30am" placeholderTextColor={colors.light} />
+            <Text style={cm.fieldLabel}>Seats available</Text>
+            <View style={cm.stepperRow}>
+              <TouchableOpacity style={cm.stepperBtn} activeOpacity={0.8} onPress={() => setSeats(s => Math.max(1, s - 1))}>
+                <Minus size={14} color={colors.navy} />
+              </TouchableOpacity>
+              <Text style={cm.stepperValue}>{seats}</Text>
+              <TouchableOpacity style={cm.stepperBtn} activeOpacity={0.8} onPress={() => setSeats(s => Math.min(8, s + 1))}>
+                <Plus size={14} color={colors.navy} />
+              </TouchableOpacity>
+            </View>
+            <Text style={cm.fieldLabel}>Notes (optional)</Text>
+            <TextInput
+              style={[cm.input, { minHeight: 64 }]}
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Anything else worth knowing, e.g. splitting fuel cost"
+              placeholderTextColor={colors.light}
+              multiline
+              textAlignVertical="top"
+            />
+            {!!errorMsg && <Text style={cm.error}>{errorMsg}</Text>}
+            <TouchableOpacity
+              style={[cm.acceptBtn, saving && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              onPress={submit}
+              disabled={saving}
+            >
+              <Text style={cm.acceptBtnText}>{saving ? 'Posting…' : 'Post Route'}</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+const cm = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+  sheet: {
+    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: spacing.lg, paddingBottom: 34, maxHeight: '85%',
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  body: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 21 },
+  fieldLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 14, marginBottom: 6 },
+  input: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    paddingHorizontal: 14, paddingVertical: 12,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+  },
+  stepperRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  stepperBtn: {
+    width: 34, height: 34, borderRadius: 8, backgroundColor: colors.cream,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+  },
+  stepperValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, minWidth: 20, textAlign: 'center' },
+  error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginTop: 12 },
+  acceptBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
+  acceptBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+})
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
@@ -182,7 +344,84 @@ export default function CampusConnectScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const institutionShort = user?.user_metadata?.institution_short
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
   const [search, setSearch] = useState('')
+
+  // ── Carpool: real routes, terms gate, posting ──────────────────────────────
+  const [routes, setRoutes] = useState([])
+  const [loadingRoutes, setLoadingRoutes] = useState(true)
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(null) // null = unknown yet
+  const [termsOpen, setTermsOpen] = useState(false)
+  const [postOpen, setPostOpen] = useState(false)
+  const [acceptingTerms, setAcceptingTerms] = useState(false)
+
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    Promise.all([
+      supabase.from('carpool_routes').select('*').eq('active', true).order('created_at', { ascending: false }),
+      supabase.from('carpool_terms_acceptance').select('id').eq('user_id', user.id).limit(1),
+    ]).then(([routesRes, termsRes]) => {
+      if (cancelled) return
+      setRoutes(routesRes.data || [])
+      setHasAcceptedTerms((termsRes.data || []).length > 0)
+      setLoadingRoutes(false)
+    })
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  function openAddRoute() {
+    if (hasAcceptedTerms) setPostOpen(true)
+    else setTermsOpen(true)
+  }
+
+  async function acceptTerms() {
+    if (acceptingTerms) return
+    setAcceptingTerms(true)
+    const { error } = await supabase
+      .from('carpool_terms_acceptance')
+      .insert({ user_id: user.id, version: CARPOOL_TERMS_VERSION })
+    setAcceptingTerms(false)
+    if (error) {
+      Alert.alert('Something went wrong', 'Please try again.')
+      return
+    }
+    setHasAcceptedTerms(true)
+    setTermsOpen(false)
+    setPostOpen(true)
+  }
+
+  function handleRoutePosted(route) {
+    setRoutes(prev => [route, ...prev])
+    setPostOpen(false)
+  }
+
+  async function removeRoute(routeId) {
+    const { error } = await supabase.from('carpool_routes').delete().eq('id', routeId)
+    if (!error) setRoutes(prev => prev.filter(r => r.id !== routeId))
+  }
+
+  function reportRoute(route) {
+    Alert.alert(
+      'Report this route',
+      'What best describes the issue?',
+      [
+        ...CARPOOL_REPORT_REASONS.map(reason => ({
+          text: reason,
+          onPress: async () => {
+            const { error } = await supabase.from('operations_flags').insert({
+              flagged_by: user.id,
+              target_type: 'carpool_route',
+              target_id: route.id,
+              reason,
+            })
+            Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : "Thanks — the UniBlueprint team will take a look.")
+          },
+        })),
+        { text: 'Cancel', style: 'cancel' },
+      ],
+    )
+  }
 
   const scrollRef = useRef(null)
   const sectionY = useRef({})
@@ -321,45 +560,83 @@ export default function CampusConnectScreen({ navigation }) {
               Always verify carpool drivers through your campus student services before travelling.
             </Text>
           </View>
-          <View style={{ gap: 10, marginTop: spacing.sm }}>
-            {CARPOOL_POSTS.map((post, i) => (
-              <Card key={i} style={styles.carpoolCard}>
-                <View style={styles.carpoolRouteRow}>
-                  <View style={styles.carpoolDot} />
-                  <Text style={styles.carpoolFrom}>{post.from}</Text>
-                </View>
-                <View style={[styles.carpoolRouteRow, { marginTop: 6 }]}>
-                  <MapPin size={10} color={colors.navy} />
-                  <Text style={styles.carpoolTo}>{post.to}</Text>
-                </View>
-                <View style={styles.carpoolFooter}>
-                  <Text style={styles.carpoolTime}>{post.time}</Text>
-                  <View style={styles.carpoolRight}>
-                    <View style={styles.seatBadge}>
-                      <Text style={styles.seatBadgeText}>{post.seats} seat{post.seats !== 1 ? 's' : ''} free</Text>
+          {loadingRoutes ? (
+            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+          ) : routes.length === 0 ? (
+            <Text style={styles.emptyRoutesText}>No routes posted yet. Be the first to share yours.</Text>
+          ) : (
+            <View style={{ gap: 10, marginTop: spacing.sm }}>
+              {routes.map(route => {
+                const isOwn = route.user_id === user?.id
+                return (
+                  <Card key={route.id} style={styles.carpoolCard}>
+                    <View style={styles.carpoolRouteRow}>
+                      <View style={styles.carpoolDot} />
+                      <Text style={styles.carpoolFrom}>{route.from_location}</Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.chatBtn}
-                      activeOpacity={0.8}
-                      onPress={() => navigation.navigate('ChatRoom', {
-                        contextType: 'carpool',
-                        contextId:   carpoolContextId(post),
-                        roomName:    `${post.from} → ${post.to}`,
-                        subtitle:    post.time,
-                      })}
-                    >
-                      <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
-                      <Text style={styles.chatBtnText}>Chat</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Card>
-            ))}
-          </View>
+                    <View style={[styles.carpoolRouteRow, { marginTop: 6 }]}>
+                      <MapPin size={10} color={colors.navy} />
+                      <Text style={styles.carpoolTo}>{route.to_location}</Text>
+                    </View>
+                    {!!route.notes && <Text style={styles.carpoolNotes}>{route.notes}</Text>}
+                    <Text style={styles.carpoolPoster}>Posted by {isOwn ? 'you' : (route.poster_name || 'a student')}</Text>
+                    <View style={styles.carpoolFooter}>
+                      <Text style={styles.carpoolTime}>{route.schedule}</Text>
+                      <View style={styles.carpoolRight}>
+                        <View style={styles.seatBadge}>
+                          <Text style={styles.seatBadgeText}>
+                            {route.seats_available} seat{route.seats_available !== 1 ? 's' : ''} free
+                          </Text>
+                        </View>
+                        {isOwn ? (
+                          <TouchableOpacity
+                            style={styles.chatBtn}
+                            activeOpacity={0.8}
+                            onPress={() => Alert.alert(
+                              'Remove this route?',
+                              'This takes it off the board for everyone.',
+                              [{ text: 'Cancel', style: 'cancel' }, { text: 'Remove', style: 'destructive', onPress: () => removeRoute(route.id) }],
+                            )}
+                          >
+                            <Trash2 size={12} color={colors.navy} strokeWidth={2} />
+                            <Text style={styles.chatBtnText}>Remove</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <>
+                            <TouchableOpacity
+                              style={styles.reportBtn}
+                              activeOpacity={0.8}
+                              onPress={() => reportRoute(route)}
+                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            >
+                              <Flag size={13} color={colors.muted} strokeWidth={2} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={styles.chatBtn}
+                              activeOpacity={0.8}
+                              onPress={() => navigation.navigate('ChatRoom', {
+                                contextType: 'carpool',
+                                contextId:   route.id,
+                                roomName:    `${route.from_location} → ${route.to_location}`,
+                                subtitle:    route.schedule,
+                              })}
+                            >
+                              <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
+                              <Text style={styles.chatBtnText}>Chat</Text>
+                            </TouchableOpacity>
+                          </>
+                        )}
+                      </View>
+                    </View>
+                  </Card>
+                )
+              })}
+            </View>
+          )}
           <TouchableOpacity
             style={[styles.secondaryBtn, { marginTop: spacing.md }]}
             activeOpacity={0.8}
-            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Add my carpooling route'))}
+            onPress={openAddRoute}
           >
             <Plus size={14} color={colors.navy} />
             <Text style={styles.secondaryBtnText}>Add Your Route</Text>
@@ -411,6 +688,20 @@ export default function CampusConnectScreen({ navigation }) {
 
         </View>
       </ScrollView>
+
+      <CarpoolTermsModal
+        visible={termsOpen}
+        onClose={() => setTermsOpen(false)}
+        onAccept={acceptTerms}
+        accepting={acceptingTerms}
+      />
+      <PostRouteModal
+        visible={postOpen}
+        onClose={() => setPostOpen(false)}
+        onPosted={handleRoutePosted}
+        userId={user?.id}
+        posterName={displayName}
+      />
     </KeyboardAvoidingView>
   )
 }
@@ -476,16 +767,20 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(146,64,14,0.2)',
   },
   safetyBannerText: { fontFamily: fonts.sans, fontSize: 12, color: '#92400E', flex: 1, lineHeight: 18 },
+  emptyRoutesText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.md },
   carpoolCard:      { padding: 14 },
   carpoolRouteRow:  { flexDirection: 'row', alignItems: 'center', gap: 7 },
   carpoolDot:       { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.navy },
   carpoolFrom:      { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   carpoolTo:        { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
+  carpoolNotes:     { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 8, lineHeight: 17 },
+  carpoolPoster:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 6 },
   carpoolFooter:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 },
   carpoolTime:      { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
   carpoolRight:     { flexDirection: 'row', alignItems: 'center', gap: 8 },
   seatBadge:        { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   seatBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  reportBtn:        { padding: 4 },
 
   // Chat CTA, consistent across board cards and carpool posts
   chatBtn: {
