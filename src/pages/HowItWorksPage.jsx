@@ -1,7 +1,7 @@
 import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ChevronDown, FileText, Compass, Building2, Heart, Globe } from 'lucide-react'
+import { ChevronDown, FileText, Compass, Building2, Heart, Globe, PiggyBank, Newspaper } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -59,12 +59,12 @@ const PILLARS = [
     chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
     features: [
       ['Accommodation', 'Rooms, sublets and housing posted by other students at your college.'],
-      ['Marketplace', 'Buy, sell, swap: textbooks, gear, whatever’s going.'],
+      ['Carpooling', 'Post or find a route, with real safety terms you accept before you post.'],
       ['Events', 'What’s on, on and around campus.'],
       ['Lost & Found', 'Report or claim something that went missing.'],
       ['Societies', 'Find and connect with student societies.'],
       ['Opportunities', 'Part-time roles, internships, one-off gigs.'],
-      ['Student Ads', 'Local student-run businesses and side hustles.'],
+      ['College Reviews', 'Rate and read reviews of your own college, from students who’ve actually been there.'],
     ],
   },
   {
@@ -79,6 +79,36 @@ const PILLARS = [
       ['Study Groups', 'Find or start a group for your module.'],
       ['Module Q&A', 'Ask something specific, get an answer from someone who’s done it.'],
       ['Exam Resources', 'Past papers, summaries, and revision material.'],
+    ],
+  },
+]
+
+// Two standalone features, not pillars in their own right, same framing as
+// the app's onboarding tutorial ("five tools, two standalone features").
+const STANDALONE_FEATURES = [
+  {
+    icon: PiggyBank, tint: '#FFFBEB', accent: '#B45309',
+    title: 'Budgeting Tool', tagline: 'Your financial companion, not a Blueprint',
+    description: 'Track spending, calculate a realistic student budget, and navigate SUSI and every other real Irish grant, all in one place, all free.',
+    chips: ['Budget Calculator', 'SUSI Guide', 'Grants & Schemes', 'Spending Tracker'],
+    features: [
+      ['Budget Calculator', 'Plan rent, food, transport and more against what you actually have coming in.'],
+      ['SUSI Guide', 'Eligibility, how to apply, and what to expect, explained properly.'],
+      ['Grants & Schemes', 'Every real Irish student grant worth knowing about, not just SUSI, with niche and lesser-known ones included.'],
+      ['Spending Tracker', 'Log spending as it happens and see where it actually goes.'],
+    ],
+  },
+  {
+    icon: Newspaper, tint: '#F5F3FF', accent: '#4C1D95',
+    title: 'The Weekly Blueprint', tagline: 'Your weekly issue, not one of the five pillars',
+    description: 'A new issue every week, built into the Ad Board tab and read like a real magazine: deals, coach advice, campus events, student stories, and a marketplace to buy, sell, and offer your skills.',
+    chips: ['Deals & Discounts', 'Coach Spotlights', 'Campus Events', 'Marketplace'],
+    features: [
+      ['Deals & Discounts', 'This week\'s Lifestyle Partner offers, plus what\'s in the Deal Room for Pro.'],
+      ['Coach Spotlights', 'A different Uni Coach featured every week, with real advice from their field.'],
+      ['Campus Connect', 'What\'s happening on campuses across Ireland this week.'],
+      ['Marketplace', 'Offer a skill or find one: photography, tutoring, design, freelancing, and more.'],
+      ['Ad Board', 'Partner ads and student businesses, curated in one clean noticeboard.'],
     ],
   },
 ]
@@ -607,6 +637,29 @@ export default function HowItWorksPage() {
         </div>
         <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {PILLARS.map(p => <PillarCard key={p.title} {...p} />)}
+        </div>
+      </section>
+
+      {/* ── SECTION 1C — TWO STANDALONE FEATURES ────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <SectionLabel>Beyond the five pillars</SectionLabel>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(28px, 4vw, 40px)', color: '#1E3A5F', marginTop: '10px',
+          }}>
+            Two more, built right in
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#6B7280',
+            marginTop: '10px', maxWidth: '480px', margin: '10px auto 0', lineHeight: 1.65,
+          }}>
+            Not one of the five pillars, but built into the app all the same, and free for every user.
+          </p>
+        </div>
+        <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {STANDALONE_FEATURES.map(f => <PillarCard key={f.title} {...f} />)}
         </div>
       </section>
 
