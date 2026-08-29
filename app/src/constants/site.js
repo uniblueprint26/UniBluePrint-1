@@ -3,7 +3,7 @@
 // the app bundle — the app always deep-links out for these, it never renders
 // its own copy or collects payment details itself.
 
-export const SITE_URL = 'https://uniblueprint.com'
+export const SITE_URL = 'https://uniblueprint.ie'
 
 export const WEBSITE_LINKS = {
   terms:         `${SITE_URL}/terms`,
@@ -12,4 +12,5 @@ export const WEBSITE_LINKS = {
   cookies:       `${SITE_URL}/cookies`,
   pricing:       `${SITE_URL}/pricing`,
   contact:       `${SITE_URL}/contact`,
+  blog:          `${SITE_URL}/blog`,
 }

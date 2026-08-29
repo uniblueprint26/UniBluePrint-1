@@ -45,6 +45,13 @@ const PAGE_FIELDS = {
       { key: 'intro', type: 'textarea', label: 'Short personal introduction' },
     ],
   },
+  money_moves: {
+    label: "This Week's Financial Tip (page 20)",
+    fields: [
+      { key: 'coachName', type: 'text', label: 'Coach name', hint: 'e.g. Zainab Adeyemi (Soft Life Investing)' },
+      { key: 'tip', type: 'textarea', label: 'This week\'s tip' },
+    ],
+  },
   coach_board: {
     label: 'The Coach Board (page 21)',
     fields: [{ key: 'lines', type: 'lines', label: 'One quote per line', hint: 'Coach name | Their role | "Quote"' }],
@@ -63,7 +70,6 @@ const PAGE_FIELDS = {
       { key: 'kicker', type: 'text', label: 'Feature type', hint: 'e.g. "Opportunity of the Week"' },
       { key: 'title', type: 'text', label: 'Title' },
       { key: 'body', type: 'textarea', label: 'Body' },
-      { key: 'ctaLabel', type: 'text', label: 'CTA label (optional)' },
     ],
   },
   founders_note: {
