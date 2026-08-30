@@ -61,10 +61,13 @@ import {
 
 // TODO: Send confirmation email via Resend or Supabase Edge Function when any
 // contact form is submitted. Email should confirm receipt and set expectations
-// on response time (2 business days).
+// on response time (2 business days). Needs a Resend API key.
 
-// TODO: Add rate limiting to contact form submissions — max 3 per IP per hour.
-// Implement via Supabase Edge Function or middleware before going live.
+// Rate limiting is live: enforce_form_rate_limit() (see
+// supabase/migrations/20260828160000_rate_limit_public_forms.sql) caps every
+// table this page writes to (general_enquiries, partnership_enquiries,
+// team_applications, university_enquiries, business_enquiries) at 3
+// submissions per email per hour, enforced by a database trigger.
 
 // Two-up field rows (name/email, organisation/contact name, role/university)
 // were hardcoded to `gridTemplateColumns: '1fr 1fr'` with no mobile

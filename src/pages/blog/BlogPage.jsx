@@ -179,8 +179,7 @@ export default function BlogPage() {
         <title>{safePage > 1 ? `Blog — Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
         <meta name="description" content="Career tips, platform updates, and guides for young people across all pathways in Ireland from the UniBlueprint team." />
         <link rel="canonical" href={canonical} />
-        {/* TODO: Uncomment before going live — adds noindex on paginated pages beyond page 1 to prevent duplicate content penalties */}
-        {/* {safePage > 1 && <meta name="robots" content="noindex, follow" />} */}
+        {safePage > 1 && <meta name="robots" content="noindex, follow" />}
         <script type="application/ld+json">{JSON.stringify(BLOG_JSON_LD)}</script>
       </Helmet>
 
