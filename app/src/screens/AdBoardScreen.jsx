@@ -855,7 +855,11 @@ export default function AdBoardScreen({ navigation }) {
   useEffect(() => {
     let cancelled = false
     async function load() {
-      const [issueRes, dealsRes, marketplaceRes, liveAdsRes] = await Promise.all([
+      // Promise.allSettled, not Promise.all: a network hiccup on any one of
+      // these must not leave the whole screen stuck on the loading spinner
+      // forever — each query degrades to empty data on its own, the rest
+      // still render.
+      const [issueRes, dealsRes, marketplaceRes, liveAdsRes] = await Promise.allSettled([
         supabase.rpc('get_current_weekly_issue'),
         supabase.from('deals').select('*, partners(name, type)').eq('active', true),
         supabase.from('ads').select('*').eq('active', true).contains('boards', ['marketplace']),
@@ -863,7 +867,7 @@ export default function AdBoardScreen({ navigation }) {
       ])
       if (cancelled) return
 
-      const issue = issueRes.data?.[0] || null
+      const issue = (issueRes.status === 'fulfilled' ? issueRes.value.data?.[0] : null) || null
       const content = issue?.content || {}
       const issueNumber = issue?.issue_number ?? 1
 
@@ -879,13 +883,13 @@ export default function AdBoardScreen({ navigation }) {
       setScreenData({
         issue,
         content,
-        deals: dealsRes.data || [],
+        deals: (dealsRes.status === 'fulfilled' ? dealsRes.value.data : null) || [],
         coaches: [c1, c2].filter(Boolean),
         foundationTopics: fTopics,
         lifestylePartners: PARTNERS.filter(p => p.filterKey === 'fashion' && p.status === 'live'),
-        marketplaceAds: marketplaceRes.data || [],
+        marketplaceAds: (marketplaceRes.status === 'fulfilled' ? marketplaceRes.value.data : null) || [],
         curatedAds: CURATED_ADS,
-        liveBoardAds: liveAdsRes.data || [],
+        liveBoardAds: (liveAdsRes.status === 'fulfilled' ? liveAdsRes.value.data : null) || [],
       })
       setLoading(false)
     }
