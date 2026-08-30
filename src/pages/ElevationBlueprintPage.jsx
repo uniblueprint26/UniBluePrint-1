@@ -12,7 +12,7 @@ const PAGE_STYLES = `
     gap: 20px;
   }
   @media (max-width: 1023px) { .ebp-coaches-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 639px)  { .ebp-coaches-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 639px)  { .ebp-coaches-grid { gap: 10px; } }
   .ebp-hero-inner {
     display: flex; align-items: center; gap: 48px;
     max-width: 1040px; margin: 0 auto;

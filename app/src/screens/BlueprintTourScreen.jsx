@@ -113,11 +113,13 @@ const CARDS = [
   },
   {
     key: 'adboard', tint: '#F5F3FF', accent: '#7C3AED', Icon: Megaphone,
-    title: 'Ad Board', tagline: 'Your weekly issue, not one of the five pillars',
-    body: 'A standalone weekly magazine you flip through, not scroll: partner deals, coach spotlights, campus events, student stories, and everything else happening across UniBlueprint that week.',
-    chips: ['Weekly Deals', 'Coach Spotlights', 'Campus Events', 'Post an Ad'],
+    title: 'Ad Board', tagline: 'Not one of the five pillars, three sections in one place',
+    body: 'The Weekly Blueprint, a magazine you flip through, not scroll: partner deals, coach spotlights, campus events, and student stories. Plus a blog, and a marketplace to buy, sell, and offer your skills.',
+    chips: ['The Weekly Blueprint', 'Blog', 'Marketplace', 'Post an Ad'],
     features: [
-      ['Weekly issue', 'New pages every week, swipe or tap the arrows to flip through.'],
+      ['The Weekly Blueprint', 'A new issue every week, swipe or tap the arrows to flip through.'],
+      ['Blog', 'Career and student-life articles, the same content as the website.'],
+      ['Marketplace', 'Offer a skill or find one, or buy and sell with other students.'],
       ['Post an Ad', 'Anyone can submit a listing for review, students and partners alike.'],
     ],
   },

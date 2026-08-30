@@ -129,7 +129,8 @@ const PAGE_STYLES = `
     margin: 40px auto 0;
   }
   @media (max-width: 600px) {
-    .sept-free-grid { grid-template-columns: 1fr; }
+    .sept-free-grid { gap: 10px; }
+    .sept-free-grid > div { padding: 16px 14px !important; }
     .sept-trial-h1 { font-size: 52px; }
   }
   .sept-pill {

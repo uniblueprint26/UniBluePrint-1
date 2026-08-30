@@ -304,9 +304,9 @@ const PILLARS_DATA = [
     ],
   },
   {
-    name: 'The Weekly Blueprint',
-    slogan: 'A new issue, every week.',
-    description: 'A weekly digital magazine built into the app: deals, coach advice, campus events, student stories, and a marketplace to buy, sell, and offer your skills.',
+    name: 'Ad Board',
+    slogan: 'Magazine. Blog. Marketplace.',
+    description: 'Three sections, one tab: The Weekly Blueprint magazine, a career and student-life blog, and a marketplace to buy, sell, and offer your skills.',
     href: '/ad-board',
     icon: Megaphone,
     accent: '#1B4B5A',
@@ -315,7 +315,7 @@ const PILLARS_DATA = [
       "This week's featured deal: 40% off, Lifestyle Partner",
       'Coach Spotlight: a new coach, every week',
       'Marketplace: photography services, 3 enquiries received',
-      'Campus Connect: what\'s on near you this week',
+      'New on the blog: interview preparation guide',
     ],
   },
   {
@@ -398,8 +398,11 @@ const PAGE_STYLES = `
     .ubp-glass-phone.ubp-right { display: block }
   }
   @media (max-width: 600px) {
-    .ubp-pillars-grid { grid-template-columns: 1fr }
-    .ubp-quality-grid { grid-template-columns: 1fr }
+    /* Pillar cards carry a title, slogan, description, and a 4-line peek
+       list each — genuinely too dense to read at 2-up on a phone, so this
+       one stays single column on purpose, unlike the lighter card grids
+       elsewhere on the site. */
+    .ubp-quality-grid { gap: 12px }
     .ubp-cta-row a    { width: 100%; box-sizing: border-box }
     .ubp-cta-row      { flex-direction: column !important }
   }

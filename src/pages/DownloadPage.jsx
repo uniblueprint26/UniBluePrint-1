@@ -66,7 +66,7 @@ const DL_STYLES = `
     .dl-phone-col { display: none; }
   }
   @media (max-width: 580px) {
-    .dl-feature-grid { grid-template-columns: 1fr !important; }
+    .dl-feature-grid { gap: 12px !important; }
   }
   .dl-notify-row {
     display: flex;

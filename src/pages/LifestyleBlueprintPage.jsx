@@ -284,7 +284,7 @@ const PAGE_STYLES = `
     .lbp-reach-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 720px) { .lbp-feat-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .lbp-feat-grid { grid-template-columns: 1fr; } .lbp-steps-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 500px) { .lbp-feat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .lbp-steps-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
 `
 
 // ─── Page ──────────────────────────────────────────────────────────────────────

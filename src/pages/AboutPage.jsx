@@ -30,11 +30,12 @@ const PAGE_STYLES = `
   }
   @media (max-width: 860px) {
     .about-story-grid { grid-template-columns: 1fr; gap: 40px; }
-    .about-diff-grid  { grid-template-columns: 1fr; }
+    .about-diff-grid  { grid-template-columns: repeat(2, 1fr); }
     .about-team-grid  { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 520px) {
-    .about-team-grid  { grid-template-columns: 1fr; }
+    .about-diff-grid  { gap: 12px; }
+    .about-team-grid  { gap: 12px; }
   }
 `
 

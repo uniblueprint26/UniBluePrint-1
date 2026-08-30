@@ -59,7 +59,7 @@ const PAGE_STYLES = `
     margin-top: 52px;
   }
   @media (max-width: 960px) { .cc-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .cc-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .cc-grid { gap: 10px; } }
 `
 
 // ─── CompassCard ──────────────────────────────────────────────────────────────

@@ -205,7 +205,7 @@ footer {
   .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
 }
 @media (max-width: 479px) {
-  .footer-grid { grid-template-columns: 1fr; }
+  .footer-grid { gap: 16px; }
 }
 
 .footer-bottom {
@@ -294,7 +294,7 @@ footer {
   .pillars-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 480px) {
-  .pillars-grid { grid-template-columns: 1fr; }
+  .pillars-grid { gap: 10px; }
 }
 
 /* Testimonials / student card grid */
@@ -326,7 +326,7 @@ footer {
   gap: 16px;
 }
 @media (max-width: 640px) {
-  .mh-grid { grid-template-columns: 1fr; }
+  .mh-grid { gap: 10px; }
 }
 
 /* Partner deal card grid */
@@ -397,7 +397,10 @@ footer {
   gap: 16px;
 }
 @media (max-width: 768px) {
-  .about-diff-grid { grid-template-columns: 1fr; }
+  .about-diff-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .about-diff-grid { gap: 10px; }
 }
 
 /* Team: 3×2 grid desktop, 2×3 tablet, 1 col mobile */
@@ -410,7 +413,7 @@ footer {
   .about-team-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 480px) {
-  .about-team-grid { grid-template-columns: 1fr; }
+  .about-team-grid { gap: 8px; }
 }
 
 /* ─── How It Works page ──────────────────────────────────────────────── */
@@ -478,7 +481,7 @@ footer {
   .services-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 767px) {
-  .services-grid { grid-template-columns: 1fr; }
+  .services-grid { gap: 10px; }
 }
 
 /* ─── Partner tools grid (Partners page) ─────────────────────────────── */
@@ -489,7 +492,7 @@ footer {
   text-align: left;
 }
 @media (max-width: 640px) {
-  .partner-tools-grid { grid-template-columns: 1fr; }
+  .partner-tools-grid { gap: 8px; }
 }
 
 /* ─── Pricing page ───────────────────────────────────────────────────── */
@@ -523,7 +526,7 @@ footer {
   .blog-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 767px) {
-  .blog-grid { grid-template-columns: 1fr; }
+  .blog-grid { gap: 12px; }
 }
 
 /* ─── September Trial page ───────────────────────────────────────────── */

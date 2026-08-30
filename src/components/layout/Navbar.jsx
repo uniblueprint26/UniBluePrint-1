@@ -37,14 +37,15 @@ const ELEVATION_SERVICES = [
 // sub-services the way Foundation and Elevation are, so they show as single
 // direct links rather than a drilled-down column. Canonical order matches
 // the rest of the app/site: Foundation, Elevation, Lifestyle, Campus,
-// Course, Budgeting, then the Weekly Blueprint (a standalone feature, not
-// one of the five pillars).
+// Course, Budgeting, then Ad Board (a standalone feature, not one of the
+// five pillars — it holds The Weekly Blueprint magazine, a blog, and a
+// marketplace, not just the magazine).
 const MORE_PILLARS = [
   { label: 'Lifestyle Blueprint', icon: Tag,       href: '/lifestyle-blueprint' },
   { label: 'Campus Connect',      icon: Users,      href: '/campus-connect' },
   { label: 'Course Connect',      icon: Globe,      href: '/course-connect' },
   { label: 'Budgeting Tool',      icon: PiggyBank,  href: '/budgeting' },
-  { label: 'The Weekly Blueprint', icon: Newspaper, href: '/ad-board' },
+  { label: 'Ad Board',            icon: Newspaper,  href: '/ad-board' },
 ]
 
 const JOIN_LINKS = [
@@ -61,7 +62,7 @@ const MOBILE_SERVICE_LINKS = [
   { label: 'Campus Connect', href: '/campus-connect' },
   { label: 'Course Connect', href: '/course-connect' },
   { label: 'Budgeting Tool', href: '/budgeting' },
-  { label: 'The Weekly Blueprint', href: '/ad-board' },
+  { label: 'Ad Board', href: '/ad-board' },
 ]
 
 // ─── Small reusable pieces ─────────────────────────────────────────────────────

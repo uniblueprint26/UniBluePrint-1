@@ -311,8 +311,15 @@ const PAGE_STYLES = `
   .partners-soon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1040px; margin: 24px auto 0; }
   .partner-tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   @media (max-width: 900px) { .partners-live-grid { grid-template-columns: repeat(2, 1fr); } .partners-soon-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 640px) { .partners-live-grid { grid-template-columns: 1fr; } .partners-soon-grid { grid-template-columns: repeat(2, 1fr); } .partner-tools-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 440px) { .partners-soon-grid { grid-template-columns: 1fr; } .partner-tools-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    /* Each live partner card holds a full pricelist and credentials block —
+       too dense for 2-up without overflowing, unlike the lighter cards
+       elsewhere, so this one stays single column. */
+    .partners-live-grid { grid-template-columns: 1fr; }
+    .partners-soon-grid { grid-template-columns: repeat(2, 1fr); }
+    .partner-tools-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 440px) { .partners-soon-grid { gap: 8px; } .partner-tools-grid { gap: 8px; } }
 `
 
 function SectionLabel({ children, light }) {

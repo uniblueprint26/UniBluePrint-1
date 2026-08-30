@@ -100,15 +100,14 @@ const STANDALONE_FEATURES = [
   },
   {
     icon: Newspaper, tint: '#F5F3FF', accent: '#4C1D95',
-    title: 'The Weekly Blueprint', tagline: 'Your weekly issue, not one of the five pillars',
-    description: 'A new issue every week, built into the Ad Board tab and read like a real magazine: deals, coach advice, campus events, student stories, and a marketplace to buy, sell, and offer your skills.',
-    chips: ['Deals & Discounts', 'Coach Spotlights', 'Campus Events', 'Marketplace'],
+    title: 'Ad Board', tagline: 'Not one of the five pillars, three sections in one place',
+    description: 'The Weekly Blueprint, a new magazine issue every week, read like a real magazine: deals, coach advice, campus events, student stories. Plus a blog, and a marketplace to buy, sell, and offer your skills.',
+    chips: ['The Weekly Blueprint', 'Blog', 'Marketplace', 'Post an Ad'],
     features: [
-      ['Deals & Discounts', 'This week\'s Lifestyle Partner offers, plus what\'s in the Deal Room for Pro.'],
-      ['Coach Spotlights', 'A different Uni Coach featured every week, with real advice from their field.'],
-      ['Campus Connect', 'What\'s happening on campuses across Ireland this week.'],
+      ['The Weekly Blueprint', 'A new magazine issue every week: deals, coach spotlights, campus events, and student stories.'],
+      ['Blog', 'Career and student-life articles, the same content as the website blog.'],
       ['Marketplace', 'Offer a skill or find one: photography, tutoring, design, freelancing, and more.'],
-      ['Ad Board', 'Partner ads and student businesses, curated in one clean noticeboard.'],
+      ['Post an Ad', 'Partner ads and student businesses, reviewed before they go live.'],
     ],
   },
 ]
@@ -230,11 +229,14 @@ const PAGE_STYLES = `
     .hiw-connector-line { display: none; }
   }
   @media (max-width: 600px) {
+    /* Each step card holds a 140px-wide phone mockup — stays single column
+       here since 2-up would overflow the card at this width, unlike the
+       plain icon+text cards elsewhere on this page. */
     .hiw-steps-grid { grid-template-columns: 1fr; }
-    .hiw-quality-cards { grid-template-columns: 1fr; }
+    .hiw-quality-cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   }
   @media (max-width: 767px) {
-    .hiw-quality-cards { grid-template-columns: 1fr; }
+    .hiw-quality-cards { grid-template-columns: repeat(2, 1fr); }
   }
   .hiw-step-card {
     cursor: pointer;

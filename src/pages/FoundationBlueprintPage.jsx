@@ -33,6 +33,9 @@ const PAGE_STYLES = `
     .fbp-services-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 560px) {
+    /* Each service card carries a bulleted feature list and a pricing row —
+       too dense for 2-up without overflowing, so this one stays single
+       column, unlike the lighter cards elsewhere on the site. */
     .fbp-services-grid { grid-template-columns: 1fr; }
     .fbp-steps-row { flex-direction: column; align-items: center; gap: 32px; }
     .fbp-steps-line { display: none; }

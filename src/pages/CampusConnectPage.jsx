@@ -178,7 +178,7 @@ const PAGE_STYLES = `
     .ccp-phone { display: none; }
   }
   @media (max-width: 720px) { .ccp-feat-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .ccp-feat-grid { grid-template-columns: 1fr; } .ccp-steps-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 500px) { .ccp-feat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .ccp-steps-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
 `
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
