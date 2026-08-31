@@ -27,7 +27,7 @@ const INTERVIEW_FORMAT_BY_INDUSTRY: Record<string, string> = {
   'Education and Teaching':
     'Expect questions framed around classroom practice, often with a teaching demonstration or a discussion of a sample lesson. Differentiation, inclusion, assessment, and behaviour management come up in almost every panel.',
   'Public Sector and Civil Service':
-    'Expect a competency-based panel scored against the published framework headings for the grade. Answers are marked per heading, so name the competency being evidenced and keep to one bounded example each.',
+    'Expect a panel scored against the published Civil Service Capability Framework for the grade (four capabilities at Executive Officer level, each with its own sub-dimensions). Answers are marked per capability, so name the one being evidenced and keep to one bounded example each.',
   'Social Work and Community':
     'Expect values-based questioning with risk and safeguarding scenarios. Panels probe boundaries, use of supervision, and anti-discriminatory practice.',
   'Creative and Media':
@@ -134,7 +134,6 @@ Deno.serve(async (req: Request) => {
       .select('title, situation, task, action, result, competency_tags')
       .eq('user_id', user.id)
 
-    const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3)
     const backgroundSummary = (pack.input || {}).background_summary || experienceNarrative(profile) || null
 
     const industryCtx = await resolveIndustryContext(
@@ -142,6 +141,7 @@ Deno.serve(async (req: Request) => {
       target?.target_industry || targetRole,
       target?.target_course,
     )
+    const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3, industryCtx.industry)
     const format = INTERVIEW_FORMAT_BY_INDUSTRY[industryCtx.industry]
     const formatRule = format
       ? `\n\nINTERVIEW FORMAT IN THIS FIELD — ${industryCtx.industry}\n${format}\nThe predicted questions must reflect this format. Do not pad the pack with behavioural questions for a field that interviews technically, or vice versa — and where the format includes a practical task, say so explicitly so the candidate prepares for it.`

@@ -4,7 +4,7 @@
 
 export const CORE_COMPETENCIES = [
   'Teamwork', 'Leadership', 'Problem Solving', 'Communication', 'Initiative',
-  'Resilience', 'Client / Stakeholder Focus', 'Adaptability',
+  'Resilience', 'Client / Stakeholder Focus', 'Adaptability', 'Attention to Detail',
 ]
 
 // Irish Civil Service Capability Framework (publicjobs.ie, launched Feb 2024) —

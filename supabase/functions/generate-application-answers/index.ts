@@ -15,7 +15,7 @@ import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/indu
  */
 const FRAMEWORK_BY_INDUSTRY: Record<string, string> = {
   'Public Sector and Civil Service':
-    'Scored per competency heading against the published Civil Service model for that grade. Each answer must sit squarely under its heading and isolate what the applicant personally did — assessors score the individual, not the team.',
+    'Scored per capability against the published Civil Service Capability Framework for that grade (Building Future Readiness, Leading and Empowering, Evidence Informed Delivery, Communicating and Collaborating at Executive Officer level — this replaced the older competency-heading model in 2024). Each answer must sit squarely under its capability and isolate what the applicant personally did — assessors score the individual, not the team.',
   'Healthcare and Nursing':
     'Values-based recruitment. Answers are assessed for person-centred care, candour, and safe practice within a multidisciplinary team, not just task completion. Reflection on what the candidate would do differently carries real weight.',
   'Finance and Accounting':
@@ -109,13 +109,12 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'Add at least one story to your evidence bank first — Application Form Assistance drafts answers from your real experience, it does not invent one.' }, 422)
     }
 
-    const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3)
-
     const industryCtx = await resolveIndustryContext(
       supabase,
       target?.target_industry || targetRole,
       target?.target_course,
     )
+    const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3, industryCtx.industry)
     const framework = FRAMEWORK_BY_INDUSTRY[industryCtx.industry]
     const frameworkRule = framework
       ? `\n\nASSESSMENT FRAMEWORK FOR THIS FIELD — ${industryCtx.industry}\n${framework}\nShape each answer to how this field actually scores, while keeping every fact drawn from the student's own evidence bank.`

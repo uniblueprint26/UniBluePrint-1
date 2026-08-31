@@ -77,20 +77,60 @@ export async function fetchIndustryExamples(
   return results
 }
 
-/** For STAR-based categories, matched by competency rather than industry. */
+/**
+ * For STAR-based categories, matched primarily by competency, with an
+ * industry preference layered on top when one is given.
+ *
+ * A STAR answer calibrates two things at once — what good evidence for THIS
+ * competency looks like, and what the writing convention is in THIS field —
+ * so matching purely on competency (the original behaviour) meant a Law
+ * candidate could just as easily be handed a Sports and Fitness example for
+ * "Teamwork". Now: rows matching both competency and industry come first,
+ * topped up with any-industry matches on the same competencies if short of
+ * `limit`. `industry` is optional so existing callers keep working unchanged.
+ */
 export async function fetchCompetencyExamples(
   supabase: SupabaseClient,
   competencyTags: string[],
   limit = 3,
+  industry?: string | null,
 ): Promise<LibraryExample[]> {
   if (competencyTags.length === 0) return []
-  const { data } = await supabase
-    .from('example_library')
-    .select('excerpt, why_it_works, industry, competency_tag, source_name, source_url, provenance')
-    .eq('category', 'star_answer')
-    .in('competency_tag', competencyTags)
-    .limit(limit)
-  return (data as LibraryExample[]) || []
+  const cols = 'excerpt, why_it_works, industry, competency_tag, source_name, source_url, provenance'
+  const results: LibraryExample[] = []
+
+  if (industry) {
+    const { data } = await supabase
+      .from('example_library')
+      .select(cols)
+      .eq('category', 'star_answer')
+      .in('competency_tag', competencyTags)
+      .ilike('industry', `%${escapeLike(industry)}%`)
+      .limit(limit)
+    if (data) results.push(...(data as LibraryExample[]))
+  }
+
+  if (results.length < limit) {
+    // Over-fetch a flat `limit` (rather than the remaining count) because some
+    // rows returned here will already be in `results` and get filtered by the
+    // dedup check below — asking for only the shortfall risks coming up short
+    // after those are dropped.
+    const seen = new Set(results.map((r) => r.excerpt))
+    const { data } = await supabase
+      .from('example_library')
+      .select(cols)
+      .eq('category', 'star_answer')
+      .in('competency_tag', competencyTags)
+      .limit(limit)
+    for (const row of (data as LibraryExample[]) || []) {
+      if (results.length >= limit) break
+      if (seen.has(row.excerpt)) continue
+      results.push(row)
+      seen.add(row.excerpt)
+    }
+  }
+
+  return results
 }
 
 export interface IndustryIntel {
