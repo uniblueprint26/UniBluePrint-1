@@ -1,20 +1,24 @@
-// TODO: Connect to Stripe Customer Portal when payments go live.
-// For now show plan info and contact support link.
+// Billing is managed through Stripe's own Customer Portal — this page
+// just opens it (create-portal-session), rather than re-building
+// cancel/update-card/invoice-history flows Stripe already provides.
 // Pro status lives in the 'subscriptions' table, not 'profiles' — same
 // table and shape AuthContext.jsx reads for the isPro flag used site-wide.
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { CreditCard, CheckCircle, Loader2 } from 'lucide-react'
+import { CreditCard, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { STRIPE_STATUS } from '../lib/stripe'
 
 export default function SubscriptionManagementPage() {
   const { user } = useAuth()
   const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [portalError, setPortalError] = useState('')
 
   useEffect(() => {
     async function fetchSubscription() {
@@ -29,6 +33,21 @@ export default function SubscriptionManagementPage() {
     }
     if (user) fetchSubscription()
   }, [user])
+
+  async function openBillingPortal() {
+    setPortalLoading(true)
+    setPortalError('')
+    try {
+      const { data, error } = await supabase.functions.invoke('create-portal-session')
+      if (error || !data?.url) {
+        throw new Error(error?.message || 'Could not open the billing portal. Please try again.')
+      }
+      window.location.href = data.url
+    } catch (err) {
+      setPortalError(err.message || 'Something went wrong. Please try again.')
+      setPortalLoading(false)
+    }
+  }
 
   const isPro = !!subscription && subscription.status === 'active' && (
     !subscription.current_period_end || new Date(subscription.current_period_end) > new Date()
@@ -125,19 +144,34 @@ export default function SubscriptionManagementPage() {
               {/* Actions */}
               <div style={{ marginTop: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {isPro ? (
-                  <button
-                    disabled
-                    title="Stripe Customer Portal coming soon"
-                    style={{
-                      height: '44px', padding: '0 24px',
-                      background: 'rgba(30,58,95,0.06)', color: '#9CA3AF',
-                      border: 'none', borderRadius: '8px',
-                      fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-                      cursor: 'not-allowed',
-                    }}
-                  >
-                    Manage billing — coming soon
-                  </button>
+                  <>
+                    <button
+                      onClick={openBillingPortal}
+                      disabled={portalLoading || STRIPE_STATUS !== 'configured'}
+                      title={STRIPE_STATUS !== 'configured' ? 'Stripe isn’t configured yet' : undefined}
+                      style={{
+                        height: '44px', padding: '0 24px',
+                        background: STRIPE_STATUS === 'configured' ? '#1E3A5F' : 'rgba(30,58,95,0.06)',
+                        color: STRIPE_STATUS === 'configured' ? '#F5F0E8' : '#9CA3AF',
+                        border: 'none', borderRadius: '8px',
+                        fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+                        cursor: portalLoading || STRIPE_STATUS !== 'configured' ? 'not-allowed' : 'pointer',
+                        opacity: portalLoading ? 0.7 : 1,
+                      }}
+                    >
+                      {portalLoading ? 'Opening billing portal…'
+                        : STRIPE_STATUS === 'configured' ? 'Manage billing'
+                        : 'Manage billing — coming soon'}
+                    </button>
+                    {!!portalError && (
+                      <p style={{
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#DC2626',
+                      }}>
+                        <AlertCircle size={14} /> {portalError}
+                      </p>
+                    )}
+                  </>
                 ) : (
                   <Link
                     to="/pricing"
