@@ -19,5 +19,7 @@ Disallow: /reset-password
 Disallow: /verify-email
 Disallow: /subscription-management
 Disallow: /subscription-success
+Disallow: /admin/
+Disallow: /portal/
 
 Sitemap: https://uniblueprint.ie/sitemap.xml

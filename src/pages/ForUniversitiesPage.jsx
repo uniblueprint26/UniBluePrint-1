@@ -7,27 +7,6 @@ import {
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
 } from '../components/ui/Form'
 
-/*
-  TODO: Create Supabase table:
-
-  create table university_enquiries (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    institution_name text not null,
-    contact_name text not null,
-    role text not null,
-    email text not null,
-    phone text,
-    message text,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table university_enquiries enable row level security;
-  create policy "anon_insert" on university_enquiries for insert to anon with check (true);
-*/
-
 // Confirmation email: send-form-confirmation, called via sendFormConfirmation()
 // below. No-op until RESEND_API_KEY is set as an Edge Function secret.
 
