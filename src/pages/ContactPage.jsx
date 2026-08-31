@@ -8,56 +8,10 @@ import {
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
 } from '../components/ui/Form'
 
-/*
-  TODO: Create Supabase tables:
-
-  create table general_enquiries (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    name text not null,
-    email text not null,
-    subject text not null,
-    message text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table general_enquiries enable row level security;
-  create policy "anon_insert" on general_enquiries for insert to anon with check (true);
-
-  create table partnership_enquiries (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    organisation text not null,
-    contact_name text not null,
-    email text not null,
-    type text not null,
-    message text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table partnership_enquiries enable row level security;
-  create policy "anon_insert" on partnership_enquiries for insert to anon with check (true);
-
-  create table team_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    name text not null,
-    email text not null,
-    role text not null,
-    university text,
-    message text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table team_applications enable row level security;
-  create policy "anon_insert" on team_applications for insert to anon with check (true);
-*/
+// general_enquiries, partnership_enquiries, and team_applications (all 3 forms below) are
+// already migrated — see supabase/migrations/20260824120000_website_public_forms.sql for
+// the real schema and RLS policies. This comment used to carry a draft CREATE TABLE block;
+// removed since it was stale and could read as "these tables don't exist yet."
 
 // Confirmation email: send-form-confirmation (see supabase/functions/), called
 // via sendFormConfirmation() right after each successful insert below. It's a
