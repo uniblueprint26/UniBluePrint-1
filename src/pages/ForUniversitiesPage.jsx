@@ -4,7 +4,7 @@ import { GraduationCap, Users, BarChart3, Shield } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
 } from '../components/ui/Form'
 
 /*
@@ -28,7 +28,8 @@ import {
   create policy "anon_insert" on university_enquiries for insert to anon with check (true);
 */
 
-// TODO: Send confirmation email via Resend or Supabase Edge Function when this form is submitted.
+// Confirmation email: send-form-confirmation, called via sendFormConfirmation()
+// below. No-op until RESEND_API_KEY is set as an Edge Function secret.
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -172,7 +173,7 @@ export default function ForUniversitiesPage() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('university', form.email, form.contact_name); setSuccess(true) }
   }
 
   function scrollToForm() {

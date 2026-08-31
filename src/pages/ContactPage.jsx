@@ -5,7 +5,7 @@ import { MessageSquare, Handshake, Users } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
 } from '../components/ui/Form'
 
 /*
@@ -59,9 +59,10 @@ import {
   create policy "anon_insert" on team_applications for insert to anon with check (true);
 */
 
-// TODO: Send confirmation email via Resend or Supabase Edge Function when any
-// contact form is submitted. Email should confirm receipt and set expectations
-// on response time (2 business days). Needs a Resend API key.
+// Confirmation email: send-form-confirmation (see supabase/functions/), called
+// via sendFormConfirmation() right after each successful insert below. It's a
+// no-op until RESEND_API_KEY is set as an Edge Function secret — deploy the
+// function and set that key to turn these on; nothing else needs touching.
 
 // Rate limiting is live: enforce_form_rate_limit() (see
 // supabase/migrations/20260828160000_rate_limit_public_forms.sql) caps every
@@ -141,7 +142,7 @@ function GeneralForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('general', form.email, form.name); setSuccess(true) }
   }
 
   if (success) return <SuccessCard subtitle="We'll be in touch within 2 business days." />
@@ -195,7 +196,7 @@ function PartnershipForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('partnership', form.email, form.contact_name); setSuccess(true) }
   }
 
   if (success) return <SuccessCard subtitle="We'll be in touch within 2 business days." />
@@ -252,7 +253,7 @@ function TeamForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('team', form.email, form.name); setSuccess(true) }
   }
 
   if (success) return <SuccessCard title="Application received" subtitle="We'll be in touch within 2 business days." />

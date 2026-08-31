@@ -1,22 +1,12 @@
-// TODO: Send confirmation email via Resend or Supabase Edge Function when a new early access
-// signup is submitted. Email should confirm their spot and set expectations on launch timeline.
-
-/*
-  TODO: Create Supabase table:
-
-  create table early_access_signups (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    email text not null unique,
-    source text default 'coming_soon'
-  );
-*/
+// Confirmation email: send-form-confirmation, called via sendFormConfirmation()
+// below. No-op until RESEND_API_KEY is set as an Edge Function secret.
 
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { CheckCircle, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { sendFormConfirmation } from '../components/ui/Form'
 import UBPLogo from '../components/ui/UBPLogo'
 
 export default function ComingSoonPage() {
@@ -42,6 +32,7 @@ export default function ComingSoonPage() {
       }
       setLoading(false)
     } else {
+      sendFormConfirmation('early_access', email)
       setSuccess(true)
     }
   }

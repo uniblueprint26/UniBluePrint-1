@@ -1,5 +1,18 @@
 import { Link } from 'react-router-dom'
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+
+// ─── Confirmation email ───────────────────────────────────────────────────────
+// Fire-and-forget call to send-form-confirmation, made right after a form's
+// table insert succeeds. Deliberately never awaited by the caller and never
+// throws — the form's success state comes from the insert, not from this;
+// a Resend outage or a not-yet-configured RESEND_API_KEY should never turn
+// a successful submission into an error the visitor sees.
+export function sendFormConfirmation(kind, to, name) {
+  if (!to) return
+  supabase.functions.invoke('send-form-confirmation', { body: { kind, to, name } })
+    .catch(err => console.warn('send-form-confirmation failed (non-blocking):', err))
+}
 
 // ─── UTM helper ───────────────────────────────────────────────────────────────
 
