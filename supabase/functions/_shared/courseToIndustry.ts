@@ -38,13 +38,24 @@ const COURSE_RULES: Rule[] = [
     'bar management', 'event management'], 'Hospitality and Tourism'],
   [['biomedical engineering', 'medical device'], 'Engineering'],
   [['business and law', 'law and business', 'commercial law'], 'Law'],
-  [['environmental science', 'marine science', 'food science', 'agricultural science',
+  [['environmental science', 'marine science', 'food science',
     'sport and exercise'], 'Science and Research'],
   [['construction management', 'quantity surveying', 'building surveying',
     'construction economics', 'civil engineering and construction'], 'Construction and Architecture'],
   [['early childhood', 'primary education', 'physical education and',
     'professional master of education'], 'Education and Teaching'],
   [['digital marketing', 'public relations'], 'Marketing and Communications'],
+  // 'agricultural science' moved here from the Science and Research compound
+  // rule below it used to sit in — a dedicated Agriculture and Veterinary
+  // bucket now exists, and is the better fit for what is fundamentally an
+  // agriculture degree, not a general lab-science one.
+  [['veterinary nursing', 'veterinary medicine', 'veterinary science',
+    'agricultural science', 'animal science', 'equine science', 'farm management'],
+    'Agriculture and Veterinary'],
+  [['supply chain management', 'logistics and supply chain',
+    'aviation management', 'air transport'], 'Aviation and Logistics'],
+  [['hair and beauty', 'hairdressing and barbering', 'beauty therapy'],
+    'Beauty, Hairdressing and Aesthetics'],
 
   // ── discipline-specific ─────────────────────────────────────────────────
   [['software', 'information technology', 'cybersecurity', 'computer',
@@ -55,7 +66,12 @@ const COURSE_RULES: Rule[] = [
     'manufacturing engineering', 'engineering'], 'Engineering'],
   [['nursing', 'midwifery', 'medicine', 'pharmacy', 'physiotherapy',
     'occupational therapy', 'speech and language', 'radiography', 'dentistry',
-    'paramedic', 'dietetics', 'podiatry', 'optometry', 'veterinary'], 'Healthcare and Nursing'],
+    'paramedic', 'dietetics', 'podiatry', 'optometry'], 'Healthcare and Nursing'],
+  // 'veterinary' moved to its own industry below — it used to fall in here,
+  // which was the closest available bucket before Agriculture and Veterinary
+  // existed as an option.
+  [['veterinary', 'agriculture', 'agronomy', 'horticulture', 'forestry', 'equine'],
+    'Agriculture and Veterinary'],
   [['accounting', 'accountancy', 'finance', 'financial mathematics', 'banking',
     'economics and finance'], 'Finance and Accounting'],
   [['law', 'legal science', 'criminology'], 'Law'],
@@ -68,10 +84,14 @@ const COURSE_RULES: Rule[] = [
   [['biotechnology', 'genetics', 'biology', 'chemistry', 'physics',
     'biochemistry', 'microbiology', 'neuroscience', 'pharmacology'], 'Science and Research'],
   [['business', 'commerce', 'management', 'entrepreneurship',
-    'international business', 'human resource', 'supply chain'], 'Business and Management'],
+    'international business', 'human resource'], 'Business and Management'],
   [['hospitality', 'tourism', 'culinary'], 'Hospitality and Tourism'],
   [['sport', 'fitness'], 'Sports and Fitness'],
   [['public administration', 'public policy', 'government', 'politics'], 'Public Sector and Civil Service'],
+  [['hairdressing', 'barbering', 'beauty', 'cosmetology', 'aesthetics'],
+    'Beauty, Hairdressing and Aesthetics'],
+  [['real estate', 'property', 'auctioneering', 'valuation'], 'Real Estate and Property'],
+  [['aviation', 'logistics', 'supply chain', 'freight', 'air transport'], 'Aviation and Logistics'],
 
   // ── bare generic, tested last ───────────────────────────────────────────
   [['science'], 'Science and Research'],

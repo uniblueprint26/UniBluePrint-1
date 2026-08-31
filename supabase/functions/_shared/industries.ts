@@ -37,6 +37,10 @@ export const INDUSTRIES = [
   'Social Work and Community',
   'Sports and Fitness',
   'Marketing and Communications',
+  'Agriculture and Veterinary',
+  'Beauty, Hairdressing and Aesthetics',
+  'Real Estate and Property',
+  'Aviation and Logistics',
 ] as const
 
 export type Industry = typeof INDUSTRIES[number]
@@ -113,7 +117,9 @@ const ALIASES: Record<string, Industry> = {
   entrepreneurship: 'Business and Management',
   consulting: 'Business and Management',
   'human resources': 'Business and Management',
-  logistics: 'Business and Management',
+  // 'logistics' moved to Aviation and Logistics below — supply chain and
+  // logistics specifically now have their own home rather than folding into
+  // general business, which is the more accurate resolution for that term.
 
   // Creative and Media
   creative: 'Creative and Media',
@@ -193,6 +199,62 @@ const ALIASES: Record<string, Industry> = {
   'public relations': 'Marketing and Communications',
   advertising: 'Marketing and Communications',
   branding: 'Marketing and Communications',
+
+  // Agriculture and Veterinary
+  agriculture: 'Agriculture and Veterinary',
+  agri: 'Agriculture and Veterinary',
+  farming: 'Agriculture and Veterinary',
+  farm: 'Agriculture and Veterinary',
+  agronomy: 'Agriculture and Veterinary',
+  horticulture: 'Agriculture and Veterinary',
+  veterinary: 'Agriculture and Veterinary',
+  // Word-boundary — 'vet' is short enough to appear inside unrelated text.
+  vet: 'Agriculture and Veterinary',
+
+  // Beauty, Hairdressing and Aesthetics
+  beauty: 'Beauty, Hairdressing and Aesthetics',
+  hairdressing: 'Beauty, Hairdressing and Aesthetics',
+  hairdresser: 'Beauty, Hairdressing and Aesthetics',
+  barbering: 'Beauty, Hairdressing and Aesthetics',
+  barber: 'Beauty, Hairdressing and Aesthetics',
+  aesthetics: 'Beauty, Hairdressing and Aesthetics',
+  aesthetician: 'Beauty, Hairdressing and Aesthetics',
+  cosmetology: 'Beauty, Hairdressing and Aesthetics',
+  makeup: 'Beauty, Hairdressing and Aesthetics',
+  'make-up': 'Beauty, Hairdressing and Aesthetics',
+  nails: 'Beauty, Hairdressing and Aesthetics',
+  nail: 'Beauty, Hairdressing and Aesthetics',
+  spa: 'Beauty, Hairdressing and Aesthetics',
+
+  // Real Estate and Property
+  'real estate': 'Real Estate and Property',
+  property: 'Real Estate and Property',
+  // Compound, so the longest-first sort keeps this out of Business and
+  // Management — 'management' (10 chars) is longer than 'property' (8) and
+  // would otherwise win.
+  'property management': 'Real Estate and Property',
+  auctioneering: 'Real Estate and Property',
+  auctioneer: 'Real Estate and Property',
+  'estate agent': 'Real Estate and Property',
+  lettings: 'Real Estate and Property',
+  valuation: 'Real Estate and Property',
+  // 'surveying' is deliberately not claimed here — it already resolves to
+  // Construction and Architecture (quantity/building surveying), and that is
+  // the far more common meaning of the bare word in an Irish CAO/careers
+  // context. Property valuation surveying still resolves correctly via
+  // 'valuation' and 'property'.
+
+  // Aviation and Logistics
+  aviation: 'Aviation and Logistics',
+  airline: 'Aviation and Logistics',
+  pilot: 'Aviation and Logistics',
+  'air traffic': 'Aviation and Logistics',
+  'cabin crew': 'Aviation and Logistics',
+  logistics: 'Aviation and Logistics',
+  'supply chain': 'Aviation and Logistics',
+  freight: 'Aviation and Logistics',
+  warehousing: 'Aviation and Logistics',
+  shipping: 'Aviation and Logistics',
 }
 
 /**
@@ -200,7 +262,7 @@ const ALIASES: Record<string, Industry> = {
  * word boundaries instead of as bare substrings — 'it' must not fire on
  * "hospitality", and 'pr' must not fire on "primary".
  */
-const WORD_BOUNDARY_ALIASES = new Set(['it', 'pe', 'pr', 'ai', 'hr'])
+const WORD_BOUNDARY_ALIASES = new Set(['it', 'pe', 'pr', 'ai', 'hr', 'vet', 'tech'])
 
 /** Longest first, so compound aliases beat the shorter alias inside them. */
 const SORTED_ALIASES: Array<[string, Industry]> = Object.entries(ALIASES)

@@ -29,6 +29,8 @@ const PORTFOLIO_BY_INDUSTRY: Record<string, string> = {
     'A teaching portfolio: sample lesson plans and schemes of work, differentiated resources you produced, school placement reports, and evidence of assessment practice. Anonymise all pupil material.',
   'Sports and Fitness':
     'Programme design samples, client or athlete outcomes with honest timeframes and starting points, coaching qualifications with awarding bodies, and video of coaching practice where consent allows.',
+  'Beauty, Hairdressing and Aesthetics':
+    'Before-and-after photography is the portfolio — a strong, curated set on Instagram or a dedicated site outperforms a long unedited stream. Group by technique (colour, cutting, HD brows) rather than dumping everything into one feed, name the products or brands used where relevant, and keep client consent for every image explicit.',
 }
 
 const SYSTEM_PROMPT = `You are a portfolio strategist. Portfolio building is a decision-tree problem, not a document to generate — there is no single "portfolio" you can write for someone.

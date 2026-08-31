@@ -45,6 +45,14 @@ const CHANNELS_BY_INDUSTRY: Record<string, string> = {
     'Sport Ireland and national governing body sites (GAA, IRFU, FAI, Athletics Ireland); gym group careers pages; Jobs.ie fitness category; self-employed coaching is built through local club networks rather than boards.',
   'Marketing and Communications':
     'IrishJobs.ie marketing category and LinkedIn; Marketing Institute of Ireland and PRII job listings; agency sites direct; Irish marketing Slack and LinkedIn groups carry roles that never reach the boards.',
+  'Agriculture and Veterinary':
+    'AgriRecruit (Agriland Media) is the sector\'s dedicated jobs board, covering everything from farm operative to agronomist and vet; Teagasc\'s own site for advisory and research posts; IFA and ICOS member networks; UCD School of Veterinary Medicine\'s own careers channels for clinical roles.',
+  'Beauty, Hairdressing and Aesthetics':
+    'IrishJobs.ie hair-and-beauty category, updated daily; direct approach and word of mouth still account for a large share of salon hiring; Irish Hairdressers Federation events and its Star Team programme for apprentices; trial or "model" days are how most salons actually assess before hiring.',
+  'Real Estate and Property':
+    'IrishJobs.ie estate-agent category and LinkedIn; the PSRA\'s own public register of licensed providers is a useful way to vet a prospective employer before applying; IPAV and SCSI member listings; the major agencies (Sherry FitzGerald, DNG, Savills, CBRE) run their own careers pages.',
+  'Aviation and Logistics':
+    'CILT Ireland\'s own jobs board reaches its member network directly; IrishJobs.ie logistics and supply-chain categories for volume; airline and daa careers portals direct for aviation-operations roles; flight training organisations themselves are the route into a pilot pathway, not a jobs board.',
 }
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps

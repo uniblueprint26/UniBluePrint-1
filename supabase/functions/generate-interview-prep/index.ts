@@ -42,6 +42,14 @@ const INTERVIEW_FORMAT_BY_INDUSTRY: Record<string, string> = {
     'Expect service-scenario questions and, for many roles, a trial shift. Volume, standard, and composure under pressure are what panels are testing.',
   'Sports and Fitness':
     'Expect a practical coaching or programming task alongside the interview, plus questions on safeguarding and scope of practice.',
+  'Agriculture and Veterinary':
+    'Expect scenario-based clinical or animal-husbandry questions probing judgement under uncertainty (what would you do if a case didn\'t match the textbook presentation), alongside direct questions on registration status (VCI, or progress toward it) and scope of practice. Farm and advisory roles probe practical, hands-on decision-making over theory.',
+  'Beauty, Hairdressing and Aesthetics':
+    'Expect a practical trial or "model" element — a live cut, colour, or treatment performed on the day — alongside a portfolio walkthrough. Be ready to talk through technique choices and product reasoning, not just show the finished result.',
+  'Real Estate and Property':
+    'Expect scenario-based negotiation questions (a difficult vendor, a disputed valuation) and direct questions on PSRA licensing status or the pathway toward it. Local market knowledge — actual recent comparable sales or rents — is frequently tested directly rather than assumed.',
+  'Aviation and Logistics':
+    'Pilot-track interviews include a technical and simulator-based assessment stage alongside a panel interview, testing decision-making under pressure as much as raw knowledge. Logistics and transport roles are more scenario-based — a disrupted schedule or a compliance gap — probing operational judgement and, where relevant, named certifications (CPC, ADR, DGSA).',
 }
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.
