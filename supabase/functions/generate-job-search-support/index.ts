@@ -16,7 +16,7 @@ import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/indu
  */
 const CHANNELS_BY_INDUSTRY: Record<string, string> = {
   'Technology and Software':
-    'IrishJobs.ie and LinkedIn for volume; Jobs.ie and TechIreland for the indigenous scene; company careers pages direct for the Dublin multinationals, which often never post elsewhere. Dublin tech meetups and open-source contribution function as networking that actually converts.',
+    'IrishJobs.ie and LinkedIn for volume; Jobs.ie and TechJobs.ie for the indigenous scene; company careers pages direct for the Dublin multinationals, which often never post elsewhere. Dublin tech meetups and open-source contribution function as networking that actually converts.',
   Engineering:
     'Engineers Ireland careers portal and its regional branch events; ESB, EirGrid, Uisce Éireann and TII recruit through their own portals; medtech and pharma cluster roles in Galway, Cork and Limerick go through company sites and specialist agencies.',
   'Healthcare and Nursing':
