@@ -67,7 +67,7 @@ platform (OneTrust, Osano, Termly, WireWheel, etc.) only once one of the trigger
 
 | Table | Column(s) |
 |---|---|
-| `profiles` | `id` (own row) |
+| `profiles` | `id` (own row), includes `marketing_consent` (opt-in flag, synced to Mailchimp only when true) |
 | `activity_events` | `user_id` |
 | `budget_entries` | `user_id` |
 | `carpool_terms_acceptance` | `user_id` |
@@ -95,6 +95,20 @@ platform (OneTrust, Osano, Termly, WireWheel, etc.) only once one of the trigger
 | `subscriptions` | `user_id` |
 | `user_roles` | `user_id` |
 | Storage: `profile-pictures`, `coach-photos` buckets | files keyed by `{user_id}/...` path |
+
+### Data map: pre-account submissions keyed to an email, not a user_id
+
+| Table | Column(s) |
+|---|---|
+| `early_access_signups` | `email`, includes `marketing_consent` (opt-in flag, synced to Mailchimp only when true) |
+
+A DSAR from someone who submitted their email here but never created an account
+still needs fulfilling against this row, matched by email rather than `user_id`.
+This is the newest addition to this map, from the Mailchimp sync work, it's a
+good prompt to also audit the other anonymous public-form tables
+(`general_enquiries`, `university_enquiries`, `business_enquiries`,
+`handler_applications`, `coach_applications`, `ambassador_applications`) for the
+same email-keyed DSAR path, they were not in this map before this pass either.
 
 Not included: `boards`, `chat_rooms`, `prompt_library`, `operations_flags`, `spot_checks`,
 `ticket_revisions` reference a *creator/moderator* (`created_by`, `flagged_by`, `checked_by`,

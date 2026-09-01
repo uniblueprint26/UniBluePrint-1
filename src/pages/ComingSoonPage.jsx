@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { CheckCircle, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { sendFormConfirmation } from '../components/ui/Form'
+import { sendFormConfirmation, syncMailchimp, FormCheckbox } from '../components/ui/Form'
 import UBPLogo from '../components/ui/UBPLogo'
 
 export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
+  const [marketingConsent, setMarketingConsent] = useState(false)
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -23,7 +24,7 @@ export default function ComingSoonPage() {
     setLoading(true); setError(null); setDuplicate(false)
     const { error: dbError } = await supabase
       .from('early_access_signups')
-      .insert([{ email, source: 'coming_soon' }])
+      .insert([{ email, source: 'coming_soon', marketing_consent: marketingConsent }])
     if (dbError) {
       if (dbError.code === '23505') {
         setDuplicate(true)
@@ -33,6 +34,7 @@ export default function ComingSoonPage() {
       setLoading(false)
     } else {
       sendFormConfirmation('early_access', email)
+      if (marketingConsent) syncMailchimp(email, null, 'coming_soon')
       setSuccess(true)
     }
   }
@@ -151,6 +153,12 @@ export default function ComingSoonPage() {
                   }}
                   onFocus={e => { e.target.style.borderColor = '#1E3A5F'; e.target.style.boxShadow = '0 0 0 3px rgba(30,58,95,0.1)' }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(30,58,95,0.15)'; e.target.style.boxShadow = 'none' }}
+                />
+                <FormCheckbox
+                  id="marketing-consent"
+                  checked={marketingConsent}
+                  onChange={e => setMarketingConsent(e.target.checked)}
+                  label="Send me marketing emails about UniBlueprint's launch (optional, you can unsubscribe any time)."
                 />
                 <button
                   type="submit"

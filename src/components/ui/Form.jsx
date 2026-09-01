@@ -23,6 +23,15 @@ export function notifyTeam(kind, submitterEmail, submitterName) {
     .catch(err => console.warn('notify-team-submission failed (non-blocking):', err))
 }
 
+// ─── Mailchimp sync ─────────────────────────────────────────────────────────────
+// Fire-and-forget, only ever call this when the caller has explicitly ticked
+// the marketing-consent checkbox, never unconditionally on every signup.
+export function syncMailchimp(email, fullName, source) {
+  if (!email) return
+  supabase.functions.invoke('sync-mailchimp-subscriber', { body: { email, fullName, source } })
+    .catch(err => console.warn('sync-mailchimp-subscriber failed (non-blocking):', err))
+}
+
 // ─── UTM helper ───────────────────────────────────────────────────────────────
 
 export function getUTM() {

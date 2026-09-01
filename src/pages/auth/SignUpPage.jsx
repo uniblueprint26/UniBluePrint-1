@@ -4,6 +4,7 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import AuthLayout from '../../components/auth/AuthLayout'
 import AuthInput from '../../components/auth/AuthInput'
+import { FormCheckbox, syncMailchimp } from '../../components/ui/Form'
 import {
   submitButtonStyle,
   submitButtonDisabledStyle,
@@ -15,6 +16,7 @@ import {
 export default function SignUpPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
+  const [marketingConsent, setMarketingConsent] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -44,9 +46,10 @@ export default function SignUpPage() {
       const { error: err } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        options: { data: { full_name: form.fullName } },
+        options: { data: { full_name: form.fullName, marketing_consent: marketingConsent } },
       })
       if (err) throw err
+      if (marketingConsent) syncMailchimp(form.email, form.fullName, 'sign_up')
       navigate('/verify-email', { state: { email: form.email } })
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -114,6 +117,15 @@ export default function SignUpPage() {
           autoComplete="new-password"
           placeholder="••••••••"
         />
+
+        <div style={{ marginTop: '4px' }}>
+          <FormCheckbox
+            id="signup-marketing-consent"
+            checked={marketingConsent}
+            onChange={e => setMarketingConsent(e.target.checked)}
+            label="Send me marketing emails about UniBlueprint (optional, separate from your account, you can unsubscribe any time)."
+          />
+        </div>
 
         <p style={{
           fontFamily: "'DM Sans', sans-serif",

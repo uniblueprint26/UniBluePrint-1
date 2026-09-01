@@ -177,7 +177,7 @@ export default function PrivacyPage() {
                 <li style={LI}>Deliver Foundation Blueprint outputs via Campus Handlers and Elevation Blueprint sessions via Uni Coaches;</li>
                 <li style={LI}>Operate Campus Connect and Course Connect community features;</li>
                 <li style={LI}>Send transactional emails (order confirmations, delivery notifications, password resets);</li>
-                <li style={LI}>Send marketing communications where you have provided explicit opt-in consent;</li>
+                <li style={LI}>Send marketing communications via Mailchimp, only where you have provided explicit, separate opt-in consent for marketing emails, distinct from your account and transactional emails;</li>
                 <li style={LI}>Analyse usage to improve the Platform and fix issues;</li>
                 <li style={LI}>Detect and prevent fraud and misuse;</li>
                 <li style={LI}>Comply with our legal obligations under Irish and EU law.</li>
@@ -200,6 +200,7 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Supabase:</strong> database hosting and user authentication infrastructure. Data stored within the EU.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Stripe:</strong> payment processing. Stripe is the data controller for your card data under their own Privacy Policy. A Data Processing Agreement is in place under GDPR Article 28.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Resend:</strong> transactional email delivery (order confirmations, password resets).</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Mailchimp:</strong> marketing email delivery, only for users who have explicitly opted in via the marketing-consent checkbox on sign-up or early-access sign-up. We do not share your data with Mailchimp unless you have ticked that box.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Google Analytics:</strong> platform usage analytics, only if you have accepted analytics cookies via the consent banner.</li>
               </ul>
               <p style={P}>We do not sell, rent, or trade your personal data to any third party. We may disclose your data where required by Irish or EU law, court order, or lawful request from a public authority.</p>
