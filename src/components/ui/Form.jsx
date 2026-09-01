@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 // ─── Confirmation email ───────────────────────────────────────────────────────
 // Fire-and-forget call to send-form-confirmation, made right after a form's
 // table insert succeeds. Deliberately never awaited by the caller and never
-// throws — the form's success state comes from the insert, not from this;
+// throws, the form's success state comes from the insert, not from this;
 // a Resend outage or a not-yet-configured RESEND_API_KEY should never turn
 // a successful submission into an error the visitor sees.
 export function sendFormConfirmation(kind, to, name) {

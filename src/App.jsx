@@ -18,7 +18,7 @@ const CampusConnectPage = lazy(() => import('./pages/CampusConnectPage'))
 const CourseConnectPage = lazy(() => import('./pages/CourseConnectPage'))
 const CourseCompassPage = lazy(() => import('./pages/CourseCompassPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
-const SeptemberTrialPage = lazy(() => import('./pages/SeptemberTrialPage'))
+const FreeTrialPage = lazy(() => import('./pages/FreeTrialPage'))
 const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
 const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
 const PartnersPage = lazy(() => import('./pages/PartnersPage'))
@@ -74,7 +74,8 @@ function AppRoutes() {
         <Route path="/course-connect" element={<CourseConnectPage />} />
         <Route path="/course-compass" element={<CourseCompassPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/september-trial" element={<SeptemberTrialPage />} />
+        <Route path="/free-trial" element={<FreeTrialPage />} />
+        <Route path="/september-trial" element={<Navigate to="/free-trial" replace />} />
         <Route path="/for-universities" element={<ForUniversitiesPage />} />
         <Route path="/for-businesses" element={<ForBusinessesPage />} />
         <Route path="/budgeting" element={<BudgetingPage />} />

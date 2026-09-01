@@ -14,7 +14,7 @@ const ROUTES = [
   "/campus-connect",
   "/course-connect",
   "/pricing",
-  "/september-trial",
+  "/free-trial",
   "/for-universities",
   "/for-businesses",
   "/join-handler",

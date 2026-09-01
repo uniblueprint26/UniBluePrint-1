@@ -144,7 +144,7 @@ const FEATURES = [
 ]
 
 // Category slots without a specific real partner yet stay honestly generic
-// rather than inventing a brand name. Percentages are masked with "?" —
+// rather than inventing a brand name. Percentages are masked with "?",
 // per Desmond: enough to show a real deal exists without giving the exact
 // number away on web, that's the reason to open the app.
 const DEALS = {
@@ -186,7 +186,7 @@ const DEALS = {
 }
 
 // Real partners (from PartnersPage.jsx), cycled in a slideshow. The
-// discount is deliberately masked with "?" — per Desmond, enough to show
+// discount is deliberately masked with "?", per Desmond, enough to show
 // there's a real saving without giving the number away on web.
 const PARTNER_SLIDES = [
   { name: 'MPFitness',        category: 'Personal Training',              accent: '#145A3E' },
@@ -304,7 +304,7 @@ export default function LifestyleBlueprintPage() {
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -353,7 +353,7 @@ export default function LifestyleBlueprintPage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '32px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -366,7 +366,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      {/* ── SECTION 2, FEATURES GRID ────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -414,7 +414,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2B — PARTNER SLIDESHOW ───────────────────────────────────── */}
+      {/* ── SECTION 2B, PARTNER SLIDESHOW ───────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '64px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <SectionLabel>Real partners, real deals</SectionLabel>
@@ -431,7 +431,7 @@ export default function LifestyleBlueprintPage() {
         </p>
       </section>
 
-      {/* ── SECTION 3 — DEALS EXPLORER ───────────────────────────────────────── */}
+      {/* ── SECTION 3, DEALS EXPLORER ───────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
         <div style={{ maxWidth: 780, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -515,7 +515,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — INTERACTIVE PARTNER MAP ──────────────────────────────── */}
+      {/* ── SECTION 4, INTERACTIVE PARTNER MAP ──────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '96px 24px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -532,11 +532,11 @@ export default function LifestyleBlueprintPage() {
               Every county. Every category.
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.5)', marginTop: '12px', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
-              Lifestyle Blueprint covers the full range — fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
+              Lifestyle Blueprint covers the full range, fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
             </p>
           </div>
 
-          {/* The map itself — the centrepiece, not a thumbnail */}
+          {/* The map itself, the centrepiece, not a thumbnail */}
           <div style={{ marginTop: 48 }}>
             <PartnerMap />
           </div>
@@ -577,7 +577,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — HOW IT WORKS ─────────────────────────────────────────── */}
+      {/* ── SECTION 5, HOW IT WORKS ─────────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
@@ -605,7 +605,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────────── */}
+      {/* ── SECTION 6, CTA ──────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -615,10 +615,10 @@ export default function LifestyleBlueprintPage() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <SectionLabel light>Get the app</SectionLabel>
           <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(28px, 4vw, 46px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
-            Start saving this September
+            Start saving today
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
-            Free to join. September trial offers 50% off everything. Mental health resources always free.
+            Free to join. Free trial offers 50% off everything. Mental health resources always free.
           </p>
           <Link to="/download" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',

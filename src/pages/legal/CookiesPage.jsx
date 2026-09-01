@@ -47,9 +47,9 @@ export default function CookiesPage() {
     <>
       <Helmet>
         <title>Cookie Policy | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
+        <meta name="description" content="UniBlueprint Cookie Policy, how we use cookies and how you can manage your preferences." />
         <meta property="og:title" content="Cookie Policy | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint Cookie Policy — how we use cookies and how you can manage your preferences." />
+        <meta property="og:description" content="UniBlueprint Cookie Policy, how we use cookies and how you can manage your preferences." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -75,10 +75,10 @@ export default function CookiesPage() {
             </Section>
 
             <Section title="2. Strictly Necessary Cookies">
-              <p style={P}>Strictly necessary cookies are essential for the Platform to function. They enable core features such as account authentication, session management, and security controls. <strong>You cannot opt out of strictly necessary cookies</strong> — they are set automatically and the Platform cannot function without them. No consent is required for these cookies under S.I. No. 336/2011.</p>
+              <p style={P}>Strictly necessary cookies are essential for the Platform to function. They enable core features such as account authentication, session management, and security controls. <strong>You cannot opt out of strictly necessary cookies</strong>, they are set automatically and the Platform cannot function without them. No consent is required for these cookies under S.I. No. 336/2011.</p>
               <CookieTable rows={[
-                ['sb-auth-token', 'Supabase authentication session (strictly necessary — cannot be rejected)', 'Session'],
-                ['ubp_cookie_consent', 'Stores your cookie consent preference (strictly necessary — cannot be rejected)', '1 year'],
+                ['sb-auth-token', 'Supabase authentication session (strictly necessary, cannot be rejected)', 'Session'],
+                ['ubp_cookie_consent', 'Stores your cookie consent preference (strictly necessary, cannot be rejected)', '1 year'],
               ]} />
             </Section>
 
@@ -86,15 +86,15 @@ export default function CookiesPage() {
               <p style={P}>Functional cookies remember choices you make on the Platform to improve your experience, such as your session state, UI preferences, and in-app settings. These cookies are set when you use interactive features of the Platform.</p>
               <p style={P}>You may opt out of functional cookies by choosing "Reject All" when the consent banner appears. Some features, such as staying signed in across sessions, may not work correctly without them.</p>
               <CookieTable rows={[
-                ['ubp_utm', 'Remembers UTM campaign parameters for your session (session storage only — not persisted to disk)', 'Session'],
+                ['ubp_utm', 'Remembers UTM campaign parameters for your session (session storage only, not persisted to disk)', 'Session'],
               ]} />
             </Section>
 
             <Section title="4. Analytics Cookies">
-              <p style={P}>We use Google Analytics 4 to understand how visitors use the Platform — which pages are most visited, how long people stay, and where they navigate from. Analytics cookies are only set if you choose "Accept All" when the cookie banner appears. If you choose "Reject All" or do not accept analytics cookies, these cookies are not set and no analytical data is collected about your visit.</p>
+              <p style={P}>We use Google Analytics 4 to understand how visitors use the Platform, which pages are most visited, how long people stay, and where they navigate from. Analytics cookies are only set if you choose "Accept All" when the cookie banner appears. If you choose "Reject All" or do not accept analytics cookies, these cookies are not set and no analytical data is collected about your visit.</p>
               <CookieTable rows={[
-                ['_ga',    'Google Analytics 4 — distinguishes unique users by assigning a random ID', '2 years'],
-                ['_ga_*',  'Google Analytics 4 — maintains session state for the measurement ID',      '2 years'],
+                ['_ga',    'Google Analytics 4, distinguishes unique users by assigning a random ID', '2 years'],
+                ['_ga_*',  'Google Analytics 4, maintains session state for the measurement ID',      '2 years'],
               ]} />
               <p style={{ ...P, marginTop: '12px' }}>
                 You may also opt out of Google Analytics across all websites using the{' '}
@@ -105,8 +105,8 @@ export default function CookiesPage() {
             <Section title="5. Third-Party Cookies">
               <p style={P}>Stripe, our payment processor, may set cookies when you proceed through a payment flow. These are essential to the payment process and are set and controlled by Stripe under their own cookie policy.</p>
               <CookieTable rows={[
-                ['stripe_mid', 'Stripe — fraud detection and payment flow integrity', '1 year'],
-                ['stripe_sid', 'Stripe — payment session identification',             'Session'],
+                ['stripe_mid', 'Stripe, fraud detection and payment flow integrity', '1 year'],
+                ['stripe_sid', 'Stripe, payment session identification',             'Session'],
               ]} />
               <p style={{ ...P, marginTop: '12px' }}>UniBlueprint does not control Stripe's cookies. For details, see the <a href="https://stripe.com/en-ie/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#1E3A5F', fontWeight: '500' }}>Stripe Privacy Policy</a>.</p>
             </Section>

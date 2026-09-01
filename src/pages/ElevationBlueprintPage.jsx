@@ -28,11 +28,11 @@ const PAGE_STYLES = `
 // ─── Coaches (aligned to app ElevationScreen) ─────────────────────────────────
 
 // `from` mirrors each coach's real pricing from the app (app/src/screens/
-// ElevationScreen.jsx) — a genuine "From €X" teaser where one exists, or
+// ElevationScreen.jsx), a genuine "From €X" teaser where one exists, or
 // "Enquire in the app" where the app itself has no public number
 // (enquiry-only, on-request, or a non-price metric like a copier target).
 // Per Desmond: show enough to convert without giving the full picture away
-// on web — this mix is what the real data already supports, not a
+// on web, this mix is what the real data already supports, not a
 // separate gating layer.
 const COACHES = [
   { id: 1,  name: '500+ with Eman', category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  from: 'Enquire in the app', services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },

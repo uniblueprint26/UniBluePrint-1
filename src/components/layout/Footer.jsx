@@ -228,17 +228,17 @@ export default function Footer() {
           paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))',
         }}>
           <div className="footer-bottom">
-            {/* Left — copyright */}
+            {/* Left, copyright */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
               &copy; 2026 UniBlueprint Ltd. All rights reserved.
             </span>
 
-            {/* Centre — registered territory */}
+            {/* Centre, registered territory */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
               Registered in Ireland
             </span>
 
-            {/* Right — placeholder until incorporated */}
+            {/* Right, placeholder until incorporated */}
             <div className="footer-legal-right">
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
                 uniblueprintoperations@gmail.com

@@ -100,7 +100,7 @@ function CampusScreen() {
 
       {/* Post previews */}
       {[
-        { name: 'Mairead', time: '1h ago',  text: "DCU Freshers Ball — tickets on sale Thursday 12pm. €25 each.", color: AVATAR_COLORS[0] },
+        { name: 'Mairead', time: '1h ago',  text: "DCU Freshers Ball, tickets on sale Thursday 12pm. €25 each.", color: AVATAR_COLORS[0] },
         { name: 'Billy',   time: '3h ago',  text: 'ATU Galway Careers Fair next Tuesday. 40+ employers attending.', color: AVATAR_COLORS[2] },
         { name: 'Roisin',  time: '1d ago',  text: 'Beach clean this Saturday, 10am main gate. All welcome.', color: AVATAR_COLORS[3] },
       ].map((p, i) => (
@@ -197,7 +197,7 @@ export default function CampusConnectPage() {
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -246,7 +246,7 @@ export default function CampusConnectPage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '32px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -259,7 +259,7 @@ export default function CampusConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      {/* ── SECTION 2, FEATURES GRID ────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -298,7 +298,7 @@ export default function CampusConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — COMMUNITY BOARD PREVIEW ─────────────────────────────── */}
+      {/* ── SECTION 3, COMMUNITY BOARD PREVIEW ─────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
         <div style={{ maxWidth: 780, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -378,7 +378,7 @@ export default function CampusConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — HOW IT WORKS ─────────────────────────────────────────── */}
+      {/* ── SECTION 4, HOW IT WORKS ─────────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
@@ -406,7 +406,7 @@ export default function CampusConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────────── */}
+      {/* ── SECTION 5, CTA ──────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -419,7 +419,7 @@ export default function CampusConnectPage() {
             Join your campus community
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
-            Free for every user. September trial offers 50% off everything across UniBlueprint.
+            Free for every user. Free trial offers 50% off everything across UniBlueprint.
           </p>
           <Link to="/download" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',

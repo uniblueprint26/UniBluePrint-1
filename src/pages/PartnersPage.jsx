@@ -21,7 +21,7 @@ const LIVE_PARTNERS = [
     initials: 'MP',
     initBg: '#15803D',
     category: 'Personal Training',
-    description: 'Certified Personal Trainer and Advanced Nutrition Coach. Full client packages built around your goals, lifestyle, and schedule — combining personalised training with nutrition coaching. Competition athlete mindset for every client.',
+    description: 'Certified Personal Trainer and Advanced Nutrition Coach. Full client packages built around your goals, lifestyle, and schedule, combining personalised training with nutrition coaching. Competition athlete mindset for every client.',
     deal: 'Full package from €150/month',
     instagram: 'milanpir_fitness',
   },
@@ -30,7 +30,7 @@ const LIVE_PARTNERS = [
     name: 'Energie Fitness',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Gym Membership',
-    description: 'Full gym access at an exclusive member rate — €37.99/month versus the standard €39.99–€44.99. Joining fee reduced to €15 (normally €30). Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
+    description: 'Full gym access at an exclusive member rate, €37.99/month versus the standard €39.99–€44.99. Joining fee reduced to €15 (normally €30). Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
     deal: 'From €37.99/month',
   },
   {
@@ -56,7 +56,7 @@ const LIVE_PARTNERS = [
     name: 'Whip Wizardz',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Automotive',
-    description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment — all with student-friendly pricing.',
+    description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment, all with student-friendly pricing.',
     deal: 'Student-friendly pricing',
   },
   {
@@ -75,14 +75,14 @@ const LIVE_PARTNERS = [
     initials: 'LI',
     initBg: '#0369A1',
     category: 'Digital Marketing & Design',
-    description: 'Freelance digital marketing and design service run by Alex, helping small businesses build their social media presence — content creation, UGC coordination, AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
+    description: 'Freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, content creation, UGC coordination, AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
     deal: 'One week free social media trial',
     instagram: 'leva.impact',
     tiktok: 'leva.media',
     phone: '089 966 2635',
     website: 'https://alexleva.myportfolio.com/home-page',
     crossLinkHref: '/elevation-blueprint#coach-10',
-    crossLinkLabel: "Also a UniBlueprint Uni Coach — see Alex's profile",
+    crossLinkLabel: "Also a UniBlueprint Uni Coach, see Alex's profile",
   },
   {
     id: 'henrysisters',
@@ -101,7 +101,7 @@ const LIVE_PARTNERS = [
     initials: 'CA',
     initBg: '#B91C1C',
     category: 'Personal Training · Muay Thai · Yoga',
-    description: 'Certified Personal Trainer and Sport Nutritionist Coach based in Dublin 8 — Muay Thai, yoga, and functional training alongside physique development, weight loss, and muscle building. Online and in person, built around realistic, sustainable routines.',
+    description: 'Certified Personal Trainer and Sport Nutritionist Coach based in Dublin 8, Muay Thai, yoga, and functional training alongside physique development, weight loss, and muscle building. Online and in person, built around realistic, sustainable routines.',
     deal: 'PT from €60/session',
     instagram: 'camilaaruk.coach',
     email: 'camila.coachfitness@gmail.com',
@@ -113,7 +113,7 @@ const LIVE_PARTNERS = [
     initials: 'SS',
     initBg: '#0369A1',
     category: 'Clothing',
-    description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures — bold graphics, unique silhouettes, and experimental details, building a visual identity for Irish fashion rooted in individuality and self-expression.',
+    description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures, bold graphics, unique silhouettes, and experimental details, building a visual identity for Irish fashion rooted in individuality and self-expression.',
     instagram: 'saiemsent',
     tiktok: 'saiemsent',
     website: 'https://saiemsent.ie',
@@ -124,7 +124,7 @@ const LIVE_PARTNERS = [
     initials: 'EL',
     initBg: '#111827',
     category: 'Clothing Brand',
-    description: 'Irish Christian streetwear brand built around faith, purpose, and individuality — modern, high-quality clothing inspired by Scripture and Christian values, with a meaning behind every piece.',
+    description: 'Irish Christian streetwear brand built around faith, purpose, and individuality, modern, high-quality clothing inspired by Scripture and Christian values, with a meaning behind every piece.',
     deal: '10% off with code ELECTXUNIBLUEPRINT',
     instagram: 'elect_co',
     tiktok: 'elect_co',
@@ -136,7 +136,7 @@ const LIVE_PARTNERS = [
     initials: 'EB',
     initBg: '#B45309',
     category: 'Home Baking · Dublin 15',
-    description: 'Home baking business in Mulhuddart, Dublin 15 — brownies, blondies, cookies, cupcakes, and fully customisable cakes made with love and care for every occasion. Every item on the menu is customisable, with pricing adjusted accordingly.',
+    description: 'Home baking business in Mulhuddart, Dublin 15, brownies, blondies, cookies, cupcakes, and fully customisable cakes made with love and care for every occasion. Every item on the menu is customisable, with pricing adjusted accordingly.',
     deal: '€5 off every item (cookie pouches to €1.50)',
     instagram: 'eabakeditt',
     tiktok: 'eabakedittt',
@@ -162,7 +162,7 @@ const LIVE_PARTNERS = [
     initials: 'RM',
     initBg: '#0891B2',
     category: 'Housing Platform',
-    description: 'Modern housing platform making it simpler, safer, and more transparent to find a room or home in Ireland — connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
+    description: 'Modern housing platform making it simpler, safer, and more transparent to find a room or home in Ireland, connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
     deal: 'Free listings + €5 Priority Request',
     instagram: 'Roomy.ie',
     phone: '+353899809654',
@@ -175,7 +175,7 @@ const LIVE_PARTNERS = [
     initials: 'RP',
     initBg: '#78350F',
     category: 'Photography · Dublin',
-    description: 'Dublin-based photography service capturing events, graduations, portraits, personal branding, and creative shoots with a natural, professional finish — imagery clients are genuinely excited to share and use.',
+    description: 'Dublin-based photography service capturing events, graduations, portraits, personal branding, and creative shoots with a natural, professional finish, imagery clients are genuinely excited to share and use.',
     deal: '10% off for verified UniBlueprint users',
     instagram: 'royalty.productions1',
     phone: '085 185 2451',
@@ -208,7 +208,7 @@ const LIVE_PARTNERS = [
     initials: 'PD',
     initBg: '#1D4ED8',
     category: 'Web Design & Branding',
-    description: 'Creative web design and branding studio building modern, user-friendly websites and cohesive visual identities for businesses, churches, and entrepreneurs — from full brand identities to logo design and website builds.',
+    description: 'Creative web design and branding studio building modern, user-friendly websites and cohesive visual identities for businesses, churches, and entrepreneurs, from full brand identities to logo design and website builds.',
     instagram: 'poiema_dexigns',
     email: 'oedesignns@gmail.com',
     phone: '+353834801235',
@@ -220,7 +220,7 @@ const LIVE_PARTNERS = [
     initials: 'MK',
     initBg: '#1E3A5F',
     category: 'Photography & Video · Co. Mayo',
-    description: 'Photography and videography from Co. Mayo — events, filming, and promotional content, including work with Machenry and the Dogroses folk band and promotional content for Cadell Bar in Galway City.',
+    description: 'Photography and videography from Co. Mayo, events, filming, and promotional content, including work with Machenry and the Dogroses folk band and promotional content for Cadell Bar in Galway City.',
     instagram: 'made_by_kelan',
     email: 'kelanhenry1@gmail.com',
     phone: '0830416835',
@@ -251,7 +251,7 @@ const LIVE_PARTNERS = [
     initials: 'C6',
     initBg: '#312E81',
     category: 'Photography, Printing & Studio Rental · Tallaght',
-    description: 'Professional photography and digital printing services alongside creative space rental, based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74. Their mission is to serve people, businesses, and communities with images of the highest calibre — building a strong connection with every client to understand their vision and goals.',
+    description: 'Professional photography and digital printing services alongside creative space rental, based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74. Their mission is to serve people, businesses, and communities with images of the highest calibre, building a strong connection with every client to understand their vision and goals.',
     deal: '10% discount for UniBlueprint members',
     instagram: 'coded69studios',
     phone: '0897011898',
@@ -271,7 +271,7 @@ const LIVE_PARTNERS = [
   },
 ]
 
-// ─── Coming Soon: everyone else — confirmed and onboarding, locked until launch
+// ─── Coming Soon: everyone else, confirmed and onboarding, locked until launch
 const COMING_SOON_PARTNERS = [
   { name: 'Manni The Barber',            category: 'Barber · Dundalk' },
   { name: 'MM Cutz',                     category: 'Barber · Dublin' },
@@ -312,7 +312,7 @@ const PAGE_STYLES = `
   .partner-tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   @media (max-width: 900px) { .partners-live-grid { grid-template-columns: repeat(2, 1fr); } .partners-soon-grid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 640px) {
-    /* Each live partner card holds a full pricelist and credentials block —
+    /* Each live partner card holds a full pricelist and credentials block,
        too dense for 2-up without overflowing, unlike the lighter cards
        elsewhere, so this one stays single column. */
     .partners-live-grid { grid-template-columns: 1fr; }
@@ -574,7 +574,7 @@ export default function PartnersPage() {
 
       <div style={{ background: '#F5F0E8' }}>
 
-        {/* ── SECTION 1 — HERO ───────────────────────────────────────────── */}
+        {/* ── SECTION 1, HERO ───────────────────────────────────────────── */}
         <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
           <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F', lineHeight: 1.15 }}>
             Our Partners
@@ -584,7 +584,7 @@ export default function PartnersPage() {
           </p>
         </section>
 
-        {/* ── SECTION 2 — TECHNOLOGY PARTNERS ───────────────────────────── */}
+        {/* ── SECTION 2, TECHNOLOGY PARTNERS ───────────────────────────── */}
         <section style={{ padding: '80px 24px', textAlign: 'center' }}>
           <SectionLabel>Technology Partners</SectionLabel>
 
@@ -608,7 +608,7 @@ export default function PartnersPage() {
             </h2>
 
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', maxWidth: '560px', margin: '8px auto 0', lineHeight: 1.6 }}>
-              Ireland's AI-powered CAO course matching platform — helping young people find the right course, pathway, and career direction.
+              Ireland's AI-powered CAO course matching platform, helping young people find the right course, pathway, and career direction.
             </p>
 
             <span style={{
@@ -643,7 +643,7 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 3 — LIVE LIFESTYLE PARTNERS ────────────────────────── */}
+        {/* ── SECTION 3, LIVE LIFESTYLE PARTNERS ────────────────────────── */}
         <section style={{ padding: '0 24px 64px', textAlign: 'center' }}>
           <SectionLabel>Lifestyle Partners</SectionLabel>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '32px', color: '#1E3A5F', marginTop: '10px' }}>
@@ -658,14 +658,14 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 4 — COMING SOON ─────────────────────────────────────── */}
+        {/* ── SECTION 4, COMING SOON ─────────────────────────────────────── */}
         <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
           <SectionLabel>Coming Soon</SectionLabel>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', marginTop: '10px' }}>
             The rest of the network
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', margin: '8px auto 0', maxWidth: '480px', lineHeight: 1.65 }}>
-            These partners are confirmed and onboarding — locked until their full listing and deal go live.
+            These partners are confirmed and onboarding, locked until their full listing and deal go live.
           </p>
 
           <div className="partners-soon-grid">
@@ -673,13 +673,13 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 5 — BECOME A PARTNER ───────────────────────────────── */}
+        {/* ── SECTION 5, BECOME A PARTNER ───────────────────────────────── */}
         <section style={{ background: '#1E3A5F', padding: '64px 24px', textAlign: 'center' }}>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#F5F0E8' }}>
             Partner with UniBlueprint
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.7)', margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.7 }}>
-            Reach young people across Ireland — college, apprenticeship, and every pathway in between. UniBlueprint Pro subscribers are actively looking for the right deals.
+            Reach young people across Ireland, college, apprenticeship, and every pathway in between. UniBlueprint Pro subscribers are actively looking for the right deals.
           </p>
           <Link
             to="/for-businesses"

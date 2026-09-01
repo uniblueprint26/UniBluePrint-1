@@ -250,7 +250,7 @@ export default function CourseConnectPage() {
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -299,7 +299,7 @@ export default function CourseConnectPage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '32px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -312,7 +312,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      {/* ── SECTION 2, FEATURES GRID ────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -351,7 +351,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — COURSE SEARCH ────────────────────────────────────────── */}
+      {/* ── SECTION 3, COURSE SEARCH ────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -469,7 +469,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — HOW IT WORKS ─────────────────────────────────────────── */}
+      {/* ── SECTION 4, HOW IT WORKS ─────────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
@@ -497,7 +497,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────────── */}
+      {/* ── SECTION 5, CTA ──────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -510,7 +510,7 @@ export default function CourseConnectPage() {
             Connect with your course today
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
-            Free to join. September trial offers 50% off everything across UniBlueprint.
+            Free to join. Free trial offers 50% off everything across UniBlueprint.
           </p>
           <Link to="/download" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',

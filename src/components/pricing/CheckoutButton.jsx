@@ -83,7 +83,7 @@ export default function CheckoutButton({ tier = 'pro_monthly', label = 'Get Pro'
         </p>
       )}
 
-      {/* Coming Soon modal — only shown while Stripe isn't configured */}
+      {/* Coming Soon modal, only shown while Stripe isn't configured */}
       {open && (
         <>
           <div

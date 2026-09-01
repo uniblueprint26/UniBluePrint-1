@@ -9,7 +9,7 @@ import {
 
 // GDPR request workflow:
 // 1. New row inserted into gdpr_requests (name/email for anonymous website
-//    visitors, or user_id for logged-in app users — see PrivacyDataScreen.jsx)
+//    visitors, or user_id for logged-in app users, see PrivacyDataScreen.jsx)
 // 2. Operations reviews it from their portal, verifies identity if needed
 // 3. Action performed (deletion, export, correction, or restriction) within
 //    the 30-day due_at deadline the table computes automatically
@@ -124,9 +124,9 @@ export default function PrivacyPage() {
     <>
       <Helmet>
         <title>Privacy Policy | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
+        <meta name="description" content="UniBlueprint Privacy Policy, how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
         <meta property="og:title" content="Privacy Policy | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
+        <meta property="og:description" content="UniBlueprint Privacy Policy, how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -162,7 +162,7 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Profile data:</strong> institution, course, year of study or pathway, and preferences you provide.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Service request data:</strong> CV content, essays, cover letters, application materials, and coaching notes you submit for Foundation Blueprint or Elevation Blueprint services.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Community data:</strong> posts, replies, and messages you create in Campus Connect or Course Connect.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Payment data:</strong> processed by Stripe on our behalf. We do not store your card number, CVV, or full payment details — only a Stripe customer reference.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Payment data:</strong> processed by Stripe on our behalf. We do not store your card number, CVV, or full payment details, only a Stripe customer reference.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Usage data:</strong> pages visited, features used, session duration, and in-app interactions.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Device and technical data:</strong> browser type, operating system, IP address, and device identifiers (collected automatically when you visit the Platform).</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Marketing preferences:</strong> your opt-in or opt-out status for marketing communications.</li>
@@ -267,7 +267,7 @@ export default function PrivacyPage() {
                 21 Fitzwilliam Square South, Dublin 2, D02 RD28<br />
                 <a href="https://www.dataprotection.ie" target="_blank" rel="noopener noreferrer" style={{ color: '#1E3A5F', fontWeight: '500' }}>dataprotection.ie</a>
               </p>
-              <p style={P}>We encourage you to contact us first at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a> — we will do our best to resolve your concern quickly and fairly.</p>
+              <p style={P}>We encourage you to contact us first at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>, we will do our best to resolve your concern quickly and fairly.</p>
             </Section>
 
             <Section title="15. Contact Us">

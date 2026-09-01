@@ -33,7 +33,7 @@ const PAGE_STYLES = `
     .fbp-services-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 560px) {
-    /* Each service card carries a bulleted feature list and a pricing row —
+    /* Each service card carries a bulleted feature list and a pricing row,
        too dense for 2-up without overflowing, so this one stays single
        column, unlike the lighter cards elsewhere on the site. */
     .fbp-services-grid { grid-template-columns: 1fr; }
@@ -252,7 +252,7 @@ function ServiceCard({ name, icon: Icon, description, bullets, price, trialPrice
           {trialPrice}
         </span>
         <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF' }}>
-          September trial
+          Free trial
         </span>
       </div>
     </div>
@@ -635,7 +635,7 @@ export default function FoundationBlueprintPage() {
           fontSize: '15px', color: 'rgba(245,240,232,0.6)',
           marginTop: '14px', maxWidth: '360px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
         }}>
-          Free to join. September trial, 50% off everything.
+          Free to join. Free trial, 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link to="/download" style={{

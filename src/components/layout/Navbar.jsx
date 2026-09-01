@@ -33,12 +33,12 @@ const ELEVATION_SERVICES = [
   { label: 'Our Coaches', icon: UserCheck, href: '/elevation-blueprint' },
 ]
 
-// The other five pillars/features — each is its own product, not a list of
+// The other five pillars/features, each is its own product, not a list of
 // sub-services the way Foundation and Elevation are, so they show as single
 // direct links rather than a drilled-down column. Canonical order matches
 // the rest of the app/site: Foundation, Elevation, Lifestyle, Campus,
 // Course, Budgeting, then Ad Board (a standalone feature, not one of the
-// five pillars — it holds The Weekly Blueprint magazine, a blog, and a
+// five pillars, it holds The Weekly Blueprint magazine, a blog, and a
 // marketplace, not just the magazine).
 const MORE_PILLARS = [
   { label: 'Lifestyle Blueprint', icon: Tag,       href: '/lifestyle-blueprint' },
@@ -150,7 +150,7 @@ export default function Navbar({ onSearchOpen }) {
   const userRef = useRef(null)
   const servicesRef = useRef(null)
   const joinRef = useRef(null)
-  // Escape closes the menu and returns focus to its trigger button — but
+  // Escape closes the menu and returns focus to its trigger button, but
   // focusing that button normally re-opens the menu (see onFocus below),
   // which would undo the Escape instantly. These suppress that one re-open.
   const suppressServicesOpenRef = useRef(false)
@@ -428,7 +428,7 @@ export default function Navbar({ onSearchOpen }) {
                 ))}
               </div>
 
-              {/* Remaining pillars/features — full width, below the two service columns */}
+              {/* Remaining pillars/features, full width, below the two service columns */}
               <div style={{
                 gridColumn: '1 / -1',
                 borderTop: '1px solid rgba(30,58,95,0.08)',

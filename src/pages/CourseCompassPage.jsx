@@ -144,7 +144,7 @@ export default function CourseCompassPage() {
         <title>Course Compass | UniBlueprint</title>
         <meta name="description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance. Course Compass helps young people in Ireland find their direction across every pathway." />
         <meta property="og:title" content="Course Compass | UniBlueprint" />
-        <meta property="og:description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance for young people in Ireland — every pathway covered." />
+        <meta property="og:description" content="Career, CAO, apprenticeship, postgrad, interview, and scholarship guidance for young people in Ireland, every pathway covered." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
@@ -180,7 +180,7 @@ export default function CourseCompassPage() {
             marginTop: '16px', lineHeight: 1.7,
           }}>
             Guidance for every direction. Six compasses covering the decisions
-            young people in Ireland face most — from CAO choices to career paths, apprenticeships, postgrad
+            young people in Ireland face most, from CAO choices to career paths, apprenticeships, postgrad
             programmes, and everything in between.
           </p>
           <a

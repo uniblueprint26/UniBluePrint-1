@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Lock, Search, X } from 'lucide-react'
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
-// Gold means "real, live, on the ground" — new, scoped to this map only.
+// Gold means "real, live, on the ground", new, scoped to this map only.
 const GOLD = '#C9A24B'
 const GOLD_DEEP = '#A5813B'
 const GOLD_LIGHT = '#E4C77E'
@@ -11,7 +11,7 @@ const GOLD_GLOW = 'rgba(201,162,75,0.4)'
 const LOCKED = '#8B9BB5'
 const NAVY = '#1E3A5F'
 
-// ─── Ireland outline — derived from real county coordinates, not traced free-hand.
+// ─── Ireland outline, derived from real county coordinates, not traced free-hand.
 // viewBox 0 0 400 480. Smoothed through 53 coastal reference points (Malin Head,
 // Fair Head, Carlingford Lough, Dublin Bay, Carnsore Point, Hook Head, the Cork/
 // Kerry peninsulas, the Shannon Estuary, Galway Bay, Clew Bay, Donegal Bay…).
@@ -42,7 +42,7 @@ const COUNTY_LABEL = Object.fromEntries(Object.keys(COUNTY_POS).map(k => [k, k[0
 
 // Every label's Y position, resolved offline against every pin group and
 // every other label so nothing overlaps (see the packing script this was
-// generated with) — re-run it rather than nudging one value by eye if the
+// generated with), re-run it rather than nudging one value by eye if the
 // roster changes again, the same way the pin positions below were.
 const LABEL_Y = {
   dublin: 263.5, cork: 438, galway: 254.3, limerick: 360, waterford: 396, tipperary: 348,
@@ -55,8 +55,8 @@ const LABEL_Y = {
 // ─── Live: real listing, deep-links to the full Partners card. Positions
 // below were generated with a packing script: partners sharing a county are
 // arranged in a tight, centred grid (not scattered), ray-cast against the
-// real coastline, checked against every other pin on the whole map — not
-// just its own county — so nothing overlaps or sits in the sea. Re-run the
+// real coastline, checked against every other pin on the whole map, not
+// just its own county, so nothing overlaps or sits in the sea. Re-run the
 // script rather than hand-tweaking a single offset if the roster changes. ────
 const LIVE_PINS = [
   { id: 'mpfitness',         name: 'MPFitness',               county: 'kildare', category: 'Personal Training',                deal: 'Full package from €150/month',      pos: [276.8, 258.8] },
@@ -81,29 +81,29 @@ const LIVE_PINS = [
   { id: 'lashesbysteph',     name: 'Lashes By Steph',          county: 'kildare', category: 'Lash Tech · Kildare',              deal: 'Classics from €35',                  pos: [287.3, 258.8] },
   { id: 'cutbyire',          name: 'CutbyIre',                 county: 'sligo',   category: 'Barber · Sligo',                   deal: 'From €15',                           pos: [151.8, 132.8] },
 ]
-// Not on the map yet — no county on file: Saiemsent, Roomy.ie (nationwide).
+// Not on the map yet, no county on file: Saiemsent, Roomy.ie (nationwide).
 
 // ─── Incoming: one tier on the map. Named ones get the "Official Blueprint
-// Partner" badge on tap; the rest stay anonymous until they're real — visually
+// Partner" badge on tap; the rest stay anonymous until they're real, visually
 // identical, the pin never gives it away. ─────────────────────────────────────
 const INCOMING_NAMED = [
   { name: 'Manni The Barber',        county: 'louth',   category: 'Barber · Dundalk',           pos: [332.5, 174.8] },
   { name: 'MM Cutz',                 county: 'dublin',  category: 'Barber · Dublin',            pos: [316, 254.5] },
   { name: 'Cut by Alind',            county: 'mayo',    category: 'Barber · Mayo',               pos: [96.5, 185.3] },
   { name: 'The Drogheda Foodie',     county: 'louth',   category: 'Food & Drink · Louth',       pos: [316.8, 185.3] },
-  // Dylan Power sits exactly at the Cork anchor — the only pin there.
+  // Dylan Power sits exactly at the Cork anchor, the only pin there.
   { name: 'Dylan Power',             county: 'cork',    category: 'Sports Photographer · Cork', pos: COUNTY_POS.cork },
   { name: 'Angelic Touch',           county: 'sligo',   category: 'Hair',                      pos: [162.3, 132.8] },
   { name: 'Angelic Touch',           county: 'dublin',  category: 'Hair · 2nd location',       pos: [326.5, 254.5] },
   { name: 'Archangel',               county: 'kildare', category: 'Clothing Brand',            pos: [276.8, 269.3] },
-  // named, confirmed with UniBlueprint but still placing — sole pin in Clare
+  // named, confirmed with UniBlueprint but still placing, sole pin in Clare
   { name: 'Carolynes Beauty Studio', county: 'clare',   category: 'Beauty Studio',             pos: COUNTY_POS.clare },
   { name: 'Makeup By Kasia',         county: 'galway',  category: 'Makeup',                    pos: [118, 245.3] },
   { name: 'The PK Glam',             county: 'kildare', category: 'Beauty',                    pos: [287.3, 269.3] },
   { name: 'Hardluck Club',           county: 'louth',   category: 'Food & Drink',              pos: [327.3, 185.3] },
   { name: 'Purple Brunch',           county: 'sligo',   category: 'Food & Drink',              pos: [157, 143.3] },
 ]
-// Anonymous — name withheld until it's real, one per county still without a
+// Anonymous, name withheld until it's real, one per county still without a
 // named partner. Cork is excluded: Dylan Power already occupies it.
 const MYSTERY_COUNTIES = [
   'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
@@ -112,7 +112,7 @@ const MYSTERY_COUNTIES = [
 ]
 const MYSTERY_PINS = MYSTERY_COUNTIES.map(county => ({ county, pos: COUNTY_POS[county] }))
 
-// Every county that has more than one pin — these render smaller, calmer
+// Every county that has more than one pin, these render smaller, calmer
 // (no pulsing halo/shimmer), and get a soft backing plate behind them so a
 // crowded county reads as one tidy, intentional group instead of clutter.
 // A solo pin elsewhere stays full-size and animated; it can afford to.
@@ -132,7 +132,7 @@ const GROUP_BOUNDS = (() => {
 })()
 const GROUPED_COUNTIES = new Set(Object.keys(GROUP_BOUNDS))
 
-// Flat, searchable index — every live + named-incoming partner plus every
+// Flat, searchable index, every live + named-incoming partner plus every
 // county label, so the search box can jump straight to any of them.
 const SEARCH_INDEX = [
   ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: p.name, county: p.county, sub: p.category, pos: p.pos })),
@@ -203,7 +203,7 @@ const PMAP_STYLES = `
   }
   .pmap-wrap.pmap-arrived .pmap-pin-inner { opacity: 1; transform: scale(1); }
 
-  /* Live — a solid, glossy blueprint tack. Fully seated. */
+  /* Live, a solid, glossy blueprint tack. Fully seated. */
   .pmap-pin.gold .pmap-tack-core { fill: url(#pmapTackGold); stroke: ${GOLD_DEEP}; stroke-width: 0.9; transition: r 140ms ease; }
   .pmap-pin.gold .pmap-tack-shine { fill: rgba(255,250,235,0.75); }
   .pmap-pin.gold .pmap-halo { fill: ${GOLD_GLOW}; }
@@ -212,7 +212,7 @@ const PMAP_STYLES = `
   .pmap-pin.gold.compact:hover .pmap-tack-core { r: 5.2; }
   .pmap-ping { fill: none; stroke: ${GOLD}; stroke-width: 1.4; animation: pmapPingOnce 1.9s ease-out forwards; }
 
-  /* Incoming — the same tack, drafted but not inked: dashed outline, no fill. */
+  /* Incoming, the same tack, drafted but not inked: dashed outline, no fill. */
   .pmap-pin.grey .pmap-tack-sketch { fill: rgba(139,155,181,0.06); stroke: ${LOCKED}; stroke-width: 1.1; stroke-dasharray: 2.6 2.2; }
   .pmap-pin.grey .pmap-tack-cross { stroke: ${LOCKED}; stroke-width: 0.9; opacity: 0.75; }
   .pmap-pin.grey .pmap-shimmer { fill: transparent; stroke: ${LOCKED}; stroke-width: 1; opacity: 0; }
@@ -263,7 +263,7 @@ function CompassMark() {
   )
 }
 
-// A blueprint tack — live pins are solid and seated, incoming pins are the
+// A blueprint tack, live pins are solid and seated, incoming pins are the
 // same shape drafted in dashed line, not yet inked. Compact = smaller, calmer
 // version used inside a crowded county so the group reads as tidy, not busy.
 function TackGlyph({ live, compact }) {
@@ -319,7 +319,7 @@ export default function PartnerMap() {
   const nonceRef = useRef(0)
   const searchRef = useRef(null)
 
-  // One-time arrival — the map "switches on" the first time it scrolls into view.
+  // One-time arrival, the map "switches on" the first time it scrolls into view.
   useEffect(() => {
     const wrapEl = wrapRef.current
     if (!wrapEl) return
@@ -330,7 +330,7 @@ export default function PartnerMap() {
     return () => obs.disconnect()
   }, [])
 
-  // A rare signal ping from a random live partner — quiet proof the network's active.
+  // A rare signal ping from a random live partner, quiet proof the network's active.
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
     const intervalId = setInterval(() => {
@@ -364,7 +364,7 @@ export default function PartnerMap() {
 
   function pickResult(r) {
     if (r.kind === 'county') {
-      // No single card makes sense for a whole county — pulse every pin
+      // No single card makes sense for a whole county, pulse every pin
       // there instead, so the search still doubles as "where is this county".
       const keys = SEARCH_INDEX.filter(x => x.county === r.county && x.kind !== 'county').map(x => x.id)
       setActive(null)
@@ -448,7 +448,7 @@ export default function PartnerMap() {
               <stop offset="55%" stopColor={GOLD} />
               <stop offset="100%" stopColor={GOLD_DEEP} />
             </radialGradient>
-            {/* Blueprint graph-paper texture — a nod to the brand, not just an empty sea. */}
+            {/* Blueprint graph-paper texture, a nod to the brand, not just an empty sea. */}
             <pattern id="pmapGrid" width="16" height="16" patternUnits="userSpaceOnUse">
               <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(245,240,232,0.05)" strokeWidth="0.5" />
             </pattern>
@@ -463,7 +463,7 @@ export default function PartnerMap() {
           <path className="pmap-coastline-inner" d={IRELAND_PATH} />
           <CompassMark />
 
-          {/* Soft backing plates behind every crowded county — gives the eye a
+          {/* Soft backing plates behind every crowded county, gives the eye a
               boundary so a busy group reads as one designed unit, not clutter. */}
           {Object.entries(GROUP_BOUNDS).map(([county, b]) => (
             <rect
@@ -486,7 +486,7 @@ export default function PartnerMap() {
                 arriveDelay={40}
                 dimmed={active && active.pinKey !== key}
                 matched={matchedKeys.has(key)}
-                label="Unconfirmed partner — coming soon"
+                label="Unconfirmed partner, coming soon"
                 onClick={() => select(key, { live: false, name: null, category: null })}
                 onKeyDown={e => onKey(e, key, { live: false, name: null, category: null })}
               />
@@ -506,7 +506,7 @@ export default function PartnerMap() {
                 arriveDelay={i * 14}
                 dimmed={active && active.pinKey !== key}
                 matched={matchedKeys.has(key)}
-                label={`${p.name}, ${p.category} — Official Blueprint Partner, launching soon`}
+                label={`${p.name}, ${p.category}, Official Blueprint Partner, launching soon`}
                 onClick={() => select(key, { live: false, name: p.name, category: p.category })}
                 onKeyDown={e => onKey(e, key, { live: false, name: p.name, category: p.category })}
               />
@@ -526,14 +526,14 @@ export default function PartnerMap() {
                 dimmed={active && active.pinKey !== p.id}
                 matched={matchedKeys.has(p.id)}
                 ping={ping && ping.pinId === p.id ? `ping-${ping.nonce}` : null}
-                label={`${p.name}, ${p.category} — live partner. View details.`}
+                label={`${p.name}, ${p.category}, live partner. View details.`}
                 onClick={() => select(p.id, { live: true, ...p })}
                 onKeyDown={e => onKey(e, p.id, { live: true, ...p })}
               />
             )
           })}
 
-          {/* County name labels — always visible, resolved offline so none overlap. */}
+          {/* County name labels, always visible, resolved offline so none overlap. */}
           {Object.entries(COUNTY_LABEL).map(([county, label]) => (
             <text key={`label-${county}`} className="pmap-label" x={COUNTY_POS[county][0]} y={LABEL_Y[county]} fontSize="7.2">
               {label}
@@ -578,7 +578,7 @@ export default function PartnerMap() {
               </div>
               <span style={{ alignSelf: 'flex-start', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: NAVY, background: 'rgba(30,58,95,0.08)', borderRadius: '6px', padding: '3px 9px' }}>{active.category}</span>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', margin: 0, lineHeight: 1.55 }}>
-                On board with UniBlueprint — full listing and deal launch soon.
+                On board with UniBlueprint, full listing and deal launch soon.
               </p>
             </>
           )}
@@ -592,7 +592,7 @@ export default function PartnerMap() {
                 <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '16px', color: NAVY, margin: 0 }}>A new partner is joining soon</p>
               </div>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', margin: 0, lineHeight: 1.55 }}>
-                We're not ready to share who yet — check back as the map fills in.
+                We're not ready to share who yet, check back as the map fills in.
               </p>
             </>
           )}
@@ -600,7 +600,7 @@ export default function PartnerMap() {
       ) : (
         <div className="pmap-card idle">
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: 'rgba(245,240,232,0.5)', textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
-            Tap a pin to see who's there — or search above to jump straight to a partner.
+            Tap a pin to see who's there, or search above to jump straight to a partner.
           </p>
         </div>
       )}

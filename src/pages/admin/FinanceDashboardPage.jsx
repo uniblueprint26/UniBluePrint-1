@@ -213,7 +213,7 @@ export default function FinanceDashboardPage() {
           <SectionTitle
             eyebrow="Revenue"
             title="Subscription revenue"
-            caption="Modelled from list price and active subscription counts, not a reconciled Stripe figure — Stripe's webhook records tier and status, not the amount actually charged per invoice."
+            caption="Modelled from list price and active subscription counts, not a reconciled Stripe figure, Stripe's webhook records tier and status, not the amount actually charged per invoice."
           />
           <div className="fn-grid" style={{ opacity: loading ? 0.6 : 1 }}>
             <Tile label="Estimated MRR" value={fmtEuro(revenue.estimated_mrr_cents)} icon={Euro} accent={NAVY} />

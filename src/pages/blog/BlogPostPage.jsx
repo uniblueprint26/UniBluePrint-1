@@ -217,7 +217,7 @@ export default function BlogPostPage() {
 
       <ReadingProgress />
 
-      {/* ARTICLE HERO — poster banner */}
+      {/* ARTICLE HERO, poster banner */}
       <section style={{
         background: '#1E3A5F', padding: '64px 24px 56px',
         textAlign: 'center', position: 'relative', overflow: 'hidden',

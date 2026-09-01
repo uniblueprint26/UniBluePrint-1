@@ -16,7 +16,7 @@ const VALUE_PROPS = [
   {
     icon: GraduationCap,
     title: 'Student success support',
-    description: 'CV, career documents, and coaching in one place — extending your careers team without adding headcount.',
+    description: 'CV, career documents, and coaching in one place, extending your careers team without adding headcount.',
   },
   {
     icon: Users,
@@ -165,14 +165,14 @@ export default function ForUniversitiesPage() {
         <title>For Universities | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with UniBlueprint to give your students access to career support, campus community, and academic tools — launching September 2026."
+          content="Partner with UniBlueprint to give your students access to career support, campus community, and academic tools, launching September 2026."
         />
         <meta property="og:title" content="For Universities | UniBlueprint" />
-        <meta property="og:description" content="Partner with UniBlueprint to give your students access to career support, campus community, and academic tools — launching September 2026." />
+        <meta property="og:description" content="Partner with UniBlueprint to give your students access to career support, campus community, and academic tools, launching September 2026." />
         <style>{UNI_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ───────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '100px 24px 80px',
@@ -205,7 +205,7 @@ export default function ForUniversitiesPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.65)',
             marginTop: '16px', lineHeight: 1.7,
           }}>
-            UniBlueprint gives your students access to CV support, career coaching, and campus community tools — reducing the load on your careers office and student services.
+            UniBlueprint gives your students access to CV support, career coaching, and campus community tools, reducing the load on your careers office and student services.
           </p>
 
           <button
@@ -225,7 +225,7 @@ export default function ForUniversitiesPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — VALUE PROPS ────────────────────────────────────────── */}
+      {/* ── SECTION 2, VALUE PROPS ────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -282,7 +282,7 @@ export default function ForUniversitiesPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — HOW IT WORKS ───────────────────────────────────────── */}
+      {/* ── SECTION 3, HOW IT WORKS ───────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <SectionLabel>How it works</SectionLabel>
@@ -330,7 +330,7 @@ export default function ForUniversitiesPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — ENQUIRY FORM ───────────────────────────────────────── */}
+      {/* ── SECTION 4, ENQUIRY FORM ───────────────────────────────────────── */}
       <section id="uni-enquiry-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <SectionLabel>Get in touch</SectionLabel>
@@ -343,7 +343,7 @@ export default function ForUniversitiesPage() {
           </h2>
         </div>
 
-        <FormCard subtitle="Tell us about your institution and what you're looking for — we'll be in touch within 2 business days.">
+        <FormCard subtitle="Tell us about your institution and what you're looking for, we'll be in touch within 2 business days.">
           {success ? (
             <SuccessCard subtitle="We'll be in touch within 2 business days." />
           ) : (
@@ -374,7 +374,7 @@ export default function ForUniversitiesPage() {
                   <FormInput type="tel" value={form.phone} onChange={set('phone')} placeholder="+353 1 000 0000" />
                 </FormField>
               </div>
-              <FormField label="Message" hint="Tell us what you're interested in — partnership, integration, or a general chat.">
+              <FormField label="Message" hint="Tell us what you're interested in, partnership, integration, or a general chat.">
                 <FormTextarea value={form.message} onChange={set('message')} placeholder="We would like to explore..." rows={5} />
               </FormField>
 

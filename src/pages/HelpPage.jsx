@@ -16,7 +16,7 @@ const CATEGORIES = [
     articles: [
       'How to submit a Foundation Blueprint request',
       'What to expect from your Campus Handler',
-      'Standard vs Premium — which should I choose?',
+      'Standard vs Premium, which should I choose?',
       'How to request a revision',
       'Why is my submission taking longer than expected?',
     ],
@@ -40,9 +40,9 @@ const CATEGORIES = [
     articles: [
       'How to upgrade to Pro',
       'How to cancel your Pro subscription',
-      'Understanding the September trial pricing',
+      'Understanding the free trial pricing',
       'What payment methods are accepted?',
-      'I was charged incorrectly — what do I do?',
+      'I was charged incorrectly, what do I do?',
     ],
   },
   {
@@ -66,7 +66,7 @@ const CATEGORIES = [
       'How to join a campus group',
       'Reporting inappropriate content',
       'How the Carpool board works',
-      'Lost & Found — how to post and search',
+      'Lost & Found, how to post and search',
     ],
   },
   {
@@ -86,7 +86,7 @@ const CATEGORIES = [
     title: 'Technical',
     description: 'App issues, bugs, and troubleshooting.',
     articles: [
-      'The app is not loading — what do I do?',
+      'The app is not loading, what do I do?',
       'How to clear your cache',
       'Supported devices and browsers',
       'How to report a bug',
@@ -184,10 +184,10 @@ export default function HelpPage() {
         <title>Help Centre | UniBlueprint</title>
         <meta
           name="description"
-          content="UniBlueprint Help Centre — guides and answers for Foundation Blueprint, Elevation Blueprint, billing, accounts, and campus features."
+          content="UniBlueprint Help Centre, guides and answers for Foundation Blueprint, Elevation Blueprint, billing, accounts, and campus features."
         />
         <meta property="og:title" content="Help Centre | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint Help Centre — guides and answers for Foundation Blueprint, Elevation Blueprint, billing, accounts, and campus features." />
+        <meta property="og:description" content="UniBlueprint Help Centre, guides and answers for Foundation Blueprint, Elevation Blueprint, billing, accounts, and campus features." />
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}

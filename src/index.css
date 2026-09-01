@@ -72,7 +72,7 @@ a, button, [role="button"], input, select, textarea, label,
 }
 
 /* ─── Minimum touch targets ──────────────────────────────────────────────── */
-/* Nav links (desktop) — full 44px tappable row height */
+/* Nav links (desktop), full 44px tappable row height */
 nav a {
   display: inline-flex;
   align-items: center;
@@ -98,7 +98,7 @@ footer {
 /* ─── dvh utility (fixes iOS Safari address bar 100vh issue) ─────────────── */
 .hero-full { min-height: 100dvh; }
 
-/* ─── Countdown timer — responsive cards ─────────────────────────────────── */
+/* ─── Countdown timer, responsive cards ─────────────────────────────────── */
 .countdown-card  { width: 72px; padding: 12px 8px; }
 .countdown-value { font-size: 36px; }
 
@@ -120,7 +120,7 @@ footer {
   .countdown-value   { font-size: 28px; }
 }
 
-/* Global focus ring — replaces browser default only with custom style */
+/* Global focus ring, replaces browser default only with custom style */
 *:focus { outline: none; }
 *:focus-visible {
   outline: 2px solid #1E3A5F;
@@ -194,7 +194,7 @@ footer {
 }
 .dropdown-link:hover { background: #F5F0E8; }
 
-/* Footer grid — 4-col desktop, 2-col 480–767px, 1-col <480px */
+/* Footer grid, 4-col desktop, 2-col 480–767px, 1-col <480px */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -529,7 +529,7 @@ footer {
   .blog-grid { gap: 12px; }
 }
 
-/* ─── September Trial page ───────────────────────────────────────────── */
+/* ─── Free Trial page ──────────────────────────────────────────────── */
 
 .sept-hero-heading { font-size: 96px; }
 .sept-hero-sub     { font-size: 40px; }
@@ -552,7 +552,7 @@ footer {
   .sept-services-grid { grid-template-columns: 1fr; gap: 32px; }
 }
 
-/* ─── Back to top — hidden on mobile ─────────────────────────────────── */
+/* ─── Back to top, hidden on mobile ─────────────────────────────────── */
 @media (max-width: 639px) {
   .back-to-top { display: none !important; }
 }

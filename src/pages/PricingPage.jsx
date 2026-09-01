@@ -52,12 +52,12 @@ const FAQS = [
     a: 'Campus Connect, Course Connect, all Mental Health and Wellbeing resources, and a basic profile are free for every user. Foundation Blueprint services are available to purchase on the free tier at listed prices.',
   },
   {
-    q: 'What is the September trial price?',
-    a: 'Every UniBlueprint service is available at 50% off standard pricing throughout September 2026. The discount is applied automatically — no code needed.',
+    q: 'What is the free trial price?',
+    a: 'Every UniBlueprint service is available at 50% off standard pricing for a limited time. The discount is applied automatically, no code needed.',
   },
   {
-    q: 'Can I cancel Pro at any time?',
-    a: 'Yes — cancel any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service.',
+    q: 'Can I cancel UniBlueprint Pro at any time?',
+    a: 'Yes, cancel any time. Monthly subscribers retain Pro access until the end of the current billing period. Annual subscribers are entitled to a refund within 14 days of purchase if they have not used the service.',
   },
   {
     q: 'What payment methods are accepted?',
@@ -65,7 +65,7 @@ const FAQS = [
   },
   {
     q: 'Is there a refund policy?',
-    a: 'Yes — see our Refund Policy for full details. Annual Pro subscribers are entitled to a refund within 14 days of purchase if they have not used the service.',
+    a: 'Yes, see our Refund Policy for full details. Annual Premium subscribers are entitled to a refund within 14 days of purchase if they have not used the service.',
   },
 ]
 
@@ -174,13 +174,13 @@ export default function PricingPage() {
     <>
       <Helmet>
         <title>Pricing | UniBlueprint</title>
-        <meta name="description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial." />
+        <meta name="description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during the free trial." />
         <meta property="og:title" content="Pricing | UniBlueprint" />
-        <meta property="og:description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during September trial." />
+        <meta property="og:description" content="Simple transparent pricing. Free to join. Pro from €6.99/month. All services 50% off during the free trial." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F', padding: '100px 24px 72px',
         textAlign: 'center', position: 'relative', overflow: 'hidden',
@@ -209,7 +209,7 @@ export default function PricingPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.65)',
             marginTop: '16px', maxWidth: '500px', margin: '16px auto 0', lineHeight: 1.65,
           }}>
-            Free to join. Pay only for the services you use. Every service at 50% off during the September Trial.
+            Free to join. Pay only for the services you use. Every service at 50% off during the free trial.
           </p>
 
           {/* Trial badge */}
@@ -221,13 +221,13 @@ export default function PricingPage() {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '13px', fontWeight: '700', letterSpacing: '0.01em',
             }}>
-              🎓 September Trial: 50% off all services
+              🎓 Free Trial: 50% off all services
             </span>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 2 — TIER CARDS ───────────────────────────────────────── */}
+      {/* ── SECTION 2, TIER CARDS ───────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
 
         {/* Mode toggle */}
@@ -238,7 +238,7 @@ export default function PricingPage() {
             padding: '4px', gap: '4px',
           }}>
             {[
-              ['trial',    'September Trial'],
+              ['trial',    'Free Trial'],
               ['standard', 'Standard'],
             ].map(([val, label]) => (
               <button
@@ -339,7 +339,7 @@ export default function PricingPage() {
             </span>
 
             <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#1E3A5F' }}>
-              Pro
+              UniBlueprint Pro
             </p>
 
             <div style={{ marginTop: '16px' }}>
@@ -362,7 +362,7 @@ export default function PricingPage() {
                   borderRadius: '4px', padding: '2px 8px',
                   fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700',
                 }}>
-                  September trial price
+                  Free trial price
                 </span>
               )}
             </div>
@@ -405,7 +405,7 @@ export default function PricingPage() {
             </span>
 
             <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#F5F0E8' }}>
-              Pro Annual
+              UniBlueprint Premium
             </p>
 
             <div style={{ marginTop: '16px' }}>
@@ -442,7 +442,7 @@ export default function PricingPage() {
 
             <CheckoutButton
               tier="pro_annual"
-              label="Get Pro Annual"
+              label="Get Premium"
               style={{ height: '46px', marginTop: '24px', fontSize: '14px', background: '#F5F0E8', color: '#1E3A5F' }}
             />
           </div>
@@ -454,7 +454,7 @@ export default function PricingPage() {
         </p>
       </section>
 
-      {/* ── SECTION 3 — SERVICES PRICING ─────────────────────────────────── */}
+      {/* ── SECTION 3, SERVICES PRICING ─────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center' }}>
           <SectionLabel>Service pricing</SectionLabel>
@@ -467,8 +467,8 @@ export default function PricingPage() {
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '10px', lineHeight: 1.6 }}>
             {isTrial
-              ? 'September trial prices are active. Standard prices resume 1 October 2026.'
-              : 'Standard pricing. Switch to September Trial above to see 50% off prices.'}
+              ? 'Free trial prices are active. Standard prices resume once the trial ends.'
+              : 'Standard pricing. Switch to Free Trial above to see 50% off prices.'}
           </p>
         </div>
 
@@ -591,8 +591,8 @@ export default function PricingPage() {
               {/* Premium note */}
               <div style={{ padding: '12px 24px', background: 'rgba(30,58,95,0.03)', borderTop: '1px solid rgba(30,58,95,0.06)' }}>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF', lineHeight: 1.55 }}>
-                  <strong style={{ color: '#6B7280' }}>Premium tier (same-day delivery)</strong> is available in the app at Standard +50%.
-                  {isTrial ? ' September trial pricing applies to Premium too.' : ''}
+                  <strong style={{ color: '#6B7280' }}>Priority delivery (same-day)</strong> is available in the app at Standard +50%.
+                  {isTrial ? ' Free trial pricing applies to Premium too.' : ''}
                 </p>
               </div>
 
@@ -601,11 +601,11 @@ export default function PricingPage() {
         </div>
 
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '16px' }}>
-          September trial prices apply throughout September 2026. Standard pricing resumes from 1 October 2026.
+          Free trial prices apply for a limited time. Standard pricing resumes once the trial ends.
         </p>
       </section>
 
-      {/* ── SECTION 4 — FAQ ──────────────────────────────────────────────── */}
+      {/* ── SECTION 4, FAQ ──────────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
@@ -633,7 +633,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────── */}
+      {/* ── SECTION 5, CTA ──────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
@@ -643,7 +643,7 @@ export default function PricingPage() {
           Get started free. Upgrade when you're ready.
         </h2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: 'rgba(245,240,232,0.6)', marginTop: '12px' }}>
-          No credit card required. September trial — 50% off everything.
+          No credit card required. Free trial, 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link
