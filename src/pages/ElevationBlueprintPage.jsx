@@ -172,7 +172,7 @@ function CoachCard({ id, name, via, photo, category, location, services, accent,
           <img
             src={photo}
             alt={`${name} logo`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             loading="lazy"
           />
         ) : (
