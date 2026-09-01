@@ -187,18 +187,22 @@ function CoachCard({ id, name, via, photo, category, location, services, accent,
             </span>
           </div>
         )}
+      </div>
+
+      {/* Category / location strip, sits below the photo, never overlaps it */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
+        padding: '8px 14px', background: `${accent}0D`, borderBottom: `1px solid ${accent}1A`,
+      }}>
         <span style={{
-          position: 'absolute', top: '10px', left: '12px',
-          background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)',
-          color: accent, borderRadius: '6px', padding: '4px 10px',
-          fontFamily: "'DM Sans',sans-serif", fontSize: '10px', fontWeight: '700',
-          letterSpacing: '0.03em', border: `1px solid ${accent}22`,
+          color: accent, fontFamily: "'DM Sans',sans-serif", fontSize: '10px', fontWeight: '700',
+          letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
           {category}
         </span>
         <span style={{
-          position: 'absolute', bottom: '10px', right: '12px',
           fontFamily: "'DM Sans',sans-serif", fontSize: '10px', color: '#9CA3AF',
+          flexShrink: 0,
         }}>
           {location}
         </span>

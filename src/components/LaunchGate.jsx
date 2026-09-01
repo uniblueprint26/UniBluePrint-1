@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react'
 //
 // To change the unlock time or access code, edit the two constants below.
 const UNLOCK_AT = new Date('2026-09-01T18:00:00+01:00') // 6:00 PM Irish time
-const ACCESS_CODE = 'BLUEPRINT2026'
+const ACCESS_CODE = 'MTW7-7*!'
 const STORAGE_KEY = 'ubp_launch_gate_passed'
 
 function getRemaining() {
