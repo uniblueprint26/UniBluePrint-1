@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, Home, Car, Calendar, BookOpen, Search, MapPin } from 'lucide-react'
+import { ArrowRight, Home, Car, Calendar, BookOpen, Search, MapPin, Users, Briefcase, HelpCircle, Repeat, Star, Lightbulb, Megaphone, MessageSquare } from 'lucide-react'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -127,11 +127,20 @@ function CampusScreen() {
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FEATURES = [
-  { Icon: Home,        title: 'Accommodation',  desc: 'Rooms, houseshares, and student accommodation near your campus.' },
-  { Icon: Car,         title: 'Carpooling',     desc: 'Find or offer lifts between campuses and home towns.' },
-  { Icon: Calendar,    title: 'Events',         desc: 'Society nights, careers fairs, open days, and more.' },
-  { Icon: BookOpen,    title: 'Study Groups',   desc: 'Find or form study groups by module, level, or subject.' },
-  { Icon: Search,      title: 'Lost and Found', desc: 'Report lost items and reunite people with their belongings.' },
+  { Icon: Home,          title: 'Accommodation',            desc: 'Rooms, houseshares, and student accommodation near your campus.' },
+  { Icon: Car,           title: 'Carpooling',               desc: 'Find or offer lifts between campuses and home towns.' },
+  { Icon: Calendar,      title: 'Events',                   desc: 'Society nights, careers fairs, open days, and more.' },
+  { Icon: BookOpen,      title: 'Study Groups',              desc: 'Find or form study groups by module, level, or subject.' },
+  { Icon: Search,        title: 'Lost and Found',            desc: 'Report lost items and reunite people with their belongings.' },
+  { Icon: MessageSquare, title: 'Campus Conversation Boards', desc: 'Open discussion boards for whatever your campus wants to talk about.' },
+  { Icon: Users,         title: 'Join Clubs & Societies',    desc: 'Find and join clubs and societies at your campus.' },
+  { Icon: Briefcase,     title: 'Project Collaboration',     desc: 'Find teammates for college projects and side projects.' },
+  { Icon: HelpCircle,    title: 'Problems & Solutions',       desc: 'Ask for help and share solutions with your campus community.' },
+  { Icon: Repeat,        title: 'Shared Subscriptions',      desc: 'Split the cost of streaming, software, and other subscriptions.' },
+  { Icon: Star,          title: 'College Reviews',            desc: 'Honest reviews of courses, modules, and college life from real students.' },
+  { Icon: Lightbulb,     title: 'Campus Suggestions',         desc: 'Suggest improvements and ideas for your campus.' },
+  { Icon: Megaphone,     title: 'Student Ads',                desc: 'Buy, sell, and advertise directly to your campus community.' },
+  { Icon: MapPin,        title: 'Opportunities',              desc: 'Part-time jobs, internships, and volunteering near your campus.' },
 ]
 
 const BOARDS = {
@@ -159,6 +168,21 @@ const BOARDS = {
     { author: 'Tom',     color: AVATAR_COLORS[1], meta: 'Lost',  time: '2h ago',  title: 'Left laptop bag in the library, brown leather with green strap' },
     { author: 'Grace',   color: AVATAR_COLORS[4], meta: 'Found', time: '4h ago',  title: 'Found keys near the arts block, blue tag. Left at reception.' },
     { author: 'Marcus',  color: AVATAR_COLORS[0], meta: 'Lost',  time: '1d ago',  title: 'Graphing calculator lost near maths department, name sticker inside' },
+  ],
+  'Campus Conversation Boards': [
+    { author: 'Niamh',   color: AVATAR_COLORS[2], meta: '12 replies', time: '45m ago', title: 'Anyone else find the new library hours a pain?' },
+    { author: 'Cian',     color: AVATAR_COLORS[3], meta: '6 replies',  time: '3h ago',  title: 'Best spots to study on campus that aren\'t the library?' },
+    { author: 'Aisling',  color: AVATAR_COLORS[0], meta: '3 replies',  time: '1d ago',  title: 'Thoughts on the new canteen menu?' },
+  ],
+  'Student Ads': [
+    { author: 'Ronan',   color: AVATAR_COLORS[1], meta: '€40',  time: '1h ago',  title: 'Selling a barely used desk lamp and chair' },
+    { author: 'Sadhbh',  color: AVATAR_COLORS[4], meta: 'Free', time: '5h ago',  title: 'Giving away textbooks from first year, DM me' },
+    { author: 'Oisin',   color: AVATAR_COLORS[0], meta: '€15',  time: '1d ago',  title: 'Tutoring in Maths and Physics, first year modules' },
+  ],
+  'College Reviews': [
+    { author: 'Sarah',   color: AVATAR_COLORS[3], meta: '5 stars', time: '2h ago',  title: 'BUS101 is genuinely worth taking, great lecturer' },
+    { author: 'Padraig', color: AVATAR_COLORS[2], meta: '3 stars', time: '1d ago',  title: 'Accommodation office response times could be faster' },
+    { author: 'Chloe',   color: AVATAR_COLORS[0], meta: '4 stars', time: '2d ago',  title: 'Careers service was actually really helpful this year' },
   ],
 }
 
@@ -403,6 +427,13 @@ export default function CampusConnectPage() {
               </div>
             ))}
           </div>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 700,
+            color: ACCENT, textAlign: 'center', marginTop: '36px',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+          }}>
+            Always Free
+          </p>
         </div>
       </section>
 
