@@ -35,21 +35,21 @@ const PAGE_STYLES = `
 // on web, this mix is what the real data already supports, not a
 // separate gating layer.
 const COACHES = [
-  { id: 1,  name: '500+ with Eman', category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  from: 'Enquire in the app', services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },
-  { id: 2,  name: 'JMC Fitness', category: 'Sports Coaching',      location: 'North Dublin',  filter: 'Sports',           from: 'Enquire in the app', services: ['In-Person Training', 'Football Coaching', 'Agent Connections'],    accent: '#166534' },
-  { id: 3,  name: 'Nathan',      category: 'Photography and Video', location: 'Ireland',      filter: 'Creative',         from: 'Enquire in the app', services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Creative Direction'], accent: '#C2410C' },
-  { id: 4,  name: 'DG Trading',  category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading and Finance',          from: 'Enquire in the app', services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
-  { id: 6,  name: 'Emanuel T.',  category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Online Workout Plans', 'Nutrition Plans', 'Calisthenics Coaching'], accent: '#2D4B8E' },
-  { id: 7,  name: 'Tadgh',       category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
-  { id: 8,  name: 'Milan',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
-  { id: 9,  name: 'Kevin',       category: 'Personal Training',    location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['1-to-1 PT Sessions', 'Beginner Gym Coaching', 'Accountability Coaching'], accent: '#145A3E' },
-  { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Co. Mayo',      filter: 'Marketing',        from: 'Enquire in the app', services: ['Social Media Management', 'Content & Graphics', 'Creator Coordination', 'Client Reporting'], accent: '#4C1D95', badge: 'Student Mentor Listing', crossLinkHref: '/partners#leva', crossLinkLabel: 'See LEVA Impact on Partners' },
-  { id: 12, name: 'Jayden',      category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          from: 'Enquire in the app', services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
-  { id: 13, name: 'Stephen',      category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
-  { id: 14, name: 'Camila',      category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', from: 'Enquire in the app', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
-  { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
-  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading and Finance', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
-  { id: 18, name: 'Zainab Adeyemi', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading and Finance',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
+  { id: 1,  name: 'Emmanuel',    via: 'via 500+ with Eman', photo: '/coaches/eman.jpg',       category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  from: 'Enquire in the app', services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },
+  { id: 2,  name: 'Jack',        via: 'via JMC Fitness',    photo: '/coaches/jmc.jpg',        category: 'Sports Coaching',      location: 'North Dublin',  filter: 'Sports',           from: 'Enquire in the app', services: ['In-Person Training', 'Football Coaching', 'Agent Connections'],    accent: '#166534' },
+  { id: 3,  name: 'Nathan Yanzo', via: 'via Nyz3ditz',      photo: '/coaches/nathan.jpg',     category: 'Photography and Video', location: 'Ireland',      filter: 'Creative',         from: 'Enquire in the app', services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Creative Direction'], accent: '#C2410C' },
+  { id: 4,  name: 'DG Trading',  photo: '/coaches/dgtrading.jpg', category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading and Finance',          from: 'Enquire in the app', services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
+  { id: 6,  name: 'Emanuel T.',  photo: '/coaches/emanuelt.jpg',  category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Online Workout Plans', 'Nutrition Plans', 'Calisthenics Coaching'], accent: '#2D4B8E' },
+  { id: 7,  name: 'Tadgh',       photo: '/coaches/tadgh.jpg',     category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
+  { id: 8,  name: 'Milan',       via: 'via MPFitness',      photo: '/coaches/milan.jpg',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
+  { id: 9,  name: 'Kevin',       via: 'via TrainwitKev',    photo: '/coaches/kevin.jpg',      category: 'Personal Training',    location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['1-to-1 PT Sessions', 'Beginner Gym Coaching', 'Accountability Coaching'], accent: '#145A3E' },
+  { id: 10, name: 'Alex',        via: 'via Leva Impact',    photo: '/coaches/alex.jpg',       category: 'Digital Marketing',    location: 'Co. Mayo',      filter: 'Marketing',        from: 'Enquire in the app', services: ['Social Media Management', 'Content & Graphics', 'Creator Coordination', 'Client Reporting'], accent: '#4C1D95', badge: 'Student Mentor Listing', crossLinkHref: '/partners#leva', crossLinkLabel: 'See LEVA Impact on Partners' },
+  { id: 12, name: 'Jayden',      photo: '/coaches/jayden.jpg',    category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          from: 'Enquire in the app', services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
+  { id: 13, name: 'Stephen',     via: 'via Course Compass', photo: '/coaches/coursecompass.jpg', category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
+  { id: 14, name: 'Camila',      photo: '/coaches/camila.jpg',    category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', from: 'Enquire in the app', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
+  { id: 15, name: 'Aoife',       via: 'via The Brave Flow Yoga', photo: '/coaches/aoife.jpg', category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
+  { id: 17, name: 'Dinero Trading Group', photo: '/coaches/dinero.jpg', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading and Finance', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
+  { id: 18, name: 'Zainab Adeyemi', via: 'via Soft Life Investing', photo: '/coaches/zainab.jpg', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading and Finance',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
   { id: 19, name: 'Luana Ciweck', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
 ]
 
@@ -135,7 +135,7 @@ function PhoneMockup() {
 
 // ─── CoachCard ────────────────────────────────────────────────────────────────
 
-function CoachCard({ id, name, category, location, services, accent, shell, href, badge, from, crossLinkHref, crossLinkLabel }) {
+function CoachCard({ id, name, via, photo, category, location, services, accent, shell, href, badge, from, crossLinkHref, crossLinkLabel }) {
   const [hovered, setHovered] = useState(false)
   const initial = name.charAt(0).toUpperCase()
 
@@ -164,19 +164,29 @@ function CoachCard({ id, name, category, location, services, accent, shell, href
       {/* Avatar area */}
       <div style={{
         position: 'relative', height: '132px',
-        background: 'linear-gradient(135deg, #EAF0F8 0%, #D9E4F0 100%)',
+        background: photo ? '#0c1520' : 'linear-gradient(135deg, #EAF0F8 0%, #D9E4F0 100%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
       }}>
-        <div style={{
-          width: '68px', height: '68px', borderRadius: '50%',
-          background: accent,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 4px 20px ${accent}44`,
-        }}>
-          <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '26px', color: '#F5F0E8', lineHeight: 1 }}>
-            {initial}
-          </span>
-        </div>
+        {photo ? (
+          <img
+            src={photo}
+            alt={`${name} logo`}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            loading="lazy"
+          />
+        ) : (
+          <div style={{
+            width: '68px', height: '68px', borderRadius: '50%',
+            background: accent,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: `0 4px 20px ${accent}44`,
+          }}>
+            <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '26px', color: '#F5F0E8', lineHeight: 1 }}>
+              {initial}
+            </span>
+          </div>
+        )}
         <span style={{
           position: 'absolute', top: '10px', left: '12px',
           background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)',
@@ -199,6 +209,11 @@ function CoachCard({ id, name, category, location, services, accent, shell, href
         <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '19px', color: '#1E3A5F', margin: 0 }}>
           {name}
         </p>
+        {via && (
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF', margin: '2px 0 0' }}>
+            {via}
+          </p>
+        )}
         {from && (
           <p style={{
             fontFamily: "'DM Sans',sans-serif", fontSize: '12.5px', margin: '3px 0 0',
