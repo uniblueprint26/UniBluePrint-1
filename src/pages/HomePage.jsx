@@ -56,9 +56,10 @@ function SectionLabel({ children, light }) {
 }
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
-// Glass card with hover peek panel, slides up to reveal live-style activity dots.
+// Glass card. On hover, a colour glow in the pillar's own brand colour takes
+// over the white part of the card (no text teaser).
 
-function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb, peek }) {
+function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -67,7 +68,9 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', flexDirection: 'column',
-        background: hovered ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.72)',
+        background: hovered
+          ? `radial-gradient(circle at 30% 20%, rgba(${accentRgb},0.22), rgba(${accentRgb},0.08) 60%, rgba(255,255,255,0.97))`
+          : 'rgba(255,255,255,0.72)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
         borderRadius: '16px',
@@ -79,7 +82,7 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
         overflow: 'hidden',
         transform: hovered ? 'translateY(-5px)' : 'translateY(0)',
         boxShadow: hovered
-          ? `0 20px 52px rgba(${accentRgb},0.13), 0 4px 16px rgba(0,0,0,0.07)`
+          ? `0 20px 52px rgba(${accentRgb},0.22), 0 4px 16px rgba(0,0,0,0.07)`
           : '0 2px 16px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.9) inset',
         transition: 'all 220ms ease',
       }}
@@ -118,45 +121,11 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '12px', fontWeight: '700', color: accent,
         marginTop: '16px', letterSpacing: '0.01em',
-        opacity: hovered ? 0 : 0.45,
+        opacity: hovered ? 1 : 0.45,
         transition: 'opacity 160ms',
       }}>
         Explore →
       </p>
-
-      {/* Peek panel, slides up on hover */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0,
-        padding: '32px 26px 22px',
-        background: `linear-gradient(to top, rgba(255,255,255,0.99) 60%, transparent)`,
-        transform: hovered ? 'translateY(0)' : 'translateY(100%)',
-        transition: 'transform 260ms cubic-bezier(.4,0,.2,1)',
-        zIndex: 2,
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', marginBottom: '12px' }}>
-          {peek.map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-              <div style={{
-                width: '5px', height: '5px', borderRadius: '50%',
-                background: accent, flexShrink: 0,
-              }} />
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px', color: `rgba(${accentRgb},0.8)`, lineHeight: 1.4,
-              }}>
-                {item}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', fontWeight: '700', color: accent,
-          letterSpacing: '0.01em',
-        }}>
-          Explore {name} →
-        </p>
-      </div>
     </Link>
   )
 }

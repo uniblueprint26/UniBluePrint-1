@@ -271,7 +271,7 @@ const LIVE_PARTNERS = [
   },
 ]
 
-// ─── Coming Soon: everyone else, confirmed and onboarding, locked until launch
+// ─── More partners: everyone else, confirmed and onboarding, locked until launch
 const COMING_SOON_PARTNERS = [
   { name: 'Manni The Barber',            category: 'Barber · Dundalk' },
   { name: 'MM Cutz',                     category: 'Barber · Dublin' },
@@ -554,7 +554,7 @@ function ComingSoonCard({ name, category }) {
           fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#9CA3AF',
         }}>
           <Lock size={9} />
-          Coming soon
+          Locked
         </span>
       </div>
     </div>
@@ -658,9 +658,9 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 4, COMING SOON ─────────────────────────────────────── */}
+        {/* ── SECTION 4, MORE PARTNERS ──────────────────────────────────── */}
         <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
-          <SectionLabel>Coming Soon</SectionLabel>
+          <SectionLabel>More Partners</SectionLabel>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', marginTop: '10px' }}>
             The rest of the network
           </h2>
