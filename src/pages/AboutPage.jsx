@@ -69,12 +69,12 @@ const LEADERSHIP = [
   { name: 'Wami',          role: 'Finance Team Leader',                  description: 'Heads up all company finances, payments, and financial planning.' },
   { name: 'Basmali',       role: 'Legal Team Leader',                    description: 'Owns all compliance, agreements, and regulatory requirements ahead of launch.' },
   { name: 'Tayyab',        role: 'Technology & Dev Leader',              description: 'Running the entire platform build end to end.' },
-  { name: 'Bene Matundu',  role: 'Marketing Lead, Creative & Ads',      description: 'Leads on paid ads, visual creativity, and creator partnerships.' },
+  { name: 'Bene',          role: 'Marketing Lead, Creative & Ads',      description: 'Leads on paid ads, visual creativity, and creator partnerships.' },
   { name: 'Elizabeth',     role: 'Marketing Lead, Content & Social',    description: 'Drives content and social presence across the platform.' },
   { name: 'Emmanuel',      role: 'Technology & Strategy Lead',           description: 'Drives platform strategy and supports the full tech build.' },
   { name: 'Fabz',          role: 'Campus Growth Lead',                   description: 'Owns campus expansion and influencer partnerships.' },
   { name: 'Daniel',        role: 'Commercial Operations Lead',           description: 'Heads up commercial relationships, partner activity, and operations.' },
-  { name: 'Aidan',         role: 'Product & Outreach Lead',              description: 'Drives product direction and outreach across campuses.' },
+  { name: 'Aidan',         role: 'Product Lead',                        description: 'Drives product direction across users.' },
   { name: 'Sienna',        role: 'Personal Outreach & Community Lead',   description: 'Leads personal outreach and community building across the network.' },
   { name: 'Zafir',         role: 'Platform & Development Lead',          description: 'Supports the full platform build and development operations.' },
   { name: 'Ethan',         role: 'Marketing & Outreach Lead',            description: 'Drives marketing activity and outreach across the board.' },
@@ -400,9 +400,9 @@ export default function AboutPage() {
     <>
       <Helmet>
         <title>About | UniBlueprint</title>
-        <meta name="description" content="A 19-year-old from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born. This is the story of UniBlueprint." />
+        <meta name="description" content="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born. This is the story of UniBlueprint." />
         <meta property="og:title" content="About | UniBlueprint" />
-        <meta property="og:description" content="A 19-year-old from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born." />
+        <meta property="og:description" content="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
@@ -432,8 +432,9 @@ export default function AboutPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.62)',
             marginTop: '18px', lineHeight: 1.7,
           }}>
-            A 19-year-old from Ballyhaunis, County Mayo. A conversation at a restaurant table
-            that changed everything. This is how UniBlueprint started.
+            An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a Belfast
+            birthday dinner at the restaurant table that changed everything. This is how
+            UniBlueprint started.
           </p>
         </div>
       </section>
@@ -450,7 +451,7 @@ export default function AboutPage() {
               fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
               marginTop: '12px', lineHeight: 1.15, textWrap: 'balance',
             }}>
-              Desmond. 19. Ballyhaunis, County Mayo.
+              A note from founder
             </h2>
 
             <p style={{
