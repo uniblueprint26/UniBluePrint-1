@@ -50,7 +50,7 @@ const COACHES = [
   { id: 15, name: 'Aoife',       via: 'via The Brave Flow Yoga', photo: '/coaches/aoife.jpg', category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
   { id: 17, name: 'Dinero Trading Group', photo: '/coaches/dinero.jpg', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading and Finance', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
   { id: 18, name: 'Zainab Adeyemi', via: 'via Soft Life Investing', photo: '/coaches/zainab.jpg', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading and Finance',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
-  { id: 19, name: 'Luana Ciweck', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
+  { id: 19, name: 'Luana Ciweck', photo: '/coaches/luana.jpg', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
 ]
 
 const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading and Finance', 'Marketing', 'Creative', 'Yoga', 'Career']
