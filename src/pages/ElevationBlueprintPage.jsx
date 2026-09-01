@@ -57,6 +57,61 @@ const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading a
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
 
+// Reused on the homepage hero, which cycles between this and FoundationScreen.
+export function ElevationScreen() {
+  return (
+    <div style={{ padding: '20px 14px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', boxSizing: 'border-box' }}>
+      {/* Status bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: 'rgba(245,240,232,0.5)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>9:41</span>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ width: '3px', height: `${4 + i * 2}px`, background: i === 3 ? 'rgba(245,240,232,0.25)' : 'rgba(245,240,232,0.6)', borderRadius: '1px' }} />
+          ))}
+        </div>
+      </div>
+      {/* Header */}
+      <div>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Elevation Blueprint</p>
+        <p style={{ color: '#F5F0E8', fontSize: '16px', fontFamily: "'DM Serif Display',serif", marginTop: '3px', lineHeight: 1.2 }}>Your Coach<br />Session</p>
+      </div>
+      {/* Coach card */}
+      <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.14)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,240,232,0.3),rgba(245,240,232,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>M</span>
+          </div>
+          <div>
+            <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Milan</p>
+            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Uni Coach, Personal Training</p>
+          </div>
+        </div>
+      </div>
+      {/* Session info */}
+      <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.06)', border: '1px solid rgba(245,240,232,0.08)' }}>
+        <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next session</p>
+        <p style={{ color: '#F5F0E8', fontSize: '13px', fontFamily: "'DM Serif Display',serif", marginTop: '3px' }}>Tomorrow, 7:00 AM</p>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", marginTop: '2px' }}>Physique Development</p>
+      </div>
+      {/* Stats */}
+      {[
+        { label: 'Training plan: week 3 of 12', color: '#16A34A' },
+        { label: 'Nutrition check-in today',    color: '#3B82F6' },
+        { label: 'Progress: on track',           color: '#F59E0B' },
+      ].map(item => (
+        <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 8px', borderRadius: '7px', background: 'rgba(245,240,232,0.04)' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+          <span style={{ color: 'rgba(245,240,232,0.55)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>{item.label}</span>
+        </div>
+      ))}
+      {/* CTA */}
+      <div style={{ marginTop: 'auto', padding: '8px 10px', borderRadius: '8px', background: '#F5F0E8', textAlign: 'center' }}>
+        <span style={{ color: '#1E3A5F', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700 }}>Book your Coach</span>
+      </div>
+    </div>
+  )
+}
+
 function PhoneMockup() {
   return (
     <div className="ebp-hero-phone" style={{
@@ -69,55 +124,7 @@ function PhoneMockup() {
       <div style={{ position: 'absolute', left: '-3px', top: '76px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
       <div style={{ position: 'absolute', left: '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
       <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 463, background: '#1E3A5F' }}>
-        <div style={{ padding: '20px 14px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', boxSizing: 'border-box' }}>
-          {/* Status bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'rgba(245,240,232,0.5)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>9:41</span>
-            <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
-              {[1, 2, 3].map(i => (
-                <div key={i} style={{ width: '3px', height: `${4 + i * 2}px`, background: i === 3 ? 'rgba(245,240,232,0.25)' : 'rgba(245,240,232,0.6)', borderRadius: '1px' }} />
-              ))}
-            </div>
-          </div>
-          {/* Header */}
-          <div>
-            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Elevation Blueprint</p>
-            <p style={{ color: '#F5F0E8', fontSize: '16px', fontFamily: "'DM Serif Display',serif", marginTop: '3px', lineHeight: 1.2 }}>Your Coach<br />Session</p>
-          </div>
-          {/* Coach card */}
-          <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.14)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,240,232,0.3),rgba(245,240,232,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>M</span>
-              </div>
-              <div>
-                <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Milan</p>
-                <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Uni Coach, Personal Training</p>
-              </div>
-            </div>
-          </div>
-          {/* Session info */}
-          <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.06)', border: '1px solid rgba(245,240,232,0.08)' }}>
-            <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next session</p>
-            <p style={{ color: '#F5F0E8', fontSize: '13px', fontFamily: "'DM Serif Display',serif", marginTop: '3px' }}>Tomorrow, 7:00 AM</p>
-            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", marginTop: '2px' }}>Physique Development</p>
-          </div>
-          {/* Stats */}
-          {[
-            { label: 'Training plan: week 3 of 12', color: '#16A34A' },
-            { label: 'Nutrition check-in today',    color: '#3B82F6' },
-            { label: 'Progress: on track',           color: '#F59E0B' },
-          ].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 8px', borderRadius: '7px', background: 'rgba(245,240,232,0.04)' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-              <span style={{ color: 'rgba(245,240,232,0.55)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>{item.label}</span>
-            </div>
-          ))}
-          {/* CTA */}
-          <div style={{ marginTop: 'auto', padding: '8px 10px', borderRadius: '8px', background: '#F5F0E8', textAlign: 'center' }}>
-            <span style={{ color: '#1E3A5F', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700 }}>Book your Coach</span>
-          </div>
-        </div>
+        <ElevationScreen />
       </div>
       <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />

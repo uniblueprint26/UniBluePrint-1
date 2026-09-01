@@ -6,13 +6,28 @@ import {
   FileText, TrendingUp, Tag, Users, Globe, Megaphone, PiggyBank,
   UserCheck, Award,
 } from 'lucide-react'
+import { FoundationScreen } from './FoundationBlueprintPage'
+import { ElevationScreen } from './ElevationBlueprintPage'
+import { CampusScreen } from './CampusConnectPage'
+import { CourseScreen } from './CourseConnectPage'
 
-// ─── PhoneMockup ───────────────────────────────────────────────────────────────
-// Clean bezel frame, no dynamic island overlay so nothing is cut off.
+// ─── CyclingScreenMockup ────────────────────────────────────────────────────────
+// Same bezel as PhoneMockup above, but instead of a static screenshot it
+// alternates between real screens pulled straight from their own pages
+// (Foundation/Elevation on the left, Campus/Course Connect on the right).
 
-function PhoneMockup({ src, alt, width = 250, style = {} }) {
-  const screenW = width - 16
-  const screenH = Math.round(screenW * (852 / 393))
+function CyclingScreenMockup({ screens, width = 230, style = {} }) {
+  const [index, setIndex] = useState(0)
+  const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const id = setInterval(() => setIndex(i => (i + 1) % screens.length), 4200)
+    return () => clearInterval(id)
+  }, [reduceMotion, screens.length])
+
+  const Screen = screens[index]
+
   return (
     <div style={{
       width,
@@ -24,15 +39,14 @@ function PhoneMockup({ src, alt, width = 250, style = {} }) {
       position: 'relative',
       ...style,
     }}>
-      {/* Side buttons */}
       <div style={{ position: 'absolute', right: '-3px', top: '96px',  width: '3px', height: '44px', background: '#1a2535', borderRadius: '0 3px 3px 0' }} />
       <div style={{ position: 'absolute', left:  '-3px', top: '76px',  width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
       <div style={{ position: 'absolute', left:  '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
-      {/* Screen, screenshot fills cleanly, no overlay cutting content */}
-      <div style={{ borderRadius: '36px', overflow: 'hidden', width: screenW, height: screenH, background: '#F5F0E8' }}>
-        <img src={src} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
+      <div style={{ borderRadius: '36px', overflow: 'hidden', width: width - 16, height: Math.round((width - 16) * (463 / 214)), background: '#1E3A5F' }}>
+        <div key={index} style={{ width: '100%', height: '100%', animation: reduceMotion ? 'none' : 'ubp-screen-fade 400ms ease' }}>
+          <Screen />
+        </div>
       </div>
-      {/* Home indicator */}
       <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />
       </div>
@@ -254,6 +268,11 @@ const PAGE_STYLES = `
     50%       { opacity: 0.3 }
   }
   .ubp-badge-dot { animation: ubp-pulse 2.4s ease infinite }
+
+  @keyframes ubp-screen-fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
   /* Hero */
   .ubp-hero-headline {
@@ -692,11 +711,10 @@ export default function HomePage() {
 
         <div className="ubp-glass-inner" style={{ position: 'relative', zIndex: 1 }}>
 
-          {/* Left phone */}
+          {/* Left phone, alternates Foundation and Elevation Blueprint's own screens */}
           <div className="ubp-glass-phone">
-            <PhoneMockup
-              src="/app-screens/home.png"
-              alt="UniBlueprint home screen"
+            <CyclingScreenMockup
+              screens={[FoundationScreen, ElevationScreen]}
               width={230}
               style={{ transform: 'rotate(-3deg) translateY(10px)' }}
             />
@@ -792,11 +810,10 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Right phone */}
+          {/* Right phone, alternates Campus Connect and Course Connect's own screens */}
           <div className="ubp-glass-phone ubp-right">
-            <PhoneMockup
-              src="/app-screens/messages.png"
-              alt="UniBlueprint messages screen"
+            <CyclingScreenMockup
+              screens={[CampusScreen, CourseScreen]}
               width={230}
               style={{ transform: 'rotate(3deg) translateY(10px)' }}
             />

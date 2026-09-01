@@ -45,7 +45,7 @@ function SectionLabel({ children, light }) {
 
 // ─── Phone screen illustration ─────────────────────────────────────────────────
 
-function CourseScreen() {
+export function CourseScreen() {
   return (
     <div style={{
       width: '100%', height: '100%',

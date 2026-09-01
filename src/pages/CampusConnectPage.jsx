@@ -55,7 +55,7 @@ const CAT_ICONS = [
 
 const AVATAR_COLORS = ['#3b5fa8', '#7C3500', '#145A3E', '#4C1D95', '#1B4B5A']
 
-function CampusScreen() {
+export function CampusScreen() {
   return (
     <div style={{
       width: '100%', height: '100%',
