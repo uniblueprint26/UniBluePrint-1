@@ -5,7 +5,7 @@ import { UserCheck, Award, Megaphone } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -136,7 +136,11 @@ function HandlerForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else {
+      sendFormConfirmation('team', form.email, form.full_name)
+      notifyTeam('handler_application', form.email, form.full_name)
+      setSuccess(true)
+    }
   }
 
   return (
@@ -217,7 +221,11 @@ function CoachForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else {
+      sendFormConfirmation('team', form.email, form.full_name)
+      notifyTeam('coach_application', form.email, form.full_name)
+      setSuccess(true)
+    }
   }
 
   return (
@@ -282,7 +290,11 @@ function AmbassadorForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else {
+      sendFormConfirmation('team', form.email, form.full_name)
+      notifyTeam('ambassador_application', form.email, form.full_name)
+      setSuccess(true)
+    }
   }
 
   return (

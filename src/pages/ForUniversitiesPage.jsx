@@ -4,7 +4,7 @@ import { GraduationCap, Users, BarChart3, Shield } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
 // Confirmation email: send-form-confirmation, called via sendFormConfirmation()
@@ -152,7 +152,11 @@ export default function ForUniversitiesPage() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else { sendFormConfirmation('university', form.email, form.contact_name); setSuccess(true) }
+    else {
+      sendFormConfirmation('university', form.email, form.contact_name)
+      notifyTeam('university_enquiry', form.email, form.contact_name)
+      setSuccess(true)
+    }
   }
 
   function scrollToForm() {

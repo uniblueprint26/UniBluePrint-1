@@ -4,7 +4,7 @@ import { Tag, TrendingUp, Users, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
 // Confirmation email: send-form-confirmation, called via sendFormConfirmation()
@@ -162,7 +162,11 @@ export default function ForBusinessesPage() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else { sendFormConfirmation('business', form.email, form.contact_name); setSuccess(true) }
+    else {
+      sendFormConfirmation('business', form.email, form.contact_name)
+      notifyTeam('business_enquiry', form.email, form.contact_name)
+      setSuccess(true)
+    }
   }
 
   function scrollToForm() {

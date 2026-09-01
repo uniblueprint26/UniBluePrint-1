@@ -14,6 +14,15 @@ export function sendFormConfirmation(kind, to, name) {
     .catch(err => console.warn('send-form-confirmation failed (non-blocking):', err))
 }
 
+// ─── Team notification ─────────────────────────────────────────────────────────
+// Fire-and-forget call to notify-team-submission, so the team actually finds
+// out about a new submission instead of it just sitting in the table. The
+// team inbox address is fixed server-side, not passed from here.
+export function notifyTeam(kind, submitterEmail, submitterName) {
+  supabase.functions.invoke('notify-team-submission', { body: { kind, submitterEmail, submitterName } })
+    .catch(err => console.warn('notify-team-submission failed (non-blocking):', err))
+}
+
 // ─── UTM helper ───────────────────────────────────────────────────────────────
 
 export function getUTM() {
