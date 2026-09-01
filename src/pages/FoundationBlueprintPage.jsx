@@ -120,7 +120,7 @@ const FOUNDATION_SERVICES = [
   {
     name: 'CAO and College Support',
     icon: BookOpen,
-    description: 'Personal statements, college interview prep, scholarship applications, and course selection guidance. Everything a young person needs for CAO and college applications.',
+    description: 'Personal statements, college interview prep, scholarship applications, and course selection guidance backed by Course Compass. Everything a young person needs for CAO and college applications.',
     bullets: [
       'CAO Personal Statement: From €10 trial',
       'College Interview Prep: From €10 trial',
@@ -472,14 +472,14 @@ export default function FoundationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              Not a prompt you type into a chatbot and hope for the best. Every CV, cover letter, portfolio, and application document is built, then checked line by line by a trained Campus Handler before it ever reaches you.
+              Not a prompt you type into a chatbot and hope for the best. Every output is built on real research into how applicant tracking systems (ATS) and AI screening actually filter candidates, and what each industry specifically looks for, then checked line by line by a trained Campus Handler before it ever reaches you.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
               {[
                 'CV and LinkedIn optimised for your target role',
                 'Cover letters tailored to specific companies',
                 'Interview prep with STAR-structured model answers',
-                'CAO personal statements and college interview coaching',
+                'CAO personal statements, college interview coaching, and course guidance via Course Compass',
               ].map(point => (
                 <div key={point} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#F5F0E8', flexShrink: 0, marginTop: '8px', opacity: 0.55 }} />
@@ -595,14 +595,15 @@ export default function FoundationBlueprintPage() {
             fontSize: 'clamp(28px,3.5vw,40px)', color: '#1E3A5F',
             marginTop: '10px', lineHeight: 1.12,
           }}>
-            From brief to delivery in 48 hours
+            From brief to delivery
           </h2>
           <div className="fbp-steps-row">
             <div className="fbp-steps-line" />
             {[
-              { n: '1', title: 'Submit your brief in the app', desc: 'Choose your service and tell us what you need. Takes under two minutes.' },
-              { n: '2', title: 'Campus Handler reviews and builds', desc: 'A trained Campus Handler builds or refines your document and checks it meets our quality standard.' },
-              { n: '3', title: 'Delivered to you in 48 hours', desc: 'Your output arrives in the app, reviewed and ready to use.' },
+              { n: '1', title: 'Submit your request', desc: 'Choose your service and tell us what you need. Takes under two minutes.' },
+              { n: '2', title: 'We research and build it', desc: 'Our system researches your specific field and creates your output based on the information you give us.' },
+              { n: '3', title: 'A Campus Handler reviews it', desc: 'A trained Campus Handler checks it meets our quality standard after it is built.' },
+              { n: '4', title: 'Delivered within 48 hours', desc: 'Faster if you choose priority delivery.' },
             ].map(step => (
               <div key={step.n} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 12px' }}>
                 <div style={{

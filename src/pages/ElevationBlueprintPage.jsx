@@ -38,7 +38,7 @@ const COACHES = [
   { id: 1,  name: '500+ with Eman', category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  from: 'Enquire in the app', services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },
   { id: 2,  name: 'JMC Fitness', category: 'Sports Coaching',      location: 'North Dublin',  filter: 'Sports',           from: 'From €50/hr', services: ['In-Person Training', 'Football Coaching', 'Agent Connections'],    accent: '#166534' },
   { id: 3,  name: 'Nathan',      category: 'Photography and Video', location: 'Ireland',      filter: 'Creative',         from: 'From €55/month', services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Creative Direction'], accent: '#C2410C' },
-  { id: 4,  name: 'DG Trading',  category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading',          from: 'Enquire in the app', services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
+  { id: 4,  name: 'DG Trading',  category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading and Finance',          from: 'Enquire in the app', services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
   { id: 6,  name: 'Emanuel T.',  category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Online Workout Plans', 'Nutrition Plans', 'Calisthenics Coaching'], accent: '#2D4B8E' },
   { id: 7,  name: 'Tadgh',       category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
   { id: 8,  name: 'Milan',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'From €40/session', services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
@@ -48,12 +48,12 @@ const COACHES = [
   { id: 13, name: 'Stephen',      category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
   { id: 14, name: 'Camila',      category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', from: 'From €60/session', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
   { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
-  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
-  { id: 18, name: 'Zainab Adeyemi', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
+  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading and Finance', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
+  { id: 18, name: 'Zainab Adeyemi', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading and Finance',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
   { id: 19, name: 'Luana Ciweck', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
 ]
 
-const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Yoga', 'Career']
+const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading and Finance', 'Marketing', 'Creative', 'Yoga', 'Career']
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
 
@@ -332,7 +332,7 @@ export default function ElevationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              {COACHES.length} verified coaches across fitness, career, trading, creative skills, and more.
+              Verified Coaches across Ireland in fitness, career, trading, creative skills, and more.
               Find your coach and book directly in the app.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
