@@ -28,7 +28,8 @@ const PAGE_STYLES = `
   @media (max-width: 900px) { .wb-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { .wb-grid { gap: 10px; } }
 
-  .wb-steps { grid-template-columns: repeat(3, 1fr); }
+  .wb-steps { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { .wb-steps { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 639px) { .wb-steps { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; } }
 
   .wb-market-grid {
@@ -420,6 +421,11 @@ export default function AdBoardPage() {
                 n: '03', title: 'Swipe or jump straight there',
                 body: 'The magazine reads like a real one. Tap the contents page to skip straight to a section.',
                 colour: '#134E4A',
+              },
+              {
+                n: '04', title: 'Want to upload something yourself?',
+                body: 'One free Ad Board post per user a month.',
+                colour: '#7C3500',
               },
             ].map(step => (
               <div key={step.n} style={{
