@@ -12,7 +12,7 @@ const PILLARS = [
   {
     icon: FileText, tint: '#EFF6FF', accent: '#2563EB',
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    description: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    description: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Each one is built on real research into how applicant tracking systems (ATS) and AI screening actually filter candidates, and what each industry specifically looks for, not a generic prompt a generic AI tool or a generic company would give everyone the same version of. Then a real trained Campus Handler reviews it before it ever reaches you.',
     chips: [
       'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
       'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
@@ -55,7 +55,7 @@ const PILLARS = [
   {
     icon: Building2, tint: '#FFF7ED', accent: '#C2660B',
     title: 'Campus Connect', tagline: 'Your own college, in one place',
-    description: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with.',
+    description: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with. It centralises the college resources that go missing between departments, the things students specifically asked for and that no single college system already provides, all in one place.',
     chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
     features: [
       ['Accommodation', 'Rooms, sublets and housing posted by other students at your college.'],
@@ -70,7 +70,7 @@ const PILLARS = [
   {
     icon: Globe, tint: '#F0F9FF', accent: '#0369A1',
     title: 'Course Connect', tagline: 'Cross-Ireland student network',
-    description: 'A networking board that spans every Irish college and university, not just your own. Connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
+    description: 'A networking board that spans every Irish college, university, PLC, and apprenticeship path, not just your own. Connect with people anywhere in the country, on your course or not, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
     chips: ['Graduate Network', 'College Reviews', 'Notes Exchange', 'Study Groups'],
     features: [
       ['Graduate Network', 'Connect with students and graduates across every Irish institution, not just yours.'],

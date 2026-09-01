@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ExternalLink, Handshake, Instagram, Phone, Mail, Link2, ArrowRight, Lock } from 'lucide-react'
@@ -22,7 +23,7 @@ const LIVE_PARTNERS = [
     initBg: '#15803D',
     category: 'Personal Training',
     description: 'Certified Personal Trainer and Advanced Nutrition Coach. Full client packages built around your goals, lifestyle, and schedule, combining personalised training with nutrition coaching. Competition athlete mindset for every client.',
-    deal: 'Full package from €150/month',
+    deal: '???',
     instagram: 'milanpir_fitness',
   },
   {
@@ -30,8 +31,8 @@ const LIVE_PARTNERS = [
     name: 'Energie Fitness',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Gym Membership',
-    description: 'Full gym access at an exclusive member rate, €37.99/month versus the standard €39.99–€44.99. Joining fee reduced to €15 (normally €30). Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
-    deal: 'From €37.99/month',
+    description: 'Full gym access at an exclusive member rate, ???/month versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
+    deal: '???',
   },
   {
     id: 'jmc',
@@ -39,7 +40,7 @@ const LIVE_PARTNERS = [
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Sports Coaching',
     description: 'Elite sports coaching with fully personalised programmes. Online coaching, in-person training on North Dublin 4G astro, dietary guidance, specialist football coaching, and connections to professional agents.',
-    deal: 'From €50/hr',
+    deal: '???',
   },
   {
     id: 'nyz3ditz',
@@ -47,7 +48,7 @@ const LIVE_PARTNERS = [
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Photography & Video',
     description: 'Professional photography and videography mentorship from Nathan Yanzo. Monthly subscriptions include Zoom mentorship calls and editing guidance. One-to-one shoot sessions also available for those building their creative portfolio.',
-    deal: 'From €55/month',
+    deal: '???',
     instagram: 'Nyz3ditz',
     phone: '+353857272875',
   },
@@ -57,7 +58,7 @@ const LIVE_PARTNERS = [
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     category: 'Automotive',
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment, all with student-friendly pricing.',
-    deal: 'Student-friendly pricing',
+    deal: '???',
   },
   {
     id: 'nailnurse',
@@ -65,8 +66,8 @@ const LIVE_PARTNERS = [
     initials: 'NN',
     initBg: '#BE185D',
     category: 'Nail Tech · Galway',
-    description: 'Professional nail technician based in Galway. Full range of nail treatments at student-friendly prices: acrylic sets from €25, gel polish from €20, basic manicure €15, nail art from €3.50 per nail. Student discount with valid ID.',
-    deal: 'Student discount with valid ID',
+    description: 'Professional nail technician based in Galway. Full range of nail treatments at student-friendly prices. Student discount with valid ID.',
+    deal: '???',
     instagram: 'theenailnurse__',
   },
   {
@@ -76,7 +77,7 @@ const LIVE_PARTNERS = [
     initBg: '#0369A1',
     category: 'Digital Marketing & Design',
     description: 'Freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, content creation, UGC coordination, AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
-    deal: 'One week free social media trial',
+    deal: '???',
     instagram: 'leva.impact',
     tiktok: 'leva.media',
     phone: '089 966 2635',
@@ -91,7 +92,7 @@ const LIVE_PARTNERS = [
     initBg: '#92400E',
     category: 'Creative Content Creation',
     description: 'Creative content studio based in County Mayo. Photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. A creative eye and professional finish for brands, businesses, and events.',
-    deal: '10% off your first content creation booking',
+    deal: '???',
     instagram: 'henrysistersco',
     email: 'henrysistersco@gmail.com',
   },
@@ -102,7 +103,7 @@ const LIVE_PARTNERS = [
     initBg: '#B91C1C',
     category: 'Personal Training · Muay Thai · Yoga',
     description: 'Certified Personal Trainer and Sport Nutritionist Coach based in Dublin 8, Muay Thai, yoga, and functional training alongside physique development, weight loss, and muscle building. Online and in person, built around realistic, sustainable routines.',
-    deal: 'PT from €60/session',
+    deal: '???',
     instagram: 'camilaaruk.coach',
     email: 'camila.coachfitness@gmail.com',
     phone: '0838602227',
@@ -125,7 +126,7 @@ const LIVE_PARTNERS = [
     initBg: '#111827',
     category: 'Clothing Brand',
     description: 'Irish Christian streetwear brand built around faith, purpose, and individuality, modern, high-quality clothing inspired by Scripture and Christian values, with a meaning behind every piece.',
-    deal: '10% off with code ELECTXUNIBLUEPRINT',
+    deal: '???',
     instagram: 'elect_co',
     tiktok: 'elect_co',
     email: 'electgodschosen@gmail.com',
@@ -137,7 +138,7 @@ const LIVE_PARTNERS = [
     initBg: '#B45309',
     category: 'Home Baking · Dublin 15',
     description: 'Home baking business in Mulhuddart, Dublin 15, brownies, blondies, cookies, cupcakes, and fully customisable cakes made with love and care for every occasion. Every item on the menu is customisable, with pricing adjusted accordingly.',
-    deal: '€5 off every item (cookie pouches to €1.50)',
+    deal: '???',
     instagram: 'eabakeditt',
     tiktok: 'eabakedittt',
     phone: '0899485617',
@@ -150,7 +151,7 @@ const LIVE_PARTNERS = [
     initBg: '#9333EA',
     category: 'Lash Tech · Dundalk',
     description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions as well as lash lifts.',
-    deal: '10% off first appointment',
+    deal: '???',
     instagram: 'ilashedbydiya',
     tiktok: 'ilashedbydiya',
     phone: '0899428910',
@@ -163,7 +164,7 @@ const LIVE_PARTNERS = [
     initBg: '#0891B2',
     category: 'Housing Platform',
     description: 'Modern housing platform making it simpler, safer, and more transparent to find a room or home in Ireland, connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
-    deal: 'Free listings + €5 Priority Request',
+    deal: '???',
     instagram: 'Roomy.ie',
     phone: '+353899809654',
     email: 'admin@roomy.ie',
@@ -176,7 +177,7 @@ const LIVE_PARTNERS = [
     initBg: '#78350F',
     category: 'Photography · Dublin',
     description: 'Dublin-based photography service capturing events, graduations, portraits, personal branding, and creative shoots with a natural, professional finish, imagery clients are genuinely excited to share and use.',
-    deal: '10% off for verified UniBlueprint users',
+    deal: '???',
     instagram: 'royalty.productions1',
     phone: '085 185 2451',
     email: 'chidoziemenyoazu1@gmail.com',
@@ -188,7 +189,7 @@ const LIVE_PARTNERS = [
     initBg: '#DB2777',
     category: 'Lash Tech · Galway',
     description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
-    deal: 'From €40',
+    deal: '???',
     phone: '+3530852758798',
     email: 'vickylukau123@gmail.com',
   },
@@ -199,7 +200,7 @@ const LIVE_PARTNERS = [
     initBg: '#374151',
     category: 'Barber · Sligo',
     description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, kids cuts, and a home service for an extra fee depending on distance.',
-    deal: 'From €15',
+    deal: '???',
     instagram: 'cutbyire',
   },
   {
@@ -232,7 +233,7 @@ const LIVE_PARTNERS = [
     initBg: '#EC4899',
     category: 'Nail Tech · Mayo',
     description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac. Booking via Instagram DM.',
-    deal: 'Gel extensions from €40',
+    deal: '???',
     instagram: 'claras_beauty_room',
   },
   {
@@ -242,7 +243,7 @@ const LIVE_PARTNERS = [
     initBg: '#7C3AED',
     category: 'Lash Tech · Kildare',
     description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets. Booking via Instagram DM.',
-    deal: 'Classics from €35',
+    deal: '???',
     instagram: 'lashedbystephhx',
   },
   {
@@ -252,7 +253,7 @@ const LIVE_PARTNERS = [
     initBg: '#312E81',
     category: 'Photography, Printing & Studio Rental · Tallaght',
     description: 'Professional photography and digital printing services alongside creative space rental, based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74. Their mission is to serve people, businesses, and communities with images of the highest calibre, building a strong connection with every client to understand their vision and goals.',
-    deal: '10% discount for UniBlueprint members',
+    deal: '???',
     instagram: 'coded69studios',
     phone: '0897011898',
     email: 'info@coded69studios.com',
@@ -356,6 +357,48 @@ function ToolCard({ name, description, url }) {
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', marginTop: '4px', lineHeight: 1.5 }}>{description}</p>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600', color: '#1E3A5F', marginTop: '8px', textAlign: 'right' }}>Open →</p>
     </a>
+  )
+}
+
+// Slides through every live partner (name masked, category real), an
+// iPhone-mockup-style cycle, ending on a final "and much, much more" slide
+// rather than looping straight back to the start.
+const SHOWCASE_SLIDES = [
+  ...LIVE_PARTNERS.map((p, i) => ({ name: '?'.repeat(3 + (i % 4)), category: p.category, final: false })),
+  { name: null, category: null, final: true },
+]
+
+function PartnerShowcaseMockup() {
+  const [index, setIndex] = useState(0)
+  const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const id = setInterval(() => setIndex(i => (i + 1) % SHOWCASE_SLIDES.length), 2600)
+    return () => clearInterval(id)
+  }, [reduceMotion])
+
+  const slide = SHOWCASE_SLIDES[index]
+
+  return (
+    <div style={{
+      width: 230, borderRadius: '44px', background: '#0c1520', padding: '8px',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.07)',
+      margin: '32px auto 0', position: 'relative',
+    }}>
+      <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 320, background: '#1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        {slide.final ? (
+          <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#F5F0E8', textAlign: 'center', lineHeight: 1.3 }}>
+            ...and much,<br />much more.
+          </p>
+        ) : (
+          <div key={index} style={{ textAlign: 'center' }}>
+            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#F5F0E8', margin: 0 }}>{slide.name}</p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.55)', marginTop: '8px' }}>{slide.category}</p>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -582,6 +625,7 @@ export default function PartnersPage() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280', margin: '16px auto 0', maxWidth: '600px', lineHeight: 1.7 }}>
             The businesses, brands, and platforms that make UniBlueprint stronger for every young person across Ireland, whatever pathway they are on.
           </p>
+          <PartnerShowcaseMockup />
         </section>
 
         {/* ── SECTION 2, TECHNOLOGY PARTNERS ───────────────────────────── */}
