@@ -127,8 +127,8 @@ function SocialButton({ href, label, children }) {
 
 function AppButton({ label }) {
   return (
-    /* TODO: replace href with real store link */
-    <button
+    <Link
+      to="/coming-soon"
       style={{
         background: 'none',
         border: '1px solid rgba(245,240,232,0.4)',
@@ -137,12 +137,12 @@ function AppButton({ label }) {
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px',
         color: '#F5F0E8',
-        cursor: 'pointer',
+        textDecoration: 'none',
         whiteSpace: 'nowrap',
       }}
     >
       {label}
-    </button>
+    </Link>
   )
 }
 

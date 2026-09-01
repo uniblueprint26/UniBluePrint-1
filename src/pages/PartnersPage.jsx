@@ -687,36 +687,6 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 3, LIVE LIFESTYLE PARTNERS ────────────────────────── */}
-        <section style={{ padding: '0 24px 64px', textAlign: 'center' }}>
-          <SectionLabel>Lifestyle Partners</SectionLabel>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '32px', color: '#1E3A5F', marginTop: '10px' }}>
-            Active partner deals
-          </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', margin: '10px auto 0', maxWidth: '560px', lineHeight: 1.65 }}>
-            UniBlueprint Pro subscribers get exclusive access to deals and discounts from our lifestyle partners across Ireland.
-          </p>
-
-          <div className="partners-live-grid">
-            {LIVE_PARTNERS.map(p => <LivePartnerCard key={p.id} {...p} />)}
-          </div>
-        </section>
-
-        {/* ── SECTION 4, MORE PARTNERS ──────────────────────────────────── */}
-        <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
-          <SectionLabel>More Partners</SectionLabel>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', marginTop: '10px' }}>
-            The rest of the network
-          </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', margin: '8px auto 0', maxWidth: '480px', lineHeight: 1.65 }}>
-            These partners are confirmed and onboarding, locked until their full listing and deal go live.
-          </p>
-
-          <div className="partners-soon-grid">
-            {COMING_SOON_PARTNERS.map(p => <ComingSoonCard key={p.name} {...p} />)}
-          </div>
-        </section>
-
         {/* ── SECTION 5, BECOME A PARTNER ───────────────────────────────── */}
         <section style={{ background: '#1E3A5F', padding: '64px 24px', textAlign: 'center' }}>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#F5F0E8' }}>

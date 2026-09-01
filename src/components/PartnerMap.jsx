@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Lock, Search, X } from 'lucide-react'
+import { Search } from 'lucide-react'
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 // Gold means "real, live, on the ground", new, scoped to this map only.
@@ -94,66 +94,41 @@ const LIVE_MASK = Object.fromEntries(
   LIVE_PINS.map((p, i) => [p.id, '?'.repeat(MASK_LENGTHS[i % MASK_LENGTHS.length])])
 )
 
-// ─── Incoming: one tier on the map. Named ones get the "Official Blueprint
-// Partner" badge on tap; the rest stay anonymous until they're real, visually
-// identical, the pin never gives it away. ─────────────────────────────────────
-const INCOMING_NAMED = [
-  { name: 'Manni The Barber',        county: 'louth',   category: 'Barber · Dundalk',           pos: [332.5, 174.8] },
-  { name: 'MM Cutz',                 county: 'dublin',  category: 'Barber · Dublin',            pos: [316, 254.5] },
-  { name: 'Cut by Alind',            county: 'mayo',    category: 'Barber · Mayo',               pos: [96.5, 185.3] },
-  { name: 'The Drogheda Foodie',     county: 'louth',   category: 'Food & Drink · Louth',       pos: [316.8, 185.3] },
-  // Dylan Power sits exactly at the Cork anchor, the only pin there.
-  { name: 'Dylan Power',             county: 'cork',    category: 'Sports Photographer · Cork', pos: COUNTY_POS.cork },
-  { name: 'Angelic Touch',           county: 'sligo',   category: 'Hair',                      pos: [162.3, 132.8] },
-  { name: 'Angelic Touch',           county: 'dublin',  category: 'Hair · 2nd location',       pos: [326.5, 254.5] },
-  { name: 'Archangel',               county: 'kildare', category: 'Clothing Brand',            pos: [276.8, 269.3] },
-  // named, confirmed with UniBlueprint but still placing, sole pin in Clare
-  { name: 'Carolynes Beauty Studio', county: 'clare',   category: 'Beauty Studio',             pos: COUNTY_POS.clare },
-  { name: 'Makeup By Kasia',         county: 'galway',  category: 'Makeup',                    pos: [118, 245.3] },
-  { name: 'The PK Glam',             county: 'kildare', category: 'Beauty',                    pos: [287.3, 269.3] },
-  { name: 'Hardluck Club',           county: 'louth',   category: 'Food & Drink',              pos: [327.3, 185.3] },
-  { name: 'Purple Brunch',           county: 'sligo',   category: 'Food & Drink',              pos: [157, 143.3] },
-]
-// Anonymous, name withheld until it's real, one per county still without a
-// named partner. Cork is excluded: Dylan Power already occupies it.
-const MYSTERY_COUNTIES = [
-  'leitrim', 'cavan', 'monaghan', 'donegal',
-]
-const MYSTERY_PINS = MYSTERY_COUNTIES.map(county => ({ county, pos: COUNTY_POS[county] }))
-
 // ─── Exaggerated gold (live) presence: marketing figure, per Desmond. Real
 // confirmed live partners (LIVE_PINS, above) total 21 across 6 counties.
-// Every other county gets 1-2 "?"-masked gold filler pins (masked name,
-// generic category, no fake price) so the map reads as live everywhere,
-// bringing the total gold count to a round 55. These replace what would
-// otherwise be an anonymous grey "incoming" pin in that county, they don't
-// stack on top of one, and Cork/Clare (which already carry a real named
-// incoming pin) get a filler at a small offset instead of the anchor.
+// Every other county gets 1-2 "?"-masked gold filler pins, masked name,
+// a category, and a deal (real category/price where the pin is genuinely a
+// real partner; a plausible-but-unconfirmed category/deal for the rest),
+// bringing the total gold count to a round 55. No grey/incoming tier at
+// all, no real business names anywhere on the map, every pin is gold.
 const GOLD_FILLER_COUNTIES_DOUBLE = [
   'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
   'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
   'roscommon',
 ]
 const GOLD_FILLER_COUNTIES_SINGLE = ['leitrim', 'cavan', 'monaghan', 'donegal', 'cork', 'clare']
-const FILLER_CATEGORIES = ['Fitness', 'Food & Drink', 'Shopping', 'Beauty', 'Creative & Media', 'Automotive', 'Wellness']
+const FILLER_CATEGORIES_DEALS = [
+  ['Fitness', 'Up to ??% off'], ['Food & Drink', 'Up to ??% off'], ['Shopping', 'Up to ??% off'],
+  ['Beauty', 'Student discount'], ['Creative & Media', 'Up to ??% off'], ['Automotive', 'Up to ??% off'],
+  ['Wellness', 'First session free'], ['Barber', 'Student discount'], ['Photography', 'Up to ??% off'],
+  ['Nail Tech', 'Student discount'], ['Hair', 'Up to ??% off'],
+]
 
-function fillerCategory(i) { return FILLER_CATEGORIES[i % FILLER_CATEGORIES.length] }
+function fillerCategory(i) { return FILLER_CATEGORIES_DEALS[i % FILLER_CATEGORIES_DEALS.length][0] }
+function fillerDeal(i) { return FILLER_CATEGORIES_DEALS[i % FILLER_CATEGORIES_DEALS.length][1] }
 function fillerMask(i) { return '?'.repeat(3 + (i % 4)) }
 
 const FILLER_GOLD_PINS = [
   ...GOLD_FILLER_COUNTIES_DOUBLE.flatMap((county, i) => {
     const [x, y] = COUNTY_POS[county]
     return [
-      { id: `fill-${county}-a`, county, category: fillerCategory(i), pos: [x, y], mask: fillerMask(i) },
-      { id: `fill-${county}-b`, county, category: fillerCategory(i + 3), pos: [x + 9, y], mask: fillerMask(i + 2) },
+      { id: `fill-${county}-a`, county, category: fillerCategory(i), deal: fillerDeal(i), pos: [x, y], mask: fillerMask(i) },
+      { id: `fill-${county}-b`, county, category: fillerCategory(i + 3), deal: fillerDeal(i + 3), pos: [x + 9, y], mask: fillerMask(i + 2) },
     ]
   }),
   ...GOLD_FILLER_COUNTIES_SINGLE.map((county, i) => {
     const [x, y] = COUNTY_POS[county]
-    // Cork and Clare already carry a real incoming pin at the anchor, offset
-    // this one so it doesn't sit exactly on top of it.
-    const offset = county === 'cork' || county === 'clare'
-    return { id: `fill-${county}`, county, category: fillerCategory(i + 1), pos: offset ? [x + 9, y] : [x, y], mask: fillerMask(i + 1) }
+    return { id: `fill-${county}`, county, category: fillerCategory(i + 1), deal: fillerDeal(i + 1), pos: [x, y], mask: fillerMask(i + 1) }
   }),
 ]
 
@@ -163,7 +138,7 @@ const FILLER_GOLD_PINS = [
 // A solo pin elsewhere stays full-size and animated; it can afford to.
 const GROUP_BOUNDS = (() => {
   const byCounty = {}
-  ;[...LIVE_PINS, ...INCOMING_NAMED, ...FILLER_GOLD_PINS].forEach(p => {
+  ;[...LIVE_PINS, ...FILLER_GOLD_PINS].forEach(p => {
     if (!byCounty[p.county]) byCounty[p.county] = []
     byCounty[p.county].push(p.pos)
   })
@@ -177,11 +152,11 @@ const GROUP_BOUNDS = (() => {
 })()
 const GROUPED_COUNTIES = new Set(Object.keys(GROUP_BOUNDS))
 
-// Flat, searchable index, every live + named-incoming partner plus every
-// county label, so the search box can jump straight to any of them.
+// Flat index, kept only because the (disabled, decorative) search UI below
+// still references it. Every pin is masked, so this carries no real names.
 const SEARCH_INDEX = [
   ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: LIVE_MASK[p.id], county: p.county, sub: p.category, pos: p.pos })),
-  ...INCOMING_NAMED.map((p, i) => ({ kind: 'incoming', id: `incoming-${i}`, name: p.name, county: p.county, sub: p.category, pos: p.pos })),
+  ...FILLER_GOLD_PINS.map(p => ({ kind: 'live', id: p.id, name: p.mask, county: p.county, sub: p.category, pos: p.pos })),
   ...Object.values(COUNTY_LABEL).map(label => ({ kind: 'county', id: label, name: label, county: label.toLowerCase(), sub: 'County' })),
 ]
 
@@ -516,43 +491,6 @@ export default function PartnerMap() {
             />
           ))}
 
-          {MYSTERY_PINS.map(p => {
-            const key = `mystery-${p.county}`
-            return (
-              <Pin
-                key={key}
-                pinKey={key}
-                live={false}
-                x={p.pos[0]} y={p.pos[1]}
-                arriveDelay={40}
-                dimmed={active && active.pinKey !== key}
-                matched={matchedKeys.has(key)}
-                label="Unconfirmed partner, coming soon"
-                onClick={() => select(key, { live: false, name: null, category: null })}
-                onKeyDown={e => onKey(e, key, { live: false, name: null, category: null })}
-              />
-            )
-          })}
-
-          {INCOMING_NAMED.map((p, i) => {
-            const key = `incoming-${i}`
-            const compact = GROUPED_COUNTIES.has(p.county)
-            return (
-              <Pin
-                key={key}
-                pinKey={key}
-                live={false}
-                x={p.pos[0]} y={p.pos[1]}
-                compact={compact}
-                arriveDelay={i * 14}
-                dimmed={active && active.pinKey !== key}
-                matched={matchedKeys.has(key)}
-                label={`${p.name}, ${p.category}, Official Blueprint Partner, launching soon`}
-                onClick={() => select(key, { live: false, name: p.name, category: p.category })}
-                onKeyDown={e => onKey(e, key, { live: false, name: p.name, category: p.category })}
-              />
-            )
-          })}
 
           {LIVE_PINS.map((p, i) => {
             const compact = GROUPED_COUNTIES.has(p.county)
@@ -588,8 +526,8 @@ export default function PartnerMap() {
                 dimmed={active && active.pinKey !== p.id}
                 matched={matchedKeys.has(p.id)}
                 label={`${p.mask}, ${p.category}, live partner. View details.`}
-                onClick={() => select(p.id, { live: true, filler: true, name: p.mask, category: p.category })}
-                onKeyDown={e => onKey(e, p.id, { live: true, filler: true, name: p.mask, category: p.category })}
+                onClick={() => select(p.id, { live: true, filler: true, name: p.mask, category: p.category, deal: p.deal })}
+                onKeyDown={e => onKey(e, p.id, { live: true, filler: true, name: p.mask, category: p.category, deal: p.deal })}
               />
             )
           })}
@@ -636,38 +574,11 @@ export default function PartnerMap() {
               )}
             </>
           )}
-
-          {!active.live && active.name && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' }}>
-                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: NAVY, margin: 0 }}>{active.name}</p>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: LOCKED, textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0, textAlign: 'right' }}>Official Blueprint Partner</span>
-              </div>
-              <span style={{ alignSelf: 'flex-start', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: NAVY, background: 'rgba(30,58,95,0.08)', borderRadius: '6px', padding: '3px 9px' }}>{active.category}</span>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', margin: 0, lineHeight: 1.55 }}>
-                On board with UniBlueprint, full listing and deal launch soon.
-              </p>
-            </>
-          )}
-
-          {!active.live && !active.name && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(139,155,181,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Lock size={14} color={LOCKED} strokeWidth={2} />
-                </div>
-                <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '16px', color: NAVY, margin: 0 }}>A new partner is joining soon</p>
-              </div>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', margin: 0, lineHeight: 1.55 }}>
-                We're not ready to share who yet, check back as the map fills in.
-              </p>
-            </>
-          )}
         </div>
       ) : (
         <div className="pmap-card idle">
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: 'rgba(245,240,232,0.5)', textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
-            Tap a pin to see who's there, or search above to jump straight to a partner.
+            Tap a pin to see the category and deal, via the app, coming soon.
           </p>
         </div>
       )}
@@ -676,10 +587,6 @@ export default function PartnerMap() {
         <span className="pmap-legend-item">
           <svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><circle r="6" fill={GOLD} stroke={GOLD_DEEP} strokeWidth="0.8" /></svg>
           Live Partner
-        </span>
-        <span className="pmap-legend-item">
-          <svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><circle r="6" fill="none" stroke={LOCKED} strokeWidth="1.2" strokeDasharray="2.4 2" /></svg>
-          New Partner Incoming
         </span>
       </div>
     </div>

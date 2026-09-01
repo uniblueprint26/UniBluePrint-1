@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { Zap, Star, BookOpen, PiggyBank } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -209,44 +210,25 @@ function PhoneMockup({ style = {} }) {
 // ─── Store button (grayed out + tooltip) ──────────────────────────────────────
 
 function StoreButton({ label }) {
-  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
-      <button
-        type="button"
-        disabled
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          height: '48px', padding: '0 22px',
-          background: 'rgba(245,240,232,0.12)',
-          color: 'rgba(245,240,232,0.3)',
-          border: '1px solid rgba(245,240,232,0.15)',
-          borderRadius: '10px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-          cursor: 'not-allowed', whiteSpace: 'nowrap',
-          transition: 'opacity 150ms',
-        }}
-      >
-        {label}
-      </button>
-      {hovered && (
-        <div style={{
-          position: 'absolute',
-          bottom: 'calc(100% + 6px)',
-          left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(15,25,40,0.95)',
-          color: 'rgba(245,240,232,0.85)',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 500,
-          padding: '5px 10px', borderRadius: '6px',
-          whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 10,
-          border: '1px solid rgba(245,240,232,0.1)',
-        }}>
-          Coming soon
-        </div>
-      )}
-    </div>
+    <Link
+      to="/coming-soon"
+      style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        height: '48px', padding: '0 22px',
+        background: 'rgba(245,240,232,0.12)',
+        color: 'rgba(245,240,232,0.75)',
+        border: '1px solid rgba(245,240,232,0.2)',
+        borderRadius: '10px',
+        fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+        textDecoration: 'none', whiteSpace: 'nowrap',
+        transition: 'opacity 150ms',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+    >
+      {label}
+    </Link>
   )
 }
 

@@ -74,8 +74,8 @@ function LifestyleScreen() {
       </p>
 
       {/* Category pills */}
-      <div style={{ display: 'flex', gap: '5px', marginBottom: '10px' }}>
-        {['Fitness', 'Food', 'Travel'].map((c, i) => (
+      <div style={{ display: 'flex', gap: '5px', marginBottom: '8px' }}>
+        {['Fitness', 'Automotive', 'Creative'].map((c, i) => (
           <span key={c} style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 600,
             padding: '3px 8px', borderRadius: '20px', flexShrink: 0,
@@ -85,39 +85,32 @@ function LifestyleScreen() {
         ))}
       </div>
 
-      {/* Deal cards */}
-      {[
-        { name: 'Gym Membership',    sub: 'Fitness club rate',     pct: '15% off',   locked: false, bg: '#0369A1' },
-        { name: 'Sports Coaching',   sub: 'Personal coaching',     pct: 'Unlock',     locked: true,  bg: '#166534' },
-        { name: 'Personal Trainer',  sub: 'Strength sessions',     pct: 'Unlock',     locked: true,  bg: '#15803D' },
-      ].map((d, i) => (
-        <div key={i} style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          background: d.locked ? 'rgba(245,240,232,0.04)' : 'rgba(20,90,62,0.25)',
-          border: `1px solid ${d.locked ? 'rgba(245,240,232,0.08)' : 'rgba(20,90,62,0.5)'}`,
-          borderRadius: '8px', padding: '7px 8px', marginBottom: '7px',
-        }}>
-          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: d.bg, flexShrink: 0 }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: d.locked ? 'rgba(245,240,232,0.45)' : '#F5F0E8', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {d.name}
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', color: 'rgba(245,240,232,0.3)', margin: '1px 0 0' }}>
-              {d.sub}
-            </p>
+      {/* Deal cards, the same 6 headline deals shown elsewhere on this page */}
+      {HEADLINE_DEALS.map((d, i) => {
+        const masked = d.name === '???' || d.name === '??????' || d.name === '????'
+        return (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            background: masked ? 'rgba(245,240,232,0.04)' : 'rgba(20,90,62,0.25)',
+            border: `1px solid ${masked ? 'rgba(245,240,232,0.08)' : 'rgba(20,90,62,0.5)'}`,
+            borderRadius: '7px', padding: '5px 7px', marginBottom: '4px',
+          }}>
+            <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: d.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '10px', color: '#F5F0E8' }}>
+                {masked ? '?' : d.name.charAt(0)}
+              </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: masked ? 'rgba(245,240,232,0.45)' : '#F5F0E8', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {d.name}
+              </p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '8px', color: 'rgba(245,240,232,0.3)', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {d.deal}
+              </p>
+            </div>
           </div>
-          {d.locked ? (
-            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" style={{ flexShrink: 0 }}>
-              <rect x="1" y="5" width="8" height="7" rx="1.5" fill="rgba(245,240,232,0.22)" />
-              <path d="M3 5V3.5a2 2 0 0 1 4 0V5" stroke="rgba(245,240,232,0.22)" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: '#4ade80', flexShrink: 0 }}>
-              {d.pct}
-            </span>
-          )}
-        </div>
-      ))}
+        )
+      })}
 
       {/* Mental health strip */}
       <div style={{ marginTop: 'auto', background: 'rgba(22,163,74,0.1)', borderRadius: '8px', padding: '7px 10px', border: '1px solid rgba(22,163,74,0.22)' }}>
