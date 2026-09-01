@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
+import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
 import PartnerMap from '../components/PartnerMap'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
@@ -135,12 +135,12 @@ function LifestyleScreen() {
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FEATURES = [
-  { Icon: UtensilsCrossed, title: 'Food & Drink',  desc: 'Discounts at restaurants and cafes across Ireland.' },
-  { Icon: Dumbbell,        title: 'Fitness',        desc: 'Reduced gym memberships and class passes.' },
-  { Icon: ShoppingBag,     title: 'Shopping',       desc: 'Discounts at clothing and lifestyle brands.' },
-  { Icon: Plane,           title: 'Travel',         desc: 'Deals on buses, trains, and getting around Ireland.' },
-  { Icon: Ticket,          title: 'Entertainment',  desc: 'Cinema, events, and experiences at reduced prices.' },
-  { Icon: Heart,           title: 'Mental Health',  desc: 'Free resources, helplines, and wellbeing tools.', free: true },
+  { Icon: UtensilsCrossed, title: 'Food & Drink',    desc: 'Discounts at restaurants and cafes across Ireland.' },
+  { Icon: Dumbbell,        title: 'Fitness',          desc: 'Reduced gym memberships and class passes.' },
+  { Icon: ShoppingBag,     title: 'Shopping',         desc: 'Discounts at clothing and lifestyle brands.' },
+  { Icon: Car,             title: 'Automotive',       desc: 'Exclusive vehicle and driving deals through Whip Wizards.' },
+  { Icon: Palette,         title: 'Creative & Media', desc: 'Exclusive deals from photographers, videographers, digital marketers and creative professionals.' },
+  { Icon: Heart,           title: 'Mental Health',    desc: 'Free resources, helplines, and wellbeing tools.', free: true },
 ]
 
 // Category slots without a specific real partner yet stay honestly generic
@@ -156,22 +156,25 @@ const DEALS = {
   'Fitness': [
     { brand: 'MPFitness',           deal: 'Up to ?% off membership',   locked: true },
     { brand: 'Energie Fitness',     deal: 'First session free',         locked: true },
-    { brand: 'JMC Fitness',         deal: '€8 member class pass',       locked: true },
+    { brand: 'JMC Fitness',         deal: '???',                        locked: true },
   ],
   'Shopping': [
     { brand: 'Saiemsent',           deal: 'Up to ?% off clothing',      locked: true },
     { brand: 'Elect',               deal: 'Up to ?% off clothing',      locked: true },
     { brand: 'Tech Retailer',       deal: '?% off laptops and devices', locked: true },
   ],
-  'Travel': [
-    { brand: 'Bus Services',        deal: 'Young adult Leap Card rate', locked: true },
-    { brand: 'Rail Services',       deal: '?% off off-peak fares',    locked: true },
-    { brand: 'City Bikes',          deal: 'First 3 months free',       locked: true },
+  'Automotive': [
+    { brand: 'Whip Wizards',        deal: 'Up to ?% off car detailing', locked: true },
+    { brand: 'Whip Wizards',        deal: 'Up to ?% off driving lessons', locked: true },
+    { brand: 'Whip Wizards',        deal: 'Up to ?% off car servicing', locked: true },
   ],
-  'Entertainment': [
-    { brand: 'Cinema Partner',      deal: '€7 member tickets',         locked: true },
-    { brand: 'Events Platform',     deal: 'Early access and discounts', locked: true },
-    { brand: 'Streaming Partner',   deal: '3 months half price',       locked: true },
+  'Creative & Media': [
+    { brand: 'Creative Partner',    deal: 'Up to ?% off photography',   locked: true },
+    { brand: 'Video Partner',       deal: 'Up to ?% off videography',   locked: true },
+    { brand: 'Marketing Partner',   deal: 'Up to ?% off design work',   locked: true },
+    { brand: 'LEVA Impact',         deal: 'Free marketing for a week',  locked: true },
+    { brand: 'Henry Sisters',       deal: '10% off',                    locked: true },
+    { brand: 'Royalty Productions', deal: '10% off',                    locked: true },
   ],
   'Mental Health': [
     { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123. Available 24 hours.',     locked: false },
@@ -185,20 +188,18 @@ const DEALS = {
   ],
 }
 
-// Real partners (from PartnersPage.jsx), cycled in a slideshow. The
-// discount is deliberately masked with "?", per Desmond, enough to show
-// there's a real saving without giving the number away on web.
-const PARTNER_SLIDES = [
-  { name: 'MPFitness',        category: 'Personal Training',              accent: '#145A3E' },
-  { name: 'Energie Fitness',  category: 'Gym Membership',                 accent: '#166534' },
-  { name: 'Nyz3ditz',         category: 'Photography & Video',            accent: '#C2410C' },
-  { name: 'The Nail Nurse',   category: 'Nail Tech · Galway',             accent: '#BE185D' },
-  { name: 'LEVA Impact',      category: 'Digital Marketing & Design',     accent: '#4C1D95' },
-  { name: 'Camila Aruk',      category: 'Personal Training · Muay Thai',  accent: '#145A3E' },
-  { name: 'Saiemsent',        category: 'Clothing',                       accent: '#1D4ED8' },
-  { name: 'Eabakeditt',       category: 'Home Baking · Dublin 15',        accent: '#B45309' },
-  { name: 'Roomy.ie',         category: 'Housing Platform',               accent: '#0369A1' },
-  { name: 'Vees Lash Studio', category: 'Lash Tech · Galway',             accent: '#BE185D' },
+// The 6 headline deals, cycled in a slideshow and repeated beside the map's
+// service categories below. Three name a real partner outright (Energie
+// Fitness, LEVA Impact, Roomie); the other three mask the partner name with
+// "???" while keeping the real deal, matching the mystery-marketing style
+// used across this page.
+const HEADLINE_DEALS = [
+  { name: 'Energie Fitness', category: 'Gym Membership',      deal: 'Gym membership',                          accent: '#166534' },
+  { name: 'LEVA Impact',     category: 'Digital Marketing',   deal: 'Free marketing from a digital marketing company', accent: '#4C1D95' },
+  { name: 'Roomie',          category: 'Housing Listings',    deal: 'Free listings',                            accent: '#0369A1' },
+  { name: '???',             category: 'Clothing',            deal: '10% off clothes',                          accent: '#1D4ED8' },
+  { name: '??????',          category: 'Photography',         deal: '10% off photography',                      accent: '#C2410C' },
+  { name: '????',            category: 'Nails, student ID required', deal: 'Nails discount',                    accent: '#BE185D' },
 ]
 
 function PartnerSlideshow() {
@@ -207,11 +208,11 @@ function PartnerSlideshow() {
 
   useEffect(() => {
     if (reduceMotion) return
-    const id = setInterval(() => setIndex(i => (i + 1) % PARTNER_SLIDES.length), 3200)
+    const id = setInterval(() => setIndex(i => (i + 1) % HEADLINE_DEALS.length), 3200)
     return () => clearInterval(id)
   }, [reduceMotion])
 
-  const slide = PARTNER_SLIDES[index]
+  const slide = HEADLINE_DEALS[index]
 
   return (
     <div style={{
@@ -225,8 +226,8 @@ function PartnerSlideshow() {
         background: slide.accent, display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'background 300ms ease',
       }}>
-        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#F5F0E8' }}>
-          {slide.name.charAt(0)}
+        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#F5F0E8' }}>
+          {slide.name === '???' || slide.name === '??????' || slide.name === '????' ? '?' : slide.name.charAt(0)}
         </span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -240,10 +241,11 @@ function PartnerSlideshow() {
       <div style={{
         display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0,
         background: ACCENT_ALPHA, border: `1px solid ${ACCENT_BORDER}`,
-        borderRadius: '999px', padding: '7px 14px',
+        borderRadius: '999px', padding: '7px 14px', maxWidth: '160px',
       }}>
-        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: ACCENT }}>?</span>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: ACCENT }}>% off</span>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: ACCENT, lineHeight: 1.3 }}>
+          {slide.deal}
+        </span>
       </div>
     </div>
   )
@@ -251,8 +253,8 @@ function PartnerSlideshow() {
 
 const STEPS = [
   { n: 1, title: 'Download and sign up free',     desc: 'Create your account in minutes, no credit card needed.' },
-  { n: 2, title: 'Browse deals in your category', desc: 'Filter by Food, Fitness, Travel, Entertainment, and more.' },
-  { n: 3, title: 'Unlock and redeem in the app',  desc: 'Show your deal badge to the partner to claim your saving.' },
+  { n: 2, title: 'Browse deals in your category', desc: 'Filter by Food, Fitness, Shopping, Automotive, Creative & Media, and more.' },
+  { n: 3, title: 'Unlock and redeem in the app',  desc: 'Pro membership unlocks deals, show your deal badge to the partner to claim your saving.' },
 ]
 
 // ─── Reach section data ───────────────────────────────────────────────────────
@@ -534,6 +536,12 @@ export default function LifestyleBlueprintPage() {
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.5)', marginTop: '12px', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
               Lifestyle Blueprint covers the full range, fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
             </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 700,
+              color: '#C9A24B', marginTop: '14px', textTransform: 'uppercase', letterSpacing: '0.06em',
+            }}>
+              55+ live partners across every county
+            </p>
           </div>
 
           {/* The map itself, the centrepiece, not a thumbnail */}
@@ -569,6 +577,29 @@ export default function LifestyleBlueprintPage() {
                   }}>
                     <Icon size={13} strokeWidth={1.8} color="rgba(245,240,232,0.5)" />
                     {label}
+                  </div>
+                ))}
+              </div>
+
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
+                color: 'rgba(245,240,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                margin: '28px 0 18px',
+              }}>
+                Headline deals
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {HEADLINE_DEALS.map(d => (
+                  <div key={`${d.name}-${d.category}`} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '7px',
+                    padding: '9px 14px', borderRadius: '24px',
+                    background: 'rgba(245,240,232,0.07)',
+                    border: '1px solid rgba(245,240,232,0.11)',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 500,
+                    color: 'rgba(245,240,232,0.7)',
+                  }}>
+                    <strong style={{ color: 'rgba(245,240,232,0.9)', fontWeight: 700 }}>{d.name}</strong>
+                    {d.deal}
                   </div>
                 ))}
               </div>

@@ -83,6 +83,17 @@ const LIVE_PINS = [
 ]
 // Not on the map yet, no county on file: Saiemsent, Roomy.ie (nationwide).
 
+// The real business name is only ever used for routing (/partners#id) and
+// internal matching, never rendered. What the pin label and info card show
+// instead is this mask, a run of "?" whose length varies per partner (per
+// Desmond: reads as many distinct unrevealed partners, not one repeated
+// placeholder) so real category, county and price stay visible while the
+// identity stays exclusive to the app.
+const MASK_LENGTHS = [3, 4, 3, 5, 3, 6, 4, 3, 5, 4, 3, 6, 4, 3, 5, 4, 3, 6, 4, 3, 5]
+const LIVE_MASK = Object.fromEntries(
+  LIVE_PINS.map((p, i) => [p.id, '?'.repeat(MASK_LENGTHS[i % MASK_LENGTHS.length])])
+)
+
 // ─── Incoming: one tier on the map. Named ones get the "Official Blueprint
 // Partner" badge on tap; the rest stay anonymous until they're real, visually
 // identical, the pin never gives it away. ─────────────────────────────────────
@@ -106,11 +117,45 @@ const INCOMING_NAMED = [
 // Anonymous, name withheld until it's real, one per county still without a
 // named partner. Cork is excluded: Dylan Power already occupies it.
 const MYSTERY_COUNTIES = [
-  'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
-  'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
-  'roscommon', 'leitrim', 'cavan', 'monaghan', 'donegal',
+  'leitrim', 'cavan', 'monaghan', 'donegal',
 ]
 const MYSTERY_PINS = MYSTERY_COUNTIES.map(county => ({ county, pos: COUNTY_POS[county] }))
+
+// ─── Exaggerated gold (live) presence: marketing figure, per Desmond. Real
+// confirmed live partners (LIVE_PINS, above) total 21 across 6 counties.
+// Every other county gets 1-2 "?"-masked gold filler pins (masked name,
+// generic category, no fake price) so the map reads as live everywhere,
+// bringing the total gold count to a round 55. These replace what would
+// otherwise be an anonymous grey "incoming" pin in that county, they don't
+// stack on top of one, and Cork/Clare (which already carry a real named
+// incoming pin) get a filler at a small offset instead of the anchor.
+const GOLD_FILLER_COUNTIES_DOUBLE = [
+  'limerick', 'waterford', 'tipperary', 'kerry', 'wexford', 'kilkenny',
+  'meath', 'wicklow', 'carlow', 'laois', 'offaly', 'westmeath', 'longford',
+  'roscommon',
+]
+const GOLD_FILLER_COUNTIES_SINGLE = ['leitrim', 'cavan', 'monaghan', 'donegal', 'cork', 'clare']
+const FILLER_CATEGORIES = ['Fitness', 'Food & Drink', 'Shopping', 'Beauty', 'Creative & Media', 'Automotive', 'Wellness']
+
+function fillerCategory(i) { return FILLER_CATEGORIES[i % FILLER_CATEGORIES.length] }
+function fillerMask(i) { return '?'.repeat(3 + (i % 4)) }
+
+const FILLER_GOLD_PINS = [
+  ...GOLD_FILLER_COUNTIES_DOUBLE.flatMap((county, i) => {
+    const [x, y] = COUNTY_POS[county]
+    return [
+      { id: `fill-${county}-a`, county, category: fillerCategory(i), pos: [x, y], mask: fillerMask(i) },
+      { id: `fill-${county}-b`, county, category: fillerCategory(i + 3), pos: [x + 9, y], mask: fillerMask(i + 2) },
+    ]
+  }),
+  ...GOLD_FILLER_COUNTIES_SINGLE.map((county, i) => {
+    const [x, y] = COUNTY_POS[county]
+    // Cork and Clare already carry a real incoming pin at the anchor, offset
+    // this one so it doesn't sit exactly on top of it.
+    const offset = county === 'cork' || county === 'clare'
+    return { id: `fill-${county}`, county, category: fillerCategory(i + 1), pos: offset ? [x + 9, y] : [x, y], mask: fillerMask(i + 1) }
+  }),
+]
 
 // Every county that has more than one pin, these render smaller, calmer
 // (no pulsing halo/shimmer), and get a soft backing plate behind them so a
@@ -118,7 +163,7 @@ const MYSTERY_PINS = MYSTERY_COUNTIES.map(county => ({ county, pos: COUNTY_POS[c
 // A solo pin elsewhere stays full-size and animated; it can afford to.
 const GROUP_BOUNDS = (() => {
   const byCounty = {}
-  ;[...LIVE_PINS, ...INCOMING_NAMED].forEach(p => {
+  ;[...LIVE_PINS, ...INCOMING_NAMED, ...FILLER_GOLD_PINS].forEach(p => {
     if (!byCounty[p.county]) byCounty[p.county] = []
     byCounty[p.county].push(p.pos)
   })
@@ -135,7 +180,7 @@ const GROUPED_COUNTIES = new Set(Object.keys(GROUP_BOUNDS))
 // Flat, searchable index, every live + named-incoming partner plus every
 // county label, so the search box can jump straight to any of them.
 const SEARCH_INDEX = [
-  ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: p.name, county: p.county, sub: p.category, pos: p.pos })),
+  ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: LIVE_MASK[p.id], county: p.county, sub: p.category, pos: p.pos })),
   ...INCOMING_NAMED.map((p, i) => ({ kind: 'incoming', id: `incoming-${i}`, name: p.name, county: p.county, sub: p.category, pos: p.pos })),
   ...Object.values(COUNTY_LABEL).map(label => ({ kind: 'county', id: label, name: label, county: label.toLowerCase(), sub: 'County' })),
 ]
@@ -371,7 +416,7 @@ export default function PartnerMap() {
       setMatchedKeys(new Set(keys.length ? keys : [`mystery-${r.county}`]))
     } else {
       select(r.id, r.kind === 'live'
-        ? { live: true, ...LIVE_PINS.find(p => p.id === r.id) }
+        ? { live: true, ...LIVE_PINS.find(p => p.id === r.id), name: LIVE_MASK[r.id] }
         : { live: false, name: r.name, category: r.sub })
       setMatchedKeys(new Set([r.id]))
     }
@@ -392,18 +437,14 @@ export default function PartnerMap() {
           <input
             className="pmap-search-input"
             type="text"
-            placeholder="Find a partner or county…"
-            value={query}
-            onChange={e => { setQuery(e.target.value); setResultsOpen(true) }}
-            onFocus={() => setResultsOpen(true)}
+            placeholder="Find a partner or county, via the app, coming soon"
+            value=""
+            disabled
+            aria-disabled="true"
+            readOnly
           />
-          {query && (
-            <span className="pmap-search-clear" onClick={() => { setQuery(''); setResultsOpen(false) }} role="button" aria-label="Clear search">
-              <X size={14} color="rgba(245,240,232,0.7)" />
-            </span>
-          )}
         </div>
-        {query && resultsOpen && (
+        {false && query && resultsOpen && (
           <div className="pmap-search-results">
             {results.length === 0 && <div className="pmap-search-empty">No matches for "{query}"</div>}
             {results.map(r => (
@@ -515,6 +556,7 @@ export default function PartnerMap() {
 
           {LIVE_PINS.map((p, i) => {
             const compact = GROUPED_COUNTIES.has(p.county)
+            const masked = { ...p, name: LIVE_MASK[p.id] }
             return (
               <Pin
                 key={p.id}
@@ -526,9 +568,28 @@ export default function PartnerMap() {
                 dimmed={active && active.pinKey !== p.id}
                 matched={matchedKeys.has(p.id)}
                 ping={ping && ping.pinId === p.id ? `ping-${ping.nonce}` : null}
-                label={`${p.name}, ${p.category}, live partner. View details.`}
-                onClick={() => select(p.id, { live: true, ...p })}
-                onKeyDown={e => onKey(e, p.id, { live: true, ...p })}
+                label={`${masked.name}, ${p.category}, live partner. View details.`}
+                onClick={() => select(p.id, { live: true, ...masked })}
+                onKeyDown={e => onKey(e, p.id, { live: true, ...masked })}
+              />
+            )
+          })}
+
+          {FILLER_GOLD_PINS.map((p, i) => {
+            const compact = GROUPED_COUNTIES.has(p.county)
+            return (
+              <Pin
+                key={p.id}
+                pinKey={p.id}
+                live
+                x={p.pos[0]} y={p.pos[1]}
+                compact={compact}
+                arriveDelay={260 + (LIVE_PINS.length + i) * 30}
+                dimmed={active && active.pinKey !== p.id}
+                matched={matchedKeys.has(p.id)}
+                label={`${p.mask}, ${p.category}, live partner. View details.`}
+                onClick={() => select(p.id, { live: true, filler: true, name: p.mask, category: p.category })}
+                onKeyDown={e => onKey(e, p.id, { live: true, filler: true, name: p.mask, category: p.category })}
               />
             )
           })}
@@ -557,16 +618,22 @@ export default function PartnerMap() {
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600, color: GOLD_DEEP, background: GOLD_GLOW, borderRadius: '6px', padding: '3px 9px' }}>{active.deal}</span>
                 )}
               </div>
-              <Link
-                to={`/partners#${active.id}`}
-                style={{
-                  alignSelf: 'flex-start', marginTop: '2px',
-                  fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 700,
-                  color: NAVY, textDecoration: 'none', borderBottom: `1.5px solid ${GOLD}`, paddingBottom: '1px',
-                }}
-              >
-                View full listing →
-              </Link>
+              {active.filler ? (
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6B7280', margin: '2px 0 0', lineHeight: 1.55 }}>
+                  Live on UniBlueprint, full listing revealed in the app.
+                </p>
+              ) : (
+                <Link
+                  to={`/partners#${active.id}`}
+                  style={{
+                    alignSelf: 'flex-start', marginTop: '2px',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 700,
+                    color: NAVY, textDecoration: 'none', borderBottom: `1.5px solid ${GOLD}`, paddingBottom: '1px',
+                  }}
+                >
+                  View full listing →
+                </Link>
+              )}
             </>
           )}
 
