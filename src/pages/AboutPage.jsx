@@ -65,21 +65,21 @@ const DIFFERENTIATORS = [
 // The leadership team running UniBlueprint into September, real names,
 // real roles, spellings confirmed with Desmond.
 const LEADERSHIP = [
-  { name: 'Desmond',   role: 'Founder, The General',                      description: 'Started this whole adventure after a conversation at a birthday dinner in Belfast. Sets the direction, brings the team together and leads from the front.' },
-  { name: 'Wami',      role: 'Finance Lead, The Heart',                   description: 'Keeps everything steady behind the scenes. Brings care, structure and the calm we need to keep moving forward.' },
-  { name: 'Basmali',   role: 'Legal Lead, The Shield',                    description: "Has backed the vision from the start. Always ready to step up, challenge what needs challenging and make sure we're covered." },
-  { name: 'Tayyab',    role: 'Technology & Development Lead, The Engine', description: 'Keeps the build moving. Turns ideas into something real and is always pushing us towards the next stage.' },
-  { name: 'Bene',      role: 'Creative & Marketing Lead, The Spark',      description: 'Brings the creativity that keeps us from becoming just another business. Always looking for a different way to approach things.' },
-  { name: 'Elizabeth', role: 'Content & Social Lead, The Voice',          description: 'Helps give the vision its voice. Creative, reliable and focused on making sure what we say actually sounds like us.' },
-  { name: 'Eman',      role: 'Strategy & Technology Lead, The Brain',     description: 'Always thinking a few steps ahead. Brings a different perspective and asks the questions that keep us thinking properly.' },
-  { name: 'Fabz',      role: 'Campus Growth Lead, The Reach',             description: 'Always looking beyond where we are now. Helps take the Blueprint into new spaces, new campuses and new people.' },
-  { name: 'Daniel',    role: 'Commercial & Operations Lead, The Right Hand', description: 'Has been here from the beginning. Someone who understands the journey, knows what needs doing and gets involved without hesitation.' },
-  { name: 'Aidan',     role: 'Product & Outreach Lead, The Innovator',    description: 'Always thinking about what could be better. Takes ideas further, challenges the obvious and helps shape where the Blueprint goes next.' },
-  { name: 'Sienna',    role: 'Community & Outreach Lead, The Backbone',   description: 'Keeps people connected and keeps things moving. Gritty when it matters, dependable when we need her and never afraid to get things done.' },
-  { name: 'Zafir',     role: 'Platform & Development Lead, The Foundation', description: 'A lot of what he does happens behind the scenes. Quietly builds the foundations that allow everything else to work.' },
-  { name: 'Ethan',     role: 'Marketing & Outreach Lead, The Pulse',      description: 'Keeps the energy around the team and the vision alive. Always involved, always pushing and always ready to get stuck in.' },
-  { name: 'Alex',      role: 'Digital Marketing Lead, The Instigator',    description: 'Gets things moving. Spots opportunities, starts conversations and brings the kind of energy that makes things happen.' },
-  { name: 'Rachel',    role: 'Legal & Compliance Lead, The Guardian',     description: "Keeps an eye on what matters. Helps protect what we're building and makes sure we stay on the right path." },
+  { name: 'Desmond',   role: 'Founder',                          nickname: 'The General',    description: 'Started this whole adventure after a conversation at a birthday dinner in Belfast. Sets the direction, brings the team together and leads from the front.' },
+  { name: 'Wami',      role: 'Finance Lead',                     nickname: 'The Heart',       description: 'Keeps everything steady behind the scenes. Brings care, structure and the calm we need to keep moving forward.' },
+  { name: 'Basmali',   role: 'Legal Lead',                       nickname: 'The Shield',      description: "Has backed the vision from the start. Always ready to step up, challenge what needs challenging and make sure we're covered." },
+  { name: 'Tayyab',    role: 'Technology & Development Lead',    nickname: 'The Engine',      description: 'Keeps the build moving. Turns ideas into something real and is always pushing us towards the next stage.' },
+  { name: 'Bene',      role: 'Creative & Marketing Lead',        nickname: 'The Spark',       description: 'Brings the creativity that keeps us from becoming just another business. Always looking for a different way to approach things.' },
+  { name: 'Elizabeth', role: 'Content & Social Lead',            nickname: 'The Voice',       description: 'Helps give the vision its voice. Creative, reliable and focused on making sure what we say actually sounds like us.' },
+  { name: 'Eman',      role: 'Strategy & Technology Lead',       nickname: 'The Brain',       description: 'Always thinking a few steps ahead. Brings a different perspective and asks the questions that keep us thinking properly.' },
+  { name: 'Fabz',      role: 'Campus Growth Lead',               nickname: 'The Reach',       description: 'Always looking beyond where we are now. Helps take the Blueprint into new spaces, new campuses and new people.' },
+  { name: 'Daniel',    role: 'Commercial & Operations Lead',     nickname: 'The Right Hand',  description: 'Has been here from the beginning. Someone who understands the journey, knows what needs doing and gets involved without hesitation.' },
+  { name: 'Aidan',     role: 'Product & Outreach Lead',          nickname: 'The Innovator',   description: 'Always thinking about what could be better. Takes ideas further, challenges the obvious and helps shape where the Blueprint goes next.' },
+  { name: 'Sienna',    role: 'Community & Outreach Lead',        nickname: 'The Backbone',    description: 'Keeps people connected and keeps things moving. Gritty when it matters, dependable when we need her and never afraid to get things done.' },
+  { name: 'Zafir',     role: 'Platform & Development Lead',      nickname: 'The Foundation',  description: 'A lot of what he does happens behind the scenes. Quietly builds the foundations that allow everything else to work.' },
+  { name: 'Ethan',     role: 'Marketing & Outreach Lead',        nickname: 'The Pulse',       description: 'Keeps the energy around the team and the vision alive. Always involved, always pushing and always ready to get stuck in.' },
+  { name: 'Alex',      role: 'Digital Marketing Lead',           nickname: 'The Instigator',  description: 'Gets things moving. Spots opportunities, starts conversations and brings the kind of energy that makes things happen.' },
+  { name: 'Rachel',    role: 'Legal & Compliance Lead',          nickname: 'The Guardian',    description: "Keeps an eye on what matters. Helps protect what we're building and makes sure we stay on the right path." },
 ]
 
 // Behind The Blueprint, real titles and dates from the VSCO series.
@@ -361,7 +361,7 @@ function DiffCard({ icon: Icon, title, description }) {
   )
 }
 
-function LeaderCard({ name, role, description }) {
+function LeaderCard({ name, role, nickname, description }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
@@ -378,9 +378,16 @@ function LeaderCard({ name, role, description }) {
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '11px', fontWeight: '700', color: '#B08D57',
         textTransform: 'uppercase', letterSpacing: '0.06em',
-        margin: '0 0 10px',
+        margin: 0,
       }}>
         {role}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontStyle: 'italic', color: '#9CA3AF',
+        margin: '2px 0 10px',
+      }}>
+        {nickname}
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
