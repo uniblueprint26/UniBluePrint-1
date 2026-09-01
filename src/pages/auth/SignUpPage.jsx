@@ -64,10 +64,16 @@ export default function SignUpPage() {
       subtitle="Free to join. No card required."
       note="One UniBlueprint account, everywhere. The email and password you create here sign you in on the app too, Foundation Blueprint, Elevation Blueprint, and everything else you build live there."
       footer={
-        <p style={belowCardStyle}>
-          Already have an account?{' '}
-          <Link to="/sign-in" style={linkStyle}>Sign in</Link>
-        </p>
+        <>
+          <p style={belowCardStyle}>
+            Already have an account?{' '}
+            <Link to="/sign-in" style={linkStyle}>Sign in</Link>
+          </p>
+          <p style={{ ...belowCardStyle, marginTop: '10px' }}>
+            Not ready for an account?{' '}
+            <Link to="/coming-soon" style={linkStyle}>Just leave your email</Link>
+          </p>
+        </>
       }
     >
       {error && (
