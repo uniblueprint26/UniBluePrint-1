@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { ArrowRight, Compass, BookOpen, Briefcase, GraduationCap, MessageSquare, Award } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -7,6 +8,21 @@ const ACCENT = '#1B4B5A'
 
 // TODO: Replace with the real Course Compass website URL when confirmed
 const CC_URL = 'https://coursecompass.ie'
+
+// Logs an activity_events row so Desmond has real click numbers to negotiate
+// a payment arrangement with Course Compass. Fire-and-forget, never blocks
+// the outbound navigation. NOT referral-parameter attribution, that's a
+// deliberately separate, later step, see the migration this depends on
+// (20260901130000_course_compass_click_tracking.sql) for why.
+function trackCourseCompassClick(destination) {
+  supabase.from('activity_events').insert([{
+    type: 'course_compass_click',
+    title: 'Course Compass outbound click',
+    detail: destination,
+  }]).then(({ error }) => {
+    if (error) console.warn('course_compass_click tracking failed (non-blocking):', error)
+  })
+}
 
 // ─── Compasses ────────────────────────────────────────────────────────────────
 
@@ -70,6 +86,7 @@ function CompassCard({ icon: Icon, name, description, href }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackCourseCompassClick(href)}
       style={{ textDecoration: 'none', display: 'block' }}
     >
       <div
@@ -187,6 +204,7 @@ export default function CourseCompassPage() {
             href={CC_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackCourseCompassClick(CC_URL)}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '32px', height: '48px', padding: '0 26px',
@@ -292,6 +310,7 @@ export default function CourseCompassPage() {
             href={CC_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackCourseCompassClick(CC_URL)}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '28px', height: '46px', padding: '0 24px',
