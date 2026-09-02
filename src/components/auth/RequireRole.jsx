@@ -21,11 +21,16 @@ const LOADING = (
  * worth revealing to someone who shouldn't be there.
  */
 export default function RequireRole({ allow, children }) {
-  const { user, loading, roles } = useAuth()
+  const { user, loading, roles, rolesLoaded } = useAuth()
   const location = useLocation()
 
   if (loading) return LOADING
   if (!user) return <Navigate to="/sign-in" state={{ from: location }} replace />
+  // roles are fetched asynchronously after `loading` flips to false, so wait
+  // for that fetch to actually finish before deciding on permission — otherwise
+  // a fresh page load always sees roles as [] and bounces a real founder/admin
+  // straight back home.
+  if (!rolesLoaded) return LOADING
 
   const permitted = roles.some(r => allow.includes(r))
   if (!permitted) return <Navigate to="/" replace />
