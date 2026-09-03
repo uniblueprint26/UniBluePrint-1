@@ -263,12 +263,25 @@ export default function FoundationScreen({ navigation }) {
                         style={styles.orderBtn}
                         activeOpacity={0.8}
                         onPress={() => {
-                          // CV Optimisation has a real in-app intake now (the
-                          // reference pattern for the other 7 services, which
-                          // still fall back to email until they're built the
-                          // same way).
-                          if (title === 'CV Optimisation') {
-                            navigation.navigate('CvBuilder')
+                          // All 8 Foundation Blueprint services now have a real
+                          // in-app intake, on the CV Optimisation reference
+                          // pattern (QuestionFlow + Edge Function + Campus
+                          // Handler review). Mailto is kept only as a fallback
+                          // for any future service added before its builder
+                          // screen exists.
+                          const BUILDER_SCREEN_BY_TITLE = {
+                            'CV Optimisation': 'CvBuilder',
+                            'LinkedIn Optimisation': 'LinkedinBuilder',
+                            'Cover Letter Assistance': 'CoverLetterBuilder',
+                            'Application Form Assistance': 'ApplicationFormBuilder',
+                            'Interview Preparation': 'InterviewPrepBuilder',
+                            'Personal Statement': 'PersonalStatementBuilder',
+                            'Portfolio Building': 'PortfolioPlanBuilder',
+                            'Job Search Support': 'JobSearchSupportBuilder',
+                          }
+                          const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
+                          if (builderScreen) {
+                            navigation.navigate(builderScreen)
                             return
                           }
                           Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
