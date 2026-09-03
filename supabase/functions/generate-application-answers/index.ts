@@ -3,7 +3,7 @@ import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, CIVIL_SERVICE_CAPABILITIES, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples, citableSources } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule } from '../_shared/coreRules.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule, HANDLER_NOTES_DESCRIPTION } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, isBlank } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, profileNarrative, fetchCareerProfile, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
@@ -47,6 +47,8 @@ ${NON_TRADITIONAL_EVIDENCE_RULE} A story from a society committee, a group cours
 
 ${realExamplesRule('real, published, sourced STAR answers from university career services — note especially how the Action section carries the weight and how Result closes the loop. These are NOT the candidate\'s stories')}
 
+UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present on this particular form (a gap, a weak-fit story, a question they don't know how to angle). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
+
 ${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
@@ -66,8 +68,9 @@ const OUTPUT_SCHEMA = {
         required: ['question', 'competency_identified', 'source_story_titles', 'answer', 'missing_evidence'],
       },
     },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
-  required: ['answers'],
+  required: ['answers', 'handler_notes'],
 }
 
 Deno.serve(async (req: Request) => {
@@ -88,6 +91,7 @@ Deno.serve(async (req: Request) => {
     ])
     const targetCompany = form.target_company || target?.target_company || null
     const targetRole = form.target_role || target?.target_role || null
+    const input = form.input || {}
 
     const questions = (form.questions || []) as Record<string, string>[]
     const answerable = questions.filter(q => !isBlank(q?.question_text))
@@ -96,6 +100,8 @@ Deno.serve(async (req: Request) => {
     const lengthError = checkLengths([
       ['Target company', targetCompany, LIMITS.SHORT],
       ['Target role', targetRole, LIMITS.SHORT],
+      ['Industry', input.industry, LIMITS.SHORT],
+      ["What you're unsure about", input.unsure_about, LIMITS.LONG],
       ...answerable.map((q, i) => [`Question ${i + 1}`, q.question_text, LIMITS.LONG] as [string, unknown, number]),
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
@@ -111,7 +117,7 @@ Deno.serve(async (req: Request) => {
 
     const industryCtx = await resolveIndustryContext(
       supabase,
-      target?.target_industry || targetRole,
+      input.industry || target?.target_industry || targetRole,
       target?.target_course,
       target?.industry_details,
     )
@@ -128,6 +134,7 @@ Deno.serve(async (req: Request) => {
         target_role: targetRole,
         resolved_industry: industryCtx.industry,
         questions: answerable,
+        unsure_about: input.unsure_about || null,
         evidence_bank: stories,
         career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),
