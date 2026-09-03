@@ -56,7 +56,13 @@ function PhotoPickerModal({ visible, onClose, entity }) {
         <View style={pm.sheet}>
           <View style={pm.headerRow}>
             <Text style={pm.title}>{entity.name}</Text>
-            <TouchableOpacity onPress={onClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={onClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>

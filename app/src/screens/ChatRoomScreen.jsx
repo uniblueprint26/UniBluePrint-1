@@ -141,6 +141,8 @@ export default function ChatRoomScreen({ navigation, route }) {
           onPress={() => setMoreVisible(true)}
           activeOpacity={0.7}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          accessibilityRole="button"
+          accessibilityLabel="More options"
         >
           <MoreVertical size={18} color="rgba(245,240,232,0.65)" strokeWidth={2} />
         </TouchableOpacity>
@@ -220,6 +222,9 @@ export default function ChatRoomScreen({ navigation, route }) {
           onPress={handleSend}
           disabled={!input.trim() || sending}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Send message"
+          accessibilityState={{ disabled: !input.trim() || sending }}
         >
           {sending
             ? <ActivityIndicator size="small" color={colors.cream} />

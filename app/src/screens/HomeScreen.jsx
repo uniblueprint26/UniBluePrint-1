@@ -140,13 +140,32 @@ function EditShortcutsModal({ visible, selected, onSave, onClose }) {
               </View>
               <Text style={m.rowLabel} numberOfLines={1}>{item.label}</Text>
               <View style={m.rowActions}>
-                <TouchableOpacity onPress={() => moveUp(i)} style={m.arrowBtn} disabled={i === 0}>
+                <TouchableOpacity
+                  onPress={() => moveUp(i)}
+                  style={m.arrowBtn}
+                  disabled={i === 0}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Move ${item.label} up`}
+                  accessibilityState={{ disabled: i === 0 }}
+                >
                   <ChevronUp size={16} color={i === 0 ? colors.light : colors.navy} strokeWidth={2} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => moveDown(i)} style={m.arrowBtn} disabled={i === selectedItems.length - 1}>
+                <TouchableOpacity
+                  onPress={() => moveDown(i)}
+                  style={m.arrowBtn}
+                  disabled={i === selectedItems.length - 1}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Move ${item.label} down`}
+                  accessibilityState={{ disabled: i === selectedItems.length - 1 }}
+                >
                   <ChevronDown size={16} color={i === selectedItems.length - 1 ? colors.light : colors.navy} strokeWidth={2} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => remove(item.key)} style={m.removeBtn}>
+                <TouchableOpacity
+                  onPress={() => remove(item.key)}
+                  style={m.removeBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${item.label} from shortcuts`}
+                >
                   <X size={13} color="#DC2626" strokeWidth={2.5} />
                 </TouchableOpacity>
               </View>
@@ -411,6 +430,8 @@ export default function HomeScreen({ navigation }) {
                 style={styles.bellBtn}
                 activeOpacity={0.7}
                 onPress={() => navigation.navigate('Notifications')}
+                accessibilityRole="button"
+                accessibilityLabel={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
               >
                 <Bell size={19} color={colors.navy} strokeWidth={1.8} />
                 {unreadCount > 0 && (
@@ -423,6 +444,8 @@ export default function HomeScreen({ navigation }) {
                 style={styles.avatarBtn}
                 activeOpacity={0.7}
                 onPress={() => navigation.getParent()?.navigate('Profile')}
+                accessibilityRole="button"
+                accessibilityLabel="Open profile"
               >
                 <User size={16} color={colors.navy} strokeWidth={1.8} />
               </TouchableOpacity>
@@ -450,7 +473,13 @@ export default function HomeScreen({ navigation }) {
             {/* Quick Access */}
             <View style={styles.sectionRow}>
               <Text style={styles.eyebrow}>Quick Access</Text>
-              <TouchableOpacity onPress={() => setEditVisible(true)} style={styles.editIconBtn} activeOpacity={0.7}>
+              <TouchableOpacity
+                onPress={() => setEditVisible(true)}
+                style={styles.editIconBtn}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Edit quick access shortcuts"
+              >
                 <Pencil size={13} color={colors.muted} strokeWidth={2} />
               </TouchableOpacity>
             </View>

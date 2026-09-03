@@ -142,6 +142,8 @@ export default function NotificationsScreen({ navigation }) {
           style={styles.backBtn}
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
         >
           <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
         </TouchableOpacity>

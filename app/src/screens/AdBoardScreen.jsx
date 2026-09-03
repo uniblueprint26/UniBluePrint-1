@@ -166,7 +166,13 @@ function PostAdModal({ visible, onClose }) {
               <Text style={m.headerTitle}>Post an Ad</Text>
               <Text style={m.headerSub}>Reach young people across Ireland</Text>
             </View>
-            <TouchableOpacity style={m.closeBtn} onPress={onClose} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={m.closeBtn}
+              onPress={onClose}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={15} color={colors.navy} strokeWidth={2.5} />
             </TouchableOpacity>
           </View>
@@ -194,7 +200,15 @@ function PostAdModal({ visible, onClose }) {
               {BOARDS.map(b => {
                 const active = boards.includes(b.key)
                 return (
-                  <TouchableOpacity key={b.key} style={[m.boardOption, active && { borderColor: b.color }]} onPress={() => toggleBoard(b.key)} activeOpacity={0.8}>
+                  <TouchableOpacity
+                    key={b.key}
+                    style={[m.boardOption, active && { borderColor: b.color }]}
+                    onPress={() => toggleBoard(b.key)}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={b.label}
+                    accessibilityState={{ selected: active }}
+                  >
                     <View style={[m.boardIconBox, { backgroundColor: active ? b.color : 'rgba(30,58,95,0.06)' }]}>
                       <b.Icon size={15} color={active ? colors.cream : colors.muted} strokeWidth={1.8} />
                     </View>
@@ -946,13 +960,31 @@ export default function AdBoardScreen({ navigation }) {
           </Animated.ScrollView>
 
           <View style={[styles.pagerControls, { paddingBottom: insets.bottom + 12 }]}>
-            <TouchableOpacity style={styles.pagerBtn} activeOpacity={0.7} onPress={() => jumpTo(Math.max(0, pageIndex - 1))} disabled={pageIndex === 0} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              style={styles.pagerBtn}
+              activeOpacity={0.7}
+              onPress={() => jumpTo(Math.max(0, pageIndex - 1))}
+              disabled={pageIndex === 0}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Previous page"
+              accessibilityState={{ disabled: pageIndex === 0 }}
+            >
               <ChevronLeft size={18} color={pageIndex === 0 ? colors.light : colors.navy} />
             </TouchableOpacity>
             <View style={styles.pagerTrack}>
               <View style={[styles.pagerFill, { width: `${((pageIndex + 1) / PAGES.length) * 100}%` }]} />
             </View>
-            <TouchableOpacity style={styles.pagerBtn} activeOpacity={0.7} onPress={() => jumpTo(Math.min(PAGES.length - 1, pageIndex + 1))} disabled={pageIndex === PAGES.length - 1} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              style={styles.pagerBtn}
+              activeOpacity={0.7}
+              onPress={() => jumpTo(Math.min(PAGES.length - 1, pageIndex + 1))}
+              disabled={pageIndex === PAGES.length - 1}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Next page"
+              accessibilityState={{ disabled: pageIndex === PAGES.length - 1 }}
+            >
               <ChevronRight size={18} color={pageIndex === PAGES.length - 1 ? colors.light : colors.navy} />
             </TouchableOpacity>
           </View>

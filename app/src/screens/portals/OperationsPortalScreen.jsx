@@ -179,7 +179,13 @@ export default function OperationsPortalScreen({ navigation }) {
           <View style={styles.modalSheet}>
             <View style={styles.modalHeaderRow}>
               <Text style={styles.modalTitle}>Mark request completed</Text>
-              <TouchableOpacity onPress={() => setMarkingDone(null)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <TouchableOpacity
+                onPress={() => setMarkingDone(null)}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+              >
                 <X size={18} color={colors.muted} />
               </TouchableOpacity>
             </View>

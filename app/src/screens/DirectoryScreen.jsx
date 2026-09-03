@@ -225,7 +225,13 @@ export default function DirectoryScreen() {
           autoCapitalize="none"
         />
         {search.length > 0 && (
-          <TouchableOpacity onPress={() => setSearch('')} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity
+            onPress={() => setSearch('')}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel="Clear search"
+          >
             <X size={14} color={colors.muted} />
           </TouchableOpacity>
         )}
@@ -244,6 +250,8 @@ export default function DirectoryScreen() {
             style={[styles.filterPill, filter === f.key && styles.filterPillActive]}
             activeOpacity={0.75}
             onPress={() => setFilter(f.key)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: filter === f.key }}
           >
             <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
               {f.label}
