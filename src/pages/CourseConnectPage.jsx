@@ -462,7 +462,7 @@ export default function CourseConnectPage() {
 
             {/* CTA */}
             <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(30,58,95,0.07)', textAlign: 'center' }}>
-              <Link to="/download" style={{
+              <Link to="/coming-soon" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 height: '44px', padding: '0 24px',
                 background: ACCENT, color: '#fff', borderRadius: '8px',
@@ -519,7 +519,7 @@ export default function CourseConnectPage() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
             Free to join. Free trial offers 50% off everything across UniBlueprint.
           </p>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             marginTop: '32px', height: '50px', padding: '0 28px',
             background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',

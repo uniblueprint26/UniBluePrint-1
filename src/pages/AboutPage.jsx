@@ -737,7 +737,7 @@ export default function AboutPage() {
             Across Irish universities and colleges during freshers week.
           </p>
           <Link
-            to="/download"
+            to="/sign-up"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               height: '50px', padding: '0 30px',

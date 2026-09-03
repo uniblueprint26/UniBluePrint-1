@@ -647,7 +647,7 @@ export default function PricingPage() {
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link
-            to="/download"
+            to="/coming-soon"
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', padding: '0 32px',

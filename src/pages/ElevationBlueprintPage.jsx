@@ -376,7 +376,7 @@ export default function ElevationBlueprintPage() {
                 </div>
               ))}
             </div>
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '30px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -469,7 +469,7 @@ export default function ElevationBlueprintPage() {
           }}>
             Apply as a Coach <ArrowRight size={15} />
           </Link>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center',
             height: '50px', padding: '0 28px',
             background: 'transparent', color: 'rgba(245,240,232,0.75)',

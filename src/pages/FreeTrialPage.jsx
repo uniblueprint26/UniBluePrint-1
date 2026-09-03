@@ -209,7 +209,7 @@ function ServiceCalculator() {
         </p>
 
         <Link
-          to="/download"
+          to="/coming-soon"
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             height: '46px', padding: '0 28px',
@@ -533,7 +533,7 @@ export default function FreeTrialPage() {
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
             <Link
-              to="/download"
+              to="/coming-soon"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '52px', padding: '0 32px',

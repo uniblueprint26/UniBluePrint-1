@@ -169,7 +169,7 @@ export default function CheckoutButton({ tier = 'pro_monthly', label = 'Get Pro'
             </p>
 
             <button
-              onClick={() => { setOpen(false); navigate('/download') }}
+              onClick={() => { setOpen(false); navigate('/coming-soon') }}
               style={{
                 display: 'flex',
                 alignItems: 'center',

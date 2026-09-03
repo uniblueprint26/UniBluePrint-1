@@ -411,7 +411,7 @@ function CVHealthCheck() {
           <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '18px', color: '#1E3A5F' }}>
             {result.msg}
           </p>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center', gap: '6px',
             marginTop: '12px', fontFamily: "'DM Sans',sans-serif",
             fontSize: '13px', fontWeight: '700', color: '#1E3A5F', textDecoration: 'none',
@@ -496,7 +496,7 @@ export default function FoundationBlueprintPage() {
                 </div>
               ))}
             </div>
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '30px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -646,7 +646,7 @@ export default function FoundationBlueprintPage() {
           Free to join. Free trial, 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             height: '52px', padding: '0 32px',
             background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',

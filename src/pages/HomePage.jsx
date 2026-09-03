@@ -799,7 +799,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '28px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -1018,7 +1018,7 @@ export default function HomePage() {
             }}>
               Get started free <ArrowRight size={16} />
             </Link>
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', padding: '0 24px',
               background: 'transparent', color: 'rgba(245,240,232,0.75)',
