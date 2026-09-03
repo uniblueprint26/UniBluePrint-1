@@ -94,6 +94,20 @@ const COURSE_RULES: Rule[] = [
   // generic case in this file: catch the compound here, before either
   // discipline rule gets a chance to fire on the bare word it contains.
   [['computer engineering', 'electronic and computer engineering'], 'Engineering'],
+  // Sound/audio engineering degrees and courses are Creative and Media
+  // roles, not the chartered/professional sense of "engineering" the bare
+  // Engineering rule below is meant to catch.
+  [['sound engineering', 'audio engineering'], 'Creative and Media'],
+  // Named "new apprenticeships" (Apprenticeship Council-approved since 2016,
+  // well outside the craft trades) that would otherwise be caught by the
+  // bare 'apprenticeship' rule below, whose content (SOLAS phases, RECI,
+  // RGII) is specifically about the craft/statutory-registration kind —
+  // see the matching note in industries.ts for why this isn't a full
+  // enumeration of all such programmes.
+  [['accounting technician'], 'Finance and Accounting'],
+  [['insurance practice', 'insurance practitioner'], 'Insurance and Actuarial'],
+  [['commis chef'], 'Hospitality and Tourism'],
+  [['retail supervisor', 'retail apprenticeship'], 'Retail and E-commerce'],
 
   // ── discipline-specific ─────────────────────────────────────────────────
   [['software', 'information technology', 'cybersecurity', 'computer',

@@ -152,10 +152,20 @@ export async function fetchIndustryIntelligence(
   limit = 8,
 ): Promise<IndustryIntel[]> {
   if (!industry) return []
+  // Every industry currently sits at exactly 10 rows against a default limit
+  // of 12, so this never actually truncates today — but the query previously
+  // had no ORDER BY at all, meaning if any industry is ever deepened past the
+  // limit, which rows survived would be undefined (Postgres makes no
+  // ordering guarantee without one). Ordering by dimension first means a
+  // future truncation drops rows evenly from the alphabetically-last
+  // dimension rather than non-deterministically zeroing out a whole
+  // dimension's worth of guidance for one industry and not another.
   const { data } = await supabase
     .from('industry_intelligence')
     .select('dimension, content, source_name, source_url')
     .ilike('industry', `%${escapeLike(industry)}%`)
+    .order('dimension', { ascending: true })
+    .order('id', { ascending: true })
     .limit(limit)
   return (data as IndustryIntel[]) || []
 }

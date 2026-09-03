@@ -103,6 +103,11 @@ const ALIASES: Record<string, Industry> = {
   banking: 'Finance and Accounting',
   investment: 'Finance and Accounting',
   audit: 'Finance and Accounting',
+  // Compound — Accounting Technician is one of the real "new apprenticeships"
+  // (Apprenticeship Council-approved since 2016) Ireland now runs well
+  // outside the craft trades; explicit so it doesn't depend on a length tie
+  // against 'apprentice' (10 chars each) resolving the right way by luck.
+  'accounting technician': 'Finance and Accounting',
   // 'actuarial' moved to Insurance and Actuarial below — a dedicated bucket
   // now exists for it, and it fits there more accurately than folding into
   // general finance.
@@ -142,6 +147,12 @@ const ALIASES: Record<string, Industry> = {
   animation: 'Creative and Media',
   photography: 'Creative and Media',
   music: 'Creative and Media',
+  // Compounds, so the longest-first sort keeps these out of Engineering —
+  // 'engineer' is shorter and would otherwise win. Sound/audio engineers are
+  // real, common titles in this field, not the chartered/professional sense
+  // of "engineer" the bare alias is meant to catch.
+  'sound engineer': 'Creative and Media',
+  'audio engineer': 'Creative and Media',
 
   // Science and Research
   science: 'Science and Research',
@@ -176,6 +187,10 @@ const ALIASES: Record<string, Industry> = {
   catering: 'Hospitality and Tourism',
   culinary: 'Hospitality and Tourism',
   chef: 'Hospitality and Tourism',
+  // Commis Chef is one of the real "new apprenticeships" in hospitality —
+  // without this compound, 'apprentice'/'apprenticeship' (10 chars) beats
+  // bare 'chef' (4 chars) and misroutes it to Skilled Trades.
+  'commis chef': 'Hospitality and Tourism',
 
   // Public Sector and Civil Service
   'civil service': 'Public Sector and Civil Service',
@@ -269,6 +284,16 @@ const ALIASES: Record<string, Industry> = {
   shipping: 'Aviation and Logistics',
 
   // Skilled Trades and Apprenticeships
+  // Bare 'apprentice'/'apprenticeship' default here because craft trades are
+  // still the large majority of apprentices in Ireland — but since 2016 the
+  // state has also run genuine "new apprenticeships" well outside the
+  // trades (Accounting Technician, Insurance Practice, Commis Chef, Retail
+  // Supervisor, and dozens more, up to 87 programmes as of 2026), and this
+  // industry's own content (SOLAS phases, RECI/Safe Electric, RGII) is
+  // specifically about the craft/statutory-registration kind, not those.
+  // The named, verified programmes above get their own explicit compound so
+  // they aren't silently misrouted here — a full enumeration of all 87
+  // programmes is out of scope; these are the well-known, high-profile ones.
   apprentice: 'Skilled Trades and Apprenticeships',
   apprenticeship: 'Skilled Trades and Apprenticeships',
   'craft apprentice': 'Skilled Trades and Apprenticeships',
@@ -311,6 +336,12 @@ const ALIASES: Record<string, Industry> = {
   'insurance broker': 'Insurance and Actuarial',
   'claims adjuster': 'Insurance and Actuarial',
   'loss adjusting': 'Insurance and Actuarial',
+  // Insurance Practice is a real, named "new apprenticeship" (an Earn and
+  // Learn Insurance Practitioner programme leading to a BA Hons) — without
+  // this compound, 'apprentice'/'apprenticeship' (10 chars) beats bare
+  // 'insurance' (9 chars) and misroutes it to Skilled Trades.
+  'insurance practice': 'Insurance and Actuarial',
+  'insurance practitioner': 'Insurance and Actuarial',
   // Deliberately not claiming bare 'broker' or 'claims' — both are genuinely
   // ambiguous with Finance (stockbroker) and Law (legal claims), and the
   // compounds above still resolve the insurance-specific meaning correctly.
@@ -327,6 +358,11 @@ const ALIASES: Record<string, Industry> = {
   'store manager': 'Retail and E-commerce',
   'retail buyer': 'Retail and E-commerce',
   'retail buying': 'Retail and E-commerce',
+  // Retail Supervisor is a real, popular "new apprenticeship" in this
+  // field — without this compound, 'apprentice'/'apprenticeship' (10 chars)
+  // beats bare 'retail' (6 chars) and misroutes it to Skilled Trades.
+  'retail supervisor': 'Retail and E-commerce',
+  'retail apprenticeship': 'Retail and E-commerce',
   // Deliberately not claiming bare 'shop', 'sales', or 'buying' — each is too
   // generic and appears inside or alongside unrelated fields ('workshop',
   // 'sales' in every industry, 'car buying'), so only the retail-specific
