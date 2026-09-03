@@ -89,6 +89,62 @@ export const ATS_KEYWORD_BANKS: Record<Industry | typeof GENERAL, string[]> = {
     'content strategy', 'campaign management', 'social media', 'copywriting',
     'engagement rate', 'conversion rate', 'press release', 'media relations',
   ],
+  'Agriculture and Veterinary': [
+    'vci', 'green cert', 'herd health', 'teagasc', 'dairy', 'suckler', 'tillage',
+    'calving', 'tb testing', 'animal husbandry', 'dafm', 'biosecurity',
+    'veterinary nursing', 'large animal', 'small animal',
+  ],
+  'Beauty, Hairdressing and Aesthetics': [
+    'balayage', 'colour correction', 'hd brows', 'microblading', 'cidesco', 'cibtac',
+    'itec', 'patch test', 'client retention', 'rebooking rate',
+    'national hairdressing apprenticeship', 'skin analysis', 'lash extensions',
+  ],
+  'Real Estate and Property': [
+    'psra', 'sale agreed', 'ipav', 'scsi', 'ber', 'property management', 'lettings',
+    'valuation', 'comparable sales', 'auctioneering', 'daft.ie', 'myhome.ie',
+  ],
+  'Aviation and Logistics': [
+    'iaa', 'ppl', 'cpl', 'atpl', 'cilt', 'cpc', 'adr', 'dgsa', 'flight hours',
+    'on-time performance', 'fleet management', 'warehouse management system',
+    'supply chain',
+  ],
+  'Skilled Trades and Apprenticeships': [
+    'solas', 'safe electric', 'reci', 'rgii', 'apprenticeship phase',
+    'craft certificate', 'safe pass', 'declaration of conformance', 'gas work',
+    'electrical installation',
+  ],
+  'Insurance and Actuarial': [
+    'apa', 'cip', 'minimum competency code', 'ifoa', 'underwriting',
+    'claims handling', 'actuarial exams', 'reinsurance', 'central bank of ireland',
+    'risk assessment',
+  ],
+  'Retail and E-commerce': [
+    'footfall', 'conversion rate', 'average transaction value', 'shrinkage',
+    'stock management', 'shopify', 'merchandising', 'point of sale',
+    'retail ireland skillnet', 'inventory',
+  ],
+  'Environmental Sustainability and Renewable Energy': [
+    'seai', 'epa', 'nzeb', 'ber', 'carbon footprint', 'net zero',
+    'wind energy ireland', 'igbc', 'sustainability reporting', 'renewable energy',
+  ],
+  'Human Resources and People Operations': [
+    'cipd', 'time-to-hire', 'employee relations', 'talent acquisition',
+    'workplace relations commission', 'recruitment', 'onboarding',
+    'retention rate', 'hris', 'performance management',
+  ],
+  'Food and Beverage Manufacturing': [
+    'haccp', 'brcgs', 'bord bia', 'gmp', 'food safety', 'quality assurance',
+    'iso 22000', 'batch record', 'traceability', 'food drink ireland',
+  ],
+  'Non-Profit and NGO Management': [
+    'charities regulator', 'governance code', 'fundraising', 'dóchas', 'the wheel',
+    'grant reporting', 'volunteer coordination', 'programme delivery',
+    'donor relations',
+  ],
+  'Telecommunications and Utilities': [
+    'comreg', 'cru', 'network operations', 'fault resolution', 'safe electric',
+    'rgii', 'broadband', 'network uptime', 'field engineering',
+  ],
   general: [
     'communication', 'teamwork', 'leadership', 'problem solving', 'initiative',
     'time management', 'attention to detail', 'adaptability', 'collaboration',

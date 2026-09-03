@@ -14,6 +14,8 @@ import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/indu
  * — a candidate rehearsing STAR stories for a whiteboard round wastes the run-up.
  */
 const INTERVIEW_FORMAT_BY_INDUSTRY: Record<string, string> = {
+  'Business and Management':
+    'Expect an online aptitude or situational-judgement stage before or alongside the interview itself, not only at the end of the process — a strong later-round performance does not recover a weak aptitude score. The interview stage is typically competency-based, sometimes within a wider assessment centre, and probes commercial awareness of the specific employer directly: its market, competitors, and recent results, not the sector in general.',
   Engineering:
     'Expect a technical round: design reasoning, calculations talked through aloud, and questions on named tools and standards. Whiteboard or shared-screen problem solving is common. Prepare to narrate the trade-off, not just the answer.',
   'Technology and Software':
