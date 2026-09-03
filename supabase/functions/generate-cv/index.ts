@@ -152,6 +152,12 @@ Deno.serve(async (req: Request) => {
       ['What to highlight', input.achievements_highlight, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
       ['Your existing CV', input.existing_cv_text, LIMITS.PASTE_DOC],
+      // tone/length/style are fixed-option selects in the UI and can't
+      // realistically exceed this, but the UI is not the only way to call
+      // this function.
+      ['Tone', input.tone, LIMITS.SHORT],
+      ['Length preference', input.length, LIMITS.SHORT],
+      ['Style', input.style, LIMITS.SHORT],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
