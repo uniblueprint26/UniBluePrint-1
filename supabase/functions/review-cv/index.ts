@@ -2,6 +2,7 @@ import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse
 import { requireUser } from '../_shared/supabase.ts'
 import { bankForResolvedIndustry, extractJdKeywords, scoreKeywordMatch } from '../_shared/atsKeywords.ts'
 import { resolveIndustryContext } from '../_shared/industryContext.ts'
+import { fetchCareerTarget } from '../_shared/careerProfile.ts'
 import { citableSources } from '../_shared/exampleLibrary.ts'
 import { LIMITS, checkLengths } from '../_shared/fieldLimits.ts'
 
@@ -56,9 +57,18 @@ Deno.serve(async (req: Request) => {
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
-    // The role is a usable fallback signal when no industry was given — a
-    // pasted CV often names the role and nothing else.
-    const industryCtx = await resolveIndustryContext(supabase, industry || target_role, null)
+    // Same pattern as review-cover-letter: a pasted CV carries only what the
+    // form gave us, but the student's active career target — including any
+    // industry_details questionnaire answers — is real, current context we
+    // already have and should prefer over the form's own weaker signals
+    // (an explicit stated industry beats a role name, which beats nothing).
+    const target = await fetchCareerTarget(supabase, user.id)
+    const industryCtx = await resolveIndustryContext(
+      supabase,
+      target?.target_industry || industry || target_role,
+      target?.target_course,
+      target?.industry_details,
+    )
     const intelligence = industryCtx.intelligence
 
     const result = await callClaudeForStructuredOutput({
