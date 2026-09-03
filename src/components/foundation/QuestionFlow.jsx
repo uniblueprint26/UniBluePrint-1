@@ -25,13 +25,29 @@ import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react'
  * confirmed on the profile-check step) — the progress bar is computed only
  * over the steps actually being shown, so skipping never produces a
  * misleading "3 of 15" that was really "3 of 12".
+ *
+ * `initialStepKey` resumes a saved draft at the exact question the student
+ * left on, rather than the data alone (the caller stashes the current
+ * step's key into the draft's input._current_step on every autosave — see
+ * CvBuilderPage/LinkedInOptimisationPage's saveDraft). Read once on mount
+ * only: this is a resume point, not a controlled prop, so it does not fight
+ * the user's own Back/Next navigation afterwards.
  */
 export default function QuestionFlow({
   steps, form, onFieldChange, onComplete, completing, completeLabel,
-  onStepAdvance, strapline,
+  onStepAdvance, strapline, initialStepKey,
 }) {
   const visibleSteps = useMemo(() => steps.filter((s) => !s.skip?.(form)), [steps, form])
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(() => {
+    if (!initialStepKey) return 0
+    // Against visibleSteps, not the raw step list — a step's position can
+    // differ between the two once anything ahead of it is being skipped
+    // (e.g. the profile-check opener, or the experience step for someone
+    // who has none), and jumping to the wrong index would land on the
+    // wrong question entirely.
+    const i = visibleSteps.findIndex((s) => s.key === initialStepKey)
+    return i > 0 ? i : 0
+  })
   const [error, setError] = useState('')
   const clamped = Math.min(index, visibleSteps.length - 1)
   const current = visibleSteps[clamped]

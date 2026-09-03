@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useLocation } from 'react-router-dom'
-import { Loader2, Plus, Trash2, Download, Send, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react'
+import { Loader2, Trash2, Download, Send, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
@@ -14,6 +14,10 @@ import {
   ErrorBanner, parseDbError,
 } from '../../components/ui/Form'
 import QuestionFlow from '../../components/foundation/QuestionFlow'
+import {
+  SummaryRows, ResumeDraftCard, LoadingLine, ChoiceGrid, AddRowButton,
+  repeatCard, removeBtn, sectionHeading, splitCsv,
+} from '../../components/foundation/QuestionFlowKit'
 import ScoreGauge from '../../components/foundation/ScoreGauge'
 import CvPreview from '../../components/foundation/CvPreview'
 import BenchmarkNote from '../../components/foundation/BenchmarkNote'
@@ -298,6 +302,7 @@ export default function CvBuilderPage() {
             completing={generating}
             completeLabel="Generate my CV"
             strapline="The more you give us, the better your output — this takes about 5 minutes, and everything is saved as you go."
+            initialStepKey={form._current_step}
           />
         ) : (
           <ReviewStep
@@ -343,37 +348,8 @@ function flattenAchievements(a) {
   return [a.societies, a.volunteering, a.projects, a.publications, a.other].filter(Boolean).join('\n')
 }
 
-function splitCsv(v) { return (v || '').split(',').map((s) => s.trim()).filter(Boolean) }
-
 function stripEmpty(obj) {
   return Object.fromEntries(Object.entries(obj || {}).filter(([, v]) => v !== '' && v !== null && v !== undefined))
-}
-
-function LoadingLine({ label }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '24px 0', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
-      <Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true" /> {label}
-    </div>
-  )
-}
-
-function ResumeDraftCard({ onResume, onDiscard }) {
-  return (
-    <FormCard>
-      <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>You have an unfinished CV request</h2>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>
-        Continue where you left off, or start fresh — either way, nothing is lost until you choose.
-      </p>
-      <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-        <button type="button" onClick={onResume} style={{ height: '46px', padding: '0 22px', background: '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-          Continue where I left off
-        </button>
-        <button type="button" onClick={onDiscard} style={{ height: '46px', padding: '0 18px', background: 'none', color: '#6B7280', border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', cursor: 'pointer' }}>
-          Start fresh
-        </button>
-      </div>
-    </FormCard>
-  )
 }
 
 /**
@@ -393,7 +369,7 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <ProfileCheckStep profileKnown={profileKnown} />,
+      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
     },
     {
       key: 'existing_cv',
@@ -587,59 +563,20 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
     {
       key: 'summary',
       title: 'Ready to generate',
-      render: ({ form: f }) => <SummaryStep form={f} tier={tier} />,
+      render: ({ form: f }) => <SummaryRows intro="Here's what we'll build from. Go back to change anything, or generate your CV now." rows={summaryRows(f, tier)} />,
     },
   ]
 }
 
-function ProfileCheckStep({ profileKnown }) {
+/** Rows for the profile-confirm opener step — what we already know, before the questionnaire asks it again. */
+function profileCheckRows(profileKnown) {
   const { profile, target } = profileKnown || {}
-  const rows = [
+  return [
     profile?.personal_info?.full_name && ['Name', profile.personal_info.full_name],
     profile?.education?.[0] && ['Studying', [profile.education[0].degree, profile.education[0].institution].filter(Boolean).join(' at ')],
     profile?.pathway && ['Pathway', profile.pathway],
     target?.target_industry && ['Targeting', target.target_industry],
   ].filter(Boolean)
-
-  return (
-    <div>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginBottom: '16px', lineHeight: 1.6 }}>
-        From your Career Profile — you'll get the chance to update anything on the next few screens.
-      </p>
-      {rows.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {rows.map(([label, value]) => (
-            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: '#F5F0E8', borderRadius: '8px' }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>{label}</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', fontWeight: 600, color: '#1E3A5F' }}>{value}</span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#9CA3AF' }}>Not much on file yet — that's fine, we'll capture it as we go.</p>
-      )}
-    </div>
-  )
-}
-
-function ChoiceGrid({ options, value, onChange }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {options.map((o) => (
-        <button
-          key={o.value} type="button" onClick={() => onChange(o.value)}
-          style={{
-            textAlign: 'left', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer',
-            border: value === o.value ? '2px solid #1E3A5F' : '1.5px solid rgba(30,58,95,0.15)',
-            background: value === o.value ? 'rgba(30,58,95,0.05)' : '#FFFFFF',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '14.5px', fontWeight: value === o.value ? 600 : 500, color: '#1E3A5F',
-          }}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  )
 }
 
 function ExperienceEntries({ experience, onChange, onAdd, onRemove }) {
@@ -684,8 +621,9 @@ function EducationEntries({ education, onChange, onAdd, onRemove }) {
   )
 }
 
-function SummaryStep({ form, tier }) {
-  const rows = [
+/** Rows for the closing "here's what we'll build from" summary step. */
+function summaryRows(form, tier) {
+  return [
     ['Targeting', [form.target_role, form.target_industry].filter(Boolean).join(' · ') || form.target_industry],
     ['Experience', form.has_no_experience ? 'None yet — building around education and projects' : `${form.experience.filter((r) => r.job_title).length} role(s)`],
     ['Education', `${form.education.filter((e) => e.institution).length} entry(ies)`],
@@ -693,21 +631,6 @@ function SummaryStep({ form, tier }) {
     ['Style', `${form.tone}, ${form.length === 'one_page' ? 'one page' : 'two page'}, ${form.style === 'modern' ? 'modern template' : 'classic template'}`],
     ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
   ]
-  return (
-    <div>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginBottom: '16px', lineHeight: 1.6 }}>
-        Here's what we'll build from. Go back to change anything, or generate your CV now.
-      </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {rows.map(([label, value]) => (
-          <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: '#F5F0E8', borderRadius: '8px' }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>{label}</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', fontWeight: 600, color: '#1E3A5F', textAlign: 'right' }}>{value}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
 }
 
 function ReviewStep({ cvDoc, submitted, submissionId, submitting, tier, onTierChange, onSubmitForReview, onStartOver }) {
@@ -804,17 +727,3 @@ function ReviewStep({ cvDoc, submitted, submissionId, submitting, tier, onTierCh
   )
 }
 
-function AddRowButton({ onClick, label }) {
-  return (
-    <button
-      type="button" onClick={onClick}
-      style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: '1.5px dashed rgba(30,58,95,0.25)', borderRadius: '8px', padding: '10px 14px', color: '#1E3A5F', fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', fontWeight: 500, cursor: 'pointer', width: 'fit-content' }}
-    >
-      <Plus size={14} aria-hidden="true" /> {label}
-    </button>
-  )
-}
-
-const sectionHeading = { fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }
-const repeatCard = { position: 'relative', display: 'flex', flexDirection: 'column', gap: '14px', padding: '18px', background: '#F5F0E8', borderRadius: '10px' }
-const removeBtn = { position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', padding: '4px' }
