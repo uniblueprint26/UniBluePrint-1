@@ -1,6 +1,6 @@
 import { callClaudeForStructuredOutput, corsHeaders, errorResponse, jsonResponse } from '../_shared/anthropic.ts'
 import { requireUser } from '../_shared/supabase.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE } from '../_shared/coreRules.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, HANDLER_NOTES_DESCRIPTION } from '../_shared/coreRules.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
@@ -48,6 +48,8 @@ STRUCTURE CHECKLIST: give a concrete, ordered checklist for what to build/includ
 
 NO PROFESSIONAL WORK YET: for a student or first-time job seeker, coursework projects, society work, hackathon builds, and personal projects ARE the portfolio — that's the normal starting point, not a compromise. Plan around presenting that work at its best (clean write-ups, honest framing of what was a college project) rather than suggesting they wait until they have "real" work. If they genuinely have very few pieces, the checklist's first items should be about creating one or two small, real, finishable pieces — never about presenting thin work as more than it is.
 
+UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure about (whether they have enough to show, how to present a weak or unfinished piece, something else). Do your best with it, but always add a handler_notes entry naming it so the reviewing Coach double-checks that specific area — never silently guess past it.
+
 ${ANTI_HALLUCINATION_RULE}
 
 ${PROFILE_CONTEXT_RULE}
@@ -64,8 +66,9 @@ const OUTPUT_SCHEMA = {
     alternative_platform: { type: 'string' },
     structure_checklist: { type: 'array', items: { type: 'string' } },
     presentation_tips: { type: 'array', items: { type: 'string' } },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
-  required: ['recommended_platform', 'why_this_platform', 'alternative_platform', 'structure_checklist', 'presentation_tips'],
+  required: ['recommended_platform', 'why_this_platform', 'alternative_platform', 'structure_checklist', 'presentation_tips', 'handler_notes'],
 }
 
 Deno.serve(async (req: Request) => {
@@ -96,6 +99,7 @@ Deno.serve(async (req: Request) => {
       ['Career goal', input.career_goal, LIMITS.MEDIUM],
       ['Existing presence', input.existing_presence, LIMITS.MEDIUM],
       ['Work type', input.work_type, LIMITS.LONG],
+      ["What you're unsure about", input.unsure_about, LIMITS.LONG],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
@@ -115,6 +119,7 @@ Deno.serve(async (req: Request) => {
       userContent: JSON.stringify({
         field, resolved_industry: industryCtx.industry,
         work_type: input.work_type, career_goal: careerGoal, existing_presence: input.existing_presence,
+        unsure_about: input.unsure_about || null,
         career_profile_context: profileNarrative(profile),
       }),
       toolName: 'submit_portfolio_plan',

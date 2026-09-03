@@ -9,8 +9,10 @@ import { FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/
 // table + submit_document_for_review + a generate-* Edge Function). Field
 // names and validation match supabase/functions/generate-portfolio-plan/
 // index.ts exactly: field is the only required top-level column, work_type
-// the only required input.* field, and career_goal falls back to the
-// student's profile goals server-side if left blank here.
+// the only required input.* field, career_goal falls back to the student's
+// profile goals server-side if left blank here, and unsure_about feeds a
+// handler_notes flag so the reviewing Coach double-checks whatever the
+// student flagged themselves as unsure about.
 
 const TIERS = [
   { value: 'standard', label: 'Standard — delivered within 48 hours' },
@@ -26,6 +28,7 @@ const DEFAULT_VALUES = {
   work_type: '',
   existing_presence: '',
   career_goal: '',
+  unsure_about: '',
   tier: 'standard',
 }
 
@@ -59,6 +62,13 @@ const STEPS = [
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Leave blank and we'll use your profile goals instead..." />,
   },
   {
+    key: 'unsure_about',
+    title: 'Anything you\'re unsure about?',
+    subtitle: 'Whether you have enough to show, how to present a weak or unfinished piece, something else — tell us and your Coach will double-check it specifically.',
+    optional: true,
+    render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
+  },
+  {
     key: 'tier',
     title: 'Standard or Premium delivery?',
     render: (value, onChange) => <ChoiceGrid options={TIERS} value={value} onChange={onChange} />,
@@ -81,6 +91,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
       work_type: v.work_type,
       career_goal: v.career_goal || null,
       existing_presence: v.existing_presence || null,
+      unsure_about: v.unsure_about || null,
     }
 
     // 1. Create the draft plan row.
