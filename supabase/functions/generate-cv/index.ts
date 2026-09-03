@@ -12,7 +12,7 @@ import {
 import { computeFormattingScore } from '../_shared/atsFormat.ts'
 import { LIMITS, checkLengths, checkRequired, isBlank } from '../_shared/fieldLimits.ts'
 import {
-  fetchProfileContext, mergeWithProfile, profileNarrative, PROFILE_CONTEXT_RULE,
+  fetchProfileContext, mergeWithProfile, profileNarrative, flattenProfileAchievements, PROFILE_CONTEXT_RULE,
 } from '../_shared/careerProfile.ts'
 
 const SYSTEM_PROMPT = `You are an expert CV writer combining the judgement of an experienced recruiter, a university careers advisor, and an ATS optimisation specialist. You write CVs for Irish and UK students, apprentices, and young professionals.
@@ -29,9 +29,17 @@ ${buzzwordRule()}
 
 NO WORK EXPERIENCE FALLBACK — if has_no_experience is true, do NOT write an empty or padded Experience section. Restructure the CV to lead with Education (including relevant modules and achievements), then Projects, then Skills, then any Achievements & Extras (societies, volunteering, publications). This is a completely different, equally strong structure for first-years and students entering the workforce for the first time — not a lesser version of the standard CV.
 
+EXISTING CV — if existing_cv_text is provided, it's the person's actual current CV, pasted as-is: a real factual source. Draw real experience, wording, and structure from it and improve on the writing — never let its old phrasing anchor you into weaker bullets than the METHOD above would otherwise produce, and never treat it as something to copy verbatim.
+
+EXPERIENCE LEVEL — years_experience_band (none / under_1 / 1_2 / 3_5 / 5_plus) is a coarse register signal, not a structural switch (has_no_experience already controls structure). A "none" or "under_1" candidate should read as high-potential and specific without inflating impact; a "5_plus" candidate should read as seasoned and outcomes-driven.
+
+ACHIEVEMENTS — achievements_highlight is the person's own free-text answer to "what do you most want us to highlight?". achievements_structured, when present instead, is an older categorised breakdown (societies / volunteering / projects / publications / other) from a different intake path. Use whichever one is actually provided as the source for the Achievements section — never invent an achievement neither one mentions.
+
+UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present. Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
+
 ${NON_TRADITIONAL_EVIDENCE_RULE}
 
-TARGETING — if target_role, target_industry, target_company, or job_description are provided, tailor language and emphasis toward them, and naturally work in relevant terminology for that field without keyword-stuffing. If they are blank, produce a strong general-purpose CV for the stated industry only.
+TARGETING — if target_role, target_industry, target_company, or job_description are provided, tailor language and emphasis toward them, and naturally work in relevant terminology for that field without keyword-stuffing. If they are blank, produce a strong general-purpose CV for the stated industry only. opportunity_type (graduate scheme / internship / part time / full time / placement year), when given, should shape register too — an internship or placement-year CV foregrounds potential and relevant coursework/projects more than a full-time CV would for the same person.
 
 TONE & LENGTH — respect the user's stated tone (formal / balanced / modern) and length preference (one page / two page) by how much you include and how you phrase it — formal is more conservative and traditional in phrasing, modern allows slightly more personality while staying professional.
 
@@ -120,7 +128,7 @@ Deno.serve(async (req: Request) => {
       education: profile.education,
       experience: profile.experience,
       skills: profile.skills,
-      achievements: profile.achievements,
+      achievements_highlight: flattenProfileAchievements(profile),
     })
 
     // Same precedence for the target-context object: the document's own target
@@ -139,6 +147,11 @@ Deno.serve(async (req: Request) => {
       ['Job description', jobDescription, LIMITS.PASTE_JD],
       ['What you want emphasised', input.target_emphasis, LIMITS.LONG],
       ['Specific requests', input.specific_requests, LIMITS.LONG],
+      ['Years of experience', input.years_experience_band, LIMITS.SHORT],
+      ['Type of opportunity', input.opportunity_type, LIMITS.SHORT],
+      ['What to highlight', input.achievements_highlight, LIMITS.LONG],
+      ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Your existing CV', input.existing_cv_text, LIMITS.PASTE_DOC],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
@@ -162,6 +175,7 @@ Deno.serve(async (req: Request) => {
         industry: industryCtx.industry,
         industry_as_stated: targetIndustry,
         role: targetRole,
+        opportunity_type: input.opportunity_type || null,
         company: targetCompany,
         emphasis: input.target_emphasis,
         job_description: jobDescription,
@@ -169,9 +183,17 @@ Deno.serve(async (req: Request) => {
       career_profile_context: profileNarrative(profile),
       education: input.education,
       has_no_experience: !!input.has_no_experience,
+      years_experience_band: input.years_experience_band || null,
       experience: input.has_no_experience ? [] : input.experience,
       skills: input.skills,
-      achievements: input.achievements,
+      achievements_highlight: input.achievements_highlight || null,
+      // CareerProfilePage's "Quick Generate" path still writes the old
+      // structured shape straight into this same input column rather than
+      // going through this flow's single question — pass it through if
+      // that's what's actually there, so that path still has a real source.
+      achievements_structured: isBlank(input.achievements_highlight) ? (input.achievements || null) : null,
+      existing_cv_text: input.existing_cv_text || null,
+      unsure_about: input.unsure_about || null,
       style: { tone: input.tone, length: input.length, specific_requests: input.specific_requests },
       real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
       industry_intelligence: intelligence.map(i => ({ dimension: i.dimension, content: i.content })),
@@ -280,6 +302,10 @@ function validateInput(input: Record<string, unknown>): string | null {
   ])
   if (achievementsTooLong) return achievementsTooLong
 
+  // years_experience_band is required by CvBuilderPage's own questionnaire
+  // (client-side), but not enforced here: CareerProfilePage's "Quick
+  // Generate" path writes into this same input column without ever asking
+  // for it, and that path must keep working unchanged.
   if (isBlank(input.tone) || isBlank(input.length)) return 'Tone and length preference are required.'
   return null
 }

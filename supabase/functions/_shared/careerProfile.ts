@@ -218,6 +218,26 @@ export function flattenProfileSkills(profile: CareerProfile | null): string[] {
 }
 
 /**
+ * Profile achievements, flattened to one free-text block.
+ *
+ * The profile still stores achievements as four categories (societies,
+ * volunteering, projects, other) because Career Profile itself was not part
+ * of the CV Optimisation intake rebuild. That rebuild's own questionnaire
+ * asks one open question instead (achievements_highlight) — this is the
+ * shared conversion so a generator reading a document whose input never
+ * restated achievements can still fall back to the profile, in the shape it
+ * now expects. Mirrors the frontend's own flattenAchievements() in
+ * CvBuilderPage.jsx, which does the same conversion client-side on load.
+ */
+export function flattenProfileAchievements(profile: CareerProfile | null): string {
+  if (!profile?.achievements) return ''
+  const { societies, volunteering, projects, publications, other } = profile.achievements as Record<string, unknown>
+  return [societies, volunteering, projects, publications, other]
+    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+    .join('\n')
+}
+
+/**
  * Profile experience, rendered as short narrative text.
  *
  * Some generators (LinkedIn's "experience", cover letter's "relevant
