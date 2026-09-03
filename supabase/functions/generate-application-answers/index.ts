@@ -113,6 +113,7 @@ Deno.serve(async (req: Request) => {
       supabase,
       target?.target_industry || targetRole,
       target?.target_course,
+      target?.industry_details,
     )
     const examples = await fetchCompetencyExamples(supabase, CORE_COMPETENCIES, 3, industryCtx.industry)
     const framework = FRAMEWORK_BY_INDUSTRY[industryCtx.industry]

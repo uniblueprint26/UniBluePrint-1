@@ -55,6 +55,7 @@ Deno.serve(async (req: Request) => {
       supabase,
       target?.target_industry || target_role,
       target?.target_course,
+      target?.industry_details,
     )
 
     const result = await callClaudeForStructuredOutput({

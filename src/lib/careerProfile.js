@@ -16,7 +16,7 @@ const PROFILE_COLS =
 
 const TARGET_COLS =
   'id, label, target_role, target_industry, target_company, target_course, ' +
-  'target_institution, job_description, is_active, created_at'
+  'target_institution, job_description, industry_details, is_active, created_at'
 
 export async function fetchCareerProfile(userId) {
   const { data, error } = await supabase

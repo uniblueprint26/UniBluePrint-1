@@ -244,7 +244,7 @@ Deno.serve(async (req: Request) => {
 
     // Industry branching layered on top of the existing user-type branching —
     // both apply at once, and neither replaces the other.
-    const industryCtx = await resolveIndustryContext(supabase, fieldOrIndustry, target?.target_course)
+    const industryCtx = await resolveIndustryContext(supabase, fieldOrIndustry, target?.target_course, target?.industry_details)
     const channels = CHANNELS_BY_INDUSTRY[industryCtx.industry]
     const channelRule = channels
       ? `\n\nWHERE THIS FIELD ACTUALLY HIRES — ${industryCtx.industry}\n${channels}\n\nUse these alongside the general Irish platform directory above, not instead of it, and keep the user-type branching (apprentice, young worker, 5th/6th year) applied on top. Where a channel is the only route — publicjobs.ie for the Civil Service, HSE portals for HSE roles — say so plainly rather than listing it as one option among several. Mark anything with an annual intake window as verify_before_use, since dates move each year.`

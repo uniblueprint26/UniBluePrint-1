@@ -17,6 +17,7 @@ import {
 } from '../../components/ui/Form'
 import { OPPORTUNITY_TYPES } from '../../lib/jobSearchConstants'
 import IndustrySelect from '../../components/foundation/IndustrySelect'
+import { INDUSTRY_QUESTIONNAIRES, hasIndustryQuestionnaire } from '../../lib/industryQuestionnaires'
 
 /**
  * Foundation Blueprint §08 — the Career Profile.
@@ -33,7 +34,7 @@ const emptyEducation = () => ({ institution: '', degree: '', year: '', grade: ''
 const emptyExperience = () => ({ job_title: '', company: '', dates: '', responsibilities: '' })
 const emptyTarget = () => ({
   label: '', target_role: '', target_industry: '', target_company: '',
-  target_course: '', target_institution: '', job_description: '',
+  target_course: '', target_institution: '', job_description: '', industry_details: {},
 })
 
 const initialProfile = {
@@ -181,6 +182,13 @@ export default function CareerProfilePage() {
     if (tooLong) { setError(tooLong); return }
     setError('')
     try {
+      // Blank answers left in a rendered-but-unfilled question are dropped
+      // rather than stored as empty strings — the backend renderer treats
+      // "no entry for this key" and "empty string" identically, but keeping
+      // only real answers here is honest about what was actually provided.
+      const industryDetails = Object.fromEntries(
+        Object.entries(newTarget.industry_details || {}).filter(([, v]) => v && v.trim()),
+      )
       const created = await createCareerTarget(user.id, {
         label: newTarget.label,
         target_role: newTarget.target_role || null,
@@ -189,6 +197,7 @@ export default function CareerProfilePage() {
         target_course: newTarget.target_course || null,
         target_institution: newTarget.target_institution || null,
         job_description: newTarget.job_description || null,
+        industry_details: industryDetails,
       })
       setTargets((ts) => [created, ...ts.map((t) => ({ ...t, is_active: false }))])
       setNewTarget(emptyTarget())
@@ -532,9 +541,25 @@ export default function CareerProfilePage() {
                     <IndustrySelect
                       id="t_industry"
                       value={newTarget.target_industry}
-                      onChange={(v) => setNewTarget((t) => ({ ...t, target_industry: v }))}
+                      onChange={(v) => setNewTarget((t) => ({
+                        ...t, target_industry: v,
+                        // A stale answer from a previously selected industry
+                        // (e.g. "PSRA licence category" left over after
+                        // switching from Real Estate to Tech) must not be
+                        // saved against a field it no longer describes.
+                        industry_details: v === t.target_industry ? t.industry_details : {},
+                      }))}
                     />
                   </FormField>
+                  {hasIndustryQuestionnaire(newTarget.target_industry) && (
+                    <IndustryQuestionnaireFields
+                      industry={newTarget.target_industry}
+                      values={newTarget.industry_details}
+                      onChange={(key, value) => setNewTarget((t) => ({
+                        ...t, industry_details: { ...t.industry_details, [key]: value },
+                      }))}
+                    />
+                  )}
                   <FormField id="t_jd" label="Paste the job description" hint="Optional — this is what sharpens keyword matching the most">
                     <FormTextarea id="t_jd" value={newTarget.job_description} onChange={(e) => setNewTarget((t) => ({ ...t, job_description: e.target.value }))} rows={5} maxLength={LIMITS.PASTE_JD} />
                   </FormField>
@@ -683,6 +708,37 @@ function QuickGenerateCard({ label, description, busy, disabled, expanded, onCli
         {busy && <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true" />}
         {busy ? 'Generating…' : 'Generate'}
       </button>
+    </div>
+  )
+}
+
+/**
+ * The supplementary questionnaire for regulated/phase-based industries.
+ *
+ * Renders only when the selected industry has one (INDUSTRY_QUESTIONNAIRES).
+ * Each field's label doubles as the key stored in industry_details, so this
+ * component needs no separate id/key mapping — see industryQuestionnaires.js
+ * for why that is deliberate.
+ */
+function IndustryQuestionnaireFields({ industry, values, onChange }) {
+  const questions = INDUSTRY_QUESTIONNAIRES[industry] || []
+  if (questions.length === 0) return null
+  return (
+    <div style={{ background: 'rgba(30,58,95,0.03)', border: '1px solid rgba(30,58,95,0.1)', borderRadius: '10px', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 600, color: '#1E3A5F' }}>
+        A couple of specifics for {industry} — this is exactly what your generated documents will name precisely instead of leaving vague.
+      </p>
+      {questions.map(({ key, placeholder }) => (
+        <FormField key={key} id={`qd-${key}`} label={key} hint="Leave blank if not applicable yet">
+          <FormInput
+            id={`qd-${key}`}
+            value={values?.[key] || ''}
+            onChange={(e) => onChange(key, e.target.value)}
+            placeholder={placeholder}
+            maxLength={LIMITS.SHORT}
+          />
+        </FormField>
+      ))}
     </div>
   )
 }

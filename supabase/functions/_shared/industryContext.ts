@@ -34,10 +34,36 @@ function group(rows: IndustryIntel[], dimension: string): string[] {
   return rows.filter((r) => r.dimension === dimension).map((r) => r.content)
 }
 
-function renderBlock(industry: ResolvedIndustry, source: IndustrySource, rows: IndustryIntel[]): string {
+/**
+ * Renders the student's own answers to the industry questionnaire
+ * (career_targets.industry_details — see src/lib/industryQuestionnaires.js).
+ *
+ * Deliberately dumb: this function has no idea what the questions were, and
+ * doesn't need to — each key IS the question's label, written by the
+ * frontend, so rendering is just "print what's here." That is what lets the
+ * questionnaire itself live in exactly one place (the frontend config)
+ * without a backend mirror to keep in sync, unlike the industry vocabulary.
+ */
+function renderIndustryDetails(details: Record<string, string> | null | undefined): string {
+  if (!details) return ''
+  const entries = Object.entries(details).filter(([, v]) => v && v.trim())
+  if (entries.length === 0) return ''
+  return `\n\nSTUDENT-REPORTED STATUS FOR THIS APPLICATION — answered directly by the student, treat as real, current fact:\n${
+    entries.map(([label, value]) => `- ${label}: ${value}`).join('\n')
+  }\nReference this precisely where relevant (it is exactly the kind of specific, checkable detail the must-haves above call for) — but never expand on it or invent detail beyond what is stated here.`
+}
+
+function renderBlock(
+  industry: ResolvedIndustry,
+  source: IndustrySource,
+  rows: IndustryIntel[],
+  industryDetails?: Record<string, string> | null,
+): string {
+  const detailsBlock = renderIndustryDetails(industryDetails)
+
   if (industry === GENERAL || rows.length === 0) {
     return `INDUSTRY CONTEXT — GENERAL (source: ${source})
-No industry-specific intelligence is on file for this student's field. Apply general best practice, and do NOT invent industry-specific bodies, certifications, or requirements to fill the gap.`
+No industry-specific intelligence is on file for this student's field. Apply general best practice, and do NOT invent industry-specific bodies, certifications, or requirements to fill the gap.${detailsBlock}`
   }
 
   const screening = group(rows, 'screening_mechanism')
@@ -62,7 +88,7 @@ This is researched, sourced intelligence on how this specific industry screens c
     section('Real bodies, employers and credentials you may reference where the student\'s own input supports it', entities)
   }
 
-Only reference an entity above if this student's own input genuinely connects to it. Naming a body they have no link to is fabrication, not specificity.`
+Only reference an entity above if this student's own input genuinely connects to it. Naming a body they have no link to is fabrication, not specificity.${detailsBlock}`
 }
 
 /**
@@ -83,6 +109,7 @@ export async function resolveIndustryContext(
   supabase: SupabaseClient,
   rawIndustry: string | null | undefined,
   rawCourse: string | null | undefined,
+  industryDetails?: Record<string, string> | null,
   limit = 12,
 ): Promise<ResolvedIndustryContext> {
   const stated = normaliseIndustry(rawIndustry)
@@ -96,13 +123,18 @@ export async function resolveIndustryContext(
     ? []
     : await fetchIndustryIntelligence(supabase, industry, limit)
 
+  const detailsAnswered = industryDetails
+    ? Object.values(industryDetails).filter((v) => v && v.trim()).length
+    : 0
+
   return {
     industry,
     source,
     intelligence,
-    promptBlock: renderBlock(industry, source, intelligence),
+    promptBlock: renderBlock(industry, source, intelligence, industryDetails),
     handlerNote:
       `Industry detected: ${industry} (${source}). Industry intelligence applied: ` +
-      `${intelligence.length > 0 ? `yes — ${intelligence.length} sourced findings` : 'no — general fallback used'}.`,
+      `${intelligence.length > 0 ? `yes — ${intelligence.length} sourced findings` : 'no — general fallback used'}.` +
+      `${detailsAnswered > 0 ? ` Student-reported status: ${detailsAnswered} field(s) provided.` : ''}`,
   }
 }

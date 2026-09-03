@@ -107,7 +107,7 @@ Deno.serve(async (req: Request) => {
     const hasNoExperience = input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience
     const experience = !isBlank(input.experience) ? input.experience : experienceNarrative(profile)
 
-    const industryCtx = await resolveIndustryContext(supabase, targetIndustry, target?.target_course)
+    const industryCtx = await resolveIndustryContext(supabase, targetIndustry, target?.target_course, target?.industry_details)
 
     const [headlineExamples, aboutExamples] = await Promise.all([
       fetchIndustryExamples(supabase, 'linkedin_headline', industryCtx.industry, 2),

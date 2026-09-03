@@ -151,6 +151,7 @@ Deno.serve(async (req: Request) => {
       supabase,
       targetIndustry,
       doc.target_course || target?.target_course,
+      target?.industry_details,
     )
     const examples = await fetchIndustryExamples(supabase, 'cv_bullet', industryCtx.industry, 3)
     const intelligence = industryCtx.intelligence

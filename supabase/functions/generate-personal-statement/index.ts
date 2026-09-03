@@ -105,7 +105,7 @@ Deno.serve(async (req: Request) => {
     // the industry it is aimed at matters more here than almost anywhere else.
     // The course is usually the better signal than a stated target industry for
     // this document, but stated still wins when the student gave one.
-    const industryCtx = await resolveIndustryContext(supabase, target?.target_industry, targetCourse)
+    const industryCtx = await resolveIndustryContext(supabase, target?.target_industry, targetCourse, target?.industry_details)
 
     const result = await callClaudeForStructuredOutput({
       system: `${SYSTEM_PROMPT_BASE}\n\n${pathwayPrompt}\n\n${industryCtx.promptBlock}`,

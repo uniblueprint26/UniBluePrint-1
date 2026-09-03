@@ -86,7 +86,7 @@ Deno.serve(async (req: Request) => {
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
-    const industryCtx = await resolveIndustryContext(supabase, industry, target?.target_course)
+    const industryCtx = await resolveIndustryContext(supabase, industry, target?.target_course, target?.industry_details)
     const examples = await fetchIndustryExamples(supabase, 'cover_letter_opener', industryCtx.industry, 2)
     const hasNoExperience = input.has_no_experience !== undefined ? !!input.has_no_experience : !!profile?.has_no_experience
     const backgroundSummary = input.background_summary || experienceNarrative(profile) || null

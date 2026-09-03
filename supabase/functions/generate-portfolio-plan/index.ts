@@ -101,7 +101,7 @@ Deno.serve(async (req: Request) => {
 
     const careerGoal = input.career_goal || profile?.goals || null
 
-    const industryCtx = await resolveIndustryContext(supabase, field, target?.target_course)
+    const industryCtx = await resolveIndustryContext(supabase, field, target?.target_course, target?.industry_details)
     const portfolioConvention = PORTFOLIO_BY_INDUSTRY[industryCtx.industry]
     const portfolioRule = portfolioConvention
       ? `\n\nPORTFOLIO CONVENTION FOR THIS FIELD — ${industryCtx.industry}\n${portfolioConvention}\n\nRecommend against this convention. If the student's existing presence already partly meets it, build on what they have rather than starting them over.`

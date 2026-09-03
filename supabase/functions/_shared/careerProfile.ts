@@ -38,6 +38,17 @@ export interface CareerTarget {
   target_course: string | null
   target_institution: string | null
   job_description: string | null
+  // Answers to the industry-specific questionnaire the frontend shows for
+  // ~13 regulated or phase-based fields (see src/lib/industryQuestionnaires.js)
+  // — registration/licence status, qualification stage, and similar checkable
+  // facts the generic profile fields never ask for. Keyed by the question's
+  // own label (e.g. "Registration status"), so this file needs no knowledge
+  // of what the questions actually are — it only renders whatever is here.
+  // Empty object for industries with no questionnaire, or a target with none
+  // answered yet. Scoped to the application, not the profile, because a
+  // student can be targeting two different regulated fields at once with two
+  // different statuses.
+  industry_details: Record<string, string> | null
 }
 
 export interface EvidenceStory {
@@ -55,7 +66,7 @@ const PROFILE_COLS =
 
 const TARGET_COLS =
   'id, label, target_role, target_industry, target_company, target_course, ' +
-  'target_institution, job_description'
+  'target_institution, job_description, industry_details'
 
 /**
  * The user's profile, or null if they have not built one yet.
