@@ -28,6 +28,11 @@ import ProfileScreen       from '../screens/ProfileScreen'
 import NotificationsScreen  from '../screens/NotificationsScreen'
 import CoachProfileScreen   from '../screens/CoachProfileScreen'
 import ChatRoomScreen       from '../screens/ChatRoomScreen'
+
+// Foundation Blueprint generator intake — CV Optimisation is the reference
+// pattern; the other 7 services follow the same skeleton later.
+import CvBuilderScreen           from '../screens/foundation/CvBuilderScreen'
+import GenerationSubmittedScreen from '../screens/foundation/GenerationSubmittedScreen'
 import CompassScreen        from '../screens/CompassScreen'
 
 // Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches)
@@ -82,6 +87,8 @@ function HomeStack() {
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
+      <Stack.Screen name="CvBuilder"           component={CvBuilderScreen}           options={{ presentation: 'modal' }} />
+      <Stack.Screen name="GenerationSubmitted" component={GenerationSubmittedScreen} options={{ presentation: 'modal', gestureEnabled: false }} />
 
       {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
       <Stack.Screen name="StudioQueue"      component={StudioQueueScreen}   />

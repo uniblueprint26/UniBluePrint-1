@@ -262,7 +262,17 @@ export default function FoundationScreen({ navigation }) {
                       <TouchableOpacity
                         style={styles.orderBtn}
                         activeOpacity={0.8}
-                        onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)}
+                        onPress={() => {
+                          // CV Optimisation has a real in-app intake now (the
+                          // reference pattern for the other 7 services, which
+                          // still fall back to email until they're built the
+                          // same way).
+                          if (title === 'CV Optimisation') {
+                            navigation.navigate('CvBuilder')
+                            return
+                          }
+                          Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
+                        }}
                       >
                         <Text style={styles.orderBtnText}>Order {title} →</Text>
                       </TouchableOpacity>
