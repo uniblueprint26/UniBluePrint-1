@@ -238,6 +238,15 @@ Deno.serve(async (req: Request) => {
       ['Professional registration status', input.professional_registration_status, LIMITS.MEDIUM],
       ['What you have tried so far', input.applications_so_far, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      // The rest of these are fixed-option selects in the UI, so a normal
+      // request can never exceed these — checked anyway since they reach
+      // userContent via the `...input` spread below with no other gate, and
+      // the UI is not the only way to call this function.
+      ['Urgency', input.urgency, LIMITS.SHORT],
+      ['Interview conversion', input.interview_conversion, LIMITS.SHORT],
+      ['CV status', input.cv_status, LIMITS.SHORT],
+      ['LinkedIn status', input.linkedin_status, LIMITS.SHORT],
+      ['Applicant type', input.non_university_type, LIMITS.SHORT],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 

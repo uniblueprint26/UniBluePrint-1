@@ -112,7 +112,7 @@ export default function CvBuilderPage() {
 
     supabase
       .from('cv_documents')
-      .select('id, input, updated_at')
+      .select('id, input, target_role, target_industry, target_company, job_description, style, updated_at')
       .eq('user_id', user.id)
       .eq('status', 'draft')
       .order('updated_at', { ascending: false })
@@ -133,7 +133,30 @@ export default function CvBuilderPage() {
 
   const resumeDraft = () => {
     draftIdRef.current = pendingDraft.id
-    setForm((f) => ({ ...f, ...(pendingDraft.input || {}) }))
+    const draftInput = pendingDraft.input || {}
+    setForm((f) => ({
+      ...f,
+      ...draftInput,
+      // buildInputPayload saves skills as arrays (splitCsv'd for the
+      // generator); the form's own skills fields are the raw comma-separated
+      // strings the FormInputs edit. Without converting back on resume, a
+      // returning student's skills step would silently hold arrays where it
+      // expects strings, and the next save would call splitCsv() on an
+      // array and throw.
+      skills: draftInput.skills ? {
+        technical: (draftInput.skills.technical || []).join(', '),
+        soft: (draftInput.skills.soft || []).join(', '),
+        languages: (draftInput.skills.languages || []).join(', '),
+        tools: (draftInput.skills.tools || []).join(', '),
+      } : f.skills,
+      // Top-level columns, not part of input — restored from the row itself,
+      // matching every other rebuilt service's resumeDraft.
+      target_role: pendingDraft.target_role || f.target_role,
+      target_industry: pendingDraft.target_industry || f.target_industry,
+      target_company: pendingDraft.target_company || f.target_company,
+      job_description: pendingDraft.job_description || f.job_description,
+      style: pendingDraft.style || f.style,
+    }))
     setDraftCheck('resumed')
   }
   const discardDraft = () => {
@@ -164,7 +187,16 @@ export default function CvBuilderPage() {
     const draftInput = { ...buildInputPayload(form), _current_step: stepKey }
     try {
       if (draftIdRef.current) {
-        await supabase.from('cv_documents').update({ input: draftInput, updated_at: new Date().toISOString() }).eq('id', draftIdRef.current)
+        await supabase.from('cv_documents').update({
+          input: draftInput,
+          title: `${form.personal_info.full_name || 'Untitled'} — ${form.target_role || form.target_industry || 'CV'}`,
+          style: form.style,
+          target_role: form.target_role || null,
+          target_industry: form.target_industry || null,
+          target_company: form.target_company || null,
+          job_description: form.job_description || null,
+          updated_at: new Date().toISOString(),
+        }).eq('id', draftIdRef.current)
       } else {
         const { data } = await supabase
           .from('cv_documents')

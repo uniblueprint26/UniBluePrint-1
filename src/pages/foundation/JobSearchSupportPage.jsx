@@ -98,7 +98,7 @@ export default function JobSearchSupportPage() {
 
     supabase
       .from('job_search_sessions')
-      .select('id, input, updated_at')
+      .select('id, input, tier, updated_at')
       .eq('user_id', user.id)
       .eq('status', 'draft')
       .order('updated_at', { ascending: false })
@@ -120,6 +120,9 @@ export default function JobSearchSupportPage() {
   const resumeDraft = () => {
     draftIdRef.current = pendingDraft.id
     setForm((f) => ({ ...f, ...(pendingDraft.input || {}) }))
+    // tier lives as page state, not on `form` — restored separately from the
+    // row's own tier column.
+    if (pendingDraft.tier) setTier(pendingDraft.tier)
     setDraftCheck('resumed')
   }
   const discardDraft = () => {
@@ -150,7 +153,7 @@ export default function JobSearchSupportPage() {
     const draftInput = { ...buildInputPayload(form), _current_step: stepKey }
     try {
       if (draftIdRef.current) {
-        await supabase.from('job_search_sessions').update({ input: draftInput, updated_at: new Date().toISOString() }).eq('id', draftIdRef.current)
+        await supabase.from('job_search_sessions').update({ input: draftInput, tier, updated_at: new Date().toISOString() }).eq('id', draftIdRef.current)
       } else {
         const { data } = await supabase
           .from('job_search_sessions')

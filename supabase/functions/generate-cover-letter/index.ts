@@ -86,6 +86,9 @@ Deno.serve(async (req: Request) => {
       ['Relevant experience', input.relevant_experience, LIMITS.LONG],
       ['Why this company', input.why_this_company, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      // A fixed-option select in the UI, checked anyway since the UI isn't
+      // the only way to call this function.
+      ['Tone', input.tone, LIMITS.SHORT],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
