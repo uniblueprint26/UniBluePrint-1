@@ -67,6 +67,8 @@ export function ChoiceGrid({ options, value, onChange }) {
             activeOpacity={0.8}
             onPress={() => onChange(optValue)}
             style={[s.choicePill, active && s.choicePillActive]}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
           >
             <Text style={[s.choicePillText, active && s.choicePillTextActive]}>{optLabel}</Text>
           </TouchableOpacity>
@@ -97,7 +99,13 @@ export function TagInput({ values = [], onChange, placeholder }) {
           onSubmitEditing={commit}
           returnKeyType="done"
         />
-        <TouchableOpacity style={s.tagAddBtn} activeOpacity={0.8} onPress={commit}>
+        <TouchableOpacity
+          style={s.tagAddBtn}
+          activeOpacity={0.8}
+          onPress={commit}
+          accessibilityRole="button"
+          accessibilityLabel="Add"
+        >
           <Plus size={18} color={colors.cream} />
         </TouchableOpacity>
       </View>
@@ -106,7 +114,11 @@ export function TagInput({ values = [], onChange, placeholder }) {
           {values.map(v => (
             <View key={v} style={s.chip}>
               <Text style={s.chipText}>{v}</Text>
-              <TouchableOpacity onPress={() => onChange(values.filter(x => x !== v))}>
+              <TouchableOpacity
+                onPress={() => onChange(values.filter(x => x !== v))}
+                accessibilityRole="button"
+                accessibilityLabel={`Remove ${v}`}
+              >
                 <X size={13} color={colors.navy} />
               </TouchableOpacity>
             </View>
@@ -125,6 +137,8 @@ export function YesNoToggle({ value, onChange, yesLabel = 'Yes', noLabel = 'No' 
         activeOpacity={0.8}
         onPress={() => onChange(true)}
         style={[s.choicePill, value === true && s.choicePillActive]}
+        accessibilityRole="button"
+        accessibilityState={{ selected: value === true }}
       >
         <Text style={[s.choicePillText, value === true && s.choicePillTextActive]}>{yesLabel}</Text>
       </TouchableOpacity>
@@ -132,6 +146,8 @@ export function YesNoToggle({ value, onChange, yesLabel = 'Yes', noLabel = 'No' 
         activeOpacity={0.8}
         onPress={() => onChange(false)}
         style={[s.choicePill, value === false && s.choicePillActive]}
+        accessibilityRole="button"
+        accessibilityState={{ selected: value === false }}
       >
         <Text style={[s.choicePillText, value === false && s.choicePillTextActive]}>{noLabel}</Text>
       </TouchableOpacity>

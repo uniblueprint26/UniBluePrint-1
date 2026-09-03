@@ -29,7 +29,13 @@ export default function RepeatingList({ entries, onChange, renderEntry, emptyEnt
       {list.map((entry, i) => (
         <Card key={i} style={s.entryCard}>
           {list.length > 1 && (
-            <TouchableOpacity style={s.removeBtn} activeOpacity={0.7} onPress={() => removeEntry(i)}>
+            <TouchableOpacity
+              style={s.removeBtn}
+              activeOpacity={0.7}
+              onPress={() => removeEntry(i)}
+              accessibilityRole="button"
+              accessibilityLabel={`Remove entry ${i + 1}`}
+            >
               <Trash2 size={15} color={colors.muted} />
             </TouchableOpacity>
           )}

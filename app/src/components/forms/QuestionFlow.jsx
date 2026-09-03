@@ -68,22 +68,32 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={styles.headerBtn}>
+        <TouchableOpacity
+          onPress={goBack}
+          activeOpacity={0.7}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel={index === 0 ? 'Close' : 'Go back to previous question'}
+        >
           {index === 0
             ? <X size={20} color={colors.navy} />
             : <ChevronLeft size={20} color={colors.navy} />}
         </TouchableOpacity>
-        <View style={styles.progressTrack}>
+        <View
+          style={styles.progressTrack}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 1, max: steps.length, now: index + 1 }}
+        >
           <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
         </View>
-        <Text style={styles.stepCount}>{index + 1}/{steps.length}</Text>
+        <Text style={styles.stepCount} accessibilityElementsHidden importantForAccessibility="no">{index + 1}/{steps.length}</Text>
       </View>
 
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>{step.title}</Text>
+        <Text style={styles.title} accessibilityRole="header">{step.title}</Text>
         {!!step.subtitle && <Text style={styles.subtitle}>{step.subtitle}</Text>}
 
         <View style={styles.stepBody}>
@@ -91,7 +101,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
         </View>
 
         {!!error && (
-          <View style={styles.errorBox}>
+          <View style={styles.errorBox} accessibilityLiveRegion="polite" accessibilityRole="alert">
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -103,6 +113,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
             onPress={() => { setError(null); setIndex(i => i + 1) }}
             activeOpacity={0.7}
             style={styles.skipBtn}
+            accessibilityRole="button"
           >
             <Text style={styles.skipBtnText}>Skip</Text>
           </TouchableOpacity>
@@ -112,6 +123,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
           activeOpacity={0.85}
           disabled={submitting}
           style={[styles.nextBtn, submitting && { opacity: 0.7 }]}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: submitting, busy: submitting }}
         >
           <Text style={styles.nextBtnText}>
             {submitting ? 'Submitting…' : isLast ? submitLabel : 'Continue'}
