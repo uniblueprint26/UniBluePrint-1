@@ -259,6 +259,9 @@ Deno.serve(async (req: Request) => {
       : ''
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-job-search-support',
       system: `${SYSTEM_PROMPT}${channelRule}\n\n${industryCtx.promptBlock}`,
       userContent,
       toolName: 'submit_job_search_support',

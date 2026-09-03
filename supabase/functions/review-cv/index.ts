@@ -72,6 +72,9 @@ Deno.serve(async (req: Request) => {
     const intelligence = industryCtx.intelligence
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'review-cv',
       system: `${SYSTEM_PROMPT}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         cv_text: raw_text,

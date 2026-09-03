@@ -59,6 +59,9 @@ Deno.serve(async (req: Request) => {
     )
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'review-cover-letter',
       system: `${SYSTEM_PROMPT}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         letter_text: raw_text,

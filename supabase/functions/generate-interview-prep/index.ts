@@ -175,6 +175,9 @@ Deno.serve(async (req: Request) => {
       : ''
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-interview-prep',
       system: `${SYSTEM_PROMPT}${formatRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         target_company: targetCompany,

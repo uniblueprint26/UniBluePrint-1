@@ -122,6 +122,9 @@ Deno.serve(async (req: Request) => {
       : ''
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-application-answers',
       system: `${SYSTEM_PROMPT}${frameworkRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         target_company: targetCompany,

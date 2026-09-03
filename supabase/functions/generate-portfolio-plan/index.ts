@@ -108,6 +108,9 @@ Deno.serve(async (req: Request) => {
       : ''
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-portfolio-plan',
       system: `${SYSTEM_PROMPT}${portfolioRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         field, resolved_industry: industryCtx.industry,

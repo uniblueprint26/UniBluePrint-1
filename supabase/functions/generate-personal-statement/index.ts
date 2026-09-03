@@ -108,6 +108,9 @@ Deno.serve(async (req: Request) => {
     const industryCtx = await resolveIndustryContext(supabase, target?.target_industry, targetCourse, target?.industry_details)
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-personal-statement',
       system: `${SYSTEM_PROMPT_BASE}\n\n${pathwayPrompt}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         pathway: doc.pathway,

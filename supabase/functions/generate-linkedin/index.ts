@@ -123,6 +123,9 @@ Deno.serve(async (req: Request) => {
       : ''
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-linkedin',
       system: `${SYSTEM_PROMPT}${searchRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
         target_industry: industryCtx.industry,

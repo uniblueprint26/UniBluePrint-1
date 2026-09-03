@@ -200,6 +200,9 @@ Deno.serve(async (req: Request) => {
     })
 
     const result = await callClaudeForStructuredOutput({
+      supabase,
+      userId: user.id,
+      functionName: 'generate-cv',
       system: `${SYSTEM_PROMPT}\n\n${industryCtx.promptBlock}`,
       userContent,
       toolName: 'submit_cv',

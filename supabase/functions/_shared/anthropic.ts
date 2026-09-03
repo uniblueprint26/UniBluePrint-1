@@ -1,6 +1,14 @@
 // Shared helper for calling Claude with forced structured (tool-use) output.
 // Used by generate-cv, review-cv, and generate-job-search-support so each function's
 // prompt file only has to define its own system prompt + JSON schema, not the wiring.
+//
+// Rate limiting and cost tracking (rateLimit.ts) are wired in here, not duplicated
+// across every generator function — checkRateLimit runs before spending anything,
+// logGeneration runs after a successful call. Callers just need to pass their
+// supabase client, the calling user's id, and a function name; nothing else changes.
+
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { checkRateLimit, logGeneration, RateLimitedError } from './rateLimit.ts'
 
 const ANTHROPIC_VERSION = '2023-06-01'
 const DEFAULT_MODEL = 'claude-sonnet-5'
@@ -54,7 +62,15 @@ export async function callClaudeForStructuredOutput(opts: {
   toolDescription: string
   inputSchema: Record<string, unknown>
   maxTokens?: number
+  /** Rate limiting + cost tracking — see rateLimit.ts. Required, not optional: every
+   *  generator function already has a supabase client and the calling user's id from
+   *  requireUser(), so there's no legitimate call site that can't provide these. */
+  supabase: SupabaseClient
+  userId: string
+  functionName: string
 }): Promise<Record<string, unknown>> {
+  await checkRateLimit(opts.supabase, opts.userId)
+
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!apiKey) throw new MissingApiKeyError()
 
@@ -127,6 +143,18 @@ export async function callClaudeForStructuredOutput(opts: {
     const toolUse = (data.content || []).find((b: { type: string }) => b.type === 'tool_use')
     if (!toolUse) throw new GenerationError('Claude did not return structured output', data)
 
+    // Best-effort — a logging failure must never fail the generation the student is
+    // actually waiting on (see logGeneration's own try/catch too; this one guards
+    // against logGeneration itself throwing rather than just returning an error).
+    try {
+      await logGeneration(opts.supabase, opts.userId, opts.functionName, {
+        inputTokens: data.usage?.input_tokens ?? 0,
+        outputTokens: data.usage?.output_tokens ?? 0,
+      })
+    } catch (err) {
+      console.warn('logGeneration threw (non-blocking):', err)
+    }
+
     return toolUse.input as Record<string, unknown>
   }
 
@@ -146,6 +174,9 @@ export function jsonResponse(body: unknown, status = 200) {
 }
 
 export function errorResponse(err: unknown) {
+  if (err instanceof RateLimitedError) {
+    return jsonResponse({ error: err.message, code: 'rate_limited' }, 429)
+  }
   if (err instanceof MissingApiKeyError) {
     return jsonResponse({ error: err.message, code: 'missing_api_key' }, 501)
   }
