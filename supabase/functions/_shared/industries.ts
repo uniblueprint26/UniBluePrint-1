@@ -45,6 +45,10 @@ export const INDUSTRIES = [
   'Insurance and Actuarial',
   'Retail and E-commerce',
   'Environmental Sustainability and Renewable Energy',
+  'Human Resources and People Operations',
+  'Food and Beverage Manufacturing',
+  'Non-Profit and NGO Management',
+  'Telecommunications and Utilities',
 ] as const
 
 export type Industry = typeof INDUSTRIES[number]
@@ -122,7 +126,9 @@ const ALIASES: Record<string, Industry> = {
   commerce: 'Business and Management',
   entrepreneurship: 'Business and Management',
   consulting: 'Business and Management',
-  'human resources': 'Business and Management',
+  // 'human resources' moved to Human Resources and People Operations below —
+  // a dedicated bucket now exists for it, the same "vacate the superseded
+  // generic bucket" move as actuarial/veterinary/supply chain earlier.
   // 'logistics' moved to Aviation and Logistics below — supply chain and
   // logistics specifically now have their own home rather than folding into
   // general business, which is the more accurate resolution for that term.
@@ -345,6 +351,69 @@ const ALIASES: Record<string, Industry> = {
   // lab/research-based degree. Bare 'environmental' here is a different
   // resolution path (the free-text industry field, not a course name) and
   // was previously unclaimed, so adding it does not conflict.
+
+  // Human Resources and People Operations
+  'human resources': 'Human Resources and People Operations',
+  // Word-boundary — already registered below; two letters, appears inside
+  // unrelated words otherwise (e.g. "shrink").
+  hr: 'Human Resources and People Operations',
+  'people operations': 'Human Resources and People Operations',
+  'talent acquisition': 'Human Resources and People Operations',
+  'talent management': 'Human Resources and People Operations',
+  recruitment: 'Human Resources and People Operations',
+  'employee relations': 'Human Resources and People Operations',
+  'organisational development': 'Human Resources and People Operations',
+  'organizational development': 'Human Resources and People Operations',
+  'people and culture': 'Human Resources and People Operations',
+
+  // Food and Beverage Manufacturing
+  'food manufacturing': 'Food and Beverage Manufacturing',
+  'food production': 'Food and Beverage Manufacturing',
+  'food processing': 'Food and Beverage Manufacturing',
+  'beverage manufacturing': 'Food and Beverage Manufacturing',
+  'food technology': 'Food and Beverage Manufacturing',
+  brewing: 'Food and Beverage Manufacturing',
+  distilling: 'Food and Beverage Manufacturing',
+  'food safety': 'Food and Beverage Manufacturing',
+  // Deliberately not claiming bare 'manufacturing' — it already resolves to
+  // Engineering (manufacturing engineering), and that remains the more
+  // common meaning of the bare word. Deliberately not claiming bare 'food'
+  // either — too ambiguous with Hospitality and Tourism's food-service
+  // meaning. The compounds above still resolve the manufacturing-specific
+  // meaning correctly.
+
+  // Non-Profit and NGO Management
+  charity: 'Non-Profit and NGO Management',
+  charities: 'Non-Profit and NGO Management',
+  'non-profit': 'Non-Profit and NGO Management',
+  nonprofit: 'Non-Profit and NGO Management',
+  'not-for-profit': 'Non-Profit and NGO Management',
+  'international development': 'Non-Profit and NGO Management',
+  humanitarian: 'Non-Profit and NGO Management',
+  fundraising: 'Non-Profit and NGO Management',
+  'voluntary sector': 'Non-Profit and NGO Management',
+  'third sector': 'Non-Profit and NGO Management',
+  // Word-boundary — 'ngo' is short enough to appear inside unrelated words
+  // ("flamingo", "mango", "tango", "bingo", "Django").
+  ngo: 'Non-Profit and NGO Management',
+
+  // Telecommunications and Utilities
+  telecommunications: 'Telecommunications and Utilities',
+  telecoms: 'Telecommunications and Utilities',
+  telecom: 'Telecommunications and Utilities',
+  utilities: 'Telecommunications and Utilities',
+  'gas network': 'Telecommunications and Utilities',
+  'electricity network': 'Telecommunications and Utilities',
+  broadband: 'Telecommunications and Utilities',
+  // Compounds, so the longest-first sort keeps these out of Engineering —
+  // 'engineer'/'engineering' (8-11 chars) is shorter than these and would
+  // otherwise win for e.g. "telecoms engineer".
+  'telecoms engineer': 'Telecommunications and Utilities',
+  'telecommunications engineer': 'Telecommunications and Utilities',
+  // Deliberately not claiming bare 'utility' or 'network' — both are common
+  // generic words used well outside this industry (a software utility, a
+  // computer network), and the compounds above still resolve the
+  // utilities-specific meaning correctly.
 }
 
 /**
@@ -352,7 +421,7 @@ const ALIASES: Record<string, Industry> = {
  * word boundaries instead of as bare substrings — 'it' must not fire on
  * "hospitality", and 'pr' must not fire on "primary".
  */
-const WORD_BOUNDARY_ALIASES = new Set(['it', 'pe', 'pr', 'ai', 'hr', 'vet', 'tech', 'esg'])
+const WORD_BOUNDARY_ALIASES = new Set(['it', 'pe', 'pr', 'ai', 'hr', 'vet', 'tech', 'esg', 'ngo'])
 
 /** Longest first, so compound aliases beat the shorter alias inside them. */
 const SORTED_ALIASES: Array<[string, Industry]> = Object.entries(ALIASES)

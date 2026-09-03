@@ -67,6 +67,33 @@ const COURSE_RULES: Rule[] = [
   // buying/merchandising degree is a retail pathway, not a design one.
   [['retail management', 'retail and services management',
     'buying and merchandising', 'fashion buying'], 'Retail and E-commerce'],
+  // Beats Social Work and Community's bare 'psychology' rule below —
+  // organisational/occupational psychology is a workplace-facing HR pathway,
+  // not a clinical or community one.
+  [['human resource management', 'human resources', 'human resource',
+    'hr management', 'people management', 'organisational psychology',
+    'occupational psychology'], 'Human Resources and People Operations'],
+  // 'food science' deliberately stays with Science and Research below (the
+  // same call as 'environmental science') — these compounds are the
+  // manufacturing/production-facing pathway, a genuinely different degree.
+  [['food technology', 'food production', 'food and beverage manufacturing',
+    'brewing and distilling', 'food business'], 'Food and Beverage Manufacturing'],
+  [['international development', 'humanitarian studies',
+    'nonprofit management', 'non-profit management', 'charity management',
+    'development studies'], 'Non-Profit and NGO Management'],
+  // Beats Engineering's bare 'engineering' rule below — a telecoms degree is
+  // its own pathway, not general engineering.
+  [['telecommunications engineering', 'telecommunications',
+    'utility management'], 'Telecommunications and Utilities'],
+  // Pre-existing bug, found while testing the rules above rather than caused
+  // by them: Technology and Software's discipline rule below tests bare
+  // 'computer' and is listed BEFORE Engineering's, so "Computer Engineering"
+  // and "Electronic and Computer Engineering" — real DCU/Trinity degree
+  // titles, and genuinely engineering degrees — were resolving to Technology
+  // and Software instead. Fixed the same way as every other compound-before-
+  // generic case in this file: catch the compound here, before either
+  // discipline rule gets a chance to fire on the bare word it contains.
+  [['computer engineering', 'electronic and computer engineering'], 'Engineering'],
 
   // ── discipline-specific ─────────────────────────────────────────────────
   [['software', 'information technology', 'cybersecurity', 'computer',
@@ -94,8 +121,11 @@ const COURSE_RULES: Rule[] = [
     'drama', 'creative', 'media', 'design', 'photography', 'visual'], 'Creative and Media'],
   [['biotechnology', 'genetics', 'biology', 'chemistry', 'physics',
     'biochemistry', 'microbiology', 'neuroscience', 'pharmacology'], 'Science and Research'],
+  // 'human resource' moved to its own compound rule above — it used to fall
+  // in here, the closest available bucket before a dedicated HR industry
+  // existed.
   [['business', 'commerce', 'management', 'entrepreneurship',
-    'international business', 'human resource'], 'Business and Management'],
+    'international business'], 'Business and Management'],
   [['hospitality', 'tourism', 'culinary'], 'Hospitality and Tourism'],
   [['sport', 'fitness'], 'Sports and Fitness'],
   [['public administration', 'public policy', 'government', 'politics'], 'Public Sector and Civil Service'],
@@ -109,6 +139,14 @@ const COURSE_RULES: Rule[] = [
   [['insurance', 'actuary'], 'Insurance and Actuarial'],
   [['retail', 'merchandising', 'e-commerce', 'ecommerce'], 'Retail and E-commerce'],
   [['sustainability', 'renewable energy'], 'Environmental Sustainability and Renewable Energy'],
+  [['human resources', 'recruitment', 'talent acquisition', 'employee relations'],
+    'Human Resources and People Operations'],
+  [['food manufacturing', 'brewing', 'distilling', 'food processing'],
+    'Food and Beverage Manufacturing'],
+  [['charity', 'humanitarian', 'fundraising', 'voluntary sector'],
+    'Non-Profit and NGO Management'],
+  [['telecoms', 'telecommunications', 'utilities', 'broadband'],
+    'Telecommunications and Utilities'],
 
   // ── bare generic, tested last ───────────────────────────────────────────
   [['science'], 'Science and Research'],

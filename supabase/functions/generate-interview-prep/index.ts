@@ -58,6 +58,14 @@ const INTERVIEW_FORMAT_BY_INDUSTRY: Record<string, string> = {
     'Expect scenario-based questions (a difficult customer, a stock discrepancy) and direct questions on commercial metrics — conversion rate, average transaction value — over abstract competency questions. Many retail interviews include or are preceded by a trial shift or working interview.',
   'Environmental Sustainability and Renewable Energy':
     'Expect direct questions distinguishing regulatory bodies (EPA vs SEAI) and probing whether impact claims are properly baselined — vague "green" language is tested for directly. Technical roles may include a case study on a real compliance or impact-measurement scenario.',
+  'Human Resources and People Operations':
+    'Expect scenario-based questions (a difficult employee relations situation, a hiring-process bottleneck) and direct questions on CIPD qualification level rather than abstract competency questions alone. Values and confidentiality judgement are probed directly, since HR roles handle sensitive information as standard.',
+  'Food and Beverage Manufacturing':
+    'Expect direct questions on food safety and quality standards (HACCP, BRCGS, or the site\'s specific certification) and scenario-based questions on a production or compliance problem. Technical and quality roles may include a case study on a real audit or non-conformance scenario.',
+  'Non-Profit and NGO Management':
+    'Expect direct questions on governance and accountability (Charities Regulator registration, the Governance Code) alongside mission-fit questions — panels probe for operational substance behind stated passion for the cause, not passion alone. Fundraising and programme roles often include a scenario question on a real donor or beneficiary situation.',
+  'Telecommunications and Utilities':
+    'Expect scenario-based technical questions (a network fault, a compliance documentation check) and direct questions distinguishing the relevant regulator (ComReg for telecoms, the CRU for utilities) — conflating the two is a specifically watched-for gap. Field and network roles may include a practical or technical assessment stage.',
 }
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.

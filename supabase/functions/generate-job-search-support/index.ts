@@ -61,6 +61,14 @@ const CHANNELS_BY_INDUSTRY: Record<string, string> = {
     'IrishJobs.ie retail category and LinkedIn for volume; Retail Ireland Skillnet for training-linked routes into the sector; direct approach to individual stores and chains, especially ahead of seasonal peaks (Christmas, back-to-school), converts well given how much of retail hiring is reactive to trading volume.',
   'Environmental Sustainability and Renewable Energy':
     'IrishJobs.ie environmental category; SEAI, the EPA, and Wind Energy Ireland all list roles direct on their own sites; the Irish Green Building Council\'s member network is a genuine route in for building-performance and certification-adjacent roles specifically.',
+  'Human Resources and People Operations':
+    'CIPD Ireland\'s own careers resources and events reach the field\'s own network directly; IrishJobs.ie and LinkedIn for volume; CPL, Sigmar, and Morgan McKinley are the specialist recruiters most active in HR-specific hiring itself.',
+  'Food and Beverage Manufacturing':
+    'IrishJobs.ie manufacturing and food categories; Food Drink Ireland (Ibec) events and its member companies\' own careers pages; the large employers (Kerry Group, Glanbia, Diageo, Musgrave) run their own graduate and technical programmes direct.',
+  'Non-Profit and NGO Management':
+    'Activelink for community and voluntary sector roles broadly; Dóchas member organisations\' own careers pages for international development and humanitarian roles specifically; The Wheel\'s job listings for the wider sector; direct approach to a specific charity\'s development team is a genuine, underused route in.',
+  'Telecommunications and Utilities':
+    'IrishJobs.ie telecoms and utilities categories; ESB, Gas Networks Ireland, Uisce Éireann, Eir, Vodafone Ireland, and Three Ireland all run their own graduate and apprenticeship programmes direct; CRU and ComReg publications are a genuine way to stay current on sector developments, not just a jobs source.',
 }
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps

@@ -78,6 +78,14 @@ export const INDUSTRY_QUESTIONNAIRES = {
     { key: 'Qualification stage', placeholder: 'e.g. "ACA, CAP2 exemptions held, FAE sitting August 2027"' },
     { key: 'Practice area', placeholder: 'e.g. audit, tax, corporate finance, advisory' },
   ],
+  'Human Resources and People Operations': [
+    { key: 'CIPD membership grade', placeholder: 'e.g. "Associate member" / "Level 5 Diploma in progress" / "not yet a CIPD member"' },
+    { key: 'HR specialism', placeholder: 'e.g. generalist, recruitment, employee relations, learning & development' },
+  ],
+  'Food and Beverage Manufacturing': [
+    { key: 'Food safety qualification held', placeholder: 'e.g. "HACCP Level 2 certified" / "BRCGS internal auditor trained"' },
+    { key: 'Production area or specialism', placeholder: 'e.g. dairy processing, QA/QC, brewing' },
+  ],
 }
 
 /** True when this industry has a supplementary questionnaire at all. */
