@@ -3,7 +3,7 @@ import { requireUser } from '../_shared/supabase.ts'
 import { CORE_COMPETENCIES, STRENGTHS_BASED_FORMAT_NOTE, STAR_TIMING_GUIDANCE } from '../_shared/competencyBank.ts'
 import { fetchCompetencyExamples, citableSources } from '../_shared/exampleLibrary.ts'
 import { ANTI_GENERIC_RULE } from '../_shared/antiGeneric.ts'
-import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule } from '../_shared/coreRules.ts'
+import { ANTI_HALLUCINATION_RULE, NON_TRADITIONAL_EVIDENCE_RULE, realExamplesRule, HANDLER_NOTES_DESCRIPTION } from '../_shared/coreRules.ts'
 import { LIMITS, checkLengths, checkRequired } from '../_shared/fieldLimits.ts'
 import { fetchCareerTarget, fetchCareerProfile, profileNarrative, experienceNarrative, PROFILE_CONTEXT_RULE } from '../_shared/careerProfile.ts'
 import { resolveIndustryContext, withIndustryHandlerNote } from '../_shared/industryContext.ts'
@@ -92,6 +92,8 @@ ${NON_TRADITIONAL_EVIDENCE_RULE}
 
 HANDLER MOCK RUBRIC: produce a three-criterion scoring rubric (First impression / Poise & delivery / Content) for the Handler to use in a live mock session, mirroring how university career-services offices actually score mock interviews — 1/3/5 scale per criterion, with a one-line description of what's assessed.
 
+UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure about for this interview (a format they've never done, a weak area, a gap they don't know how to field). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
+
 ${realExamplesRule('real, published, sourced STAR answers from university career services. Only the candidate\'s own evidence bank stories may be used as the substance of a model answer')}
 
 ${ANTI_GENERIC_RULE}`
@@ -124,8 +126,9 @@ const OUTPUT_SCHEMA = {
         required: ['criterion', 'description'],
       },
     },
+    handler_notes: { type: 'array', items: { type: 'string' }, description: HANDLER_NOTES_DESCRIPTION },
   },
-  required: ['likely_questions', 'company_research_prompts', 'confidence_tips', 'handler_mock_rubric'],
+  required: ['likely_questions', 'company_research_prompts', 'confidence_tips', 'handler_mock_rubric', 'handler_notes'],
 }
 
 Deno.serve(async (req: Request) => {
@@ -148,10 +151,13 @@ Deno.serve(async (req: Request) => {
     const missing = checkRequired([['Target role', targetRole]])
     if (missing) return jsonResponse({ error: missing }, 422)
 
+    const input = pack.input || {}
     const lengthError = checkLengths([
       ['Target role', targetRole, LIMITS.SHORT],
       ['Target company', targetCompany, LIMITS.SHORT],
-      ['Background summary', (pack.input || {}).background_summary, LIMITS.LONG],
+      ['Industry', input.industry, LIMITS.SHORT],
+      ['Background summary', input.background_summary, LIMITS.LONG],
+      ["What you're unsure about", input.unsure_about, LIMITS.LONG],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
@@ -160,11 +166,11 @@ Deno.serve(async (req: Request) => {
       .select('title, situation, task, action, result, competency_tags')
       .eq('user_id', user.id)
 
-    const backgroundSummary = (pack.input || {}).background_summary || experienceNarrative(profile) || null
+    const backgroundSummary = input.background_summary || experienceNarrative(profile) || null
 
     const industryCtx = await resolveIndustryContext(
       supabase,
-      target?.target_industry || targetRole,
+      input.industry || target?.target_industry || targetRole,
       target?.target_course,
       target?.industry_details,
     )
@@ -185,6 +191,7 @@ Deno.serve(async (req: Request) => {
         resolved_industry: industryCtx.industry,
         interview_type: pack.interview_type,
         background_summary: backgroundSummary,
+        unsure_about: input.unsure_about || null,
         evidence_bank: stories || [],
         career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ competency: e.competency_tag, excerpt: e.excerpt, why_it_works: e.why_it_works })),

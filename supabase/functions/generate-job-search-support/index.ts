@@ -127,6 +127,8 @@ EMOTIONAL TONE: if the student's input suggests they're discouraged, frustrated,
 
 Write in clear, practical, second-person language for the student_strategy — this is a person's actual next 7 days, not a theoretical guide.
 
+UNCERTAINTY FLAG: if unsure_about is provided, the student told us themselves what they're unsure about (whether their degree even applies to this field, whether to mention a gap, something else entirely). Factor it directly into situation_assessment_notes and talking_points so the Handler raises it in the session rather than the student having to bring it up cold — never ignore it just because it doesn't fit one of the seven checks above.
+
 ${ANTI_GENERIC_RULE}`
 
 const OUTPUT_SCHEMA = {
@@ -235,6 +237,16 @@ Deno.serve(async (req: Request) => {
       ['Timeline', input.timeline, LIMITS.SHORT],
       ['Professional registration status', input.professional_registration_status, LIMITS.MEDIUM],
       ['What you have tried so far', input.applications_so_far, LIMITS.LONG],
+      ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      // The rest of these are fixed-option selects in the UI, so a normal
+      // request can never exceed these — checked anyway since they reach
+      // userContent via the `...input` spread below with no other gate, and
+      // the UI is not the only way to call this function.
+      ['Urgency', input.urgency, LIMITS.SHORT],
+      ['Interview conversion', input.interview_conversion, LIMITS.SHORT],
+      ['CV status', input.cv_status, LIMITS.SHORT],
+      ['LinkedIn status', input.linkedin_status, LIMITS.SHORT],
+      ['Applicant type', input.non_university_type, LIMITS.SHORT],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
