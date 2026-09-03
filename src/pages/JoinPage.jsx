@@ -555,7 +555,7 @@ export default function JoinPage() {
                 'Set your own rates and availability',
               ]}
               getItems={[
-                'Keep 85% of every booking',
+                'Keep the majority of every booking',
                 'Full flexibility, you choose your hours',
                 'Verified Coach badge on your profile',
               ]}
