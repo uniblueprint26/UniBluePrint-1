@@ -50,6 +50,14 @@ const INTERVIEW_FORMAT_BY_INDUSTRY: Record<string, string> = {
     'Expect scenario-based negotiation questions (a difficult vendor, a disputed valuation) and direct questions on PSRA licensing status or the pathway toward it. Local market knowledge — actual recent comparable sales or rents — is frequently tested directly rather than assumed.',
   'Aviation and Logistics':
     'Pilot-track interviews include a technical and simulator-based assessment stage alongside a panel interview, testing decision-making under pressure as much as raw knowledge. Logistics and transport roles are more scenario-based — a disrupted schedule or a compliance gap — probing operational judgement and, where relevant, named certifications (CPC, ADR, DGSA).',
+  'Skilled Trades and Apprenticeships':
+    'Expect direct questions on the actual trade, phase reached, and registration pathway (Safe Electric, RGII) rather than abstract competency questions. For an apprenticeship application itself, a practical or aptitude test alongside the interview is common; for a qualified role, expect questions probing real on-site problem-solving, not theory recall.',
+  'Insurance and Actuarial':
+    'Insurance advisory interviews probe Minimum Competency Code awareness and product knowledge directly — expect a question on what qualification stage you are at and why it matters. Actuarial interviews are technical and numerate, often including a case-style problem worked through live, alongside direct questions on exam progress and exemptions.',
+  'Retail and E-commerce':
+    'Expect scenario-based questions (a difficult customer, a stock discrepancy) and direct questions on commercial metrics — conversion rate, average transaction value — over abstract competency questions. Many retail interviews include or are preceded by a trial shift or working interview.',
+  'Environmental Sustainability and Renewable Energy':
+    'Expect direct questions distinguishing regulatory bodies (EPA vs SEAI) and probing whether impact claims are properly baselined — vague "green" language is tested for directly. Technical roles may include a case study on a real compliance or impact-measurement scenario.',
 }
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.

@@ -53,6 +53,14 @@ const CHANNELS_BY_INDUSTRY: Record<string, string> = {
     'IrishJobs.ie estate-agent category and LinkedIn; the PSRA\'s own public register of licensed providers is a useful way to vet a prospective employer before applying; IPAV and SCSI member listings; the major agencies (Sherry FitzGerald, DNG, Savills, CBRE) run their own careers pages.',
   'Aviation and Logistics':
     'CILT Ireland\'s own jobs board reaches its member network directly; IrishJobs.ie logistics and supply-chain categories for volume; airline and daa careers portals direct for aviation-operations roles; flight training organisations themselves are the route into a pilot pathway, not a jobs board.',
+  'Skilled Trades and Apprenticeships':
+    'apprenticeship.ie (SOLAS\'s own portal) is the actual route into a registered apprenticeship, not a general jobs board; local ETB sites carry off-the-job training places; word of mouth and direct approach to contractors still fills a large share of on-the-job placements.',
+  'Insurance and Actuarial':
+    'IrishJobs.ie insurance category and LinkedIn; the Insurance Institute\'s own careers resources; actuarial roles are frequently advertised direct by insurers and specialist consultancies given how small and specialist the profession is in Ireland.',
+  'Retail and E-commerce':
+    'IrishJobs.ie retail category and LinkedIn for volume; Retail Ireland Skillnet for training-linked routes into the sector; direct approach to individual stores and chains, especially ahead of seasonal peaks (Christmas, back-to-school), converts well given how much of retail hiring is reactive to trading volume.',
+  'Environmental Sustainability and Renewable Energy':
+    'IrishJobs.ie environmental category; SEAI, the EPA, and Wind Energy Ireland all list roles direct on their own sites; the Irish Green Building Council\'s member network is a genuine route in for building-performance and certification-adjacent roles specifically.',
 }
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps

@@ -35,6 +35,10 @@ export const INDUSTRIES = [
   'Beauty, Hairdressing and Aesthetics',
   'Real Estate and Property',
   'Aviation and Logistics',
+  'Skilled Trades and Apprenticeships',
+  'Insurance and Actuarial',
+  'Retail and E-commerce',
+  'Environmental Sustainability and Renewable Energy',
 ]
 
 /** True when a stored value is one of the controlled options. */

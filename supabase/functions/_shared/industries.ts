@@ -41,6 +41,10 @@ export const INDUSTRIES = [
   'Beauty, Hairdressing and Aesthetics',
   'Real Estate and Property',
   'Aviation and Logistics',
+  'Skilled Trades and Apprenticeships',
+  'Insurance and Actuarial',
+  'Retail and E-commerce',
+  'Environmental Sustainability and Renewable Energy',
 ] as const
 
 export type Industry = typeof INDUSTRIES[number]
@@ -94,8 +98,10 @@ const ALIASES: Record<string, Industry> = {
   accountant: 'Finance and Accounting',
   banking: 'Finance and Accounting',
   investment: 'Finance and Accounting',
-  actuarial: 'Finance and Accounting',
   audit: 'Finance and Accounting',
+  // 'actuarial' moved to Insurance and Actuarial below — a dedicated bucket
+  // now exists for it, and it fits there more accurately than folding into
+  // general finance.
 
   // Law
   law: 'Law',
@@ -255,6 +261,90 @@ const ALIASES: Record<string, Industry> = {
   freight: 'Aviation and Logistics',
   warehousing: 'Aviation and Logistics',
   shipping: 'Aviation and Logistics',
+
+  // Skilled Trades and Apprenticeships
+  apprentice: 'Skilled Trades and Apprenticeships',
+  apprenticeship: 'Skilled Trades and Apprenticeships',
+  'craft apprentice': 'Skilled Trades and Apprenticeships',
+  tradesperson: 'Skilled Trades and Apprenticeships',
+  tradesman: 'Skilled Trades and Apprenticeships',
+  electrician: 'Skilled Trades and Apprenticeships',
+  plumber: 'Skilled Trades and Apprenticeships',
+  plumbing: 'Skilled Trades and Apprenticeships',
+  carpentry: 'Skilled Trades and Apprenticeships',
+  carpenter: 'Skilled Trades and Apprenticeships',
+  joinery: 'Skilled Trades and Apprenticeships',
+  joiner: 'Skilled Trades and Apprenticeships',
+  'motor mechanic': 'Skilled Trades and Apprenticeships',
+  mechanic: 'Skilled Trades and Apprenticeships',
+  bricklaying: 'Skilled Trades and Apprenticeships',
+  bricklayer: 'Skilled Trades and Apprenticeships',
+  stonelaying: 'Skilled Trades and Apprenticeships',
+  pipefitting: 'Skilled Trades and Apprenticeships',
+  welding: 'Skilled Trades and Apprenticeships',
+  welder: 'Skilled Trades and Apprenticeships',
+  toolmaking: 'Skilled Trades and Apprenticeships',
+  toolmaker: 'Skilled Trades and Apprenticeships',
+  refrigeration: 'Skilled Trades and Apprenticeships',
+  'gas installer': 'Skilled Trades and Apprenticeships',
+  'heating installer': 'Skilled Trades and Apprenticeships',
+  // Deliberately not claiming bare 'electrical' or 'construction' here — those
+  // already resolve to Engineering and Construction and Architecture
+  // respectively, and remain the more common meaning of those bare words in a
+  // CAO/careers context (an electrical engineering degree, not an electrician
+  // apprenticeship). The specific trade names above still resolve correctly.
+
+  // Insurance and Actuarial
+  insurance: 'Insurance and Actuarial',
+  actuarial: 'Insurance and Actuarial',
+  actuary: 'Insurance and Actuarial',
+  actuaries: 'Insurance and Actuarial',
+  underwriting: 'Insurance and Actuarial',
+  underwriter: 'Insurance and Actuarial',
+  reinsurance: 'Insurance and Actuarial',
+  'insurance broker': 'Insurance and Actuarial',
+  'claims adjuster': 'Insurance and Actuarial',
+  'loss adjusting': 'Insurance and Actuarial',
+  // Deliberately not claiming bare 'broker' or 'claims' — both are genuinely
+  // ambiguous with Finance (stockbroker) and Law (legal claims), and the
+  // compounds above still resolve the insurance-specific meaning correctly.
+
+  // Retail and E-commerce
+  retail: 'Retail and E-commerce',
+  retailer: 'Retail and E-commerce',
+  ecommerce: 'Retail and E-commerce',
+  'e-commerce': 'Retail and E-commerce',
+  merchandising: 'Retail and E-commerce',
+  merchandiser: 'Retail and E-commerce',
+  'visual merchandising': 'Retail and E-commerce',
+  'store management': 'Retail and E-commerce',
+  'store manager': 'Retail and E-commerce',
+  'retail buyer': 'Retail and E-commerce',
+  'retail buying': 'Retail and E-commerce',
+  // Deliberately not claiming bare 'shop', 'sales', or 'buying' — each is too
+  // generic and appears inside or alongside unrelated fields ('workshop',
+  // 'sales' in every industry, 'car buying'), so only the retail-specific
+  // compounds above are claimed.
+
+  // Environmental Sustainability and Renewable Energy
+  sustainability: 'Environmental Sustainability and Renewable Energy',
+  environmental: 'Environmental Sustainability and Renewable Energy',
+  'renewable energy': 'Environmental Sustainability and Renewable Energy',
+  renewables: 'Environmental Sustainability and Renewable Energy',
+  'wind energy': 'Environmental Sustainability and Renewable Energy',
+  'solar energy': 'Environmental Sustainability and Renewable Energy',
+  'green building': 'Environmental Sustainability and Renewable Energy',
+  'carbon footprint': 'Environmental Sustainability and Renewable Energy',
+  'climate action': 'Environmental Sustainability and Renewable Energy',
+  'net zero': 'Environmental Sustainability and Renewable Energy',
+  // Word-boundary — short enough to appear inside unrelated text otherwise.
+  esg: 'Environmental Sustainability and Renewable Energy',
+  // Deliberately not touching 'environmental science' as a course/degree
+  // name — that already resolves to Science and Research via
+  // courseToIndustry.ts's own compound rule, which is the better fit for a
+  // lab/research-based degree. Bare 'environmental' here is a different
+  // resolution path (the free-text industry field, not a course name) and
+  // was previously unclaimed, so adding it does not conflict.
 }
 
 /**
@@ -262,7 +352,7 @@ const ALIASES: Record<string, Industry> = {
  * word boundaries instead of as bare substrings — 'it' must not fire on
  * "hospitality", and 'pr' must not fire on "primary".
  */
-const WORD_BOUNDARY_ALIASES = new Set(['it', 'pe', 'pr', 'ai', 'hr', 'vet', 'tech'])
+const WORD_BOUNDARY_ALIASES = new Set(['it', 'pe', 'pr', 'ai', 'hr', 'vet', 'tech', 'esg'])
 
 /** Longest first, so compound aliases beat the shorter alias inside them. */
 const SORTED_ALIASES: Array<[string, Industry]> = Object.entries(ALIASES)

@@ -28,8 +28,10 @@ const COURSE_RULES: Rule[] = [
   // ── compounds that would otherwise be captured by a generic below ────────
   [['computer science', 'computing science', 'data science'], 'Technology and Software'],
   // Listed here so it beats the bare 'science' rule at the bottom — an
-  // actuarial degree is a finance pathway, not a research-science one.
-  [['actuarial science', 'actuarial'], 'Finance and Accounting'],
+  // actuarial degree is its own pathway (Insurance and Actuarial), not a
+  // research-science one and, since a dedicated bucket now exists, not a
+  // general finance one either.
+  [['actuarial science', 'actuarial studies', 'actuarial'], 'Insurance and Actuarial'],
   [['sports science', 'sport science', 'exercise science', 'sports management',
     'physical education', 'sports coaching', 'athletic therapy'], 'Sports and Fitness'],
   [['social science', 'social work', 'applied social studies', 'social care',
@@ -56,6 +58,15 @@ const COURSE_RULES: Rule[] = [
     'aviation management', 'air transport'], 'Aviation and Logistics'],
   [['hair and beauty', 'hairdressing and barbering', 'beauty therapy'],
     'Beauty, Hairdressing and Aesthetics'],
+  // Compounds beat Engineering's bare 'engineering' rule below — a renewable
+  // or sustainable energy degree is its own pathway, not general engineering.
+  [['renewable energy', 'sustainable energy', 'sustainability studies',
+    'environmental sustainability', 'green technology'],
+    'Environmental Sustainability and Renewable Energy'],
+  // Compounds beat Creative and Media's bare 'fashion' rule below — a retail
+  // buying/merchandising degree is a retail pathway, not a design one.
+  [['retail management', 'retail and services management',
+    'buying and merchandising', 'fashion buying'], 'Retail and E-commerce'],
 
   // ── discipline-specific ─────────────────────────────────────────────────
   [['software', 'information technology', 'cybersecurity', 'computer',
@@ -92,6 +103,12 @@ const COURSE_RULES: Rule[] = [
     'Beauty, Hairdressing and Aesthetics'],
   [['real estate', 'property', 'auctioneering', 'valuation'], 'Real Estate and Property'],
   [['aviation', 'logistics', 'supply chain', 'freight', 'air transport'], 'Aviation and Logistics'],
+  [['apprenticeship', 'electrician', 'plumbing', 'carpentry', 'joinery',
+    'motor mechanics', 'bricklaying', 'welding', 'toolmaking', 'refrigeration',
+    'pipefitting'], 'Skilled Trades and Apprenticeships'],
+  [['insurance', 'actuary'], 'Insurance and Actuarial'],
+  [['retail', 'merchandising', 'e-commerce', 'ecommerce'], 'Retail and E-commerce'],
+  [['sustainability', 'renewable energy'], 'Environmental Sustainability and Renewable Energy'],
 
   // ── bare generic, tested last ───────────────────────────────────────────
   [['science'], 'Science and Research'],
