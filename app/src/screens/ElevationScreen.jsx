@@ -7,6 +7,7 @@ import {
 
 import Card from '../components/ui/Card'
 import UBPLogo from '../components/ui/UBPLogo'
+import VerifiedBadge from '../components/ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
@@ -390,7 +391,10 @@ function CoachCard({ coach, navigation }) {
             <View style={styles.coachOnlineDot} />
           </View>
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={styles.coachName}>{coach.name}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Text style={styles.coachName}>{coach.name}</Text>
+              <VerifiedBadge verified={coach.verified} compact />
+            </View>
             {coach.title && (
               <Text style={styles.coachTitle} numberOfLines={2}>{coach.title}</Text>
             )}

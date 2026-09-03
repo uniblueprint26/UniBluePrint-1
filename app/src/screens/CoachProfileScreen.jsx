@@ -11,6 +11,7 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
+import VerifiedBadge from '../components/ui/VerifiedBadge'
 
 // ── Link helper ───────────────────────────────────────────────────────────────
 
@@ -344,6 +345,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         </View>
 
         <Text style={styles.headerName}>{coach.name}</Text>
+        <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'center', marginTop: 6 }} />
         {coach.title && <Text style={styles.headerTitle} numberOfLines={2}>{coach.title}</Text>}
       </View>
 
