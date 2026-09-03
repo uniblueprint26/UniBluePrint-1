@@ -33,6 +33,8 @@ EXPERIENCE REWRITES: for each role given, rewrite the description with impact la
 
 NO FORMAL WORK EXPERIENCE — if has_no_experience is true, the About section and Education/Projects carry the profile, and that is a legitimate, recruiter-recognised shape for a student profile — not a deficient one. The HEADLINE leads honestly with who they are and where they're headed ("Final-year Computer Science student at UCD | ...") — a real student headline outperforms a manufactured professional one, and recruiters searching for graduate talent search for exactly these terms. Return experience_rewrites as an empty array rather than inventing roles. FEATURED SECTION ideas should draw from coursework projects, society work, or anything real they've built. Never pad the profile to look more senior than it is.
 
+UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present (a gap, a career change, an unconventional path). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
+
 ${NON_TRADITIONAL_EVIDENCE_RULE}
 
 SKILLS: recommend skills to add/prioritise for the target industry, grounded in what recruiters in that field actually search — don't just repeat back what the user typed, add genuinely relevant adjacent skills they may not have thought to list, clearly marked as suggestions.
@@ -95,6 +97,7 @@ Deno.serve(async (req: Request) => {
       ['Target connections', input.target_connections, LIMITS.MEDIUM],
       ['Notable achievements', input.notable_achievements, LIMITS.LONG],
       ['Experience', input.experience, LIMITS.LONG],
+      ["What you're unsure about", input.unsure_about, LIMITS.LONG],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
@@ -136,6 +139,7 @@ Deno.serve(async (req: Request) => {
         target_connections: input.target_connections,
         experience,
         has_no_experience: hasNoExperience,
+        unsure_about: input.unsure_about || null,
         tone: input.tone,
         career_profile_context: profileNarrative(profile),
         real_examples: examples.map(e => ({ excerpt: e.excerpt, why_it_works: e.why_it_works })),
