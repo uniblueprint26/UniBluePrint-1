@@ -210,6 +210,23 @@ export default function FoundationScreen({ navigation }) {
             </View>
           </Card>
 
+          {/* Entry point for the shared evidence bank — Application Form
+              Assistance requires at least one story, and Interview
+              Preparation uses it too, so it's surfaced up front rather than
+              only discovered mid-form. */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('EvidenceBank')}
+            style={styles.evidenceBankBanner}
+            accessibilityRole="button"
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.evidenceBankTitle}>Your Evidence Bank</Text>
+              <Text style={styles.evidenceBankSubtitle}>Real STAR stories that power Application Form Assistance and Interview Prep</Text>
+            </View>
+            <ChevronRight size={20} color={colors.navy} />
+          </TouchableOpacity>
+
           <Text style={styles.servicesSubHeader}>Career Services</Text>
           <View style={{ gap: 14 }}>
             {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, originalStd, trialStd, originalPrem, trialPrem, color }) => (
@@ -262,7 +279,30 @@ export default function FoundationScreen({ navigation }) {
                       <TouchableOpacity
                         style={styles.orderBtn}
                         activeOpacity={0.8}
-                        onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)}
+                        onPress={() => {
+                          // All 8 Foundation Blueprint services now have a real
+                          // in-app intake, on the CV Optimisation reference
+                          // pattern (QuestionFlow + Edge Function + Campus
+                          // Handler review). Mailto is kept only as a fallback
+                          // for any future service added before its builder
+                          // screen exists.
+                          const BUILDER_SCREEN_BY_TITLE = {
+                            'CV Optimisation': 'CvBuilder',
+                            'LinkedIn Optimisation': 'LinkedinBuilder',
+                            'Cover Letter Assistance': 'CoverLetterBuilder',
+                            'Application Form Assistance': 'ApplicationFormBuilder',
+                            'Interview Preparation': 'InterviewPrepBuilder',
+                            'Personal Statement': 'PersonalStatementBuilder',
+                            'Portfolio Building': 'PortfolioPlanBuilder',
+                            'Job Search Support': 'JobSearchSupportBuilder',
+                          }
+                          const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
+                          if (builderScreen) {
+                            navigation.navigate(builderScreen)
+                            return
+                          }
+                          Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
+                        }}
                       >
                         <Text style={styles.orderBtnText}>Order {title} →</Text>
                       </TouchableOpacity>
@@ -374,6 +414,14 @@ const styles = StyleSheet.create({
   trialBannerText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 12 },
+
+  evidenceBankBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.white, borderRadius: radius.card, padding: 16, marginTop: spacing.lg,
+    borderWidth: 1, borderColor: colors.border,
+  },
+  evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
   whyCard: { marginTop: spacing.lg, padding: 18 },
   whyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },

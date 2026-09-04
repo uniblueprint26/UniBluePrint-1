@@ -4,7 +4,7 @@ import { Tag, TrendingUp, Users, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
 // business_enquiries is already migrated — see
@@ -21,7 +21,7 @@ const VALUE_PROPS = [
   {
     icon: Users,
     title: 'Direct access to young adults',
-    description: 'Reach 18-26 year olds across 100+ Irish institutions — active, engaged, and looking for brands that understand them.',
+    description: 'Reach 18-26 year olds across 100+ Irish institutions, active, engaged, and looking for brands that understand them.',
   },
   {
     icon: Tag,
@@ -31,12 +31,12 @@ const VALUE_PROPS = [
   {
     icon: TrendingUp,
     title: 'Campus Connect presence',
-    description: 'Sponsored listings on relevant campus boards — your brand where young people are already spending time.',
+    description: 'Sponsored listings on relevant campus boards, your brand where young people are already spending time.',
   },
   {
     icon: Star,
     title: 'Authentic, opt-in',
-    description: 'Young people choose to engage with your brand. No interruption advertising — only genuine, opted-in discovery.',
+    description: 'Young people choose to engage with your brand. No interruption advertising, only genuine, opted-in discovery.',
   },
 ]
 
@@ -49,7 +49,7 @@ const STEPS = [
   {
     n: 2,
     title: 'Agree a placement',
-    description: 'We find the right approach together — Lifestyle Blueprint, Campus Connect, or both.',
+    description: 'We find the right approach together, Lifestyle Blueprint, Campus Connect, or both.',
   },
   {
     n: 3,
@@ -167,7 +167,11 @@ export default function ForBusinessesPage() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else { sendFormConfirmation('business', form.email, form.contact_name); setSuccess(true) }
+    else {
+      sendFormConfirmation('business', form.email, form.contact_name)
+      notifyTeam('business_enquiry', form.email, form.contact_name)
+      setSuccess(true)
+    }
   }
 
   function scrollToForm() {
@@ -180,14 +184,14 @@ export default function ForBusinessesPage() {
         <title>For Businesses | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect — launching September 2026."
+          content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect, launching September 2026."
         />
         <meta property="og:title" content="For Businesses | UniBlueprint" />
-        <meta property="og:description" content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect — launching September 2026." />
+        <meta property="og:description" content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect, launching September 2026." />
         <style>{BIZ_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ───────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '100px 24px 80px',
@@ -240,7 +244,7 @@ export default function ForBusinessesPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — VALUE PROPS ────────────────────────────────────────── */}
+      {/* ── SECTION 2, VALUE PROPS ────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -297,7 +301,7 @@ export default function ForBusinessesPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — HOW IT WORKS ───────────────────────────────────────── */}
+      {/* ── SECTION 3, HOW IT WORKS ───────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <SectionLabel>How it works</SectionLabel>
@@ -345,7 +349,7 @@ export default function ForBusinessesPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — ENQUIRY FORM ───────────────────────────────────────── */}
+      {/* ── SECTION 4, ENQUIRY FORM ───────────────────────────────────────── */}
       <section id="biz-enquiry-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <SectionLabel>Partner application</SectionLabel>

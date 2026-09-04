@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { Zap, Star, BookOpen, PiggyBank } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -18,7 +19,7 @@ const FEATURES = [
   {
     icon: Zap,
     title: 'Foundation Blueprint',
-    desc: 'CV, cover letters, and career documents — reviewed by a trained Campus Handler before delivery.',
+    desc: 'CV, cover letters, and career documents, reviewed by a trained Campus Handler before delivery.',
   },
   {
     icon: Star,
@@ -33,7 +34,7 @@ const FEATURES = [
   {
     icon: PiggyBank,
     title: 'Budgeting Tool',
-    desc: 'Track spending, set budgets, and navigate SUSI grants — with built-in eligibility guidance.',
+    desc: 'Track spending, set budgets, and navigate SUSI grants, with built-in eligibility guidance.',
   },
 ]
 
@@ -209,44 +210,25 @@ function PhoneMockup({ style = {} }) {
 // ─── Store button (grayed out + tooltip) ──────────────────────────────────────
 
 function StoreButton({ label }) {
-  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
-      <button
-        type="button"
-        disabled
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          height: '48px', padding: '0 22px',
-          background: 'rgba(245,240,232,0.12)',
-          color: 'rgba(245,240,232,0.3)',
-          border: '1px solid rgba(245,240,232,0.15)',
-          borderRadius: '10px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
-          cursor: 'not-allowed', whiteSpace: 'nowrap',
-          transition: 'opacity 150ms',
-        }}
-      >
-        {label}
-      </button>
-      {hovered && (
-        <div style={{
-          position: 'absolute',
-          bottom: 'calc(100% + 6px)',
-          left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(15,25,40,0.95)',
-          color: 'rgba(245,240,232,0.85)',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 500,
-          padding: '5px 10px', borderRadius: '6px',
-          whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 10,
-          border: '1px solid rgba(245,240,232,0.1)',
-        }}>
-          Coming soon
-        </div>
-      )}
-    </div>
+    <Link
+      to="/coming-soon"
+      style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        height: '48px', padding: '0 22px',
+        background: 'rgba(245,240,232,0.12)',
+        color: 'rgba(245,240,232,0.75)',
+        border: '1px solid rgba(245,240,232,0.2)',
+        borderRadius: '10px',
+        fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+        textDecoration: 'none', whiteSpace: 'nowrap',
+        transition: 'opacity 150ms',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+    >
+      {label}
+    </Link>
   )
 }
 
@@ -337,7 +319,7 @@ export default function DownloadPage() {
     <>
       <Helmet>
         <title>Download | UniBlueprint</title>
-        <meta name="description" content="Download the UniBlueprint app for iOS and Android — the all-in-one platform for young people across Ireland, launching September 2026." />
+        <meta name="description" content="Download the UniBlueprint app for iOS and Android, the all-in-one platform for young people across Ireland, launching September 2026." />
         <script type="application/ld+json">{JSON.stringify(APP_JSON_LD)}</script>
         <style>{DL_STYLES}</style>
         <style>{`
@@ -348,7 +330,7 @@ export default function DownloadPage() {
         `}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ───────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '120px 24px 96px',
@@ -400,7 +382,7 @@ export default function DownloadPage() {
 
             <NotifyForm />
 
-            {/* Store buttons — grayed out */}
+            {/* Store buttons, grayed out */}
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
               <StoreButton label="App Store" />
               <StoreButton label="Google Play" />
@@ -410,14 +392,14 @@ export default function DownloadPage() {
               fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px',
               color: 'rgba(245,240,232,0.5)', marginTop: '20px', lineHeight: 1.6,
             }}>
-              Already testing UniBlueprint? You already have it — sign in there with the same email
+              Already testing UniBlueprint? You already have it, sign in there with the same email
               and password you use on the website. No separate account, no reinstalling.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURES ───────────────────────────────────────────── */}
+      {/* ── SECTION 2, FEATURES ───────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px', position: 'relative', overflow: 'hidden' }}>
         {/* Dot grid so glass cards read */}
         <div aria-hidden="true" style={{
@@ -486,7 +468,7 @@ export default function DownloadPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — WEB APP ────────────────────────────────────────────── */}
+      {/* ── SECTION 3, WEB APP ────────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <SectionLabel>Available now on web</SectionLabel>
@@ -520,10 +502,10 @@ export default function DownloadPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — CTA ────────────────────────────────────────────────── */}
+      {/* ── SECTION 4, CTA ────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <SectionLabel light>September 2026 Trial</SectionLabel>
+          <SectionLabel light>Free Trial</SectionLabel>
           <h2 style={{
             fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(26px, 4vw, 40px)', color: '#F5F0E8',

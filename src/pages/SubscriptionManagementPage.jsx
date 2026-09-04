@@ -1,7 +1,7 @@
-// Billing is managed through Stripe's own Customer Portal — this page
+// Billing is managed through Stripe's own Customer Portal, this page
 // just opens it (create-portal-session), rather than re-building
 // cancel/update-card/invoice-history flows Stripe already provides.
-// Pro status lives in the 'subscriptions' table, not 'profiles' — same
+// Pro status lives in the 'subscriptions' table, not 'profiles', same
 // table and shape AuthContext.jsx reads for the isPro flag used site-wide.
 
 import { useEffect, useState } from 'react'
@@ -52,8 +52,8 @@ export default function SubscriptionManagementPage() {
   const isPro = !!subscription && subscription.status === 'active' && (
     !subscription.current_period_end || new Date(subscription.current_period_end) > new Date()
   )
-  const planLabel = subscription?.tier === 'pro_annual' ? 'Pro — Annual'
-    : subscription?.tier === 'pro_monthly' ? 'Pro — Monthly'
+  const planLabel = subscription?.tier === 'pro_annual' ? 'Pro, Annual'
+    : subscription?.tier === 'pro_monthly' ? 'Pro, Monthly'
     : 'Pro'
   const renewalDate = subscription?.current_period_end
     ? new Date(subscription.current_period_end).toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -161,7 +161,7 @@ export default function SubscriptionManagementPage() {
                     >
                       {portalLoading ? 'Opening billing portal…'
                         : STRIPE_STATUS === 'configured' ? 'Manage billing'
-                        : 'Manage billing — coming soon'}
+                        : 'Manage billing, coming soon'}
                     </button>
                     {!!portalError && (
                       <p style={{

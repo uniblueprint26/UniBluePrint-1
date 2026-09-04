@@ -134,7 +134,13 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               <Text style={ep.headerTitle}>Edit Profile</Text>
               <Text style={ep.headerSub}>Update your name and profile photo</Text>
             </View>
-            <TouchableOpacity style={ep.closeBtn} onPress={() => onClose(null)} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={ep.closeBtn}
+              onPress={() => onClose(null)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={15} color={colors.navy} strokeWidth={2.5} />
             </TouchableOpacity>
           </View>
@@ -293,7 +299,15 @@ function HandlerRatingPrompt({ userId }) {
       </Text>
       <View style={rp.starRow}>
         {[1, 2, 3, 4, 5].map(n => (
-          <TouchableOpacity key={n} onPress={() => setStars(n)} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}>
+          <TouchableOpacity
+            key={n}
+            onPress={() => setStars(n)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+            accessibilityRole="button"
+            accessibilityLabel={`Rate ${n} star${n === 1 ? '' : 's'}`}
+            accessibilityState={{ selected: n <= stars }}
+          >
             <Star size={28} color="#F59E0B" fill={n <= stars ? '#F59E0B' : 'transparent'} strokeWidth={1.5} />
           </TouchableOpacity>
         ))}

@@ -28,6 +28,20 @@ import ProfileScreen       from '../screens/ProfileScreen'
 import NotificationsScreen  from '../screens/NotificationsScreen'
 import CoachProfileScreen   from '../screens/CoachProfileScreen'
 import ChatRoomScreen       from '../screens/ChatRoomScreen'
+
+// Foundation Blueprint generator intake — all 8 services on the same
+// QuestionFlow + *_documents-shaped table + submit_document_for_review +
+// generate-* Edge Function skeleton CV Optimisation established.
+import CvBuilderScreen                from '../screens/foundation/CvBuilderScreen'
+import LinkedinBuilderScreen          from '../screens/foundation/LinkedinBuilderScreen'
+import CoverLetterBuilderScreen       from '../screens/foundation/CoverLetterBuilderScreen'
+import ApplicationFormBuilderScreen   from '../screens/foundation/ApplicationFormBuilderScreen'
+import InterviewPrepBuilderScreen     from '../screens/foundation/InterviewPrepBuilderScreen'
+import PersonalStatementBuilderScreen from '../screens/foundation/PersonalStatementBuilderScreen'
+import PortfolioPlanBuilderScreen     from '../screens/foundation/PortfolioPlanBuilderScreen'
+import JobSearchSupportBuilderScreen  from '../screens/foundation/JobSearchSupportBuilderScreen'
+import EvidenceBankScreen             from '../screens/foundation/EvidenceBankScreen'
+import GenerationSubmittedScreen      from '../screens/foundation/GenerationSubmittedScreen'
 import CompassScreen        from '../screens/CompassScreen'
 
 // Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches)
@@ -82,6 +96,16 @@ function HomeStack() {
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
+      <Stack.Screen name="CvBuilder"                component={CvBuilderScreen}                options={{ presentation: 'modal' }} />
+      <Stack.Screen name="LinkedinBuilder"          component={LinkedinBuilderScreen}          options={{ presentation: 'modal' }} />
+      <Stack.Screen name="CoverLetterBuilder"       component={CoverLetterBuilderScreen}       options={{ presentation: 'modal' }} />
+      <Stack.Screen name="ApplicationFormBuilder"   component={ApplicationFormBuilderScreen}   options={{ presentation: 'modal' }} />
+      <Stack.Screen name="InterviewPrepBuilder"     component={InterviewPrepBuilderScreen}     options={{ presentation: 'modal' }} />
+      <Stack.Screen name="PersonalStatementBuilder" component={PersonalStatementBuilderScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="PortfolioPlanBuilder"     component={PortfolioPlanBuilderScreen}     options={{ presentation: 'modal' }} />
+      <Stack.Screen name="JobSearchSupportBuilder"  component={JobSearchSupportBuilderScreen}  options={{ presentation: 'modal' }} />
+      <Stack.Screen name="EvidenceBank"              component={EvidenceBankScreen}             options={{ presentation: 'modal' }} />
+      <Stack.Screen name="GenerationSubmitted"      component={GenerationSubmittedScreen}      options={{ presentation: 'modal', gestureEnabled: false }} />
 
       {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
       <Stack.Screen name="StudioQueue"      component={StudioQueueScreen}   />

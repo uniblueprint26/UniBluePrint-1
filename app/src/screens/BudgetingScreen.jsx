@@ -170,7 +170,12 @@ function LineItem({ item, onChangeAmount, onRemove, tint }) {
         />
       </View>
       {onRemove && (
-        <TouchableOpacity onPress={() => onRemove(item.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity
+          onPress={() => onRemove(item.id)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={`Remove ${item.label}`}
+        >
           <Minus size={14} color={colors.light} />
         </TouchableOpacity>
       )}
@@ -195,7 +200,12 @@ function GoalCard({ goal, onUpdate, onRemove }) {
             <Text style={styles.goalDoneText}>Done</Text>
           </View>
         )}
-        <TouchableOpacity onPress={() => onRemove(goal.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity
+          onPress={() => onRemove(goal.id)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={`Remove goal ${goal.label}`}
+        >
           <Minus size={14} color={colors.light} />
         </TouchableOpacity>
       </View>

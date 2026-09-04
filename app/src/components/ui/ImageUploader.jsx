@@ -205,6 +205,8 @@ export default function ImageUploader({
         style={[s.circle, { width: size, height: size, borderRadius: size / 2 }]}
         onPress={!localUri && !uploading ? pickImage : undefined}
         activeOpacity={0.75}
+        accessibilityRole="button"
+        accessibilityLabel={previewUri ? 'Change photo' : 'Choose photo'}
       >
         {previewUri ? (
           <Image

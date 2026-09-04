@@ -249,6 +249,8 @@ export default function MessagesScreen({ navigation }) {
             'Open a campus board, a carpool route, or a course discussion to start a group chat. One-to-one direct messages are coming soon.',
             [{ text: 'OK' }]
           )}
+          accessibilityRole="button"
+          accessibilityLabel="Start a conversation"
         >
           <Pencil size={16} color={colors.cream} strokeWidth={1.8} />
         </TouchableOpacity>

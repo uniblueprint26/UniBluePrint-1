@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Ticket, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
+import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
 import PartnerMap from '../components/PartnerMap'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
@@ -74,8 +74,8 @@ function LifestyleScreen() {
       </p>
 
       {/* Category pills */}
-      <div style={{ display: 'flex', gap: '5px', marginBottom: '10px' }}>
-        {['Fitness', 'Food', 'Travel'].map((c, i) => (
+      <div style={{ display: 'flex', gap: '5px', marginBottom: '8px' }}>
+        {['Fitness', 'Automotive', 'Creative'].map((c, i) => (
           <span key={c} style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 600,
             padding: '3px 8px', borderRadius: '20px', flexShrink: 0,
@@ -85,39 +85,32 @@ function LifestyleScreen() {
         ))}
       </div>
 
-      {/* Deal cards */}
-      {[
-        { name: 'Gym Membership',    sub: 'Fitness club rate',     pct: '15% off',   locked: false, bg: '#0369A1' },
-        { name: 'Sports Coaching',   sub: 'Personal coaching',     pct: 'Unlock',     locked: true,  bg: '#166534' },
-        { name: 'Personal Trainer',  sub: 'Strength sessions',     pct: 'Unlock',     locked: true,  bg: '#15803D' },
-      ].map((d, i) => (
-        <div key={i} style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          background: d.locked ? 'rgba(245,240,232,0.04)' : 'rgba(20,90,62,0.25)',
-          border: `1px solid ${d.locked ? 'rgba(245,240,232,0.08)' : 'rgba(20,90,62,0.5)'}`,
-          borderRadius: '8px', padding: '7px 8px', marginBottom: '7px',
-        }}>
-          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: d.bg, flexShrink: 0 }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, color: d.locked ? 'rgba(245,240,232,0.45)' : '#F5F0E8', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {d.name}
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', color: 'rgba(245,240,232,0.3)', margin: '1px 0 0' }}>
-              {d.sub}
-            </p>
+      {/* Deal cards, the same 6 headline deals shown elsewhere on this page */}
+      {HEADLINE_DEALS.map((d, i) => {
+        const masked = d.name === '???' || d.name === '??????' || d.name === '????'
+        return (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            background: masked ? 'rgba(245,240,232,0.04)' : 'rgba(20,90,62,0.25)',
+            border: `1px solid ${masked ? 'rgba(245,240,232,0.08)' : 'rgba(20,90,62,0.5)'}`,
+            borderRadius: '7px', padding: '5px 7px', marginBottom: '4px',
+          }}>
+            <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: d.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '10px', color: '#F5F0E8' }}>
+                {masked ? '?' : d.name.charAt(0)}
+              </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: masked ? 'rgba(245,240,232,0.45)' : '#F5F0E8', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {d.name}
+              </p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '8px', color: 'rgba(245,240,232,0.3)', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {d.deal}
+              </p>
+            </div>
           </div>
-          {d.locked ? (
-            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" style={{ flexShrink: 0 }}>
-              <rect x="1" y="5" width="8" height="7" rx="1.5" fill="rgba(245,240,232,0.22)" />
-              <path d="M3 5V3.5a2 2 0 0 1 4 0V5" stroke="rgba(245,240,232,0.22)" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 700, color: '#4ade80', flexShrink: 0 }}>
-              {d.pct}
-            </span>
-          )}
-        </div>
-      ))}
+        )
+      })}
 
       {/* Mental health strip */}
       <div style={{ marginTop: 'auto', background: 'rgba(22,163,74,0.1)', borderRadius: '8px', padding: '7px 10px', border: '1px solid rgba(22,163,74,0.22)' }}>
@@ -135,16 +128,16 @@ function LifestyleScreen() {
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FEATURES = [
-  { Icon: UtensilsCrossed, title: 'Food & Drink',  desc: 'Discounts at restaurants and cafes across Ireland.' },
-  { Icon: Dumbbell,        title: 'Fitness',        desc: 'Reduced gym memberships and class passes.' },
-  { Icon: ShoppingBag,     title: 'Shopping',       desc: 'Discounts at clothing and lifestyle brands.' },
-  { Icon: Plane,           title: 'Travel',         desc: 'Deals on buses, trains, and getting around Ireland.' },
-  { Icon: Ticket,          title: 'Entertainment',  desc: 'Cinema, events, and experiences at reduced prices.' },
-  { Icon: Heart,           title: 'Mental Health',  desc: 'Free resources, helplines, and wellbeing tools.', free: true },
+  { Icon: UtensilsCrossed, title: 'Food & Drink',    desc: 'Discounts at restaurants and cafes across Ireland.' },
+  { Icon: Dumbbell,        title: 'Fitness',          desc: 'Reduced gym memberships and class passes.' },
+  { Icon: ShoppingBag,     title: 'Shopping',         desc: 'Discounts at clothing and lifestyle brands.' },
+  { Icon: Car,             title: 'Automotive',       desc: 'Exclusive vehicle and driving deals through Whip Wizards.' },
+  { Icon: Palette,         title: 'Creative & Media', desc: 'Exclusive deals from photographers, videographers, digital marketers and creative professionals.' },
+  { Icon: Heart,           title: 'Mental Health',    desc: 'Free resources, helplines, and wellbeing tools.', free: true },
 ]
 
 // Category slots without a specific real partner yet stay honestly generic
-// rather than inventing a brand name. Percentages are masked with "?" —
+// rather than inventing a brand name. Percentages are masked with "?",
 // per Desmond: enough to show a real deal exists without giving the exact
 // number away on web, that's the reason to open the app.
 const DEALS = {
@@ -156,22 +149,25 @@ const DEALS = {
   'Fitness': [
     { brand: 'MPFitness',           deal: 'Up to ?% off membership',   locked: true },
     { brand: 'Energie Fitness',     deal: 'First session free',         locked: true },
-    { brand: 'JMC Fitness',         deal: '€8 member class pass',       locked: true },
+    { brand: 'JMC Fitness',         deal: '???',                        locked: true },
   ],
   'Shopping': [
     { brand: 'Saiemsent',           deal: 'Up to ?% off clothing',      locked: true },
     { brand: 'Elect',               deal: 'Up to ?% off clothing',      locked: true },
     { brand: 'Tech Retailer',       deal: '?% off laptops and devices', locked: true },
   ],
-  'Travel': [
-    { brand: 'Bus Services',        deal: 'Young adult Leap Card rate', locked: true },
-    { brand: 'Rail Services',       deal: '?% off off-peak fares',    locked: true },
-    { brand: 'City Bikes',          deal: 'First 3 months free',       locked: true },
+  'Automotive': [
+    { brand: 'Whip Wizards',        deal: 'Up to ?% off car detailing', locked: true },
+    { brand: 'Whip Wizards',        deal: 'Up to ?% off driving lessons', locked: true },
+    { brand: 'Whip Wizards',        deal: 'Up to ?% off car servicing', locked: true },
   ],
-  'Entertainment': [
-    { brand: 'Cinema Partner',      deal: '€7 member tickets',         locked: true },
-    { brand: 'Events Platform',     deal: 'Early access and discounts', locked: true },
-    { brand: 'Streaming Partner',   deal: '3 months half price',       locked: true },
+  'Creative & Media': [
+    { brand: 'Creative Partner',    deal: 'Up to ?% off photography',   locked: true },
+    { brand: 'Video Partner',       deal: 'Up to ?% off videography',   locked: true },
+    { brand: 'Marketing Partner',   deal: 'Up to ?% off design work',   locked: true },
+    { brand: 'LEVA Impact',         deal: 'Free marketing for a week',  locked: true },
+    { brand: 'Henry Sisters',       deal: '10% off',                    locked: true },
+    { brand: 'Royalty Productions', deal: '10% off',                    locked: true },
   ],
   'Mental Health': [
     { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123. Available 24 hours.',     locked: false },
@@ -185,20 +181,18 @@ const DEALS = {
   ],
 }
 
-// Real partners (from PartnersPage.jsx), cycled in a slideshow. The
-// discount is deliberately masked with "?" — per Desmond, enough to show
-// there's a real saving without giving the number away on web.
-const PARTNER_SLIDES = [
-  { name: 'MPFitness',        category: 'Personal Training',              accent: '#145A3E' },
-  { name: 'Energie Fitness',  category: 'Gym Membership',                 accent: '#166534' },
-  { name: 'Nyz3ditz',         category: 'Photography & Video',            accent: '#C2410C' },
-  { name: 'The Nail Nurse',   category: 'Nail Tech · Galway',             accent: '#BE185D' },
-  { name: 'LEVA Impact',      category: 'Digital Marketing & Design',     accent: '#4C1D95' },
-  { name: 'Camila Aruk',      category: 'Personal Training · Muay Thai',  accent: '#145A3E' },
-  { name: 'Saiemsent',        category: 'Clothing',                       accent: '#1D4ED8' },
-  { name: 'Eabakeditt',       category: 'Home Baking · Dublin 15',        accent: '#B45309' },
-  { name: 'Roomy.ie',         category: 'Housing Platform',               accent: '#0369A1' },
-  { name: 'Vees Lash Studio', category: 'Lash Tech · Galway',             accent: '#BE185D' },
+// The 6 headline deals, cycled in a slideshow and repeated beside the map's
+// service categories below. Three name a real partner outright (Energie
+// Fitness, LEVA Impact, Roomie); the other three mask the partner name with
+// "???" while keeping the real deal, matching the mystery-marketing style
+// used across this page.
+const HEADLINE_DEALS = [
+  { name: 'Energie Fitness', category: 'Gym Membership',      deal: 'Gym membership',                          accent: '#166534' },
+  { name: 'LEVA Impact',     category: 'Digital Marketing',   deal: 'Free marketing from a digital marketing company', accent: '#4C1D95' },
+  { name: 'Roomie',          category: 'Housing Listings',    deal: 'Free listings',                            accent: '#0369A1' },
+  { name: '???',             category: 'Clothing',            deal: '10% off clothes',                          accent: '#1D4ED8' },
+  { name: '??????',          category: 'Photography',         deal: '10% off photography',                      accent: '#C2410C' },
+  { name: '????',            category: 'Nails, student ID required', deal: 'Nails discount',                    accent: '#BE185D' },
 ]
 
 function PartnerSlideshow() {
@@ -207,11 +201,11 @@ function PartnerSlideshow() {
 
   useEffect(() => {
     if (reduceMotion) return
-    const id = setInterval(() => setIndex(i => (i + 1) % PARTNER_SLIDES.length), 3200)
+    const id = setInterval(() => setIndex(i => (i + 1) % HEADLINE_DEALS.length), 3200)
     return () => clearInterval(id)
   }, [reduceMotion])
 
-  const slide = PARTNER_SLIDES[index]
+  const slide = HEADLINE_DEALS[index]
 
   return (
     <div style={{
@@ -225,8 +219,8 @@ function PartnerSlideshow() {
         background: slide.accent, display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'background 300ms ease',
       }}>
-        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#F5F0E8' }}>
-          {slide.name.charAt(0)}
+        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#F5F0E8' }}>
+          {slide.name === '???' || slide.name === '??????' || slide.name === '????' ? '?' : slide.name.charAt(0)}
         </span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -240,10 +234,11 @@ function PartnerSlideshow() {
       <div style={{
         display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0,
         background: ACCENT_ALPHA, border: `1px solid ${ACCENT_BORDER}`,
-        borderRadius: '999px', padding: '7px 14px',
+        borderRadius: '999px', padding: '7px 14px', maxWidth: '160px',
       }}>
-        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: ACCENT }}>?</span>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: ACCENT }}>% off</span>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 700, color: ACCENT, lineHeight: 1.3 }}>
+          {slide.deal}
+        </span>
       </div>
     </div>
   )
@@ -251,8 +246,8 @@ function PartnerSlideshow() {
 
 const STEPS = [
   { n: 1, title: 'Download and sign up free',     desc: 'Create your account in minutes, no credit card needed.' },
-  { n: 2, title: 'Browse deals in your category', desc: 'Filter by Food, Fitness, Travel, Entertainment, and more.' },
-  { n: 3, title: 'Unlock and redeem in the app',  desc: 'Show your deal badge to the partner to claim your saving.' },
+  { n: 2, title: 'Browse deals in your category', desc: 'Filter by Food, Fitness, Shopping, Automotive, Creative & Media, and more.' },
+  { n: 3, title: 'Unlock and redeem in the app',  desc: 'Pro membership unlocks deals, show your deal badge to the partner to claim your saving.' },
 ]
 
 // ─── Reach section data ───────────────────────────────────────────────────────
@@ -304,7 +299,7 @@ export default function LifestyleBlueprintPage() {
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -353,7 +348,7 @@ export default function LifestyleBlueprintPage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '32px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -366,7 +361,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      {/* ── SECTION 2, FEATURES GRID ────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -414,7 +409,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2B — PARTNER SLIDESHOW ───────────────────────────────────── */}
+      {/* ── SECTION 2B, PARTNER SLIDESHOW ───────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '64px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <SectionLabel>Real partners, real deals</SectionLabel>
@@ -431,7 +426,7 @@ export default function LifestyleBlueprintPage() {
         </p>
       </section>
 
-      {/* ── SECTION 3 — DEALS EXPLORER ───────────────────────────────────────── */}
+      {/* ── SECTION 3, DEALS EXPLORER ───────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
         <div style={{ maxWidth: 780, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -515,7 +510,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — INTERACTIVE PARTNER MAP ──────────────────────────────── */}
+      {/* ── SECTION 4, INTERACTIVE PARTNER MAP ──────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '96px 24px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -532,11 +527,17 @@ export default function LifestyleBlueprintPage() {
               Every county. Every category.
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.5)', marginTop: '12px', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
-              Lifestyle Blueprint covers the full range — fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
+              Lifestyle Blueprint covers the full range, fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
+            </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 700,
+              color: '#C9A24B', marginTop: '14px', textTransform: 'uppercase', letterSpacing: '0.06em',
+            }}>
+              55+ live partners across every county
             </p>
           </div>
 
-          {/* The map itself — the centrepiece, not a thumbnail */}
+          {/* The map itself, the centrepiece, not a thumbnail */}
           <div style={{ marginTop: 48 }}>
             <PartnerMap />
           </div>
@@ -572,12 +573,35 @@ export default function LifestyleBlueprintPage() {
                   </div>
                 ))}
               </div>
+
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700,
+                color: 'rgba(245,240,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                margin: '28px 0 18px',
+              }}>
+                Headline deals
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {HEADLINE_DEALS.map(d => (
+                  <div key={`${d.name}-${d.category}`} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '7px',
+                    padding: '9px 14px', borderRadius: '24px',
+                    background: 'rgba(245,240,232,0.07)',
+                    border: '1px solid rgba(245,240,232,0.11)',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: 500,
+                    color: 'rgba(245,240,232,0.7)',
+                  }}>
+                    <strong style={{ color: 'rgba(245,240,232,0.9)', fontWeight: 700 }}>{d.name}</strong>
+                    {d.deal}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 5 — HOW IT WORKS ─────────────────────────────────────────── */}
+      {/* ── SECTION 5, HOW IT WORKS ─────────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
@@ -605,7 +629,7 @@ export default function LifestyleBlueprintPage() {
         </div>
       </section>
 
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────────── */}
+      {/* ── SECTION 6, CTA ──────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -615,12 +639,12 @@ export default function LifestyleBlueprintPage() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <SectionLabel light>Get the app</SectionLabel>
           <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(28px, 4vw, 46px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
-            Start saving this September
+            Start saving today
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
-            Free to join. September trial offers 50% off everything. Mental health resources always free.
+            Free to join. Free trial offers 50% off everything. Mental health resources always free.
           </p>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             marginTop: '32px', height: '50px', padding: '0 28px',
             background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',

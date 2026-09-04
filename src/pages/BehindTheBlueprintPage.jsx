@@ -3,13 +3,13 @@ import { ArrowRight } from 'lucide-react'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 // Real titles, dates, and photos from the VSCO series. The full archive (43+
-// posts) lives at vsco.co/uniblueprint — this page is a curated slice, not a
+// posts) lives at vsco.co/uniblueprint, this page is a curated slice, not a
 // mirror of it. Add new entries here as more get shared.
 
 const BTB = [
   { label: '#001', date: 'Feb 28, 2026',   title: 'Pilot',              photo: '/images/btb/btb-001.jpg' },
   { label: '#002', date: 'Feb 28, 2026',   title: 'Cakes and Candles',  photo: '/images/btb/btb-002.jpg' },
-  { label: '#003', date: 'Mar — Apr 2026', title: 'Finding the Pieces', photo: '/images/btb/btb-003.jpg' },
+  { label: '#003', date: 'Mar, Apr 2026', title: 'Finding the Pieces', photo: '/images/btb/btb-003.jpg' },
   { label: '#025', date: 'Apr 10, 2026',   title: 'First Look',         photo: '/images/btb/btb-025.jpg' },
   { label: '#027', date: 'Apr 14, 2026',   title: "We're Online",       photo: '/images/btb/btb-027.jpg' },
   { label: '#031', date: '2026',           title: 'Course Compass',    photo: '/images/btb/btb-031.jpg' },
@@ -49,7 +49,7 @@ export default function BehindTheBlueprintPage() {
         <title>Behind The Blueprint | UniBlueprint</title>
         <meta
           name="description"
-          content="The real, dated, documented story of how UniBlueprint got built — from a birthday dinner in Belfast to launch day, one post at a time."
+          content="The real, dated, documented story of how UniBlueprint got built, from a birthday dinner in Belfast to launch day, one post at a time."
         />
         <meta property="og:title" content="Behind The Blueprint | UniBlueprint" />
         <meta
@@ -90,7 +90,7 @@ export default function BehindTheBlueprintPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.62)',
             marginTop: '18px', lineHeight: 1.7,
           }}>
-            Every post is real, dated, and unedited — the actual calls, the actual campus
+            Every post is real, dated, and unedited, the actual calls, the actual campus
             visits, the actual nights spent piecing this together. This page is a slice of it.
             The rest lives on VSCO, if you want to go looking.
           </p>
@@ -115,7 +115,7 @@ export default function BehindTheBlueprintPage() {
               }}>
                 <img
                   src={item.photo}
-                  alt={`Behind The Blueprint ${item.label.replace('#', '')} — "${item.title}"`}
+                  alt={`Behind The Blueprint ${item.label.replace('#', '')}, "${item.title}"`}
                   loading="lazy"
                   style={{ display: 'block', width: '100%', height: 'auto' }}
                 />
@@ -140,7 +140,7 @@ export default function BehindTheBlueprintPage() {
             fontSize: '15px', color: '#6B7280',
             marginTop: '14px', lineHeight: 1.7,
           }}>
-            The full, ongoing archive — pilot to launch day — lives on VSCO. Nobody's
+            The full, ongoing archive, pilot to launch day, lives on VSCO. Nobody's
             advertising it. If you're here, you already found it.
           </p>
           <a

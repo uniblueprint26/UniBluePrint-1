@@ -11,6 +11,7 @@ import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import PartnerMap from '../components/ui/PartnerMap'
+import VerifiedBadge from '../components/ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { COACHES } from './ElevationScreen'
 import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
@@ -231,7 +232,10 @@ function PartnerCard({ partner, navigation, autoOpen }) {
                 : <ChevronDown size={16} color={colors.muted} />}
             </View>
 
-            <Text style={styles.categoryLabel}>{partner.category}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Text style={styles.categoryLabel}>{partner.category}</Text>
+              <VerifiedBadge verified={partner.verified} compact />
+            </View>
 
             {partner.deal && (
               <View style={styles.dealPill}>

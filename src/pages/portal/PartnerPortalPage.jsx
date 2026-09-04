@@ -18,7 +18,7 @@ const CARD_SHADOW = '0px 2px 12px rgba(30,58,95,0.08)'
 const SERIF = "'DM Serif Display', serif"
 const SANS  = "'DM Sans', sans-serif"
 
-// DEMO DATA — replace with a live Supabase query scoped to the logged-in partner's own partner_id once the analytics schema is populated
+// DEMO DATA, replace with a live Supabase query scoped to the logged-in partner's own partner_id once the analytics schema is populated
 const DEMO = {
   partner: {
     name: 'MPFitness',

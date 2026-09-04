@@ -20,9 +20,9 @@ export default function TermsPage() {
     <>
       <Helmet>
         <title>Terms of Service | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint Terms of Service — the rules and conditions governing your use of the UniBlueprint platform." />
+        <meta name="description" content="UniBlueprint Terms of Service, the rules and conditions governing your use of the UniBlueprint platform." />
         <meta property="og:title" content="Terms of Service | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint Terms of Service — the rules and conditions governing your use of the UniBlueprint platform." />
+        <meta property="og:description" content="UniBlueprint Terms of Service, the rules and conditions governing your use of the UniBlueprint platform." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -97,8 +97,8 @@ export default function TermsPage() {
               <h3 style={H3}>5.3 Auto-Renewal</h3>
               <p style={P}>Your Pro subscription renews automatically at the end of each billing period unless you cancel before the renewal date. You may cancel your subscription at any time via Account Settings. Cancellation takes effect at the end of the current billing period and access continues until that date. No partial-period refunds are issued on cancellation except where required by law or as set out in our Refund Policy.</p>
 
-              <h3 style={H3}>5.4 September 2026 Trial</h3>
-              <p style={P}>During September 2026, UniBlueprint may offer a trial pricing period. The specific terms, pricing, and duration of any trial are set out at the time of sign-up and on the Pricing page. Where a trial converts to a paid subscription, you will be notified in advance and given the opportunity to cancel before any charge is made. Full trial terms are set out in our Refund Policy.</p>
+              <h3 style={H3}>5.4 Free Trial</h3>
+              <p style={P}>UniBlueprint may offer a trial pricing period from time to time. The specific terms, pricing, and duration of any trial are set out at the time of sign-up and on the Pricing page. Where a trial converts to a paid subscription, you will be notified in advance and given the opportunity to cancel before any charge is made. Full trial terms are set out in our Refund Policy.</p>
             </Section>
 
             <Section title="6. Foundation Blueprint Service Terms">

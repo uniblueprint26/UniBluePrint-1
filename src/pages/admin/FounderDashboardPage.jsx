@@ -27,6 +27,7 @@ const EVENT_LABELS = {
   ad_posted: 'Ad Board posts',
   partner_deal_viewed: 'Lifestyle deal views',
   partner_deal_claimed: 'Lifestyle deal claims',
+  course_compass_click: 'Course Compass outbound clicks',
 }
 
 const NAVY = '#1E3A5F'

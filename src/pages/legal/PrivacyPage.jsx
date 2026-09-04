@@ -9,7 +9,7 @@ import {
 
 // GDPR request workflow:
 // 1. New row inserted into gdpr_requests (name/email for anonymous website
-//    visitors, or user_id for logged-in app users — see PrivacyDataScreen.jsx)
+//    visitors, or user_id for logged-in app users, see PrivacyDataScreen.jsx)
 // 2. Operations reviews it from their portal, verifies identity if needed
 // 3. Action performed (deletion, export, correction, or restriction) within
 //    the 30-day due_at deadline the table computes automatically
@@ -124,9 +124,9 @@ export default function PrivacyPage() {
     <>
       <Helmet>
         <title>Privacy Policy | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
+        <meta name="description" content="UniBlueprint Privacy Policy, how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
         <meta property="og:title" content="Privacy Policy | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint Privacy Policy — how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
+        <meta property="og:description" content="UniBlueprint Privacy Policy, how we collect, use, and protect your personal data under GDPR and the Irish Data Protection Act 2018." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -162,7 +162,7 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Profile data:</strong> institution, course, year of study or pathway, and preferences you provide.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Service request data:</strong> CV content, essays, cover letters, application materials, and coaching notes you submit for Foundation Blueprint or Elevation Blueprint services.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Community data:</strong> posts, replies, and messages you create in Campus Connect or Course Connect.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Payment data:</strong> processed by Stripe on our behalf. We do not store your card number, CVV, or full payment details — only a Stripe customer reference.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Payment data:</strong> processed by Stripe on our behalf. We do not store your card number, CVV, or full payment details, only a Stripe customer reference.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Usage data:</strong> pages visited, features used, session duration, and in-app interactions.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Device and technical data:</strong> browser type, operating system, IP address, and device identifiers (collected automatically when you visit the Platform).</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Marketing preferences:</strong> your opt-in or opt-out status for marketing communications.</li>
@@ -177,7 +177,7 @@ export default function PrivacyPage() {
                 <li style={LI}>Deliver Foundation Blueprint outputs via Campus Handlers and Elevation Blueprint sessions via Uni Coaches;</li>
                 <li style={LI}>Operate Campus Connect and Course Connect community features;</li>
                 <li style={LI}>Send transactional emails (order confirmations, delivery notifications, password resets);</li>
-                <li style={LI}>Send marketing communications where you have provided explicit opt-in consent;</li>
+                <li style={LI}>Send marketing communications via Mailchimp, only where you have provided explicit, separate opt-in consent for marketing emails, distinct from your account and transactional emails;</li>
                 <li style={LI}>Analyse usage to improve the Platform and fix issues;</li>
                 <li style={LI}>Detect and prevent fraud and misuse;</li>
                 <li style={LI}>Comply with our legal obligations under Irish and EU law.</li>
@@ -200,6 +200,7 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Supabase:</strong> database hosting and user authentication infrastructure. Data stored within the EU.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Stripe:</strong> payment processing. Stripe is the data controller for your card data under their own Privacy Policy. A Data Processing Agreement is in place under GDPR Article 28.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Resend:</strong> transactional email delivery (order confirmations, password resets).</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Mailchimp:</strong> marketing email delivery, only for users who have explicitly opted in via the marketing-consent checkbox on sign-up or early-access sign-up. We do not share your data with Mailchimp unless you have ticked that box.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Google Analytics:</strong> platform usage analytics, only if you have accepted analytics cookies via the consent banner.</li>
               </ul>
               <p style={P}>We do not sell, rent, or trade your personal data to any third party. We may disclose your data where required by Irish or EU law, court order, or lawful request from a public authority.</p>
@@ -267,7 +268,7 @@ export default function PrivacyPage() {
                 21 Fitzwilliam Square South, Dublin 2, D02 RD28<br />
                 <a href="https://www.dataprotection.ie" target="_blank" rel="noopener noreferrer" style={{ color: '#1E3A5F', fontWeight: '500' }}>dataprotection.ie</a>
               </p>
-              <p style={P}>We encourage you to contact us first at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a> — we will do our best to resolve your concern quickly and fairly.</p>
+              <p style={P}>We encourage you to contact us first at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>, we will do our best to resolve your concern quickly and fairly.</p>
             </Section>
 
             <Section title="15. Contact Us">

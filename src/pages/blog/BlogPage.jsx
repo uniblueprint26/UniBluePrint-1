@@ -176,7 +176,7 @@ export default function BlogPage() {
   return (
     <>
       <Helmet>
-        <title>{safePage > 1 ? `Blog — Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
+        <title>{safePage > 1 ? `Blog, Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
         <meta name="description" content="Career tips, platform updates, and guides for young people across all pathways in Ireland from the UniBlueprint team." />
         <link rel="canonical" href={canonical} />
         {safePage > 1 && <meta name="robots" content="noindex, follow" />}

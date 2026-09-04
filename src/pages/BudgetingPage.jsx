@@ -61,7 +61,7 @@ const PAGE_STYLES = `
   }
 `
 
-// ─── SUSI thresholds (2025/26 indicative figures — verify at susi.ie) ─────────
+// ─── SUSI thresholds (2025/26 indicative figures, verify at susi.ie) ─────────
 
 const SUSI_BANDS = [
   { label: 'Under €42,000',   max: 42000,  result: 'full',    grant: '€3,025 - €6,115 / year', colour: '#145A3E' },
@@ -690,7 +690,7 @@ export default function BudgetingPage() {
 
           <div style={{ marginTop: '36px' }}>
             <Link
-              to="/download"
+              to="/coming-soon"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '52px', padding: '0 32px',

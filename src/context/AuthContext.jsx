@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [roles, setRoles] = useState([])
+  const [rolesLoaded, setRolesLoaded] = useState(false)
   const [subscription, setSubscription] = useState(null)
   const subChannelRef = useRef(null)
 
@@ -18,6 +19,7 @@ export function AuthProvider({ children }) {
     if (!userId) {
       setRoles([])
       setSubscription(null)
+      setRolesLoaded(true)
       return
     }
     const [{ data: roleRows }, { data: subRow }] = await Promise.all([
@@ -26,6 +28,7 @@ export function AuthProvider({ children }) {
     ])
     setRoles((roleRows || []).map(r => r.role))
     setSubscription(subRow || null)
+    setRolesLoaded(true)
   }
 
   // Subscribe to realtime changes on this user's own subscription row so
@@ -61,6 +64,8 @@ export function AuthProvider({ children }) {
       if (session?.user) {
         loadRolesAndSubscription(session.user.id)
         watchSubscriptionChanges(session.user.id)
+      } else {
+        setRolesLoaded(true)
       }
     })
 
@@ -72,6 +77,7 @@ export function AuthProvider({ children }) {
       } else {
         setRoles([])
         setSubscription(null)
+        setRolesLoaded(true)
         watchSubscriptionChanges(null)
       }
     })
@@ -97,7 +103,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading, roles, hasRole, portalRole,
+      user, loading, roles, rolesLoaded, hasRole, portalRole,
       subscription, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
     }}>
       {children}

@@ -62,33 +62,33 @@ const DIFFERENTIATORS = [
   },
 ]
 
-// The leadership team running UniBlueprint into September — real names,
+// The leadership team running UniBlueprint into September, real names,
 // real roles, spellings confirmed with Desmond.
 const LEADERSHIP = [
-  { name: 'Desmond',       role: 'Founder',                              description: 'Started it all after a conversation at a birthday dinner in Belfast. Leads the vision and the whole team.' },
-  { name: 'Wami',          role: 'Finance Team Leader',                  description: 'Heads up all company finances, payments, and financial planning.' },
-  { name: 'Basmali',       role: 'Legal Team Leader',                    description: 'Owns all compliance, agreements, and regulatory requirements ahead of launch.' },
-  { name: 'Tayyab',        role: 'Technology & Dev Leader',              description: 'Running the entire platform build end to end.' },
-  { name: 'Bene Matundu',  role: 'Marketing Lead — Creative & Ads',      description: 'Leads on paid ads, visual creativity, and creator partnerships.' },
-  { name: 'Elizabeth',     role: 'Marketing Lead — Content & Social',    description: 'Drives content and social presence across the platform.' },
-  { name: 'Emmanuel',      role: 'Technology & Strategy Lead',           description: 'Drives platform strategy and supports the full tech build.' },
-  { name: 'Fabz',          role: 'Campus Growth Lead',                   description: 'Owns campus expansion and influencer partnerships.' },
-  { name: 'Daniel',        role: 'Commercial Operations Lead',           description: 'Heads up commercial relationships, partner activity, and operations.' },
-  { name: 'Aidan',         role: 'Product & Outreach Lead',              description: 'Drives product direction and outreach across campuses.' },
-  { name: 'Sienna',        role: 'Personal Outreach & Community Lead',   description: 'Leads personal outreach and community building across the network.' },
-  { name: 'Zafir',         role: 'Platform & Development Lead',          description: 'Supports the full platform build and development operations.' },
-  { name: 'Ethan',         role: 'Marketing & Outreach Lead',            description: 'Drives marketing activity and outreach across the board.' },
-  { name: 'Alex',          role: 'Digital Marketing Lead',               description: 'Drives digital marketing activity across the platform.' },
-  { name: 'Rachel',        role: 'Legal Team Lead',                      description: 'Supports compliance and agreements alongside the legal team.' },
+  { name: 'Desmond',   role: 'Founder',                          nickname: 'The General',    description: 'Started this whole adventure after a conversation at a birthday dinner in Belfast. Sets the direction, brings the team together and leads from the front.' },
+  { name: 'Wami',      role: 'Finance Lead',                     nickname: 'The Heart',       description: 'Keeps everything steady behind the scenes. Brings care, structure and the calm we need to keep moving forward.' },
+  { name: 'Basmali',   role: 'Legal Lead',                       nickname: 'The Shield',      description: "Has backed the vision from the start. Always ready to step up, challenge what needs challenging and make sure we're covered." },
+  { name: 'Tayyab',    role: 'Technology & Development Lead',    nickname: 'The Engine',      description: 'Keeps the build moving. Turns ideas into something real and is always pushing us towards the next stage.' },
+  { name: 'Bene',      role: 'Creative & Marketing Lead',        nickname: 'The Spark',       description: 'Brings the creativity that keeps us from becoming just another business. Always looking for a different way to approach things.' },
+  { name: 'Elizabeth', role: 'Content & Social Lead',            nickname: 'The Voice',       description: 'Helps give the vision its voice. Creative, reliable and focused on making sure what we say actually sounds like us.' },
+  { name: 'Eman',      role: 'Strategy & Technology Lead',       nickname: 'The Brain',       description: 'Always thinking a few steps ahead. Brings a different perspective and asks the questions that keep us thinking properly.' },
+  { name: 'Fabz',      role: 'Campus Growth Lead',               nickname: 'The Reach',       description: 'Always looking beyond where we are now. Helps take the Blueprint into new spaces, new campuses and new people.' },
+  { name: 'Daniel',    role: 'Commercial & Operations Lead',     nickname: 'The Right Hand',  description: 'Has been here from the beginning. Someone who understands the journey, knows what needs doing and gets involved without hesitation.' },
+  { name: 'Aidan',     role: 'Product Lead',                     nickname: 'The Innovator',   description: 'Always thinking about what could be better. Takes ideas further, challenges the obvious and helps shape where the Blueprint goes next.' },
+  { name: 'Sienna',    role: 'Community & Outreach Lead',        nickname: 'The Backbone',    description: 'Keeps people connected and keeps things moving. Gritty when it matters, dependable when we need her and never afraid to get things done.' },
+  { name: 'Zafir',     role: 'Platform & Development Lead',      nickname: 'The Foundation',  description: 'A lot of what he does happens behind the scenes. Quietly builds the foundations that allow everything else to work.' },
+  { name: 'Ethan',     role: 'Marketing & Outreach Lead',        nickname: 'The Pulse',       description: 'Keeps the energy around the team and the vision alive. Always involved, always pushing and always ready to get stuck in.' },
+  { name: 'Alex',      role: 'Digital Marketing Lead',           nickname: 'The Instigator',  description: 'Gets things moving. Spots opportunities, starts conversations and brings the kind of energy that makes things happen.' },
+  { name: 'Rachel',    role: 'Legal & Compliance Lead',          nickname: 'The Guardian',    description: "Keeps an eye on what matters. Helps protect what we're building and makes sure we stay on the right path." },
 ]
 
-// Behind The Blueprint — real titles and dates from the VSCO series.
+// Behind The Blueprint, real titles and dates from the VSCO series.
 // To add a real photo: set photo: '/images/btb-001.jpg' (or a full URL).
 // The label is shown as the blue VSCO-style tag on the polaroid.
 const BTB = [
   { label: '#001', date: 'Feb 28, 2026',   title: 'Pilot',              photo: '/images/btb/btb-001.jpg' },
   { label: '#002', date: 'Feb 28, 2026',   title: 'Cakes and Candles',  photo: '/images/btb/btb-002.jpg' },
-  { label: '#003', date: 'Mar — Apr 2026', title: 'Finding the Pieces', photo: '/images/btb/btb-003.jpg' },
+  { label: '#003', date: 'Mar, Apr 2026', title: 'Finding the Pieces', photo: '/images/btb/btb-003.jpg' },
   { label: '#025', date: 'Apr 10, 2026',   title: 'First Look',         photo: '/images/btb/btb-025.jpg' },
   { label: '#027', date: 'Apr 14, 2026',   title: "We're Online",        photo: '/images/btb/btb-027.jpg' },
   { label: '#031', date: '2026',           title: 'Course Compass',    photo: '/images/btb/btb-031.jpg' },
@@ -170,7 +170,7 @@ function ClothesLine({ items }) {
         {items.map((item, i) => {
           const rot = ROTATIONS[i % ROTATIONS.length]
 
-          // Real BTB photos are already finished polaroid graphics — their own
+          // Real BTB photos are already finished polaroid graphics, their own
           // tag, caption, and date are baked into the image itself (that's
           // the actual VSCO post design). Re-wrapping those in another hand-
           // drawn polaroid frame below would double up the caption. So a real
@@ -202,7 +202,7 @@ function ClothesLine({ items }) {
                 }}>
                   <img
                     src={item.photo}
-                    alt={`Behind The Blueprint ${item.label.replace('#', '')} — "${item.title}"`}
+                    alt={`Behind The Blueprint ${item.label.replace('#', '')}, "${item.title}"`}
                     style={{ display: 'block', width: '100%', height: 'auto' }}
                   />
                 </div>
@@ -361,7 +361,7 @@ function DiffCard({ icon: Icon, title, description }) {
   )
 }
 
-function LeaderCard({ name, role, description }) {
+function LeaderCard({ name, role, nickname, description }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
@@ -378,9 +378,16 @@ function LeaderCard({ name, role, description }) {
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '11px', fontWeight: '700', color: '#B08D57',
         textTransform: 'uppercase', letterSpacing: '0.06em',
-        margin: '0 0 10px',
+        margin: 0,
       }}>
         {role}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontStyle: 'italic', color: '#9CA3AF',
+        margin: '2px 0 10px',
+      }}>
+        {nickname}
       </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
@@ -400,13 +407,13 @@ export default function AboutPage() {
     <>
       <Helmet>
         <title>About | UniBlueprint</title>
-        <meta name="description" content="A 19-year-old from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born. This is the story of UniBlueprint." />
+        <meta name="description" content="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born. This is the story of UniBlueprint." />
         <meta property="og:title" content="About | UniBlueprint" />
-        <meta property="og:description" content="A 19-year-old from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born." />
+        <meta property="og:description" content="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ──────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ──────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F', padding: '110px 24px 88px',
         position: 'relative', overflow: 'hidden',
@@ -432,17 +439,18 @@ export default function AboutPage() {
             fontSize: '17px', color: 'rgba(245,240,232,0.62)',
             marginTop: '18px', lineHeight: 1.7,
           }}>
-            A 19-year-old from Ballyhaunis, County Mayo. A conversation at a restaurant table
-            that changed everything. This is how UniBlueprint started.
+            An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a Belfast
+            birthday dinner at the restaurant table that changed everything. This is how
+            UniBlueprint started.
           </p>
         </div>
       </section>
 
-      {/* ── SECTION 2 — FOUNDER STORY ─────────────────────────────────────── */}
+      {/* ── SECTION 2, FOUNDER STORY ─────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '88px 24px' }}>
         <div className="about-story-grid">
 
-          {/* Left — narrative */}
+          {/* Left, narrative */}
           <div>
             <Eyebrow>Behind the Blueprint</Eyebrow>
             <h2 style={{
@@ -450,7 +458,7 @@ export default function AboutPage() {
               fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
               marginTop: '12px', lineHeight: 1.15, textWrap: 'balance',
             }}>
-              Desmond. 19. Ballyhaunis, County Mayo.
+              A note from founder
             </h2>
 
             <p style={{
@@ -467,7 +475,7 @@ export default function AboutPage() {
               fontSize: '15px', color: '#374151',
               marginTop: '14px', lineHeight: 1.8,
             }}>
-              At the birthday dinner, a conversation about college life sparked the idea —
+              At the birthday dinner, a conversation about college life sparked the idea,
               and in that moment the foundation for this brand was created and set in motion.
               I flew home with a head full of plans and got to work.
             </p>
@@ -478,8 +486,8 @@ export default function AboutPage() {
               marginTop: '14px', lineHeight: 1.8,
             }}>
               What followed was weeks of brainstorming, long phone calls, voice messages,
-              recruiting — the pieces forming one by one. By April the app had its first look.
-              By May we were visiting campuses — ATU Galway, UCD, Maynooth, and back to
+              recruiting, the pieces forming one by one. By April the app had its first look.
+              By May we were visiting campuses, ATU Galway, UCD, Maynooth, and back to
               Ballyhaunis Community School where it all began. September 2026 is launch.
             </p>
 
@@ -488,7 +496,7 @@ export default function AboutPage() {
               fontSize: '15px', color: '#374151',
               marginTop: '14px', lineHeight: 1.8,
             }}>
-              Every step of it is documented. 43 posts and counting on the VSCO —
+              Every step of it is documented. 43 posts and counting on the VSCO,
               Behind the Blueprint. From the pilot to launch day.
             </p>
 
@@ -520,7 +528,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Right — pull quote */}
+          {/* Right, pull quote */}
           <div style={{ alignSelf: 'center' }}>
             <blockquote style={{
               margin: 0,
@@ -557,7 +565,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — BTB TIMELINE ──────────────────────────────────────── */}
+      {/* ── SECTION 3, BTB TIMELINE ──────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 0 40px', position: 'relative' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -588,7 +596,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — MISSION ───────────────────────────────────────────── */}
+      {/* ── SECTION 4, MISSION ───────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '88px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '620px', margin: '0 auto' }}>
           <Eyebrow>Our mission</Eyebrow>
@@ -605,7 +613,7 @@ export default function AboutPage() {
             marginTop: '20px', lineHeight: 1.8,
           }}>
             UniBlueprint exists because young people in Ireland have always deserved proper,
-            structured support — across every pathway, not just university. Whether you are
+            structured support, across every pathway, not just university. Whether you are
             doing your Leaving Cert, heading into college, taking an apprenticeship, or
             already in work and looking for what comes next, the platform is built around you.
           </p>
@@ -622,7 +630,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — WHAT MAKES US DIFFERENT ──────────────────────────── */}
+      {/* ── SECTION 5, WHAT MAKES US DIFFERENT ──────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '80px 24px', textAlign: 'center' }}>
         <Eyebrow>What makes us different</Eyebrow>
         <h2 style={{
@@ -637,7 +645,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 6 — TEAM ──────────────────────────────────────────────── */}
+      {/* ── SECTION 6, TEAM ──────────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px', textAlign: 'center' }}>
         <Eyebrow>The team</Eyebrow>
         <h2 style={{
@@ -654,7 +662,7 @@ export default function AboutPage() {
           maxWidth: '640px', margin: '16px auto 0',
         }}>
           Every one of these people is still a student, or barely out of being one. That's not
-          a gap we're working around — it's the whole point. This is built by the people who
+          a gap we're working around, it's the whole point. This is built by the people who
           will actually use it, who get exactly what's missing because they're living it
           themselves. The structure behind our success is each other.
         </p>
@@ -680,7 +688,7 @@ export default function AboutPage() {
             fontSize: '14px', color: 'rgba(245,240,232,0.62)',
             marginTop: '12px', lineHeight: 1.7,
           }}>
-            We are building the founding team across every function — tech, marketing,
+            We are building the founding team across every function, tech, marketing,
             outreach, finance, legal, and partnerships. If you care about what we are
             building, we want to hear from you.
           </p>
@@ -700,7 +708,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 7 — CTA ───────────────────────────────────────────────── */}
+      {/* ── SECTION 7, CTA ───────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F', padding: '88px 24px',
         textAlign: 'center', position: 'relative', overflow: 'hidden',
@@ -729,7 +737,7 @@ export default function AboutPage() {
             Across Irish universities and colleges during freshers week.
           </p>
           <Link
-            to="/download"
+            to="/sign-up"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               height: '50px', padding: '0 30px',

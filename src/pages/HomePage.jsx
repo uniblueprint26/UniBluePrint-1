@@ -6,71 +6,28 @@ import {
   FileText, TrendingUp, Tag, Users, Globe, Megaphone, PiggyBank,
   UserCheck, Award,
 } from 'lucide-react'
+import { FoundationScreen } from './FoundationBlueprintPage'
+import { ElevationScreen } from './ElevationBlueprintPage'
+import { CampusScreen } from './CampusConnectPage'
+import { CourseScreen } from './CourseConnectPage'
 
-// ─── Countdown ─────────────────────────────────────────────────────────────────
+// ─── CyclingScreenMockup ────────────────────────────────────────────────────────
+// Same bezel as PhoneMockup above, but instead of a static screenshot it
+// alternates between real screens pulled straight from their own pages
+// (Foundation/Elevation on the left, Campus/Course Connect on the right).
 
-const TRIAL_END = new Date('2026-09-30T22:59:59Z')
+function CyclingScreenMockup({ screens, width = 230, style = {} }) {
+  const [index, setIndex] = useState(0)
+  const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-function calcTimeLeft() {
-  const diff = Math.max(0, TRIAL_END.getTime() - Date.now())
-  return {
-    days:    Math.floor(diff / 86400000),
-    hours:   Math.floor((diff % 86400000) / 3600000),
-    minutes: Math.floor((diff % 3600000)  / 60000),
-    seconds: Math.floor((diff % 60000)    / 1000),
-  }
-}
-
-function CountdownTimer() {
-  const [prefersReduced] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
-  const [time, setTime] = useState(calcTimeLeft)
   useEffect(() => {
-    if (prefersReduced) return
-    const id = setInterval(() => setTime(calcTimeLeft()), 1000)
+    if (reduceMotion) return
+    const id = setInterval(() => setIndex(i => (i + 1) % screens.length), 4200)
     return () => clearInterval(id)
-  }, [prefersReduced])
-  const units = [
-    { value: time.days,    label: 'Days'  },
-    { value: time.hours,   label: 'Hours' },
-    { value: time.minutes, label: 'Mins'  },
-    { value: time.seconds, label: 'Secs'  },
-  ]
-  return (
-    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '36px' }}>
-      {units.map(({ value, label }) => (
-        <div key={label} style={{
-          background: 'rgba(245,240,232,0.09)',
-          border: '1px solid rgba(245,240,232,0.14)',
-          borderRadius: '12px', padding: '16px 22px', minWidth: '76px', textAlign: 'center',
-        }}>
-          <p style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: '36px', color: '#F5F0E8', lineHeight: 1,
-            fontVariantNumeric: 'tabular-nums',
-          }}>
-            {String(value).padStart(2, '0')}
-          </p>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '10px', color: 'rgba(245,240,232,0.45)', marginTop: '5px',
-            textTransform: 'uppercase', letterSpacing: '0.1em',
-          }}>
-            {label}
-          </p>
-        </div>
-      ))}
-    </div>
-  )
-}
+  }, [reduceMotion, screens.length])
 
-// ─── PhoneMockup ───────────────────────────────────────────────────────────────
-// Clean bezel frame — no dynamic island overlay so nothing is cut off.
+  const Screen = screens[index]
 
-function PhoneMockup({ src, alt, width = 250, style = {} }) {
-  const screenW = width - 16
-  const screenH = Math.round(screenW * (852 / 393))
   return (
     <div style={{
       width,
@@ -82,15 +39,14 @@ function PhoneMockup({ src, alt, width = 250, style = {} }) {
       position: 'relative',
       ...style,
     }}>
-      {/* Side buttons */}
       <div style={{ position: 'absolute', right: '-3px', top: '96px',  width: '3px', height: '44px', background: '#1a2535', borderRadius: '0 3px 3px 0' }} />
       <div style={{ position: 'absolute', left:  '-3px', top: '76px',  width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
       <div style={{ position: 'absolute', left:  '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
-      {/* Screen — screenshot fills cleanly, no overlay cutting content */}
-      <div style={{ borderRadius: '36px', overflow: 'hidden', width: screenW, height: screenH, background: '#F5F0E8' }}>
-        <img src={src} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
+      <div style={{ borderRadius: '36px', overflow: 'hidden', width: width - 16, height: Math.round((width - 16) * (463 / 214)), background: '#1E3A5F' }}>
+        <div key={index} style={{ width: '100%', height: '100%', animation: reduceMotion ? 'none' : 'ubp-screen-fade 400ms ease' }}>
+          <Screen />
+        </div>
       </div>
-      {/* Home indicator */}
       <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />
       </div>
@@ -114,9 +70,10 @@ function SectionLabel({ children, light }) {
 }
 
 // ─── PillarCard ────────────────────────────────────────────────────────────────
-// Glass card with hover peek panel — slides up to reveal live-style activity dots.
+// Glass card. On hover, a colour glow in the pillar's own brand colour takes
+// over the white part of the card (no text teaser).
 
-function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb, peek }) {
+function PillarCard({ name, slogan, description, href, icon: Icon, accent, accentRgb }) {
   const [hovered, setHovered] = useState(false)
   return (
     <Link
@@ -125,7 +82,9 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', flexDirection: 'column',
-        background: hovered ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.72)',
+        background: hovered
+          ? `radial-gradient(circle at 30% 20%, rgba(${accentRgb},0.22), rgba(${accentRgb},0.08) 60%, rgba(255,255,255,0.97))`
+          : 'rgba(255,255,255,0.72)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
         borderRadius: '16px',
@@ -137,7 +96,7 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
         overflow: 'hidden',
         transform: hovered ? 'translateY(-5px)' : 'translateY(0)',
         boxShadow: hovered
-          ? `0 20px 52px rgba(${accentRgb},0.13), 0 4px 16px rgba(0,0,0,0.07)`
+          ? `0 20px 52px rgba(${accentRgb},0.22), 0 4px 16px rgba(0,0,0,0.07)`
           : '0 2px 16px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.9) inset',
         transition: 'all 220ms ease',
       }}
@@ -176,45 +135,11 @@ function PillarCard({ name, slogan, description, href, icon: Icon, accent, accen
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '12px', fontWeight: '700', color: accent,
         marginTop: '16px', letterSpacing: '0.01em',
-        opacity: hovered ? 0 : 0.45,
+        opacity: hovered ? 1 : 0.45,
         transition: 'opacity 160ms',
       }}>
         Explore →
       </p>
-
-      {/* Peek panel — slides up on hover */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0,
-        padding: '32px 26px 22px',
-        background: `linear-gradient(to top, rgba(255,255,255,0.99) 60%, transparent)`,
-        transform: hovered ? 'translateY(0)' : 'translateY(100%)',
-        transition: 'transform 260ms cubic-bezier(.4,0,.2,1)',
-        zIndex: 2,
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', marginBottom: '12px' }}>
-          {peek.map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-              <div style={{
-                width: '5px', height: '5px', borderRadius: '50%',
-                background: accent, flexShrink: 0,
-              }} />
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px', color: `rgba(${accentRgb},0.8)`, lineHeight: 1.4,
-              }}>
-                {item}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px', fontWeight: '700', color: accent,
-          letterSpacing: '0.01em',
-        }}>
-          Explore {name} →
-        </p>
-      </div>
     </Link>
   )
 }
@@ -231,7 +156,7 @@ const PILLARS_DATA = [
   {
     name: 'Foundation Blueprint',
     slogan: 'Build the CV. Own the room.',
-    description: 'CV building, LinkedIn optimisation, cover letters, personal statements, interview prep, and CAO support — every output reviewed by a trained Campus Handler.',
+    description: 'CV building, LinkedIn optimisation, cover letters, personal statements, interview prep, and CAO support, every output reviewed by a trained Campus Handler.',
     href: '/foundation-blueprint',
     icon: FileText,
     accent: '#1E3A5F',
@@ -246,7 +171,7 @@ const PILLARS_DATA = [
   {
     name: 'Elevation Blueprint',
     slogan: 'Go beyond the degree.',
-    description: 'Personal branding, network strategy, portfolio building, pitch coaching, and postgrad support — delivered by verified Uni Coaches, booked directly in the app.',
+    description: 'Personal branding, network strategy, portfolio building, pitch coaching, and postgrad support, delivered by verified Uni Coaches, booked directly in the app.',
     href: '/elevation-blueprint',
     icon: TrendingUp,
     accent: '#2D4B8E',
@@ -276,7 +201,7 @@ const PILLARS_DATA = [
   {
     name: 'Campus Connect',
     slogan: 'Your campus. Your community.',
-    description: 'Community boards for your college — accommodation, carpooling, events, study groups, and more. 100+ institutions across Ireland.',
+    description: 'Community boards for your college, accommodation, carpooling, events, study groups, and more. 100+ institutions across Ireland.',
     href: '/campus-connect',
     icon: Users,
     accent: '#7C3500',
@@ -291,7 +216,7 @@ const PILLARS_DATA = [
   {
     name: 'Course Connect',
     slogan: 'Study smarter, together.',
-    description: 'Course-specific discussion boards, shared notes, study groups, and module Q&A — collaborate with young people on the same course across Ireland.',
+    description: 'Course-specific discussion boards, shared notes, study groups, and module Q&A, collaborate with young people on the same course across Ireland.',
     href: '/course-connect',
     icon: Globe,
     accent: '#4C1D95',
@@ -321,7 +246,7 @@ const PILLARS_DATA = [
   {
     name: 'Budgeting Tool',
     slogan: 'Know your money. Plan your future.',
-    description: 'Track spending, set budgets, and navigate SUSI grants — with a built-in SUSI eligibility guide so you always know what support you can claim.',
+    description: 'Track spending, set budgets, and navigate SUSI grants, with a built-in SUSI eligibility guide so you always know what support you can claim.',
     href: '/budgeting',
     icon: PiggyBank,
     accent: '#134E4A',
@@ -343,6 +268,11 @@ const PAGE_STYLES = `
     50%       { opacity: 0.3 }
   }
   .ubp-badge-dot { animation: ubp-pulse 2.4s ease infinite }
+
+  @keyframes ubp-screen-fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
   /* Hero */
   .ubp-hero-headline {
@@ -376,7 +306,7 @@ const PAGE_STYLES = `
   .ubp-pillars-grid > a {
     min-height: 280px;
   }
-  /* Last item (7th) sits in col 2 of 3 — centred */
+  /* Last item (7th) sits in col 2 of 3, centred */
   .ubp-pillars-grid > *:last-child:nth-child(3n + 1) {
     grid-column: 2;
   }
@@ -399,7 +329,7 @@ const PAGE_STYLES = `
   }
   @media (max-width: 600px) {
     /* Pillar cards carry a title, slogan, description, and a 4-line peek
-       list each — genuinely too dense to read at 2-up on a phone, so this
+       list each, genuinely too dense to read at 2-up on a phone, so this
        one stays single column on purpose, unlike the lighter card grids
        elsewhere on the site. */
     .ubp-quality-grid { gap: 12px }
@@ -465,7 +395,7 @@ const PAGE_STYLES = `
 const FEED_ITEMS = [
   { text: 'Your CV review is complete. Check Foundation Blueprint for feedback.',  time: 'Just now'   },
   { text: 'New accommodation post near your campus in Campus Connect.',             time: '2 min ago'  },
-  { text: '3 new shared notes uploaded for Business Analytics — Course Connect.',  time: '5 min ago'  },
+  { text: '3 new shared notes uploaded for Business Analytics, Course Connect.',  time: '5 min ago'  },
   { text: 'Lifestyle deal unlocked: 40% off Headspace this month.',                time: '12 min ago' },
   { text: 'Your Elevation coach session is confirmed for tomorrow at 2:00 PM.',    time: '18 min ago' },
 ]
@@ -531,7 +461,7 @@ function AppDashboard() {
           </p>
         </div>
 
-        {/* Mobile fallback — hidden on desktop */}
+        {/* Mobile fallback, hidden on desktop */}
         <p className="ubp-dash-mobile-note" style={{
           display: 'none', textAlign: 'center', padding: '0 0 80px',
           fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280',
@@ -612,7 +542,7 @@ function AppDashboard() {
                     fontSize: '9px', fontWeight: 700, letterSpacing: '0.07em',
                     textTransform: 'uppercase', color: '#9CA3AF',
                   }}>
-                    September Trial — 50% off
+                    Free Trial, 50% off
                   </p>
                   <p style={{
                     fontFamily: "'DM Serif Display', Georgia, serif",
@@ -723,10 +653,10 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title>UniBlueprint — The Structure Behind Your Success</title>
-        <meta name="description" content="The all-in-one platform for young people across Ireland — every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
-        <meta property="og:title" content="UniBlueprint — The Structure Behind Your Success" />
-        <meta property="og:description" content="The all-in-one platform for young people across Ireland — every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <title>UniBlueprint, The Structure Behind Your Success</title>
+        <meta name="description" content="The all-in-one platform for young people across Ireland, every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta property="og:title" content="UniBlueprint, The Structure Behind Your Success" />
+        <meta property="og:description" content="The all-in-one platform for young people across Ireland, every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
         <meta name="twitter:card" content="summary_large_image" />
         <style>{PAGE_STYLES}</style>
         <script type="application/ld+json">{JSON.stringify({
@@ -734,7 +664,7 @@ export default function HomePage() {
           '@type': 'Organization',
           name: 'UniBlueprint',
           url: 'https://uniblueprint.ie',
-          description: 'The all-in-one platform for young people across Ireland — every pathway, every ambition.',
+          description: 'The all-in-one platform for young people across Ireland, every pathway, every ambition.',
           sameAs: ['https://www.instagram.com/uniblueprint26', 'https://www.tiktok.com/@uniblueprint26'],
           address: { '@type': 'PostalAddress', addressCountry: 'IE' },
         })}</script>
@@ -753,7 +683,7 @@ export default function HomePage() {
           color: '#F5F0E8', letterSpacing: '0.02em',
         }}>
           <span style={{ opacity: 0.6, marginRight: '8px' }}>🎓</span>
-          50% off all services during the September Trial.{' '}
+          50% off all services during the Free Trial.{' '}
           <Link to="/sign-up" style={{
             color: '#F5F0E8', textDecoration: 'underline',
             textUnderlineOffset: '3px', opacity: 0.85,
@@ -763,7 +693,7 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* ── SECTION 1 — GLASS BOX: THE APP ──────────────────────────────────── */}
+      {/* ── SECTION 1, GLASS BOX: THE APP ──────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '120px 24px 96px',
@@ -781,17 +711,16 @@ export default function HomePage() {
 
         <div className="ubp-glass-inner" style={{ position: 'relative', zIndex: 1 }}>
 
-          {/* Left phone */}
+          {/* Left phone, alternates Foundation and Elevation Blueprint's own screens */}
           <div className="ubp-glass-phone">
-            <PhoneMockup
-              src="/app-screens/home.png"
-              alt="UniBlueprint home screen"
+            <CyclingScreenMockup
+              screens={[FoundationScreen, ElevationScreen]}
               width={230}
               style={{ transform: 'rotate(-3deg) translateY(10px)' }}
             />
           </div>
 
-          {/* Centre text — glass card */}
+          {/* Centre text, glass card */}
           <div className="ubp-glass-text" style={{
             background: 'rgba(245,240,232,0.06)',
             backdropFilter: 'blur(12px)',
@@ -814,7 +743,7 @@ export default function HomePage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              One app. Five pillars. Everything a young person in Ireland needs to build a CV, connect with their campus, find study groups, and land opportunities — all in one place.
+              One app. Five pillars. Everything a young person in Ireland needs to build a CV, connect with their campus, find study groups, and land opportunities, all in one place.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
@@ -870,7 +799,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '28px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -881,11 +810,10 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Right phone */}
+          {/* Right phone, alternates Campus Connect and Course Connect's own screens */}
           <div className="ubp-glass-phone ubp-right">
-            <PhoneMockup
-              src="/app-screens/messages.png"
-              alt="UniBlueprint messages screen"
+            <CyclingScreenMockup
+              screens={[CampusScreen, CourseScreen]}
               width={230}
               style={{ transform: 'rotate(3deg) translateY(10px)' }}
             />
@@ -894,13 +822,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — PILLARS GRID ─────────────────────────────────────────── */}
+      {/* ── SECTION 3, PILLARS GRID ─────────────────────────────────────────── */}
       <section style={{
         background: '#EDE8DF',
         padding: '96px 24px',
         position: 'relative',
       }}>
-        {/* Subtle dot grid — gives the glass cards something to blur against */}
+        {/* Subtle dot grid, gives the glass cards something to blur against */}
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           backgroundImage: 'radial-gradient(circle, rgba(30,58,95,0.06) 1px, transparent 1px)',
@@ -923,7 +851,7 @@ export default function HomePage() {
               marginTop: '14px', maxWidth: '480px',
               marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65,
             }}>
-              Everything a young person in Ireland needs — from a polished CV to SUSI guidance — in a single app.
+              Everything a young person in Ireland needs, from a polished CV to SUSI guidance, in a single app.
             </p>
           </div>
 
@@ -934,10 +862,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 3b — INTERACTIVE DASHBOARD ──────────────────────────────── */}
+      {/* ── SECTION 3b, INTERACTIVE DASHBOARD ──────────────────────────────── */}
       <AppDashboard />
 
-      {/* ── SECTION 4 — QUALITY / PEOPLE ────────────────────────────────────── */}
+      {/* ── SECTION 4, QUALITY / PEOPLE ────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
           <SectionLabel>Quality you can count on</SectionLabel>
@@ -961,12 +889,12 @@ export default function HomePage() {
             {[
               {
                 Icon: UserCheck, title: 'Campus Handler',
-                body: 'Trained reviewers who check every Foundation Blueprint submission — CVs, essays, and applications — before it reaches you.',
+                body: 'Trained reviewers who check every Foundation Blueprint submission, CVs, essays, and applications, before it reaches you.',
                 cta: 'Become a Handler →', href: '/join#handler-form',
               },
               {
                 Icon: Award, title: 'Uni Coach',
-                body: 'Verified specialists delivering Elevation Blueprint services — career coaching, personal branding, and postgrad strategy.',
+                body: 'Verified specialists delivering Elevation Blueprint services, career coaching, personal branding, and postgrad strategy.',
                 cta: 'Apply as a Coach →', href: '/join#coach-form',
               },
             ].map(({ Icon, title, body, cta, href }) => (
@@ -1006,7 +934,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — SEPTEMBER TRIAL ─────────────────────────────────────── */}
+      {/* ── SECTION 5, SEPTEMBER TRIAL ─────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F', padding: '96px 24px', textAlign: 'center',
         position: 'relative', overflow: 'hidden',
@@ -1020,22 +948,21 @@ export default function HomePage() {
           backgroundSize: '48px 48px',
         }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <SectionLabel light>September 2026 — Limited Time</SectionLabel>
+          <SectionLabel light>Free Trial, Limited Time</SectionLabel>
           <h2 style={{
             fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(32px, 5vw, 52px)', color: '#F5F0E8',
             marginTop: '10px', lineHeight: 1.12,
           }}>
-            50% off. Every service.<br />All of September.
+            50% off. Every service.<br />For a limited time.
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '16px', color: 'rgba(245,240,232,0.6)',
             margin: '16px auto 0', maxWidth: '420px', lineHeight: 1.65,
           }}>
-            CVs, LinkedIn profiles, cover letters, career coaching — every service at half price. Free to join.
+            CVs, LinkedIn profiles, cover letters, career coaching, every service at half price. Free to join.
           </p>
-          <CountdownTimer />
           <div style={{ marginTop: '36px' }}>
             <Link to="/sign-up" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -1056,7 +983,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 6 — FINAL CTA ────────────────────────────────────────────── */}
+      {/* ── SECTION 6, FINAL CTA ────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F', padding: '100px 24px', textAlign: 'center',
         borderTop: '1px solid rgba(245,240,232,0.08)',
@@ -1076,7 +1003,7 @@ export default function HomePage() {
             fontSize: '16px', color: 'rgba(245,240,232,0.6)',
             margin: '16px auto 0', maxWidth: '400px', lineHeight: 1.6,
           }}>
-            Free to join. No credit card. September trial — 50% off everything.
+            Free to join. No credit card. Free trial, 50% off everything.
           </p>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1091,7 +1018,7 @@ export default function HomePage() {
             }}>
               Get started free <ArrowRight size={16} />
             </Link>
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', padding: '0 24px',
               background: 'transparent', color: 'rgba(245,240,232,0.75)',

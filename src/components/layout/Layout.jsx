@@ -17,14 +17,14 @@ export default function Layout() {
   const [searchOpen, setSearchOpen] = useState(false)
 
   // Founder/Operations/Partner portal users are staff and partners, not
-  // members shopping for a subscription, so the September trial marketing
+  // members shopping for a subscription, so the free trial marketing
   // banner has nothing to say to them.
   const isInternalPortal = location.pathname.startsWith('/admin') || location.pathname.startsWith('/portal')
 
   return (
     <>
       <Helmet>
-        {/* Default OG + Twitter Card — individual pages override these */}
+        {/* Default OG + Twitter Card, individual pages override these */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="UniBlueprint" />
         <meta property="og:url" content={canonical} />

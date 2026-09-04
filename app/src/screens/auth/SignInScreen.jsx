@@ -93,7 +93,13 @@ export default function SignInScreen({ navigation }) {
                 secureTextEntry={!showPw}
                 autoComplete="password"
               />
-              <TouchableOpacity onPress={() => setShowPw(!showPw)} activeOpacity={0.7}>
+              <TouchableOpacity
+                onPress={() => setShowPw(!showPw)}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={showPw ? 'Hide password' : 'Show password'}
+                accessibilityState={{ selected: showPw }}
+              >
                 {showPw
                   ? <EyeOff size={16} color={colors.muted} />
                   : <Eye size={16} color={colors.muted} />}

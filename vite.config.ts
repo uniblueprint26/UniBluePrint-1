@@ -27,7 +27,7 @@ const ROUTES = [
   "/ad-board",
   "/partners",
   "/pricing",
-  "/september-trial",
+  "/free-trial",
   "/for-universities",
   "/for-businesses",
   "/join",
@@ -48,6 +48,12 @@ const ROUTES = [
   "/sign-up",
   "/sign-in",
   "/forgot-password",
+  "/ad-board",
+  "/behind-the-blueprint",
+  "/budgeting",
+  "/course-compass",
+  "/join",
+  "/partners",
 ];
 
 // https://vitejs.dev/config/

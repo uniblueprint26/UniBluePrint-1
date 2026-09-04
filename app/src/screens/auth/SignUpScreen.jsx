@@ -334,7 +334,13 @@ export default function SignUpScreen({ navigation }) {
       >
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-          <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={goBack}
+            style={styles.backBtn}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
             <ChevronLeft size={18} color={colors.cream} strokeWidth={2} />
           </TouchableOpacity>
           <Text style={styles.logo}>UniBlueprint</Text>
@@ -394,7 +400,13 @@ export default function SignUpScreen({ navigation }) {
                     secureTextEntry={!showPw}
                     autoComplete="new-password"
                   />
-                  <TouchableOpacity onPress={() => setShowPw(v => !v)} activeOpacity={0.7}>
+                  <TouchableOpacity
+                    onPress={() => setShowPw(v => !v)}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPw ? 'Hide password' : 'Show password'}
+                    accessibilityState={{ selected: showPw }}
+                  >
                     {showPw ? <EyeOff size={16} color={colors.muted} /> : <Eye size={16} color={colors.muted} />}
                   </TouchableOpacity>
                 </View>
@@ -413,7 +425,13 @@ export default function SignUpScreen({ navigation }) {
                     secureTextEntry={!showConfirmPw}
                     autoComplete="new-password"
                   />
-                  <TouchableOpacity onPress={() => setShowConfirmPw(v => !v)} activeOpacity={0.7}>
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPw(v => !v)}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={showConfirmPw ? 'Hide password' : 'Show password'}
+                    accessibilityState={{ selected: showConfirmPw }}
+                  >
                     {showConfirmPw ? <EyeOff size={16} color={colors.muted} /> : <Eye size={16} color={colors.muted} />}
                   </TouchableOpacity>
                 </View>

@@ -22,6 +22,12 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 
 // Kept in sync with src/lib/stripe-products.js — if pricing changes, update
 // both. Amounts in cents, matching Stripe's unit_amount convention.
+//
+// TODO: this always charges the standard `amount`, not the 50%-off free
+// trial price shown on the Pricing page (src/lib/stripe-products.js's
+// `trialAmount`). Wire trial pricing through here before Stripe actually
+// goes live, otherwise the site advertises €3.50/€24.99 but Stripe charges
+// full price at checkout.
 const PRICING: Record<string, { name: string; amount: number; interval: 'month' | 'year' }> = {
   pro_monthly: { name: 'UniBlueprint Pro (Monthly)', amount: 699, interval: 'month' },
   pro_annual:  { name: 'UniBlueprint Pro (Annual)',  amount: 4999, interval: 'year' },

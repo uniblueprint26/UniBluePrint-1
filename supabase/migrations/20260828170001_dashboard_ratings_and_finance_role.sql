@@ -1,11 +1,12 @@
 -- Supports the real (non-demo) Operations and Founder dashboards, plus lays
 -- the groundwork for a dedicated Finance Officer dashboard (follow-up task,
 -- not built in this migration — this just adds the role so it exists).
+--
+-- The 'finance' app_role value itself is added by the migration just before
+-- this one (20260828170000_finance_role_enum.sql) — it has to land in its
+-- own transaction before it can be used in a policy here.
 
--- ── 1. Finance role ──────────────────────────────────────────────────────────
-alter type public.app_role add value if not exists 'finance';
-
--- ── 2. Handler ratings ───────────────────────────────────────────────────────
+-- ── 1. Handler ratings ───────────────────────────────────────────────────────
 -- One rating per delivered submission — the natural, honest moment to ask
 -- ("your CV is ready — how did we do?"), rather than an open-ended rating
 -- anyone could spam. Real UI touchpoint (a prompt on the submission status
@@ -46,7 +47,7 @@ create or replace view public.handler_rating_summary as
   where handler_id is not null
   group by handler_id;
 
--- ── 3. Coach ratings ─────────────────────────────────────────────────────────
+-- ── 2. Coach ratings ─────────────────────────────────────────────────────────
 -- Coaches in the app today (ElevationScreen.jsx's hardcoded list) are not yet
 -- real platform accounts — coach_profiles.user_id can't be the FK target for
 -- most of them. coach_slug stores the same stable identifier already used
@@ -76,7 +77,7 @@ create or replace view public.coach_rating_summary as
   from public.coach_ratings
   group by coach_slug;
 
--- ── 4. Coach enquiry counts ──────────────────────────────────────────────────
+-- ── 3. Coach enquiry counts ──────────────────────────────────────────────────
 -- Real, available substitute for "bookings" on the Founder Dashboard — honest
 -- about what UniBlueprint can actually see given coaches handle their own
 -- bookings outside the platform.

@@ -15,7 +15,7 @@ import {
 
 // Confirmation email: send-form-confirmation (see supabase/functions/), called
 // via sendFormConfirmation() right after each successful insert below. It's a
-// no-op until RESEND_API_KEY is set as an Edge Function secret — deploy the
+// no-op until RESEND_API_KEY is set as an Edge Function secret, deploy the
 // function and set that key to turn these on; nothing else needs touching.
 
 // Rate limiting is live: enforce_form_rate_limit() (see
@@ -26,7 +26,7 @@ import {
 
 // Two-up field rows (name/email, organisation/contact name, role/university)
 // were hardcoded to `gridTemplateColumns: '1fr 1fr'` with no mobile
-// breakpoint — on narrow phones each field shrank to ~half-width, cramped
+// breakpoint, on narrow phones each field shrank to ~half-width, cramped
 // enough that placeholder text truncated and the fields became fiddly to
 // tap accurately. Stacks to one column below 480px.
 const CONTACT_FORM_STYLES = `
@@ -254,10 +254,10 @@ export default function ContactPage() {
         <title>Contact | UniBlueprint</title>
         <meta
           name="description"
-          content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team."
+          content="Get in touch with the UniBlueprint team, general enquiries, partnership opportunities, or joining the team."
         />
         <meta property="og:title" content="Contact | UniBlueprint" />
-        <meta property="og:description" content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team." />
+        <meta property="og:description" content="Get in touch with the UniBlueprint team, general enquiries, partnership opportunities, or joining the team." />
         <style>{CONTACT_FORM_STYLES}</style>
       </Helmet>
 
@@ -314,7 +314,7 @@ export default function ContactPage() {
               'Join the team'
             }
             subtitle={
-              activeTab === 'general'     ? 'Ask us anything — we read every message.' :
+              activeTab === 'general'     ? 'Ask us anything, we read every message.' :
               activeTab === 'partnership' ? 'Tell us about your organisation and what you have in mind.' :
               "Interested in working with UniBlueprint? Tell us about yourself."
             }

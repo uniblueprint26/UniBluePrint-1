@@ -3,7 +3,7 @@ import UBPLogo from './ui/UBPLogo'
 
 // Top-level crash guard. Without this, any unhandled render error anywhere
 // in the tree unmounts the whole app and the visitor gets a blank white
-// page with no way back — the worst possible first impression during
+// page with no way back, the worst possible first impression during
 // launch week. Uses plain <a> tags rather than react-router's Link
 // deliberately: if the render tree crashed, client-side routing state
 // can't be trusted, so recovery goes through a real page reload.
@@ -42,7 +42,7 @@ export default class ErrorBoundary extends Component {
             fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280',
             marginTop: '12px', lineHeight: 1.65,
           }}>
-            The page hit an unexpected error. Reloading usually fixes it — if it keeps
+            The page hit an unexpected error. Reloading usually fixes it, if it keeps
             happening, let us know and we'll take a look.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>

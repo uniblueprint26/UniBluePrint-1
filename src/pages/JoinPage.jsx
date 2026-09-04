@@ -5,7 +5,7 @@ import { UserCheck, Award, Megaphone } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -136,7 +136,11 @@ function HandlerForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else {
+      sendFormConfirmation('team', form.email, form.full_name)
+      notifyTeam('handler_application', form.email, form.full_name)
+      setSuccess(true)
+    }
   }
 
   return (
@@ -217,7 +221,11 @@ function CoachForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else {
+      sendFormConfirmation('team', form.email, form.full_name)
+      notifyTeam('coach_application', form.email, form.full_name)
+      setSuccess(true)
+    }
   }
 
   return (
@@ -282,7 +290,11 @@ function AmbassadorForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else {
+      sendFormConfirmation('team', form.email, form.full_name)
+      notifyTeam('ambassador_application', form.email, form.full_name)
+      setSuccess(true)
+    }
   }
 
   return (
@@ -430,7 +442,7 @@ export default function JoinPage() {
         <style>{JOIN_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ───────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '100px 24px 80px',
@@ -472,7 +484,7 @@ export default function JoinPage() {
             Campus Handlers, Uni Coaches, and Ambassadors are the people behind UniBlueprint. Join us.
           </p>
 
-          {/* Role pills — scroll to each section */}
+          {/* Role pills, scroll to each section */}
           <div style={{
             display: 'flex', gap: '10px', justifyContent: 'center',
             flexWrap: 'wrap', marginTop: '36px',
@@ -503,7 +515,7 @@ export default function JoinPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2a — CAMPUS HANDLER ────────────────────────────────────── */}
+      {/* ── SECTION 2a, CAMPUS HANDLER ────────────────────────────────────── */}
       <section id="handler-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div className="join-role-row">
           <div className="join-role-info">
@@ -529,7 +541,7 @@ export default function JoinPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2b — UNI COACH ─────────────────────────────────────────── */}
+      {/* ── SECTION 2b, UNI COACH ─────────────────────────────────────────── */}
       <section id="coach-form" style={{ background: '#EDE8DF', padding: '80px 24px' }}>
         <div className="join-role-row">
           <div className="join-role-info">
@@ -543,8 +555,8 @@ export default function JoinPage() {
                 'Set your own rates and availability',
               ]}
               getItems={[
-                'Keep 85% of every booking',
-                'Full flexibility — you choose your hours',
+                'Keep the majority of every booking',
+                'Full flexibility, you choose your hours',
                 'Verified Coach badge on your profile',
               ]}
             />
@@ -555,7 +567,7 @@ export default function JoinPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2c — AMBASSADOR ────────────────────────────────────────── */}
+      {/* ── SECTION 2c, AMBASSADOR ────────────────────────────────────────── */}
       <section id="ambassador-form" style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div className="join-role-row">
           <div className="join-role-info">
@@ -581,7 +593,7 @@ export default function JoinPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — CTA ────────────────────────────────────────────────── */}
+      {/* ── SECTION 3, CTA ────────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '64px 24px',

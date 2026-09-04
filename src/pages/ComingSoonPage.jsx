@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { CheckCircle, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { sendFormConfirmation } from '../components/ui/Form'
+import { sendFormConfirmation, syncMailchimp, FormCheckbox } from '../components/ui/Form'
 import UBPLogo from '../components/ui/UBPLogo'
 
 export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
+  const [marketingConsent, setMarketingConsent] = useState(false)
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -23,7 +24,7 @@ export default function ComingSoonPage() {
     setLoading(true); setError(null); setDuplicate(false)
     const { error: dbError } = await supabase
       .from('early_access_signups')
-      .insert([{ email, source: 'coming_soon' }])
+      .insert([{ email, source: 'coming_soon', marketing_consent: marketingConsent }])
     if (dbError) {
       if (dbError.code === '23505') {
         setDuplicate(true)
@@ -33,6 +34,7 @@ export default function ComingSoonPage() {
       setLoading(false)
     } else {
       sendFormConfirmation('early_access', email)
+      if (marketingConsent) syncMailchimp(email, null, 'coming_soon')
       setSuccess(true)
     }
   }
@@ -41,7 +43,7 @@ export default function ComingSoonPage() {
     <>
       <Helmet>
         <title>Coming Soon | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint is coming to Irish universities in September 2026. Sign up for early access." />
+        <meta name="description" content="UniBlueprint is coming to Irish universities. Create your account now and be ready the moment we launch." />
       </Helmet>
 
       {/* HERO */}
@@ -49,12 +51,6 @@ export default function ComingSoonPage() {
         <Link to="/" aria-label="UniBlueprint home" style={{ display: 'inline-block', marginBottom: '40px' }}>
           <UBPLogo height={100} color="#F5F0E8" />
         </Link>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', fontWeight: '600',
-          color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em',
-        }}>
-          September 2026
-        </p>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '56px', color: '#F5F0E8', marginTop: '8px', lineHeight: 1.1 }}>
           Something big<br />is coming
         </h1>
@@ -62,12 +58,33 @@ export default function ComingSoonPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: 'rgba(245,240,232,0.7)',
           margin: '16px auto 0', maxWidth: '480px', lineHeight: 1.6,
         }}>
-          UniBlueprint launches across Irish universities at freshers week. Be first to know.
+          UniBlueprint launches across Irish universities at freshers week. Create your account now, it's the same account on web and app, so you're ready the moment we launch.
+        </p>
+        <div style={{ marginTop: '32px' }}>
+          <Link
+            to="/sign-up"
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: '52px', padding: '0 36px',
+              background: '#F5F0E8', color: '#1E3A5F',
+              borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+              textDecoration: 'none',
+            }}
+          >
+            Create your account now
+          </Link>
+        </div>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.4)',
+          marginTop: '12px',
+        }}>
+          No credit card required. Free to join.
         </p>
       </section>
 
-      {/* EMAIL CAPTURE */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
+      {/* EMAIL CAPTURE, lower-commitment fallback for anyone not ready to sign up yet */}
+      <section style={{ background: '#F5F0E8', padding: '64px 24px' }}>
         <div style={{ maxWidth: '480px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{
             background: '#FFFFFF', borderRadius: '16px',
@@ -84,10 +101,10 @@ export default function ComingSoonPage() {
             </div>
 
             <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F' }}>
-              Get early access
+              Not ready to sign up yet?
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>
-              We will notify you when UniBlueprint launches at your university.
+              Leave your email and we will notify you when UniBlueprint launches at your university.
             </p>
 
             {success ? (
@@ -97,7 +114,7 @@ export default function ComingSoonPage() {
                   You are on the list
                 </p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px' }}>
-                  We will be in touch before September 2026.
+                  We will be in touch before launch.
                 </p>
               </div>
             ) : duplicate ? (
@@ -107,7 +124,7 @@ export default function ComingSoonPage() {
                   You are already on the list
                 </p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px' }}>
-                  We have got your email — we will be in touch before launch.
+                  We have got your email, we will be in touch before launch.
                 </p>
               </div>
             ) : (
@@ -136,6 +153,12 @@ export default function ComingSoonPage() {
                   }}
                   onFocus={e => { e.target.style.borderColor = '#1E3A5F'; e.target.style.boxShadow = '0 0 0 3px rgba(30,58,95,0.1)' }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(30,58,95,0.15)'; e.target.style.boxShadow = 'none' }}
+                />
+                <FormCheckbox
+                  id="marketing-consent"
+                  checked={marketingConsent}
+                  onChange={e => setMarketingConsent(e.target.checked)}
+                  label="Send me marketing emails about UniBlueprint's launch (optional, you can unsubscribe any time)."
                 />
                 <button
                   type="submit"

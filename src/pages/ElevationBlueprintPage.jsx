@@ -28,34 +28,89 @@ const PAGE_STYLES = `
 // ─── Coaches (aligned to app ElevationScreen) ─────────────────────────────────
 
 // `from` mirrors each coach's real pricing from the app (app/src/screens/
-// ElevationScreen.jsx) — a genuine "From €X" teaser where one exists, or
+// ElevationScreen.jsx), a genuine "From €X" teaser where one exists, or
 // "Enquire in the app" where the app itself has no public number
 // (enquiry-only, on-request, or a non-price metric like a copier target).
 // Per Desmond: show enough to convert without giving the full picture away
-// on web — this mix is what the real data already supports, not a
+// on web, this mix is what the real data already supports, not a
 // separate gating layer.
 const COACHES = [
-  { id: 1,  name: '500+ with Eman', category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  from: 'Enquire in the app', services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },
-  { id: 2,  name: 'JMC Fitness', category: 'Sports Coaching',      location: 'North Dublin',  filter: 'Sports',           from: 'From €50/hr', services: ['In-Person Training', 'Football Coaching', 'Agent Connections'],    accent: '#166534' },
-  { id: 3,  name: 'Nathan',      category: 'Photography and Video', location: 'Ireland',      filter: 'Creative',         from: 'From €55/month', services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Creative Direction'], accent: '#C2410C' },
-  { id: 4,  name: 'DG Trading',  category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading',          from: 'Enquire in the app', services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
-  { id: 6,  name: 'Emanuel T.',  category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Online Workout Plans', 'Nutrition Plans', 'Calisthenics Coaching'], accent: '#2D4B8E' },
-  { id: 7,  name: 'Tadgh',       category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
-  { id: 8,  name: 'Milan',       category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'From €40/session', services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
-  { id: 9,  name: 'Kevin',       category: 'Personal Training',    location: 'Dublin',        filter: 'Fitness',          from: 'From €25', services: ['1-to-1 PT Sessions', 'Beginner Gym Coaching', 'Accountability Coaching'], accent: '#145A3E' },
-  { id: 10, name: 'Alex',        category: 'Digital Marketing',    location: 'Co. Mayo',      filter: 'Marketing',        from: 'From €40', services: ['Social Media Management', 'Content & Graphics', 'Creator Coordination', 'Client Reporting'], accent: '#4C1D95', badge: 'Student Mentor Listing', crossLinkHref: '/partners#leva', crossLinkLabel: 'See LEVA Impact on Partners' },
-  { id: 12, name: 'Jayden',      category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          from: 'Enquire in the app', services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
-  { id: 13, name: 'Stephen',      category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
-  { id: 14, name: 'Camila',      category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', from: 'From €60/session', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
-  { id: 15, name: 'Aoife',       category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
-  { id: 17, name: 'Dinero Trading Group', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
-  { id: 18, name: 'Zainab Adeyemi', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
-  { id: 19, name: 'Luana Ciweck', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
+  { id: 1,  name: 'Emmanuel',    via: 'via 500+ with Eman', photo: '/coaches/eman.jpg',       category: 'Academic Grinds',      location: 'Dublin',        filter: 'Academic Grinds',  from: 'Enquire in the app', services: ['LC Maths', 'LC Biology', 'LC Physics'], accent: '#1E3A5F' },
+  { id: 2,  name: 'Jack',        via: 'via JMC Fitness',    photo: '/coaches/jmc.jpg',        category: 'Sports Coaching',      location: 'North Dublin',  filter: 'Sports',           from: 'Enquire in the app', services: ['In-Person Training', 'Football Coaching', 'Agent Connections'],    accent: '#166534' },
+  { id: 3,  name: 'Nathan Yanzo', via: 'via Nyz3ditz',      photo: '/coaches/nathan.jpg',     category: 'Photography and Video', location: 'Ireland',      filter: 'Creative',         from: 'Enquire in the app', services: ['Monthly Mentorship', '1-1 Shoot Sessions', 'Creative Direction'], accent: '#C2410C' },
+  { id: 4,  name: 'DG Trading',  photo: '/coaches/dgtrading.jpg', category: 'Trading and Finance',  location: 'Ireland',       filter: 'Trading and Finance',          from: 'Enquire in the app', services: ['NQ & MNQ Futures', 'ICT-Based Concepts', 'New York Pre-Market'], accent: '#1B4B5A' },
+  { id: 6,  name: 'Emanuel T.',  photo: '/coaches/emanuelt.jpg',  category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Online Workout Plans', 'Nutrition Plans', 'Calisthenics Coaching'], accent: '#2D4B8E' },
+  { id: 7,  name: 'Tadgh',       photo: '/coaches/tadgh.jpg',     category: 'Physique Development', location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['Custom Training Plans', 'Nutrition Coaching', 'Weekly Check-ins'], accent: '#145A3E' },
+  { id: 8,  name: 'Milan',       via: 'via MPFitness',      photo: '/coaches/milan.jpg',      category: 'Personal Training',    location: 'Ireland',       filter: 'Fitness',          from: 'Enquire in the app', services: ['Physique Development', 'Fat Loss and Muscle Gain', 'Nutrition Coaching'], accent: '#15803D' },
+  { id: 9,  name: 'Kevin',       via: 'via TrainwitKev',    photo: '/coaches/kevin.jpg',      category: 'Personal Training',    location: 'Dublin',        filter: 'Fitness',          from: 'Enquire in the app', services: ['1-to-1 PT Sessions', 'Beginner Gym Coaching', 'Accountability Coaching'], accent: '#145A3E' },
+  { id: 10, name: 'Alex',        via: 'via Leva Impact',    photo: '/coaches/alex.jpg',       category: 'Digital Marketing',    location: 'Co. Mayo',      filter: 'Marketing',        from: 'Enquire in the app', services: ['Social Media Management', 'Content & Graphics', 'Creator Coordination', 'Client Reporting'], accent: '#4C1D95', badge: 'Student Mentor Listing', crossLinkHref: '/partners#leva', crossLinkLabel: 'See LEVA Impact on Partners' },
+  { id: 12, name: 'Jayden',      photo: '/coaches/jayden.jpg',    category: 'Health and Fitness',   location: 'County Sligo',  filter: 'Fitness',          from: 'Enquire in the app', services: ['1-1 Online Coaching', 'Fitness Plans', 'Nutritional Guidance'],  accent: '#134E4A' },
+  { id: 13, name: 'Stephen',     via: 'via Course Compass', photo: '/coaches/coursecompass.jpg', category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
+  { id: 14, name: 'Camila',      photo: '/coaches/camila.jpg',    category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', from: 'Enquire in the app', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
+  { id: 15, name: 'Aoife',       via: 'via The Brave Flow Yoga', photo: '/coaches/aoife.jpg', category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
+  { id: 17, name: 'Dinero Trading Group', photo: '/coaches/dinero.jpg', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading and Finance', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
+  { id: 18, name: 'Zainab Adeyemi', via: 'via Soft Life Investing', photo: '/coaches/zainab.jpg', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading and Finance',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
+  { id: 19, name: 'Luana Ciweck', photo: '/coaches/luana.jpg', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
 ]
 
-const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Yoga', 'Career']
+const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading and Finance', 'Marketing', 'Creative', 'Yoga', 'Career']
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
+
+// Reused on the homepage hero, which cycles between this and FoundationScreen.
+export function ElevationScreen() {
+  return (
+    <div style={{ padding: '20px 14px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', boxSizing: 'border-box' }}>
+      {/* Status bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: 'rgba(245,240,232,0.5)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>9:41</span>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ width: '3px', height: `${4 + i * 2}px`, background: i === 3 ? 'rgba(245,240,232,0.25)' : 'rgba(245,240,232,0.6)', borderRadius: '1px' }} />
+          ))}
+        </div>
+      </div>
+      {/* Header */}
+      <div>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Elevation Blueprint</p>
+        <p style={{ color: '#F5F0E8', fontSize: '16px', fontFamily: "'DM Serif Display',serif", marginTop: '3px', lineHeight: 1.2 }}>Your Coach<br />Session</p>
+      </div>
+      {/* Coach card */}
+      <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.14)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,240,232,0.3),rgba(245,240,232,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>M</span>
+          </div>
+          <div>
+            <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Milan</p>
+            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Uni Coach, Personal Training</p>
+          </div>
+        </div>
+      </div>
+      {/* Session info */}
+      <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.06)', border: '1px solid rgba(245,240,232,0.08)' }}>
+        <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next session</p>
+        <p style={{ color: '#F5F0E8', fontSize: '13px', fontFamily: "'DM Serif Display',serif", marginTop: '3px' }}>Tomorrow, 7:00 AM</p>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", marginTop: '2px' }}>Physique Development</p>
+      </div>
+      {/* Stats */}
+      {[
+        { label: 'Training plan: week 3 of 12', color: '#16A34A' },
+        { label: 'Nutrition check-in today',    color: '#3B82F6' },
+        { label: 'Progress: on track',           color: '#F59E0B' },
+      ].map(item => (
+        <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 8px', borderRadius: '7px', background: 'rgba(245,240,232,0.04)' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+          <span style={{ color: 'rgba(245,240,232,0.55)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>{item.label}</span>
+        </div>
+      ))}
+      {/* CTA */}
+      <div style={{ marginTop: 'auto', padding: '8px 10px', borderRadius: '8px', background: '#F5F0E8', textAlign: 'center' }}>
+        <span style={{ color: '#1E3A5F', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700 }}>Book your Coach</span>
+      </div>
+    </div>
+  )
+}
 
 function PhoneMockup() {
   return (
@@ -69,55 +124,7 @@ function PhoneMockup() {
       <div style={{ position: 'absolute', left: '-3px', top: '76px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
       <div style={{ position: 'absolute', left: '-3px', top: '120px', width: '3px', height: '32px', background: '#1a2535', borderRadius: '3px 0 0 3px' }} />
       <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 463, background: '#1E3A5F' }}>
-        <div style={{ padding: '20px 14px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', boxSizing: 'border-box' }}>
-          {/* Status bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'rgba(245,240,232,0.5)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>9:41</span>
-            <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
-              {[1, 2, 3].map(i => (
-                <div key={i} style={{ width: '3px', height: `${4 + i * 2}px`, background: i === 3 ? 'rgba(245,240,232,0.25)' : 'rgba(245,240,232,0.6)', borderRadius: '1px' }} />
-              ))}
-            </div>
-          </div>
-          {/* Header */}
-          <div>
-            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Elevation Blueprint</p>
-            <p style={{ color: '#F5F0E8', fontSize: '16px', fontFamily: "'DM Serif Display',serif", marginTop: '3px', lineHeight: 1.2 }}>Your Coach<br />Session</p>
-          </div>
-          {/* Coach card */}
-          <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.14)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,240,232,0.3),rgba(245,240,232,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>M</span>
-              </div>
-              <div>
-                <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Milan</p>
-                <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Uni Coach, Personal Training</p>
-              </div>
-            </div>
-          </div>
-          {/* Session info */}
-          <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.06)', border: '1px solid rgba(245,240,232,0.08)' }}>
-            <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next session</p>
-            <p style={{ color: '#F5F0E8', fontSize: '13px', fontFamily: "'DM Serif Display',serif", marginTop: '3px' }}>Tomorrow, 7:00 AM</p>
-            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", marginTop: '2px' }}>Physique Development</p>
-          </div>
-          {/* Stats */}
-          {[
-            { label: 'Training plan: week 3 of 12', color: '#16A34A' },
-            { label: 'Nutrition check-in today',    color: '#3B82F6' },
-            { label: 'Progress: on track',           color: '#F59E0B' },
-          ].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 8px', borderRadius: '7px', background: 'rgba(245,240,232,0.04)' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-              <span style={{ color: 'rgba(245,240,232,0.55)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>{item.label}</span>
-            </div>
-          ))}
-          {/* CTA */}
-          <div style={{ marginTop: 'auto', padding: '8px 10px', borderRadius: '8px', background: '#F5F0E8', textAlign: 'center' }}>
-            <span style={{ color: '#1E3A5F', fontSize: '10px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700 }}>Book your Coach</span>
-          </div>
-        </div>
+        <ElevationScreen />
       </div>
       <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.18)' }} />
@@ -128,7 +135,7 @@ function PhoneMockup() {
 
 // ─── CoachCard ────────────────────────────────────────────────────────────────
 
-function CoachCard({ id, name, category, location, services, accent, shell, href, badge, from, crossLinkHref, crossLinkLabel }) {
+function CoachCard({ id, name, via, photo, category, location, services, accent, shell, href, badge, from, crossLinkHref, crossLinkLabel }) {
   const [hovered, setHovered] = useState(false)
   const initial = name.charAt(0).toUpperCase()
 
@@ -157,31 +164,45 @@ function CoachCard({ id, name, category, location, services, accent, shell, href
       {/* Avatar area */}
       <div style={{
         position: 'relative', height: '132px',
-        background: 'linear-gradient(135deg, #EAF0F8 0%, #D9E4F0 100%)',
+        background: photo ? '#0c1520' : 'linear-gradient(135deg, #EAF0F8 0%, #D9E4F0 100%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
       }}>
-        <div style={{
-          width: '68px', height: '68px', borderRadius: '50%',
-          background: accent,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 4px 20px ${accent}44`,
-        }}>
-          <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '26px', color: '#F5F0E8', lineHeight: 1 }}>
-            {initial}
-          </span>
-        </div>
+        {photo ? (
+          <img
+            src={photo}
+            alt={`${name} logo`}
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            loading="lazy"
+          />
+        ) : (
+          <div style={{
+            width: '68px', height: '68px', borderRadius: '50%',
+            background: accent,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: `0 4px 20px ${accent}44`,
+          }}>
+            <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '26px', color: '#F5F0E8', lineHeight: 1 }}>
+              {initial}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Category / location strip, sits below the photo, never overlaps it */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
+        padding: '8px 14px', background: `${accent}0D`, borderBottom: `1px solid ${accent}1A`,
+      }}>
         <span style={{
-          position: 'absolute', top: '10px', left: '12px',
-          background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)',
-          color: accent, borderRadius: '6px', padding: '4px 10px',
-          fontFamily: "'DM Sans',sans-serif", fontSize: '10px', fontWeight: '700',
-          letterSpacing: '0.03em', border: `1px solid ${accent}22`,
+          color: accent, fontFamily: "'DM Sans',sans-serif", fontSize: '10px', fontWeight: '700',
+          letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
           {category}
         </span>
         <span style={{
-          position: 'absolute', bottom: '10px', right: '12px',
           fontFamily: "'DM Sans',sans-serif", fontSize: '10px', color: '#9CA3AF',
+          flexShrink: 0,
         }}>
           {location}
         </span>
@@ -192,6 +213,11 @@ function CoachCard({ id, name, category, location, services, accent, shell, href
         <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '19px', color: '#1E3A5F', margin: 0 }}>
           {name}
         </p>
+        {via && (
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF', margin: '2px 0 0' }}>
+            {via}
+          </p>
+        )}
         {from && (
           <p style={{
             fontFamily: "'DM Sans',sans-serif", fontSize: '12.5px', margin: '3px 0 0',
@@ -332,7 +358,7 @@ export default function ElevationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              {COACHES.length} verified coaches across fitness, career, trading, creative skills, and more.
+              Verified Coaches across Ireland in fitness, career, trading, creative skills, and more.
               Find your coach and book directly in the app.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
@@ -350,7 +376,7 @@ export default function ElevationBlueprintPage() {
                 </div>
               ))}
             </div>
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '30px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -443,7 +469,7 @@ export default function ElevationBlueprintPage() {
           }}>
             Apply as a Coach <ArrowRight size={15} />
           </Link>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center',
             height: '50px', padding: '0 28px',
             background: 'transparent', color: 'rgba(245,240,232,0.75)',

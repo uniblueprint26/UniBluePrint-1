@@ -44,6 +44,7 @@ const COLUMNS = [
       { label: 'Campus Handler', href: '/join#handler-form' },
       { label: 'Uni Coach',      href: '/join#coach-form' },
       { label: 'Ambassador',     href: '/join#ambassador-form' },
+      { label: 'Blueprint Contributor', href: '/contributors' },
       { label: 'Contact',        href: '/contact' },
     ],
   },
@@ -127,8 +128,8 @@ function SocialButton({ href, label, children }) {
 
 function AppButton({ label }) {
   return (
-    /* TODO: replace href with real store link */
-    <button
+    <Link
+      to="/coming-soon"
       style={{
         background: 'none',
         border: '1px solid rgba(245,240,232,0.4)',
@@ -137,12 +138,12 @@ function AppButton({ label }) {
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px',
         color: '#F5F0E8',
-        cursor: 'pointer',
+        textDecoration: 'none',
         whiteSpace: 'nowrap',
       }}
     >
       {label}
-    </button>
+    </Link>
   )
 }
 
@@ -228,17 +229,17 @@ export default function Footer() {
           paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))',
         }}>
           <div className="footer-bottom">
-            {/* Left — copyright */}
+            {/* Left, copyright */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
               &copy; 2026 UniBlueprint Ltd. All rights reserved.
             </span>
 
-            {/* Centre — registered territory */}
+            {/* Centre, registered territory */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
               Registered in Ireland
             </span>
 
-            {/* Right — placeholder until incorporated */}
+            {/* Right, placeholder until incorporated */}
             <div className="footer-legal-right">
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
                 uniblueprintoperations@gmail.com

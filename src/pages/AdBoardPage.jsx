@@ -7,7 +7,7 @@ import {
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 // Card grids on this page stay at least 2-up on every screen size, phones
-// included — a single full-width card per row reads as an unfinished mobile
+// included, a single full-width card per row reads as an unfinished mobile
 // layout and forces a lot of scrolling for content this light (an icon, a
 // title, a line or two). Font size and padding step down at narrow widths
 // instead of dropping to one column.
@@ -28,7 +28,8 @@ const PAGE_STYLES = `
   @media (max-width: 900px) { .wb-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { .wb-grid { gap: 10px; } }
 
-  .wb-steps { grid-template-columns: repeat(3, 1fr); }
+  .wb-steps { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { .wb-steps { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 639px) { .wb-steps { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; } }
 
   .wb-market-grid {
@@ -76,7 +77,7 @@ const PAGE_STYLES = `
 `
 
 // ─── The three sections of Ad Board ─────────────────────────────────────────────
-// Ad Board is the tab and the product name — The Weekly Blueprint is one
+// Ad Board is the tab and the product name, The Weekly Blueprint is one
 // section inside it, alongside the blog and the marketplace, not the whole
 // thing.
 
@@ -100,7 +101,7 @@ const AD_BOARD_SECTIONS = [
 
 // ─── What's inside every issue of The Weekly Blueprint ─────────────────────────
 // Mirrors the real table of contents rendered by the in-app magazine
-// (app/src/screens/AdBoardScreen.jsx) — every section named here is a real,
+// (app/src/screens/AdBoardScreen.jsx), every section named here is a real,
 // built part of the product, not aspirational copy.
 
 const SECTIONS = [
@@ -109,7 +110,7 @@ const SECTIONS = [
   { Icon: Award,         title: 'Foundation Focus',  desc: 'Genuinely useful CV, LinkedIn, and interview advice, straight from the Foundation Blueprint.' },
   { Icon: Building2,     title: 'Campus Connect',    desc: "What's happening on campuses across Ireland this week, and what's on if you're travelling." },
   { Icon: Newspaper,     title: 'Student Spotlight', desc: 'Real student stories, with the full one always a tap away on the blog.' },
-  { Icon: MapPin,        title: 'Campus Guide',      desc: 'One useful campus guide a week — study spots, transport, hidden gems, and more.' },
+  { Icon: MapPin,        title: 'Campus Guide',      desc: 'One useful campus guide a week, study spots, transport, hidden gems, and more.' },
   { Icon: Sparkles,      title: 'The Lifestyle Edit', desc: 'An editorial-style edit of Lifestyle Partner fashion and student brands.' },
   { Icon: Users,         title: 'UBP Team',          desc: 'Meet the people building UniBlueprint, and how to join them.' },
   { Icon: Wallet,        title: 'Money Moves',       desc: 'A practical financial tip every week, from a real UniBlueprint finance coach.' },
@@ -118,7 +119,7 @@ const SECTIONS = [
 ]
 
 // ─── Marketplace example listings ──────────────────────────────────────────────
-// Illustrative only — real listings are posted by verified users inside the
+// Illustrative only, real listings are posted by verified users inside the
 // Marketplace section, not managed from the website.
 
 const MARKET_EXAMPLES = [
@@ -128,7 +129,7 @@ const MARKET_EXAMPLES = [
 ]
 
 // ─── Blog examples ──────────────────────────────────────────────────────────────
-// Real post titles from src/data/blogPosts.js — the same content the app's
+// Real post titles from src/data/blogPosts.js, the same content the app's
 // Blog section reads, not separately written marketing copy.
 
 const BLOG_EXAMPLES = [
@@ -322,7 +323,7 @@ export default function AdBoardPage() {
               The Marketplace
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', maxWidth: '440px', lineHeight: 1.6 }}>
-              Textbooks, services, gigs, and more — offered by verified UniBlueprint students, posted from inside the app.
+              Textbooks, services, gigs, and more, offered by verified UniBlueprint students, posted from inside the app.
             </p>
           </div>
 
@@ -374,7 +375,7 @@ export default function AdBoardPage() {
               </p>
             </div>
             <Link
-              to="/download"
+              to="/coming-soon"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '44px', padding: '0 24px',
@@ -421,6 +422,11 @@ export default function AdBoardPage() {
                 body: 'The magazine reads like a real one. Tap the contents page to skip straight to a section.',
                 colour: '#134E4A',
               },
+              {
+                n: '04', title: 'Want to upload something yourself?',
+                body: 'One free Ad Board post per user a month.',
+                colour: '#7C3500',
+              },
             ].map(step => (
               <div key={step.n} style={{
                 background: '#F5F0E8', borderRadius: '12px', padding: '28px',
@@ -455,7 +461,7 @@ export default function AdBoardPage() {
         </p>
         <div style={{ marginTop: '32px' }}>
           <Link
-            to="/download"
+            to="/coming-soon"
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', padding: '0 36px',

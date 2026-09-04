@@ -175,7 +175,13 @@ function CarpoolTermsModal({ visible, onClose, onAccept, accepting }) {
         <View style={cm.sheet}>
           <View style={cm.headerRow}>
             <Text style={cm.title}>Carpool Safety Terms</Text>
-            <TouchableOpacity onPress={onClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={onClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
@@ -258,7 +264,13 @@ function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
         <View style={cm.sheet}>
           <View style={cm.headerRow}>
             <Text style={cm.title}>Post your route</Text>
-            <TouchableOpacity onPress={() => { reset(); onClose() }} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={() => { reset(); onClose() }}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
@@ -271,11 +283,23 @@ function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
             <TextInput style={cm.input} value={schedule} onChangeText={setSchedule} placeholder="e.g. Mon–Fri · 8:30am" placeholderTextColor={colors.light} />
             <Text style={cm.fieldLabel}>Seats available</Text>
             <View style={cm.stepperRow}>
-              <TouchableOpacity style={cm.stepperBtn} activeOpacity={0.8} onPress={() => setSeats(s => Math.max(1, s - 1))}>
+              <TouchableOpacity
+                style={cm.stepperBtn}
+                activeOpacity={0.8}
+                onPress={() => setSeats(s => Math.max(1, s - 1))}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease seats available"
+              >
                 <Minus size={14} color={colors.navy} />
               </TouchableOpacity>
               <Text style={cm.stepperValue}>{seats}</Text>
-              <TouchableOpacity style={cm.stepperBtn} activeOpacity={0.8} onPress={() => setSeats(s => Math.min(8, s + 1))}>
+              <TouchableOpacity
+                style={cm.stepperBtn}
+                activeOpacity={0.8}
+                onPress={() => setSeats(s => Math.min(8, s + 1))}
+                accessibilityRole="button"
+                accessibilityLabel="Increase seats available"
+              >
                 <Plus size={14} color={colors.navy} />
               </TouchableOpacity>
             </View>
@@ -608,6 +632,8 @@ export default function CampusConnectScreen({ navigation }) {
                               activeOpacity={0.8}
                               onPress={() => reportRoute(route)}
                               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Report route from ${route.from_location} to ${route.to_location}`}
                             >
                               <Flag size={13} color={colors.muted} strokeWidth={2} />
                             </TouchableOpacity>

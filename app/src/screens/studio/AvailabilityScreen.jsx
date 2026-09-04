@@ -47,11 +47,23 @@ function TimeStepper({ label, valueIdx, onChange }) {
     <View style={styles.timeStepper}>
       <Text style={styles.timeStepperLabel}>{label}</Text>
       <View style={styles.timeStepperRow}>
-        <TouchableOpacity style={styles.timeArrowBtn} activeOpacity={0.7} onPress={() => step(-1)}>
+        <TouchableOpacity
+          style={styles.timeArrowBtn}
+          activeOpacity={0.7}
+          onPress={() => step(-1)}
+          accessibilityRole="button"
+          accessibilityLabel={`Decrease ${label} time`}
+        >
           <ChevronLeft size={14} color={colors.navy} />
         </TouchableOpacity>
         <Text style={styles.timeValue}>{TIME_SLOTS[valueIdx]}</Text>
-        <TouchableOpacity style={styles.timeArrowBtn} activeOpacity={0.7} onPress={() => step(1)}>
+        <TouchableOpacity
+          style={styles.timeArrowBtn}
+          activeOpacity={0.7}
+          onPress={() => step(1)}
+          accessibilityRole="button"
+          accessibilityLabel={`Increase ${label} time`}
+        >
           <ChevronRight size={14} color={colors.navy} />
         </TouchableOpacity>
       </View>
@@ -70,6 +82,9 @@ function DayRow({ day, state, onChange }) {
           style={[styles.toggle, state.available && styles.toggleOn]}
           activeOpacity={0.8}
           onPress={() => update({ available: !state.available })}
+          accessibilityRole="button"
+          accessibilityLabel={`${state.available ? 'Turn off' : 'Turn on'} availability for ${day}`}
+          accessibilityState={{ selected: state.available }}
         >
           <View style={[styles.toggleKnob, state.available && styles.toggleKnobOn]} />
         </TouchableOpacity>
@@ -97,6 +112,8 @@ function DayRow({ day, state, onChange }) {
                 style={styles.stepperBtn}
                 activeOpacity={0.7}
                 onPress={() => update({ maxTickets: Math.max(1, state.maxTickets - 1) })}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease max tickets per session"
               >
                 <Minus size={13} color={colors.navy} />
               </TouchableOpacity>
@@ -105,6 +122,8 @@ function DayRow({ day, state, onChange }) {
                 style={styles.stepperBtn}
                 activeOpacity={0.7}
                 onPress={() => update({ maxTickets: Math.min(12, state.maxTickets + 1) })}
+                accessibilityRole="button"
+                accessibilityLabel="Increase max tickets per session"
               >
                 <Plus size={13} color={colors.navy} />
               </TouchableOpacity>
@@ -178,6 +197,7 @@ export default function AvailabilityScreen({ navigation }) {
               <TouchableOpacity
                 style={styles.ghostBtn}
                 activeOpacity={0.8}
+                accessibilityRole="button"
                 onPress={() => Linking.openURL(
                   'mailto:uniblueprintoperations@gmail.com?subject=Check-in%20follow-up'
                 ).catch(() => Alert.alert(
@@ -199,6 +219,8 @@ export default function AvailabilityScreen({ navigation }) {
             style={[styles.clockBtn, clockedIn ? styles.clockBtnOn : styles.clockBtnOff]}
             activeOpacity={0.85}
             onPress={handleClockToggle}
+            accessibilityRole="button"
+            accessibilityState={{ selected: clockedIn }}
           >
             <View style={[styles.clockDot, { backgroundColor: clockedIn ? '#16A34A' : colors.light }]} />
             <Text style={[styles.clockBtnText, clockedIn && styles.clockBtnTextOn]}>
@@ -230,6 +252,9 @@ export default function AvailabilityScreen({ navigation }) {
               style={[styles.toggle, rotaOptIn && styles.toggleOn]}
               activeOpacity={0.8}
               onPress={() => setRotaOptIn(v => !v)}
+              accessibilityRole="button"
+              accessibilityLabel={rotaOptIn ? 'Opt out of Monday rota' : 'Opt in to Monday rota'}
+              accessibilityState={{ selected: rotaOptIn }}
             >
               <View style={[styles.toggleKnob, rotaOptIn && styles.toggleKnobOn]} />
             </TouchableOpacity>

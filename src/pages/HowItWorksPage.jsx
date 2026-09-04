@@ -5,14 +5,14 @@ import { ChevronDown, FileText, Compass, Building2, Heart, Globe, PiggyBank, New
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
-// The five pillars — same content as the app's onboarding tutorial ("The
+// The five pillars, same content as the app's onboarding tutorial ("The
 // Blueprint Tour"), adapted for the website. Kept in sync manually; if the
 // tutorial's copy changes, update both.
 const PILLARS = [
   {
     icon: FileText, tint: '#EFF6FF', accent: '#2563EB',
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    description: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    description: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Each one is built on real research into how applicant tracking systems (ATS) and AI screening actually filter candidates, and what each industry specifically looks for, not a generic prompt a generic AI tool or a generic company would give everyone the same version of. Then a real trained Campus Handler reviews it before it ever reaches you.',
     chips: [
       'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
       'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
@@ -55,7 +55,7 @@ const PILLARS = [
   {
     icon: Building2, tint: '#FFF7ED', accent: '#C2660B',
     title: 'Campus Connect', tagline: 'Your own college, in one place',
-    description: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with.',
+    description: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with. It centralises the college resources that go missing between departments, the things students specifically asked for and that no single college system already provides, all in one place.',
     chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
     features: [
       ['Accommodation', 'Rooms, sublets and housing posted by other students at your college.'],
@@ -70,7 +70,7 @@ const PILLARS = [
   {
     icon: Globe, tint: '#F0F9FF', accent: '#0369A1',
     title: 'Course Connect', tagline: 'Cross-Ireland student network',
-    description: 'A networking board that spans every Irish college and university, not just your own. Connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
+    description: 'A networking board that spans every Irish college, university, PLC, and apprenticeship path, not just your own. Connect with people anywhere in the country, on your course or not, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
     chips: ['Graduate Network', 'College Reviews', 'Notes Exchange', 'Study Groups'],
     features: [
       ['Graduate Network', 'Connect with students and graduates across every Irish institution, not just yours.'],
@@ -131,7 +131,7 @@ const STEPS = [
     screenTitle: 'Foundation Blueprint',
     screenItems: ['CV Optimisation', 'LinkedIn Profile', 'Cover Letter', 'Interview Prep'],
     screenCta: 'Select',
-    screenNote: 'From €10 in September',
+    screenNote: 'From €10 during the trial',
   },
   {
     n: 3,
@@ -229,7 +229,7 @@ const PAGE_STYLES = `
     .hiw-connector-line { display: none; }
   }
   @media (max-width: 600px) {
-    /* Each step card holds a 140px-wide phone mockup — stays single column
+    /* Each step card holds a 140px-wide phone mockup, stays single column
        here since 2-up would overflow the card at this width, unlike the
        plain icon+text cards elsewhere on this page. */
     .hiw-steps-grid { grid-template-columns: 1fr; }
@@ -582,7 +582,7 @@ export default function HowItWorksPage() {
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '100px 24px 80px',
@@ -619,7 +619,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── SECTION 1B — THE FIVE PILLARS ────────────────────────────────── */}
+      {/* ── SECTION 1B, THE FIVE PILLARS ────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <SectionLabel>What's actually inside</SectionLabel>
@@ -642,7 +642,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── SECTION 1C — TWO STANDALONE FEATURES ────────────────────────── */}
+      {/* ── SECTION 1C, TWO STANDALONE FEATURES ────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <SectionLabel>Beyond the five pillars</SectionLabel>
@@ -665,7 +665,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — STEPS ────────────────────────────────────────────── */}
+      {/* ── SECTION 2, STEPS ────────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div className="hiw-steps-outer">
           {/* Desktop connecting line */}
@@ -740,7 +740,7 @@ export default function HowItWorksPage() {
         </p>
       </section>
 
-      {/* ── SECTION 3 — QUALITY PROMISE ──────────────────────────────────── */}
+      {/* ── SECTION 3, QUALITY PROMISE ──────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center' }}>
           <SectionLabel>Our promise</SectionLabel>
@@ -787,7 +787,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — FAQ ──────────────────────────────────────────────── */}
+      {/* ── SECTION 4, FAQ ──────────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
@@ -815,7 +815,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────── */}
+      {/* ── SECTION 5, CTA ──────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '80px 24px',
@@ -842,11 +842,11 @@ export default function HowItWorksPage() {
             fontSize: '16px', color: 'rgba(245,240,232,0.6)',
             marginTop: '12px',
           }}>
-            Free to join. No credit card. September trial: 50% off everything.
+            Free to join. No credit card. Free trial: 50% off everything.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
             <Link
-              to="/download"
+              to="/coming-soon"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '52px', padding: '0 32px',

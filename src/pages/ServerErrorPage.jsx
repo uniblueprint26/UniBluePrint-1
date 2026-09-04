@@ -34,7 +34,7 @@ export default function ServerErrorPage() {
             fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280',
             marginTop: '12px', lineHeight: 1.6,
           }}>
-            An unexpected error occurred. Please try again — if the problem persists, contact us.
+            An unexpected error occurred. Please try again, if the problem persists, contact us.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
             <Link

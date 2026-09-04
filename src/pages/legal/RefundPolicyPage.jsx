@@ -20,9 +20,9 @@ export default function RefundPolicyPage() {
     <>
       <Helmet>
         <title>Refund Policy | UniBlueprint</title>
-        <meta name="description" content="UniBlueprint Refund Policy — how refunds and cancellations work for Pro subscriptions and Blueprint services." />
+        <meta name="description" content="UniBlueprint Refund Policy, how refunds and cancellations work for Pro subscriptions and Blueprint services." />
         <meta property="og:title" content="Refund Policy | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint Refund Policy — how refunds and cancellations work for Pro subscriptions and Blueprint services." />
+        <meta property="og:description" content="UniBlueprint Refund Policy, how refunds and cancellations work for Pro subscriptions and Blueprint services." />
       </Helmet>
 
       <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
@@ -52,8 +52,8 @@ export default function RefundPolicyPage() {
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Important:</strong> where you have used a Foundation Blueprint or Elevation Blueprint service during the cooling-off period, you expressly request and acknowledge that we begin performing the service immediately. In that case, you may be charged pro-rata for services already delivered, in accordance with Article 16(m) of the Consumer Rights Directive. This acknowledgement is collected during the checkout flow.</p>
             </Section>
 
-            <Section title="3. September 2026 Trial">
-              <p style={P}>Where you sign up for a September 2026 trial period, the following terms apply in addition to (and, where they conflict, in place of) the standard subscription terms:</p>
+            <Section title="3. Free Trial">
+              <p style={P}>Where you sign up during a free trial period, the following terms apply in addition to (and, where they conflict, in place of) the standard subscription terms:</p>
               <ul style={{ ...P, paddingLeft: '20px' }}>
                 <li style={LI}>You will receive a reminder notification at least 3 days before your trial converts to a paid subscription.</li>
                 <li style={LI}>To avoid being charged, you must cancel before the trial end date via Account Settings, then Subscription, then Cancel Trial.</li>
@@ -69,7 +69,7 @@ export default function RefundPolicyPage() {
             </Section>
 
             <Section title="5. Foundation Blueprint Services">
-              <p style={P}>If a Foundation Blueprint output does not meet the quality standard described in our Terms of Service — for example, it is substantially incomplete or clearly fails to address your submission — you may raise a quality issue within 48 hours of delivery.</p>
+              <p style={P}>If a Foundation Blueprint output does not meet the quality standard described in our Terms of Service, for example, it is substantially incomplete or clearly fails to address your submission, you may raise a quality issue within 48 hours of delivery.</p>
               <p style={P}>Where a quality issue is upheld, we will first offer a revision. If the revised output still does not meet standard, a full refund of the service fee will be issued. Refunds are not available where you have already used the output or where the submission did not provide sufficient information for the Handler to deliver the service.</p>
             </Section>
 

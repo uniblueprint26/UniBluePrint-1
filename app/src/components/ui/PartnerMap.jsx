@@ -315,7 +315,12 @@ export default function PartnerMap({ onViewListing }) {
             onBlur={() => setTimeout(() => setResultsOpen(false), 150)}
           />
           {query.length > 0 && (
-            <TouchableOpacity onPress={() => { setQuery(''); setResultsOpen(false) }} hitSlop={8}>
+            <TouchableOpacity
+              onPress={() => { setQuery(''); setResultsOpen(false) }}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
+            >
               <X size={14} color="rgba(245,240,232,0.7)" />
             </TouchableOpacity>
           )}

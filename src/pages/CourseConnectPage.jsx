@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, BookOpen, FileText, Users, MessageSquare, Globe, Archive, Search } from 'lucide-react'
+import { ArrowRight, BookOpen, FileText, Users, MessageSquare, Globe, Archive, Search, Database, GraduationCap, Star, Briefcase } from 'lucide-react'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -45,7 +45,7 @@ function SectionLabel({ children, light }) {
 
 // ─── Phone screen illustration ─────────────────────────────────────────────────
 
-function CourseScreen() {
+export function CourseScreen() {
   return (
     <div style={{
       width: '100%', height: '100%',
@@ -70,7 +70,7 @@ function CourseScreen() {
         Course Connect
       </p>
       <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '17px', color: '#F5F0E8', margin: '0 0 10px' }}>
-        Find your course
+        Networking made easier.
       </p>
 
       {/* Search bar */}
@@ -138,12 +138,18 @@ function CourseScreen() {
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FEATURES = [
+  { Icon: Database,     title: 'Student & User Database',    desc: 'Search and connect with students and users across every Irish institution.' },
   { Icon: BookOpen,     title: 'Course Boards',              desc: 'Discussion boards for every course in Ireland.' },
   { Icon: FileText,     title: 'Shared Notes',               desc: 'Upload and access notes shared by your course.' },
   { Icon: Users,        title: 'Study Groups',               desc: 'Form study groups in minutes, online or in person.' },
   { Icon: MessageSquare, title: 'Module Q&A',                desc: 'Ask questions about modules that stay with the course.' },
   { Icon: Globe,        title: 'Cross-Ireland Collaboration', desc: 'Connect with people on the same course at other institutions.' },
   { Icon: Archive,      title: 'Resource Library',           desc: 'Organised past papers, notes, and summaries by module.' },
+  { Icon: FileText,     title: 'Past Papers',                desc: 'Access past exam papers shared by your course.' },
+  { Icon: GraduationCap, title: 'Exam Resources',             desc: 'Revision guides and study material for your exams.' },
+  { Icon: Search,       title: 'Resource Finder',            desc: 'Find the exact notes, papers, or guide you need, fast.' },
+  { Icon: Briefcase,    title: 'Industry Discussions',        desc: 'Talk to people already working in your field.' },
+  { Icon: Star,         title: 'Public College Reviews',      desc: 'Honest, public reviews of courses and colleges across Ireland.' },
 ]
 
 const COURSE_DATA = {
@@ -206,9 +212,9 @@ const COURSE_DATA = {
 const COURSE_PILLS = Object.keys(COURSE_DATA)
 
 const STEPS = [
-  { n: 1, title: 'Search for your course in the app', desc: 'Find your exact course across all Irish institutions.' },
-  { n: 2, title: 'Join the board and connect',         desc: 'See who is studying the same course across Ireland.' },
-  { n: 3, title: 'Share notes, form groups, ask questions', desc: 'Collaborate with your course from day one.' },
+  { n: 1, title: 'Find your people in the app',        desc: 'Search by course, college, or interest, no cold outreach needed.' },
+  { n: 2, title: 'Join the board and say hello',        desc: 'Cross-Ireland networking that feels friendly, not intimidating.' },
+  { n: 3, title: 'Share notes, form groups, ask questions', desc: 'Build a real network from day one, wherever you are in Ireland.' },
 ]
 
 const PAGE_STYLES = `
@@ -250,7 +256,7 @@ export default function CourseConnectPage() {
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '120px 24px 96px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -282,11 +288,12 @@ export default function CourseConnectPage() {
               Cross-Ireland networking, made easier.
             </h1>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.65)', marginTop: '14px', lineHeight: 1.7 }}>
-              Connect with people on the same course at any college across Ireland. Share resources, form groups, and build your network beyond your campus.
+              Connect with people across every college in Ireland, whether they're on your exact course, a related one, or working in the field you're aiming for. Search the student database, share resources, form groups, and build your network beyond your campus.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
               {[
+                'Search students and users across every Irish institution',
                 'Boards for every course in Ireland',
                 'Share notes and resources with your course',
                 'Form study groups in minutes',
@@ -299,7 +306,7 @@ export default function CourseConnectPage() {
               ))}
             </div>
 
-            <Link to="/download" style={{
+            <Link to="/coming-soon" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '32px', height: '46px', padding: '0 24px',
               background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',
@@ -312,7 +319,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — FEATURES GRID ────────────────────────────────────────── */}
+      {/* ── SECTION 2, FEATURES GRID ────────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '96px 24px', position: 'relative' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -351,7 +358,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — COURSE SEARCH ────────────────────────────────────────── */}
+      {/* ── SECTION 3, COURSE SEARCH ────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '96px 24px' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -455,7 +462,7 @@ export default function CourseConnectPage() {
 
             {/* CTA */}
             <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(30,58,95,0.07)', textAlign: 'center' }}>
-              <Link to="/download" style={{
+              <Link to="/coming-soon" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 height: '44px', padding: '0 24px',
                 background: ACCENT, color: '#fff', borderRadius: '8px',
@@ -469,7 +476,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — HOW IT WORKS ─────────────────────────────────────────── */}
+      {/* ── SECTION 4, HOW IT WORKS ─────────────────────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '96px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
@@ -497,7 +504,7 @@ export default function CourseConnectPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────────── */}
+      {/* ── SECTION 5, CTA ──────────────────────────────────────────────────── */}
       <section style={{ background: '#1E3A5F', padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -510,9 +517,9 @@ export default function CourseConnectPage() {
             Connect with your course today
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', margin: '16px auto 0', maxWidth: '380px', lineHeight: 1.65 }}>
-            Free to join. September trial offers 50% off everything across UniBlueprint.
+            Free to join. Free trial offers 50% off everything across UniBlueprint.
           </p>
-          <Link to="/download" style={{
+          <Link to="/coming-soon" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             marginTop: '32px', height: '50px', padding: '0 28px',
             background: '#F5F0E8', color: '#1E3A5F', borderRadius: '8px',

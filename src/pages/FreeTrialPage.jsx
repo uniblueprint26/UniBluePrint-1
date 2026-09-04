@@ -1,81 +1,7 @@
-import { useState, useEffect, useId, useRef } from 'react'
+import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ChevronDown } from 'lucide-react'
-
-// ─── Countdown ────────────────────────────────────────────────────────────────
-
-const TRIAL_END = new Date('2026-09-30T22:59:59Z') // 23:59:59 Irish Standard Time
-
-function calcTimeLeft() {
-  const diff = Math.max(0, TRIAL_END.getTime() - Date.now())
-  return {
-    days:    Math.floor(diff / 86400000),
-    hours:   Math.floor((diff % 86400000) / 3600000),
-    minutes: Math.floor((diff % 3600000)  / 60000),
-    seconds: Math.floor((diff % 60000)    / 1000),
-  }
-}
-
-function CountdownTimer() {
-  const [prefersReduced] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
-  const [time, setTime] = useState(calcTimeLeft)
-
-  useEffect(() => {
-    if (prefersReduced) return
-    const id = setInterval(() => setTime(calcTimeLeft()), 1000)
-    return () => clearInterval(id)
-  }, [prefersReduced])
-
-  const units = [
-    { value: time.days,    label: 'Days'    },
-    { value: time.hours,   label: 'Hours'   },
-    { value: time.minutes, label: 'Minutes' },
-    { value: time.seconds, label: 'Seconds' },
-  ]
-
-  return (
-    <div
-      aria-label="Countdown to end of September trial"
-      aria-live="off"
-      role="timer"
-      style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '36px' }}
-    >
-      {units.map(({ value, label }) => (
-        <div
-          key={label}
-          className="countdown-card"
-          style={{
-            background: 'rgba(245,240,232,0.09)',
-            border: '1px solid rgba(245,240,232,0.14)',
-            borderRadius: '12px', textAlign: 'center', flexShrink: 0,
-          }}
-        >
-          <p
-            aria-label={`${value} ${label}`}
-            className="countdown-value"
-            style={{
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              color: '#F5F0E8', lineHeight: 1,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            <span aria-hidden="true">{String(value).padStart(2, '0')}</span>
-          </p>
-          <p aria-hidden="true" style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '10px', color: 'rgba(245,240,232,0.45)', marginTop: '5px',
-            textTransform: 'uppercase', letterSpacing: '0.1em',
-          }}>
-            {label}
-          </p>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -97,12 +23,12 @@ const FREE_FEATURES = [
   {
     icon: '📚',
     title: 'Course Connect',
-    body: 'Course-specific discussion boards, shared notes, and module Q&A — collaborate with young people on the same course.',
+    body: 'Course-specific discussion boards, shared notes, and module Q&A. Collaborate with young people on the same course.',
   },
   {
     icon: '💚',
     title: 'Mental Health Resources',
-    body: 'A curated library of mental health and wellbeing resources — always free, always available in the app.',
+    body: 'A curated library of mental health and wellbeing resources. Always free, always available in the app.',
   },
   {
     icon: '👤',
@@ -114,14 +40,14 @@ const FREE_FEATURES = [
 // ─── Page styles ───────────────────────────────────────────────────────────────
 
 const PAGE_STYLES = `
-  .sept-trial-h1 { font-size: clamp(48px, 8vw, 80px); }
-  .sept-calc-pills {
+  .trial-h1 { font-size: clamp(48px, 8vw, 80px); }
+  .trial-calc-pills {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
   }
-  .sept-free-grid {
+  .trial-free-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
@@ -129,11 +55,11 @@ const PAGE_STYLES = `
     margin: 40px auto 0;
   }
   @media (max-width: 600px) {
-    .sept-free-grid { gap: 10px; }
-    .sept-free-grid > div { padding: 16px 14px !important; }
-    .sept-trial-h1 { font-size: 52px; }
+    .trial-free-grid { gap: 10px; }
+    .trial-free-grid > div { padding: 16px 14px !important; }
+    .trial-h1 { font-size: 52px; }
   }
-  .sept-pill {
+  .trial-pill {
     padding: 10px 18px;
     border-radius: 100px;
     border: 1.5px solid rgba(30,58,95,0.15);
@@ -146,23 +72,23 @@ const PAGE_STYLES = `
     transition: all 150ms ease;
     white-space: nowrap;
   }
-  .sept-pill:hover {
+  .trial-pill:hover {
     border-color: #1E3A5F;
     background: rgba(30,58,95,0.04);
   }
-  .sept-pill.active {
+  .trial-pill.active {
     background: #1E3A5F;
     color: #F5F0E8;
     border-color: #1E3A5F;
   }
-  @keyframes sept-price-in {
+  @keyframes trial-price-in {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .sept-price-anim {
-    animation: sept-price-in 220ms ease forwards;
+  .trial-price-anim {
+    animation: trial-price-in 220ms ease forwards;
   }
-  .sept-cta-heading {
+  .trial-cta-heading {
     font-family: 'DM Serif Display', Georgia, serif;
     font-size: clamp(28px, 4vw, 44px);
     color: #F5F0E8;
@@ -206,11 +132,11 @@ function ServiceCalculator() {
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
       {/* Pills */}
-      <div className="sept-calc-pills">
+      <div className="trial-calc-pills">
         {CALCULATOR_SERVICES.map((s, i) => (
           <button
             key={s.name}
-            className={`sept-pill${selected === i ? ' active' : ''}`}
+            className={`trial-pill${selected === i ? ' active' : ''}`}
             onClick={() => pickService(i)}
           >
             {s.name}
@@ -221,7 +147,7 @@ function ServiceCalculator() {
       {/* Price display */}
       <div
         key={displayIdx}
-        className="sept-price-anim"
+        className="trial-price-anim"
         style={{
           marginTop: '40px',
           background: 'rgba(255,255,255,0.72)',
@@ -262,7 +188,7 @@ function ServiceCalculator() {
           {/* Trial price */}
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#16A34A', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              September Trial
+              Free Trial Price
             </p>
             <p style={{
               fontFamily: "'DM Serif Display', serif",
@@ -283,7 +209,7 @@ function ServiceCalculator() {
         </p>
 
         <Link
-          to="/download"
+          to="/coming-soon"
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             height: '46px', padding: '0 28px',
@@ -357,41 +283,41 @@ function AccordionGroup({ children }) {
 
 const FAQS = [
   {
-    q: 'When does the September trial end?',
-    a: 'The trial ends on 30 September 2026 at midnight Irish time. Standard pricing applies from 1 October 2026.',
+    q: 'How long does the free trial pricing last?',
+    a: 'The 50% off launch pricing runs for a limited time while UniBlueprint launches. Standard pricing applies once the trial period ends.',
   },
   {
     q: 'Does the 50% discount apply to the Pro subscription?',
-    a: 'Yes — Pro is available at 50% off throughout September 2026. After 30 September, standard pricing of €6.99 per month or €49.99 per year applies.',
+    a: 'Yes, Pro is available at 50% off during the trial. Standard pricing of €6.99 per month or €49.99 per year applies once the trial ends.',
   },
   {
     q: 'Does it apply to all services?',
-    a: 'Yes — every Foundation Blueprint and Elevation Blueprint service is 50% off throughout September 2026, along with the Pro subscription. Mentorship matching remains free, as it always is.',
+    a: 'Yes, every Foundation Blueprint and Elevation Blueprint service is 50% off during the trial, along with the Pro subscription. Mentorship matching remains free, as it always is.',
   },
   {
-    q: 'What happens after September?',
-    a: 'Standard pricing resumes from 1 October 2026. If you subscribed to Pro during the trial, your next billing will be at the standard Pro price unless you cancel first.',
+    q: 'What happens after the trial?',
+    a: 'Standard pricing resumes once the trial period ends. If you subscribed to Pro during the trial, your next billing will be at the standard Pro price unless you cancel first.',
   },
   {
-    q: 'Can I cancel Pro after the trial month?',
-    a: 'Yes — cancel any time before your next billing date. You keep Pro access until the end of the billing period.',
+    q: 'Can I cancel Pro after the trial?',
+    a: 'Yes, cancel any time before your next billing date. You keep Pro access until the end of the billing period.',
   },
 ]
 
-// ─── SeptemberTrialPage ────────────────────────────────────────────────────────
+// ─── FreeTrialPage ──────────────────────────────────────────────────────────
 
-export default function SeptemberTrialPage() {
+export default function FreeTrialPage() {
   return (
     <>
       <Helmet>
-        <title>50% Off — September Trial | UniBlueprint</title>
-        <meta name="description" content="Every UniBlueprint service at 50% off. The whole of September. Your Blueprint. Half the price." />
-        <meta property="og:title" content="50% Off — September Trial | UniBlueprint" />
-        <meta property="og:description" content="Every UniBlueprint service at 50% off. The whole of September. Your Blueprint. Half the price." />
+        <title>50% Off, Free Trial | UniBlueprint</title>
+        <meta name="description" content="Every UniBlueprint service at 50% off during the free trial. Your Blueprint. Half the price." />
+        <meta property="og:title" content="50% Off, Free Trial | UniBlueprint" />
+        <meta property="og:description" content="Every UniBlueprint service at 50% off during the free trial. Your Blueprint. Half the price." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ─────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '120px 24px 96px',
@@ -406,10 +332,10 @@ export default function SeptemberTrialPage() {
         }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <SectionLabel light>September 2026 — Limited Time</SectionLabel>
+          <SectionLabel light>Free Trial, Limited Time</SectionLabel>
 
           <h1
-            className="sept-trial-h1"
+            className="trial-h1"
             style={{
               fontFamily: "'DM Serif Display', Georgia, serif",
               color: '#F5F0E8', lineHeight: 1.0,
@@ -425,10 +351,8 @@ export default function SeptemberTrialPage() {
             marginTop: '20px', maxWidth: '440px',
             margin: '20px auto 0', lineHeight: 1.65,
           }}>
-            Every service. All of September. No code needed — discount applied automatically.
+            Every service, for a limited time. No code needed, the discount applies automatically.
           </p>
-
-          <CountdownTimer />
 
           <div style={{ marginTop: '36px' }}>
             <Link
@@ -456,7 +380,7 @@ export default function SeptemberTrialPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — SERVICE PRICE CALCULATOR ─────────────────────────── */}
+      {/* ── SECTION 2, SERVICE PRICE CALCULATOR ─────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <SectionLabel>What's included</SectionLabel>
@@ -473,7 +397,7 @@ export default function SeptemberTrialPage() {
             marginTop: '12px', maxWidth: '420px',
             margin: '12px auto 0', lineHeight: 1.65,
           }}>
-            Select a service to see the September trial price.
+            Select a service to see the free trial price.
           </p>
         </div>
 
@@ -484,11 +408,11 @@ export default function SeptemberTrialPage() {
           fontSize: '13px', color: '#9CA3AF',
           textAlign: 'center', marginTop: '24px',
         }}>
-          Pro subscription also 50% off — €3.50/month in September (normally €6.99).
+          Pro subscription also 50% off during the trial: €3.50/month (normally €6.99).
         </p>
       </section>
 
-      {/* ── SECTION 3 — WHAT'S FREE ───────────────────────────────────────── */}
+      {/* ── SECTION 3, WHAT'S FREE ───────────────────────────────────────── */}
       <section style={{ background: '#EDE8DF', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center' }}>
           <SectionLabel>Always free</SectionLabel>
@@ -508,7 +432,7 @@ export default function SeptemberTrialPage() {
           </p>
         </div>
 
-        <div className="sept-free-grid">
+        <div className="trial-free-grid">
           {FREE_FEATURES.map(f => (
             <div
               key={f.title}
@@ -554,14 +478,14 @@ export default function SeptemberTrialPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4 — FAQ ──────────────────────────────────────────────── */}
+      {/* ── SECTION 4, FAQ ──────────────────────────────────────────────── */}
       <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
           fontSize: 'clamp(28px, 3.5vw, 36px)',
           color: '#1E3A5F', textAlign: 'center',
         }}>
-          September trial questions
+          Free trial questions
         </h2>
 
         <AccordionGroup>
@@ -573,7 +497,7 @@ export default function SeptemberTrialPage() {
         </AccordionGroup>
       </section>
 
-      {/* ── SECTION 5 — CTA ──────────────────────────────────────────────── */}
+      {/* ── SECTION 5, CTA ──────────────────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
         padding: '80px 24px',
@@ -591,25 +515,25 @@ export default function SeptemberTrialPage() {
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           <h2
-            className="sept-cta-heading"
+            className="trial-cta-heading"
             style={{
               fontFamily: "'DM Serif Display', serif",
               color: '#F5F0E8', lineHeight: 1.1,
             }}
           >
-            September won't last. Your Blueprint will.
+            The trial won't last. Your Blueprint will.
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '16px', color: 'rgba(245,240,232,0.6)',
             marginTop: '14px',
           }}>
-            50% off everything until 30 September 2026.
+            50% off everything, for a limited time.
           </p>
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
             <Link
-              to="/download"
+              to="/coming-soon"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: '52px', padding: '0 32px',
@@ -642,7 +566,7 @@ export default function SeptemberTrialPage() {
             fontSize: '12px', color: 'rgba(245,240,232,0.3)',
             marginTop: '20px',
           }}>
-            Trial ends 30 September 2026 at midnight Irish time. No credit card required.
+            50% off during the trial. No credit card required.
           </p>
         </div>
       </section>

@@ -11,6 +11,7 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
+import VerifiedBadge from '../components/ui/VerifiedBadge'
 
 // ── Link helper ───────────────────────────────────────────────────────────────
 
@@ -79,7 +80,13 @@ function EnquiryModal({ visible, onClose, coach, userId }) {
         <View style={m.sheet}>
           <View style={m.headerRow}>
             <Text style={m.title}>{sent ? 'Enquiry sent' : `Enquire with ${coach.name}`}</Text>
-            <TouchableOpacity onPress={handleClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={handleClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
@@ -181,7 +188,13 @@ function RateCoachModal({ visible, onClose, coach, userId, onRated }) {
         <View style={m.sheet}>
           <View style={m.headerRow}>
             <Text style={m.title}>{sent ? 'Thanks for rating' : `Rate ${coach.name}`}</Text>
-            <TouchableOpacity onPress={handleClose} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={handleClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
@@ -200,7 +213,15 @@ function RateCoachModal({ visible, onClose, coach, userId, onRated }) {
               <Text style={m.sub}>How was your experience with {coach.name}?</Text>
               <View style={m.starRow}>
                 {[1, 2, 3, 4, 5].map(n => (
-                  <TouchableOpacity key={n} onPress={() => setStars(n)} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}>
+                  <TouchableOpacity
+                    key={n}
+                    onPress={() => setStars(n)}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Rate ${n} star${n === 1 ? '' : 's'}`}
+                    accessibilityState={{ selected: n <= stars }}
+                  >
                     <Star size={32} color="#F59E0B" fill={n <= stars ? '#F59E0B' : 'transparent'} strokeWidth={1.5} />
                   </TouchableOpacity>
                 ))}
@@ -344,6 +365,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         </View>
 
         <Text style={styles.headerName}>{coach.name}</Text>
+        <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'center', marginTop: 6 }} />
         {coach.title && <Text style={styles.headerTitle} numberOfLines={2}>{coach.title}</Text>}
       </View>
 
