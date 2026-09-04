@@ -30,6 +30,7 @@ const LIVE_PARTNERS = [
     id: 'energie',
     name: 'Energie Fitness',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    initials: 'EF', initBg: '#0369A1', // temp fallback until the real logo lands
     category: 'Gym Membership',
     description: 'Full gym access at an exclusive member rate, ???/month versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
     deal: '???',
@@ -38,6 +39,7 @@ const LIVE_PARTNERS = [
     id: 'jmc',
     name: 'JMC Fitness',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    initials: 'JMC', initBg: '#166534', // temp fallback until the real logo lands
     category: 'Sports Coaching',
     description: 'Elite sports coaching with fully personalised programmes. Online coaching, in-person training on North Dublin 4G astro, dietary guidance, specialist football coaching, and connections to professional agents.',
     deal: '???',
@@ -46,6 +48,7 @@ const LIVE_PARTNERS = [
     id: 'nyz3ditz',
     name: 'Nyz3ditz',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    initials: 'N3', initBg: '#C2410C', // temp fallback until the real logo lands
     category: 'Photography & Video',
     description: 'Professional photography and videography mentorship from Nathan Yanzo. Monthly subscriptions include Zoom mentorship calls and editing guidance. One-to-one shoot sessions also available for those building their creative portfolio.',
     deal: '???',
@@ -56,6 +59,7 @@ const LIVE_PARTNERS = [
     id: 'whipwizardz',
     name: 'Whip Wizardz',
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    initials: 'WW', initBg: '#1E3A5F', // temp fallback until the real logo lands
     category: 'Automotive',
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment, all with student-friendly pricing.',
     deal: '???',
@@ -684,6 +688,34 @@ export default function PartnersPage() {
               Visit CourseCompass
               <ExternalLink size={16} aria-hidden="true" />
             </a>
+          </div>
+        </section>
+
+        {/* ── SECTION 3, LIVE PARTNERS ─────────────────────────────────── */}
+        <section style={{ padding: '80px 24px' }}>
+          <SectionLabel>Live Partners</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
+            Real deals, right now
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
+            Every partner below is live today — verified, real, and offering something to UniBlueprint Pro subscribers.
+          </p>
+          <div className="partners-live-grid">
+            {LIVE_PARTNERS.map(p => <LivePartnerCard key={p.id} {...p} />)}
+          </div>
+        </section>
+
+        {/* ── SECTION 4, COMING SOON PARTNERS ──────────────────────────── */}
+        <section style={{ padding: '0 24px 80px' }}>
+          <SectionLabel>Coming Soon</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
+            Confirmed and on the way
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', textAlign: 'center', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
+            Already signed on, unlocking as UniBlueprint launches.
+          </p>
+          <div className="partners-soon-grid">
+            {COMING_SOON_PARTNERS.map(p => <ComingSoonCard key={p.name} {...p} />)}
           </div>
         </section>
 
