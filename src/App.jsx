@@ -23,6 +23,22 @@ const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
 const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
 const PartnersPage = lazy(() => import('./pages/PartnersPage'))
 const JoinPage = lazy(() => import('./pages/JoinPage'))
+const ContributorsLandingPage = lazy(() => import('./pages/contributors/ContributorsLandingPage'))
+const ContributorDashboardPage = lazy(() => import('./pages/contributors/ContributorDashboardPage'))
+const ContributorUploadPage = lazy(() => import('./pages/contributors/ContributorUploadPage'))
+const CvBuilderPage = lazy(() => import('./pages/foundation/CvBuilderPage'))
+const CvReviewPage = lazy(() => import('./pages/foundation/CvReviewPage'))
+const JobSearchSupportPage = lazy(() => import('./pages/foundation/JobSearchSupportPage'))
+const LinkedInOptimisationPage = lazy(() => import('./pages/foundation/LinkedInOptimisationPage'))
+const CoverLetterBuilderPage = lazy(() => import('./pages/foundation/CoverLetterBuilderPage'))
+const CoverLetterReviewPage = lazy(() => import('./pages/foundation/CoverLetterReviewPage'))
+const ApplicationFormPage = lazy(() => import('./pages/foundation/ApplicationFormPage'))
+const InterviewPrepPage = lazy(() => import('./pages/foundation/InterviewPrepPage'))
+const PersonalStatementPage = lazy(() => import('./pages/foundation/PersonalStatementPage'))
+const PortfolioBuildingPage = lazy(() => import('./pages/foundation/PortfolioBuildingPage'))
+const MyDocumentsPage = lazy(() => import('./pages/foundation/MyDocumentsPage'))
+const CareerProfilePage = lazy(() => import('./pages/foundation/CareerProfilePage'))
+const HandlerQueuePage = lazy(() => import('./pages/handler/HandlerQueuePage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -82,6 +98,127 @@ function AppRoutes() {
         <Route path="/ad-board" element={<AdBoardPage />} />
         <Route path="/partners" element={<PartnersPage />} />
         <Route path="/join" element={<JoinPage />} />
+        <Route path="/contributors" element={<ContributorsLandingPage />} />
+        <Route
+          path="/contributors/dashboard"
+          element={
+            <ProtectedRoute>
+              <ContributorDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contributors/upload"
+          element={
+            <ProtectedRoute>
+              <ContributorUploadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cv-builder"
+          element={
+            <ProtectedRoute>
+              <CvBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cv-review"
+          element={
+            <ProtectedRoute>
+              <CvReviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/job-search-support"
+          element={
+            <ProtectedRoute>
+              <JobSearchSupportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/linkedin-optimisation"
+          element={
+            <ProtectedRoute>
+              <LinkedInOptimisationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cover-letter"
+          element={
+            <ProtectedRoute>
+              <CoverLetterBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cover-letter-review"
+          element={
+            <ProtectedRoute>
+              <CoverLetterReviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/application-form-assistance"
+          element={
+            <ProtectedRoute>
+              <ApplicationFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/interview-preparation"
+          element={
+            <ProtectedRoute>
+              <InterviewPrepPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/personal-statement"
+          element={
+            <ProtectedRoute>
+              <PersonalStatementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/portfolio-building"
+          element={
+            <ProtectedRoute>
+              <PortfolioBuildingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/my-documents"
+          element={
+            <ProtectedRoute>
+              <MyDocumentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/career-profile"
+          element={
+            <ProtectedRoute>
+              <CareerProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/handler/queue"
+          element={
+            <RequireRole roles={['handler', 'operations']}>
+              <HandlerQueuePage />
+            </RequireRole>
+          }
+        />
         <Route path="/join-handler" element={<Navigate to="/join#handler-form" replace />} />
         <Route path="/join-coach" element={<Navigate to="/join#coach-form" replace />} />
         <Route path="/ambassadors" element={<Navigate to="/join#ambassador-form" replace />} />

@@ -13,6 +13,7 @@
   <url><loc>https://uniblueprint.ie/for-universities</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://uniblueprint.ie/for-businesses</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://uniblueprint.ie/partners</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://uniblueprint.ie/contributors</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://uniblueprint.ie/join-handler</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://uniblueprint.ie/join-coach</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://uniblueprint.ie/ambassadors</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>

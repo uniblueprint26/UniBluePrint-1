@@ -1,36 +1,4 @@
-import { Link } from 'react-router-dom'
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
-
-// ─── Confirmation email ───────────────────────────────────────────────────────
-// Fire-and-forget call to send-form-confirmation, made right after a form's
-// table insert succeeds. Deliberately never awaited by the caller and never
-// throws, the form's success state comes from the insert, not from this;
-// a Resend outage or a not-yet-configured RESEND_API_KEY should never turn
-// a successful submission into an error the visitor sees.
-export function sendFormConfirmation(kind, to, name) {
-  if (!to) return
-  supabase.functions.invoke('send-form-confirmation', { body: { kind, to, name } })
-    .catch(err => console.warn('send-form-confirmation failed (non-blocking):', err))
-}
-
-// ─── Team notification ─────────────────────────────────────────────────────────
-// Fire-and-forget call to notify-team-submission, so the team actually finds
-// out about a new submission instead of it just sitting in the table. The
-// team inbox address is fixed server-side, not passed from here.
-export function notifyTeam(kind, submitterEmail, submitterName) {
-  supabase.functions.invoke('notify-team-submission', { body: { kind, submitterEmail, submitterName } })
-    .catch(err => console.warn('notify-team-submission failed (non-blocking):', err))
-}
-
-// ─── Mailchimp sync ─────────────────────────────────────────────────────────────
-// Fire-and-forget, only ever call this when the caller has explicitly ticked
-// the marketing-consent checkbox, never unconditionally on every signup.
-export function syncMailchimp(email, fullName, source) {
-  if (!email) return
-  supabase.functions.invoke('sync-mailchimp-subscriber', { body: { email, fullName, source } })
-    .catch(err => console.warn('sync-mailchimp-subscriber failed (non-blocking):', err))
-}
 
 // ─── UTM helper ───────────────────────────────────────────────────────────────
 
@@ -207,7 +175,7 @@ const focusOff = e => { e.target.style.borderColor = 'rgba(30,58,95,0.2)'; e.tar
 
 export function FormInput({
   id, value, onChange, placeholder,
-  type = 'text', required, maxLength,
+  type = 'text', required,
   'aria-describedby': describedBy,
 }) {
   return (
@@ -218,7 +186,6 @@ export function FormInput({
       onChange={onChange}
       placeholder={placeholder}
       required={required}
-      maxLength={maxLength}
       aria-required={required || undefined}
       aria-describedby={describedBy}
       style={inputBase}
@@ -261,7 +228,7 @@ export const SelectInput = FormSelect
 
 export function FormTextarea({
   id, value, onChange, placeholder,
-  rows = 4, required, maxLength,
+  rows = 4, required,
   'aria-describedby': describedBy,
 }) {
   return (
@@ -272,7 +239,6 @@ export function FormTextarea({
       placeholder={placeholder}
       rows={rows}
       required={required}
-      maxLength={maxLength}
       aria-required={required || undefined}
       aria-describedby={describedBy}
       style={{
@@ -333,11 +299,7 @@ export function FormConsent() {
       margin: '0',
       lineHeight: 1.6,
     }}>
-      By submitting you agree to our{' '}
-      <Link to="/terms" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Terms</Link>
-      {' '}and{' '}
-      <Link to="/privacy" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>Privacy Policy</Link>
-      .
+      By submitting you agree to UniBlueprint's Terms and Privacy Policy.
     </p>
   )
 }
