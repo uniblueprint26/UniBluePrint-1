@@ -30,6 +30,8 @@ const CAREER_SERVICES = [
     icon: FileText,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/cv-builder', ctaLabel: 'Build my CV',
+    secondaryCtaHref: '/foundation/cv-review', secondaryCtaLabel: 'or review a CV you already have',
   },
   {
     name: 'LinkedIn Optimisation',
@@ -45,6 +47,7 @@ const CAREER_SERVICES = [
     icon: Linkedin,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/linkedin-optimisation', ctaLabel: 'Optimise my profile',
   },
   {
     name: 'Cover Letter Assistance',
@@ -60,6 +63,8 @@ const CAREER_SERVICES = [
     icon: Mail,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/cover-letter', ctaLabel: 'Write my cover letter',
+    secondaryCtaHref: '/foundation/cover-letter-review', secondaryCtaLabel: 'or review one you already have',
   },
   {
     name: 'Application Form Assistance',
@@ -74,6 +79,7 @@ const CAREER_SERVICES = [
     icon: ClipboardList,
     originalStandard: 'From €20', trialStandard: 'From €10',
     originalPremium: 'From €30', trialPremium: 'From €15',
+    ctaHref: '/foundation/application-form-assistance', ctaLabel: 'Answer my form',
   },
   {
     name: 'Interview Preparation',
@@ -93,6 +99,7 @@ const CAREER_SERVICES = [
     icon: MessageSquare,
     originalStandard: 'From €20', trialStandard: 'From €10',
     originalPremium: 'From €30', trialPremium: 'From €15',
+    ctaHref: '/foundation/interview-preparation', ctaLabel: 'Build my prep pack',
   },
   {
     name: 'Job Search Support',
@@ -108,6 +115,7 @@ const CAREER_SERVICES = [
     icon: Search,
     originalStandard: '€15', trialStandard: '€8',
     originalPremium: '€22', trialPremium: '€11',
+    ctaHref: '/foundation/job-search-support', ctaLabel: 'Get my strategy',
   },
 ]
 
@@ -125,6 +133,7 @@ const CAO_SERVICES = [
     icon: BookOpen,
     originalStandard: '€20', trialStandard: '€10',
     originalPremium: '€30', trialPremium: '€15',
+    ctaHref: '/foundation/personal-statement', ctaLabel: 'Write my statement',
   },
   {
     name: 'College Interview Preparation',
@@ -333,7 +342,7 @@ function TrialBadge() {
   )
 }
 
-function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, tierNote, originalStandard, trialStandard, courseCompass }) {
+function ServiceCard({ name, tagline, description, icon: Icon, bullets, standardBullets, premiumBullets, tierNote, originalStandard, trialStandard, courseCompass, ctaHref, ctaLabel, secondaryCtaHref, secondaryCtaLabel }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
@@ -511,6 +520,33 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
       }}>
         September trial price
       </p>
+
+      {ctaHref && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '14px' }}>
+          <Link
+            to={ctaHref}
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '13px', fontWeight: '600', color: '#1E3A5F',
+              textDecoration: 'underline', textUnderlineOffset: '3px',
+            }}
+          >
+            {ctaLabel || 'Try it now'} →
+          </Link>
+          {secondaryCtaHref && (
+            <Link
+              to={secondaryCtaHref}
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '12px', color: '#6B7280',
+                textDecoration: 'underline', textUnderlineOffset: '3px',
+              }}
+            >
+              {secondaryCtaLabel}
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -535,6 +571,71 @@ function BoolCell({ value }) {
   return value
     ? <Check size={18} color="#16A34A" style={{ margin: '0 auto', display: 'block' }} />
     : <XIcon size={18} color="#9CA3AF" style={{ margin: '0 auto', display: 'block' }} />
+}
+
+// Reused on the homepage hero, which cycles between this and ElevationScreen
+// (see HomePage.jsx's phone-mockup carousel).
+export function FoundationScreen() {
+  return (
+    <div style={{ padding: '20px 14px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', boxSizing: 'border-box' }}>
+      {/* Status bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: 'rgba(245,240,232,0.5)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>9:41</span>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ width: '3px', height: `${4 + i * 2}px`, background: i === 3 ? 'rgba(245,240,232,0.25)' : 'rgba(245,240,232,0.6)', borderRadius: '1px' }} />
+          ))}
+        </div>
+      </div>
+      {/* Header */}
+      <div>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Foundation Blueprint</p>
+        <p style={{ color: '#F5F0E8', fontSize: '16px', fontFamily: "'DM Serif Display',serif", marginTop: '3px', lineHeight: 1.2 }}>Your career<br />documents</p>
+      </div>
+      {/* Progress */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+          <span style={{ color: 'rgba(245,240,232,0.4)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Progress</span>
+          <span style={{ color: '#F5F0E8', fontSize: '9px', fontFamily: "'DM Sans',sans-serif", fontWeight: 700 }}>3 / 5</span>
+        </div>
+        <div style={{ height: '3px', borderRadius: '2px', background: 'rgba(245,240,232,0.12)' }}>
+          <div style={{ width: '60%', height: '100%', background: '#F5F0E8', borderRadius: '2px' }} />
+        </div>
+      </div>
+      {/* Items */}
+      {[
+        { label: 'CV Optimisation', done: true },
+        { label: 'LinkedIn Profile', done: true },
+        { label: 'Cover Letter', done: true },
+        { label: 'Interview Prep', done: false },
+        { label: 'Job Search Plan', done: false },
+      ].map(item => (
+        <div key={item.label} style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '7px 9px', borderRadius: '8px',
+          background: item.done ? 'rgba(245,240,232,0.1)' : 'rgba(245,240,232,0.03)',
+          border: '1px solid ' + (item.done ? 'rgba(245,240,232,0.14)' : 'rgba(245,240,232,0.05)'),
+        }}>
+          <div style={{
+            width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0,
+            background: item.done ? '#F5F0E8' : 'transparent',
+            border: '1.5px solid ' + (item.done ? '#F5F0E8' : 'rgba(245,240,232,0.22)'),
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {item.done && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#1E3A5F' }} />}
+          </div>
+          <span style={{ color: item.done ? '#F5F0E8' : 'rgba(245,240,232,0.32)', fontSize: '10px', fontFamily: "'DM Sans',sans-serif" }}>
+            {item.label}
+          </span>
+        </div>
+      ))}
+      {/* Handler badge */}
+      <div style={{ marginTop: 'auto', padding: '7px 9px', borderRadius: '8px', background: 'rgba(245,240,232,0.06)', border: '1px solid rgba(245,240,232,0.1)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#16A34A', flexShrink: 0 }} />
+        <span style={{ color: 'rgba(245,240,232,0.55)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>CV reviewed and delivered</span>
+      </div>
+    </div>
+  )
 }
 
 // ─── FoundationBlueprintPage ────────────────────────────────────────────────────
@@ -590,6 +691,32 @@ export default function FoundationBlueprintPage() {
           }}>
             Everything you need to launch your career
           </h2>
+
+          <p style={{
+            textAlign: 'center', marginTop: '14px',
+            display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap',
+          }}>
+            <Link
+              to="/foundation/career-profile"
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px',
+                fontWeight: '600', color: '#1E3A5F',
+                textDecoration: 'underline', textUnderlineOffset: '3px',
+              }}
+            >
+              Set up your Career Profile →
+            </Link>
+            <Link
+              to="/foundation/my-documents"
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '14px',
+                fontWeight: '600', color: '#1E3A5F',
+                textDecoration: 'underline', textUnderlineOffset: '3px',
+              }}
+            >
+              View everything you've already started →
+            </Link>
+          </p>
 
           <SubHeader>Career Services</SubHeader>
           <div className="services-grid">

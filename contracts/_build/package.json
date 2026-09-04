@@ -1,0 +1,9 @@
+{
+  "name": "ubp-contract-build",
+  "private": true,
+  "type": "commonjs",
+  "description": "Generator for the UniBlueprint contract suite",
+  "dependencies": {
+    "docx": "^9.7.1"
+  }
+}

@@ -14,7 +14,7 @@ const ROUTES = [
   "/campus-connect",
   "/course-connect",
   "/pricing",
-  "/september-trial",
+  "/free-trial",
   "/for-universities",
   "/for-businesses",
   "/join-handler",
@@ -34,6 +34,12 @@ const ROUTES = [
   "/sign-up",
   "/sign-in",
   "/forgot-password",
+  "/ad-board",
+  "/behind-the-blueprint",
+  "/budgeting",
+  "/course-compass",
+  "/join",
+  "/partners",
 ];
 
 // https://vitejs.dev/config/
@@ -48,7 +54,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    sitemap({ hostname: "https://uniblueprint.com", dynamicRoutes: ROUTES }),
+    sitemap({ hostname: "https://uniblueprint.ie", dynamicRoutes: ROUTES }),
   ].filter(Boolean),
   resolve: {
     alias: {

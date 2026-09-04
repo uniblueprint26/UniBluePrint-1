@@ -1,6 +1,7 @@
 // TODO: This page receives redirect from Stripe after successful payment.
 // Stripe webhook updates user Pro status in Supabase. Remove manual check once webhook is live.
-// Requires 'profiles' table with is_pro boolean field.
+// Pro status lives in the 'subscriptions' table, not 'profiles', same
+// table and shape AuthContext.jsx reads for the isPro flag used site-wide.
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -16,11 +17,13 @@ export default function SubscriptionSuccessPage() {
   useEffect(() => {
     async function checkPro() {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('is_pro')
-        .eq('id', user.id)
-        .single()
-      setStatus(!error && data?.is_pro ? 'active' : 'none')
+        .from('subscriptions')
+        .select('status, current_period_end')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      const active = !error && data?.status === 'active' &&
+        (!data.current_period_end || new Date(data.current_period_end) > new Date())
+      setStatus(active ? 'active' : 'none')
     }
     if (user) checkPro()
   }, [user])
@@ -55,14 +58,14 @@ export default function SubscriptionSuccessPage() {
                 Welcome to Pro
               </h1>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.6 }}>
-                Your Pro subscription is now active. You have full access to Foundation Blueprint, Elevation Blueprint, and all Pro features.
+                Your Pro subscription is now active. Foundation Blueprint, Elevation Blueprint, and every other Pro feature live in the UniBlueprint app, open it and sign in with the same email and password to start using them right away.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
                 {[
                   'Foundation Blueprint services unlocked',
                   'Elevation Blueprint services unlocked',
                   'Priority Campus Handler and Uni Coach access',
-                  'September trial pricing applies until 1 October 2026',
+                  'Free trial pricing applies while the trial is active',
                 ].map(item => (
                   <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
                     <CheckCircle size={16} color="#16A34A" style={{ flexShrink: 0 }} />
@@ -71,7 +74,7 @@ export default function SubscriptionSuccessPage() {
                 ))}
               </ul>
               <Link
-                to="/foundation-blueprint"
+                to="/download"
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   height: '48px', padding: '0 28px',
@@ -81,8 +84,11 @@ export default function SubscriptionSuccessPage() {
                   textDecoration: 'none',
                 }}
               >
-                Get started
+                Open the app
               </Link>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', marginTop: '16px' }}>
+                Already testing UniBlueprint? Just reopen the app you already have, no need to reinstall anything.
+              </p>
             </div>
           )}
 

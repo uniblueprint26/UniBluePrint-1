@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Menu, X, ChevronDown, LogIn, UserCircle,
-  FileText, Mail, Award, BookOpen, Star, Pen,
-  Target, Mic, TrendingUp, Briefcase, Users, Calendar,
-  Instagram, Search, UserCheck,
+  FileText, Linkedin, Award, Briefcase, MessageSquare, Search,
+  Dumbbell, GraduationCap, TrendingUp, Megaphone, Sparkles, Trophy, Flower2,
+  Instagram, UserCheck, Tag, Users, Globe, PiggyBank, Newspaper,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -13,37 +13,57 @@ import UBPLogo from '../ui/UBPLogo'
 // ─── Nav data ─────────────────────────────────────────────────────────────────
 
 const FOUNDATION_SERVICES = [
-  { label: 'Assignments & Essays', icon: FileText, href: '/foundation-blueprint' },
-  { label: 'CV & Resumé', icon: Star, href: '/foundation-blueprint' },
-  { label: 'Cover Letters', icon: Mail, href: '/foundation-blueprint' },
-  { label: 'College Applications', icon: BookOpen, href: '/foundation-blueprint' },
-  { label: 'Scholarship Support', icon: Award, href: '/foundation-blueprint' },
-  { label: 'Personal Statements', icon: Pen, href: '/foundation-blueprint' },
+  { label: 'CV Optimisation', icon: FileText, href: '/foundation-blueprint' },
+  { label: 'Cover Letter Assistance', icon: FileText, href: '/foundation-blueprint' },
+  { label: 'LinkedIn Optimisation', icon: Linkedin, href: '/foundation-blueprint' },
+  { label: 'Portfolio Building', icon: Briefcase, href: '/foundation-blueprint' },
+  { label: 'Application Form Assistance', icon: Award, href: '/foundation-blueprint' },
+  { label: 'Interview Preparation', icon: MessageSquare, href: '/foundation-blueprint' },
+  { label: 'Job Search Support', icon: Search, href: '/foundation-blueprint' },
 ]
 
 const ELEVATION_SERVICES = [
-  { label: 'Career Coaching', icon: Target, href: '/elevation-blueprint' },
-  { label: 'Interview Preparation', icon: Mic, href: '/elevation-blueprint' },
-  { label: 'LinkedIn & Personal Brand', icon: TrendingUp, href: '/elevation-blueprint' },
-  { label: 'Internship Applications', icon: Briefcase, href: '/elevation-blueprint' },
-  { label: 'Career Planning', icon: Calendar, href: '/elevation-blueprint' },
-  { label: 'Mentorship', icon: Users, href: '/elevation-blueprint' },
-  { label: 'Our Coaches', icon: UserCheck, href: '/our-coaches' },
+  { label: 'Fitness', icon: Dumbbell, href: '/elevation-blueprint' },
+  { label: 'Academic Grinds', icon: GraduationCap, href: '/elevation-blueprint' },
+  { label: 'Trading and Finance', icon: TrendingUp, href: '/elevation-blueprint' },
+  { label: 'Marketing', icon: Megaphone, href: '/elevation-blueprint' },
+  { label: 'Creative', icon: Sparkles, href: '/elevation-blueprint' },
+  { label: 'Sports', icon: Trophy, href: '/elevation-blueprint' },
+  { label: 'Yoga', icon: Flower2, href: '/elevation-blueprint' },
+  { label: 'Our Coaches', icon: UserCheck, href: '/elevation-blueprint' },
+]
+
+// The other five pillars/features, each is its own product, not a list of
+// sub-services the way Foundation and Elevation are, so they show as single
+// direct links rather than a drilled-down column. Canonical order matches
+// the rest of the app/site: Foundation, Elevation, Lifestyle, Campus,
+// Course, Budgeting, then Ad Board (a standalone feature, not one of the
+// five pillars, it holds The Weekly Blueprint magazine, a blog, and a
+// marketplace, not just the magazine).
+const MORE_PILLARS = [
+  { label: 'Lifestyle Blueprint', icon: Tag,       href: '/lifestyle-blueprint' },
+  { label: 'Campus Connect',      icon: Users,      href: '/campus-connect' },
+  { label: 'Course Connect',      icon: Globe,      href: '/course-connect' },
+  { label: 'Budgeting Tool',      icon: PiggyBank,  href: '/budgeting' },
+  { label: 'Ad Board',            icon: Newspaper,  href: '/ad-board' },
 ]
 
 const JOIN_LINKS = [
   { label: 'Campus Handler', href: '/join#handler-form' },
   { label: 'Uni Coach', href: '/join#coach-form' },
   { label: 'Ambassador', href: '/join#ambassador-form' },
+  { label: 'Blueprint Contributor', href: '/contributors' },
 ]
 
 const MOBILE_SERVICE_LINKS = [
   { label: 'Foundation Blueprint', href: '/foundation-blueprint' },
   { label: 'Elevation Blueprint', href: '/elevation-blueprint' },
-  { label: 'Our Coaches', href: '/our-coaches' },
+  { label: 'Our Coaches', href: '/elevation-blueprint' },
   { label: 'Lifestyle Blueprint', href: '/lifestyle-blueprint' },
   { label: 'Campus Connect', href: '/campus-connect' },
   { label: 'Course Connect', href: '/course-connect' },
+  { label: 'Budgeting Tool', href: '/budgeting' },
+  { label: 'Ad Board', href: '/ad-board' },
 ]
 
 // ─── Small reusable pieces ─────────────────────────────────────────────────────
@@ -131,18 +151,43 @@ export default function Navbar({ onSearchOpen }) {
   const userRef = useRef(null)
   const servicesRef = useRef(null)
   const joinRef = useRef(null)
+  // Escape closes the menu and returns focus to its trigger button, but
+  // focusing that button normally re-opens the menu (see onFocus below),
+  // which would undo the Escape instantly. These suppress that one re-open.
+  const suppressServicesOpenRef = useRef(false)
+  const suppressJoinOpenRef = useRef(false)
 
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name.charAt(0).toUpperCase()
     : user?.email?.charAt(0).toUpperCase() ?? 'U'
 
   // Services hover
-  const onServicesEnter = () => { clearTimeout(servicesTimer.current); setIsServicesOpen(true) }
+  const onServicesEnter = () => {
+    clearTimeout(servicesTimer.current)
+    if (suppressServicesOpenRef.current) return
+    setIsServicesOpen(true)
+  }
   const onServicesLeave = () => { servicesTimer.current = setTimeout(() => setIsServicesOpen(false), 200) }
+  const closeServicesAndReturnFocus = () => {
+    setIsServicesOpen(false)
+    suppressServicesOpenRef.current = true
+    document.getElementById('nav-services-trigger')?.focus()
+    setTimeout(() => { suppressServicesOpenRef.current = false }, 0)
+  }
 
   // Join hover
-  const onJoinEnter = () => { clearTimeout(joinTimer.current); setIsJoinOpen(true) }
+  const onJoinEnter = () => {
+    clearTimeout(joinTimer.current)
+    if (suppressJoinOpenRef.current) return
+    setIsJoinOpen(true)
+  }
   const onJoinLeave = () => { joinTimer.current = setTimeout(() => setIsJoinOpen(false), 200) }
+  const closeJoinAndReturnFocus = () => {
+    setIsJoinOpen(false)
+    suppressJoinOpenRef.current = true
+    document.getElementById('nav-join-trigger')?.focus()
+    setTimeout(() => { suppressJoinOpenRef.current = false }, 0)
+  }
 
   // Click-outside user dropdown
   useEffect(() => {
@@ -313,8 +358,7 @@ export default function Navbar({ onSearchOpen }) {
           }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              setIsServicesOpen(false)
-              document.getElementById('nav-services-trigger')?.focus()
+              closeServicesAndReturnFocus()
               return
             }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -332,57 +376,82 @@ export default function Navbar({ onSearchOpen }) {
             controls="nav-services-dropdown"
             label="Services"
             isOpen={isServicesOpen}
-            onClick={() => setIsServicesOpen(v => !v)}
+            onClick={() => setIsServicesOpen(true)}
             onFocus={onServicesEnter}
             onMouseEnter={onServicesEnter}
             onMouseLeave={onServicesLeave}
           />
 
           {isServicesOpen && (
+            // Outer box is transparent and starts flush against the trigger (top: 100%,
+            // no gap) so its hoverable area has no dead zone for the mouse to cross on
+            // the way from the trigger down to the menu — the visual 20px gap moves to
+            // paddingTop on this same hoverable box instead of a position offset, and the
+            // actual white card (background/shadow/content) is the inner div below. A gap
+            // created via `top: calc(100% + 20px)` on the card itself isn't covered by any
+            // element's hit box, so a mouse moving through it fires onMouseLeave before the
+            // 200ms close timer's grace period can be cancelled by re-entering the menu —
+            // that's what was closing this dropdown before a click could land.
             <div
-              id="nav-services-dropdown"
-              role="navigation"
-              aria-label="Services menu"
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 20px)',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '600px',
-                background: '#ffffff',
-                borderRadius: '12px',
-                boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
-                padding: '24px',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '0 24px',
-                zIndex: 99,
-              }}
+              style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', paddingTop: '20px', zIndex: 99 }}
+              onMouseEnter={onServicesEnter}
+              onMouseLeave={onServicesLeave}
             >
-              {/* Foundation column */}
-              <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
-                  Foundation Blueprint
-                </p>
-                {FOUNDATION_SERVICES.map(({ label, icon: Icon, href }) => (
-                  <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
-                    <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
-                    {label}
-                  </Link>
-                ))}
-              </div>
+              <div
+                id="nav-services-dropdown"
+                role="navigation"
+                aria-label="Services menu"
+                style={{
+                  width: '600px',
+                  background: '#ffffff',
+                  borderRadius: '12px',
+                  boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
+                  padding: '24px',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '0 24px',
+                }}
+              >
+                {/* Foundation column */}
+                <div>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                    Foundation Blueprint
+                  </p>
+                  {FOUNDATION_SERVICES.map(({ label, icon: Icon, href }) => (
+                    <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
+                      <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
 
-              {/* Elevation column */}
-              <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
-                  Elevation Blueprint
-                </p>
-                {ELEVATION_SERVICES.map(({ label, icon: Icon, href }) => (
-                  <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
-                    <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
-                    {label}
-                  </Link>
-                ))}
+                {/* Elevation column */}
+                <div>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                    Elevation Blueprint
+                  </p>
+                  {ELEVATION_SERVICES.map(({ label, icon: Icon, href }) => (
+                    <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
+                      <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Remaining pillars/features, full width, below the two service columns */}
+                <div style={{
+                  gridColumn: '1 / -1',
+                  borderTop: '1px solid rgba(30,58,95,0.08)',
+                  marginTop: '16px', paddingTop: '16px',
+                  display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px 12px',
+                }}>
+                  {MORE_PILLARS.map(({ label, icon: Icon, href }) => (
+                    <Link key={label} to={href} className="dropdown-link" onClick={() => setIsServicesOpen(false)}>
+                      <Icon size={16} color="#1E3A5F" aria-hidden="true" style={{ flexShrink: 0 }} />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -441,8 +510,7 @@ export default function Navbar({ onSearchOpen }) {
           }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              setIsJoinOpen(false)
-              document.getElementById('nav-join-trigger')?.focus()
+              closeJoinAndReturnFocus()
               return
             }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -460,34 +528,40 @@ export default function Navbar({ onSearchOpen }) {
             controls="nav-join-dropdown"
             label="Join the Team"
             isOpen={isJoinOpen}
-            onClick={() => setIsJoinOpen(v => !v)}
+            onClick={() => setIsJoinOpen(true)}
             onFocus={onJoinEnter}
             onMouseEnter={onJoinEnter}
             onMouseLeave={onJoinLeave}
           />
 
           {isJoinOpen && (
+            // Same fix as the Services dropdown above: transparent outer box flush
+            // against the trigger (no dead zone for the mouse to cross), visual 20px gap
+            // moved to paddingTop instead of a position offset the hoverable area doesn't
+            // cover.
             <div
-              id="nav-join-dropdown"
-              role="navigation"
-              aria-label="Join the Team menu"
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 20px)',
-                right: 0,
-                background: '#ffffff',
-                borderRadius: '10px',
-                boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
-                padding: '8px',
-                minWidth: '180px',
-                zIndex: 99,
-              }}
+              style={{ position: 'absolute', top: '100%', right: 0, paddingTop: '20px', zIndex: 99 }}
+              onMouseEnter={onJoinEnter}
+              onMouseLeave={onJoinLeave}
             >
-              {JOIN_LINKS.map(({ label, href }) => (
-                <Link key={label} to={href} className="dropdown-link" onClick={() => setIsJoinOpen(false)}>
-                  {label}
-                </Link>
-              ))}
+              <div
+                id="nav-join-dropdown"
+                role="navigation"
+                aria-label="Join the Team menu"
+                style={{
+                  background: '#ffffff',
+                  borderRadius: '10px',
+                  boxShadow: '0px 4px 20px rgba(30,58,95,0.14)',
+                  padding: '8px',
+                  minWidth: '180px',
+                }}
+              >
+                {JOIN_LINKS.map(({ label, href }) => (
+                  <Link key={label} to={href} className="dropdown-link" onClick={() => setIsJoinOpen(false)}>
+                    {label}
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </div>

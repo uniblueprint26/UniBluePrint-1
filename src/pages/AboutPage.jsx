@@ -1,6 +1,43 @@
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { UserCheck, MapPin, Heart } from 'lucide-react'
+import { UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react'
+
+// ─── Page styles ───────────────────────────────────────────────────────────────
+
+const PAGE_STYLES = `
+  .about-story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .about-diff-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+    margin: 40px auto 0;
+  }
+  .about-team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 40px auto 0;
+  }
+  @media (max-width: 860px) {
+    .about-story-grid { grid-template-columns: 1fr; gap: 40px; }
+    .about-diff-grid  { grid-template-columns: repeat(2, 1fr); }
+    .about-team-grid  { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 520px) {
+    .about-diff-grid  { gap: 12px; }
+    .about-team-grid  { gap: 12px; }
+  }
+`
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -19,108 +56,304 @@ const DIFFERENTIATORS = [
   },
   {
     icon: Heart,
-    title: 'Free tier that genuinely delivers value',
+    title: 'A free tier that genuinely delivers',
     description:
-      'Our free plan is not a watered-down teaser. It gives real access to campus community, course boards, and core tools from day one.',
+      'The free plan is not a watered-down teaser. It gives real access to campus community, course boards, and core tools from day one.',
   },
 ]
 
-const TEAM_AREAS = [
-  {
-    title: 'Tech & Development',
-    description: 'Building and maintaining the platform, the app, and the infrastructure behind it.',
-  },
-  {
-    title: 'Marketing',
-    description: 'Growing awareness across Irish campuses and positioning the UniBlueprint brand.',
-  },
-  {
-    title: 'Outreach',
-    description: 'Connecting with students, universities, and partners on the ground.',
-  },
-  {
-    title: 'Finance',
-    description: 'Keeping the business on solid footing and managing our resources responsibly.',
-  },
-  {
-    title: 'Legal',
-    description: 'Ensuring we operate safely, fairly, and in compliance with Irish and EU law.',
-  },
-  {
-    title: 'Partners',
-    description: 'Building relationships with businesses and institutions that benefit our students.',
-  },
+// The leadership team running UniBlueprint into September, real names,
+// real roles, spellings confirmed with Desmond.
+const LEADERSHIP = [
+  { name: 'Desmond',   role: 'Founder',                          nickname: 'The General',    description: 'Started this whole adventure after a conversation at a birthday dinner in Belfast. Sets the direction, brings the team together and leads from the front.' },
+  { name: 'Wami',      role: 'Finance Lead',                     nickname: 'The Heart',       description: 'Keeps everything steady behind the scenes. Brings care, structure and the calm we need to keep moving forward.' },
+  { name: 'Basmali',   role: 'Legal Lead',                       nickname: 'The Shield',      description: "Has backed the vision from the start. Always ready to step up, challenge what needs challenging and make sure we're covered." },
+  { name: 'Tayyab',    role: 'Technology & Development Lead',    nickname: 'The Engine',      description: 'Keeps the build moving. Turns ideas into something real and is always pushing us towards the next stage.' },
+  { name: 'Bene',      role: 'Creative & Marketing Lead',        nickname: 'The Spark',       description: 'Brings the creativity that keeps us from becoming just another business. Always looking for a different way to approach things.' },
+  { name: 'Elizabeth', role: 'Content & Social Lead',            nickname: 'The Voice',       description: 'Helps give the vision its voice. Creative, reliable and focused on making sure what we say actually sounds like us.' },
+  { name: 'Eman',      role: 'Strategy & Technology Lead',       nickname: 'The Brain',       description: 'Always thinking a few steps ahead. Brings a different perspective and asks the questions that keep us thinking properly.' },
+  { name: 'Fabz',      role: 'Campus Growth Lead',               nickname: 'The Reach',       description: 'Always looking beyond where we are now. Helps take the Blueprint into new spaces, new campuses and new people.' },
+  { name: 'Daniel',    role: 'Commercial & Operations Lead',     nickname: 'The Right Hand',  description: 'Has been here from the beginning. Someone who understands the journey, knows what needs doing and gets involved without hesitation.' },
+  { name: 'Aidan',     role: 'Product Lead',                     nickname: 'The Innovator',   description: 'Always thinking about what could be better. Takes ideas further, challenges the obvious and helps shape where the Blueprint goes next.' },
+  { name: 'Sienna',    role: 'Community & Outreach Lead',        nickname: 'The Backbone',    description: 'Keeps people connected and keeps things moving. Gritty when it matters, dependable when we need her and never afraid to get things done.' },
+  { name: 'Zafir',     role: 'Platform & Development Lead',      nickname: 'The Foundation',  description: 'A lot of what he does happens behind the scenes. Quietly builds the foundations that allow everything else to work.' },
+  { name: 'Ethan',     role: 'Marketing & Outreach Lead',        nickname: 'The Pulse',       description: 'Keeps the energy around the team and the vision alive. Always involved, always pushing and always ready to get stuck in.' },
+  { name: 'Alex',      role: 'Digital Marketing Lead',           nickname: 'The Instigator',  description: 'Gets things moving. Spots opportunities, starts conversations and brings the kind of energy that makes things happen.' },
+  { name: 'Rachel',    role: 'Legal & Compliance Lead',          nickname: 'The Guardian',    description: "Keeps an eye on what matters. Helps protect what we're building and makes sure we stay on the right path." },
 ]
 
-// TODO: Replace milestone dates and descriptions with real launch history
-const MILESTONES = [
-  {
-    date: 'TODO: Date',
-    title: 'Idea conceived',
-    description: 'TODO: Insert founding story milestone — where the idea came from.',
-  },
-  {
-    date: 'TODO: Date',
-    title: 'Team assembled',
-    description: 'TODO: Insert milestone — first team members and initial planning phase.',
-  },
-  {
-    date: 'TODO: Date',
-    title: 'Platform build begins',
-    description: 'TODO: Insert milestone — development kickoff and first prototype.',
-  },
-  {
-    date: 'TODO: Date',
-    title: 'Beta testing',
-    description: 'TODO: Insert milestone — closed beta with early student testers.',
-  },
-  {
-    date: 'September 2026',
-    title: 'Public launch',
-    description: 'Launching across Irish universities and colleges during freshers week.',
-  },
+// Behind The Blueprint, real titles and dates from the VSCO series.
+// To add a real photo: set photo: '/images/btb-001.jpg' (or a full URL).
+// The label is shown as the blue VSCO-style tag on the polaroid.
+const BTB = [
+  { label: '#001', date: 'Feb 28, 2026',   title: 'Pilot',              photo: '/images/btb/btb-001.jpg' },
+  { label: '#002', date: 'Feb 28, 2026',   title: 'Cakes and Candles',  photo: '/images/btb/btb-002.jpg' },
+  { label: '#003', date: 'Mar, Apr 2026', title: 'Finding the Pieces', photo: '/images/btb/btb-003.jpg' },
+  { label: '#025', date: 'Apr 10, 2026',   title: 'First Look',         photo: '/images/btb/btb-025.jpg' },
+  { label: '#027', date: 'Apr 14, 2026',   title: "We're Online",        photo: '/images/btb/btb-027.jpg' },
+  { label: '#031', date: '2026',           title: 'Course Compass',    photo: '/images/btb/btb-031.jpg' },
+  { label: '#036', date: 'May 5, 2026',    title: 'Ballyhaunis CS',     photo: '/images/btb/btb-036.jpg' },
+  { label: '#037', date: 'May 7, 2026',    title: 'ATU Galway',         photo: '/images/btb/btb-037.jpg' },
+  { label: '#038', date: 'May 8, 2026',    title: 'UCD',                photo: '/images/btb/btb-038.jpg' },
+  { label: '#039', date: 'May 9, 2026',    title: 'Maynooth',           photo: '/images/btb/btb-039.jpg' },
+  { label: '#040', date: 'May 13, 2026',   title: 'Preparations Pt. 1', photo: '/images/btb/btb-040.jpg' },
+  { label: '#041', date: 'May 13, 2026',   title: 'Preparations Pt. 2', photo: '/images/btb/btb-041.jpg' },
+  { label: '#042', date: 'May 14, 2026',   title: 'Showtime',           photo: '/images/btb/btb-042.jpg' },
+  { label: '#043', date: 'May 16, 2026',   title: 'Cafe Conversations', photo: '/images/btb/btb-043.jpg' },
+  { label: '',     date: 'September 2026', title: 'Launch',             photo: null },
 ]
+
+const ROTATIONS = [-2.8, 1.8, -1.4, 2.6, -2.2, 1.4, -3, 2, -1.8, 3.2, -2, 1.6, -2.5, 1]
+
+// ─── ClothesLine ──────────────────────────────────────────────────────────────
+
+function ClothesLine({ items }) {
+  const trackRef    = useRef(null)
+  const [drag, setDrag] = useState(false)
+  const startX      = useRef(0)
+  const scrollLeft  = useRef(0)
+
+  const onMouseDown = e => {
+    setDrag(true)
+    startX.current    = e.pageX - trackRef.current.offsetLeft
+    scrollLeft.current = trackRef.current.scrollLeft
+  }
+  const onMouseMove = e => {
+    if (!drag) return
+    e.preventDefault()
+    const x = e.pageX - trackRef.current.offsetLeft
+    trackRef.current.scrollLeft = scrollLeft.current - (x - startX.current) * 1.2
+  }
+  const onMouseUp = () => setDrag(false)
+
+  const onTouchStart = e => {
+    startX.current     = e.touches[0].pageX - trackRef.current.offsetLeft
+    scrollLeft.current  = trackRef.current.scrollLeft
+  }
+  const onTouchMove = e => {
+    const x = e.touches[0].pageX - trackRef.current.offsetLeft
+    trackRef.current.scrollLeft = scrollLeft.current - (x - startX.current) * 1.2
+  }
+
+  return (
+    <div style={{ position: 'relative', overflow: 'hidden', width: '100%' }}>
+      {/* Rope */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: '48px', left: 0, right: 0, height: '2px',
+        background: 'linear-gradient(to right, transparent, rgba(30,58,95,0.2) 6%, rgba(30,58,95,0.2) 94%, transparent)',
+        zIndex: 1, pointerEvents: 'none',
+      }} />
+      {/* Fade edges */}
+      {['left','right'].map(side => (
+        <div key={side} aria-hidden="true" style={{
+          position: 'absolute', top: 0, [side]: 0, bottom: 0, width: '60px',
+          background: `linear-gradient(to ${side === 'left' ? 'right' : 'left'}, #EDE8DF, transparent)`,
+          zIndex: 5, pointerEvents: 'none',
+        }} />
+      ))}
+
+      {/* Track */}
+      <div
+        ref={trackRef}
+        onMouseDown={onMouseDown} onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}    onMouseLeave={onMouseUp}
+        onTouchStart={onTouchStart} onTouchMove={onTouchMove}
+        style={{
+          display: 'flex', gap: '24px',
+          overflowX: 'auto', overflowY: 'visible',
+          padding: '28px 80px 56px',
+          cursor: drag ? 'grabbing' : 'grab',
+          userSelect: 'none', WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+        }}
+      >
+        {items.map((item, i) => {
+          const rot = ROTATIONS[i % ROTATIONS.length]
+
+          // Real BTB photos are already finished polaroid graphics, their own
+          // tag, caption, and date are baked into the image itself (that's
+          // the actual VSCO post design). Re-wrapping those in another hand-
+          // drawn polaroid frame below would double up the caption. So a real
+          // photo just hangs on the line as-is; only the still-missing
+          // "Launch" placeholder gets the hand-drawn frame + text look.
+          if (item.photo) {
+            return (
+              <div
+                key={item.title + i}
+                style={{ flexShrink: 0, paddingTop: '24px', position: 'relative' }}
+              >
+                <div style={{
+                  position: 'absolute', top: '10px', left: '50%',
+                  transform: 'translateX(-50%)', zIndex: 3,
+                }}>
+                  <svg width="14" height="30" viewBox="0 0 14 30" fill="none" aria-hidden="true">
+                    <rect x="5" y="0" width="4" height="16" rx="2" fill="#8B7355" />
+                    <ellipse cx="7" cy="22" rx="6" ry="7" fill="#9E8060" />
+                    <rect x="6" y="14" width="2" height="8" fill="#7A6345" />
+                  </svg>
+                </div>
+                <div style={{
+                  width: '160px',
+                  boxShadow: '0 6px 28px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.07)',
+                  transform: `rotate(${rot}deg)`,
+                  marginTop: '12px',
+                  borderRadius: '3px',
+                  overflow: 'hidden',
+                }}>
+                  <img
+                    src={item.photo}
+                    alt={`Behind The Blueprint ${item.label.replace('#', '')}, "${item.title}"`}
+                    style={{ display: 'block', width: '100%', height: 'auto' }}
+                  />
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div
+              key={item.title + i}
+              style={{ flexShrink: 0, paddingTop: '24px', position: 'relative' }}
+            >
+              {/* Wooden peg */}
+              <div style={{
+                position: 'absolute', top: '10px', left: '50%',
+                transform: 'translateX(-50%)', zIndex: 3,
+              }}>
+                <svg width="14" height="30" viewBox="0 0 14 30" fill="none" aria-hidden="true">
+                  <rect x="5" y="0" width="4" height="16" rx="2" fill="#8B7355" />
+                  <ellipse cx="7" cy="22" rx="6" ry="7" fill="#9E8060" />
+                  <rect x="6" y="14" width="2" height="8" fill="#7A6345" />
+                </svg>
+              </div>
+
+              {/* Hand-drawn placeholder polaroid (used only for entries with no photo yet) */}
+              <div style={{
+                width: '160px',
+                background: '#FFFFFF',
+                padding: '8px 8px 28px',
+                boxShadow: '0 6px 28px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.07)',
+                transform: `rotate(${rot}deg)`,
+                marginTop: '12px',
+                borderRadius: '2px',
+                position: 'relative',
+              }}>
+                {item.label && (
+                  <div style={{
+                    position: 'absolute', top: '8px', left: '8px',
+                    background: '#1B2CC1',
+                    padding: '2px 7px',
+                    zIndex: 2,
+                  }}>
+                    <span style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '10px', fontWeight: '700',
+                      color: '#FFFFFF', letterSpacing: '0.04em',
+                    }}>
+                      {item.label}
+                    </span>
+                  </div>
+                )}
+
+                <div style={{
+                  width: '100%', paddingBottom: '100%', position: 'relative',
+                  background: 'linear-gradient(135deg, #ddd8cf 0%, #c8c3ba 100%)',
+                  overflow: 'hidden', borderRadius: '1px',
+                }}>
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: '#D4CFc6',
+                  }}>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9E9990', letterSpacing: '0.04em' }}>
+                      photo
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ paddingTop: '10px', textAlign: 'center' }}>
+                  <p style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: '11px', color: '#1B2CC1',
+                    lineHeight: 1.3, margin: 0,
+                  }}>
+                    {item.label ? `Behind The Blueprint ${item.label.replace('#', '')}` : 'Launch Day'}
+                  </p>
+                  <p style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: '12px', color: '#1E3A5F',
+                    lineHeight: 1.3, margin: '3px 0 0',
+                    fontStyle: 'italic',
+                  }}>
+                    &ldquo;{item.title}&rdquo;
+                  </p>
+                  <div style={{ height: '1px', background: '#1B2CC1', margin: '5px auto', width: '40px' }} />
+                  <p style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '10px', color: '#1B2CC1',
+                    margin: 0,
+                  }}>
+                    {item.date}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <p style={{
+        textAlign: 'center',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', color: '#9CA3AF',
+        marginTop: '-24px',
+      }}>
+        Drag to explore
+      </p>
+    </div>
+  )
+}
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function SectionLabel({ children }) {
+function Eyebrow({ children, light }) {
   return (
     <p style={{
       fontFamily: "'DM Sans', sans-serif",
-      fontSize: '12px', fontWeight: '600',
-      color: '#6B7280',
-      textTransform: 'uppercase',
-      letterSpacing: '0.06em',
+      fontSize: '11px', fontWeight: '700',
+      color: light ? 'rgba(245,240,232,0.45)' : '#9CA3AF',
+      textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0,
     }}>
       {children}
     </p>
   )
 }
 
-function DifferentiatorCard({ icon: Icon, title, description }) {
+function DiffCard({ icon: Icon, title, description }) {
   return (
     <div style={{
-      background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '24px', flex: 1,
+      background: '#FFFFFF', borderRadius: '14px',
+      boxShadow: '0 2px 14px rgba(30,58,95,0.07)',
+      padding: '28px 24px',
     }}>
       <div style={{
-        width: '52px', height: '52px', borderRadius: '50%',
-        background: '#F5F0E8',
+        width: '48px', height: '48px', borderRadius: '12px',
+        background: 'rgba(27,75,90,0.07)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: '16px',
       }}>
-        <Icon size={28} color="#1E3A5F" />
+        <Icon size={22} color="#1E3A5F" strokeWidth={1.7} />
       </div>
-      <h3 style={{
+      <p style={{
         fontFamily: "'DM Serif Display', serif",
-        fontSize: '18px', color: '#1E3A5F', marginTop: '16px',
+        fontSize: '18px', color: '#1E3A5F', margin: '0 0 8px',
       }}>
         {title}
-      </h3>
+      </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '14px', color: '#6B7280',
-        marginTop: '8px', lineHeight: 1.6,
+        lineHeight: 1.65, margin: 0,
       }}>
         {description}
       </p>
@@ -128,88 +361,41 @@ function DifferentiatorCard({ icon: Icon, title, description }) {
   )
 }
 
-function TeamCard({ title, description }) {
+function LeaderCard({ name, role, nickname, description }) {
   return (
     <div style={{
       background: '#FFFFFF', borderRadius: '12px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '20px',
+      boxShadow: '0 2px 12px rgba(30,58,95,0.07)',
+      padding: '22px 20px', textAlign: 'left',
     }}>
-      <h3 style={{
+      <p style={{
         fontFamily: "'DM Serif Display', serif",
-        fontSize: '16px', color: '#1E3A5F',
+        fontSize: '17px', color: '#1E3A5F', margin: '0 0 4px',
       }}>
-        {title}
-      </h3>
+        {name}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontWeight: '700', color: '#B08D57',
+        textTransform: 'uppercase', letterSpacing: '0.06em',
+        margin: 0,
+      }}>
+        {role}
+      </p>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '11px', fontStyle: 'italic', color: '#9CA3AF',
+        margin: '2px 0 10px',
+      }}>
+        {nickname}
+      </p>
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '13px', color: '#6B7280',
-        marginTop: '8px', lineHeight: 1.6,
+        lineHeight: 1.6, margin: 0,
       }}>
         {description}
       </p>
-      <Link
-        to="/join"
-        style={{
-          display: 'block', textAlign: 'center',
-          marginTop: '16px', height: '36px',
-          lineHeight: '36px',
-          background: 'none', color: '#1E3A5F',
-          border: '1.5px solid #1E3A5F',
-          borderRadius: '8px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
-          textDecoration: 'none',
-        }}
-      >
-        Join Now →
-      </Link>
-    </div>
-  )
-}
-
-function TimelineNode({ date, title, description, isLast }) {
-  return (
-    <div style={{ display: 'flex', gap: '20px', position: 'relative' }}>
-      {/* Left column: node + connector line */}
-      <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        flexShrink: 0, width: '20px',
-      }}>
-        <div style={{
-          width: '12px', height: '12px', borderRadius: '50%',
-          background: '#1E3A5F', flexShrink: 0, marginTop: '4px',
-        }} />
-        {!isLast && (
-          <div style={{
-            flex: 1, width: '1px',
-            background: 'rgba(30,58,95,0.2)',
-            marginTop: '6px',
-          }} />
-        )}
-      </div>
-
-      {/* Right column: text */}
-      <div style={{ paddingBottom: isLast ? 0 : '32px' }}>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '13px', color: '#9CA3AF',
-        }}>
-          {date}
-        </p>
-        <p style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '16px', color: '#1E3A5F', marginTop: '4px',
-        }}>
-          {title}
-        </p>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '14px', color: '#6B7280',
-          marginTop: '4px', lineHeight: 1.6,
-        }}>
-          {description}
-        </p>
-      </div>
     </div>
   )
 }
@@ -221,211 +407,349 @@ export default function AboutPage() {
     <>
       <Helmet>
         <title>About | UniBlueprint</title>
-        <meta
-          name="description"
-          content="UniBlueprint — built for students, apprentices, and young people across Ireland. Our mission, our story, and the team behind the Blueprint."
-        />
+        <meta name="description" content="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born. This is the story of UniBlueprint." />
         <meta property="og:title" content="About | UniBlueprint" />
-        <meta property="og:description" content="UniBlueprint — built for students, apprentices, and young people across Ireland. Our mission, our story, and the team behind the Blueprint." />
+        <meta property="og:description" content="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a birthday dinner. The Blueprint was born." />
+        <style>{PAGE_STYLES}</style>
       </Helmet>
 
-      {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
+      {/* ── SECTION 1, HERO ──────────────────────────────────────────────── */}
       <section style={{
-        background: '#FFFFFF',
-        padding: '80px 24px',
-        textAlign: 'center',
+        background: '#1E3A5F', padding: '110px 24px 88px',
+        position: 'relative', overflow: 'hidden',
       }}>
-        <h1 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '48px', color: '#1E3A5F',
-        }}>
-          About UniBlueprint
-        </h1>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '18px', color: '#6B7280',
-          marginTop: '12px', maxWidth: '560px',
-          margin: '12px auto 0', lineHeight: 1.6,
-        }}>
-          Built for students and young people in Ireland. By people who understand the journey.
-        </p>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle,rgba(245,240,232,0.045) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
+
+        <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <Eyebrow light>Our story</Eyebrow>
+          <h1 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(30px, 4.5vw, 50px)', color: '#F5F0E8',
+            marginTop: '14px', lineHeight: 1.1,
+            textWrap: 'balance',
+          }}>
+            Built from a birthday dinner in Belfast.
+          </h1>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '17px', color: 'rgba(245,240,232,0.62)',
+            marginTop: '18px', lineHeight: 1.7,
+          }}>
+            An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a Belfast
+            birthday dinner at the restaurant table that changed everything. This is how
+            UniBlueprint started.
+          </p>
+        </div>
       </section>
 
-      {/* ── SECTION 2 — MISSION ──────────────────────────────────────────── */}
-      <section style={{ background: '#F5F0E8', padding: '80px 24px' }}>
-        <div className="about-mission-grid" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          {/* Left */}
+      {/* ── SECTION 2, FOUNDER STORY ─────────────────────────────────────── */}
+      <section style={{ background: '#F5F0E8', padding: '88px 24px' }}>
+        <div className="about-story-grid">
+
+          {/* Left, narrative */}
           <div>
-            <SectionLabel>Our Mission</SectionLabel>
+            <Eyebrow>Behind the Blueprint</Eyebrow>
             <h2 style={{
               fontFamily: "'DM Serif Display', serif",
-              fontSize: '36px', color: '#1E3A5F',
-              marginTop: '8px', lineHeight: 1.2,
+              fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
+              marginTop: '12px', lineHeight: 1.15, textWrap: 'balance',
             }}>
-              The structure behind your success — for every young person in Ireland
+              A note from founder
             </h2>
+
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: '16px', color: '#6B7280',
-              marginTop: '16px', lineHeight: 1.8,
+              fontSize: '15px', color: '#374151',
+              marginTop: '20px', lineHeight: 1.8,
             }}>
-              {/* TODO: Replace with real mission statement copy */}
-              TODO: Insert mission statement — 3–4 sentences describing why UniBlueprint exists, what problem it solves for students and young people in Ireland, and what the long-term vision looks like.
+              On February 28th, 2026, I flew to Belfast International for a friend's birthday.
+              Little did I know the Blueprint was about to be born.
             </p>
+
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '15px', color: '#374151',
+              marginTop: '14px', lineHeight: 1.8,
+            }}>
+              At the birthday dinner, a conversation about college life sparked the idea,
+              and in that moment the foundation for this brand was created and set in motion.
+              I flew home with a head full of plans and got to work.
+            </p>
+
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '15px', color: '#374151',
+              marginTop: '14px', lineHeight: 1.8,
+            }}>
+              What followed was weeks of brainstorming, long phone calls, voice messages,
+              recruiting, the pieces forming one by one. By April the app had its first look.
+              By May we were visiting campuses, ATU Galway, UCD, Maynooth, and back to
+              Ballyhaunis Community School where it all began. September 2026 is launch.
+            </p>
+
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '15px', color: '#374151',
+              marginTop: '14px', lineHeight: 1.8,
+            }}>
+              Every step of it is documented. 43 posts and counting on the VSCO,
+              Behind the Blueprint. From the pilot to launch day.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px', alignItems: 'flex-start' }}>
+              <Link
+                to="/behind-the-blueprint"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '700',
+                  color: '#1E3A5F', textDecoration: 'none',
+                }}
+              >
+                See more of the journey <ArrowRight size={13} />
+              </Link>
+              <a
+                href="https://vsco.co/uniblueprint"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px', fontWeight: '600',
+                  color: '#6B7280', textDecoration: 'none',
+                }}
+              >
+                Follow the journey on VSCO <ArrowRight size={13} />
+              </a>
+            </div>
           </div>
 
-          {/* Right: pull quote */}
-          <div style={{
-            background: '#F5F0E8',
-            borderLeft: '3px solid #1E3A5F',
-            borderRadius: '12px',
-            padding: '28px',
-            alignSelf: 'start',
+          {/* Right, pull quote */}
+          <div style={{ alignSelf: 'center' }}>
+            <blockquote style={{
+              margin: 0,
+              padding: '32px 32px 32px 28px',
+              background: '#1E3A5F',
+              borderRadius: '14px',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute', top: 0, left: 0, bottom: 0, width: '4px',
+                background: '#F5F0E8', borderRadius: '14px 0 0 14px',
+              }} />
+              <p style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: 'clamp(19px, 2.2vw, 24px)',
+                color: '#F5F0E8', fontStyle: 'italic',
+                lineHeight: 1.45, margin: 0,
+                textWrap: 'balance',
+              }}>
+                &ldquo;Young people in Ireland were navigating some of the biggest decisions
+                of their lives with almost no structured support. We decided to change that.&rdquo;
+              </p>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px', color: 'rgba(245,240,232,0.55)',
+                marginTop: '20px', fontWeight: '600',
+                letterSpacing: '0.04em', textTransform: 'uppercase',
+              }}>
+                Desmond, Founder
+              </p>
+            </blockquote>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── SECTION 3, BTB TIMELINE ──────────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '80px 0 40px', position: 'relative' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.035) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
+
+        <div style={{ textAlign: 'center', padding: '0 24px 0', position: 'relative', zIndex: 1 }}>
+          <Eyebrow>Behind the Blueprint</Eyebrow>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#1E3A5F',
+            marginTop: '10px', lineHeight: 1.12,
           }}>
-            <p style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: '22px', color: '#1E3A5F',
-              fontStyle: 'italic', lineHeight: 1.45,
-            }}>
-              {/* TODO: Replace with real founder quote */}
-              "TODO: Insert founder quote here"
-            </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px', color: '#9CA3AF',
-              marginTop: '12px',
-            }}>
-              {/* TODO: Replace with founder name and title */}
-              TODO: Founder name, Co-founder &amp; CEO
-            </p>
-          </div>
+            From idea to launch, documented.
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14px', color: '#6B7280',
+            marginTop: '10px', lineHeight: 1.65,
+          }}>
+            43 posts. 5 months. Every step of building UniBlueprint, in public.
+          </p>
+        </div>
+
+        <div style={{ marginTop: '40px', position: 'relative', zIndex: 1 }}>
+          <ClothesLine items={BTB} />
         </div>
       </section>
 
-      {/* ── SECTION 3 — WHAT MAKES US DIFFERENT ─────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
-        <SectionLabel>What makes us different</SectionLabel>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F', marginTop: '8px',
-        }}>
-          Built differently, on purpose
-        </h2>
-
-        <div className="about-diff-grid" style={{ marginTop: '40px', maxWidth: '1000px', margin: '40px auto 0' }}>
-          {DIFFERENTIATORS.map(d => (
-            <DifferentiatorCard key={d.title} {...d} />
-          ))}
+      {/* ── SECTION 4, MISSION ───────────────────────────────────────────── */}
+      <section style={{ background: '#FFFFFF', padding: '88px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '620px', margin: '0 auto' }}>
+          <Eyebrow>Our mission</Eyebrow>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
+            marginTop: '12px', lineHeight: 1.15, textWrap: 'balance',
+          }}>
+            The structure behind your success, for every young person in Ireland.
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#4B5563',
+            marginTop: '20px', lineHeight: 1.8,
+          }}>
+            UniBlueprint exists because young people in Ireland have always deserved proper,
+            structured support, across every pathway, not just university. Whether you are
+            doing your Leaving Cert, heading into college, taking an apprenticeship, or
+            already in work and looking for what comes next, the platform is built around you.
+          </p>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '15px', color: '#4B5563',
+            marginTop: '14px', lineHeight: 1.8,
+          }}>
+            We built it honestly. From a small town in Mayo, with a team assembled over
+            voice messages and late-night calls. Real people reviewing every submission.
+            Real coaches delivering every session. A free tier that actually gives you
+            something. And every step of it documented so you can see exactly how it was built.
+          </p>
         </div>
       </section>
 
-      {/* ── SECTION 4 — TEAM STRUCTURE ───────────────────────────────────── */}
+      {/* ── SECTION 5, WHAT MAKES US DIFFERENT ──────────────────────────── */}
       <section style={{ background: '#F5F0E8', padding: '80px 24px', textAlign: 'center' }}>
+        <Eyebrow>What makes us different</Eyebrow>
         <h2 style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
+          fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
+          marginTop: '10px',
         }}>
-          The team behind the Blueprint
+          Built differently, on purpose.
         </h2>
+        <div className="about-diff-grid">
+          {DIFFERENTIATORS.map(d => <DiffCard key={d.title} {...d} />)}
+        </div>
+      </section>
 
-        <div className="about-team-grid" style={{ maxWidth: '900px', margin: '40px auto 0' }}>
-          {TEAM_AREAS.map(t => (
-            <TeamCard key={t.title} {...t} />
-          ))}
+      {/* ── SECTION 6, TEAM ──────────────────────────────────────────────── */}
+      <section style={{ background: '#EDE8DF', padding: '80px 24px', textAlign: 'center' }}>
+        <Eyebrow>The team</Eyebrow>
+        <h2 style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
+          marginTop: '10px', textWrap: 'balance',
+        }}>
+          The people behind the Blueprint.
+        </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '15px', color: '#4B5563',
+          marginTop: '16px', lineHeight: 1.8,
+          maxWidth: '640px', margin: '16px auto 0',
+        }}>
+          Every one of these people is still a student, or barely out of being one. That's not
+          a gap we're working around, it's the whole point. This is built by the people who
+          will actually use it, who get exactly what's missing because they're living it
+          themselves. The structure behind our success is each other.
+        </p>
+        <div className="about-team-grid">
+          {LEADERSHIP.map(t => <LeaderCard key={t.name} {...t} />)}
         </div>
 
         <div style={{
-          background: '#FFFFFF',
-          borderLeft: '3px solid #1E3A5F',
-          borderRadius: '12px',
-          boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-          padding: '28px',
-          maxWidth: '800px', margin: '40px auto 0',
+          background: '#1E3A5F', borderRadius: '14px',
+          padding: '36px 32px',
+          maxWidth: '760px', margin: '40px auto 0',
+          textAlign: 'center',
         }}>
           <h3 style={{
             fontFamily: "'DM Serif Display', serif",
-            fontSize: '24px', color: '#1E3A5F',
+            fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#F5F0E8',
+            margin: 0,
           }}>
-            Want to be part of the team behind the Blueprint?
+            Want to be part of the team building this?
           </h3>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '15px', color: '#6B7280',
-            marginTop: '12px', lineHeight: 1.6,
+            fontSize: '14px', color: 'rgba(245,240,232,0.62)',
+            marginTop: '12px', lineHeight: 1.7,
           }}>
-            UniBlueprint is building its founding team across all functions. Whether you want to work in tech, outreach, marketing, or operations — we want people who care about what we are building.
+            We are building the founding team across every function, tech, marketing,
+            outreach, finance, legal, and partnerships. If you care about what we are
+            building, we want to hear from you.
           </p>
           <Link
             to="/join"
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              height: '52px', padding: '0 32px',
-              background: '#1E3A5F', color: '#F5F0E8',
+              height: '48px', padding: '0 28px',
+              background: '#F5F0E8', color: '#1E3A5F',
               borderRadius: '8px',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-              textDecoration: 'none', marginTop: '16px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+              textDecoration: 'none', marginTop: '20px',
             }}
           >
-            Join the Team →
+            Join the Team
           </Link>
         </div>
       </section>
 
-      {/* ── SECTION 5 — LAUNCH TIMELINE ──────────────────────────────────── */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px' }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '36px', color: '#1E3A5F',
-          textAlign: 'center',
-        }}>
-          The Journey
-        </h2>
-
-        <div style={{ maxWidth: '700px', margin: '40px auto 0', padding: '0 24px' }}>
-          {MILESTONES.map((m, i) => (
-            <TimelineNode
-              key={m.title}
-              date={m.date}
-              title={m.title}
-              description={m.description}
-              isLast={i === MILESTONES.length - 1}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* ── SECTION 6 — CTA ──────────────────────────────────────────────── */}
+      {/* ── SECTION 7, CTA ───────────────────────────────────────────────── */}
       <section style={{
-        background: '#1E3A5F',
-        padding: '80px 24px',
-        textAlign: 'center',
+        background: '#1E3A5F', padding: '88px 24px',
+        textAlign: 'center', position: 'relative', overflow: 'hidden',
       }}>
-        <h2 style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '40px', color: '#F5F0E8',
-        }}>
-          Launching September 2026
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px', color: 'rgba(245,240,232,0.7)',
-          marginTop: '12px',
-        }}>
-          Across Irish universities and colleges during freshers week
-        </p>
-        <Link
-          to="/download"
-          style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            height: '52px', padding: '0 36px', minWidth: '180px',
-            background: '#F5F0E8', color: '#1E3A5F',
-            borderRadius: '8px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
-            textDecoration: 'none', marginTop: '32px',
-          }}
-        >
-          Get early access
-        </Link>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: [
+            'linear-gradient(rgba(245,240,232,0.022) 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(245,240,232,0.022) 1px, transparent 1px)',
+          ].join(', '),
+          backgroundSize: '52px 52px',
+        }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(28px, 4vw, 44px)', color: '#F5F0E8',
+            lineHeight: 1.1, margin: 0,
+          }}>
+            Launching September 2026.
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '16px', color: 'rgba(245,240,232,0.58)',
+            marginTop: '14px',
+          }}>
+            Across Irish universities and colleges during freshers week.
+          </p>
+          <Link
+            to="/sign-up"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              height: '50px', padding: '0 30px',
+              background: '#F5F0E8', color: '#1E3A5F',
+              borderRadius: '8px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+              textDecoration: 'none', marginTop: '28px',
+            }}
+          >
+            Get early access <ArrowRight size={14} />
+          </Link>
+        </div>
       </section>
     </>
   )

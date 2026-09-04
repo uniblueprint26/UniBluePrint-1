@@ -5,66 +5,35 @@ import { MessageSquare, Handshake, Users } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
 } from '../components/ui/Form'
 
-/*
-  TODO: Create Supabase tables:
+// Confirmation email: send-form-confirmation (see supabase/functions/), called
+// via sendFormConfirmation() right after each successful insert below. It's a
+// no-op until RESEND_API_KEY is set as an Edge Function secret, deploy the
+// function and set that key to turn these on; nothing else needs touching.
 
-  create table general_enquiries (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    name text not null,
-    email text not null,
-    subject text not null,
-    message text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table general_enquiries enable row level security;
-  create policy "anon_insert" on general_enquiries for insert to anon with check (true);
+// Rate limiting is live: enforce_form_rate_limit() (see
+// supabase/migrations/20260828160000_rate_limit_public_forms.sql) caps every
+// table this page writes to (general_enquiries, partnership_enquiries,
+// team_applications, university_enquiries, business_enquiries) at 3
+// submissions per email per hour, enforced by a database trigger.
 
-  create table partnership_enquiries (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    organisation text not null,
-    contact_name text not null,
-    email text not null,
-    type text not null,
-    message text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table partnership_enquiries enable row level security;
-  create policy "anon_insert" on partnership_enquiries for insert to anon with check (true);
-
-  create table team_applications (
-    id uuid primary key default gen_random_uuid(),
-    created_at timestamptz default now(),
-    name text not null,
-    email text not null,
-    role text not null,
-    university text,
-    message text not null,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    status text default 'pending'
-  );
-  alter table team_applications enable row level security;
-  create policy "anon_insert" on team_applications for insert to anon with check (true);
-*/
-
-// TODO: Send confirmation email via Resend or Supabase Edge Function when any
-// contact form is submitted. Email should confirm receipt and set expectations
-// on response time (2 business days).
-
-// TODO: Add rate limiting to contact form submissions — max 3 per IP per hour.
-// Implement via Supabase Edge Function or middleware before going live.
+// Two-up field rows (name/email, organisation/contact name, role/university)
+// were hardcoded to `gridTemplateColumns: '1fr 1fr'` with no mobile
+// breakpoint, on narrow phones each field shrank to ~half-width, cramped
+// enough that placeholder text truncated and the fields became fiddly to
+// tap accurately. Stacks to one column below 480px.
+const CONTACT_FORM_STYLES = `
+  .contact-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 480px) {
+    .contact-form-row { grid-template-columns: 1fr; }
+  }
+`
 
 const SUBJECTS = [
   'General question',
@@ -122,7 +91,7 @@ function GeneralForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('general', form.email, form.name); setSuccess(true) }
   }
 
   if (success) return <SuccessCard subtitle="We'll be in touch within 2 business days." />
@@ -130,7 +99,7 @@ function GeneralForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Your name">
           <FormInput value={form.name} onChange={set('name')} placeholder="Aoife Murphy" required />
         </FormField>
@@ -176,7 +145,7 @@ function PartnershipForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('partnership', form.email, form.contact_name); setSuccess(true) }
   }
 
   if (success) return <SuccessCard subtitle="We'll be in touch within 2 business days." />
@@ -184,7 +153,7 @@ function PartnershipForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Organisation name">
           <FormInput value={form.organisation} onChange={set('organisation')} placeholder="Acme Ltd." required />
         </FormField>
@@ -233,7 +202,7 @@ function TeamForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else setSuccess(true)
+    else { sendFormConfirmation('team', form.email, form.name); setSuccess(true) }
   }
 
   if (success) return <SuccessCard title="Application received" subtitle="We'll be in touch within 2 business days." />
@@ -241,7 +210,7 @@ function TeamForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Full name">
           <FormInput value={form.name} onChange={set('name')} placeholder="Ciarán Kelly" required />
         </FormField>
@@ -249,7 +218,7 @@ function TeamForm() {
           <FormInput type="email" value={form.email} onChange={set('email')} placeholder="ciaran@example.ie" required />
         </FormField>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="contact-form-row">
         <FormField label="Area of interest">
           <FormSelect value={form.role} onChange={set('role')} required>
             <option value="">Select area</option>
@@ -280,10 +249,11 @@ export default function ContactPage() {
         <title>Contact | UniBlueprint</title>
         <meta
           name="description"
-          content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team."
+          content="Get in touch with the UniBlueprint team, general enquiries, partnership opportunities, or joining the team."
         />
         <meta property="og:title" content="Contact | UniBlueprint" />
-        <meta property="og:description" content="Get in touch with the UniBlueprint team — general enquiries, partnership opportunities, or joining the team." />
+        <meta property="og:description" content="Get in touch with the UniBlueprint team, general enquiries, partnership opportunities, or joining the team." />
+        <style>{CONTACT_FORM_STYLES}</style>
       </Helmet>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -339,7 +309,7 @@ export default function ContactPage() {
               'Join the team'
             }
             subtitle={
-              activeTab === 'general'     ? 'Ask us anything — we read every message.' :
+              activeTab === 'general'     ? 'Ask us anything, we read every message.' :
               activeTab === 'partnership' ? 'Tell us about your organisation and what you have in mind.' :
               "Interested in working with UniBlueprint? Tell us about yourself."
             }
@@ -355,8 +325,8 @@ export default function ContactPage() {
             textAlign: 'center', marginTop: '20px',
           }}>
             You can also reach us at{' '}
-            <a href="mailto:hello@uniblueprint.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>
-              hello@uniblueprint.com
+            <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>
+              uniblueprintoperations@gmail.com
             </a>
           </p>
         </div>

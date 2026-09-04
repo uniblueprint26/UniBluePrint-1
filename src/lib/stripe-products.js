@@ -1,15 +1,20 @@
-// Stripe product IDs — fill in when products are created in Stripe dashboard
+// Pro subscription tiers. No Stripe price IDs here on purpose, the
+// checkout Edge Function (supabase/functions/create-checkout-session)
+// builds the Stripe line item inline from this same data at checkout
+// time, so there's nothing to separately create in the Stripe dashboard
+// and nothing that can drift out of sync between "what the site shows"
+// and "what Stripe actually charges". Update prices here only.
 export const STRIPE_PRODUCTS = {
   pro_monthly: {
-    priceId: 'TODO: price_xxxxx',
-    amount: 699,       // €6.99 in cents
-    trialAmount: 699,  // September trial — same price, already 50% off
+    tier: 'pro_monthly',
+    amount: 699,       // €6.99 in cents, standard price
+    trialAmount: 350,  // €3.50 in cents, 50% off during the free trial
     interval: 'month',
   },
   pro_annual: {
-    priceId: 'TODO: price_xxxxx',
-    amount: 4999,      // €49.99 in cents
-    trialAmount: 4999,
+    tier: 'pro_annual',
+    amount: 4999,      // €49.99 in cents, standard price
+    trialAmount: 2499, // €24.99 in cents, 50% off during the free trial
     interval: 'year',
   },
 }

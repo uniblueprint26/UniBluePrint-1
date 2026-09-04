@@ -4,23 +4,41 @@ import { useScrollToTop } from './hooks/useScrollToTop'
 import { useUTMCapture } from './hooks/useUTMCapture'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import RequireRole from './components/auth/RequireRole'
 import PageLoader from './components/layout/PageLoader'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
+const BehindTheBlueprintPage = lazy(() => import('./pages/BehindTheBlueprintPage'))
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'))
 const FoundationBlueprintPage = lazy(() => import('./pages/FoundationBlueprintPage'))
 const ElevationBlueprintPage = lazy(() => import('./pages/ElevationBlueprintPage'))
 const LifestyleBlueprintPage = lazy(() => import('./pages/LifestyleBlueprintPage'))
 const CampusConnectPage = lazy(() => import('./pages/CampusConnectPage'))
 const CourseConnectPage = lazy(() => import('./pages/CourseConnectPage'))
+const CourseCompassPage = lazy(() => import('./pages/CourseCompassPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
-const SeptemberTrialPage = lazy(() => import('./pages/SeptemberTrialPage'))
+const FreeTrialPage = lazy(() => import('./pages/FreeTrialPage'))
 const ForUniversitiesPage = lazy(() => import('./pages/ForUniversitiesPage'))
 const ForBusinessesPage = lazy(() => import('./pages/ForBusinessesPage'))
 const PartnersPage = lazy(() => import('./pages/PartnersPage'))
-const OurCoachesPage = lazy(() => import('./pages/OurCoachesPage'))
 const JoinPage = lazy(() => import('./pages/JoinPage'))
+const ContributorsLandingPage = lazy(() => import('./pages/contributors/ContributorsLandingPage'))
+const ContributorDashboardPage = lazy(() => import('./pages/contributors/ContributorDashboardPage'))
+const ContributorUploadPage = lazy(() => import('./pages/contributors/ContributorUploadPage'))
+const CvBuilderPage = lazy(() => import('./pages/foundation/CvBuilderPage'))
+const CvReviewPage = lazy(() => import('./pages/foundation/CvReviewPage'))
+const JobSearchSupportPage = lazy(() => import('./pages/foundation/JobSearchSupportPage'))
+const LinkedInOptimisationPage = lazy(() => import('./pages/foundation/LinkedInOptimisationPage'))
+const CoverLetterBuilderPage = lazy(() => import('./pages/foundation/CoverLetterBuilderPage'))
+const CoverLetterReviewPage = lazy(() => import('./pages/foundation/CoverLetterReviewPage'))
+const ApplicationFormPage = lazy(() => import('./pages/foundation/ApplicationFormPage'))
+const InterviewPrepPage = lazy(() => import('./pages/foundation/InterviewPrepPage'))
+const PersonalStatementPage = lazy(() => import('./pages/foundation/PersonalStatementPage'))
+const PortfolioBuildingPage = lazy(() => import('./pages/foundation/PortfolioBuildingPage'))
+const MyDocumentsPage = lazy(() => import('./pages/foundation/MyDocumentsPage'))
+const CareerProfilePage = lazy(() => import('./pages/foundation/CareerProfilePage'))
+const HandlerQueuePage = lazy(() => import('./pages/handler/HandlerQueuePage'))
 const FAQsPage = lazy(() => import('./pages/FAQsPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
@@ -31,11 +49,19 @@ const SubscriptionManagementPage = lazy(() => import('./pages/SubscriptionManage
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('./pages/ServerErrorPage'))
 
+const FounderDashboardPage = lazy(() => import('./pages/admin/FounderDashboardPage'))
+const OperationsDashboardPage = lazy(() => import('./pages/admin/OperationsDashboardPage'))
+const FinanceDashboardPage = lazy(() => import('./pages/admin/FinanceDashboardPage'))
+const PartnerPortalPage = lazy(() => import('./pages/portal/PartnerPortalPage'))
+
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'))
 const CookiesPage = lazy(() => import('./pages/legal/CookiesPage'))
 const RefundPolicyPage = lazy(() => import('./pages/legal/RefundPolicyPage'))
 const AccessibilityPage = lazy(() => import('./pages/legal/AccessibilityPage'))
+
+const BudgetingPage = lazy(() => import('./pages/BudgetingPage'))
+const AdBoardPage = lazy(() => import('./pages/AdBoardPage'))
 
 const BlogPage = lazy(() => import('./pages/blog/BlogPage'))
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'))
@@ -55,19 +81,144 @@ function AppRoutes() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/behind-the-blueprint" element={<BehindTheBlueprintPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/foundation-blueprint" element={<FoundationBlueprintPage />} />
         <Route path="/elevation-blueprint" element={<ElevationBlueprintPage />} />
         <Route path="/lifestyle-blueprint" element={<LifestyleBlueprintPage />} />
         <Route path="/campus-connect" element={<CampusConnectPage />} />
         <Route path="/course-connect" element={<CourseConnectPage />} />
+        <Route path="/course-compass" element={<CourseCompassPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/september-trial" element={<SeptemberTrialPage />} />
+        <Route path="/free-trial" element={<FreeTrialPage />} />
+        <Route path="/september-trial" element={<Navigate to="/free-trial" replace />} />
         <Route path="/for-universities" element={<ForUniversitiesPage />} />
         <Route path="/for-businesses" element={<ForBusinessesPage />} />
+        <Route path="/budgeting" element={<BudgetingPage />} />
+        <Route path="/ad-board" element={<AdBoardPage />} />
         <Route path="/partners" element={<PartnersPage />} />
-        <Route path="/our-coaches" element={<OurCoachesPage />} />
         <Route path="/join" element={<JoinPage />} />
+        <Route path="/contributors" element={<ContributorsLandingPage />} />
+        <Route
+          path="/contributors/dashboard"
+          element={
+            <ProtectedRoute>
+              <ContributorDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contributors/upload"
+          element={
+            <ProtectedRoute>
+              <ContributorUploadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cv-builder"
+          element={
+            <ProtectedRoute>
+              <CvBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cv-review"
+          element={
+            <ProtectedRoute>
+              <CvReviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/job-search-support"
+          element={
+            <ProtectedRoute>
+              <JobSearchSupportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/linkedin-optimisation"
+          element={
+            <ProtectedRoute>
+              <LinkedInOptimisationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cover-letter"
+          element={
+            <ProtectedRoute>
+              <CoverLetterBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/cover-letter-review"
+          element={
+            <ProtectedRoute>
+              <CoverLetterReviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/application-form-assistance"
+          element={
+            <ProtectedRoute>
+              <ApplicationFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/interview-preparation"
+          element={
+            <ProtectedRoute>
+              <InterviewPrepPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/personal-statement"
+          element={
+            <ProtectedRoute>
+              <PersonalStatementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/portfolio-building"
+          element={
+            <ProtectedRoute>
+              <PortfolioBuildingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/my-documents"
+          element={
+            <ProtectedRoute>
+              <MyDocumentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/foundation/career-profile"
+          element={
+            <ProtectedRoute>
+              <CareerProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/handler/queue"
+          element={
+            <RequireRole roles={['handler', 'operations']}>
+              <HandlerQueuePage />
+            </RequireRole>
+          }
+        />
         <Route path="/join-handler" element={<Navigate to="/join#handler-form" replace />} />
         <Route path="/join-coach" element={<Navigate to="/join#coach-form" replace />} />
         <Route path="/ambassadors" element={<Navigate to="/join#ambassador-form" replace />} />
@@ -102,6 +253,38 @@ function AppRoutes() {
             <ProtectedRoute>
               <SubscriptionManagementPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/founder"
+          element={
+            <RequireRole allow={['founder', 'admin']}>
+              <FounderDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/operations"
+          element={
+            <RequireRole allow={['operations', 'founder', 'admin']}>
+              <OperationsDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/finance"
+          element={
+            <RequireRole allow={['finance', 'founder', 'admin']}>
+              <FinanceDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/portal/partner"
+          element={
+            <RequireRole allow={['business', 'operations', 'founder', 'admin']}>
+              <PartnerPortalPage />
+            </RequireRole>
           }
         />
         <Route path="/500" element={<ServerErrorPage />} />

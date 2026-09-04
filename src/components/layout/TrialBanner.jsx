@@ -2,13 +2,11 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 
 const STORAGE_KEY = 'ubp_trial_banner_dismissed'
-const EXPIRY = new Date('2026-10-01T00:00:00') // after 30 Sept 2026
 
 export default function TrialBanner() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (new Date() >= EXPIRY) return
     if (localStorage.getItem(STORAGE_KEY)) return
     setVisible(true)
   }, [])
@@ -42,7 +40,7 @@ export default function TrialBanner() {
         textAlign: 'center',
         lineHeight: 1.4,
       }}>
-        50% OFF all services — September Trial. Your Blueprint. Half the price.
+        50% OFF all services, free trial. Your Blueprint. Half the price.
       </p>
 
       <button

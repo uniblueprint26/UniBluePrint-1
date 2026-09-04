@@ -5,14 +5,85 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { POSTS, calcReadTime, formatDate } from '../../data/blogPosts'
 
 const POSTS_PER_PAGE = 6
-const SITE_URL = 'https://uniblueprint.com'
+const SITE_URL = 'https://uniblueprint.ie'
 const CATEGORIES = ['All', ...Array.from(new Set(POSTS.map(p => p.category)))]
+
+// ─── Category accent palette ──────────────────────────────────────────────────
+const CATEGORY_ACCENTS = {
+  'CV & Career':            '#2563EB',
+  'UniBlueprint Updates':   '#0891B2',
+  'CAO & Education':        '#C2410C',
+  'Apprenticeships':        '#166534',
+  'Graduate Life':          '#6D28D9',
+  'Mental Health':          '#15803D',
+  'Lifestyle':              '#B45309',
+}
+
+// ─── Inline poster cover ──────────────────────────────────────────────────────
+function PostCover({ title, category }) {
+  const accent = CATEGORY_ACCENTS[category] || '#1E3A5F'
+  return (
+    <div aria-hidden="true" style={{
+      height: '160px',
+      background: '#1E3A5F',
+      position: 'relative',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+      padding: '16px 20px 18px',
+      flexShrink: 0,
+    }}>
+      {/* Top accent stripe */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: accent }} />
+      {/* Dot grid texture */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: 'radial-gradient(circle, rgba(245,240,232,0.055) 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
+      }} />
+      {/* UBP watermark */}
+      <span style={{
+        position: 'absolute', top: '12px', right: '16px',
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '12px', color: 'rgba(245,240,232,0.18)',
+        letterSpacing: '0.06em',
+      }}>UBP</span>
+      {/* Category pill */}
+      <span style={{
+        display: 'inline-block', alignSelf: 'flex-start',
+        background: accent,
+        color: '#fff',
+        borderRadius: '20px', padding: '2px 9px',
+        fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: '700',
+        textTransform: 'uppercase', letterSpacing: '0.05em',
+        marginBottom: '8px',
+        position: 'relative', zIndex: 1,
+      }}>
+        {category}
+      </span>
+      {/* Title */}
+      <p style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: '14px', color: '#F5F0E8',
+        lineHeight: 1.35, margin: 0,
+        position: 'relative', zIndex: 1,
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+      }}>
+        {title}
+      </p>
+    </div>
+  )
+}
 
 const BLOG_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'Blog',
   name: 'UniBlueprint Insights',
-  description: 'Career tips, platform updates, and guides for students and young people in Ireland',
+  description: 'Career tips, platform updates, and guides for young people across all pathways in Ireland',
 }
 
 function PostCard({ slug, title, excerpt, category, date, sections }) {
@@ -36,16 +107,7 @@ function PostCard({ slug, title, excerpt, category, date, sections }) {
           e.currentTarget.style.transform = 'translateY(0)'
         }}
       >
-        {/* Placeholder image area */}
-        <div style={{
-          height: '160px', background: '#F5F0E8',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}>
-          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '13px', color: '#9CA3AF' }}>
-            {category}
-          </span>
-        </div>
+        <PostCover title={title} category={category} />
 
         <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
           <span style={{
@@ -114,11 +176,10 @@ export default function BlogPage() {
   return (
     <>
       <Helmet>
-        <title>{safePage > 1 ? `Blog — Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
-        <meta name="description" content="Career tips, platform updates, and guides for students and young people in Ireland from the UniBlueprint team." />
+        <title>{safePage > 1 ? `Blog, Page ${safePage} | UniBlueprint` : 'Blog | UniBlueprint'}</title>
+        <meta name="description" content="Career tips, platform updates, and guides for young people across all pathways in Ireland from the UniBlueprint team." />
         <link rel="canonical" href={canonical} />
-        {/* TODO: Uncomment before going live — adds noindex on paginated pages beyond page 1 to prevent duplicate content penalties */}
-        {/* {safePage > 1 && <meta name="robots" content="noindex, follow" />} */}
+        {safePage > 1 && <meta name="robots" content="noindex, follow" />}
         <script type="application/ld+json">{JSON.stringify(BLOG_JSON_LD)}</script>
       </Helmet>
 
@@ -137,7 +198,7 @@ export default function BlogPage() {
           fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '480px', lineHeight: 1.6,
         }}>
-          Career tips, platform updates, and guides for students and young people in Ireland.
+          Career tips, platform updates, and guides for young people across all pathways in Ireland.
         </p>
       </section>
 
