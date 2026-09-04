@@ -53,19 +53,30 @@ export function FormTextArea({ value, onChangeText, placeholder, maxLength, minH
   )
 }
 
-/** Single-select grid of choice pills — e.g. tone, length, experience band. */
-export function ChoiceGrid({ options, value, onChange }) {
+/** Grid of choice pills — e.g. tone, length, experience band. Single-select by
+ *  default (value is one option, onChange receives the new value); pass
+ *  `multiple` to make it a multi-select (value is an array, onChange
+ *  receives the updated array on each toggle) — e.g. competency tags. */
+export function ChoiceGrid({ options, value, onChange, multiple = false }) {
   return (
     <View style={s.choiceGrid}>
       {options.map(opt => {
         const optValue = typeof opt === 'string' ? opt : opt.value
         const optLabel = typeof opt === 'string' ? opt : opt.label
-        const active = value === optValue
+        const active = multiple ? (value || []).includes(optValue) : value === optValue
+        function handlePress() {
+          if (multiple) {
+            const current = value || []
+            onChange(active ? current.filter(v => v !== optValue) : [...current, optValue])
+          } else {
+            onChange(optValue)
+          }
+        }
         return (
           <TouchableOpacity
             key={optValue}
             activeOpacity={0.8}
-            onPress={() => onChange(optValue)}
+            onPress={handlePress}
             style={[s.choicePill, active && s.choicePillActive]}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}

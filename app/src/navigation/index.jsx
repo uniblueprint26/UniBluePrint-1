@@ -40,6 +40,7 @@ import InterviewPrepBuilderScreen     from '../screens/foundation/InterviewPrepB
 import PersonalStatementBuilderScreen from '../screens/foundation/PersonalStatementBuilderScreen'
 import PortfolioPlanBuilderScreen     from '../screens/foundation/PortfolioPlanBuilderScreen'
 import JobSearchSupportBuilderScreen  from '../screens/foundation/JobSearchSupportBuilderScreen'
+import EvidenceBankScreen             from '../screens/foundation/EvidenceBankScreen'
 import GenerationSubmittedScreen      from '../screens/foundation/GenerationSubmittedScreen'
 import CompassScreen        from '../screens/CompassScreen'
 
@@ -103,6 +104,7 @@ function HomeStack() {
       <Stack.Screen name="PersonalStatementBuilder" component={PersonalStatementBuilderScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="PortfolioPlanBuilder"     component={PortfolioPlanBuilderScreen}     options={{ presentation: 'modal' }} />
       <Stack.Screen name="JobSearchSupportBuilder"  component={JobSearchSupportBuilderScreen}  options={{ presentation: 'modal' }} />
+      <Stack.Screen name="EvidenceBank"              component={EvidenceBankScreen}             options={{ presentation: 'modal' }} />
       <Stack.Screen name="GenerationSubmitted"      component={GenerationSubmittedScreen}      options={{ presentation: 'modal', gestureEnabled: false }} />
 
       {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
