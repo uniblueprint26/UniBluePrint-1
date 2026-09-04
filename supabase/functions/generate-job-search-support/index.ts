@@ -69,6 +69,8 @@ const CHANNELS_BY_INDUSTRY: Record<string, string> = {
     'Activelink for community and voluntary sector roles broadly; Dóchas member organisations\' own careers pages for international development and humanitarian roles specifically; The Wheel\'s job listings for the wider sector; direct approach to a specific charity\'s development team is a genuine, underused route in.',
   'Telecommunications and Utilities':
     'IrishJobs.ie telecoms and utilities categories; ESB, Gas Networks Ireland, Uisce Éireann, Eir, Vodafone Ireland, and Three Ireland all run their own graduate and apprenticeship programmes direct; CRU and ComReg publications are a genuine way to stay current on sector developments, not just a jobs source.',
+  'Pharmaceuticals, Biotechnology and Medical Devices':
+    'Life Science Recruitment, CPL Life Sciences, and Collins McNicholas are the specialist recruiters most active in this sector\'s hiring specifically, not just general graduate recruitment; the large employers (Boston Scientific, Pfizer, Stryker, Johnson & Johnson, MSD) run their own graduate and technical programmes direct on their own careers pages; BioPharmaChem Ireland and the Irish Medtech Association (both Ibec) list member-company events and, for medtech specifically, apprenticeship and Springboard training routes.',
 }
 
 // This system prompt encodes the gap-analysis audit run on this service: 30 gaps
