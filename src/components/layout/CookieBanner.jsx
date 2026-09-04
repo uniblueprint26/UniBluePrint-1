@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-// TODO: Replace GA_MEASUREMENT_ID with your real Google Analytics 4 measurement ID before going live
-const GA_ID = 'GA_MEASUREMENT_ID'
+const GA_ID = 'G-YKY97WYWQD'
 
 export default function CookieBanner() {
   const [consent, setConsent] = useState(() => localStorage.getItem('ubp_cookie_consent'))
