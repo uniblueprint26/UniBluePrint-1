@@ -609,11 +609,11 @@ function QuickGenerateSection({
         <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>Quick Generate</h2>
       </div>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', marginTop: '6px', marginBottom: '18px', lineHeight: 1.6 }}>
-        Generate straight from what's in this form right now — no need to save first, and no separate builder to fill in again.
+        Generate straight from what's in this form — no need to save first, and no separate builder to fill in again.
         {activeTarget ? (
           <> Targeting <strong style={{ color: '#1E3A5F' }}>{activeTarget.label}</strong>.</>
         ) : (
-          <> Add an application below to target these, or generate a general version now.</>
+          <> Add an application below with an industry first — these need one to target properly.</>
         )}
       </p>
 
