@@ -4,19 +4,33 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import sitemap from "vite-plugin-sitemap";
 
+// This list feeds vite-plugin-sitemap, which generates dist/sitemap.xml at build time and
+// overwrites the hand-maintained public/sitemap.xml with it — so every real, public,
+// indexable route needs to be here or it silently drops out of the sitemap that actually
+// ships. Keep this in sync with src/App.jsx's public routes. Excluded on purpose: anything
+// gated (admin/*, portal/*), auth-flow pages already in robots.txt's Disallow list
+// (sign-in/up already listed below only because they predate that decision — the others,
+// reset-password/subscription-management/subscription-success/verify-email, are correctly
+// left out), and /blog/:slug (dynamic, not a static path this array can enumerate).
 const ROUTES = [
   "/",
   "/about",
   "/how-it-works",
+  "/behind-the-blueprint",
   "/foundation-blueprint",
   "/elevation-blueprint",
   "/lifestyle-blueprint",
   "/campus-connect",
   "/course-connect",
+  "/course-compass",
+  "/budgeting",
+  "/ad-board",
+  "/partners",
   "/pricing",
   "/free-trial",
   "/for-universities",
   "/for-businesses",
+  "/join",
   "/join-handler",
   "/join-coach",
   "/ambassadors",

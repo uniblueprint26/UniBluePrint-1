@@ -8,6 +8,11 @@ import {
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
 } from '../components/ui/Form'
 
+// general_enquiries, partnership_enquiries, and team_applications (all 3 forms below) are
+// already migrated — see supabase/migrations/20260824120000_website_public_forms.sql for
+// the real schema and RLS policies. This comment used to carry a draft CREATE TABLE block;
+// removed since it was stale and could read as "these tables don't exist yet."
+
 // Confirmation email: send-form-confirmation (see supabase/functions/), called
 // via sendFormConfirmation() right after each successful insert below. It's a
 // no-op until RESEND_API_KEY is set as an Edge Function secret, deploy the

@@ -7,6 +7,11 @@ import {
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
+// university_enquiries is already migrated — see
+// supabase/migrations/20260824120000_website_public_forms.sql for the real schema and RLS
+// policies. This comment used to carry a draft CREATE TABLE block; removed since it was
+// stale and could read as "this table doesn't exist yet."
+
 // Confirmation email: send-form-confirmation, called via sendFormConfirmation()
 // below. No-op until RESEND_API_KEY is set as an Edge Function secret.
 

@@ -1,3 +1,7 @@
+# Baseline security headers, Netlify-native format. Deliberately conservative — no
+# Content-Security-Policy here, since this site loads Google Fonts, Stripe.js, and Supabase
+# from several origins and a strict CSP written under time pressure risks silently breaking
+# checkout or auth. These four are safe regardless of what the page loads.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
