@@ -43,6 +43,7 @@ export const INDUSTRIES = [
   'Food and Beverage Manufacturing',
   'Non-Profit and NGO Management',
   'Telecommunications and Utilities',
+  'Pharmaceuticals, Biotechnology and Medical Devices',
 ]
 
 /** True when a stored value is one of the controlled options. */
