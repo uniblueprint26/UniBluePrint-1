@@ -4,15 +4,10 @@
     "slug": "uniblueprint",
     "scheme": "uniblueprint",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
+    "sdkVersion": "57.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "backgroundColor": "#F5F0E8",
-      "resizeMode": "contain"
-    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.uniblueprint.app",
@@ -40,9 +35,17 @@
       }
     },
     "owner": "uniblueprint",
-    "privacy": "unlisted",
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "backgroundColor": "#F5F0E8",
+          "resizeMode": "contain"
+        }
+      ]
     ]
   }
 }
