@@ -40,6 +40,9 @@
       }
     },
     "owner": "uniblueprint",
-    "privacy": "unlisted"
+    "privacy": "unlisted",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
