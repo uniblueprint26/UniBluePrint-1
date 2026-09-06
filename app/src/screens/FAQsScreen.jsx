@@ -23,10 +23,6 @@ const FAQS = [
     a: 'Browse the coach directory in the Elevation tab, view each coach\'s profile, services, and pricing, then tap "View Profile" to contact or book directly. Each coach manages their own availability.',
   },
   {
-    q: 'What is the September Trial?',
-    a: 'The September Trial gives young people 50% off every Foundation Blueprint service throughout September. It\'s designed to make professional career support accessible from the start of the academic year. Trial pricing is applied automatically.',
-  },
-  {
     q: 'How do partner deals work?',
     a: 'Partner deals are exclusive arrangements between UniBlueprint and verified Irish businesses. Tap any partner in the Lifestyle section to see the full deal details, pricing, and how to claim. Most deals require you to mention UniBlueprint when booking.',
   },

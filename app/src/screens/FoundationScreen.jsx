@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
   Compass, GraduationCap, Map, Wrench, Package,
-  ChevronLeft, ChevronRight, Sparkles, ExternalLink,
+  ChevronLeft, ChevronRight, ExternalLink,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -163,6 +163,7 @@ export default function FoundationScreen({ navigation }) {
 
       {/* ── Scrollable content ── */}
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -189,11 +190,6 @@ export default function FoundationScreen({ navigation }) {
               <Text style={styles.turnaroundLabel}>Premium</Text>
               <Text style={styles.turnaroundValue}>{isWeekendWindow ? 'Monday' : 'Same day'}</Text>
             </View>
-          </View>
-
-          <View style={styles.trialBanner}>
-            <Sparkles size={14} color={colors.cream} />
-            <Text style={styles.trialBannerText}>September Trial: 50% off every service</Text>
           </View>
 
           {/* Why not just use a generic AI tool yourself */}
@@ -278,7 +274,7 @@ export default function FoundationScreen({ navigation }) {
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.trialNote}>* September trial prices, 50% off standard rates</Text>
+                      <Text style={styles.trialNote}>* Limited-time launch pricing, 50% off standard rates</Text>
                       <TouchableOpacity
                         style={styles.orderBtn}
                         activeOpacity={0.8}
@@ -390,6 +386,11 @@ const styles = StyleSheet.create({
   heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed navy header on every platform — without
+  // it, RN can size the ScrollView to its own content instead of the
+  // available viewport, which is what let the header float over content.
+  scrollView: { flex: 1 },
   scroll:   { },
   content:  { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
@@ -412,9 +413,6 @@ const styles = StyleSheet.create({
   turnaroundLabel: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase', letterSpacing: 0.9 },
   turnaroundValue: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginTop: 3 },
   turnaroundSep:   { width: 1, height: 36, backgroundColor: 'rgba(245,240,232,0.18)' },
-
-  trialBanner:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, marginTop: 14 },
-  trialBannerText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 12 },
 

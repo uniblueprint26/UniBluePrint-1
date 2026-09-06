@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image, Animated,
 } from 'react-native'
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
-  ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock,
+  ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock, HelpCircle, ExternalLink,
   Dumbbell, Sparkles, UtensilsCrossed, Wrench, Map as MapIcon, List as ListIcon,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
@@ -12,9 +12,11 @@ import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import PartnerMap from '../components/ui/PartnerMap'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
+import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { COACHES } from './ElevationScreen'
-import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
+import { PARTNERS, MYSTERY_MAP_COUNTIES, maskComingSoonName } from '../data/lifestylePartners'
+import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 
 // Re-exported so existing imports elsewhere in the app (FounderPortalScreen,
 // PartnerMap) keep working — the actual data now lives in one shared module
@@ -45,51 +47,6 @@ const CATEGORY_META = {
   food:     { label: 'Food & Drink',       Icon: UtensilsCrossed, accent: '#B45309' },
   services: { label: 'Creative & Services', Icon: Wrench,         accent: '#0369A1' },
 }
-
-// ─── Wellbeing & Support ─────────────────────────────────────────────────────
-// Grouped into sections so someone in a crisis sees that option first, rather
-// than scanning a single flat list. Numbers verified as of Aug 2026 — recheck
-// periodically, these do occasionally change.
-const SUPPORT_SECTIONS = [
-  {
-    section: 'In a crisis, right now',
-    lines: [
-      { name: 'Samaritans Ireland', number: '116 123',      hours: '24/7, free to call',  link: 'tel:116123' },
-      { name: 'Pieta House',        number: '1800 247 247', hours: '24/7, free to call',  link: 'tel:1800247247' },
-      { name: 'Text About It',      number: 'Text HELLO to 50808', hours: '24/7, free to text', link: 'sms:50808' },
-    ],
-  },
-  {
-    section: 'Talk it through',
-    lines: [
-      { name: 'Aware',   number: '1800 80 48 48', hours: '10am–10pm daily', link: 'tel:1800804848' },
-      { name: 'Turn2Me', number: 'turn2me.ie',    hours: 'Online counselling', link: 'https://turn2me.ie' },
-      { name: 'MyMind',  number: '01 820 5277',   hours: 'Mon–Fri',         link: 'tel:018205277' },
-      { name: 'Niteline', number: '1800 793 793', hours: 'Term nights',    link: 'tel:1800793793' },
-    ],
-  },
-  {
-    section: 'Specific support',
-    lines: [
-      { name: 'BeLonG To',                  number: '01 670 6223',    hours: 'LGBTI+ youth support', link: 'tel:016706223' },
-      { name: 'Bodywhys',                   number: '01 210 7906',    hours: 'Eating disorder support', link: 'tel:012107906' },
-      { name: 'HSE Drug & Alcohol Helpline', number: '1800 459 459', hours: 'Freephone', link: 'tel:1800459459' },
-    ],
-  },
-  {
-    section: 'Learn and explore online',
-    lines: [
-      { name: 'SpunOut', number: 'spunout.ie', hours: 'Guides & articles', link: 'https://spunout.ie' },
-      { name: 'Jigsaw',  number: 'jigsaw.ie',  hours: 'Youth mental health', link: 'https://jigsaw.ie' },
-    ],
-  },
-  {
-    section: 'On campus',
-    lines: [
-      { name: 'Student Counselling', number: 'Your college', hours: 'Free, on campus', link: null },
-    ],
-  },
-]
 
 const WELLBEING_RESOURCES = [
   { title: 'Managing Exam Stress',          type: 'Guide',    readTime: '4 min read', tag: 'Mental Health' },
@@ -186,20 +143,26 @@ function CategorySectionHeader({ filterKey }) {
   )
 }
 
-// ─── Coming Soon grid card — compact, two-up, visually distinct from the live
-// cards rather than the same row style just greyed out. ───────────────────────
-function ComingSoonGridCard({ partner }) {
+// ─── Coming Soon grid card — deliberately anonymous: black-and-white only
+// (the one exception being the gold question-mark badge, matching the map's
+// gold-for-live / grey-for-incoming language), name masked into a run of "?"
+// the same word/letter shape as the real name, only Location and Category
+// visible. Tapping opens the same "Coming Soon" sheet as a map pin — nothing
+// further is revealed either way. ───────────────────────────────────────────
+function ComingSoonGridCard({ partner, onPress }) {
   return (
-    <View style={styles.soonCard}>
-      <View style={styles.soonTopRow}>
-        <PartnerLogo partner={partner} size={32} />
-        <View style={styles.soonLockBadge}>
-          <Lock size={8} color={colors.muted} />
-        </View>
+    <TouchableOpacity style={styles.soonCard} activeOpacity={0.8} onPress={onPress}>
+      <View style={styles.soonIconWrap}>
+        <HelpCircle size={18} color="#FFFFFF" strokeWidth={2.4} />
       </View>
-      <Text style={styles.soonBrand} numberOfLines={2}>{partner.brand}</Text>
+      <Text style={styles.soonBrand} numberOfLines={2}>{maskComingSoonName(partner.brand)}</Text>
+      {!!(partner.county || partner.counties) && (
+        <Text style={styles.soonLocation} numberOfLines={1}>
+          {partner.county || partner.counties.join(' · ')}
+        </Text>
+      )}
       <Text style={styles.soonCategory} numberOfLines={1}>{partner.category}</Text>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -346,6 +309,79 @@ function PartnerCard({ partner, navigation, autoOpen }) {
   )
 }
 
+// ─── Mental Health support line card ───────────────────────────────────────────
+function SupportLineCard({ line }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={line.link ? 0.8 : 1}
+      onPress={() => line.link && Linking.openURL(line.link)}
+    >
+      <Card style={styles.supportCard}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.supportName}>{line.name}</Text>
+          <Text style={styles.supportHours}>{line.hours}</Text>
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={styles.supportNumber}>{line.number}</Text>
+          {line.link?.startsWith('tel:') || line.link?.startsWith('sms:') ? (
+            <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />
+          ) : line.link ? (
+            <ExternalLink size={12} color={colors.muted} style={{ marginTop: 3 }} />
+          ) : null}
+        </View>
+      </Card>
+    </TouchableOpacity>
+  )
+}
+
+// ─── Mental Health category — 3 featured cards, then an "Explore N more"
+// section that animates open in place below them, revealing the rest. ─────────
+function MentalHealthCategorySection({ category }) {
+  const [expanded, setExpanded] = useState(false)
+  const fade = useRef(new Animated.Value(0)).current
+  const featured = category.items.slice(0, 3)
+  const rest = category.items.slice(3)
+
+  function toggle() {
+    if (expanded) {
+      Animated.timing(fade, { toValue: 0, duration: 180, useNativeDriver: false })
+        .start(() => setExpanded(false))
+    } else {
+      setExpanded(true)
+      fade.setValue(0)
+      Animated.timing(fade, { toValue: 1, duration: 260, useNativeDriver: false }).start()
+    }
+  }
+
+  return (
+    <View style={{ marginBottom: spacing.lg }}>
+      <Text style={styles.supportSectionLabel}>{category.label}</Text>
+      <View style={styles.supportList}>
+        {featured.map(line => <SupportLineCard key={line.name} line={line} />)}
+      </View>
+
+      {rest.length > 0 && (
+        <>
+          <TouchableOpacity style={styles.exploreMoreBtn} activeOpacity={0.75} onPress={toggle}>
+            <Text style={styles.exploreMoreText}>
+              {expanded ? 'Show less' : `Explore ${rest.length} more`}
+            </Text>
+            {expanded
+              ? <ChevronUp size={14} color={colors.navy} />
+              : <ChevronDown size={14} color={colors.navy} />}
+          </TouchableOpacity>
+
+          {expanded && (
+            <Animated.View style={[styles.supportList, { opacity: fade, marginTop: 10 }]}>
+              {rest.map(line => <SupportLineCard key={line.name} line={line} />)}
+            </Animated.View>
+          )}
+        </>
+      )}
+    </View>
+  )
+}
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function LifestyleScreen({ navigation, route }) {
   const routeHighlightId = route?.params?.highlightId
@@ -358,6 +394,7 @@ export default function LifestyleScreen({ navigation, route }) {
     return target ? target.filterKey : 'all'
   })
   const [viewMode, setViewMode] = useState('list') // 'list' | 'map'
+  const [comingSoonOpen, setComingSoonOpen] = useState(false)
 
   const liveVisible = PARTNERS.filter(p =>
     p.status === 'live' && (activeFilter === 'all' || p.filterKey === activeFilter))
@@ -384,7 +421,7 @@ export default function LifestyleScreen({ navigation, route }) {
   return (
     <View style={styles.screen}>
       <TopBar navigation={navigation} showBack />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── Hero ─────────────────────────────────────────────────────────── */}
         <View style={styles.hero}>
@@ -475,7 +512,9 @@ export default function LifestyleScreen({ navigation, route }) {
                     <Text style={styles.soonHeaderText}>Coming Soon · Locked Until Launch</Text>
                   </View>
                   <View style={styles.soonGrid}>
-                    {soonVisible.map(p => <ComingSoonGridCard key={p.id} partner={p} />)}
+                    {soonVisible.map(p => (
+                      <ComingSoonGridCard key={p.id} partner={p} onPress={() => setComingSoonOpen(true)} />
+                    ))}
                   </View>
                 </View>
               )}
@@ -487,6 +526,10 @@ export default function LifestyleScreen({ navigation, route }) {
         <View style={styles.section}>
           <SectionHeader eyebrow="Wellbeing" title="Mental Health & Support" />
 
+          {/* Crisis Support leads every time — whoever needs it most sees it
+              first, before the "Need to Talk" prompt or anything else. */}
+          <MentalHealthCategorySection category={MENTAL_HEALTH_CATEGORIES[0]} />
+
           <View style={styles.supportBanner}>
             <Heart size={16} color={colors.cream} fill={colors.cream} />
             <Text style={styles.supportBannerText}>
@@ -494,30 +537,8 @@ export default function LifestyleScreen({ navigation, route }) {
             </Text>
           </View>
 
-          {SUPPORT_SECTIONS.map(group => (
-            <View key={group.section} style={{ marginBottom: spacing.lg }}>
-              <Text style={styles.supportSectionLabel}>{group.section}</Text>
-              <View style={styles.supportList}>
-                {group.lines.map(line => (
-                  <TouchableOpacity
-                    key={line.name}
-                    activeOpacity={line.link ? 0.8 : 1}
-                    onPress={() => line.link && Linking.openURL(line.link)}
-                  >
-                    <Card style={styles.supportCard}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.supportName}>{line.name}</Text>
-                        <Text style={styles.supportHours}>{line.hours}</Text>
-                      </View>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={styles.supportNumber}>{line.number}</Text>
-                        {line.link && <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />}
-                      </View>
-                    </Card>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+          {MENTAL_HEALTH_CATEGORIES.slice(1).map(category => (
+            <MentalHealthCategorySection key={category.key} category={category} />
           ))}
 
           <SectionHeader eyebrow="Resources" title="Wellbeing Reads" style={{ marginTop: spacing.xl }} />
@@ -568,6 +589,8 @@ export default function LifestyleScreen({ navigation, route }) {
         </View>
 
       </ScrollView>
+
+      <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
     </View>
   )
 }
@@ -575,6 +598,9 @@ export default function LifestyleScreen({ navigation, route }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   screen:  { flex: 1, backgroundColor: colors.cream },
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed navy header on every platform.
+  scrollView: { flex: 1 },
   scroll:  { paddingBottom: 56 },
 
   // Hero
@@ -693,20 +719,22 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', letterSpacing: 0.6,
   },
   soonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  // Black-and-white only — the gold icon badge is the one deliberate
+  // exception (matches the map's gold = live / grey = incoming language).
   soonCard: {
     width: '47%',
-    backgroundColor: colors.white, borderRadius: radius.card,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    padding: 12,
+    backgroundColor: '#FFFFFF', borderRadius: radius.card,
+    borderWidth: 1, borderColor: '#000000',
+    padding: 12, ...shadows.card,
   },
-  soonTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  soonLockBadge: {
-    width: 18, height: 18, borderRadius: 9,
-    backgroundColor: 'rgba(30,58,95,0.06)',
+  soonIconWrap: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: colors.gold,
     alignItems: 'center', justifyContent: 'center',
   },
-  soonBrand:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 8, lineHeight: 17 },
-  soonCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.light, marginTop: 3 },
+  soonBrand:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: '#000000', marginTop: 10, lineHeight: 17, letterSpacing: 1 },
+  soonLocation: { fontFamily: fonts.sans, fontSize: 10.5, color: '#000000', marginTop: 4 },
+  soonCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: '#4B5563', marginTop: 2 },
 
   // Expanded section
   expandedSection: {
@@ -775,9 +803,13 @@ const styles = StyleSheet.create({
   crossLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#6D28D9', lineHeight: 19, flex: 1 },
 
   // Wellbeing
+  // marginTop/marginBottom give the banner clear air from the Crisis Support
+  // cards above it and the next category below, rather than sitting flush
+  // against either.
   supportBanner: {
     backgroundColor: '#DC2626', borderRadius: radius.button,
     flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14,
+    marginTop: spacing.md, marginBottom: spacing.lg,
   },
   supportBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.white, flex: 1, lineHeight: 19 },
   supportSectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
@@ -786,6 +818,12 @@ const styles = StyleSheet.create({
   supportName:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   supportHours:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   supportNumber: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  exploreMoreBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginTop: 10, paddingVertical: 10, borderRadius: radius.button,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white,
+  },
+  exploreMoreText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
 
   // Articles
   articleCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },

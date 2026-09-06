@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollVi
 import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line, Rect } from 'react-native-svg'
 import { Lock, Search, X } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
-import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../../data/lifestylePartners'
+import { PARTNERS, MYSTERY_MAP_COUNTIES, maskComingSoonName } from '../../data/lifestylePartners'
+import ComingSoonSheet from './ComingSoonSheet'
 
 const AnimatedG = Animated.createAnimatedComponent(G)
 const AnimatedCircle = Animated.createAnimatedComponent(Circle)
@@ -151,9 +152,12 @@ const GROUPED_COUNTIES = new Set(Object.keys(GROUP_BOUNDS))
 
 // Flat, searchable index — every live + named-incoming partner plus every
 // county label, so the search box can jump straight to any of them.
+// Incoming (coming-soon) entries are searchable by county and by their
+// masked "?" name only — the real name never surfaces here either, same
+// anonymity guarantee as the grid card and the pin itself.
 const SEARCH_INDEX = [
   ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: p.name, county: p.county, sub: p.category })),
-  ...INCOMING_PINS.map(p => ({ kind: 'incoming', id: p.key, name: p.name, county: p.county, sub: p.category })),
+  ...INCOMING_PINS.map(p => ({ kind: 'incoming', id: p.key, name: maskComingSoonName(p.name), county: p.county, sub: 'Coming soon' })),
   ...Object.keys(COUNTY_POS).map(k => ({ kind: 'county', id: k, name: COUNTY_LABEL[k], county: k, sub: 'County' })),
 ]
 
@@ -237,6 +241,7 @@ function SignalRing({ x, y, color, maxR = 24, duration = 1900 }) {
 
 export default function PartnerMap({ onViewListing }) {
   const [active, setActive] = useState(null)
+  const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [ping, setPing] = useState(null)
   const [query, setQuery] = useState('')
   const [resultsOpen, setResultsOpen] = useState(false)
@@ -281,6 +286,16 @@ export default function PartnerMap({ onViewListing }) {
     setActive(prev => (prev && prev.pinKey === pinKey ? null : { pinKey, ...data }))
   }
 
+  // Coming-soon pins (incoming + mystery) open the same anonymous "Coming
+  // Soon" bottom sheet used by the Lifestyle grid card — no name, category,
+  // or county is revealed there, just the same reassurance copy either way.
+  // The name/category are stripped here (not just left out of the sheet) so
+  // the inline info card sitting behind the sheet can't reveal them either.
+  function selectComingSoon(pinKey) {
+    setActive(prev => (prev && prev.pinKey === pinKey ? null : { pinKey, live: false, name: null, category: null }))
+    setComingSoonOpen(true)
+  }
+
   function pickResult(r) {
     if (r.kind === 'county') {
       const keys = SEARCH_INDEX.filter(x => x.county === r.county && x.kind !== 'county').map(x => x.id)
@@ -290,7 +305,7 @@ export default function PartnerMap({ onViewListing }) {
       select(r.id, { live: true, ...LIVE_PINS.find(p => p.id === r.id) })
       setMatchedKeys(new Set([r.id]))
     } else {
-      select(r.id, { live: false, name: r.name, category: r.sub })
+      selectComingSoon(r.id)
       setMatchedKeys(new Set([r.id]))
     }
     setQuery('')
@@ -400,7 +415,7 @@ export default function PartnerMap({ onViewListing }) {
                 x={p.pos[0]} y={p.pos[1]}
                 dimOpacity={dimFor(key)}
                 matchRing={matchedKeys.has(key) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
-                onPress={() => select(key, { live: false, name: null, category: null })}
+                onPress={() => selectComingSoon(key)}
               />
             )
           })}
@@ -416,7 +431,7 @@ export default function PartnerMap({ onViewListing }) {
                 compact={compact}
                 dimOpacity={dimFor(p.key)}
                 matchRing={matchedKeys.has(p.key) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
-                onPress={() => select(p.key, { live: false, name: p.name, category: p.category })}
+                onPress={() => selectComingSoon(p.key)}
               />
             )
           })}
@@ -509,6 +524,8 @@ export default function PartnerMap({ onViewListing }) {
           <Text style={styles.legendText}>New Partner Incoming</Text>
         </View>
       </View>
+
+      <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
     </View>
   )
 }

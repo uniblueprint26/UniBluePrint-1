@@ -181,6 +181,7 @@ export default function CompassScreen({ navigation }) {
 
       {/* ── Scrollable content ── */}
       <ScrollView
+        style={s.scrollView}
         contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -283,6 +284,11 @@ const s = StyleSheet.create({
   },
 
   // Scroll content
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed navy header on every platform — without
+  // it, RN can size the ScrollView to its own content instead of the
+  // available viewport, which is what let the header float over content.
+  scrollView: { flex: 1 },
   scroll: {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 

@@ -17,7 +17,7 @@ export default function VerifiedBadge({ verified = true, style, compact = false 
   if (!verified) return null
   return (
     <View style={[styles.badge, compact && styles.badgeCompact, style]}>
-      <BadgeCheck size={compact ? 11 : 13} color="#1D4ED8" />
+      <BadgeCheck size={compact ? 11 : 13} color="#3B82F6" />
       <Text style={[styles.text, compact && styles.textCompact]}>Verified</Text>
     </View>
   )
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: fonts.sansSemiBold,
     fontSize: 11,
-    color: '#1D4ED8',
+    color: '#3B82F6',
     letterSpacing: 0.2,
   },
   textCompact: {

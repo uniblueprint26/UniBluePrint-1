@@ -274,6 +274,24 @@ const LIVE_PARTNERS = [
     email: 'zvisionapparel@gmail.com',
     phone: '+353877021874',
   },
+  {
+    id: 'pouvoirs',
+    name: 'Pouvoirs Gallery',
+    initials: 'PG',
+    initBg: '#4B5563',
+    category: 'Fashion',
+    description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
+    deal: 'TODO — confirm with partner before launch',
+  },
+  {
+    id: 'dylanpower',
+    name: 'Dylan Power',
+    initials: 'DP',
+    initBg: '#374151',
+    category: 'Sports Photography',
+    description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
+    deal: 'TODO — confirm with partner before launch',
+  },
 ]
 
 // ─── More partners: everyone else, confirmed and onboarding, locked until launch
@@ -285,7 +303,6 @@ const COMING_SOON_PARTNERS = [
   { name: 'Angelic Touch',               category: 'Hair' },
   { name: 'Ocean1',                      category: 'Clothing' },
   { name: 'Archangel',                   category: 'Clothing Brand' },
-  { name: 'Pouvoirs Gallery',            category: 'Clothing' },
   { name: 'Fortesce',                    category: 'Clothing' },
   { name: 'Street Clothing',             category: 'Clothing' },
   { name: 'Timing',                      category: 'Clothing' },
@@ -308,7 +325,6 @@ const COMING_SOON_PARTNERS = [
   { name: 'Makeup By Kasia',             category: 'Makeup' },
   { name: 'Carolynes Beauty Studio',     category: 'Beauty Studio' },
   { name: 'The PK Glam',                 category: 'Beauty' },
-  { name: 'Dylan Power',                 category: 'Sports Photographer · Cork' },
 ]
 
 const PAGE_STYLES = `

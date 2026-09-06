@@ -9,6 +9,15 @@
 // 'shell' → confirmed partner, "coming soon" grid card, shown on the map as a
 //           grey sketch pin when it has a county on file
 
+// Cosmetic-only display transform for a "coming soon" partner's name — every
+// non-space character becomes '?', so "Whip Wizardz" reads "???? ???????":
+// same word/letter shape, nothing of the real name legible. Purely a display
+// mask; the real `brand` string is still what's stored and matched against
+// everywhere else (map search, admin views) — nothing is renamed or altered.
+export function maskComingSoonName(brand) {
+  return brand.replace(/\S/g, '?')
+}
+
 export const PARTNERS = [
   // ── Live: Health & Fitness ──────────────────────────────────────────────
   {
@@ -486,6 +495,40 @@ export const PARTNERS = [
     contact: { instagram: 'zvision.apparel', email: 'zvisionapparel@gmail.com', phone: '+353877021874' },
   },
 
+  // ── Live: Fashion & Sports Photography ──────────────────────────────────
+  {
+    id: 'pouvoirs',
+    brand: 'Pouvoirs Gallery',
+    initials: 'PG',
+    initBg: '#4B5563',
+    filterKey: 'fashion',
+    county: 'Ireland',
+    category: 'Fashion',
+    tagline: 'Fashion gallery and pieces, nationwide.',
+    deal: 'TODO — confirm with partner before launch',
+    status: 'live',
+    logo: null, // upload via partner-logos bucket when available
+    description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
+    howToStart: 'Contact details to be confirmed with the partner before launch.',
+    contact: null,
+  },
+  {
+    id: 'dylanpower',
+    brand: 'Dylan Power',
+    initials: 'DP',
+    initBg: '#374151',
+    filterKey: 'services',
+    county: 'Cork',
+    category: 'Sports Photography',
+    tagline: 'Sports photography, Cork.',
+    deal: 'TODO — confirm with partner before launch',
+    status: 'live',
+    logo: null, // upload via partner-logos bucket when available
+    description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
+    howToStart: 'Contact details to be confirmed with the partner before launch.',
+    contact: null,
+  },
+
   // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
   // county set where a real one is on file — this is also what the map reads.
   { id: 'mbcuts',       brand: 'Manni The Barber',        initials: 'MB', initBg: '#374151', filterKey: 'beauty',   county: 'Louth',  category: 'Barber · Dundalk', status: 'shell' },
@@ -495,7 +538,6 @@ export const PARTNERS = [
   { id: 'angelic',      brand: 'Angelic Touch',           initials: 'AT', initBg: '#92400E', filterKey: 'beauty', counties: ['Sligo', 'Dublin'], category: 'Hair', status: 'shell' },
   { id: 'ocean1',       brand: 'Ocean1',                  initials: 'O1', initBg: '#0369A1', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'archangel',    brand: 'Archangel',               initials: 'AA', initBg: '#111827', filterKey: 'fashion', county: 'Kildare', category: 'Clothing Brand', status: 'shell' },
-  { id: 'pouvoirs',     brand: 'Pouvoirs Gallery',        initials: 'PG', initBg: '#4B5563', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'fortesce',     brand: 'Fortesce',                initials: 'FT', initBg: '#1D4ED8', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'streetclth',   brand: 'Street Clothing',         initials: 'SC', initBg: '#111827', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'timing',       brand: 'Timing',                  initials: 'TM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
@@ -518,7 +560,6 @@ export const PARTNERS = [
   { id: 'carolynes',    brand: 'Carolynes Beauty Studio', initials: 'CB', initBg: '#D97706', filterKey: 'beauty', county: 'Clare', category: 'Beauty Studio', status: 'shell' },
   { id: 'kasia',        brand: 'Makeup By Kasia',         initials: 'MK', initBg: '#D97706', filterKey: 'beauty', county: 'Galway', category: 'Makeup', status: 'shell' },
   { id: 'pkglam',       brand: 'The PK Glam',             initials: 'PK', initBg: '#D97706', filterKey: 'beauty', county: 'Kildare', category: 'Beauty', status: 'shell' },
-  { id: 'dylanpower',   brand: 'Dylan Power',             initials: 'DP', initBg: '#374151', filterKey: 'services', county: 'Cork', category: 'Sports Photographer · Cork', status: 'shell' },
 ]
 
 // Every county still without a named partner above gets one anonymous
@@ -526,6 +567,9 @@ export const PARTNERS = [
 // map reads as full without pretending to know who's actually going there.
 // Cork is deliberately excluded: Dylan Power already has county: 'Cork'
 // above, so it isn't one of the counties "still without a named partner."
+// Pouvoirs Gallery is a live partner without a specific county on file
+// (nationwide), so it renders no pin of its own — same treatment as
+// Saiemsent and Roomy.ie above.
 export const MYSTERY_MAP_COUNTIES = [
   'Limerick', 'Waterford', 'Tipperary', 'Kerry', 'Wexford', 'Kilkenny',
   'Meath', 'Wicklow', 'Carlow', 'Laois', 'Offaly', 'Westmeath', 'Longford',

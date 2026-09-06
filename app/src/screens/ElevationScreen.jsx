@@ -3,6 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, ChevronRight, MapPin, User,
+  LayoutGrid, Dumbbell, GraduationCap, TrendingUp, Megaphone, Palette, Trophy, Flower2,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -13,12 +14,21 @@ import { goToHome } from '../navigation/helpers'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 
-// 'Network' and 'Postgrad' removed — no coach currently has either filter
-// value, so both pills led to a dead, unexplained empty state. Re-add once
-// a coach actually exists in one of those categories.
-const FILTER_PILLS = [
-  'All', 'Fitness', 'Academic Grinds', 'Trading',
-  'Marketing', 'Creative', 'Sports', 'Yoga',
+// ─── Service grid ─────────────────────────────────────────────────────────────
+// Same categories as the filter pills (minus "All", which the grid's own
+// "All Coaches" tile covers), rendered as a 2-column browse grid rather than
+// a plain list — same card aesthetic as the "coming soon" partner tiles in
+// Lifestyle Blueprint: white card, 12px radius, shadow, icon in a cream
+// circle, label below.
+const SERVICE_TILES = [
+  { label: 'All Coaches',      filter: 'All',             Icon: LayoutGrid    },
+  { label: 'Fitness',          filter: 'Fitness',         Icon: Dumbbell      },
+  { label: 'Academic Grinds',  filter: 'Academic Grinds', Icon: GraduationCap },
+  { label: 'Trading',          filter: 'Trading',         Icon: TrendingUp    },
+  { label: 'Marketing',        filter: 'Marketing',       Icon: Megaphone     },
+  { label: 'Creative',         filter: 'Creative',        Icon: Palette       },
+  { label: 'Sports',           filter: 'Sports',          Icon: Trophy        },
+  { label: 'Yoga',             filter: 'Yoga',            Icon: Flower2       },
 ]
 
 // ─── Coaches ──────────────────────────────────────────────────────────────────
@@ -43,7 +53,7 @@ export const COACHES = [
   // ── Academic ──
   {
     id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
-    location: 'Dublin, Ireland', from: 'Enquire for pricing',
+    location: 'Dublin, Ireland, Available Nationwide', from: 'Enquire for pricing',
     tagline: 'From under 400 points to 500+ — proven study strategy.',
     services: ['Leaving Cert Maths', 'Leaving Cert Biology', 'Leaving Cert Physics'],
     bio: "Hi, I'm Emmanuel, a UCD student who transformed my own Leaving Cert performance — taking my points from under 400 to 500+ in just a few months. Now I help students do the same, specialising in Leaving Cert Maths, Biology, and Physics, combining proven study strategies, smarter revision techniques, and exam-focused approaches to help students understand the material, maximise their marks, and make significant grade improvements. I'm not here to just teach you what's in the textbook — I'm here to show you how to study smarter, approach questions strategically, and perform when it matters most. If you're aiming for 500+, I'll help you build the structure, confidence, and exam technique to give yourself the best possible shot at getting there.",
@@ -52,7 +62,7 @@ export const COACHES = [
   // ── Sports ──
   {
     id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Sports',
-    location: 'North Dublin', rating: '5.0', reviews: 41, from: 'From €50/hr',
+    location: 'North Dublin, Available Nationwide', rating: '5.0', reviews: 41, from: 'From €50/hr',
     services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics Breakdown', 'Dietary Guidance', 'Agent Connections'],
     bio: "I offer elite sports coaching with fully personalised programmes for students serious about performance. In-person sessions run on North Dublin 4G Astro, plus football coaching and professional agent connections.",
     pricelist: [
@@ -65,7 +75,7 @@ export const COACHES = [
   // ── Creative ──
   {
     id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Creative',
-    location: 'Ireland', rating: '4.9', reviews: 19, from: 'From €55/month',
+    location: 'Dublin, Available Nationwide', rating: '4.9', reviews: 19, from: 'From €55/month',
     services: ['Monthly Mentorship', '1-1 Shoot Session', 'Editing Guidance', 'Creative Direction'],
     bio: "I'm a professional photographer and videographer offering mentorship and shoot sessions. My monthly subscription includes Zoom calls and editing guidance.",
     pricelist: [
@@ -78,7 +88,7 @@ export const COACHES = [
   // ── Trading ──
   {
     id: 4, name: 'DG Trading', category: 'Trading & Finance', filter: 'Trading',
-    location: 'Ireland', from: 'Upon enquiry',
+    location: 'Ireland, Available Nationwide', from: 'Upon enquiry',
     title: 'Funded Futures Trader | NQ / MNQ | Trading Coach',
     bio: "I'm Daniel, a funded futures trader specialising in NQ and MNQ. Having achieved a Topstep payout, I've developed a structured approach to trading built around confluence, patience, and disciplined execution. My strategy is ICT-based, combining market structure and liquidity concepts with standard deviation extensions and order flow confluence to identify high-probability opportunities during the New York pre-market.",
     quote: "The goal isn't to predict every move in the market. It's to build the ability to recognise when the conditions align, when to act, and when to stay out.",
@@ -99,7 +109,7 @@ export const COACHES = [
 
   {
     id: 15, name: 'Dinero Trading Group', category: 'Trading & Investment Education', filter: 'Trading',
-    location: 'Ireland', from: 'Copier target: 5–15%/month*',
+    location: 'Ireland, Available Nationwide', from: 'Copier target: 5–15%/month*',
     tagline: 'DTG — structured trading systems, education, and business opportunities.',
     bio: "I'm a trader and entrepreneur focused on building structured trading systems, educational programmes, and business opportunities around the financial markets — from automated lower-risk copy trading and high-risk trading challenges, to 1-to-1 mentorship and opportunities to build a business around my services. My goal is to provide different routes for people depending on their experience, goals, and risk tolerance, with systems that are simple to understand, scalable, and built with a long-term vision.",
     services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship / Trading Course', 'IB Partner / White-Label Programme'],
@@ -131,7 +141,7 @@ export const COACHES = [
 
   {
     id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing & Finance Coach', filter: 'Trading',
-    location: 'Ireland', from: 'Pricing on request',
+    location: 'Ireland, Available Nationwide', from: 'Pricing on request',
     title: 'Chartered Accountant · Founder, Soft Life Investing',
     tagline: 'Personal finance without the finance bro jargon.',
     services: ['1:1 Personal Finance Coaching', 'Budgeting & Saving', 'Getting Started with Investing', 'Irish Investing Tax Rules (Deemed Disposal, Exit Tax, DIRT)'],
@@ -153,7 +163,7 @@ export const COACHES = [
   // ── Fitness ──
   {
     id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga', filter: 'Fitness',
-    location: 'Dublin 8, Ireland', from: 'PT from €60/session',
+    location: 'Dublin 8, Ireland, Available Nationwide', from: 'PT from €60/session',
     title: 'Certified Personal Trainer / Sport Nutritionist Coach / Muay Thai / Yoga / Functional Training',
     tagline: 'HEALTHY · WELLNESS · FITNESS',
     services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
@@ -178,7 +188,7 @@ export const COACHES = [
 
   {
     id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
-    location: 'Ireland, open to worldwide', from: 'Via consultation',
+    location: 'Mayo, Available Nationwide', from: 'Via consultation',
     services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
     bio: "I'm a 20-year-old qualified personal trainer with 5+ years of fitness experience. I specialise in weightlifting and calisthenics, and also work with clients in kickboxing and other sports. I provide personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme, and I'm available in and outside working hours.",
     package: [
@@ -193,7 +203,7 @@ export const COACHES = [
 
   {
     id: 7, name: 'Tadgh Darcy', category: 'Physique Development', filter: 'Fitness',
-    location: 'Dublin', from: 'Pricing on request',
+    location: 'Dublin, Available Nationwide', from: 'Pricing on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
     bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process — online physique development coaching built around you.",
@@ -202,7 +212,7 @@ export const COACHES = [
 
   {
     id: 8, name: 'Milan Piroska (MPFitness)', category: 'Personal Training', filter: 'Fitness',
-    location: 'Ireland', from: 'From €40/session',
+    location: 'Kildare, Available Nationwide', from: 'From €40/session',
     title: 'Certified Personal Trainer / Advanced Nutrition Coach / International Men\'s Physique Athlete',
     tagline: 'MPFitness. More Than Fitness.',
     services: ['Physique Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Lifestyle Transformation', 'Holiday & Contest Prep'],
@@ -226,7 +236,7 @@ export const COACHES = [
 
   {
     id: 9, name: 'Kevin (TrainWitKev)', category: 'Personal Training', filter: 'Fitness',
-    location: 'Dublin, Ireland', from: 'From €25',
+    location: 'Dublin, Ireland, Available Nationwide', from: 'From €25',
     tagline: 'Strength. Physique. Confidence. Mindset.',
     services: ['1-to-1 Personal Training', 'Beginner Gym Coaching', 'Personalised Training Programmes', 'Accountability & Progress Coaching'],
     bio: "I'm the coach behind TrainWitKev and the mindset behind WORKSYY. I help people get stronger, build a physique they're proud of, and gain real confidence in and out of the gym. I work with complete beginners through to people who've plateaued on consistency or progress, with a focus on structure, technique, understanding, and sustainable progress.",
@@ -245,7 +255,7 @@ export const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
-    location: 'Co. Mayo, Ireland', from: 'From €40',
+    location: 'Co. Mayo, Ireland, Available Nationwide', from: 'From €40',
     badge: 'Student Mentor Listing',
     services: ['Social Media Content Plans', 'Captions & Graphics', 'Creator Coordination', 'Client Reporting', 'Student Mentorship'],
     bio: "I'm a digital marketing specialist running my own freelance business, LEVA Impact, working across social media strategy, content creation, graphic design, and AI-powered video production. I bring students onto real, live client projects rather than mock briefs.",
@@ -277,7 +287,7 @@ export const COACHES = [
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
-    location: 'County Sligo', from: 'On request',
+    location: 'County Sligo, Available Nationwide', from: 'On request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
     bio: "I'm a qualified Personal Trainer with over a decade of experience, passionate about helping people balance school, work, fitness, sport, and social life. I'm also a League of Ireland player, and I'm available for both online and local in-person coaching in County Sligo.",
     contact: { instagram: 'JayRfitness6', tiktok: 'JayRfitness6' },
@@ -286,7 +296,7 @@ export const COACHES = [
   // ── Yoga ──
   {
     id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Yoga',
-    location: 'Dublin, Ireland currently — relocating to Sydney, Australia from 19 August, continuing online sessions',
+    location: 'Dublin, Available Nationwide',
     from: 'Book via bookwhen.com',
     title: '200 Hour Certified Yoga Teacher | Psychology | Life Coaching',
     tagline: 'The Brave Flow Yoga',
@@ -309,7 +319,7 @@ export const COACHES = [
 
   {
     id: 18, name: 'Luana Ciweck', category: 'Online Fitness Coaching', filter: 'Fitness',
-    location: 'Co. Mayo, Ireland', from: 'Online coaching — pricing on enquiry',
+    location: 'Co. Mayo, Ireland, Available Nationwide', from: 'Online coaching — pricing on enquiry',
     tagline: 'Confidence. Strength. Sustainable change.',
     services: ['Online Fitness Coaching'],
     bio: "I'm Luana, 21, a qualified fitness professional with a huge passion for training, health, and helping others become the best version of themselves. I completed my training with Image Fitness and have gained hands-on experience working with clients on the gym floor. Everyone is different, which is why I build an approach tailored to each individual's goals, lifestyle, and experience level. Training is a huge part of my own life too — I've personally gone through both bulking and cutting phases, and having experienced those stages myself helps me understand the highs, lows, challenges, and rewards that come with pursuing your own fitness goals.",
@@ -519,34 +529,35 @@ export default function ElevationScreen({ navigation }) {
           Verified coaches across fitness, sports, academic grinds, trading, and careers.
           Every coach is reviewed before joining the platform.
         </Text>
-
-        {/* Filter pills, inside hero so they visually anchor to the navy header */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.pillScroll}
-          contentContainerStyle={styles.pillRow}
-        >
-          {FILTER_PILLS.map(label => (
-            <TouchableOpacity
-              key={label}
-              onPress={() => setActive(label)}
-              style={[styles.pill, active === label && styles.pillActive]}
-              activeOpacity={0.75}
-            >
-              <Text style={[styles.pillText, active === label && styles.pillTextActive]}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
       </View>
 
       {/* ── Scrollable content ── */}
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
+
+          {/* Browse by service — 2-column grid, same white/shadow/cream-circle
+              card aesthetic as the Lifestyle "coming soon" partner tiles. */}
+          <Text style={styles.serviceGridLabel}>Browse by Service</Text>
+          <View style={styles.serviceGrid}>
+            {SERVICE_TILES.map(({ label, filter, Icon }) => (
+              <TouchableOpacity
+                key={filter}
+                style={[styles.serviceTile, active === filter && styles.serviceTileActive]}
+                activeOpacity={0.85}
+                onPress={() => setActive(filter)}
+              >
+                <View style={[styles.serviceTileIconWrap, active === filter && styles.serviceTileIconWrapActive]}>
+                  <Icon size={22} color={colors.navy} strokeWidth={2} />
+                </View>
+                <Text style={styles.serviceTileLabel}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           <Text style={styles.resultsCount}>
             {visible.length} coach{visible.length !== 1 ? 'es' : ''} available
@@ -607,7 +618,7 @@ const styles = StyleSheet.create({
   heroBlock: {
     backgroundColor: colors.navy,
     paddingHorizontal: spacing.md,
-    paddingBottom: 0,
+    paddingBottom: spacing.md,
   },
   navRow: {
     flexDirection: 'row', alignItems: 'center',
@@ -626,16 +637,36 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', marginBottom: 6,
   },
   heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
-  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22, marginBottom: spacing.md },
+  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
-  // Filter pills live inside the navy hero
-  pillScroll: { marginHorizontal: -spacing.md },
-  pillRow:    { paddingHorizontal: spacing.md, paddingBottom: 16, gap: 8 },
-  pill:           { paddingHorizontal: 16, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: 'rgba(245,240,232,0.12)', marginRight: 0, borderWidth: 1, borderColor: 'rgba(245,240,232,0.18)' },
-  pillActive:     { backgroundColor: colors.cream, borderColor: colors.cream },
-  pillText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: 'rgba(245,240,232,0.7)' },
-  pillTextActive: { color: colors.navy },
+  // Service grid — 2-column browse-by-category tiles, replacing the old
+  // horizontal pill list. Same white/shadow/cream-circle aesthetic as the
+  // Lifestyle "coming soon" partner tiles (ComingSoonGridCard).
+  serviceGridLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
+  },
+  serviceGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: spacing.lg,
+  },
+  serviceTile: {
+    width: '47.5%', backgroundColor: colors.white, borderRadius: radius.card,
+    paddingVertical: 18, paddingHorizontal: 12, alignItems: 'center',
+    borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
+  },
+  serviceTileActive: { borderColor: colors.navy },
+  serviceTileIconWrap: {
+    width: 48, height: 48, borderRadius: 24, backgroundColor: colors.cream,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 10,
+  },
+  serviceTileIconWrapActive: { backgroundColor: colors.goldLight },
+  serviceTileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textAlign: 'center' },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed navy header on every platform — without
+  // it, RN can size the ScrollView to its own content instead of the
+  // available viewport, which is what let the header float over content.
+  scrollView: { flex: 1 },
   scroll:  {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
 
