@@ -26,6 +26,9 @@ export const FIELD_TYPES = {
   DATE: 'date',
   PHOTO: 'photo',
   STARS: 'stars',
+  // Added for Course Connect (Shared Notes / Past Papers) — PDF or image
+  // upload via FileUploader, distinct from PHOTO (image-only, compressed).
+  FILE: 'file',
 }
 
 const T = FIELD_TYPES

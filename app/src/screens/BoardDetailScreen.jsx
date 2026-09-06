@@ -15,6 +15,14 @@
  *   reviews       — aggregate rating header
  *   suggestions   — upvote, sorted most-upvoted first
  *   ads           — mark sold / remove (no auto-expiry)
+ *   notes/papers  — Course Connect only: download button + count, no chat
+ *
+ * `registry` route param ('campus', default, or 'course') selects which
+ * board list (campusBoards.js vs courseConnectBoards.js) `boardKey` is
+ * looked up in, and switches two Campus-Connect-specific behaviours off for
+ * Course Connect: the back-button label/destination, and the "select your
+ * campus before posting" gate (Course Connect boards are cross-Ireland and
+ * never require a campus on file).
  */
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
@@ -25,12 +33,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, Plus, MessageSquare, Flag, Trash2, ThumbsUp, ExternalLink,
   Users, Star, X, Search, AlertCircle, Send, CheckCircle2, RotateCcw,
+  Download, FileText, Image as ImageIcon,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
 import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
 import { getBoard } from '../constants/campusBoards'
+import { getCourseBoard } from '../constants/courseConnectBoards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -55,6 +65,13 @@ const RATING_CATEGORIES = [
 
 const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
+export function fileTypeLabel(item) {
+  const mime = (item.file_mime || '').toLowerCase()
+  const url = (item.file_url || '').toLowerCase()
+  if (mime.includes('pdf') || url.endsWith('.pdf')) return 'PDF'
+  return 'Image'
+}
+
 function Stars({ value, size = 12 }) {
   return (
     <View style={{ flexDirection: 'row', gap: 1 }}>
@@ -66,8 +83,9 @@ function Stars({ value, size = 12 }) {
 }
 
 export default function BoardDetailScreen({ navigation, route }) {
-  const { boardKey, openPostForm } = route.params ?? {}
-  const board = getBoard(boardKey)
+  const { boardKey, openPostForm, registry = 'campus' } = route.params ?? {}
+  const board = registry === 'course' ? getCourseBoard(boardKey) : getBoard(boardKey)
+  const backLabel = registry === 'course' ? 'Course Connect' : 'Campus Connect'
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -97,6 +115,9 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   // ads
   const [adBusyId, setAdBusyId] = useState(null)
+
+  // notes / papers
+  const [downloadBusyId, setDownloadBusyId] = useState(null)
 
   const load = useCallback(async () => {
     if (!board) return
@@ -163,7 +184,9 @@ export default function BoardDetailScreen({ navigation, route }) {
   }
 
   function requireCampus(action) {
-    if (hasCampus()) { action(); return }
+    // Course Connect is cross-Ireland and never gates posting on having a
+    // campus on file — only Campus Connect boards do.
+    if (registry !== 'campus' || hasCampus()) { action(); return }
     setPendingAction(() => action)
     setGateOpen(true)
   }
@@ -313,6 +336,18 @@ export default function BoardDetailScreen({ navigation, route }) {
     const { error } = await supabase.from('student_ads').update({ status }).eq('id', item.id)
     setAdBusyId(null)
     if (!error) setRows(prev => prev.map(r => r.id === item.id ? { ...r, status } : r))
+  }
+
+  // ── Notes / Past Papers ──────────────────────────────────────────────────
+  async function downloadFile(item) {
+    setDownloadBusyId(item.id)
+    const rpcName = board.special === 'notes' ? 'increment_shared_note_downloads' : 'increment_past_paper_downloads'
+    const rpcArg = board.special === 'notes' ? { note_id: item.id } : { paper_id: item.id }
+    await supabase.rpc(rpcName, rpcArg)
+    setRows(prev => prev.map(r => r.id === item.id ? { ...r, download_count: (r.download_count || 0) + 1 } : r))
+    setDownloadBusyId(null)
+    if (Platform.OS === 'web') window.open(item.file_url, '_blank')
+    else Linking.openURL(item.file_url)
   }
 
   // ── Filters ──────────────────────────────────────────────────────────────
@@ -563,6 +598,50 @@ export default function BoardDetailScreen({ navigation, route }) {
     )
   }
 
+  // ── Special: Shared Notes / Past Papers ──────────────────────────────────
+  function renderFileCard(item) {
+    const own = isOwn(item)
+    const isPdf = fileTypeLabel(item) === 'PDF'
+    return (
+      <Card key={item.id} style={styles.card}>
+        <View style={styles.metaRow}>
+          <View style={styles.metaPill}>
+            {isPdf ? <FileText size={11} color={colors.navy} /> : <ImageIcon size={11} color={colors.navy} />}
+            <Text style={styles.metaPillText}> {fileTypeLabel(item)}</Text>
+          </View>
+          {!!item.institution && <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.institution}</Text></View>}
+        </View>
+        <Text style={styles.cardTitle}>{board.cardTitle(item)}</Text>
+        <View style={styles.metaRow}>
+          {(board.cardMeta ? board.cardMeta(item) : []).map((m, i) => <View key={i} style={styles.metaPill}><Text style={styles.metaPillText}>{m}</Text></View>)}
+        </View>
+        <View style={[styles.metaRow, { justifyContent: 'space-between' }]}>
+          <Text style={styles.posterLine}>{posterLine(item)} · {item.download_count || 0} download{(item.download_count || 0) !== 1 ? 's' : ''}</Text>
+        </View>
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.joinBtn} activeOpacity={0.85} disabled={downloadBusyId === item.id} onPress={() => downloadFile(item)}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+              <Download size={13} color={colors.cream} strokeWidth={2} />
+              <Text style={styles.joinBtnText}>Download</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.actionsRow}>
+          {own ? (
+            <TouchableOpacity style={styles.msgBtn} activeOpacity={0.8} onPress={() => confirmRemove(item)}>
+              <Trash2 size={12} color={colors.navy} strokeWidth={2} />
+              <Text style={styles.msgBtnText}>Remove</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(item)} accessibilityRole="button" accessibilityLabel="Report file">
+              <Flag size={13} color={colors.muted} strokeWidth={2} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </Card>
+    )
+  }
+
   // ── Special: Accommodation card (adds post_type + rent + Roomy context) ──
   function renderAccommodationCard(item) {
     return renderGenericCard(item)
@@ -576,6 +655,7 @@ export default function BoardDetailScreen({ navigation, route }) {
     if (board.special === 'reviews') return renderReviewCard(item)
     if (board.special === 'ads') return renderAdCard(item)
     if (board.special === 'accommodation') return renderAccommodationCard(item)
+    if (board.special === 'notes' || board.special === 'papers') return renderFileCard(item)
     return renderGenericCard(item)
   }
 
@@ -638,7 +718,7 @@ export default function BoardDetailScreen({ navigation, route }) {
           <View style={styles.navRow}>
             <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
               <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Campus Connect</Text>
+              <Text style={styles.backBtnText}>{backLabel}</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.heroIcon}>{board.icon}</Text>
@@ -675,6 +755,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         onClose={() => setPostOpen(false)}
         board={board}
         onPosted={handlePosted}
+        extraValues={board.captureInstitution ? { institution: user?.user_metadata?.institution_short || user?.user_metadata?.institution || null } : undefined}
       />
 
       {/* Clubs: request a new society, shares PostFormModal with a different target table/column */}

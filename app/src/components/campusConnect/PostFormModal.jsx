@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import { X, Plus, Star, Check } from 'lucide-react-native'
 import ImageUploader from '../ui/ImageUploader'
+import FileUploader from '../ui/FileUploader'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -170,6 +171,10 @@ export default function PostFormModal({
       if (field.type === 'date') v = v || null
       if (field.type === 'text' || field.type === 'textarea') v = typeof v === 'string' ? v.trim() : v
       payload[field.key] = v
+      if (field.type === 'file') {
+        if (field.mimeKey) payload[field.mimeKey] = values[field.mimeKey] || null
+        if (field.nameKey) payload[field.nameKey] = values[field.nameKey] || null
+      }
     })
     // Anonymous posts still carry poster_name in the row (so the poster can
     // still see their own name on their own post if that's ever surfaced),
@@ -267,6 +272,18 @@ export default function PostFormModal({
                       onUpload={url => set(field.key, url)}
                       label=""
                       size={72}
+                    />
+                  )}
+                  {field.type === 'file' && (
+                    <FileUploader
+                      bucket={field.bucket || 'course-connect-files'}
+                      storagePath={`${user?.id}/${Date.now()}`}
+                      onUpload={(url, meta) => {
+                        set(field.key, url)
+                        if (field.mimeKey) set(field.mimeKey, meta.mimeType || null)
+                        if (field.nameKey) set(field.nameKey, meta.name || null)
+                      }}
+                      label=""
                     />
                   )}
                 </View>
