@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, TextInput,
-  StyleSheet, KeyboardAvoidingView, Platform, Linking, Modal, Alert, ActivityIndicator,
+  StyleSheet, KeyboardAvoidingView, Platform, Modal, Alert, ActivityIndicator,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -11,9 +11,9 @@ import {
 
 import Card from '../components/ui/Card'
 import FeatureCard from '../components/ui/FeatureCard'
-import MockContentBanner from '../components/ui/MockContentBanner'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
+import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
@@ -25,7 +25,7 @@ const CAMPUS_FEATURES = [
   {
     key: 'boards', label: 'CAMPUS BOARDS', Icon: Users, color: '#FFF7ED',
     headline: 'Find rooms, sell stuff, stay connected',
-    sub: 'Eleven community boards covering accommodation, societies, and more.',
+    sub: 'Fourteen community boards covering accommodation, societies, and more.',
     count: 'Live at launch',
     preview: [
       { text: 'Room near UCD, €600/month, bills included. Available from August.', meta: '2h ago' },
@@ -64,84 +64,92 @@ const CAMPUS_FEATURES = [
   },
 ]
 
-// ─── Boards (11 boards) ───────────────────────────────────────────────────────
+// ─── Boards (12 boards, live — Carpooling and Project Collaboration get their
+// own sections below since they predate/extend beyond a generic board card) ──
 
 const BOARDS_DATA = [
   {
-    title: 'Accommodation', icon: '🏠', color: '#EFF6FF', postCount: 14,
+    key: 'accommodation', title: 'Accommodation', icon: '🏠', color: '#EFF6FF',
     posts: [
       { text: 'Room available near UCD, €600/month, bills included. Available from August.', time: '2h ago' },
       { text: 'Looking for 2 flatmates in Smithfield. Modern apt, €750pp. DM for info.', time: '5h ago' },
     ],
   },
   {
-    title: 'Events', icon: '🎉', color: '#FDF4FF', postCount: 8,
+    key: 'events', title: 'Campus Events', icon: '🎉', color: '#FDF4FF',
     posts: [
       { text: 'UCD Law Society mixer this Thursday, free entry with student card.', time: '30m ago' },
       { text: 'TCD Drama Society auditions, Monday 7pm, all welcome.', time: '4h ago' },
     ],
   },
   {
-    title: 'Lost & Found', icon: '🔍', color: '#FFF7ED', postCount: 5,
+    key: 'study-groups', title: 'Study Groups', icon: '📚', color: '#F0F9FF',
+    posts: [
+      { text: 'FIN301 exam prep group forming, meet Thursdays in the library.', time: '1h ago' },
+      { text: 'Looking for two more for a CS2001 study group, hybrid format.', time: '3h ago' },
+    ],
+  },
+  {
+    key: 'lost-found', title: 'Lost and Found', icon: '🔍', color: '#FFF7ED',
     posts: [
       { text: 'Found: Blue North Face jacket in Library. Posted to security desk.', time: '6h ago' },
       { text: 'Lost: AirPods Pro near Arts building, please DM if found.', time: '1d ago' },
     ],
   },
   {
-    title: 'Societies', icon: '🤝', color: '#F0F9FF', postCount: 9,
+    key: 'conversations', title: 'Campus Conversation Boards', icon: '💬', color: '#FDF4FF',
+    posts: [
+      { text: 'Anyone else find the new library hours a pain?', time: '45m ago' },
+      { text: 'Best spots to study on campus that aren’t the library?', time: '3h ago' },
+    ],
+  },
+  {
+    key: 'clubs', title: 'Join Clubs and Societies', icon: '🤝', color: '#F0FDF4',
     posts: [
       { text: 'Chess Society looking for new members, all levels welcome!', time: '2h ago' },
-      { text: 'St. Vincent de Paul UCC, volunteering every Tuesday evening.', time: '1d ago' },
+      { text: 'St. Vincent de Paul, volunteering every Tuesday evening.', time: '1d ago' },
     ],
   },
   {
-    title: 'Opportunities', icon: '💼', color: '#FEF9C3', postCount: 12,
-    posts: [
-      { text: 'Part-time barista role, €13.50/hr, 3 mins from UCD. Apply now.', time: '45m ago' },
-      { text: 'Marketing intern wanted by Dublin startup, 20 hrs/week, paid.', time: '3h ago' },
-    ],
-  },
-  {
-    title: 'Problems & Solutions', icon: '💡', color: '#FEF9C3', postCount: 6,
+    key: 'problems', title: 'Problems & Solutions', icon: '🧩', color: '#FEF9C3',
     posts: [
       { text: 'Anyone know how to appeal a CAO change of mind decision? Need help urgently.', time: '1h ago' },
       { text: 'Accommodation deposit taken but landlord gone silent, what are my rights?', time: '3h ago' },
     ],
   },
   {
-    title: 'Shared Subscriptions', icon: '🔗', color: '#F0F9FF', postCount: 4,
+    key: 'subscriptions', title: 'Shared Subscriptions', icon: '🔗', color: '#F0F9FF',
     posts: [
       { text: 'Sharing Spotify Premium family plan, 2 spots left, €4/month each.', time: '2h ago' },
-      { text: 'Netflix account share, 1 spot open, €5/month. UCD area.', time: '5h ago' },
+      { text: 'Netflix account share, 1 spot open, €5/month.', time: '5h ago' },
     ],
   },
   {
-    title: 'Shared Notes', icon: '📝', color: '#EFF6FF', postCount: 9,
+    key: 'reviews', title: 'College Reviews', icon: '⭐', color: '#F0FDF4',
     posts: [
-      { text: 'MG4021 Week 8 notes, Google Drive link in comments.', time: '30m ago' },
-      { text: 'CS2001 Binary Trees summary, anyone want a copy? DM me.', time: '2h ago' },
-    ],
-  },
-  {
-    title: 'College Reviews', icon: '⭐', color: '#F0FDF4', postCount: 11,
-    posts: [
-      { text: 'UCD Commerce, solid for networking, weak on small group teaching. 7/10.', time: '4h ago' },
+      { text: 'UCD Commerce, solid for networking, weak on small group teaching.', time: '4h ago' },
       { text: 'TCD Law, incredibly challenging but library resources are unmatched.', time: '1d ago' },
     ],
   },
   {
-    title: 'Campus Suggestions', icon: '💬', color: '#FDF4FF', postCount: 3,
+    key: 'suggestions', title: 'Campus Suggestions', icon: '💭', color: '#FDF4FF',
     posts: [
       { text: '24hr study room in the Arts block, high demand during exam season.', time: '6h ago' },
       { text: 'More microwaves in the SU, lunch queues are 20 minutes.', time: '1d ago' },
     ],
   },
   {
-    title: 'Student Ads', icon: '📢', color: '#F5F0E8', postCount: 7,
+    key: 'ads', title: 'Student Ads', icon: '📢', color: '#F5F0E8',
     posts: [
-      { text: 'Guitar lessons available, €25/session, Dublin. Beginners welcome.', time: '1h ago' },
+      { text: 'Guitar lessons available, €25/session. Beginners welcome.', time: '1h ago' },
       { text: 'Professional CV & cover letter service, €25. Fast turnaround.', time: '2h ago' },
+    ],
+  },
+  {
+    key: 'opportunities', title: 'Opportunities', icon: '💼', color: '#FEF9C3',
+    posts: [
+      { text: 'Part-time barista role, €13.50/hr, 3 mins from UCD. Apply now.', time: '45m ago' },
+      { text: 'Marketing intern wanted by Dublin startup, 20 hrs/week, paid.', time: '3h ago' },
     ],
   },
 ]
@@ -149,20 +157,6 @@ const BOARDS_DATA = [
 const CARPOOL_TERMS_VERSION = 'v1'
 
 const CARPOOL_REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
-
-// ─── Open projects ────────────────────────────────────────────────────────────
-
-const PROJECTS = [
-  { title: 'Campus Sustainability App', tags: ['Mobile Dev', 'UI/UX', 'Sustainability'], team: 2, need: 2, university: 'UCD' },
-  { title: 'AI Study Planner, Final Year Project', tags: ['AI/ML', 'Python', 'React'], team: 1, need: 3, university: 'TCD' },
-  { title: 'Student Budget Tracker', tags: ['Finance', 'App Dev', 'Open to All'], team: 3, need: 1, university: 'UL' },
-]
-
-// ─── Chat context helpers ─────────────────────────────────────────────────────
-
-function boardContextId(title) {
-  return 'campus-board-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-}
 
 // ─── Carpool: terms sheet ───────────────────────────────────────────────────
 // Real gate, not decoration — the app shows this before ever attempting a
@@ -215,22 +209,40 @@ function CarpoolTermsModal({ visible, onClose, onAccept, accepting }) {
 }
 
 // ─── Carpool: post a route ──────────────────────────────────────────────────
+const DAY_OPTIONS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const CONTRIBUTION_OPTIONS = ['Yes', 'No', 'Flexible']
+
+function formatDays(days) {
+  if (!days || days.length === 0) return ''
+  if (days.length === 5 && DAY_OPTIONS.slice(0, 5).every(d => days.includes(d))) return 'Mon–Fri'
+  if (days.length === 7) return 'Every day'
+  return days.join(', ')
+}
+
 function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
   const [from, setFrom]       = useState('')
   const [to, setTo]           = useState('')
-  const [schedule, setSchedule] = useState('')
+  const [days, setDays]       = useState([])
+  const [departureTime, setDepartureTime] = useState('')
   const [seats, setSeats]     = useState(1)
+  const [contribution, setContribution] = useState('Flexible')
+  const [contactPreference, setContactPreference] = useState('')
   const [notes, setNotes]     = useState('')
   const [saving, setSaving]   = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
 
   function reset() {
-    setFrom(''); setTo(''); setSchedule(''); setSeats(1); setNotes(''); setErrorMsg(null)
+    setFrom(''); setTo(''); setDays([]); setDepartureTime(''); setSeats(1)
+    setContribution('Flexible'); setContactPreference(''); setNotes(''); setErrorMsg(null)
+  }
+
+  function toggleDay(day) {
+    setDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])
   }
 
   async function submit() {
-    if (!from.trim() || !to.trim() || !schedule.trim()) {
-      setErrorMsg('From, to, and schedule are required.')
+    if (!from.trim() || !to.trim() || days.length === 0 || !departureTime.trim() || !contactPreference.trim()) {
+      setErrorMsg('From, to, at least one day, departure time, and contact preference are required.')
       return
     }
     setSaving(true)
@@ -243,8 +255,11 @@ function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
           poster_name: posterName,
           from_location: from.trim(),
           to_location: to.trim(),
-          schedule: schedule.trim(),
+          days,
+          departure_time: departureTime.trim(),
           seats_available: seats,
+          contribution,
+          contact_preference: contactPreference.trim(),
           notes: notes.trim() || null,
         })
         .select()
@@ -280,8 +295,24 @@ function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
             <TextInput style={cm.input} value={from} onChangeText={setFrom} placeholder="e.g. Limerick City" placeholderTextColor={colors.light} />
             <Text style={cm.fieldLabel}>To</Text>
             <TextInput style={cm.input} value={to} onChangeText={setTo} placeholder="e.g. UL Campus" placeholderTextColor={colors.light} />
-            <Text style={cm.fieldLabel}>Schedule</Text>
-            <TextInput style={cm.input} value={schedule} onChangeText={setSchedule} placeholder="e.g. Mon–Fri · 8:30am" placeholderTextColor={colors.light} />
+            <Text style={cm.fieldLabel}>Days</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {DAY_OPTIONS.map(day => {
+                const active = days.includes(day)
+                return (
+                  <TouchableOpacity
+                    key={day}
+                    style={[cm.dayChip, active && cm.dayChipActive]}
+                    activeOpacity={0.8}
+                    onPress={() => toggleDay(day)}
+                  >
+                    <Text style={[cm.dayChipText, active && cm.dayChipTextActive]}>{day}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+            <Text style={cm.fieldLabel}>Departure time</Text>
+            <TextInput style={cm.input} value={departureTime} onChangeText={setDepartureTime} placeholder="e.g. 8:30am" placeholderTextColor={colors.light} />
             <Text style={cm.fieldLabel}>Seats available</Text>
             <View style={cm.stepperRow}>
               <TouchableOpacity
@@ -297,13 +328,31 @@ function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
               <TouchableOpacity
                 style={cm.stepperBtn}
                 activeOpacity={0.8}
-                onPress={() => setSeats(s => Math.min(8, s + 1))}
+                onPress={() => setSeats(s => Math.min(4, s + 1))}
                 accessibilityRole="button"
                 accessibilityLabel="Increase seats available"
               >
                 <Plus size={14} color={colors.navy} />
               </TouchableOpacity>
             </View>
+            <Text style={cm.fieldLabel}>Contribution towards fuel/costs</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {CONTRIBUTION_OPTIONS.map(opt => {
+                const active = contribution === opt
+                return (
+                  <TouchableOpacity
+                    key={opt}
+                    style={[cm.dayChip, active && cm.dayChipActive]}
+                    activeOpacity={0.8}
+                    onPress={() => setContribution(opt)}
+                  >
+                    <Text style={[cm.dayChipText, active && cm.dayChipTextActive]}>{opt}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+            <Text style={cm.fieldLabel}>Contact preference</Text>
+            <TextInput style={cm.input} value={contactPreference} onChangeText={setContactPreference} placeholder="Email, phone, or in-app chat" placeholderTextColor={colors.light} />
             <Text style={cm.fieldLabel}>Notes (optional)</Text>
             <TextInput
               style={[cm.input, { minHeight: 64 }]}
@@ -353,6 +402,13 @@ const cm = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
   stepperValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, minWidth: 20, textAlign: 'center' },
+  dayChip: {
+    borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8,
+    borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.15)', backgroundColor: colors.white,
+  },
+  dayChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  dayChipText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },
+  dayChipTextActive: { color: colors.cream },
   error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginTop: 12 },
   acceptBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
   acceptBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
@@ -362,7 +418,7 @@ const cm = StyleSheet.create({
 
 // Feature-card "Open" buttons jump down to the matching section already on
 // this screen rather than pushing a new one — Events lives inside the
-// Community Boards section (it’s one of the 11 boards), not its own section.
+// Community Boards section (it’s one of the 12 boards), not its own section.
 const FEATURE_SECTION = { boards: 'boards', carpool: 'carpool', events: 'boards', projects: 'projects' }
 
 export default function CampusConnectScreen({ navigation }) {
@@ -379,6 +435,32 @@ export default function CampusConnectScreen({ navigation }) {
   const [termsOpen, setTermsOpen] = useState(false)
   const [postOpen, setPostOpen] = useState(false)
   const [acceptingTerms, setAcceptingTerms] = useState(false)
+
+  // ── Post to Board picker ────────────────────────────────────────────────────
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  // ── Carpool: route/day/time filters ─────────────────────────────────────────
+  const [routeFilter, setRouteFilter] = useState('')
+  const [dayFilter, setDayFilter]     = useState(null)
+  const [timeFilter, setTimeFilter]   = useState('')
+  const filteredRoutes = routes.filter(r => {
+    if (routeFilter.trim()) {
+      const q = routeFilter.trim().toLowerCase()
+      if (!r.from_location.toLowerCase().includes(q) && !r.to_location.toLowerCase().includes(q)) return false
+    }
+    if (dayFilter && !(r.days || []).includes(dayFilter)) return false
+    if (timeFilter.trim() && !(r.departure_time || '').toLowerCase().includes(timeFilter.trim().toLowerCase())) return false
+    return true
+  })
+
+  // ── Project Collaboration preview (real rows, incl. seed examples) ─────────
+  const [projects, setProjects] = useState([])
+  const [loadingProjects, setLoadingProjects] = useState(true)
+
+  useEffect(() => {
+    supabase.from('project_collaborations').select('*').order('created_at', { ascending: false }).limit(3)
+      .then(({ data }) => { setProjects(data || []); setLoadingProjects(false) })
+  }, [])
 
   useEffect(() => {
     if (!user?.id) return
@@ -536,10 +618,10 @@ export default function CampusConnectScreen({ navigation }) {
 
           <View onLayout={registerSection('boards')} />
           <SectionHeader eyebrow="Community Boards" title="12 Boards, One Place" style={{ marginTop: spacing.xl }} />
-          <MockContentBanner
-            title="Example content, live when your campus goes live"
-            subtitle="These posts are shown as examples. All 11 boards launch when real students join your campus community."
-          />
+          <Text style={styles.boardsIntro}>
+            Live from day one — browse any board straight away, no campus sign-up required. Posting just needs your
+            institution on file.
+          </Text>
           <ScrollView
             horizontal showsHorizontalScrollIndicator={false}
             style={styles.rowScroll}
@@ -547,21 +629,15 @@ export default function CampusConnectScreen({ navigation }) {
           >
             {BOARDS_DATA.map(board => (
               <TouchableOpacity
-                key={board.title}
+                key={board.key}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate('ChatRoom', {
-                  contextType: 'board',
-                  contextId:   boardContextId(board.title),
-                  roomName:    board.title,
-                  subtitle:    `${board.postCount} posts · Campus board`,
-                })}
+                onPress={() => navigation.navigate('BoardDetail', { boardKey: board.key })}
               >
                 <View style={[styles.boardCard, { backgroundColor: board.color }]}>
                   <View style={styles.boardHeader}>
                     <Text style={styles.boardEmoji}>{board.icon}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.boardTitle}>{board.title}</Text>
-                      <Text style={styles.boardCount}>{board.postCount} posts</Text>
                     </View>
                   </View>
                   {board.posts.map((post, i) => (
@@ -572,7 +648,7 @@ export default function CampusConnectScreen({ navigation }) {
                   ))}
                   <View style={styles.boardChatHint}>
                     <MessageSquare size={11} color="rgba(30,58,95,0.4)" strokeWidth={1.8} />
-                    <Text style={styles.boardChatHintText}>Open discussion</Text>
+                    <Text style={styles.boardChatHintText}>Browse & post</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -584,16 +660,54 @@ export default function CampusConnectScreen({ navigation }) {
           <View style={styles.safetyBanner}>
             <AlertCircle size={15} color="#92400E" />
             <Text style={styles.safetyBannerText}>
-              Always verify carpool drivers through your campus student services before travelling.
+              Always meet in a public place first. Share your plans with someone you trust.
             </Text>
           </View>
+
+          <View style={styles.carpoolFilters}>
+            <View style={styles.filterSearchWrap}>
+              <Search size={14} color={colors.muted} />
+              <TextInput
+                style={styles.filterSearchInput}
+                placeholder="Filter by route (e.g. Cork)"
+                placeholderTextColor={colors.light}
+                value={routeFilter}
+                onChangeText={setRouteFilter}
+              />
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity style={[cm.dayChip, !dayFilter && cm.dayChipActive]} onPress={() => setDayFilter(null)}>
+                  <Text style={[cm.dayChipText, !dayFilter && cm.dayChipTextActive]}>All days</Text>
+                </TouchableOpacity>
+                {DAY_OPTIONS.map(day => (
+                  <TouchableOpacity key={day} style={[cm.dayChip, dayFilter === day && cm.dayChipActive]} onPress={() => setDayFilter(day)}>
+                    <Text style={[cm.dayChipText, dayFilter === day && cm.dayChipTextActive]}>{day}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+            <View style={styles.filterSearchWrap}>
+              <Search size={14} color={colors.muted} />
+              <TextInput
+                style={styles.filterSearchInput}
+                placeholder="Filter by time (e.g. 8:30am)"
+                placeholderTextColor={colors.light}
+                value={timeFilter}
+                onChangeText={setTimeFilter}
+              />
+            </View>
+          </View>
+
           {loadingRoutes ? (
             <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
-          ) : routes.length === 0 ? (
-            <Text style={styles.emptyRoutesText}>No routes posted yet. Be the first to share yours.</Text>
+          ) : filteredRoutes.length === 0 ? (
+            <Text style={styles.emptyRoutesText}>
+              {routes.length === 0 ? 'No routes posted yet. Be the first to share yours.' : 'No routes match those filters.'}
+            </Text>
           ) : (
             <View style={{ gap: 10, marginTop: spacing.sm }}>
-              {routes.map(route => {
+              {filteredRoutes.map(route => {
                 const isOwn = route.user_id === user?.id
                 return (
                   <Card key={route.id} style={styles.carpoolCard}>
@@ -605,10 +719,16 @@ export default function CampusConnectScreen({ navigation }) {
                       <MapPin size={10} color={colors.navy} />
                       <Text style={styles.carpoolTo}>{route.to_location}</Text>
                     </View>
+                    <View style={styles.carpoolMetaRow}>
+                      <View style={styles.carpoolMetaPill}><Text style={styles.carpoolMetaPillText}>{formatDays(route.days)}</Text></View>
+                      <View style={styles.carpoolMetaPill}><Text style={styles.carpoolMetaPillText}>Contribution: {route.contribution}</Text></View>
+                    </View>
                     {!!route.notes && <Text style={styles.carpoolNotes}>{route.notes}</Text>}
-                    <Text style={styles.carpoolPoster}>Posted by {isOwn ? 'you' : (route.poster_name || 'a student')}</Text>
+                    <Text style={styles.carpoolPoster}>
+                      Posted by {isOwn ? 'you' : (route.poster_name || 'a student')} · Contact: {route.contact_preference}
+                    </Text>
                     <View style={styles.carpoolFooter}>
-                      <Text style={styles.carpoolTime}>{route.schedule}</Text>
+                      <Text style={styles.carpoolTime}>{route.departure_time}</Text>
                       <View style={styles.carpoolRight}>
                         <View style={styles.seatBadge}>
                           <Text style={styles.seatBadgeText}>
@@ -647,7 +767,7 @@ export default function CampusConnectScreen({ navigation }) {
                                 contextType: 'carpool',
                                 contextId:   route.id,
                                 roomName:    `${route.from_location} → ${route.to_location}`,
-                                subtitle:    route.schedule,
+                                subtitle:    route.departure_time,
                               })}
                             >
                               <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
@@ -673,43 +793,52 @@ export default function CampusConnectScreen({ navigation }) {
 
           <View onLayout={registerSection('projects')} />
           <SectionHeader eyebrow="Project Collaboration" title="Open Projects" style={{ marginTop: spacing.xl }} />
-          <View style={{ gap: 12 }}>
-            {PROJECTS.map((p, i) => (
-              <Card key={i} style={styles.projectCard}>
-                <Text style={styles.projectTitle}>{p.title}</Text>
-                <View style={styles.projectTags}>
-                  {p.tags.map(t => (
-                    <View key={t} style={styles.projectTag}>
-                      <Text style={styles.projectTagText}>{t}</Text>
-                    </View>
-                  ))}
-                </View>
-                <View style={styles.projectFooter}>
-                  <View style={styles.projectMeta}>
-                    <Text style={styles.projectMetaText}>{p.university}</Text>
-                    <Text style={styles.projectMetaText}>·</Text>
-                    <Text style={styles.projectMetaText}>{p.team} in team</Text>
-                    <Text style={styles.projectMetaText}>·</Text>
-                    <Text style={[styles.projectMetaText, { color: colors.navy, fontFamily: fonts.sansSemiBold }]}>
-                      {p.need} spot{p.need !== 1 ? 's' : ''} open
-                    </Text>
+          {loadingProjects ? (
+            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+          ) : (
+            <View style={{ gap: 12 }}>
+              {projects.map(p => (
+                <Card key={p.id} style={styles.projectCard}>
+                  <Text style={styles.projectTitle}>{p.title}</Text>
+                  <View style={styles.projectTags}>
+                    {(p.skills_needed || []).map(t => (
+                      <View key={t} style={styles.projectTag}>
+                        <Text style={styles.projectTagText}>{t}</Text>
+                      </View>
+                    ))}
                   </View>
-                  <TouchableOpacity
-                    style={styles.joinBtn}
-                    activeOpacity={0.8}
-                    onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Join project: ${p.title}`)}`)}
-                  >
-                    <Text style={styles.joinBtnText}>Join</Text>
-                  </TouchableOpacity>
-                </View>
-              </Card>
-            ))}
-          </View>
+                  <View style={styles.projectFooter}>
+                    <View style={styles.projectMeta}>
+                      <Text style={styles.projectMetaText}>{p.timeline}</Text>
+                      <Text style={styles.projectMetaText}>·</Text>
+                      <Text style={[styles.projectMetaText, { color: colors.navy, fontFamily: fonts.sansSemiBold }]}>
+                        {p.collaborators_needed} spot{p.collaborators_needed !== 1 ? 's' : ''} open
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.joinBtn}
+                      activeOpacity={0.8}
+                      onPress={() => navigation.navigate('BoardDetail', { boardKey: 'projects' })}
+                    >
+                      <Text style={styles.joinBtnText}>Join</Text>
+                    </TouchableOpacity>
+                  </View>
+                </Card>
+              ))}
+            </View>
+          )}
+          <TouchableOpacity
+            style={[styles.secondaryBtn, { marginTop: spacing.md }]}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('BoardDetail', { boardKey: 'projects' })}
+          >
+            <Text style={styles.secondaryBtnText}>See All Projects & Post Your Own</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.primaryBtn}
             activeOpacity={0.8}
-            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Post to Campus Board'))}
+            onPress={() => setPickerOpen(true)}
           >
             <Plus size={16} color={colors.cream} />
             <Text style={styles.primaryBtnText}>Post to Campus Board</Text>
@@ -717,6 +846,16 @@ export default function CampusConnectScreen({ navigation }) {
 
         </View>
       </ScrollView>
+
+      <BoardPickerModal
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onPick={board => {
+          setPickerOpen(false)
+          if (board.key === 'carpool') openAddRoute()
+          else navigation.navigate('BoardDetail', { boardKey: board.key, openPostForm: true })
+        }}
+      />
 
       <CarpoolTermsModal
         visible={termsOpen}
@@ -777,6 +916,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, height: 48, ...shadows.card,
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  boardsIntro: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 6, marginBottom: 12, lineHeight: 18 },
 
   // Boards
   rowScroll:   { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
@@ -793,15 +933,24 @@ const styles = StyleSheet.create({
   safetyBanner: {
     backgroundColor: '#FEF3C7', borderRadius: 8,
     flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 12,
-    borderWidth: 1, borderColor: 'rgba(146,64,14,0.2)',
+    borderLeftWidth: 4, borderLeftColor: '#D97706',
   },
   safetyBannerText: { fontFamily: fonts.sans, fontSize: 12, color: '#92400E', flex: 1, lineHeight: 18 },
+  carpoolFilters:   { marginTop: spacing.md, gap: 4 },
+  filterSearchWrap: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: colors.white, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginTop: 8, ...shadows.card,
+  },
+  filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
   emptyRoutesText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.md },
   carpoolCard:      { padding: 14 },
   carpoolRouteRow:  { flexDirection: 'row', alignItems: 'center', gap: 7 },
   carpoolDot:       { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.navy },
   carpoolFrom:      { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   carpoolTo:        { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
+  carpoolMetaRow:   { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  carpoolMetaPill:  { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
+  carpoolMetaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
   carpoolNotes:     { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 8, lineHeight: 17 },
   carpoolPoster:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 6 },
   carpoolFooter:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 },

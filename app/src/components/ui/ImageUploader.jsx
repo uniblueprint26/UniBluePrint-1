@@ -32,10 +32,11 @@ import { colors, fonts, radius } from '../../constants/theme'
 
 // Max longest-edge dimension after resize, per bucket
 const MAX_DIM = {
-  'profile-pictures': 600,
-  'coach-photos':     800,
-  'partner-logos':    400,
-  'ad-images':        1200,
+  'profile-pictures':    600,
+  'coach-photos':        800,
+  'partner-logos':       400,
+  'ad-images':           1200,
+  'campus-board-photos': 1200,
 }
 
 const MAX_BYTES = 5 * 1024 * 1024  // 5 MB
