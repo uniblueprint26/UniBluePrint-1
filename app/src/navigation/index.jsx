@@ -20,6 +20,8 @@ import ElevationScreen     from '../screens/ElevationScreen'
 import CampusConnectScreen from '../screens/CampusConnectScreen'
 import BoardDetailScreen   from '../screens/BoardDetailScreen'
 import CourseConnectScreen from '../screens/CourseConnectScreen'
+import ModuleQAScreen      from '../screens/ModuleQAScreen'
+import ResourceFinderScreen from '../screens/ResourceFinderScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
 import BudgetingScreen     from '../screens/BudgetingScreen'
@@ -96,6 +98,8 @@ function HomeStack() {
       <Stack.Screen name="CampusConnect" component={CampusConnectScreen} />
       <Stack.Screen name="BoardDetail"   component={BoardDetailScreen}   />
       <Stack.Screen name="CourseConnect" component={CourseConnectScreen} />
+      <Stack.Screen name="ModuleQA"      component={ModuleQAScreen}      />
+      <Stack.Screen name="ResourceFinder" component={ResourceFinderScreen} />
       <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>

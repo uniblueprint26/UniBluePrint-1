@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Users, MessageSquare, BookMarked, Search, Briefcase, Star,
-  GraduationCap, Compass, Globe,
+  GraduationCap, Compass, Globe, Lightbulb,
   PenLine, BookOpenCheck, CalendarDays, Clock, BookOpen,
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus,
 } from 'lucide-react-native'
@@ -16,17 +16,28 @@ import FeatureCard from '../components/ui/FeatureCard'
 import MockContentBanner from '../components/ui/MockContentBanner'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
+import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 
-// ─── Course feature products (7 total, 4 live, 3 coming soon) ───────────────
+// ─── Course feature products (9 total, all live) ────────────────────────────
 
 const COURSE_FEATURES = [
+  {
+    key: 'course_boards', label: 'COURSE BOARDS', Icon: GraduationCap, color: '#EFF6FF',
+    headline: 'Talk to everyone on your course',
+    sub: 'Discussion boards scoped to your course, not your campus — open to every student on it, anywhere in Ireland.',
+    count: 'Live now',
+    preview: [
+      { text: 'Computer Science, UCD · Anyone doing the optional AI module next year?', meta: 'CS' },
+      { text: 'Law, TCD · Best way to structure a problem-question answer?', meta: 'Law' },
+    ],
+  },
   {
     key: 'notes', label: 'NOTES EXCHANGE', Icon: FileText, color: '#EFF6FF',
     headline: 'Get ahead with peer notes',
     sub: 'Upload and access module summaries, lecture notes, and revision guides shared by students like you.',
-    count: 'Growing',
+    count: 'Live now',
     preview: [
       { text: 'MG4021, Consumer Behaviour · Week 7 Summary · UL', meta: '142 views' },
       { text: 'CS2001, Data Structures · Linked Lists & Trees · UCD', meta: '98 views' },
@@ -36,7 +47,7 @@ const COURSE_FEATURES = [
     key: 'groups', label: 'STUDY GROUPS', Icon: Users, color: '#F0FDF4',
     headline: 'Study with people who get it',
     sub: 'Form or join groups by module, topic, or upcoming deadline. Open to every campus in Ireland.',
-    count: 'Coming soon',
+    count: 'Live now',
     preview: [
       { text: 'CS2001 Exam Prep Group · UCD · 4 members', meta: 'Active' },
       { text: 'MG4021 Week 7 Revision · UL · 3 members', meta: 'Active' },
@@ -46,7 +57,7 @@ const COURSE_FEATURES = [
     key: 'qa', label: 'MODULE Q&A', Icon: MessageSquare, color: '#FDF4FF',
     headline: 'Get unstuck, fast',
     sub: 'Ask course-specific questions and get answers from students who have already been there.',
-    count: 'Coming soon',
+    count: 'Live now',
     preview: [
       { text: "What's the best way to approach Big O notation for the upcoming exam?", meta: 'CS2001' },
       { text: 'Can anyone explain the difference between void and voidable contracts?', meta: 'LA1102' },
@@ -56,7 +67,7 @@ const COURSE_FEATURES = [
     key: 'exams', label: 'EXAM RESOURCES', Icon: BookMarked, color: '#FFF7ED',
     headline: 'Past papers and revision guides in one place',
     sub: 'Access a growing library of past papers, exam tips, and revision guides across all Irish universities.',
-    count: 'Coming soon',
+    count: 'Live now',
     preview: [
       { text: 'UCD Business, 2023 Past Papers Bundle', meta: 'Past Paper' },
       { text: 'TCD Law, Essay structure and exam technique guide', meta: 'Guide' },
@@ -65,22 +76,46 @@ const COURSE_FEATURES = [
   {
     key: 'resources', label: 'RESOURCE FINDER', Icon: Search, color: '#F0F9FF',
     headline: 'Find academic supports from any institution',
-    sub: 'Search grants, scholarships, academic resources, and campus services across Ireland.',
-    count: 'Coming soon', coming: true,
+    sub: 'Search shared notes and past papers by subject, course, or keyword, across Ireland.',
+    count: 'Live now',
   },
   {
     key: 'industry', label: 'INDUSTRY DISCUSSIONS', Icon: Briefcase, color: '#FEF9C3',
     headline: 'Talk to people already in your field',
     sub: 'Industry-specific threads for young people exploring careers. Ask, listen, and connect with those ahead of you.',
-    count: 'Coming soon', coming: true,
+    count: 'Live now',
   },
   {
     key: 'college_reviews', label: 'COLLEGE REVIEWS', Icon: Star, color: '#F0FDF4',
     headline: 'Real reviews of Irish colleges and courses',
     sub: 'Honest assessments from students across all institutions. Search by course, campus, or subject area.',
-    count: 'Coming soon', coming: true,
+    count: 'Live now',
+  },
+  {
+    key: 'cross_projects', label: 'PROJECT COLLABORATION', Icon: Lightbulb, color: '#FDF4FF',
+    headline: 'Build something real, with any college',
+    sub: 'Find teammates for college projects and side projects from students at any Irish institution.',
+    count: 'Live now',
+    preview: [
+      { text: 'Cross-college Hackathon Team · UCD + TCD · 2 spots open', meta: 'Mobile Dev' },
+      { text: 'Sustainability Research Project · UCC · 1 spot open', meta: 'Research' },
+    ],
   },
 ]
+
+// Maps each Course Tools feature card to its real destination.
+function openCourseFeature(navigation, key) {
+  const boardRoute = k => navigation.navigate('BoardDetail', { boardKey: k, registry: 'course' })
+  if (key === 'course_boards') return boardRoute('course-boards')
+  if (key === 'notes') return boardRoute('notes')
+  if (key === 'groups') return boardRoute('study-groups')
+  if (key === 'qa') return navigation.navigate('ModuleQA')
+  if (key === 'exams') return boardRoute('papers')
+  if (key === 'resources') return navigation.navigate('ResourceFinder')
+  if (key === 'industry') return boardRoute('industry')
+  if (key === 'college_reviews') return boardRoute('course-reviews')
+  if (key === 'cross_projects') return boardRoute('projects')
+}
 
 // ─── Academic Support: Course Tools (shells, exact tool set TBD) ─────────────
 // NOTE: Exact tool set to be confirmed. Pattern and card structure built here.
@@ -236,7 +271,7 @@ const CROSS_IRELAND_FEATURES = [
     key: 'all_reviews', label: 'COLLEGE REVIEWS (ALL-IRELAND)', Icon: Star, color: 'rgba(245,240,232,0.15)',
     headline: 'Every Irish college, reviewed honestly',
     sub: 'Open to current students, graduates, and prospective applicants. Search by course or institution.',
-    count: 'Coming soon', coming: true,
+    count: 'Live now',
   },
 ]
 
@@ -309,6 +344,11 @@ function MentorCard({ mentor }) {
 
 export default function CourseConnectScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  function goToDirectory() {
+    navigation.getParent()?.navigate('Directory')
+  }
 
   return (
     <View style={styles.screen}>
@@ -372,7 +412,9 @@ export default function CourseConnectScreen({ navigation }) {
           {/* ── Course Tools ── */}
           <SectionHeader eyebrow="What's Available" title="Course Tools" style={{ marginTop: spacing.lg }} />
           <View style={{ gap: 14 }}>
-            {COURSE_FEATURES.map(f => <FeatureCard key={f.key} feature={f} />)}
+            {COURSE_FEATURES.map(f => (
+              <FeatureCard key={f.key} feature={f} onPress={() => openCourseFeature(navigation, f.key)} />
+            ))}
           </View>
 
           {/* ── Academic Support (white breakout section) ── */}
@@ -432,8 +474,8 @@ export default function CourseConnectScreen({ navigation }) {
           {/* ── Student Database ── */}
           <SectionHeader eyebrow="Student Network" title="Student Database" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
-            title="Full database coming soon"
-            subtitle="Connect with students across Irish universities. Filter by course, year, and skills."
+            title="Preview shown below"
+            subtitle="These cards are illustrative — browse the real Student and User Database in the Directory tab."
           />
           <ScrollView
             horizontal showsHorizontalScrollIndicator={false}
@@ -441,7 +483,7 @@ export default function CourseConnectScreen({ navigation }) {
             contentContainerStyle={{ paddingRight: spacing.md }}
           >
             {STUDENT_PROFILES.map((s, i) => (
-              <TouchableOpacity key={i} activeOpacity={0.8}>
+              <TouchableOpacity key={i} activeOpacity={0.8} onPress={goToDirectory}>
                 <View style={[styles.studentCard, { backgroundColor: s.color }]}>
                   <View style={styles.studentAvatar}>
                     <Text style={styles.studentInitials}>{s.initials}</Text>
@@ -461,24 +503,22 @@ export default function CourseConnectScreen({ navigation }) {
               </TouchableOpacity>
             ))}
           </ScrollView>
+          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8} onPress={goToDirectory}>
+            <Text style={styles.secondaryBtnText}>Browse Full Directory</Text>
+          </TouchableOpacity>
 
           {/* ── Course Discussions ── */}
           <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
-            title="Discussions: Building Now"
-            subtitle="Module-specific Q&A threads launching with Course Connect. Ask questions, share answers."
+            title="Examples shown below — Module Q&A is live"
+            subtitle="These preview threads are illustrative. Tap through to ask a real question or browse live answers."
           />
           <View style={{ gap: 10 }}>
             {DISCUSSIONS.map((d, i) => (
               <TouchableOpacity
                 key={i}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate('ChatRoom', {
-                  contextType: 'board',
-                  contextId:   `course-${d.module.toLowerCase()}`,
-                  roomName:    `${d.module} Discussion`,
-                  subtitle:    d.university,
-                })}
+                onPress={() => navigation.navigate('ModuleQA')}
               >
                 <Card style={styles.discussionCard}>
                   <View style={styles.discussionTop}>
@@ -497,6 +537,9 @@ export default function CourseConnectScreen({ navigation }) {
               </TouchableOpacity>
             ))}
           </View>
+          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8} onPress={() => navigation.navigate('ModuleQA')}>
+            <Text style={styles.secondaryBtnText}>Browse All Module Q&A</Text>
+          </TouchableOpacity>
 
           {/* ── Cross-Ireland (navy breakout section) ── */}
           <View style={styles.crossIrelandSection}>
@@ -507,7 +550,12 @@ export default function CourseConnectScreen({ navigation }) {
             </Text>
             <View style={{ gap: 14, marginTop: spacing.lg }}>
               {CROSS_IRELAND_FEATURES.map(f => (
-                <FeatureCard key={f.key} feature={f} dark />
+                <FeatureCard
+                  key={f.key}
+                  feature={f}
+                  dark
+                  onPress={f.key === 'all_reviews' ? () => openCourseFeature(navigation, 'college_reviews') : undefined}
+                />
               ))}
             </View>
           </View>
@@ -515,14 +563,24 @@ export default function CourseConnectScreen({ navigation }) {
           <TouchableOpacity
             style={styles.primaryBtn}
             activeOpacity={0.8}
-            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Sharing my notes'))}
+            onPress={() => setPickerOpen(true)}
           >
             <Plus size={16} color={colors.cream} />
-            <Text style={styles.primaryBtnText}>Share Your Notes</Text>
+            <Text style={styles.primaryBtnText}>Post to a Course Connect Board</Text>
           </TouchableOpacity>
 
         </View>
       </ScrollView>
+
+      <CourseBoardPickerModal
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onPick={board => {
+          setPickerOpen(false)
+          if (board.key === 'module-qa') navigation.navigate('ModuleQA', { openAsk: true })
+          else navigation.navigate('BoardDetail', { boardKey: board.key, registry: 'course', openPostForm: true })
+        }}
+      />
     </View>
   )
 }
@@ -663,4 +721,6 @@ const styles = StyleSheet.create({
   // CTAs
   primaryBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: 8, height: 54, marginTop: spacing.lg },
   primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.white, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 })
