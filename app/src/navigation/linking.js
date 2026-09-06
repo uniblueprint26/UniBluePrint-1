@@ -52,7 +52,7 @@ export const linking = {
         },
       },
       AdBoard: {
-        screens: { AdBoardMain: 'ad-board' },
+        screens: { AdBoardMain: 'ad-board', Marketplace: 'marketplace' },
       },
       Messages: {
         screens: { MessagesMain: 'messages' },
@@ -63,6 +63,8 @@ export const linking = {
       Profile: {
         screens: {
           ProfileMain: { path: 'profile', alias: ['subscription', 'pro'] }, // several paths, same destination — membership status lives on Profile
+          About:       'about',
+          Pricing:     'pricing',
           PrivacyData: 'privacy',
           BlueprintTour: 'tour',
         },

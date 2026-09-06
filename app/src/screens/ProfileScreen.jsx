@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen, X, Compass, Menu,
+  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ImageUploader from '../components/ui/ImageUploader'
@@ -44,6 +44,15 @@ const EXPLORE_LINKS = [
     color: '#FFF7ED',
     action: 'screen',
     screen: 'FAQs',
+  },
+  {
+    Icon: Tag,
+    eyebrow: 'PRICING',
+    label: 'View Plans',
+    sub: 'Free, Pro, and Premium — see what each plan includes.',
+    color: '#FEF3C7',
+    action: 'screen',
+    screen: 'Pricing',
   },
   {
     Icon: Info,

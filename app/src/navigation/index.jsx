@@ -24,6 +24,8 @@ import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
+import MarketplaceScreen   from '../screens/MarketplaceScreen'
+import ArticleScreen       from '../screens/ArticleScreen'
 import BudgetingScreen     from '../screens/BudgetingScreen'
 import MessagesScreen      from '../screens/MessagesScreen'
 import DirectoryScreen     from '../screens/DirectoryScreen'
@@ -65,6 +67,7 @@ import WeeklyIssueEditorScreen  from '../screens/portals/WeeklyIssueEditorScreen
 
 // Profile sub-screens
 import AboutScreen       from '../screens/AboutScreen'
+import PricingScreen     from '../screens/PricingScreen'
 import FAQsScreen        from '../screens/FAQsScreen'
 import HelpScreen        from '../screens/HelpScreen'
 import PrivacyDataScreen from '../screens/PrivacyDataScreen'
@@ -137,8 +140,11 @@ function HomeStack() {
 function AdBoardStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
-      <Stack.Screen name="AdBoardMain" component={AdBoardScreen} />
-      <Stack.Screen name="ChatRoom"    component={ChatRoomScreen} />
+      <Stack.Screen name="AdBoardMain"  component={AdBoardScreen} />
+      <Stack.Screen name="Marketplace"  component={MarketplaceScreen} />
+      <Stack.Screen name="BoardDetail"  component={BoardDetailScreen} />
+      <Stack.Screen name="Article"      component={ArticleScreen} />
+      <Stack.Screen name="ChatRoom"     component={ChatRoomScreen} />
     </Stack.Navigator>
   )
 }
@@ -165,6 +171,7 @@ function ProfileStack() {
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="ProfileMain"  component={ProfileScreen}     />
       <Stack.Screen name="About"        component={AboutScreen}       />
+      <Stack.Screen name="Pricing"      component={PricingScreen}     />
       <Stack.Screen name="FAQs"         component={FAQsScreen}        />
       <Stack.Screen name="Help"         component={HelpScreen}        />
       <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
