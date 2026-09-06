@@ -9,6 +9,7 @@ import { MessageSquare, Users, ChevronRight, Pencil, Menu } from 'lucide-react-n
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { formatNumber } from '../utils/formatNumber'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -275,8 +276,8 @@ export default function MessagesScreen({ navigation }) {
             ? 'Loading...'
             : hasRooms
               ? unreadTotal > 0
-                ? `${unreadTotal} unread`
-                : `${rooms.length} conversation${rooms.length !== 1 ? 's' : ''}`
+                ? `${formatNumber(unreadTotal)} unread`
+                : `${formatNumber(rooms.length)} conversation${rooms.length !== 1 ? 's' : ''}`
               : 'Join a board or carpool route to start chatting'}
         </Text>
       </View>

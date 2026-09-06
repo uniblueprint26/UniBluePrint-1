@@ -8,6 +8,7 @@ import {
 import Card from '../../components/ui/Card'
 import ImageUploader from '../../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { COACHES, coachSlug } from '../ElevationScreen'
@@ -97,7 +98,7 @@ const pm = StyleSheet.create({
 function MetricTile({ label, value, border }) {
   return (
     <View style={[styles.metricTile, border && styles.metricTileBorder]}>
-      <Text style={styles.metricValue}>{value ?? '—'}</Text>
+      <Text style={styles.metricValue}>{value != null ? formatNumber(value) : '—'}</Text>
       <Text style={styles.metricLabel}>{label}</Text>
     </View>
   )
@@ -198,11 +199,11 @@ export default function FounderPortalScreen({ navigation }) {
           </View>
           <View style={styles.urgencyRow}>
             <View style={[styles.urgencyDot, { backgroundColor: '#DC2626' }]} />
-            <Text style={styles.urgencyText}>{queue?.red_count ?? 0} red</Text>
+            <Text style={styles.urgencyText}>{formatNumber(queue?.red_count ?? 0)} red</Text>
             <View style={[styles.urgencyDot, { backgroundColor: '#F59E0B' }]} />
-            <Text style={styles.urgencyText}>{queue?.amber_count ?? 0} amber</Text>
+            <Text style={styles.urgencyText}>{formatNumber(queue?.amber_count ?? 0)} amber</Text>
             <View style={[styles.urgencyDot, { backgroundColor: '#16A34A' }]} />
-            <Text style={styles.urgencyText}>{queue?.green_count ?? 0} green</Text>
+            <Text style={styles.urgencyText}>{formatNumber(queue?.green_count ?? 0)} green</Text>
           </View>
         </Card>
 

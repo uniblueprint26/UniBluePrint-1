@@ -1,44 +1,56 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  Linking, Modal,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Haptics from 'expo-haptics'
 import {
   Bell, User, FileText, TrendingUp, Building2,
   Heart, Globe, Compass, Calculator, Megaphone,
-  ChevronRight, ChevronUp, ChevronDown, Pencil,
-  LayoutGrid, MessageSquare, Users, X, Menu,
+  LayoutGrid, MessageSquare, Users, Menu, CheckCircle,
+  Activity as ActivityIcon,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
-import { colors, fonts, spacing } from '../constants/theme'
+import QuickAccessGrid from '../components/home/QuickAccessGrid'
+import DestinationPickerModal from '../components/home/DestinationPickerModal'
+import { colors, fonts } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { fetchHomeActivity } from '../lib/homeActivityFeed'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const SHORTCUTS_KEY = '@ubp:quick_shortcuts_v1'
-const DEFAULT_SHORTCUTS = ['foundation', 'elevation', 'campus', 'course']
+const DEFAULT_SHORTCUTS = ['foundation', 'my_outputs', 'find_coach', 'campus']
+const MAX_SHORTCUTS = 4
+const ACTIVITY_REFRESH_MS = 60000
 
-// All possible Quick Access destinations
+// Every destination the Quick Access "+" picker can offer. `label` is the
+// canonical name shown in the picker; `homeLabel`/`homeSub`/`homeIcon` let a
+// destination present differently as a Quick Access card (e.g. Foundation
+// Blueprint shows as "Submit a Service" there) without being a separate,
+// confusing entry in the picker itself.
 const ALL_SHORTCUTS = [
-  { key: 'foundation', label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'foundation' },
-  { key: 'elevation',  label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'elevation'  },
-  { key: 'lifestyle',  label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle'  },
-  { key: 'campus',     label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: Building2,     bg: '#FFF7ED', action: 'campus_connect' },
-  { key: 'course',     label: 'Course Connect',       sub: 'Notes and study groups',         Icon: Globe,         bg: '#F0F9FF', action: 'course_connect' },
-  { key: 'compass',    label: 'Compass',              sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'compass' },
-  { key: 'budgeting',  label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
-  { key: 'adboard',    label: 'Ad Board',             sub: 'Weekly magazine, blog, and marketplace', Icon: Megaphone, bg: '#FFF7ED', action: 'tab',       tabName: 'AdBoard' },
-  { key: 'messages',   label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab',       tabName: 'Messages' },
-  { key: 'directory',  label: 'Directory',            sub: 'People directory',               Icon: Users,         bg: '#EFF6FF', action: 'tab',       tabName: 'Directory' },
-  { key: 'profile',    label: 'Profile',              sub: 'Your profile and settings',      Icon: User,          bg: '#FDF4FF', action: 'tab',       tabName: 'Profile' },
+  { key: 'foundation',    label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'foundation',
+    homeLabel: 'Submit a Service', homeSub: 'Order a Foundation Blueprint service' },
+  { key: 'elevation',     label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'elevation' },
+  { key: 'lifestyle',     label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle' },
+  { key: 'campus',        label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: MessageSquare, bg: '#FFF7ED', action: 'campus_connect',
+    homeLabel: 'Campus Board', homeSub: 'See what campus is talking about' },
+  { key: 'course',        label: 'Course Connect',       sub: 'Notes and study groups',         Icon: Globe,         bg: '#F0F9FF', action: 'course_connect' },
+  { key: 'compass',       label: 'Course Compass',       sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'compass' },
+  { key: 'budgeting',     label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
+  { key: 'adboard',       label: 'Ad Board',             sub: 'Weekly magazine, blog, and marketplace', Icon: Megaphone, bg: '#FFF7ED', action: 'tab', tabName: 'AdBoard' },
+  { key: 'my_outputs',    label: 'My Outputs',           sub: 'Your completed documents',       Icon: CheckCircle,   bg: '#ECFDF5', action: 'my_outputs' },
+  { key: 'find_coach',    label: 'Find a Coach',         sub: 'Book time with a coach',         Icon: Users,         bg: '#EFF6FF', action: 'elevation' },
+  { key: 'messages',      label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab', tabName: 'Messages' },
+  { key: 'directory',     label: 'Directory',            sub: 'People directory',               Icon: Users,         bg: '#EFF6FF', action: 'tab', tabName: 'Directory' },
+  { key: 'profile',       label: 'Profile',              sub: 'Your profile and settings',      Icon: User,          bg: '#FDF4FF', action: 'tab', tabName: 'Profile' },
+  { key: 'notifications', label: 'Notifications',        sub: 'Everything that needs your attention', Icon: Bell,    bg: '#FEF3C7', action: 'notifications' },
 ]
 
 // Sidebar nav items — corrected order per spec
@@ -54,20 +66,20 @@ const NAV_ITEMS = [
   { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
 ]
 
-// Activity type dot colours
-const ACTIVITY_DOT = {
-  document_submitted: '#F59E0B',
-  handler_review:     '#16A34A',
-  session_booked:     colors.navy,
-  note_saved:         '#2E6DB4',
-  ad_posted:          '#7C3AED',
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getFirstName(displayName) {
   if (!displayName) return 'there'
   return displayName.split(' ')[0]
+}
+
+// 05:00–11:59 morning · 12:00–16:59 afternoon · 17:00–20:59 evening · else night
+function getGreetingWord(date = new Date()) {
+  const h = date.getHours()
+  if (h >= 5 && h < 12)  return 'Good morning'
+  if (h >= 12 && h < 17) return 'Good afternoon'
+  if (h >= 17 && h < 21) return 'Good evening'
+  return 'Good night'
 }
 
 function timeAgo(dateStr) {
@@ -79,181 +91,6 @@ function timeAgo(dateStr) {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-// ── Edit Shortcuts Modal ─────────────────────────────────────────────────────
-
-function EditShortcutsModal({ visible, selected, onSave, onClose }) {
-  const [local, setLocal] = useState(selected)
-
-  useEffect(() => {
-    if (visible) setLocal(selected)
-  }, [visible, selected])
-
-  function moveUp(i) {
-    if (i === 0) return
-    const next = [...local]
-    ;[next[i - 1], next[i]] = [next[i], next[i - 1]]
-    setLocal(next)
-  }
-
-  function moveDown(i) {
-    if (i === local.length - 1) return
-    const next = [...local]
-    ;[next[i], next[i + 1]] = [next[i + 1], next[i]]
-    setLocal(next)
-  }
-
-  function remove(key) { setLocal(local.filter(k => k !== key)) }
-
-  function add(key) {
-    if (local.length >= 4) return
-    setLocal([...local, key])
-  }
-
-  const selectedItems = local.map(k => ALL_SHORTCUTS.find(s => s.key === k)).filter(Boolean)
-  const available     = ALL_SHORTCUTS.filter(s => !local.includes(s.key))
-  const isFull        = local.length >= 4
-
-  return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={m.container}>
-        <View style={m.header}>
-          <View>
-            <Text style={m.headerTitle}>Quick Access</Text>
-            <Text style={m.headerSub}>Choose up to 4 shortcuts. Reorder with arrows.</Text>
-          </View>
-          <TouchableOpacity style={m.doneBtn} onPress={() => onSave(local)} activeOpacity={0.8}>
-            <Text style={m.doneBtnText}>Done</Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
-          {/* Selected shortcuts */}
-          <Text style={m.sectionLabel}>YOUR SHORTCUTS ({local.length}/4)</Text>
-
-          {selectedItems.length === 0 && (
-            <Text style={m.emptyHint}>No shortcuts selected. Add some below.</Text>
-          )}
-
-          {selectedItems.map((item, i) => (
-            <View key={item.key} style={m.selectedRow}>
-              <View style={[m.rowIcon, { backgroundColor: item.bg }]}>
-                <item.Icon size={16} color={colors.navy} />
-              </View>
-              <Text style={m.rowLabel} numberOfLines={1}>{item.label}</Text>
-              <View style={m.rowActions}>
-                <TouchableOpacity
-                  onPress={() => moveUp(i)}
-                  style={m.arrowBtn}
-                  disabled={i === 0}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Move ${item.label} up`}
-                  accessibilityState={{ disabled: i === 0 }}
-                >
-                  <ChevronUp size={16} color={i === 0 ? colors.light : colors.navy} strokeWidth={2} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => moveDown(i)}
-                  style={m.arrowBtn}
-                  disabled={i === selectedItems.length - 1}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Move ${item.label} down`}
-                  accessibilityState={{ disabled: i === selectedItems.length - 1 }}
-                >
-                  <ChevronDown size={16} color={i === selectedItems.length - 1 ? colors.light : colors.navy} strokeWidth={2} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => remove(item.key)}
-                  style={m.removeBtn}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove ${item.label} from shortcuts`}
-                >
-                  <X size={13} color="#DC2626" strokeWidth={2.5} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-
-          {/* Available to add */}
-          {available.length > 0 && (
-            <>
-              <Text style={[m.sectionLabel, { marginTop: 28 }]}>ADD SHORTCUT</Text>
-              {isFull && (
-                <Text style={m.emptyHint}>Remove one above before adding another.</Text>
-              )}
-              {available.map(item => (
-                <TouchableOpacity
-                  key={item.key}
-                  style={[m.availableRow, isFull && { opacity: 0.38 }]}
-                  onPress={() => add(item.key)}
-                  disabled={isFull}
-                  activeOpacity={0.75}
-                >
-                  <View style={[m.rowIcon, { backgroundColor: item.bg }]}>
-                    <item.Icon size={16} color={colors.navy} />
-                  </View>
-                  <Text style={m.rowLabel}>{item.label}</Text>
-                  <View style={m.addChip}>
-                    <Text style={m.addChipText}>+ Add</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </>
-          )}
-        </ScrollView>
-      </View>
-    </Modal>
-  )
-}
-
-const m = StyleSheet.create({
-  container:   { flex: 1, backgroundColor: colors.cream },
-  header: {
-    backgroundColor: colors.navy,
-    padding: 20, paddingTop: 28, paddingBottom: 24,
-    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between',
-  },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
-  headerSub:   { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.6)', marginTop: 4 },
-  doneBtn: {
-    backgroundColor: colors.cream, borderRadius: 20,
-    paddingHorizontal: 18, paddingVertical: 9, marginTop: 4,
-  },
-  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-
-  sectionLabel: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10,
-    color: colors.muted, letterSpacing: 0.8,
-    textTransform: 'uppercase', marginBottom: 10,
-  },
-  emptyHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginBottom: 12, lineHeight: 19 },
-
-  selectedRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: 12,
-    padding: 12, marginBottom: 8,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-  },
-  availableRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: 12,
-    padding: 12, marginBottom: 8,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-  },
-  rowIcon:    { width: 36, height: 36, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  rowLabel:   { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
-  rowActions: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  arrowBtn:   { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
-  removeBtn:  {
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: '#FEF2F2', alignItems: 'center', justifyContent: 'center', marginLeft: 4,
-  },
-  addChip: {
-    backgroundColor: colors.navy, borderRadius: 14,
-    paddingHorizontal: 12, paddingVertical: 5,
-  },
-  addChipText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
-})
-
 // ── Home Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ navigation }) {
@@ -263,8 +100,21 @@ export default function HomeScreen({ navigation }) {
     studioLabel, isComplimentaryPro, portalMode, setPortalMode,
   } = useAuth()
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
-  const firstName   = getFirstName(displayName)
+  // Profile row — full_name (canonical source of truth) and this student's
+  // persisted Quick Access selection.
+  const [profileRow, setProfileRow] = useState(null)
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    supabase.from('profiles').select('full_name, quick_access_preferences').eq('id', user.id).maybeSingle()
+      .then(({ data }) => { if (!cancelled) setProfileRow(data || null) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  const fullName  = profileRow?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
+  const firstName = getFirstName(fullName)
+  const greeting  = getGreetingWord()
 
   // Dual portal — one tap in the top nav switches My Blueprint <-> the
   // internal-team professional workspace. Landing screen depends on role;
@@ -282,12 +132,66 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  const hour     = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  // ── Quick Access ────────────────────────────────────────────────────────
+  const [shortcutKeys, setShortcutKeys] = useState(DEFAULT_SHORTCUTS)
+  const [editingQA, setEditingQA]       = useState(false)
+  const [pickerOpen, setPickerOpen]     = useState(false)
 
-  // Quick Access state
-  const [shortcuts, setShortcuts]     = useState(DEFAULT_SHORTCUTS)
-  const [editVisible, setEditVisible] = useState(false)
+  useEffect(() => {
+    if (!profileRow) return
+    const stored = Array.isArray(profileRow.quick_access_preferences) ? profileRow.quick_access_preferences : null
+    const valid = (stored || []).filter(k => ALL_SHORTCUTS.some(s => s.key === k)).slice(0, MAX_SHORTCUTS)
+    setShortcutKeys(valid.length > 0 ? valid : DEFAULT_SHORTCUTS)
+  }, [profileRow])
+
+  async function persistShortcuts(keys) {
+    setShortcutKeys(keys)
+    if (!user?.id) return
+    try {
+      await supabase.from('profiles').update({ quick_access_preferences: keys }).eq('id', user.id)
+    } catch { /* best effort — local state already reflects the change */ }
+  }
+
+  function enterEditMode() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {})
+    setEditingQA(true)
+  }
+  function toggleEditMode() {
+    if (editingQA) { setEditingQA(false) } else { enterEditMode() }
+  }
+
+  function handlePick(key) {
+    setPickerOpen(false)
+    if (shortcutKeys.length >= MAX_SHORTCUTS || shortcutKeys.includes(key)) return
+    persistShortcuts([...shortcutKeys, key])
+  }
+
+  const shortcutItems = shortcutKeys.map(k => ALL_SHORTCUTS.find(s => s.key === k)).filter(Boolean)
+  const pickerOptions = ALL_SHORTCUTS.filter(s => !shortcutKeys.includes(s.key))
+
+  // "Tap outside to exit edit mode" — a capture-phase responder on the whole
+  // screen swallows any touch that lands outside the measured Quick Access
+  // block while editing; touches inside it (cards, X, +, Done) fall through
+  // to their own handlers as normal. See gridBlockRef/measureGridBlock.
+  const gridBlockRef  = useRef(null)
+  const gridBoundsRef = useRef(null)
+  function measureGridBlock() {
+    requestAnimationFrame(() => {
+      gridBlockRef.current?.measureInWindow?.((x, y, width, height) => {
+        gridBoundsRef.current = { x, y, width, height }
+      })
+    })
+  }
+  useEffect(() => { if (editingQA) measureGridBlock() }, [editingQA, shortcutItems.length])
+
+  function handleCaptureCheck(evt) {
+    if (!editingQA) return false
+    const b = gridBoundsRef.current
+    const { pageX, pageY } = evt.nativeEvent
+    if (!b) return true
+    const inside = pageX >= b.x && pageX < b.x + b.width && pageY >= b.y && pageY < b.y + b.height
+    return !inside
+  }
 
   // Sidebar active key — reset to dashboard whenever this screen regains focus
   const [activeNavKey, setActiveNavKey] = useState('dashboard')
@@ -295,24 +199,24 @@ export default function HomeScreen({ navigation }) {
     setActiveNavKey('dashboard')
   }, []))
 
-  // Live activity state
-  const [activity, setActivity]             = useState([])
-  const [loadingActivity, setLoadingActivity] = useState(true)
+  // ── Live Activity — refetches every 60s in the background (not realtime) ──
+  const [activity, setActivity]               = useState([])
+  const [loadingActivity, setLoadingActivity]  = useState(true)
 
-  // Load persisted shortcuts
-  useEffect(() => {
-    AsyncStorage.getItem(SHORTCUTS_KEY).then(val => {
-      if (val) {
-        try { setShortcuts(JSON.parse(val)) } catch {}
-      }
-    })
-  }, [])
-
-  // Load live activity from Supabase
-  useEffect(() => {
+  const loadActivity = useCallback(async () => {
     if (!user?.id) { setLoadingActivity(false); return }
-    fetchActivity()
-  }, [user?.id])
+    try {
+      const events = await fetchHomeActivity({ userId: user.id, firstName })
+      setActivity(events)
+    } catch { /* keep whatever we already had */ }
+    finally { setLoadingActivity(false) }
+  }, [user?.id, firstName])
+
+  useEffect(() => {
+    loadActivity()
+    const interval = setInterval(loadActivity, ACTIVITY_REFRESH_MS)
+    return () => clearInterval(interval)
+  }, [loadActivity])
 
   // Unread notification count for the bell badge, kept live via realtime so
   // it clears the moment a notification is read elsewhere and increments the
@@ -338,26 +242,6 @@ export default function HomeScreen({ navigation }) {
     return () => supabase.removeChannel(channel)
   }, [user?.id])
 
-  async function fetchActivity() {
-    setLoadingActivity(true)
-    try {
-      const { data, error } = await supabase
-        .from('activity_events')
-        .select('id, type, title, detail, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(6)
-      if (!error && data) setActivity(data)
-    } catch {}
-    finally { setLoadingActivity(false) }
-  }
-
-  async function saveShortcuts(newKeys) {
-    setShortcuts(newKeys)
-    setEditVisible(false)
-    await AsyncStorage.setItem(SHORTCUTS_KEY, JSON.stringify(newKeys))
-  }
-
   function handleNav(item) {
     if (!item) return
     if (item.action === 'home') { setActiveNavKey('dashboard'); return }
@@ -367,18 +251,21 @@ export default function HomeScreen({ navigation }) {
     else if (item.action === 'campus_connect') navigation.navigate('CampusConnect')
     else if (item.action === 'course_connect') navigation.navigate('CourseConnect')
     else if (item.action === 'lifestyle')      navigation.navigate('Lifestyle')
-    else if (item.action === 'compass')    navigation.navigate('Compass')
-    else if (item.action === 'budgeting')  navigation.navigate('Budgeting')
-    else if (item.action === 'tab')        navigation.getParent()?.navigate(item.tabName)
-    else if (item.action === 'external')   Linking.openURL(item.url)
+    else if (item.action === 'compass')        navigation.navigate('Compass')
+    else if (item.action === 'budgeting')      navigation.navigate('Budgeting')
+    else if (item.action === 'my_outputs')     navigation.navigate('MyOutputs')
+    else if (item.action === 'notifications')  navigation.navigate('Notifications')
+    else if (item.action === 'tab')            navigation.getParent()?.navigate(item.tabName)
+    else if (item.action === 'external')       Linking.openURL(item.url)
   }
 
-  const currentShortcutItems = shortcuts
-    .map(k => ALL_SHORTCUTS.find(s => s.key === k))
-    .filter(Boolean)
-
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    <View
+      style={[styles.screen, { paddingTop: insets.top }]}
+      onStartShouldSetResponderCapture={handleCaptureCheck}
+      onResponderRelease={() => setEditingQA(false)}
+      onResponderTerminationRequest={() => true}
+    >
       <View style={styles.layout}>
 
         {/* ── SIDEBAR ── */}
@@ -422,7 +309,7 @@ export default function HomeScreen({ navigation }) {
                 {greeting}, {firstName}
               </Text>
               <Text style={styles.topTitle} numberOfLines={1}>
-                {firstName}'s UniBlueprint Dashboard
+                {fullName ? `${fullName}'s UniBlueprint` : 'Your UniBlueprint'}
               </Text>
               {isComplimentaryPro && <ActiveMemberBadge style={{ marginTop: 6 }} />}
             </View>
@@ -479,52 +366,42 @@ export default function HomeScreen({ navigation }) {
           <ScrollView
             contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
             showsVerticalScrollIndicator={false}
+            scrollEnabled={!editingQA}
           >
             {/* Quick Access */}
-            <View style={styles.sectionRow}>
-              <Text style={styles.eyebrow}>Quick Access</Text>
-              <TouchableOpacity
-                onPress={() => setEditVisible(true)}
-                style={styles.editIconBtn}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Edit quick access shortcuts"
-              >
-                <Pencil size={13} color={colors.muted} strokeWidth={2} />
-              </TouchableOpacity>
-            </View>
+            <View
+              ref={gridBlockRef}
+              onLayout={measureGridBlock}
+              collapsable={false}
+            >
+              <View style={styles.sectionRow}>
+                <Text style={styles.eyebrow}>Quick Access</Text>
+                {editingQA ? (
+                  <TouchableOpacity
+                    onPress={() => setEditingQA(false)}
+                    style={styles.doneBtn}
+                    activeOpacity={0.75}
+                    accessibilityRole="button"
+                    accessibilityLabel="Done editing Quick Access"
+                  >
+                    <Text style={styles.doneBtnText}>Done</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <Text style={styles.editHint}>Press &amp; hold to edit</Text>
+                )}
+              </View>
 
-            <View style={styles.cardRow}>
-              {currentShortcutItems.slice(0, 2).map(card => (
-                <TouchableOpacity
-                  key={card.key}
-                  style={[styles.quickCard, { backgroundColor: card.bg }]}
-                  activeOpacity={0.8}
-                  onPress={() => handleNav(card)}
-                >
-                  <View style={styles.quickIconWrap}>
-                    <card.Icon size={17} color={colors.navy} strokeWidth={1.8} />
-                  </View>
-                  <Text style={styles.quickLabel} numberOfLines={2}>{card.label}</Text>
-                  <Text style={styles.quickSub} numberOfLines={2}>{card.sub}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <View style={[styles.cardRow, { marginBottom: 24 }]}>
-              {currentShortcutItems.slice(2, 4).map(card => (
-                <TouchableOpacity
-                  key={card.key}
-                  style={[styles.quickCard, { backgroundColor: card.bg }]}
-                  activeOpacity={0.8}
-                  onPress={() => handleNav(card)}
-                >
-                  <View style={styles.quickIconWrap}>
-                    <card.Icon size={17} color={colors.navy} strokeWidth={1.8} />
-                  </View>
-                  <Text style={styles.quickLabel} numberOfLines={2}>{card.label}</Text>
-                  <Text style={styles.quickSub} numberOfLines={2}>{card.sub}</Text>
-                </TouchableOpacity>
-              ))}
+              <View style={{ marginBottom: 24 }}>
+                <QuickAccessGrid
+                  items={shortcutItems}
+                  editing={editingQA}
+                  onNavigate={handleNav}
+                  onReorder={persistShortcuts}
+                  onRemove={key => persistShortcuts(shortcutKeys.filter(k => k !== key))}
+                  onAddPress={() => setPickerOpen(true)}
+                  onLongPressToggle={toggleEditMode}
+                />
+              </View>
             </View>
 
             {/* Live Activity */}
@@ -538,20 +415,20 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.feedText}>Loading activity...</Text>
                 </View>
               ) : activity.length === 0 ? (
-                <View style={[styles.feedRow, { paddingVertical: 18 }]}>
-                  <Text style={[styles.feedText, { color: colors.muted }]}>
-                    No activity yet. Complete your first action to see it here.
+                <View style={styles.emptyFeed}>
+                  <ActivityIcon size={28} color="#9CA3AF" strokeWidth={1.6} />
+                  <Text style={styles.emptyFeedText}>
+                    Your Blueprint is quiet right now — activity will appear here as things happen.
                   </Text>
                 </View>
               ) : (
                 activity.map((item, i) => (
                   <View key={item.id} style={[styles.feedRow, i < activity.length - 1 && styles.divider]}>
-                    <View style={[styles.feedDot, { backgroundColor: ACTIVITY_DOT[item.type] ?? colors.navy }]} />
+                    <View style={[styles.feedDot, { backgroundColor: item.dot }]} />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.feedText} numberOfLines={2}>{item.title}</Text>
-                      <Text style={styles.feedTime}>{timeAgo(item.created_at)}</Text>
+                      <Text style={styles.feedText} numberOfLines={2}>{item.text}</Text>
+                      <Text style={styles.feedTime}>{timeAgo(item.at)}</Text>
                     </View>
-                    <ChevronRight size={13} color={colors.light} />
                   </View>
                 ))
               )}
@@ -561,11 +438,12 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
-      <EditShortcutsModal
-        visible={editVisible}
-        selected={shortcuts}
-        onSave={saveShortcuts}
-        onClose={() => setEditVisible(false)}
+      <DestinationPickerModal
+        visible={pickerOpen}
+        options={pickerOptions}
+        slotsLeft={MAX_SHORTCUTS - shortcutKeys.length}
+        onPick={handlePick}
+        onClose={() => setPickerOpen(false)}
       />
     </View>
   )
@@ -618,12 +496,12 @@ const styles = StyleSheet.create({
   main: { flex: 1, backgroundColor: colors.cream },
   mainTopBar: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 14, paddingVertical: 13,
+    paddingHorizontal: 14, paddingVertical: 14,
     backgroundColor: colors.white,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
   },
-  topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  topTitle:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
+  topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted },
+  topTitle:    { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 2 },
 
   portalSwitchRow: {
     paddingHorizontal: 14, paddingVertical: 10,
@@ -661,34 +539,19 @@ const styles = StyleSheet.create({
   },
 
   sectionRow: {
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     gap: 8, marginBottom: 10,
   },
-  editIconBtn: {
-    width: 26, height: 26, borderRadius: 6,
-    backgroundColor: 'rgba(30,58,95,0.06)',
-    alignItems: 'center', justifyContent: 'center',
+  editHint: { fontFamily: fonts.sans, fontSize: 10, color: colors.light },
+  doneBtn: {
+    backgroundColor: colors.navy, borderRadius: 14,
+    paddingHorizontal: 14, paddingVertical: 6,
   },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
   livePulse: {
     width: 7, height: 7, borderRadius: 3.5,
     backgroundColor: '#16A34A',
   },
-
-  // Quick cards
-  cardRow:  { flexDirection: 'row', gap: 10, marginBottom: 10 },
-  quickCard: {
-    flex: 1, borderRadius: 12, padding: 13,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.07)',
-    minHeight: 112,
-  },
-  quickIconWrap: {
-    width: 34, height: 34, borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.75)',
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: 10,
-  },
-  quickLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 16, marginBottom: 4 },
-  quickSub:   { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, lineHeight: 14 },
 
   // Activity feed
   feedRow:  { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
@@ -696,4 +559,6 @@ const styles = StyleSheet.create({
   feedDot:  { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
   feedText: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 17, flex: 1 },
   feedTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 2 },
+  emptyFeed: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 24, gap: 10 },
+  emptyFeedText: { fontFamily: fonts.sans, fontSize: 14, color: '#9CA3AF', textAlign: 'center', lineHeight: 20 },
 })

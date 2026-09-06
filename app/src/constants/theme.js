@@ -7,6 +7,9 @@ export const colors = {
   border: 'rgba(30,58,95,0.12)',
   success: '#16A34A',
   destructive: '#DC2626',
+  gold: '#C9A24B',
+  goldDeep: '#A5813B',
+  goldLight: '#E4C77E',
 }
 
 export const fonts = {

@@ -24,6 +24,7 @@ import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { formatNumber } from '../utils/formatNumber'
 import { COACHES } from './ElevationScreen'
 
 const BUDGET_STORAGE_KEY = 'ub_budget_v1'
@@ -217,7 +218,7 @@ function GoalCard({ goal, onUpdate, onRemove }) {
           backgroundColor: done ? colors.success : colors.navy,
         }]} />
       </View>
-      <Text style={styles.goalPct}>{pct}% of €{target.toFixed(0)}</Text>
+      <Text style={styles.goalPct}>{pct}% of €{formatNumber(target, { decimals: 0 })}</Text>
 
       {/* Editable fields */}
       <View style={styles.goalFields}>
@@ -562,7 +563,7 @@ function BudgetTab() {
         <View style={styles.dashItem}>
           <Text style={styles.dashLabel}>Income</Text>
           <Text style={[styles.dashValue, { color: colors.success }]}>
-            €{totalIncome.toFixed(2)}
+            €{formatNumber(totalIncome, { decimals: 2 })}
           </Text>
           <Text style={styles.dashPeriod}>{periodLabels[period]}</Text>
         </View>
@@ -570,7 +571,7 @@ function BudgetTab() {
         <View style={styles.dashItem}>
           <Text style={styles.dashLabel}>Expenses</Text>
           <Text style={[styles.dashValue, { color: colors.navy }]}>
-            €{totalExpenses.toFixed(2)}
+            €{formatNumber(totalExpenses, { decimals: 2 })}
           </Text>
           <Text style={styles.dashPeriod}>{periodLabels[period]}</Text>
         </View>
@@ -578,7 +579,7 @@ function BudgetTab() {
         <View style={styles.dashItem}>
           <Text style={styles.dashLabel}>Balance</Text>
           <Text style={[styles.dashValue, { color: balanceColor }]}>
-            {balance < 0 ? '-' : ''}€{Math.abs(balance).toFixed(2)}
+            {balance < 0 ? '-' : ''}€{formatNumber(Math.abs(balance), { decimals: 2 })}
           </Text>
           <Text style={styles.dashPeriod}>{periodLabels[period]}</Text>
         </View>
@@ -601,7 +602,7 @@ function BudgetTab() {
           <View style={styles.entriesHeader}>
             <TrendingUp size={16} color={colors.success} />
             <Text style={styles.entriesTitle}>Income</Text>
-            <Text style={styles.entriesTotalLabel}>€{totalIncome.toFixed(2)}</Text>
+            <Text style={styles.entriesTotalLabel}>€{formatNumber(totalIncome, { decimals: 2 })}</Text>
           </View>
           <Card style={styles.entriesCard}>
             {income.map((item, i) => (
@@ -629,7 +630,7 @@ function BudgetTab() {
           <View style={styles.entriesHeader}>
             <TrendingDown size={16} color={colors.navy} />
             <Text style={styles.entriesTitle}>Expenses</Text>
-            <Text style={styles.entriesTotalLabel}>€{totalExpenses.toFixed(2)}</Text>
+            <Text style={styles.entriesTotalLabel}>€{formatNumber(totalExpenses, { decimals: 2 })}</Text>
           </View>
           <Card style={styles.entriesCard}>
             {expenses.map((item, i) => (
@@ -658,7 +659,7 @@ function BudgetTab() {
             {balance >= 0 ? 'You have' : 'You are'}
           </Text>
           <Text style={[styles.balanceSummaryAmount, { color: balanceColor }]}>
-            {balance < 0 ? '-' : ''}€{Math.abs(balance).toFixed(2)}
+            {balance < 0 ? '-' : ''}€{formatNumber(Math.abs(balance), { decimals: 2 })}
           </Text>
           <Text style={styles.balanceSummaryLabel}>
             {balance >= 0 ? 'left over this ' + (period === 'week' ? 'week' : period === 'month' ? 'month' : 'term') : 'over budget this ' + (period === 'week' ? 'week' : period === 'month' ? 'month' : 'term')}
