@@ -12,22 +12,32 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   ScrollView, View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform, Linking,
+  StyleSheet, KeyboardAvoidingView, Platform, Linking, Modal, Alert, ActivityIndicator,
 } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   TrendingUp, TrendingDown, Wallet, Target, Plus, Minus,
   ChevronDown, ChevronUp, ChevronRight, ExternalLink,
   CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap, BadgeEuro,
+  X, PiggyBank, Plane, Heart, ShoppingBag, Home as HomeIcon, Laptop, ShieldCheck,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { formatNumber } from '../utils/formatNumber'
+import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { COACHES } from './ElevationScreen'
 
 const BUDGET_STORAGE_KEY = 'ub_budget_v1'
+
+// ─── Goal icons — chosen at creation in the Add Goal form, stored as a key
+// string on the row and mapped back to a Lucide icon here for rendering.
+const GOAL_ICONS = {
+  Target, ShieldCheck, PiggyBank, Plane, GraduationCap, Heart, ShoppingBag, Home: HomeIcon, Laptop,
+}
+const GOAL_ICON_KEYS = Object.keys(GOAL_ICONS)
 
 // ─── "Your situation" — tailors the default income label instead of shipping
 // a separate tool per situation. Picking one relabels the first income row.
@@ -123,6 +133,42 @@ const OTHER_SCHEMES = [
     description: 'State-funded higher education courses, free or heavily subsidised, in areas the economy actually needs people in. Not a grant toward a course you\'re already doing: it funds the course itself. Worth checking even if you\'re not currently in college.',
     link: 'springboardcourses.ie',
   },
+  {
+    name: 'HEAR Scheme',
+    forWho: 'School leavers from socio-economically disadvantaged backgrounds',
+    description: 'The Higher Education Access Route offers reduced CAO points places and extra college supports to school leavers who meet the financial and social indicators. Applied for alongside your CAO application, with supporting documents submitted separately. Can be combined with SUSI.',
+    link: 'accesscollege.ie',
+  },
+  {
+    name: 'DARE Scheme',
+    forWho: 'School leavers with a physical, sensory, mental health, or specific learning difficulty',
+    description: 'The Disability Access Route to Education offers reduced CAO points places and dedicated college supports to school leavers whose disability has had a negative impact on their education. Also applied for alongside your CAO application. Can be combined with SUSI.',
+    link: 'accesscollege.ie',
+  },
+  {
+    name: 'Technological Universities Student Support Fund',
+    forWho: 'Students at a Technological University facing financial hardship',
+    description: 'A discretionary support fund specific to Ireland\'s Technological Universities, on top of what\'s available through the general Student Assistance Fund. Covers costs like rent, transport, and equipment. Apply through your own TU\'s student services or access office.',
+    link: 'hea.ie',
+  },
+  {
+    name: 'Skillnet Ireland',
+    forWho: 'Anyone looking to build workplace skills, students and graduates included',
+    description: 'A state-backed network of enterprise-led training groups offering subsidised, often free, professional and technical training across every sector. Not a maintenance grant, it funds the course or programme itself. Worth checking alongside your studies, not just after you graduate.',
+    link: 'skillnetireland.ie',
+  },
+  {
+    name: 'Local Authority Grants',
+    forWho: 'Students from a specific county or city, criteria vary by area',
+    description: 'Some county and city councils run their own scholarships or bursaries for local students heading into further or higher education, separate from SUSI and often less well known. What\'s available and who qualifies varies significantly by local authority, so check your own county or city council\'s website directly.',
+    link: 'gov.ie',
+  },
+  {
+    name: 'ETB Bursaries',
+    forWho: 'Students on a PLC or further education course with an Education and Training Board',
+    description: 'Education and Training Boards run their own bursary and hardship support for students on PLC and further education courses, separate from the mainstream SUSI system. Availability and amounts vary by ETB, apply through your own college\'s ETB office.',
+    link: 'etbi.ie',
+  },
 ]
 
 function SchemeCard({ item }) {
@@ -184,28 +230,34 @@ function LineItem({ item, onChangeAmount, onRemove, tint }) {
   )
 }
 
-// ─── Goal Card (visual progress, editable target + current) ──────────────────
-function GoalCard({ goal, onUpdate, onRemove }) {
-  const target  = parseFloat(goal.target)  || 0
-  const current = parseFloat(goal.current) || 0
+// ─── Goal Card — Supabase-backed savings goal. Progress bar (current vs
+// target), an "Add to [Goal]" button that opens a bottom sheet, and a
+// celebration state (green card, CheckCircle, "Goal reached") once the
+// target is met. ─────────────────────────────────────────────────────────
+function GoalCard({ goal, onAddPress, onRemove }) {
+  const target  = parseFloat(goal.target_amount)  || 0
+  const current = parseFloat(goal.current_amount) || 0
   const pct     = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0
-  const done    = pct >= 100
+  const reached = target > 0 && current >= target
+  const GoalIcon = GOAL_ICONS[goal.icon] || Target
 
   return (
-    <Card style={styles.goalCard}>
+    <Card style={[styles.goalCard, reached && styles.goalCardReached]}>
       <View style={styles.goalHeader}>
-        <Target size={16} color={colors.navy} style={{ flexShrink: 0 }} />
-        <Text style={styles.goalLabel} numberOfLines={1}>{goal.label}</Text>
-        {done && (
+        {reached
+          ? <CheckCircle size={18} color={colors.success} style={{ flexShrink: 0 }} />
+          : <GoalIcon size={16} color={colors.navy} style={{ flexShrink: 0 }} />}
+        <Text style={styles.goalLabel} numberOfLines={1}>{goal.name}</Text>
+        {reached && (
           <View style={styles.goalDoneBadge}>
-            <Text style={styles.goalDoneText}>Done</Text>
+            <Text style={styles.goalDoneText}>Goal reached</Text>
           </View>
         )}
         <TouchableOpacity
-          onPress={() => onRemove(goal.id)}
+          onPress={() => onRemove(goal)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
-          accessibilityLabel={`Remove goal ${goal.label}`}
+          accessibilityLabel={`Remove goal ${goal.name}`}
         >
           <Minus size={14} color={colors.light} />
         </TouchableOpacity>
@@ -215,43 +267,171 @@ function GoalCard({ goal, onUpdate, onRemove }) {
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, {
           width: `${pct}%`,
-          backgroundColor: done ? colors.success : colors.navy,
+          backgroundColor: reached ? colors.success : colors.navy,
         }]} />
       </View>
-      <Text style={styles.goalPct}>{pct}% of €{formatNumber(target, { decimals: 0 })}</Text>
-
-      {/* Editable fields */}
-      <View style={styles.goalFields}>
-        <View style={styles.goalField}>
-          <Text style={styles.goalFieldLabel}>Saved so far</Text>
-          <View style={styles.lineItemInput}>
-            <Text style={styles.lineItemCurrency}>€</Text>
-            <TextInput
-              style={styles.lineItemAmount}
-              value={goal.current}
-              onChangeText={val => onUpdate(goal.id, 'current', val.replace(/[^0-9.]/g, ''))}
-              keyboardType="decimal-pad"
-              placeholder="0"
-              placeholderTextColor={colors.light}
-            />
-          </View>
-        </View>
-        <View style={styles.goalField}>
-          <Text style={styles.goalFieldLabel}>Target</Text>
-          <View style={styles.lineItemInput}>
-            <Text style={styles.lineItemCurrency}>€</Text>
-            <TextInput
-              style={styles.lineItemAmount}
-              value={goal.target}
-              onChangeText={val => onUpdate(goal.id, 'target', val.replace(/[^0-9.]/g, ''))}
-              keyboardType="decimal-pad"
-              placeholder="0"
-              placeholderTextColor={colors.light}
-            />
-          </View>
-        </View>
+      <View style={styles.goalAmountsRow}>
+        <Text style={styles.goalPct}>€{formatNumber(current, { decimals: 0 })} of €{formatNumber(target, { decimals: 0 })}</Text>
+        <Text style={styles.goalPct}>{pct}%</Text>
       </View>
+      {!!goal.deadline && <Text style={styles.goalDeadline}>By {new Date(goal.deadline).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>}
+
+      <TouchableOpacity
+        style={[styles.addToGoalBtn, reached && styles.addToGoalBtnReached]}
+        activeOpacity={0.85}
+        onPress={() => onAddPress(goal)}
+      >
+        <Plus size={14} color={reached ? colors.success : colors.cream} />
+        <Text style={[styles.addToGoalBtnText, reached && { color: colors.success }]}>Add to {goal.name}</Text>
+      </TouchableOpacity>
     </Card>
+  )
+}
+
+// ─── Add to Goal — bottom sheet to enter a contribution amount. Calls the
+// add_to_budget_goal RPC, which atomically increments current_amount
+// server-side and, from the caller's point of view, moves that amount out
+// of "available balance" (see BudgetTab's balance calc). ──────────────────
+function AddToGoalSheet({ visible, goal, onClose, onAdded }) {
+  const [amount, setAmount] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError]   = useState('')
+
+  useEffect(() => { if (visible) { setAmount(''); setError('') } }, [visible])
+
+  async function submit() {
+    const val = parseFloat(amount)
+    if (!val || val <= 0) { setError('Enter an amount greater than €0.'); return }
+    setSaving(true)
+    setError('')
+    const { data, error: rpcError } = await supabase.rpc('add_to_budget_goal', {
+      p_goal_id: goal.id, p_amount: val,
+    })
+    setSaving(false)
+    if (rpcError) { setError('Could not add to this goal. Please try again.'); return }
+    onAdded(data)
+  }
+
+  if (!goal) return null
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={sheet.backdrop}>
+        <View style={sheet.sheet}>
+          <View style={sheet.headerRow}>
+            <Text style={sheet.title}>Add to {goal.name}</Text>
+            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Close">
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+          <Text style={sheet.label}>Amount to add</Text>
+          <View style={[styles.lineItemInput, sheet.amountInput]}>
+            <Text style={[styles.lineItemCurrency, { fontSize: 20 }]}>€</Text>
+            <TextInput
+              style={[styles.lineItemAmount, { fontSize: 22 }]}
+              value={amount}
+              onChangeText={v => setAmount(v.replace(/[^0-9.]/g, ''))}
+              keyboardType="decimal-pad"
+              placeholder="0"
+              placeholderTextColor={colors.light}
+              autoFocus
+            />
+          </View>
+          <Text style={sheet.hint}>This is added to your goal and taken off your available balance above.</Text>
+          {!!error && <Text style={sheet.error}>{error}</Text>}
+          <TouchableOpacity style={[sheet.submitBtn, saving && { opacity: 0.7 }]} activeOpacity={0.85} onPress={submit} disabled={saving}>
+            {saving ? <ActivityIndicator color={colors.cream} /> : <Text style={sheet.submitBtnText}>Add to Goal</Text>}
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+// ─── Add Goal — name, target amount, optional deadline, icon selection ────
+function AddGoalSheet({ visible, onClose, onCreate }) {
+  const [name,     setName]     = useState('')
+  const [target,   setTarget]   = useState('')
+  const [deadline, setDeadline] = useState('')
+  const [icon,     setIcon]     = useState('Target')
+  const [saving,   setSaving]   = useState(false)
+  const [error,    setError]    = useState('')
+
+  useEffect(() => {
+    if (visible) { setName(''); setTarget(''); setDeadline(''); setIcon('Target'); setError('') }
+  }, [visible])
+
+  async function submit() {
+    if (!name.trim())               { setError('Give your goal a name.'); return }
+    const val = parseFloat(target)
+    if (!val || val <= 0)           { setError('Enter a target amount greater than €0.'); return }
+    if (deadline && !/^\d{4}-\d{2}-\d{2}$/.test(deadline)) { setError('Deadline should be in YYYY-MM-DD format.'); return }
+    setSaving(true)
+    setError('')
+    const { error: err } = await onCreate({ name: name.trim(), target_amount: val, deadline: deadline || null, icon })
+    setSaving(false)
+    if (err) { setError('Could not create this goal. Please try again.'); return }
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={sheet.backdrop}>
+        <View style={sheet.sheet}>
+          <View style={sheet.headerRow}>
+            <Text style={sheet.title}>New Goal</Text>
+            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Close">
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <Text style={sheet.label}>Goal name</Text>
+            <TextInput style={sheet.input} value={name} onChangeText={setName} placeholder="e.g. New Laptop" placeholderTextColor={colors.light} />
+
+            <Text style={[sheet.label, { marginTop: 16 }]}>Target amount</Text>
+            <View style={[styles.lineItemInput, sheet.amountInput]}>
+              <Text style={styles.lineItemCurrency}>€</Text>
+              <TextInput
+                style={styles.lineItemAmount}
+                value={target}
+                onChangeText={v => setTarget(v.replace(/[^0-9.]/g, ''))}
+                keyboardType="decimal-pad"
+                placeholder="0"
+                placeholderTextColor={colors.light}
+              />
+            </View>
+
+            <Text style={[sheet.label, { marginTop: 16 }]}>Deadline (optional)</Text>
+            <TextInput style={sheet.input} value={deadline} onChangeText={setDeadline} placeholder="YYYY-MM-DD" placeholderTextColor={colors.light} />
+
+            <Text style={[sheet.label, { marginTop: 16 }]}>Icon</Text>
+            <View style={sheet.iconRow}>
+              {GOAL_ICON_KEYS.map(key => {
+                const IconC = GOAL_ICONS[key]
+                const active = icon === key
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[sheet.iconChip, active && sheet.iconChipActive]}
+                    onPress={() => setIcon(key)}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${key} icon`}
+                    accessibilityState={{ selected: active }}
+                  >
+                    <IconC size={18} color={active ? colors.cream : colors.navy} />
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            {!!error && <Text style={sheet.error}>{error}</Text>}
+            <TouchableOpacity style={[sheet.submitBtn, saving && { opacity: 0.7 }]} activeOpacity={0.85} onPress={submit} disabled={saving}>
+              {saving ? <ActivityIndicator color={colors.cream} /> : <Text style={sheet.submitBtnText}>Create Goal</Text>}
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   )
 }
 
@@ -418,12 +598,19 @@ const DEFAULT_EXPENSES = [
   { id: 15, label: 'Going out',            amount: '' },
   { id: 16, label: 'Subscriptions',        amount: '' },
 ]
-const DEFAULT_GOALS = [
-  { id: 50, label: 'Emergency Fund', target: '', current: '' },
-  { id: 51, label: 'Holiday Savings', target: '', current: '' },
+// Seeded once per user the first time they have zero goals on file (tracked
+// locally so deliberately deleting every goal afterward doesn't bring them
+// back) — matches the "Emergency Fund" / "Holiday Savings" defaults the
+// screen used to ship with, now real Supabase rows instead of blank
+// AsyncStorage placeholders.
+const GOALS_SEEDED_KEY_PREFIX = 'ub_goals_seeded_'
+const DEFAULT_GOAL_SEEDS = [
+  { name: 'Emergency Fund',  target_amount: 500, icon: 'ShieldCheck' },
+  { name: 'Holiday Savings', target_amount: 300, icon: 'Plane' },
 ]
 
 function BudgetTab() {
+  const { user } = useAuth()
   const [loaded, setLoaded]   = useState(false)
   const [period, setPeriod]   = useState('week')
   const [mode,   setMode]     = useState('both')
@@ -431,7 +618,14 @@ function BudgetTab() {
 
   const [income,   setIncome]   = useState(DEFAULT_INCOME)
   const [expenses, setExpenses] = useState(DEFAULT_EXPENSES)
-  const [goals,    setGoals]    = useState(DEFAULT_GOALS)
+
+  // Goals — persisted to Supabase (budget_goals table, RLS scoped to the
+  // owning user), not AsyncStorage, since they need to survive a reinstall
+  // and follow the account rather than the device.
+  const [goals,       setGoals]       = useState([])
+  const [goalsLoaded,  setGoalsLoaded]  = useState(false)
+  const [addToGoal,    setAddToGoal]    = useState(null)  // goal object, or null when closed
+  const [addGoalOpen,  setAddGoalOpen]  = useState(false)
 
   // Load any previously saved budget the first time this tab mounts.
   useEffect(() => {
@@ -445,8 +639,7 @@ function BudgetTab() {
         if (saved.situation) setSituation(saved.situation)
         if (saved.income)    setIncome(saved.income)
         if (saved.expenses)  setExpenses(saved.expenses)
-        if (saved.goals)     setGoals(saved.goals)
-        const maxId = Math.max(100, ...(saved.income || []).map(i => i.id), ...(saved.expenses || []).map(i => i.id), ...(saved.goals || []).map(i => i.id))
+        const maxId = Math.max(100, ...(saved.income || []).map(i => i.id), ...(saved.expenses || []).map(i => i.id))
         nextId = maxId
       } catch {
         // ignore corrupt/old-shape saved data, fall back to defaults
@@ -461,8 +654,70 @@ function BudgetTab() {
   // it's always saved.
   useEffect(() => {
     if (!loaded) return
-    AsyncStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify({ period, mode, situation, income, expenses, goals })).catch(() => {})
-  }, [loaded, period, mode, situation, income, expenses, goals])
+    AsyncStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify({ period, mode, situation, income, expenses })).catch(() => {})
+  }, [loaded, period, mode, situation, income, expenses])
+
+  // Load goals from Supabase, seeding the two defaults once for a brand new
+  // user with nothing on file yet.
+  useEffect(() => {
+    let cancelled = false
+    async function loadGoals() {
+      if (!user?.id) { if (!cancelled) { setGoals([]); setGoalsLoaded(true) }; return }
+      const { data, error } = await supabase
+        .from('budget_goals').select('*').eq('user_id', user.id).order('created_at', { ascending: true })
+      if (cancelled) return
+      if (error) { setGoals([]); setGoalsLoaded(true); return }
+      if (data && data.length > 0) { setGoals(data); setGoalsLoaded(true); return }
+
+      const seededKey = `${GOALS_SEEDED_KEY_PREFIX}${user.id}`
+      const alreadySeeded = await AsyncStorage.getItem(seededKey).catch(() => null)
+      if (alreadySeeded) { setGoals([]); setGoalsLoaded(true); return }
+      const { data: inserted, error: seedError } = await supabase
+        .from('budget_goals')
+        .insert(DEFAULT_GOAL_SEEDS.map(g => ({ ...g, user_id: user.id })))
+        .select()
+      // Only remember "seeded" once the insert actually succeeded — an RLS
+      // or network hiccup here must not permanently skip seeding for a
+      // student who genuinely has no goals yet.
+      if (!seedError) await AsyncStorage.setItem(seededKey, '1').catch(() => {})
+      if (!cancelled) { setGoals(inserted || []); setGoalsLoaded(true) }
+    }
+    loadGoals()
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  async function createGoal({ name, target_amount, deadline, icon }) {
+    const { data, error } = await supabase
+      .from('budget_goals')
+      .insert({ user_id: user.id, name, target_amount, deadline, icon })
+      .select().single()
+    if (!error && data) {
+      setGoals(prev => [...prev, data])
+      setAddGoalOpen(false)
+    }
+    return { error }
+  }
+
+  function confirmRemoveGoal(goal) {
+    Alert.alert('Remove this goal?', `This deletes "${goal.name}" and its progress. This can't be undone.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove', style: 'destructive', onPress: async () => {
+          const { error } = await supabase.from('budget_goals').delete().eq('id', goal.id)
+          if (!error) setGoals(prev => prev.filter(g => g.id !== goal.id))
+        },
+      },
+    ])
+  }
+
+  function handleContributionAdded(updatedGoal) {
+    setGoals(prev => prev.map(g => g.id === updatedGoal.id ? updatedGoal : g))
+    setAddToGoal(null)
+  }
+
+  // Total saved toward goals so far — money already committed isn't
+  // "available" any more, so it comes off the balance below.
+  const totalGoalContributions = goals.reduce((s, g) => s + (parseFloat(g.current_amount) || 0), 0)
 
   function changeSituation(key) {
     setSituation(key)
@@ -475,7 +730,10 @@ function BudgetTab() {
 
   const totalIncome   = income.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
   const totalExpenses = expenses.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
-  const balance       = totalIncome - totalExpenses
+  // Money already put toward a savings goal isn't available to spend any
+  // more, so it comes off the balance — this is what "subtracted from
+  // available balance" means for the Add to Goal flow.
+  const balance       = totalIncome - totalExpenses - totalGoalContributions
   const hasAnyData    = totalIncome > 0 || totalExpenses > 0
 
   const periodLabels = { week: 'Weekly', month: 'Monthly', term: 'Per Term' }
@@ -494,18 +752,8 @@ function BudgetTab() {
     setExpenses([...expenses, { id: nextId, label: 'Other expense', amount: '' }])
   }
 
-  function addGoal() {
-    nextId++
-    setGoals([...goals, { id: nextId, label: 'New Goal', target: '', current: '' }])
-  }
-
   function removeIncome(id)  { setIncome(income.filter(i => i.id !== id)) }
   function removeExpense(id) { setExpenses(expenses.filter(i => i.id !== id)) }
-  function removeGoal(id)    { setGoals(goals.filter(g => g.id !== id)) }
-
-  function updateGoal(id, field, val) {
-    setGoals(goals.map(g => g.id === id ? { ...g, [field]: val } : g))
-  }
 
   const balanceColor = balance > 0
     ? colors.success
@@ -679,15 +927,31 @@ function BudgetTab() {
 
       {/* Goals */}
       <SectionHeader eyebrow="Goals" title="Track Your Progress" style={{ marginTop: spacing.xl }} />
-      <View style={{ gap: 12 }}>
-        {goals.map(g => (
-          <GoalCard key={g.id} goal={g} onUpdate={updateGoal} onRemove={removeGoal} />
-        ))}
-      </View>
-      <TouchableOpacity style={styles.addRowBtn} onPress={addGoal} activeOpacity={0.8}>
+      {!goalsLoaded ? (
+        <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+      ) : (
+        <View style={{ gap: 12 }}>
+          {goals.map(g => (
+            <GoalCard key={g.id} goal={g} onAddPress={setAddToGoal} onRemove={confirmRemoveGoal} />
+          ))}
+        </View>
+      )}
+      <TouchableOpacity style={styles.addRowBtn} onPress={() => setAddGoalOpen(true)} activeOpacity={0.8}>
         <Plus size={14} color={colors.navy} />
         <Text style={styles.addRowBtnText}>Add Goal</Text>
       </TouchableOpacity>
+
+      <AddToGoalSheet
+        visible={!!addToGoal}
+        goal={addToGoal}
+        onClose={() => setAddToGoal(null)}
+        onAdded={handleContributionAdded}
+      />
+      <AddGoalSheet
+        visible={addGoalOpen}
+        onClose={() => setAddGoalOpen(false)}
+        onCreate={createGoal}
+      />
 
       {/* Money tip */}
       <Card style={styles.tipCard}>
@@ -722,6 +986,14 @@ function SUSITab() {
           A lot of students who qualify for something never apply, either because the process feels complicated or they assume they won't be eligible. This guide is here to change that. If there's a chance you're eligible, it's worth fifteen minutes to find out.
         </Text>
       </Card>
+
+      {/* CourseCompass — more funding options beyond what's listed here */}
+      <TouchableOpacity activeOpacity={0.8} onPress={() => Linking.openURL('https://coursecompass.ie')}>
+        <View style={styles.compassLinkRow}>
+          <Text style={styles.compassLinkText}>Find more funding options on CourseCompass</Text>
+          <ChevronRight size={15} color={colors.navy} />
+        </View>
+      </TouchableOpacity>
 
       {/* What can you get */}
       <SectionHeader eyebrow="Types of Support" title="What SUSI Can Cover" style={{ marginTop: spacing.xl }} />
@@ -897,28 +1169,31 @@ export default function BudgetingScreen({ navigation, route }) {
           */}
         </View>
 
-        {/* Tab selector */}
+        {/* Tab selector — icon centred above label (not side-by-side) so a
+            longer, wrapping label like "Grants & Schemes" still lands dead
+            centre both horizontally and vertically, matching the shorter
+            single-line tabs either side of it instead of drifting off-centre. */}
         <View style={styles.tabRow}>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'budget' && styles.tabBtnActive]}
             onPress={() => setTab('budget')}
           >
-            <Wallet size={15} color={tab === 'budget' ? colors.white : colors.navy} />
-            <Text style={[styles.tabBtnText, tab === 'budget' && styles.tabBtnTextActive]}>Budget</Text>
+            <Wallet size={16} color={tab === 'budget' ? colors.white : colors.navy} />
+            <Text style={[styles.tabBtnText, tab === 'budget' && styles.tabBtnTextActive]} numberOfLines={2}>Budget</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'susi' && styles.tabBtnActive]}
             onPress={() => setTab('susi')}
           >
-            <Target size={15} color={tab === 'susi' ? colors.white : colors.navy} />
-            <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]}>Grants & Schemes</Text>
+            <Target size={16} color={tab === 'susi' ? colors.white : colors.navy} />
+            <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]} numberOfLines={2}>Grants & Schemes</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'invest' && styles.tabBtnActive]}
             onPress={() => setTab('invest')}
           >
-            <InvestIcon size={15} color={tab === 'invest' ? colors.white : colors.navy} />
-            <Text style={[styles.tabBtnText, tab === 'invest' && styles.tabBtnTextActive]}>Investment</Text>
+            <InvestIcon size={16} color={tab === 'invest' ? colors.white : colors.navy} />
+            <Text style={[styles.tabBtnText, tab === 'invest' && styles.tabBtnTextActive]} numberOfLines={2}>Investment</Text>
           </TouchableOpacity>
         </View>
 
@@ -955,11 +1230,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.card, gap: 5, ...shadows.card,
   },
   tabBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'center', gap: 7, paddingVertical: 11, borderRadius: radius.button,
+    flex: 1, flexDirection: 'column', alignItems: 'center',
+    justifyContent: 'center', gap: 5, paddingVertical: 10, borderRadius: radius.button,
   },
   tabBtnActive:     { backgroundColor: colors.navy },
-  tabBtnText:       { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  tabBtnText:       { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy, textAlign: 'center', lineHeight: 15 },
   tabBtnTextActive: { color: colors.white },
 
   content: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
@@ -1069,21 +1344,35 @@ const styles = StyleSheet.create({
 
   // Goal card
   goalCard:       { padding: 16 },
+  goalCardReached: { backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: 'rgba(22,163,74,0.25)' },
   goalHeader:     { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   goalLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1 },
   goalDoneBadge:  { backgroundColor: colors.success, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 },
   goalDoneText:   { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.white },
   progressTrack:  { height: 6, backgroundColor: colors.cream, borderRadius: 3, overflow: 'hidden' },
   progressFill:   { height: 6, borderRadius: 3 },
-  goalPct:        { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 6 },
-  goalFields:     { flexDirection: 'row', gap: 12, marginTop: 14 },
-  goalField:      { flex: 1 },
-  goalFieldLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 6 },
+  goalAmountsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
+  goalPct:        { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
+  goalDeadline:   { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 4, fontStyle: 'italic' },
+  addToGoalBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 11, marginTop: 14,
+  },
+  addToGoalBtnReached: { backgroundColor: 'rgba(22,163,74,0.12)' },
+  addToGoalBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   // Tip card
   tipCard:    { marginTop: spacing.lg, backgroundColor: colors.navy, padding: 18 },
   tipEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', letterSpacing: 1, marginBottom: 6 },
   tipText:    { fontFamily: fonts.sans, fontSize: 14, color: colors.cream, lineHeight: 21 },
+
+  // CourseCompass funding link
+  compassLinkRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: colors.white, borderRadius: radius.card,
+    paddingHorizontal: 16, paddingVertical: 14, marginTop: spacing.sm, ...shadows.card,
+  },
+  compassLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, flex: 1, marginRight: 8 },
 
   // SUSI intro
   susiIntro:      { padding: 20 },
@@ -1173,4 +1462,40 @@ const styles = StyleSheet.create({
   schemeDesc:     { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
   schemeLinkRow:  { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 12 },
   schemeLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+})
+
+// ─── Bottom sheet styles (Add to Goal / Add Goal) ──────────────────────────
+const sheet = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+  sheet: {
+    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, flex: 1, marginRight: 12 },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 },
+  input: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    paddingHorizontal: 14, paddingVertical: 12,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+  },
+  amountInput: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
+    paddingHorizontal: 14, height: 56,
+  },
+  hint: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 10, lineHeight: 17 },
+  error: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive, marginTop: 14 },
+  iconRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  iconChip: {
+    width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.cream, borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.12)',
+  },
+  iconChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  submitBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 15, marginTop: 22,
+  },
+  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
 })
