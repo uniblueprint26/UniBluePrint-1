@@ -41,6 +41,7 @@ import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
 import { getBoard } from '../constants/campusBoards'
 import { getCourseBoard } from '../constants/courseConnectBoards'
+import { getMarketplaceBoard } from '../constants/marketplaceBoards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -84,8 +85,10 @@ function Stars({ value, size = 12 }) {
 
 export default function BoardDetailScreen({ navigation, route }) {
   const { boardKey, openPostForm, registry = 'campus' } = route.params ?? {}
-  const board = registry === 'course' ? getCourseBoard(boardKey) : getBoard(boardKey)
-  const backLabel = registry === 'course' ? 'Course Connect' : 'Campus Connect'
+  const board = registry === 'course' ? getCourseBoard(boardKey)
+    : registry === 'marketplace' ? getMarketplaceBoard(boardKey)
+    : getBoard(boardKey)
+  const backLabel = registry === 'course' ? 'Course Connect' : registry === 'marketplace' ? 'Marketplace' : 'Campus Connect'
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -330,10 +333,10 @@ export default function BoardDetailScreen({ navigation, route }) {
     })
   }
 
-  // ── Ads ──────────────────────────────────────────────────────────────────
+  // ── Ads / Marketplace (mark sold-or-equivalent, no auto-expiry) ─────────
   async function setAdStatus(item, status) {
     setAdBusyId(item.id)
-    const { error } = await supabase.from('student_ads').update({ status }).eq('id', item.id)
+    const { error } = await supabase.from(board.table).update({ status }).eq('id', item.id)
     setAdBusyId(null)
     if (!error) setRows(prev => prev.map(r => r.id === item.id ? { ...r, status } : r))
   }
@@ -356,6 +359,10 @@ export default function BoardDetailScreen({ navigation, route }) {
       return (board.filters || []).every(filter => {
         const fv = filterValues[filter.key]
         if (!fv) return true
+        // A filter can bring its own predicate (e.g. Buy & Sell's price-range
+        // buckets, which compare a numeric column against a labelled range
+        // rather than an equality match) — checked before the generic paths.
+        if (filter.matches) return filter.matches(item, fv)
         if (filter.type === 'search') return String(item[filter.key] ?? '').toLowerCase().includes(String(fv).toLowerCase())
         if (filter.key === 'is_ticketed') return fv === 'Ticketed' ? !!item.is_ticketed : !item.is_ticketed
         return item[filter.key] === fv
@@ -598,6 +605,43 @@ export default function BoardDetailScreen({ navigation, route }) {
     )
   }
 
+  // ── Special: Marketplace (Skills / Buy & Sell) ───────────────────────────
+  // No auto-expiry — the poster marks their own listing sold/filled or
+  // reopens it, same "mark sold" convention as Campus Connect's Student Ads.
+  function renderMarketplaceCard(item) {
+    const own = isOwn(item)
+    const soldStatus = board.soldStatus || 'sold'
+    const sold = item.status === soldStatus
+    return (
+      <Card key={item.id} style={[styles.card, sold && { opacity: 0.6 }]}>
+        <View style={styles.metaRow}>
+          <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.listing_type}</Text></View>
+          <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.category}</Text></View>
+          {sold && <View style={[styles.metaPill, { backgroundColor: colors.navy }]}><Text style={[styles.metaPillText, { color: colors.cream }]}>{soldStatus.toUpperCase()}</Text></View>}
+        </View>
+        <Text style={styles.cardTitle}>{item.title}</Text>
+        {item.price != null && <Text style={styles.priceText}>€{item.price}</Text>}
+        {item.rate_amount != null && <Text style={styles.priceText}>€{item.rate_amount} · {item.rate_type}</Text>}
+        {item.rate_amount == null && item.rate_type && <Text style={styles.posterLine}>{item.rate_type}</Text>}
+        {!!item.condition && <Text style={styles.posterLine}>Condition: {item.condition}</Text>}
+        <Text style={styles.cardBody} numberOfLines={4}>{item.description}</Text>
+        {!!item.photo_url && <Image source={{ uri: item.photo_url }} style={styles.cardPhoto} resizeMode="cover" />}
+        <Text style={styles.posterLine}>{posterLine(item)}</Text>
+        {renderGenericActions(item, own && (
+          <TouchableOpacity
+            style={styles.msgBtn}
+            activeOpacity={0.8}
+            disabled={adBusyId === item.id}
+            onPress={() => setAdStatus(item, sold ? 'active' : soldStatus)}
+          >
+            {sold ? <RotateCcw size={12} color={colors.navy} strokeWidth={2} /> : <CheckCircle2 size={12} color={colors.navy} strokeWidth={2} />}
+            <Text style={styles.msgBtnText}>{sold ? (board.activeLabel || 'Mark active') : (board.soldLabel || 'Mark sold')}</Text>
+          </TouchableOpacity>
+        ))}
+      </Card>
+    )
+  }
+
   // ── Special: Shared Notes / Past Papers ──────────────────────────────────
   function renderFileCard(item) {
     const own = isOwn(item)
@@ -654,6 +698,7 @@ export default function BoardDetailScreen({ navigation, route }) {
     if (board.special === 'suggestions') return renderSuggestionCard(item)
     if (board.special === 'reviews') return renderReviewCard(item)
     if (board.special === 'ads') return renderAdCard(item)
+    if (board.special === 'marketplace') return renderMarketplaceCard(item)
     if (board.special === 'accommodation') return renderAccommodationCard(item)
     if (board.special === 'notes' || board.special === 'papers') return renderFileCard(item)
     return renderGenericCard(item)

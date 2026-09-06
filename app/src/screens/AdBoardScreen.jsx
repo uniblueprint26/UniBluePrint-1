@@ -10,7 +10,7 @@ import {
   Plus, X, Globe, Building2, GraduationCap,
   Wrench, Sparkles, Dumbbell, Camera, Activity, ShoppingBag,
   ChevronRight, ChevronLeft, Megaphone, Star, Crown, Menu,
-  MapPin, Users, Wallet, Newspaper, CalendarClock, Award, Heart,
+  MapPin, Users, Wallet, Newspaper, CalendarClock, Award, Heart, Clock, BookOpen,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import ImageUploader from '../components/ui/ImageUploader'
@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { COACHES, coachSlug } from './ElevationScreen'
 import { PARTNERS } from '../data/lifestylePartners'
+import { POSTS as BLOG_POSTS, calcReadTime, formatDate } from '../data/blogPosts'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
 // A fixed 27-page structure (see the spec Desmond sent — same page order
@@ -585,10 +586,11 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
       return (
         <View style={styles.pageInner}>
           <Text style={styles.pageKicker}>THE UBP MARKETPLACE</Text>
-          <Text style={styles.pageHeading}>Offer a skill. Find a service.</Text>
+          <Text style={styles.pageHeading}>Offer a skill. Buy. Sell.</Text>
           <Text style={[styles.bodyText, { marginTop: 4 }]}>
-            Photography, tutoring, graphic design, hair and beauty, freelancing: put your skills in
-            front of the UBP community, or find someone who has what you need.
+            Photography, tutoring, graphic design, and freelancing in the Skills Marketplace, or
+            buy and sell items with students across Ireland. No auto-expiry: you mark your own
+            listing sold whenever it's done.
           </Text>
           <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 12 }}>
             {marketplaceAds.length === 0 ? (
@@ -602,10 +604,35 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
               </View>
             ))}
           </ScrollView>
-          <TouchableOpacity style={styles.secondaryCta} activeOpacity={0.85} onPress={onOpenPost}>
-            <Plus size={14} color={colors.navy} strokeWidth={2.5} />
-            <Text style={styles.secondaryCtaText}>Visit the Marketplace</Text>
+          <TouchableOpacity style={styles.secondaryCta} activeOpacity={0.85} onPress={() => navigation.navigate('Marketplace')}>
+            <ShoppingBag size={14} color={colors.navy} strokeWidth={2.5} />
+            <Text style={styles.secondaryCtaText}>Open the Marketplace</Text>
           </TouchableOpacity>
+        </View>
+      )
+
+    // ── Blog ─────────────────────────────────────────────────────────────────
+    case 'blog':
+      return (
+        <View style={styles.pageInner}>
+          <Text style={styles.pageKicker}>FROM THE BLOG</Text>
+          <Text style={styles.pageHeading}>Real Irish education news</Text>
+          <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 14 }}>
+            {BLOG_POSTS.map(post => (
+              <TouchableOpacity key={post.slug} activeOpacity={0.8} onPress={() => navigation.navigate('Article', { slug: post.slug })}>
+                <View style={styles.blogCard}>
+                  <View style={styles.categoryPill}><Text style={styles.categoryPillText}>{post.category}</Text></View>
+                  <Text style={styles.blogTitle} numberOfLines={2}>{post.title}</Text>
+                  <View style={styles.blogMetaRow}>
+                    <Text style={styles.blogMetaText}>{formatDate(post.date)}</Text>
+                    <View style={styles.metaDivider} />
+                    <Clock size={11} color={colors.light} />
+                    <Text style={styles.blogMetaText}>{calcReadTime(post.sections)}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       )
 
@@ -820,6 +847,7 @@ function buildPages() {
     { type: 'student-spotlight-grid' }, { type: 'student-spotlight-featured' },
     { type: 'campus-guide' },
     { type: 'lifestyle-edit' },
+    { type: 'blog' },
     { type: 'marketplace' },
     { type: 'team' },
     { type: 'money-moves' },
@@ -841,6 +869,7 @@ function buildPages() {
     { label: 'Student Spotlight', Icon: Newspaper,      page: idx('student-spotlight-grid') },
     { label: 'Campus Guide',      Icon: MapPin,         page: idx('campus-guide') },
     { label: 'Lifestyle Edit',    Icon: Sparkles,       page: idx('lifestyle-edit') },
+    { label: 'Blog',              Icon: BookOpen,       page: idx('blog') },
     { label: 'Marketplace',       Icon: ShoppingBag,    page: idx('marketplace') },
     { label: 'UBP Team',          Icon: Users,          page: idx('team') },
     { label: 'Money Moves',       Icon: Wallet,         page: idx('money-moves') },
@@ -1106,6 +1135,15 @@ const styles = StyleSheet.create({
   // Ad Board list
   adBoardRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   adBoardIcon: { width: 36, height: 36, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+
+  // Blog
+  blogCard: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
+  categoryPill: { alignSelf: 'flex-start', backgroundColor: NAVY, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
+  categoryPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.cream, letterSpacing: 0.3 },
+  blogTitle: { fontFamily: fonts.serif, fontSize: 16, color: NAVY, marginTop: 8, lineHeight: 21 },
+  blogMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  blogMetaText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light },
+  metaDivider: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: colors.light },
 
   // Bullets (UBP board / week ahead)
   bulletDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: NAVY, marginTop: 7, flexShrink: 0 },
