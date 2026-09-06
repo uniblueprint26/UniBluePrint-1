@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, X } from 'lucide-react-native'
+import { Search, X, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
+import { goToHome, openMenu } from '../navigation/helpers'
 
 // ── Mock student data ─────────────────────────────────────────────────────────
 // `statuses` is a multi-value array — matches what is now collected at sign-up.
@@ -175,7 +176,7 @@ function StudentCard({ student, searchQuery }) {
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 
-export default function DirectoryScreen() {
+export default function DirectoryScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
@@ -202,7 +203,16 @@ export default function DirectoryScreen() {
   return (
     <View style={styles.screen}>
       <View style={[styles.topBar, { paddingTop: insets.top + 14 }]}>
-        <UBPLogo height={30} color={colors.cream} />
+        <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+        <TouchableOpacity
+          onPress={() => openMenu(navigation)}
+          style={styles.menuBtn}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+        >
+          <Menu size={20} color={colors.cream} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.headingWrap}>
@@ -295,7 +305,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navy,
     paddingHorizontal: spacing.md,
     paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
+  menuBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
 
   headingWrap: { paddingHorizontal: spacing.md, paddingTop: 18, paddingBottom: 10 },
   screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy },

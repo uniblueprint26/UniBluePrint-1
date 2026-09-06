@@ -1,15 +1,33 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Bell, User } from 'lucide-react-native'
+import { Bell, User, ChevronLeft } from 'lucide-react-native'
 import { colors, fonts } from '../../constants/theme'
 import UBPLogo from '../ui/UBPLogo'
+import { goToHome } from '../../navigation/helpers'
 
-export default function TopBar({ notificationCount = 0, onProfilePress, onBellPress }) {
+// Shared utility header used by screens pushed from Home (Lifestyle,
+// Budgeting). `showBack` renders the same back chevron used everywhere
+// else in the app (size 20, cream, top-left) and pops the screen —
+// pass `navigation` alongside it so it has something to call goBack() on.
+export default function TopBar({ navigation, showBack = false, notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
-      <UBPLogo height={30} color={colors.cream} />
+      <View style={styles.left}>
+        {showBack && (
+          <TouchableOpacity
+            onPress={() => navigation?.goBack()}
+            style={styles.backBtn}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+          </TouchableOpacity>
+        )}
+        <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+      </View>
       <View style={styles.right}>
         <TouchableOpacity
           onPress={onBellPress}
@@ -45,6 +63,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  left: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  backBtn: {
+    width: 28, height: 28, marginLeft: -6,
+    alignItems: 'center', justifyContent: 'center',
   },
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconButton: {

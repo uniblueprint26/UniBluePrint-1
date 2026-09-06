@@ -7,11 +7,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen, X, Compass,
+  Star, FileText, Calendar, BookOpen, X, Compass, Menu,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ImageUploader from '../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
@@ -475,6 +476,15 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Profile header */}
         <View style={[styles.profileHeader, { paddingTop: insets.top + 20 }]}>
+          <TouchableOpacity
+            style={[styles.menuBtn, { top: insets.top + 16 }]}
+            activeOpacity={0.7}
+            onPress={() => openMenu(navigation)}
+            accessibilityRole="button"
+            accessibilityLabel="Open menu"
+          >
+            <Menu size={20} color={colors.cream} />
+          </TouchableOpacity>
           {/* Avatar: shows uploaded photo if available, falls back to initials */}
           <View style={[styles.avatarCircle, profileAvatar && styles.avatarCirclePhoto]}>
             {profileAvatar ? (
@@ -635,6 +645,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: 28,
     alignItems: 'center',
+  },
+  menuBtn: {
+    position: 'absolute', right: spacing.md, width: 34, height: 34,
+    alignItems: 'center', justifyContent: 'center', zIndex: 1,
   },
   avatarCircle: {
     width: 76, height: 76, borderRadius: 38,

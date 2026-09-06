@@ -5,10 +5,11 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { MessageSquare, Users, ChevronRight, Pencil } from 'lucide-react-native'
+import { MessageSquare, Users, ChevronRight, Pencil, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { goToHome, openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -240,7 +241,17 @@ export default function MessagesScreen({ navigation }) {
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        <UBPLogo height={30} color={colors.cream} />
+        <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+        <View style={{ flex: 1 }} />
+        <TouchableOpacity
+          onPress={() => openMenu(navigation)}
+          style={styles.menuBtn}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+        >
+          <Menu size={20} color={colors.cream} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.composeBtn}
           activeOpacity={0.8}
@@ -313,6 +324,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  menuBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
   composeBtn: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: 'rgba(245,240,232,0.12)',

@@ -1,11 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
 import { Platform, View, Animated } from 'react-native'
 import { useRef, useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import UBPLogo from '../components/ui/UBPLogo'
 import UnverifiedEmailBanner from '../components/ui/UnverifiedEmailBanner'
+import SidebarDrawer from './SidebarDrawer'
 
 import { useAuth } from '../context/AuthContext'
 import { colors, fonts } from '../constants/theme'
@@ -70,8 +72,9 @@ import SignUpScreen         from '../screens/auth/SignUpScreen'
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen'
 import VerifyEmailScreen    from '../screens/auth/VerifyEmailScreen'
 
-const Tab   = createBottomTabNavigator()
-const Stack = createNativeStackNavigator()
+const Tab    = createBottomTabNavigator()
+const Stack  = createNativeStackNavigator()
+const Drawer = createDrawerNavigator()
 
 const noHeader   = { headerShown: false, animation: 'slide_from_right' }
 const backHeader = {
@@ -234,6 +237,29 @@ function MainTabsInner() {
   )
 }
 
+// ── App Shell — Drawer wraps the bottom-tab app ─────────────────────────────────
+// A real drawer navigator, separate from (and layered above) the existing
+// bottom tabs — opened via the hamburger icon on each of the 5 root tab
+// screens (Home, Ad Board, Messages, Directory, Profile). Its 8 items jump
+// straight to a Home-stack screen or the Ad Board tab; the bottom tabs are
+// still there underneath for the 5 primary sections.
+function AppShell() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerShown: false,
+        drawerType: 'front',
+        overlayColor: 'rgba(15,23,32,0.5)',
+        drawerStyle: { width: 280 },
+        swipeEdgeWidth: 40,
+      }}
+      drawerContent={props => <SidebarDrawer {...props} />}
+    >
+      <Drawer.Screen name="MainTabs" component={MainTabs} />
+    </Drawer.Navigator>
+  )
+}
+
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
@@ -300,5 +326,5 @@ export default function RootNavigator() {
     return <BlueprintTourScreen mode="first-launch" onFinish={() => setTourSeen(true)} />
   }
 
-  return <MainTabs />
+  return <AppShell />
 }

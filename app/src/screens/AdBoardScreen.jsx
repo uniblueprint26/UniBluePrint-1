@@ -9,13 +9,14 @@ import { LinearGradient } from 'expo-linear-gradient'
 import {
   Plus, X, Globe, Building2, GraduationCap,
   Wrench, Sparkles, Dumbbell, Camera, Activity, ShoppingBag,
-  ChevronRight, ChevronLeft, Megaphone, Star, Crown,
+  ChevronRight, ChevronLeft, Megaphone, Star, Crown, Menu,
   MapPin, Users, Wallet, Newspaper, CalendarClock, Award, Heart,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import ImageUploader from '../components/ui/ImageUploader'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
+import { goToHome, openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { COACHES, coachSlug } from './ElevationScreen'
@@ -918,8 +919,17 @@ export default function AdBoardScreen({ navigation }) {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.topBar}>
-        <UBPLogo height={24} color={colors.cream} />
+        <UBPLogo height={26} color={colors.cream} onPress={() => goToHome(navigation)} />
         <Text style={styles.topBarPageNum}>{pageIndex + 1} / {PAGES.length}</Text>
+        <TouchableOpacity
+          onPress={() => openMenu(navigation)}
+          style={styles.menuBtn}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+        >
+          <Menu size={19} color={colors.cream} />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.postBtn} activeOpacity={0.8} onPress={() => setModalVisible(true)}>
           <Plus size={14} color={colors.navy} strokeWidth={2.5} />
           <Text style={styles.postBtnText}>Post an Ad</Text>
@@ -1006,6 +1016,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
   },
   topBarPageNum: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.5)', fontVariant: ['tabular-nums'] },
+  menuBtn: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
   postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: NAVY },
 

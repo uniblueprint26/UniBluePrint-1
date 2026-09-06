@@ -11,6 +11,7 @@ import Card from '../components/ui/Card'
 import { useWeekendDeliveryCopy } from '../hooks/useWeekendDeliveryCopy'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { goToHome } from '../navigation/helpers'
 
 // ─── Career services ──────────────────────────────────────────────────────────
 
@@ -141,11 +142,13 @@ export default function FoundationScreen({ navigation }) {
             style={styles.backBtn}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
             <Text style={styles.backBtnText}>Home</Text>
           </TouchableOpacity>
-          <UBPLogo height={30} color={colors.cream} />
+          <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
           {/* Spacer to balance the back button */}
           <View style={{ width: 70 }} />
         </View>

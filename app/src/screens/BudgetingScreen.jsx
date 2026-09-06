@@ -869,7 +869,7 @@ export default function BudgetingScreen({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <TopBar />
+      <TopBar navigation={navigation} showBack />
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}

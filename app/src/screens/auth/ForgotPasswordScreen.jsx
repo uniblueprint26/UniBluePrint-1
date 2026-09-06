@@ -4,9 +4,10 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Mail, AlertCircle, CheckCircle } from 'lucide-react-native'
+import { Mail, AlertCircle, CheckCircle, ChevronLeft } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import UBPLogo from '../../components/ui/UBPLogo'
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('')
@@ -41,7 +42,16 @@ export default function ForgotPasswordScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-          <Text style={styles.logo}>UniBlueprint</Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backBtn}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+          </TouchableOpacity>
+          <UBPLogo height={33} color={colors.cream} />
         </View>
 
         <View style={styles.body}>
@@ -118,8 +128,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navy,
     paddingHorizontal: spacing.md,
     paddingBottom: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
   },
-  logo: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  backBtn: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: 'rgba(245,240,232,0.10)',
+    borderWidth: 1, borderColor: 'rgba(245,240,232,0.16)',
+    alignItems: 'center', justifyContent: 'center',
+  },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
   title: { fontFamily: fonts.serif, fontSize: 34, color: colors.navy },

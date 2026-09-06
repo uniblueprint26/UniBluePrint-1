@@ -9,7 +9,7 @@ import {
   Bell, User, FileText, TrendingUp, Building2,
   Heart, Globe, Compass, Calculator, Megaphone,
   ChevronRight, ChevronUp, ChevronDown, Pencil,
-  LayoutGrid, MessageSquare, Users, X,
+  LayoutGrid, MessageSquare, Users, X, Menu,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import UBPLogo from '../components/ui/UBPLogo'
@@ -17,6 +17,7 @@ import Card from '../components/ui/Card'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import { colors, fonts, spacing } from '../constants/theme'
+import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -383,7 +384,7 @@ export default function HomeScreen({ navigation }) {
         {/* ── SIDEBAR ── */}
         <View style={styles.sidebar}>
           <View style={styles.sidebarLogoWrap}>
-            <UBPLogo height={30} color={colors.cream} />
+            <UBPLogo height={33} color={colors.cream} onPress={() => handleNav({ action: 'home' })} />
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
@@ -426,6 +427,15 @@ export default function HomeScreen({ navigation }) {
               {isComplimentaryPro && <ActiveMemberBadge style={{ marginTop: 6 }} />}
             </View>
             <View style={styles.topActions}>
+              <TouchableOpacity
+                style={styles.menuBtn}
+                activeOpacity={0.7}
+                onPress={() => openMenu(navigation)}
+                accessibilityRole="button"
+                accessibilityLabel="Open menu"
+              >
+                <Menu size={19} color={colors.navy} strokeWidth={1.8} />
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.bellBtn}
                 activeOpacity={0.7}
@@ -623,6 +633,7 @@ const styles = StyleSheet.create({
   },
 
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  menuBtn: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
   bellBtn: { position: 'relative', width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
   badge: {
     position: 'absolute', top: 3, right: 3,

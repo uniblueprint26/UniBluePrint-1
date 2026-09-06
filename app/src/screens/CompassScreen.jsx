@@ -20,6 +20,7 @@ import {
 
 import UBPLogo    from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { goToHome } from '../navigation/helpers'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 // All tool names, descriptions, and URLs verified against coursecompass.ie.
@@ -153,11 +154,13 @@ export default function CompassScreen({ navigation }) {
             style={s.backBtn}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
             <Text style={s.backBtnText}>Home</Text>
           </TouchableOpacity>
-          <UBPLogo height={30} color={colors.cream} />
+          <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
           <View style={{ width: 70 }} />
         </View>
 

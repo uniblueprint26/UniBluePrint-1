@@ -383,7 +383,7 @@ export default function LifestyleScreen({ navigation, route }) {
 
   return (
     <View style={styles.screen}>
-      <TopBar />
+      <TopBar navigation={navigation} showBack />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── Hero ─────────────────────────────────────────────────────────── */}

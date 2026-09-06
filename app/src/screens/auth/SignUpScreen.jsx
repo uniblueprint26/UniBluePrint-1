@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import UBPLogo from '../../components/ui/UBPLogo'
 import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
@@ -341,9 +342,9 @@ export default function SignUpScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <ChevronLeft size={18} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.logo}>UniBlueprint</Text>
+          <UBPLogo height={33} color={colors.cream} />
         </View>
 
         <View style={styles.body}>
