@@ -55,7 +55,7 @@ export default function ArticleScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.md, paddingBottom: insets.bottom + 48 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: spacing.md, paddingBottom: insets.bottom + 48 }} showsVerticalScrollIndicator={false}>
         <View style={styles.categoryBadge}>
           <Text style={styles.categoryBadgeText}>{post.category}</Text>
         </View>

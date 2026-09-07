@@ -24,6 +24,8 @@ import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
+import WeeklyBlueprintScreen from '../screens/WeeklyBlueprintScreen'
+import BlogScreen          from '../screens/BlogScreen'
 import MarketplaceScreen   from '../screens/MarketplaceScreen'
 import ArticleScreen       from '../screens/ArticleScreen'
 import BudgetingScreen     from '../screens/BudgetingScreen'
@@ -143,6 +145,8 @@ function AdBoardStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="AdBoardMain"  component={AdBoardScreen} />
+      <Stack.Screen name="WeeklyBlueprint" component={WeeklyBlueprintScreen} />
+      <Stack.Screen name="Blog"         component={BlogScreen} />
       <Stack.Screen name="Marketplace"  component={MarketplaceScreen} />
       <Stack.Screen name="BoardDetail"  component={BoardDetailScreen} />
       <Stack.Screen name="Article"      component={ArticleScreen} />

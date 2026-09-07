@@ -43,6 +43,9 @@ const ROUTE_TO_KEY = {
   Budgeting: 'budgeting',
   AdBoardMain: 'adboard',
   AdBoard: 'adboard',
+  WeeklyBlueprint: 'adboard',
+  Blog: 'adboard',
+  Marketplace: 'adboard',
 }
 
 function getActiveRouteName(state) {
