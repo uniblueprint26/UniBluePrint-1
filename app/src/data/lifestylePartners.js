@@ -505,7 +505,9 @@ export const PARTNERS = [
     county: 'Ireland',
     category: 'Fashion',
     tagline: 'Fashion gallery and pieces, nationwide.',
-    deal: 'TODO — confirm with partner before launch',
+    // No deal confirmed yet — omitted rather than shown as a "TODO" placeholder
+    // to the user; same treatment as Z Vision Apparel, which genuinely has no
+    // deal by design. Add a real `deal` string here once one is confirmed.
     status: 'live',
     logo: null, // upload via partner-logos bucket when available
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
@@ -521,7 +523,7 @@ export const PARTNERS = [
     county: 'Cork',
     category: 'Sports Photography',
     tagline: 'Sports photography, Cork.',
-    deal: 'TODO — confirm with partner before launch',
+    // No deal confirmed yet — omitted rather than shown as a "TODO" placeholder.
     status: 'live',
     logo: null, // upload via partner-logos bucket when available
     description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
@@ -551,7 +553,7 @@ export const PARTNERS = [
   { id: 'hardluck',     brand: 'Hardluck Club',           initials: 'HC', initBg: '#78350F', filterKey: 'food', county: 'Louth', category: 'Food & Drink', status: 'shell' },
   { id: 'purplebrunch', brand: 'Purple Brunch',           initials: 'PB', initBg: '#B45309', filterKey: 'food', county: 'Sligo', category: 'Food & Drink', status: 'shell' },
   { id: 'chloehouse',   brand: 'Chloe May House',         initials: 'CM', initBg: '#7C3AED', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
-  { id: 'lashlux',      brand: 'Lash Lux Dublin',         initials: 'LL', initBg: '#9333EA', filterKey: 'beauty', category: 'Lash Tech', status: 'shell' },
+  { id: 'lashlux',      brand: 'Lash Lux Dublin',         initials: 'LL', initBg: '#9333EA', filterKey: 'beauty', county: 'Dublin', category: 'Lash Tech', status: 'shell' },
   { id: 'dolledm',      brand: 'Dolled by M',             initials: 'DM', initBg: '#BE185D', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
   { id: 'eveburac',     brand: 'Eve Burac',               initials: 'EB', initBg: '#DB2777', filterKey: 'beauty', category: 'Nail Tech', status: 'shell' },
   { id: 'erinburke',    brand: 'Erin Burke Makeup',       initials: 'EB', initBg: '#C2410C', filterKey: 'beauty', category: 'Makeup', status: 'shell' },

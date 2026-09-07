@@ -1,11 +1,12 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image, Animated,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image, Animated, Modal, Pressable,
 } from 'react-native'
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
   ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock, HelpCircle, ExternalLink,
-  Dumbbell, Sparkles, UtensilsCrossed, Wrench, Map as MapIcon, List as ListIcon,
+  Dumbbell, Sparkles, UtensilsCrossed, Wrench, Map as MapIcon, LayoutGrid, X,
+  Siren, GraduationCap, LifeBuoy, Utensils, CloudRain, ShieldAlert, UserRound, Sun, MessagesSquare,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
@@ -46,6 +47,22 @@ const CATEGORY_META = {
   fashion:  { label: 'Fashion',            Icon: ShoppingBag,     accent: '#1D4ED8' },
   food:     { label: 'Food & Drink',       Icon: UtensilsCrossed, accent: '#B45309' },
   services: { label: 'Creative & Services', Icon: Wrench,         accent: '#0369A1' },
+}
+
+// Icon + accent per Mental Health & Support category — same visual language
+// as CATEGORY_META above, so a long stack of 10 categories reads as a set of
+// clearly distinct, scannable groups rather than one undifferentiated list.
+const MH_CATEGORY_META = {
+  crisis:              { Icon: Siren,          accent: '#DC2626' },
+  counselling:         { Icon: MessagesSquare,  accent: '#0369A1' },
+  student:             { Icon: GraduationCap,   accent: '#7C3AED' },
+  addiction:           { Icon: LifeBuoy,        accent: '#B45309' },
+  eating:              { Icon: Utensils,        accent: '#BE185D' },
+  bereavement:         { Icon: CloudRain,       accent: '#4B5563' },
+  'domestic-violence': { Icon: ShieldAlert,     accent: '#991B1B' },
+  mens:                { Icon: UserRound,       accent: '#1D4ED8' },
+  womens:              { Icon: UserRound,       accent: '#DB2777' },
+  wellbeing:           { Icon: Sun,             accent: '#15803D' },
 }
 
 const WELLBEING_RESOURCES = [
@@ -166,51 +183,81 @@ function ComingSoonGridCard({ partner, onPress }) {
   )
 }
 
-// ─── Partner Card — live listings only now; Coming Soon has its own compact
-// grid card above, so this can commit fully to looking like a real listing. ──
-function PartnerCard({ partner, navigation, autoOpen }) {
-  const [open, setOpen] = useState(!!autoOpen)
+// ─── Partner Grid Card — compact square-ish tile for the live-partner grid.
+// Coming Soon has its own compact grid card above; this is the "live" sibling,
+// deliberately kept to logo + name + category + deal so a 2-up grid stays
+// tidy — tapping opens the full listing in PartnerDetailSheet below rather
+// than expanding in place, which would break the grid's rhythm. ─────────────
+function PartnerGridCard({ partner, onPress, highlighted }) {
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
   return (
-    <View style={styles.partnerCard}>
-      <View style={[styles.accentBar, { backgroundColor: accent }]} />
+    <TouchableOpacity
+      style={[styles.gridCard, highlighted && styles.gridCardHighlighted]}
+      activeOpacity={0.8}
+      onPress={onPress}
+    >
+      <View style={[styles.gridCardAccent, { backgroundColor: accent }]} />
+      <View style={styles.gridCardTop}>
+        <PartnerLogo partner={partner} size={44} />
+        <VerifiedBadge verified={partner.verified} compact />
+      </View>
+      <Text style={styles.gridCardName} numberOfLines={2}>{partner.brand}</Text>
+      <Text style={styles.gridCardCategory} numberOfLines={2}>{partner.category}</Text>
+      {partner.deal ? (
+        <View style={styles.gridDealPill}>
+          <Text style={styles.gridDealPillText} numberOfLines={2}>{partner.deal}</Text>
+        </View>
+      ) : (
+        <View style={styles.gridCardSpacer} />
+      )}
+    </TouchableOpacity>
+  )
+}
 
-      {/* Column: card row + (optional) expanded detail stack vertically,
-          sitting beside the accent bar rather than each being a sibling
-          row-item of it. */}
-      <View style={styles.cardColumn}>
-        <TouchableOpacity
-          style={styles.cardRow}
-          activeOpacity={0.75}
-          onPress={() => setOpen(v => !v)}
-        >
-          <PartnerLogo partner={partner} size={56} />
+// ─── Partner Detail Sheet — the full listing (credentials, description,
+// services, pricing, how-to-start, hours, contact, cross-link), opened from
+// tapping a grid card. Everything PartnerCard used to reveal inline now lives
+// here, unchanged in content — only the presentation moved from an in-place
+// accordion to a bottom sheet, so the grid above it can stay a real grid. ───
+function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
+  if (!partner) return null
+  const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
-          <View style={styles.cardBody}>
-            <View style={styles.cardTopRow}>
-              <Text style={styles.brandName} numberOfLines={1}>{partner.brand}</Text>
-              {open
-                ? <ChevronUp   size={16} color={colors.navy} />
-                : <ChevronDown size={16} color={colors.muted} />}
-            </View>
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.detailBackdrop} onPress={onClose}>
+        <Pressable style={styles.detailSheet} onPress={e => e.stopPropagation?.()}>
+          <View style={styles.detailHandle} />
+          <TouchableOpacity
+            style={styles.detailCloseBtn}
+            onPress={onClose}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+          >
+            <X size={16} color={colors.muted} />
+          </TouchableOpacity>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <Text style={styles.categoryLabel}>{partner.category}</Text>
-              <VerifiedBadge verified={partner.verified} compact />
-            </View>
-
-            {partner.deal && (
-              <View style={styles.dealPill}>
-                <Text style={styles.dealPillText}>{partner.deal}</Text>
+          <View style={styles.detailHeaderRow}>
+            <PartnerLogo partner={partner} size={52} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.detailBrandName}>{partner.brand}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 3 }}>
+                <Text style={styles.categoryLabel}>{partner.category}</Text>
+                <VerifiedBadge verified={partner.verified} compact />
               </View>
-            )}
+            </View>
           </View>
-        </TouchableOpacity>
+          <View style={[styles.detailAccentLine, { backgroundColor: accent }]} />
 
-        {/* Expanded detail */}
-        {open && (
-          <View style={styles.expandedSection}>
+          {partner.deal && (
+            <View style={styles.dealPill}>
+              <Text style={styles.dealPillText}>{partner.deal}</Text>
+            </View>
+          )}
+
+          <ScrollView style={styles.detailScroll} contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
             {partner.credentials && (
               <Text style={styles.credentialsText}>{partner.credentials}</Text>
             )}
@@ -295,52 +342,63 @@ function PartnerCard({ partner, navigation, autoOpen }) {
                 activeOpacity={0.75}
                 onPress={() => {
                   const coach = COACHES.find(c => c.id === partner.crossLink.coachId)
-                  if (coach) navigation.navigate('CoachProfile', { coach })
+                  if (coach) {
+                    onClose()
+                    navigation.navigate('CoachProfile', { coach })
+                  }
                 }}
               >
                 <Text style={styles.crossLinkText}>{partner.crossLink.label}</Text>
                 <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
               </TouchableOpacity>
             )}
-          </View>
-        )}
-      </View>
-    </View>
+          </ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
   )
 }
 
-// ─── Mental Health support line card ───────────────────────────────────────────
-function SupportLineCard({ line }) {
+// ─── Mental Health support line card — a thin accent bar in the category's
+// colour ties every card back to its category header, the same visual
+// language as the partner cards' accentBar, so a long page of 10 categories
+// stays easy to tell apart at a glance rather than reading as one grey block. ──
+function SupportLineCard({ line, accent }) {
   return (
     <TouchableOpacity
       activeOpacity={line.link ? 0.8 : 1}
       onPress={() => line.link && Linking.openURL(line.link)}
     >
       <Card style={styles.supportCard}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.supportName}>{line.name}</Text>
-          <Text style={styles.supportHours}>{line.hours}</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.supportNumber}>{line.number}</Text>
-          {line.link?.startsWith('tel:') || line.link?.startsWith('sms:') ? (
-            <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />
-          ) : line.link ? (
-            <ExternalLink size={12} color={colors.muted} style={{ marginTop: 3 }} />
-          ) : null}
+        <View style={[styles.supportAccent, { backgroundColor: accent }]} />
+        <View style={styles.supportCardBody}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.supportName}>{line.name}</Text>
+            <Text style={styles.supportHours}>{line.hours}</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={styles.supportNumber}>{line.number}</Text>
+            {line.link?.startsWith('tel:') || line.link?.startsWith('sms:') ? (
+              <Phone size={12} color={colors.muted} style={{ marginTop: 3 }} />
+            ) : line.link ? (
+              <ExternalLink size={12} color={colors.muted} style={{ marginTop: 3 }} />
+            ) : null}
+          </View>
         </View>
       </Card>
     </TouchableOpacity>
   )
 }
 
-// ─── Mental Health category — 3 featured cards, then an "Explore N more"
-// section that animates open in place below them, revealing the rest. ─────────
-function MentalHealthCategorySection({ category }) {
+// ─── Mental Health category — an icon + colour header (matching CATEGORY_META's
+// visual language for partner sections) leads 3 featured cards, then an
+// "Explore N more" section that animates open in place below them. ─────────────
+function MentalHealthCategorySection({ category, first }) {
   const [expanded, setExpanded] = useState(false)
   const fade = useRef(new Animated.Value(0)).current
   const featured = category.items.slice(0, 3)
   const rest = category.items.slice(3)
+  const meta = MH_CATEGORY_META[category.key] || { Icon: Heart, accent: colors.navy }
 
   function toggle() {
     if (expanded) {
@@ -354,10 +412,15 @@ function MentalHealthCategorySection({ category }) {
   }
 
   return (
-    <View style={{ marginBottom: spacing.lg }}>
-      <Text style={styles.supportSectionLabel}>{category.label}</Text>
+    <View style={[styles.mhCategory, !first && styles.mhCategoryDivider]}>
+      <View style={styles.mhCategoryHeader}>
+        <View style={[styles.mhCategoryIcon, { backgroundColor: `${meta.accent}1A` }]}>
+          <meta.Icon size={15} color={meta.accent} strokeWidth={2.1} />
+        </View>
+        <Text style={styles.supportSectionLabel}>{category.label}</Text>
+      </View>
       <View style={styles.supportList}>
-        {featured.map(line => <SupportLineCard key={line.name} line={line} />)}
+        {featured.map(line => <SupportLineCard key={line.name} line={line} accent={meta.accent} />)}
       </View>
 
       {rest.length > 0 && (
@@ -373,7 +436,7 @@ function MentalHealthCategorySection({ category }) {
 
           {expanded && (
             <Animated.View style={[styles.supportList, { opacity: fade, marginTop: 10 }]}>
-              {rest.map(line => <SupportLineCard key={line.name} line={line} />)}
+              {rest.map(line => <SupportLineCard key={line.name} line={line} accent={meta.accent} />)}
             </Animated.View>
           )}
         </>
@@ -393,8 +456,20 @@ export default function LifestyleScreen({ navigation, route }) {
     const target = PARTNERS.find(p => p.id === routeHighlightId)
     return target ? target.filterKey : 'all'
   })
-  const [viewMode, setViewMode] = useState('list') // 'list' | 'map'
+  const [viewMode, setViewMode] = useState('grid') // 'grid' | 'map'
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
+  const [detailPartnerId, setDetailPartnerId] = useState(null)
+
+  // Refs for the quick-jump tool buttons alongside the Grid/Map toggle — each
+  // target section reports its own offset on layout, so "Mental Health" and
+  // "Budgeting" can scroll straight to it without a hardcoded pixel guess.
+  const scrollRef = useRef(null)
+  const mentalHealthY = useRef(0)
+  const budgetingY = useRef(0)
+
+  function scrollToSection(yRef) {
+    scrollRef.current?.scrollTo({ y: Math.max(yRef.current - 12, 0), animated: true })
+  }
 
   const liveVisible = PARTNERS.filter(p =>
     p.status === 'live' && (activeFilter === 'all' || p.filterKey === activeFilter))
@@ -411,17 +486,31 @@ export default function LifestyleScreen({ navigation, route }) {
         .filter(g => g.items.length > 0)
     : [{ key: activeFilter, items: liveVisible }]
 
+  const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
+
   function handleViewListing(id) {
     const target = PARTNERS.find(p => p.id === id)
     setMapHighlightId(id)
     setActiveFilter(target ? target.filterKey : 'all')
-    setViewMode('list')
+    setViewMode('grid')
+    setDetailPartnerId(id)
   }
+
+  // A highlight arriving from a deep link (route param) opens straight to
+  // that partner's full listing, same as tapping "View full listing" on the map.
+  useEffect(() => {
+    if (routeHighlightId && !mapHighlightId) setDetailPartnerId(routeHighlightId)
+  }, [routeHighlightId])
 
   return (
     <View style={styles.screen}>
       <TopBar navigation={navigation} showBack />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
 
         {/* ── Hero ─────────────────────────────────────────────────────────── */}
         <View style={styles.hero}>
@@ -436,15 +525,20 @@ export default function LifestyleScreen({ navigation, route }) {
         <View style={styles.section}>
           <SectionHeader eyebrow="Confirmed Partners" title="Partner Listings" />
 
-          {/* List / Map toggle */}
+          {/* Grid / Map toggle, plus quick-jump tool shortcuts to the two
+              other Lifestyle sections — styled as one control row so all four
+              read as the same family of button, even though only the first
+              two hold "active" state (view modes) and the last two just jump
+              the page to where they live. Mental Health and Wellbeing are the
+              same on-page section, so this is one shortcut, not two. */}
           <View style={styles.viewToggleRow}>
             <TouchableOpacity
-              style={[styles.viewToggleBtn, viewMode === 'list' && styles.viewToggleBtnActive]}
-              onPress={() => setViewMode('list')}
+              style={[styles.viewToggleBtn, viewMode === 'grid' && styles.viewToggleBtnActive]}
+              onPress={() => setViewMode('grid')}
               activeOpacity={0.8}
             >
-              <ListIcon size={14} color={viewMode === 'list' ? colors.white : colors.navy} />
-              <Text style={[styles.viewToggleText, viewMode === 'list' && styles.viewToggleTextActive]}>List</Text>
+              <LayoutGrid size={14} color={viewMode === 'grid' ? colors.white : colors.navy} />
+              <Text style={[styles.viewToggleText, viewMode === 'grid' && styles.viewToggleTextActive]}>Grid</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.viewToggleBtn, viewMode === 'map' && styles.viewToggleBtnActive]}
@@ -453,6 +547,26 @@ export default function LifestyleScreen({ navigation, route }) {
             >
               <MapIcon size={14} color={viewMode === 'map' ? colors.white : colors.navy} />
               <Text style={[styles.viewToggleText, viewMode === 'map' && styles.viewToggleTextActive]}>Map</Text>
+            </TouchableOpacity>
+            <View style={styles.viewToggleDivider} />
+            <TouchableOpacity
+              style={styles.viewToggleBtn}
+              onPress={() => scrollToSection(mentalHealthY)}
+              activeOpacity={0.8}
+            >
+              <Heart size={14} color={colors.navy} />
+              {/* Labelled "Wellbeing" (matching the section's own eyebrow),
+                  not "Mental Health" — shorter, fits one line at narrow
+                  widths, and covers the same single entry point either way. */}
+              <Text style={styles.viewToggleText}>Wellbeing</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.viewToggleBtn}
+              onPress={() => scrollToSection(budgetingY)}
+              activeOpacity={0.8}
+            >
+              <PiggyBank size={14} color={colors.navy} />
+              <Text style={styles.viewToggleText}>Budgeting</Text>
             </TouchableOpacity>
           </View>
 
@@ -483,17 +597,19 @@ export default function LifestyleScreen({ navigation, route }) {
                 ))}
               </ScrollView>
 
-              {/* Live partners, grouped by category */}
+              {/* Live partners, grouped by category, as a real 2-up square
+                  grid — tapping a tile opens the full listing in a sheet
+                  rather than expanding in place, so the grid stays a grid. */}
               {liveGroups.map(group => (
                 <View key={group.key} style={{ marginBottom: spacing.lg }}>
                   {showSectionHeaders && <CategorySectionHeader filterKey={group.key} />}
-                  <View style={styles.partnerList}>
+                  <View style={styles.partnerGrid}>
                     {group.items.map(p => (
-                      <PartnerCard
+                      <PartnerGridCard
                         key={p.id}
                         partner={p}
-                        navigation={navigation}
-                        autoOpen={p.id === highlightId}
+                        highlighted={p.id === highlightId}
+                        onPress={() => setDetailPartnerId(p.id)}
                       />
                     ))}
                   </View>
@@ -523,12 +639,15 @@ export default function LifestyleScreen({ navigation, route }) {
         </View>
 
         {/* ── Mental Health & Wellbeing ─────────────────────────────────────── */}
-        <View style={styles.section}>
+        <View
+          style={styles.section}
+          onLayout={e => { mentalHealthY.current = e.nativeEvent.layout.y }}
+        >
           <SectionHeader eyebrow="Wellbeing" title="Mental Health & Support" />
 
           {/* Crisis Support leads every time — whoever needs it most sees it
               first, before the "Need to Talk" prompt or anything else. */}
-          <MentalHealthCategorySection category={MENTAL_HEALTH_CATEGORIES[0]} />
+          <MentalHealthCategorySection category={MENTAL_HEALTH_CATEGORIES[0]} first />
 
           <View style={styles.supportBanner}>
             <Heart size={16} color={colors.cream} fill={colors.cream} />
@@ -561,7 +680,10 @@ export default function LifestyleScreen({ navigation, route }) {
         </View>
 
         {/* ── Budgeting Tools ───────────────────────────────────────────────── */}
-        <View style={styles.section}>
+        <View
+          style={styles.section}
+          onLayout={e => { budgetingY.current = e.nativeEvent.layout.y }}
+        >
           <SectionHeader eyebrow="Money & Finance" title="Budgeting Tools" />
           <View style={styles.supportList}>
             {BUDGET_TOOLS.map(({ title, sub, Icon, screen, params }) => (
@@ -590,6 +712,12 @@ export default function LifestyleScreen({ navigation, route }) {
 
       </ScrollView>
 
+      <PartnerDetailSheet
+        partner={detailPartner}
+        visible={!!detailPartner}
+        onClose={() => { setDetailPartnerId(null); setMapHighlightId(null) }}
+        navigation={navigation}
+      />
       <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
     </View>
   )
@@ -633,18 +761,21 @@ const styles = StyleSheet.create({
   filterPillText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
   filterPillTextActive: { color: colors.cream },
 
-  // List / Map toggle
+  // Grid / Map toggle + Mental Health / Budgeting quick-jump shortcuts — one
+  // unified control row. flex:1 on every button divides the row evenly so
+  // all four read as the same family of control at a glance.
   viewToggleRow: {
-    flexDirection: 'row', backgroundColor: colors.white, padding: 4,
-    borderRadius: radius.button, gap: 4, marginBottom: spacing.md, ...shadows.card,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white, padding: 4,
+    borderRadius: radius.button, gap: 2, marginBottom: spacing.md, ...shadows.card,
   },
   viewToggleBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 6, paddingVertical: 9, borderRadius: radius.button - 2,
+    gap: 5, paddingVertical: 9, paddingHorizontal: 2, borderRadius: radius.button - 2,
   },
   viewToggleBtnActive: { backgroundColor: colors.navy },
-  viewToggleText:       { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  viewToggleText:       { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.navy },
   viewToggleTextActive: { color: colors.white },
+  viewToggleDivider:    { width: 1, height: 20, backgroundColor: colors.border },
   mapSection: {
     backgroundColor: colors.navy, borderRadius: radius.card,
     padding: spacing.md, marginTop: 4,
@@ -661,27 +792,47 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', letterSpacing: 0.6,
   },
 
-  // Partner list
-  partnerList: { gap: 10 },
   emptyText:   { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', paddingVertical: 24 },
 
-  // Partner card
-  partnerCard: {
+  // Partner grid — 2-up square-ish tiles. gap handles the column/row spacing;
+  // each tile is a touch target that opens the full listing in a sheet.
+  partnerGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 10,
+  },
+  gridCard: {
+    width: '48%',
     backgroundColor: colors.white,
     borderRadius: radius.card,
     overflow: 'hidden',
-    flexDirection: 'row',
+    paddingHorizontal: 12, paddingBottom: 12,
     ...shadows.card,
   },
-  accentBar: { width: 4 },
-  cardColumn: { flex: 1 },
-  cardRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    gap: 12,
+  gridCardHighlighted: {
+    borderWidth: 1.5, borderColor: colors.gold,
   },
+  gridCardAccent: { height: 4, marginHorizontal: -12, marginBottom: 10 },
+  gridCardTop: {
+    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6,
+  },
+  gridCardName: {
+    fontFamily: fonts.serif, fontSize: 15, color: colors.navy,
+    marginTop: 10, lineHeight: 19,
+  },
+  gridCardCategory: {
+    fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted,
+    marginTop: 3, lineHeight: 15,
+  },
+  gridDealPill: {
+    alignSelf: 'flex-start', marginTop: 8,
+    backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.badge,
+    paddingHorizontal: 8, paddingVertical: 3,
+  },
+  gridDealPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: '#145A3E', lineHeight: 14 },
+  // Reserves the same vertical rhythm a deal pill would take up, so a
+  // no-deal card (Z Vision Apparel, by design) doesn't read as visually
+  // "cut short" against its neighbours in the grid.
+  gridCardSpacer: { height: 4, marginTop: 8 },
+
   circle: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -698,11 +849,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   circleText: { fontFamily: fonts.sansBold, color: '#FFFFFF', letterSpacing: 0.3 },
-
-  cardBody:   { flex: 1 },
-  cardTopRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-
-  brandName: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, flex: 1 },
 
   categoryLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },
   dealPill: {
@@ -736,13 +882,37 @@ const styles = StyleSheet.create({
   soonLocation: { fontFamily: fonts.sans, fontSize: 10.5, color: '#000000', marginTop: 4 },
   soonCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: '#4B5563', marginTop: 2 },
 
-  // Expanded section
-  expandedSection: {
-    paddingHorizontal: 14,
-    paddingBottom: 18,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+  // Partner Detail Sheet — full listing, opened from a grid card tap.
+  detailBackdrop: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
   },
+  detailSheet: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: radius.card + 4,
+    borderTopRightRadius: radius.card + 4,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    maxHeight: '85%',
+  },
+  detailHandle: {
+    width: 40, height: 4, borderRadius: 2,
+    backgroundColor: 'rgba(30,58,95,0.15)', alignSelf: 'center', marginBottom: 14,
+  },
+  detailCloseBtn: {
+    position: 'absolute', top: 14, right: 14, zIndex: 1,
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
+  },
+  detailHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 34 },
+  detailBrandName: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
+  detailAccentLine: { height: 3, borderRadius: 2, marginTop: 14 },
+  // Explicit flex:1 (not just contentContainerStyle) so this ScrollView reliably
+  // clips to the sheet's maxHeight instead of growing past it — same fix as
+  // the screen's own root ScrollView above.
+  detailScroll: { flex: 1, marginTop: 10 },
+  detailScrollContent: { paddingBottom: 28 },
+
+  // Expanded detail content (inside the Partner Detail Sheet)
   expandDivider: { height: 1, backgroundColor: colors.border, marginBottom: 14, marginTop: 2 },
   expandLabel:   { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, marginBottom: 6 },
   expandBody:    { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
@@ -812,9 +982,29 @@ const styles = StyleSheet.create({
     marginTop: spacing.md, marginBottom: spacing.lg,
   },
   supportBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.white, flex: 1, lineHeight: 19 },
-  supportSectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
-  supportList: { gap: 10, marginTop: spacing.sm },
-  supportCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
+  // Mental Health categories — icon + colour header per category (mirrors
+  // CATEGORY_META's partner-section language), a thin divider between
+  // categories after the first, and generous vertical rhythm so 10 categories
+  // read as distinct groups on the way down the page, not one long scroll.
+  mhCategory: { marginBottom: spacing.xl },
+  mhCategoryDivider: {
+    paddingTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(30,58,95,0.08)',
+  },
+  mhCategoryHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  mhCategoryIcon: {
+    width: 28, height: 28, borderRadius: 9,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  supportSectionLabel: { fontFamily: fonts.sansBold, fontSize: 12.5, color: colors.navy, letterSpacing: 0.2 },
+  supportList: { gap: 8, marginTop: spacing.sm },
+  // Left accent bar (matching the category's colour) sits flush with the
+  // card edge, so the padded content needs its own inner wrapper — the same
+  // structure the partner grid card's accent bar uses.
+  supportCard: { flexDirection: 'row', padding: 0, overflow: 'hidden' },
+  supportAccent: { width: 3, alignSelf: 'stretch' },
+  supportCardBody: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 14 },
   supportName:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   supportHours:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   supportNumber: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },

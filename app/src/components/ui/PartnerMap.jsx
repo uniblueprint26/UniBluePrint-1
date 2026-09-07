@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollView, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollView, Keyboard, PanResponder } from 'react-native'
 import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line, Rect } from 'react-native-svg'
-import { Lock, Search, X } from 'lucide-react-native'
+import { Lock, Search, X, Plus, Minus, RotateCcw } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { PARTNERS, MYSTERY_MAP_COUNTIES, maskComingSoonName } from '../../data/lifestylePartners'
 import ComingSoonSheet from './ComingSoonSheet'
@@ -163,13 +163,23 @@ const SEARCH_INDEX = [
 
 const PING_INTERVAL_MS = 27000
 
+// ─── Zoom bounds — centre-anchored pinch/pan, not focal-point tracking. A
+// two-finger pinch scales the whole map stage around its own centre (RN's
+// default transform origin, so no extra math is needed to anchor it), and a
+// single-finger drag pans it once zoomed in past MIN_SCALE. Simpler than
+// tracking a moving focal point, and just as usable on a map this size. ─────
+const MIN_SCALE = 1
+const MAX_SCALE = 3.5
+const ZOOM_STEP = 0.6
+function clampScale(v) { return Math.min(MAX_SCALE, Math.max(MIN_SCALE, v)) }
+
 // ─── Compass mark — static, decorative ────────────────────────────────────────
 function CompassMark() {
   return (
     <G transform="translate(372, 40)" opacity={0.4}>
       <Circle r={12} fill="none" stroke="rgba(245,240,232,0.4)" strokeWidth={0.8} />
       <Path d="M0,-9 L2.6,-1 L0,2.2 L-2.6,-1 Z" fill="rgba(245,240,232,0.55)" />
-      <SvgText x={0} y={-14.5} textAnchor="middle" fontSize={7} fontWeight="700" fill="rgba(245,240,232,0.5)">N</SvgText>
+      <SvgText x={0} y={-14.5} textAnchor="middle" fontSize={7} fontFamily={fonts.sansBold} fill="rgba(245,240,232,0.5)">N</SvgText>
     </G>
   )
 }
@@ -252,6 +262,103 @@ export default function PartnerMap({ onViewListing }) {
     if (!dimValues[pinKey]) dimValues[pinKey] = new Animated.Value(1)
     return dimValues[pinKey]
   }
+
+  // ── Pinch-to-zoom + pan ────────────────────────────────────────────────
+  // scaleRef/translateRef hold the authoritative numbers gestures read and
+  // write synchronously; the Animated.Values just drive the transform style.
+  const scaleRef = useRef(MIN_SCALE)
+  const translateRef = useRef({ x: 0, y: 0 })
+  const stageSize = useRef({ width: 1, height: 1 })
+  const gestureStart = useRef(null) // { dist, scale } for a 2-finger pinch, or { x, y } for a 1-finger pan
+  const scaleAnim = useRef(new Animated.Value(MIN_SCALE)).current
+  const translateXAnim = useRef(new Animated.Value(0)).current
+  const translateYAnim = useRef(new Animated.Value(0)).current
+  // Plain state mirror of scaleRef, only for the "100%" readout and disabling
+  // the +/- buttons at the limits — the gesture math itself reads scaleRef,
+  // never this, so it's never in the hot path of a pinch.
+  const [zoomPct, setZoomPct] = useState(100)
+
+  // Clamps scale/translate together and pushes them to both the gesture refs
+  // and the animated transform — `bound` is how far the content can pan
+  // before its edge would show past the stage at this scale, so a pinched-in
+  // map can never be dragged off into empty space.
+  function applyTransform(scale, x, y, animate) {
+    const bound = { x: (stageSize.current.width * (scale - 1)) / 2, y: (stageSize.current.height * (scale - 1)) / 2 }
+    const clampedX = Math.min(bound.x, Math.max(-bound.x, x))
+    const clampedY = Math.min(bound.y, Math.max(-bound.y, y))
+    scaleRef.current = scale
+    translateRef.current = { x: clampedX, y: clampedY }
+    // Only touches state on the animated (button/settle) path — a live pinch
+    // calls this on every touchmove, and re-rendering the component that
+    // often would fight the gesture instead of tracking it smoothly.
+    if (animate) setZoomPct(Math.round(scale * 100))
+    if (animate) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, { toValue: scale, useNativeDriver: false, friction: 8 }),
+        Animated.spring(translateXAnim, { toValue: clampedX, useNativeDriver: false, friction: 8 }),
+        Animated.spring(translateYAnim, { toValue: clampedY, useNativeDriver: false, friction: 8 }),
+      ]).start()
+    } else {
+      scaleAnim.setValue(scale)
+      translateXAnim.setValue(clampedX)
+      translateYAnim.setValue(clampedY)
+    }
+  }
+
+  function resetZoom() {
+    applyTransform(MIN_SCALE, 0, 0, true)
+  }
+  function zoomBy(delta) {
+    applyTransform(clampScale(scaleRef.current + delta), translateRef.current.x, translateRef.current.y, true)
+  }
+
+  const panResponder = useRef(
+    PanResponder.create({
+      // Never claim a stationary single touch — that's a tap on a pin or the
+      // search box, and must reach it untouched.
+      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: evt => evt.nativeEvent.touches.length === 2,
+      onMoveShouldSetPanResponderCapture: evt => evt.nativeEvent.touches.length === 2,
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        if (evt.nativeEvent.touches.length === 2) return true
+        return scaleRef.current > MIN_SCALE + 0.01
+          && (Math.abs(gestureState.dx) > 6 || Math.abs(gestureState.dy) > 6)
+      },
+      onPanResponderGrant: evt => {
+        const touches = evt.nativeEvent.touches
+        if (touches.length === 2) {
+          const [a, b] = touches
+          const dist = Math.hypot(a.pageX - b.pageX, a.pageY - b.pageY)
+          gestureStart.current = { mode: 'pinch', dist, scale: scaleRef.current }
+        } else {
+          gestureStart.current = { mode: 'pan', x: translateRef.current.x, y: translateRef.current.y }
+        }
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        const touches = evt.nativeEvent.touches
+        const start = gestureStart.current
+        if (!start) return
+        if (touches.length === 2 && start.mode === 'pinch') {
+          const [a, b] = touches
+          const dist = Math.hypot(a.pageX - b.pageX, a.pageY - b.pageY)
+          if (start.dist > 0) {
+            const nextScale = clampScale(start.scale * (dist / start.dist))
+            applyTransform(nextScale, translateRef.current.x, translateRef.current.y, false)
+          }
+        } else if (start.mode === 'pan') {
+          applyTransform(scaleRef.current, start.x + gestureState.dx, start.y + gestureState.dy, false)
+        }
+      },
+      onPanResponderRelease: () => {
+        gestureStart.current = null
+        // Snap fully back to rest once pinched close to 1x, so the map
+        // doesn't get stuck very slightly zoomed/panned off centre.
+        if (scaleRef.current < MIN_SCALE + 0.04) resetZoom()
+        else setZoomPct(Math.round(scaleRef.current * 100))
+      },
+      onPanResponderTerminate: () => { gestureStart.current = null },
+    }),
+  ).current
 
   useEffect(() => {
     const allKeys = [
@@ -368,7 +475,21 @@ export default function PartnerMap({ onViewListing }) {
         )}
       </View>
 
-      <View style={styles.stage}>
+      <View style={styles.stageWrap}>
+      <View
+        style={styles.stage}
+        onLayout={e => { stageSize.current = { width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height } }}
+        {...panResponder.panHandlers}
+      >
+        <Animated.View
+          style={{
+            transform: [
+              { scale: scaleAnim },
+              { translateX: translateXAnim },
+              { translateY: translateYAnim },
+            ],
+          }}
+        >
         <Svg viewBox="0 0 400 480" style={{ width: '100%', aspectRatio: 400 / 480 }}>
           <Defs>
             <RadialGradient id="pmapLand" cx="35%" cy="20%" r="90%">
@@ -453,18 +574,67 @@ export default function PartnerMap({ onViewListing }) {
             )
           })}
 
-          {/* County name labels — always visible, resolved offline so none overlap. */}
+          {/* County name labels — always visible, resolved offline so none
+              overlap. Explicit fontFamily (not just fontWeight) matters here:
+              react-native-svg's <Text> renders through the platform's native
+              SVG/font-matching path rather than RN's own Text component, and
+              a bare numeric fontWeight with no matching family often fails to
+              resolve to any drawable glyph on Android — silently render
+              nothing rather than falling back the way RN Text would. Pointing
+              at one of the app's own loaded fonts sidesteps that entirely. */}
           {Object.entries(COUNTY_LABEL).map(([county, label]) => (
             <SvgText
               key={`label-${county}`}
               x={COUNTY_POS[county][0]} y={LABEL_Y[county]}
-              textAnchor="middle" fontSize={7.2} fontWeight="600"
-              fill="rgba(245,240,232,0.5)"
+              textAnchor="middle" fontSize={7.2} fontFamily={fonts.sansSemiBold}
+              fill="rgba(245,240,232,0.55)"
             >
               {label}
             </SvgText>
           ))}
         </Svg>
+        </Animated.View>
+      </View>
+
+        {/* Zoom controls — pinch works with two fingers on a touch device,
+            but a mouse-and-trackpad tester (or anyone who prefers a button)
+            needs an equivalent affordance, so this isn't just a fallback. */}
+        <View style={styles.zoomControls}>
+          <TouchableOpacity
+            style={[styles.zoomBtn, zoomPct >= MAX_SCALE * 100 && styles.zoomBtnDisabled]}
+            onPress={() => zoomBy(ZOOM_STEP)}
+            activeOpacity={0.75}
+            disabled={zoomPct >= MAX_SCALE * 100}
+            accessibilityRole="button"
+            accessibilityLabel="Zoom in"
+          >
+            <Plus size={15} color={colors.cream} strokeWidth={2.4} />
+          </TouchableOpacity>
+          <View style={styles.zoomPctWrap}>
+            <Text style={styles.zoomPctText}>{zoomPct}%</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.zoomBtn, zoomPct <= MIN_SCALE * 100 && styles.zoomBtnDisabled]}
+            onPress={() => zoomBy(-ZOOM_STEP)}
+            activeOpacity={0.75}
+            disabled={zoomPct <= MIN_SCALE * 100}
+            accessibilityRole="button"
+            accessibilityLabel="Zoom out"
+          >
+            <Minus size={15} color={colors.cream} strokeWidth={2.4} />
+          </TouchableOpacity>
+          {zoomPct > MIN_SCALE * 100 && (
+            <TouchableOpacity
+              style={styles.zoomBtn}
+              onPress={resetZoom}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel="Reset zoom"
+            >
+              <RotateCcw size={13} color={colors.cream} strokeWidth={2.4} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* ── Info card ──────────────────────────────────────────────────── */}
@@ -532,7 +702,28 @@ export default function PartnerMap({ onViewListing }) {
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', gap: spacing.sm },
-  stage: { width: '100%' },
+  stageWrap: { width: '100%' },
+  // overflow: hidden clips a pinched-in map to its own rounded footprint
+  // instead of spilling zoomed content past the stage's edges.
+  stage: { width: '100%', overflow: 'hidden', borderRadius: radius.button },
+
+  // Zoom controls — a small vertical cluster docked bottom-right over the
+  // stage, sized for a thumb, dark-on-navy to match everything else that
+  // sits directly on the map backdrop.
+  zoomControls: {
+    position: 'absolute', right: 8, bottom: 8, alignItems: 'center', gap: 4,
+  },
+  zoomBtn: {
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: 'rgba(245,240,232,0.16)', borderWidth: 1, borderColor: 'rgba(245,240,232,0.28)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  zoomBtnDisabled: { opacity: 0.35 },
+  zoomPctWrap: {
+    backgroundColor: 'rgba(0,0,0,0.28)', borderRadius: 8,
+    paddingHorizontal: 5, paddingVertical: 2, marginVertical: 1,
+  },
+  zoomPctText: { fontFamily: fonts.sansSemiBold, fontSize: 9.5, color: 'rgba(245,240,232,0.75)' },
 
   // Search
   searchWrap: { width: '100%' },
