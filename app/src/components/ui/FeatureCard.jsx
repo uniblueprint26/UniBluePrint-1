@@ -3,6 +3,12 @@
  *
  * Handles light (default) and dark (navy bg) variants via the `dark` prop.
  * Dark variant is used by the Cross-Ireland section in CourseConnectScreen.
+ *
+ * Icon: pass either `feature.Icon` (a lucide-react-native component, used
+ * throughout Course Connect) or `feature.emoji` (a single emoji string,
+ * used by Campus Connect's board tiles — campusBoards.js stores each
+ * board's icon as an emoji, not a lucide component). Exactly one is
+ * expected per feature; Icon takes priority if both are somehow present.
  */
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
@@ -30,7 +36,9 @@ export default function FeatureCard({ feature, dark = false, onPress }) {
       {/* Top row */}
       <View style={s.topRow}>
         <View style={[s.iconBox, { backgroundColor: feature.color }]}>
-          <feature.Icon size={20} color={dark ? colors.cream : colors.navy} />
+          {feature.Icon
+            ? <feature.Icon size={20} color={dark ? colors.cream : colors.navy} />
+            : <Text style={s.emojiIcon}>{feature.emoji}</Text>}
         </View>
         <View style={{ flex: 1, marginLeft: 12 }}>
           <Text style={[s.label, { color: labelClr }]}>{feature.label}</Text>
@@ -94,6 +102,7 @@ const s = StyleSheet.create({
   },
   topRow:  { flexDirection: 'row', alignItems: 'flex-start' },
   iconBox: { width: 46, height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  emojiIcon: { fontSize: 22 },
   label:   { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 0.8, marginBottom: 4 },
   meta:    { flexDirection: 'row', alignItems: 'center', gap: 8 },
   count:   { fontFamily: fonts.sansSemiBold, fontSize: 12, opacity: 0.65 },

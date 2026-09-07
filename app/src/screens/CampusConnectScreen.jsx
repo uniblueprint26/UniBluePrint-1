@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, TextInput,
   StyleSheet, KeyboardAvoidingView, Platform, Modal, Alert, ActivityIndicator,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Car, CalendarDays, Lightbulb,
   Search, ChevronLeft, MapPin, AlertCircle, Plus, MessageSquare, X, Flag, Trash2, Minus,
 } from 'lucide-react-native'
 
@@ -14,58 +13,86 @@ import FeatureCard from '../components/ui/FeatureCard'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
+import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
-// ─── Feature Products ─────────────────────────────────────────────────────────
+// ─── Board showcase (14 boards, one consistent card treatment) ─────────────
+// Restyled to match Course Connect's hub layout: one full-width FeatureCard
+// per board (headline, sub, live preview posts, Open CTA) instead of the
+// previous two-tier layout — a handful of boards summarised into a single
+// "Campus Boards" tile up top, with the other 12 squeezed into a small
+// horizontal-scroll strip further down. That split is exactly what earlier
+// feedback flagged as some boards (Accommodation, Campus Events, Study
+// Groups...) feeling hidden/messy next to Carpooling and Project
+// Collaboration, which got the full-card treatment. Every board — including
+// Carpooling, which predates the generic board engine and isn't in
+// CAMPUS_BOARDS — now gets the identical card. Carpooling and Project
+// Collaboration still keep their own rich sections further down the page
+// (real posted routes/projects, filters, join flow); their tile here is a
+// consistent entry point that scrolls straight to that section.
+const CARPOOL_TILE = {
+  key: 'carpool', title: 'Carpooling', icon: '🚗', color: '#F0FDF4',
+  tagline: 'Match with people on your route every day and cut your travel costs every week.',
+  preview: [
+    { text: 'Limerick City → UL Campus · Mon–Fri · 8:30am', meta: '2 seats' },
+    { text: 'Cork City → UCC Main Gate · Mon/Wed/Fri · 9:00am', meta: '3 seats' },
+  ],
+}
 
-const CAMPUS_FEATURES = [
-  {
-    key: 'boards', label: 'CAMPUS BOARDS', Icon: Users, color: '#FFF7ED',
-    headline: 'Find rooms, sell stuff, stay connected',
-    sub: 'Fourteen community boards covering accommodation, societies, and more.',
-    count: 'Live at launch',
-    preview: [
-      { text: 'Room near UCD, €600/month, bills included. Available from August.', meta: '2h ago' },
-      { text: 'Chess Society looking for new members, all levels welcome!', meta: '1h ago' },
-    ],
-  },
-  {
-    key: 'carpool', label: 'CARPOOLING', Icon: Car, color: '#F0FDF4',
-    headline: 'Split the cost of your commute',
-    sub: 'Match with people on your route every day and cut your travel costs every week.',
-    count: 'Live at launch',
-    preview: [
-      { text: 'Limerick City → UL Campus · Mon–Fri · 8:30am', meta: '2 seats' },
-      { text: 'Cork City → UCC Main Gate · Mon/Wed/Fri · 9:00am', meta: '3 seats' },
-    ],
-  },
-  {
-    key: 'events', label: 'CAMPUS EVENTS', Icon: CalendarDays, color: '#EFF6FF',
-    headline: "Never miss what's on this week",
-    sub: 'Society events, open days, campus talks, and student-run nights, all in one feed.',
-    count: 'Live at launch',
-    preview: [
-      { text: 'UCD Law Society mixer, Thursday · Free entry with student card', meta: 'Thu' },
-      { text: 'TCD Drama Society auditions, Monday 7pm · All welcome', meta: 'Mon' },
-    ],
-  },
-  {
-    key: 'projects', label: 'PROJECT COLLABORATION', Icon: Lightbulb, color: '#FDF4FF',
-    headline: 'Build something real with your peers',
-    sub: 'Post project ideas, find teammates from any campus, and ship something worth showing.',
-    count: 'Live at launch', isNew: true,
-    preview: [
-      { text: 'Campus Sustainability App · UCD · 2 spots open', meta: 'Mobile Dev' },
-      { text: 'AI Study Planner (Final Year) · TCD · 3 spots open', meta: 'AI/ML' },
-    ],
-  },
+// Short, punchy headline per board — the FeatureCard equivalent of
+// COURSE_FEATURES' headline field (e.g. "Talk to everyone on your course").
+// board.tagline (from campusBoards.js, single source of truth) becomes the
+// card's `sub` line, so this is the only new copy this restyle adds.
+const BOARD_HEADLINES = {
+  accommodation: 'Find your next room',
+  events: "Never miss what's on this week",
+  'study-groups': 'Study with people who get it',
+  'lost-found': 'Lost something? Found something?',
+  conversations: "Say what's actually on your mind",
+  clubs: 'Find your people',
+  projects: 'Build something real with your peers',
+  problems: 'Get real answers, fast',
+  subscriptions: 'Split the cost, keep the perks',
+  reviews: 'The honest take on your college',
+  suggestions: 'Pitch the fix, campus decides',
+  ads: 'Buy, sell, or offer your skills',
+  opportunities: 'Find your next opportunity',
+  carpool: 'Split the cost of your commute',
+}
+
+// Sample posts for each board's mini preview inside its card — sourced from
+// BOARDS_DATA below (12 generic boards) plus Carpooling's and Project
+// Collaboration's own examples, reused rather than invented fresh.
+function buildBoardTiles(boardsData, projectsPreview) {
+  const ordered = [CAMPUS_BOARDS[0], CARPOOL_TILE, ...CAMPUS_BOARDS.slice(1)]
+  return ordered.map(b => {
+    const sample = b.key === 'carpool' ? b.preview
+      : b.key === 'projects' ? projectsPreview
+      : boardsData.find(x => x.key === b.key)?.posts?.map(p => ({ text: p.text, meta: p.time }))
+    return {
+      key: b.key,
+      label: b.title.toUpperCase(),
+      emoji: b.icon,
+      color: b.color,
+      headline: BOARD_HEADLINES[b.key] || b.title,
+      sub: b.tagline,
+      count: 'Live at launch',
+      preview: sample && sample.length ? sample : undefined,
+    }
+  })
+}
+
+const PROJECTS_PREVIEW = [
+  { text: 'Campus Sustainability App · UCD · 2 spots open', meta: 'Mobile Dev' },
+  { text: 'AI Study Planner (Final Year) · TCD · 3 spots open', meta: 'AI/ML' },
 ]
 
-// ─── Boards (12 boards, live — Carpooling and Project Collaboration get their
-// own sections below since they predate/extend beyond a generic board card) ──
+// ─── Boards (12 generic boards' sample posts, feeding buildBoardTiles above —
+// Carpooling and Project Collaboration keep their own rich sections below,
+// since they predate/extend beyond a generic board card) ───────────────────
 
 const BOARDS_DATA = [
   {
@@ -416,10 +443,10 @@ const cm = StyleSheet.create({
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
-// Feature-card "Open" buttons jump down to the matching section already on
-// this screen rather than pushing a new one — Events lives inside the
-// Community Boards section (it’s one of the 12 boards), not its own section.
-const FEATURE_SECTION = { boards: 'boards', carpool: 'carpool', events: 'boards', projects: 'projects' }
+// Carpooling and Project Collaboration tiles jump down to their existing
+// rich sections further on this screen rather than pushing BoardDetail —
+// every other board tile navigates straight to BoardDetail instead.
+const FEATURE_SECTION = { carpool: 'carpool', projects: 'projects' }
 
 export default function CampusConnectScreen({ navigation }) {
   const insets = useSafeAreaInsets()
@@ -541,6 +568,20 @@ export default function CampusConnectScreen({ navigation }) {
     if (y != null) scrollRef.current?.scrollTo({ y: y - 12, animated: true })
   }
 
+  // ── Board showcase (14 boards, one card treatment) ─────────────────────────
+  const boardTiles = useMemo(() => buildBoardTiles(BOARDS_DATA, PROJECTS_PREVIEW), [])
+  const filteredBoardTiles = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return boardTiles
+    return boardTiles.filter(t =>
+      t.label.toLowerCase().includes(q) || t.headline.toLowerCase().includes(q) || t.sub.toLowerCase().includes(q))
+  }, [boardTiles, search])
+
+  function openBoardTile(key) {
+    if (key === 'carpool' || key === 'projects') { scrollToFeature(key); return }
+    navigation.navigate('BoardDetail', { boardKey: key })
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.screen}
@@ -549,6 +590,7 @@ export default function CampusConnectScreen({ navigation }) {
       {/* ── Scrollable content — header now scrolls with the page, same as every other screen ── */}
       <ScrollView
         ref={scrollRef}
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 56 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -586,7 +628,7 @@ export default function CampusConnectScreen({ navigation }) {
             </View>
             <View style={styles.heroStatDivider} />
             <View style={styles.heroStatItem}>
-              <Text style={styles.heroStatNumber}>12</Text>
+              <Text style={styles.heroStatNumber}>14</Text>
               <Text style={styles.heroStatLabel}>Campus Boards{'\n'}per College</Text>
             </View>
             <View style={styles.heroStatDivider} />
@@ -599,61 +641,32 @@ export default function CampusConnectScreen({ navigation }) {
 
         <View style={styles.content}>
 
-          {/* Search */}
+          {/* Search — filters the board showcase below by name or topic */}
           <View style={styles.searchWrap}>
             <Search size={16} color={colors.muted} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Find your campus..."
+              placeholder="Search boards..."
               placeholderTextColor={colors.light}
               value={search}
               onChangeText={setSearch}
             />
           </View>
 
-          <SectionHeader eyebrow="What's Available" title="Campus Features" style={{ marginTop: spacing.lg }} />
-          <View style={{ gap: 14 }}>
-            {CAMPUS_FEATURES.map(f => <FeatureCard key={f.key} feature={f} onPress={() => scrollToFeature(f.key)} />)}
-          </View>
-
-          <View onLayout={registerSection('boards')} />
-          <SectionHeader eyebrow="Community Boards" title="12 Boards, One Place" style={{ marginTop: spacing.xl }} />
+          {/* ── Board showcase: every board, one consistent card ── */}
+          <SectionHeader eyebrow="What's Available" title="14 Boards, One Place" style={{ marginTop: spacing.lg }} />
           <Text style={styles.boardsIntro}>
             Live from day one — browse any board straight away, no campus sign-up required. Posting just needs your
             institution on file.
           </Text>
-          <ScrollView
-            horizontal showsHorizontalScrollIndicator={false}
-            style={styles.rowScroll}
-            contentContainerStyle={{ paddingRight: spacing.md }}
-          >
-            {BOARDS_DATA.map(board => (
-              <TouchableOpacity
-                key={board.key}
-                activeOpacity={0.8}
-                onPress={() => navigation.navigate('BoardDetail', { boardKey: board.key })}
-              >
-                <View style={[styles.boardCard, { backgroundColor: board.color }]}>
-                  <View style={styles.boardHeader}>
-                    <Text style={styles.boardEmoji}>{board.icon}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.boardTitle}>{board.title}</Text>
-                    </View>
-                  </View>
-                  {board.posts.map((post, i) => (
-                    <View key={i} style={[styles.boardPost, i > 0 && { marginTop: 8 }]}>
-                      <Text style={styles.boardPostText} numberOfLines={2}>{post.text}</Text>
-                      <Text style={styles.boardPostTime}>{post.time}</Text>
-                    </View>
-                  ))}
-                  <View style={styles.boardChatHint}>
-                    <MessageSquare size={11} color="rgba(30,58,95,0.4)" strokeWidth={1.8} />
-                    <Text style={styles.boardChatHintText}>Browse & post</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
+          <View style={{ gap: 14 }}>
+            {filteredBoardTiles.map(f => (
+              <FeatureCard key={f.key} feature={f} onPress={() => openBoardTile(f.key)} />
             ))}
-          </ScrollView>
+            {filteredBoardTiles.length === 0 && (
+              <Text style={styles.emptyBoardsText}>No boards match “{search}”.</Text>
+            )}
+          </View>
 
           <View onLayout={registerSection('carpool')} />
           <SectionHeader eyebrow="Active Routes" title="Carpooling" style={{ marginTop: spacing.xl }} />
@@ -906,6 +919,11 @@ const styles = StyleSheet.create({
   heroStatLabel:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.5)', marginTop: 3, lineHeight: 15 },
   heroStatDivider: { width: 1, backgroundColor: 'rgba(245,240,232,0.12)', marginHorizontal: 16, alignSelf: 'stretch' },
 
+  // THE fix for the header floating/overlapping content on native — a
+  // ScrollView needs an explicit flex (not just contentContainerStyle) on
+  // its own `style`, or native has nothing to size its clipped viewport
+  // against. See HomeScreen.jsx's mainScroll comment for the full story.
+  scrollView: { flex: 1 },
   scroll:  {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
@@ -917,17 +935,7 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
   boardsIntro: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 6, marginBottom: 12, lineHeight: 18 },
-
-  // Boards
-  rowScroll:   { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
-  boardCard:   { width: 228, borderRadius: radius.card, padding: 14, marginRight: 12 },
-  boardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  boardEmoji:  { fontSize: 22 },
-  boardTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  boardCount:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
-  boardPost:   { backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 6, padding: 8 },
-  boardPostText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy, lineHeight: 16 },
-  boardPostTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 3 },
+  emptyBoardsText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', paddingVertical: spacing.md },
 
   // Carpooling
   safetyBanner: {
@@ -968,14 +976,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9, paddingVertical: 5,
   },
   chatBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
-
-  // Board card chat hint (inside each board card)
-  boardChatHint: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    marginTop: 10, paddingTop: 10,
-    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
-  },
-  boardChatHintText: { fontFamily: fonts.sansMedium, fontSize: 11, color: 'rgba(30,58,95,0.45)' },
 
   // Projects
   projectCard:     { padding: 16 },
