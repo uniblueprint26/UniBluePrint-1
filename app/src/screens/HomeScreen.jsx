@@ -73,12 +73,12 @@ function getFirstName(displayName) {
   return displayName.split(' ')[0]
 }
 
-// 05:00–11:59 morning · 12:00–16:59 afternoon · 17:00–20:59 evening · else night
+// 05:00–11:59 morning · 12:00–16:59 afternoon · 17:00–22:59 evening · 23:00–04:59 night
 function getGreetingWord(date = new Date()) {
   const h = date.getHours()
   if (h >= 5 && h < 12)  return 'Good morning'
   if (h >= 12 && h < 17) return 'Good afternoon'
-  if (h >= 17 && h < 21) return 'Good evening'
+  if (h >= 17 && h < 23) return 'Good evening'
   return 'Good night'
 }
 
@@ -268,13 +268,20 @@ export default function HomeScreen({ navigation }) {
     >
       <View style={styles.layout}>
 
-        {/* ── SIDEBAR ── */}
-        <View style={styles.sidebar}>
+        {/* ── SIDEBAR ──
+            The complete, fixed navigation: every section of UniBlueprint,
+            always in the same order, never personalised. This is
+            deliberately distinct from Quick Access below (the user's own,
+            editable shortcuts) — see the "MENU" label and each row's
+            accessibility hint, which spell that out for anyone relying on
+            a screen reader too. */}
+        <View style={styles.sidebar} accessibilityRole="navigation" accessibilityLabel="Full navigation menu">
           <View style={styles.sidebarLogoWrap}>
             <UBPLogo height={33} color={colors.cream} onPress={() => handleNav({ action: 'home' })} />
           </View>
+          <Text style={styles.sidebarCaption}>MENU</Text>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
             {NAV_ITEMS.map(item => {
               const isActive = item.key === activeNavKey
               return (
@@ -283,6 +290,8 @@ export default function HomeScreen({ navigation }) {
                   style={styles.navItemOuter}
                   activeOpacity={0.65}
                   onPress={() => handleNav(item)}
+                  accessibilityRole="button"
+                  accessibilityLabel={item.label.replace('\n', ' ')}
                 >
                   {isActive && <View style={styles.navHighlight} />}
                   <item.Icon
@@ -305,11 +314,11 @@ export default function HomeScreen({ navigation }) {
           {/* Topbar */}
           <View style={styles.mainTopBar}>
             <View style={{ flex: 1, marginRight: 8 }}>
+              <Text style={styles.topTitle} numberOfLines={2}>
+                {fullName ? `${firstName}'s Dashboard` : 'Your Dashboard'}
+              </Text>
               <Text style={styles.topGreeting} numberOfLines={1}>
                 {greeting}, {firstName}
-              </Text>
-              <Text style={styles.topTitle} numberOfLines={1}>
-                {fullName ? `${fullName}'s UniBlueprint` : 'Your UniBlueprint'}
               </Text>
               {isComplimentaryPro && <ActiveMemberBadge style={{ marginTop: 6 }} />}
             </View>
@@ -364,6 +373,7 @@ export default function HomeScreen({ navigation }) {
           )}
 
           <ScrollView
+            style={styles.mainScroll}
             contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
             showsVerticalScrollIndicator={false}
             scrollEnabled={!editingQA}
@@ -375,7 +385,10 @@ export default function HomeScreen({ navigation }) {
               collapsable={false}
             >
               <View style={styles.sectionRow}>
-                <Text style={styles.eyebrow}>Quick Access</Text>
+                <View>
+                  <Text style={styles.eyebrow}>Quick Access</Text>
+                  <Text style={styles.sectionCaption}>Your own shortcuts — pick any 4</Text>
+                </View>
                 {editingQA ? (
                   <TouchableOpacity
                     onPress={() => setEditingQA(false)}
@@ -467,6 +480,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1, borderBottomColor: 'rgba(245,240,232,0.09)',
   },
+  // Small caption clarifying this rail's role — the complete, fixed
+  // navigation — distinct from the personalised Quick Access grid below.
+  sidebarCaption: {
+    fontFamily: fonts.sansSemiBold, fontSize: 8.5,
+    color: 'rgba(245,240,232,0.4)', letterSpacing: 1,
+    textAlign: 'center', textTransform: 'uppercase',
+    marginTop: 10, marginBottom: 2,
+  },
   navItemOuter: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -494,20 +515,33 @@ const styles = StyleSheet.create({
 
   // Main
   main: { flex: 1, backgroundColor: colors.cream },
+  // The header block below is a normal in-flow sibling ABOVE the
+  // ScrollView, not an absolutely-positioned overlay — so on a correctly
+  // measured screen it never needs to fight the ScrollView for space.
+  // The explicit zIndex/elevation here is defensive, not the primary fix:
+  // it guarantees the header still paints above scrolled content on
+  // Android even during the brief window before layout has fully
+  // resolved (first frame, safe-area insets arriving late, etc.), since
+  // Android can otherwise let an elevated descendant (e.g. the Live
+  // Activity Card's shadow) paint over a plain sibling. The real fix for
+  // "header floats/overlaps content" is on the ScrollView itself — see
+  // `mainScroll` below.
   mainTopBar: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 14, paddingVertical: 14,
     backgroundColor: colors.white,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
+    zIndex: 10, elevation: 10,
   },
-  topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted },
-  topTitle:    { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 2 },
+  topTitle:    { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, lineHeight: 27 },
+  topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, marginTop: 3 },
 
   portalSwitchRow: {
     paddingHorizontal: 14, paddingVertical: 10,
     backgroundColor: colors.white,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
     alignItems: 'flex-start',
+    zIndex: 9, elevation: 9,
   },
 
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -528,6 +562,24 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
 
+  // THE fix for the header floating/overlapping content on native: a
+  // ScrollView's own `style` sizes its outer, clipped viewport — separate
+  // from `contentContainerStyle`, which only styles the inner scrollable
+  // content. Without an explicit flex (or fixed height) on `style`,
+  // native's Yoga layout has no constraint to size the ScrollView's own
+  // frame against, so it sizes the viewport to wrap its content instead of
+  // filling the remaining space below mainTopBar/portalSwitchRow — on a
+  // long dashboard that's taller than the screen, meaning the (unclipped)
+  // ScrollView frame extends up over the header, which paints first and
+  // so sits underneath. react-native-web's ScrollView happens to survive
+  // this same omission because it's really a `<div style="overflow-y:auto">`
+  // — CSS gives a scrollable flex item an automatic minimum size of 0
+  // (its content stays internally scrollable) even without a numeric
+  // flex-basis, so the exact same missing style silently looks correct
+  // in an Expo-web/Playwright check while still being broken on-device.
+  // Always pair contentContainerStyle with an explicit `style={{flex:1}}`
+  // (or equivalent) on every ScrollView sitting below a fixed header.
+  mainScroll: { flex: 1 },
   scroll: { paddingHorizontal: 14, paddingTop: 18 },
 
   eyebrow: {
@@ -536,6 +588,12 @@ const styles = StyleSheet.create({
     color: colors.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
+  },
+  sectionCaption: {
+    fontFamily: fonts.sans,
+    fontSize: 10.5,
+    color: colors.light,
+    marginTop: 2,
   },
 
   sectionRow: {

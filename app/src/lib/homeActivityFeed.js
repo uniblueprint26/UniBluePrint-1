@@ -3,17 +3,25 @@ import { supabase } from './supabase'
 // ─── Home dashboard "Live Activity" feed ───────────────────────────────────
 //
 // Pulls straight from the real domain tables rather than a generic events
-// log, per the six event types the dashboard shows. RLS shapes what each
-// query can actually see:
+// log. RLS shapes what each query can actually see:
 //   - submissions & connection_requests are locked to the signed-in user's
 //     own rows ("Users can read own submissions/connection_requests"), so
 //     those two event types are inherently personal.
-//   - coach_profiles, posts and deals are readable platform-wide to any
-//     authenticated user, so those three are genuinely global activity.
+//   - coach_profiles, posts, deals, ads, marketplace_listings,
+//     marketplace_skills and published weekly_issues are all readable
+//     platform-wide to any authenticated user, so those are genuinely
+//     global/promotional activity.
 // profiles is also locked to "own row only", so cross-user names can't be
 // joined here — posts.author_name is already denormalised for exactly this
 // reason and is used as-is; the other personal event types use the
 // signed-in user's own name, which is all that's needed for them anyway.
+//
+// Personal event types: submission_received, submission_delivered,
+// study_group_joined.
+// Promotional/global event types: coach_available, campus_post,
+// partner_deal, weekly_issue, ad_listing, marketplace_listing — these are
+// platform activity, not the signed-in student's own actions, and exist to
+// keep the feed feeling alive even for a brand-new account.
 
 const DOT = {
   submission_received: '#F59E0B', // amber
@@ -22,6 +30,9 @@ const DOT = {
   campus_post: '#2E6DB4', // blue
   study_group_joined: '#7C3AED', // purple
   partner_deal: '#C9A24B', // gold
+  weekly_issue: '#0D9488', // teal
+  ad_listing: '#F97316', // orange
+  marketplace_listing: '#DB2777', // pink
 }
 
 function firstNameOf(name) {
@@ -34,7 +45,10 @@ export { DOT as ACTIVITY_DOT }
 export async function fetchHomeActivity({ userId, firstName }) {
   const events = []
 
-  const [submissionsRes, coachesRes, postsRes, connectionsRes, dealsRes] = await Promise.all([
+  const [
+    submissionsRes, coachesRes, postsRes, connectionsRes, dealsRes,
+    weeklyIssuesRes, adsRes, marketplaceListingsRes, marketplaceSkillsRes,
+  ] = await Promise.all([
     supabase
       .from('submissions')
       .select('id, stage, submitted_at, delivered_at, services(name)')
@@ -65,6 +79,30 @@ export async function fetchHomeActivity({ userId, firstName }) {
       .eq('active', true)
       .order('created_at', { ascending: false })
       .limit(8),
+    // ── Promotional/global events below — platform activity, not the
+    // signed-in student's own actions ──
+    supabase
+      .from('weekly_issues')
+      .select('id, issue_number, theme, published, created_at')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase
+      .from('ads')
+      .select('id, title, active, created_at')
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase
+      .from('marketplace_listings')
+      .select('id, title, created_at, status')
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase
+      .from('marketplace_skills')
+      .select('id, title, created_at, status')
+      .order('created_at', { ascending: false })
+      .limit(4),
   ])
 
   for (const row of submissionsRes.data || []) {
@@ -124,7 +162,49 @@ export async function fetchHomeActivity({ userId, firstName }) {
     events.push({
       id: `deal-${row.id}`,
       dot: DOT.partner_deal,
-      text: `New deal from ${partnerName}`,
+      text: `New deal live from ${partnerName}`,
+      at: row.created_at,
+    })
+  }
+
+  for (const row of weeklyIssuesRes.data || []) {
+    const themePart = row.theme ? `: ${row.theme}` : ''
+    events.push({
+      id: `weekly-issue-${row.id}`,
+      dot: DOT.weekly_issue,
+      text: `The Weekly Blueprint — Issue #${row.issue_number}${themePart} just dropped`,
+      at: row.created_at,
+    })
+  }
+
+  for (const row of adsRes.data || []) {
+    events.push({
+      id: `ad-${row.id}`,
+      dot: DOT.ad_listing,
+      text: `New Ad Board listing: "${row.title}"`,
+      at: row.created_at,
+    })
+  }
+
+  // Marketplace listings/skills only reach a signed-in student's feed while
+  // still open — a listing marked sold/closed elsewhere shouldn't keep
+  // showing up here as "new".
+  for (const row of marketplaceListingsRes.data || []) {
+    if (row.status === 'sold') continue
+    events.push({
+      id: `market-listing-${row.id}`,
+      dot: DOT.marketplace_listing,
+      text: `New Marketplace listing: "${row.title}"`,
+      at: row.created_at,
+    })
+  }
+
+  for (const row of marketplaceSkillsRes.data || []) {
+    if (row.status === 'closed') continue
+    events.push({
+      id: `market-skill-${row.id}`,
+      dot: DOT.marketplace_listing,
+      text: `New Skills Marketplace listing: "${row.title}"`,
       at: row.created_at,
     })
   }

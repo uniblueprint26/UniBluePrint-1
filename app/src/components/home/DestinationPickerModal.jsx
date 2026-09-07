@@ -6,6 +6,13 @@ import { colors, fonts, radius } from '../../constants/theme'
 // Lists every destination not already on the board; tapping one adds it and
 // closes. `slotsLeft` is purely informational copy (the "+" slot itself
 // already stops appearing once 4 are selected).
+//
+// This picker deliberately offers everything, including sections that are
+// also always reachable from the sidebar/drawer menu — Quick Access is a
+// personal "pin your favourites" board, not a second copy of the full site
+// map, so overlap with the menu is expected, not a bug. The copy below
+// exists to make that framing explicit rather than let the two features
+// read as duplicates.
 export default function DestinationPickerModal({ visible, options, slotsLeft, onPick, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -13,11 +20,11 @@ export default function DestinationPickerModal({ visible, options, slotsLeft, on
         <View style={s.sheet}>
           <View style={s.header}>
             <View style={{ flex: 1 }}>
-              <Text style={s.title}>Add to Quick Access</Text>
+              <Text style={s.title}>Add a Shortcut</Text>
               <Text style={s.sub}>
                 {slotsLeft > 0
-                  ? `Choose a destination — ${slotsLeft} slot${slotsLeft !== 1 ? 's' : ''} left`
-                  : 'Choose a destination'}
+                  ? `Pin anything to your board — ${slotsLeft} slot${slotsLeft !== 1 ? 's' : ''} left`
+                  : 'Pin anything to your board'}
               </Text>
             </View>
             <TouchableOpacity
