@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
   Compass, GraduationCap, Map, Wrench, Package,
-  ChevronLeft, ChevronRight, ExternalLink,
+  ChevronLeft, ChevronRight, ExternalLink, Sparkles, UserCheck, Zap,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -101,24 +101,25 @@ const CC_TOOLS = [
   { name: '5th & 6th Year Bundle',  icon: Package,       url: 'https://coursecompass.ie/bundles/senior-cycle',    desc: 'Full senior cycle guidance suite' },
 ]
 
-// ─── Editorial stats ──────────────────────────────────────────────────────────
-
-const FOUNDATION_STATS = [
+// ─── Trust points ─────────────────────────────────────────────────────────────
+// Consolidates what used to be a separate 4-card stats grid plus a
+// standalone "why us" card into a single compact section — same message,
+// far less scroll before the actual service list.
+const TRUST_POINTS = [
   {
-    stat: '7 months in the making.',
-    line: 'Built and refined for how Irish recruiters and ATS systems actually hire.',
+    icon: Sparkles,
+    title: 'Real research, not a generic prompt',
+    line: '7 months building around what Irish recruiters and ATS systems actually screen for, service by service.',
   },
   {
-    stat: '8 services. 1 standard.',
-    line: 'CVs, cover letters, personal statements, LinkedIn profiles, portfolios, application forms and more. Every one built to get you noticed.',
+    icon: UserCheck,
+    title: 'Checked by a real Campus Handler',
+    line: 'Every submission is reviewed line by line by a trained person before it ever reaches you, not just AI output.',
   },
   {
-    stat: '30+ verified strengths.',
-    line: 'Matched against the same strengths framework employers use to hire worldwide.',
-  },
-  {
-    stat: 'Reviewed by real people.',
-    line: 'Every submission gets eyes from a real Campus Handler before it reaches you.',
+    icon: Award,
+    title: '30+ verified strengths',
+    line: 'Matched against the same framework employers use to hire worldwide.',
   },
 ]
 
@@ -156,8 +157,8 @@ export default function FoundationScreen({ navigation }) {
         <Text style={styles.heroEyebrow}>FOUNDATION BLUEPRINT</Text>
         <Text style={styles.heroTitle}>Professional Documents</Text>
         <Text style={styles.heroSub}>
-          CVs, cover letters, personal statements, LinkedIn profiles, portfolios, interview prep, and application forms.
-          Every output reviewed by a Campus Handler before it reaches you.
+          Built on real research into what Irish employers and ATS systems actually screen for, not a generic
+          template. Every submission is checked by a real Campus Handler before it reaches you.
         </Text>
       </View>
 
@@ -169,50 +170,54 @@ export default function FoundationScreen({ navigation }) {
       >
         <View style={styles.content}>
 
-          {/* Editorial confidence stats */}
-          <View style={styles.foundationStatsGrid}>
-            {FOUNDATION_STATS.map(({ stat, line }, i) => (
-              <View key={i} style={styles.foundationStatCard}>
-                <Text style={styles.foundationStatValue}>{stat}</Text>
-                <Text style={styles.foundationStatLine}>{line}</Text>
+          {/* Service tiers — the decision every request starts with, so it
+              now leads the page instead of surfacing after several sections
+              of supporting context. */}
+          <View style={styles.tierBanner}>
+            <View style={styles.tierBannerHeader}>
+              <Text style={styles.tierBannerTitle}>Choose your turnaround</Text>
+              <View style={styles.tierBannerBadge}>
+                <Text style={styles.tierBannerBadgeText}>50% OFF LAUNCH PRICING</Text>
+              </View>
+            </View>
+            <View style={styles.tierRow}>
+              <View style={styles.tierBox}>
+                <Text style={styles.tierLabel}>Standard</Text>
+                <Text style={styles.tierValue}>48hr</Text>
+                <Text style={styles.tierSub}>Full Campus Handler review</Text>
+              </View>
+              <View style={styles.tierSep} />
+              <View style={styles.tierBox}>
+                <View style={styles.tierPremiumLabelRow}>
+                  <Zap size={11} color={colors.gold} fill={colors.gold} />
+                  <Text style={styles.tierLabel}>Premium</Text>
+                </View>
+                <Text style={styles.tierValue}>{isWeekendWindow ? 'Monday' : 'Same day'}</Text>
+                <Text style={styles.tierSub}>Priority + revisions included</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Consolidated trust section — what used to be a 4-card stats
+              grid plus a separate "why us" card, now one compact block. */}
+          <Card style={styles.trustCard}>
+            {TRUST_POINTS.map(({ icon: Icon, title, line }, i) => (
+              <View key={title} style={[styles.trustRow, i > 0 && styles.trustRowBorder]}>
+                <View style={styles.trustIconWrap}>
+                  <Icon size={17} color={colors.navy} strokeWidth={2} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.trustTitle}>{title}</Text>
+                  <Text style={styles.trustLine}>{line}</Text>
+                </View>
               </View>
             ))}
-          </View>
-
-          {/* Turnaround tiers */}
-          <View style={styles.turnaroundRow}>
-            <View style={styles.turnaroundChip}>
-              <Text style={styles.turnaroundLabel}>Standard</Text>
-              <Text style={styles.turnaroundValue}>48hr</Text>
-            </View>
-            <View style={styles.turnaroundSep} />
-            <View style={styles.turnaroundChip}>
-              <Text style={styles.turnaroundLabel}>Premium</Text>
-              <Text style={styles.turnaroundValue}>{isWeekendWindow ? 'Monday' : 'Same day'}</Text>
-            </View>
-          </View>
-
-          {/* Why not just use a generic AI tool yourself */}
-          <Card style={styles.whyCard}>
-            <Text style={styles.whyTitle}>Not a prompt you type in and hope.</Text>
-            <View style={{ gap: 12, marginTop: 12 }}>
-              {[
-                'A generic AI tool gives everyone the same generic output, with no idea what Irish employers or ATS systems actually screen for.',
-                'Every UniBlueprint output is built, then checked line by line by a real trained Campus Handler before it ever reaches you.',
-                'That is the difference between a document that looks fine and one that actually gets you shortlisted.',
-              ].map((line, i) => (
-                <View key={i} style={styles.whyRow}>
-                  <View style={styles.whyDot} />
-                  <Text style={styles.whyText}>{line}</Text>
-                </View>
-              ))}
-            </View>
           </Card>
 
           {/* Entry point for the shared evidence bank — Application Form
               Assistance requires at least one story, and Interview
-              Preparation uses it too, so it's surfaced up front rather than
-              only discovered mid-form. */}
+              Preparation uses it too, so it's surfaced right before the
+              service list rather than only discovered mid-form. */}
           <TouchableOpacity
             activeOpacity={0.85}
             onPress={() => navigation.navigate('EvidenceBank')}
@@ -342,12 +347,15 @@ export default function FoundationScreen({ navigation }) {
             </TouchableOpacity>
           </Card>
 
+          {/* Fallback contact — each service above already has its own
+              Order button, so this is deliberately secondary now: it's
+              for anything not covered by the list, not the main CTA. */}
           <TouchableOpacity
-            style={styles.primaryBtn}
+            style={styles.secondaryBtn}
             activeOpacity={0.8}
             onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Foundation Blueprint request'))}
           >
-            <Text style={styles.primaryBtnText}>Submit a Request</Text>
+            <Text style={styles.secondaryBtnText}>Something else in mind? Get in touch</Text>
           </TouchableOpacity>
 
         </View>
@@ -394,41 +402,43 @@ const styles = StyleSheet.create({
   scroll:   { },
   content:  { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
-  // Foundation editorial stats grid
-  foundationStatsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 12 },
-  foundationStatCard: {
-    width: '48.5%', backgroundColor: colors.white, borderRadius: radius.card,
-    padding: 16, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card,
+  // Service tier banner — moved to the top of the page (previously a plain
+  // pill row that appeared after a full stats grid). Same navy block
+  // language as the hero and the Course Compass "visit" button.
+  tierBanner: {
+    backgroundColor: colors.navy, borderRadius: radius.card,
+    padding: 18, marginBottom: 14, ...shadows.card,
   },
-  foundationStatValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, lineHeight: 26, marginBottom: 8 },
-  foundationStatLine:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
+  tierBannerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
+  tierBannerTitle:  { fontFamily: fonts.serif, fontSize: 17, color: colors.cream },
+  tierBannerBadge:  { backgroundColor: colors.gold, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
+  tierBannerBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.navy, letterSpacing: 0.3 },
+  tierRow:  { flexDirection: 'row', alignItems: 'stretch' },
+  tierBox:  { flex: 1, alignItems: 'center' },
+  tierPremiumLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  tierLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', textTransform: 'uppercase', letterSpacing: 0.8 },
+  tierValue: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginTop: 5 },
+  tierSub:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.55)', marginTop: 4, textAlign: 'center', lineHeight: 15 },
+  tierSep:   { width: 1, alignSelf: 'stretch', backgroundColor: 'rgba(245,240,232,0.18)', marginHorizontal: 10 },
 
-  // Turnaround tiers
-  turnaroundRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 32, backgroundColor: colors.navy, borderRadius: radius.card,
-    paddingVertical: 16, marginBottom: 14,
-  },
-  turnaroundChip:  { alignItems: 'center' },
-  turnaroundLabel: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase', letterSpacing: 0.9 },
-  turnaroundValue: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginTop: 3 },
-  turnaroundSep:   { width: 1, height: 36, backgroundColor: 'rgba(245,240,232,0.18)' },
+  // Consolidated trust section — replaces what used to be a 4-card stats
+  // grid plus a separate "why us" card.
+  trustCard: { marginBottom: spacing.sm, padding: 6 },
+  trustRow:  { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 12, paddingHorizontal: 8 },
+  trustRowBorder: { borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
+  trustIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  trustTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  trustLine:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
 
   servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 12 },
 
   evidenceBankBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: radius.card, padding: 16, marginTop: spacing.lg,
+    backgroundColor: colors.white, borderRadius: radius.card, padding: 16, marginTop: spacing.sm,
     borderWidth: 1, borderColor: colors.border,
   },
   evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
-
-  whyCard: { marginTop: spacing.lg, padding: 18 },
-  whyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
-  whyRow: { flexDirection: 'row', gap: 10 },
-  whyDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.navy, marginTop: 7, flexShrink: 0 },
-  whyText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
 
   // Service cards
   serviceCard:       { padding: 16 },
@@ -469,6 +479,13 @@ const styles = StyleSheet.create({
   ccVisitBtn:   { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   ccVisitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 
-  primaryBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 54, alignItems: 'center', justifyContent: 'center', marginTop: spacing.lg },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  // Deliberately secondary — every service card above already has its own
+  // Order button, so this fallback contact no longer needs to read as the
+  // page's primary action.
+  secondaryBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: colors.white, borderRadius: radius.button, height: 50,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)', marginTop: spacing.lg,
+  },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 })
