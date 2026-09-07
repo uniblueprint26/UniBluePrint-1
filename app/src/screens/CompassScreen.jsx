@@ -16,6 +16,8 @@ import {
   ChevronLeft, ChevronRight, ExternalLink,
   Compass, Wrench, GraduationCap, BookOpen,
   Lightbulb, Globe, FileText, MessageSquare, Star,
+  ClipboardCheck, Target, Users, Laptop,
+  Calculator, Sparkles, Search, ShieldCheck,
 } from 'lucide-react-native'
 
 import UBPLogo    from '../components/ui/UBPLogo'
@@ -31,6 +33,15 @@ const BUNDLE = {
   price:    '€49.99',
   includes: 'Course Compass · PLC Compass · Apprenticeship Compass · Learning Style Test · Career Investigations',
   url:      'https://coursecompass.ie',
+}
+
+// Second bundle option, confirmed live on coursecompass.ie/pricing (Sept 2026):
+// "Complete Platform Bundle", €90 (listed against a €95 individual total).
+const BUNDLE_TWO = {
+  name:     'Complete Platform Bundle',
+  price:    '€90',
+  includes: 'All 6 assessments — Subject Interest Test · Course Compass · Learning Style Test · Apprenticeship Compass · Career Investigations · CV Builder',
+  url:      'https://coursecompass.ie/pricing',
 }
 
 const TOOLS = [
@@ -98,6 +109,42 @@ const TOOLS = [
     url:      'https://coursecompass.ie/cv-builder-test',
   },
   {
+    key:      'studyskills',
+    label:    'STUDY SKILLS & EXAM READINESS',
+    Icon:     ClipboardCheck,
+    color:    '#ECFCCB',
+    headline: 'Build a study system that actually works for you',
+    sub:      'A 5-dimension study skills profile with an AI-generated improvement plan and tips you can use this week. Retake it to track progress.',
+    url:      'https://coursecompass.ie/study-skills-test',
+  },
+  {
+    key:      'careervalues',
+    label:    'CAREER VALUES & MOTIVATION',
+    Icon:     Target,
+    color:    '#FCE7F3',
+    headline: 'Find out what actually drives your career choices',
+    sub:      'A 12-value radar chart with your top 5 motivators highlighted, built from real trade-off scenarios rather than a simple checklist.',
+    url:      'https://coursecompass.ie/career-values-test',
+  },
+  {
+    key:      'personality',
+    label:    'PERSONALITY & TEAMWORK STYLE',
+    Icon:     Users,
+    color:    '#E0E7FF',
+    headline: 'Understand how you work, not just what you like',
+    sub:      'A 6-spectrum working style profile with AI-generated recommendations for the kind of environments and teams that suit you best.',
+    url:      'https://coursecompass.ie/personality-teamwork-test',
+  },
+  {
+    key:      'digitalskills',
+    label:    'DIGITAL SKILLS & FUTURE READINESS',
+    Icon:     Laptop,
+    color:    '#FFE4E6',
+    headline: 'Know where you stand on digital skills before college',
+    sub:      'A 5-domain digital competency profile and Future Readiness Score built on the EU DigComp 2.2 framework, with real-world scenarios.',
+    url:      'https://coursecompass.ie/digital-skills-test',
+  },
+  {
     key:      'chatbot',
     label:    'AI CHATBOT',
     Icon:     MessageSquare,
@@ -105,6 +152,56 @@ const TOOLS = [
     headline: 'Instant answers to your CAO and Leaving Cert questions',
     sub:      '24/7 AI assistant trained on CAO requirements, points history, subject pathways, and entry routes across Irish higher education.',
     url:      'https://coursecompass.ie/login',
+  },
+]
+
+// ─── Free tools ─────────────────────────────────────────────────────────────
+// No purchase or account needed on coursecompass.ie — confirmed live via its
+// /resources page (Sept 2026). Kept separate from the paid TOOLS list above
+// since these are immediate, zero-friction utilities rather than assessments.
+
+const FREE_TOOLS = [
+  {
+    key:  'points',
+    label: 'CAO Points Calculator',
+    Icon: Calculator,
+    sub:  'Enter your Leaving Cert grades for your CAO points total out of 625, then see which 2026 courses your points would have reached.',
+    url:  'https://coursecompass.ie/cao-points-calculator',
+  },
+  {
+    key:  'riasec',
+    label: 'Free RIASEC Career Test',
+    Icon: Sparkles,
+    sub:  'A 5-minute interest inventory — get your three-letter Holland Code and the CAO course areas that typically fit. No account needed.',
+    url:  'https://coursecompass.ie/riasec-test-ireland',
+  },
+  {
+    key:  'coursesearch',
+    label: 'CAO Course Search',
+    Icon: Search,
+    sub:  'Browse and search all 1,395 CAO-listed courses across every Irish university, institute of technology, and college.',
+    url:  'https://coursecompass.ie/courses',
+  },
+  {
+    key:  'susi',
+    label: 'SUSI Grant Eligibility Checker',
+    Icon: ShieldCheck,
+    sub:  'An anonymous pre-screen for the SUSI student grant, based on household income and family size.',
+    url:  'https://coursecompass.ie/resources/susi-eligibility',
+  },
+  {
+    key:  'hear',
+    label: 'HEAR Eligibility Checker',
+    Icon: ShieldCheck,
+    sub:  'An anonymous pre-screen for the Higher Education Access Route (HEAR).',
+    url:  'https://coursecompass.ie/resources/hear-eligibility',
+  },
+  {
+    key:  'dare',
+    label: 'DARE Eligibility Checker',
+    Icon: ShieldCheck,
+    sub:  'An anonymous pre-screen for the Disability Access Route to Education (DARE).',
+    url:  'https://coursecompass.ie/resources/dare-eligibility',
   },
 ]
 
@@ -136,6 +233,30 @@ function ToolCard({ tool }) {
         <ChevronRight size={13} color={colors.cream} />
       </TouchableOpacity>
     </View>
+  )
+}
+
+// ─── Free tool row ──────────────────────────────────────────────────────────
+
+function FreeToolRow({ tool }) {
+  function open() { Linking.openURL(tool.url) }
+
+  return (
+    <TouchableOpacity style={s.freeRow} onPress={open} activeOpacity={0.75}>
+      <View style={s.freeIconBox}>
+        <tool.Icon size={18} color={colors.navy} strokeWidth={1.8} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <View style={s.freeTopLine}>
+          <Text style={s.freeLabel}>{tool.label}</Text>
+          <View style={s.freePill}>
+            <Text style={s.freePillText}>FREE</Text>
+          </View>
+        </View>
+        <Text style={s.freeSub}>{tool.sub}</Text>
+      </View>
+      <ChevronRight size={16} color={colors.light} style={{ flexShrink: 0 }} />
+    </TouchableOpacity>
   )
 }
 
@@ -187,38 +308,75 @@ export default function CompassScreen({ navigation }) {
       >
         <View style={s.content}>
 
-          {/* ── Featured bundle card ── */}
+          {/* ── Featured bundles ── */}
+          <View style={s.toolsHeader}>
+            <Text style={s.toolsEyebrow}>BUNDLES</Text>
+            <Text style={s.toolsTitle}>Save by bundling</Text>
+          </View>
+
+          <View style={{ gap: 14, marginBottom: spacing.sm }}>
+            {[BUNDLE, BUNDLE_TWO].map(bundle => (
+              <TouchableOpacity
+                key={bundle.name}
+                activeOpacity={0.88}
+                style={s.bundleCard}
+                onPress={() => Linking.openURL(bundle.url)}
+              >
+                <View style={s.bundleTop}>
+                  <View style={s.bundleIconBox}>
+                    <Star size={18} color={colors.navy} strokeWidth={2} />
+                  </View>
+                  <View style={s.bundlePricePill}>
+                    <Text style={s.bundlePriceText}>{bundle.price}</Text>
+                  </View>
+                </View>
+
+                <Text style={s.bundleName}>{bundle.name}</Text>
+                <Text style={s.bundleIncludes}>{bundle.includes}</Text>
+
+                <View style={s.bundleCta}>
+                  <Text style={s.bundleCtaText}>Get the Bundle</Text>
+                  <ChevronRight size={14} color={colors.navy} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <TouchableOpacity
-            activeOpacity={0.88}
-            style={s.bundleCard}
-            onPress={() => Linking.openURL(BUNDLE.url)}
+            activeOpacity={0.7}
+            style={s.sampleLink}
+            onPress={() => Linking.openURL('https://coursecompass.ie/sample-results/overview')}
           >
-            <View style={s.bundleTop}>
-              <View style={s.bundleIconBox}>
-                <Star size={18} color={colors.navy} strokeWidth={2} />
-              </View>
-              <View style={s.bundlePricePill}>
-                <Text style={s.bundlePriceText}>{BUNDLE.price}</Text>
-              </View>
-            </View>
-
-            <Text style={s.bundleName}>{BUNDLE.name}</Text>
-            <Text style={s.bundleIncludes}>{BUNDLE.includes}</Text>
-
-            <View style={s.bundleCta}>
-              <Text style={s.bundleCtaText}>Get the Bundle</Text>
-              <ChevronRight size={14} color={colors.navy} />
-            </View>
+            <Text style={s.sampleLinkText}>See a real sample result before you buy</Text>
+            <ChevronRight size={13} color={colors.navy} />
           </TouchableOpacity>
 
           {/* ── Individual tools ── */}
-          <View style={s.toolsHeader}>
+          <View style={[s.toolsHeader, { marginTop: spacing.xl }]}>
             <Text style={s.toolsEyebrow}>ALL TOOLS</Text>
-            <Text style={s.toolsTitle}>Eight tools, one platform</Text>
+            <Text style={s.toolsTitle}>{TOOLS.length} tools, one platform</Text>
           </View>
 
           <View style={{ gap: 14 }}>
             {TOOLS.map(tool => <ToolCard key={tool.key} tool={tool} />)}
+          </View>
+
+          {/* ── Free tools ── */}
+          <View style={[s.toolsHeader, { marginTop: spacing.xl }]}>
+            <Text style={s.toolsEyebrow}>FREE TOOLS</Text>
+            <Text style={s.toolsTitle}>No purchase needed</Text>
+            <Text style={s.freeIntro}>
+              A handful of CourseCompass tools are free to use right now, no account or payment required.
+            </Text>
+          </View>
+
+          <View style={s.freeCard}>
+            {FREE_TOOLS.map((tool, i) => (
+              <View key={tool.key}>
+                <FreeToolRow tool={tool} />
+                {i < FREE_TOOLS.length - 1 && <View style={s.freeDivider} />}
+              </View>
+            ))}
           </View>
 
           {/* ── Footer note ── */}
@@ -327,6 +485,16 @@ const s = StyleSheet.create({
   },
   bundleCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
+  // Sample-result link, sits between the bundle cards and the tools list
+  sampleLink: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
+    paddingVertical: 10, marginBottom: spacing.md,
+  },
+  sampleLinkText: {
+    fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy,
+    textDecorationLine: 'underline',
+  },
+
   // Tools section header
   toolsHeader: { marginBottom: spacing.md },
   toolsEyebrow: {
@@ -334,6 +502,47 @@ const s = StyleSheet.create({
     color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4,
   },
   toolsTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy },
+  freeIntro: {
+    fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
+    lineHeight: 19, marginTop: 6,
+  },
+
+  // Free tools list card
+  freeCard: {
+    backgroundColor: colors.white,
+    borderRadius: radius.card,
+    ...shadows.card,
+    overflow: 'hidden',
+  },
+  freeRow: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+    padding: 14,
+  },
+  freeIconBox: {
+    width: 36, height: 36, borderRadius: 9,
+    backgroundColor: colors.cream,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
+  },
+  freeTopLine: {
+    flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8,
+  },
+  freeLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy,
+  },
+  freePill: {
+    backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.pill,
+    paddingHorizontal: 7, paddingVertical: 2,
+  },
+  freePillText: {
+    fontFamily: fonts.sansSemiBold, fontSize: 9.5, color: '#145A3E', letterSpacing: 0.4,
+  },
+  freeSub: {
+    fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
+    lineHeight: 17, marginTop: 4,
+  },
+  freeDivider: {
+    height: 1, backgroundColor: 'rgba(30,58,95,0.07)', marginLeft: 62,
+  },
 
   // Individual tool card
   toolCard: {
