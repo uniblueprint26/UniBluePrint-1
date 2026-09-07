@@ -7,13 +7,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag,
+  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ImageUploader from '../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
+import { useUserType } from '../hooks/useUserType'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 
@@ -68,6 +69,7 @@ const EXPLORE_LINKS = [
 // ── Account links ──────────────────────────────────────────────────────────────
 
 const ACCOUNT_LINKS = [
+  { Icon: Briefcase, label: 'Account Type',    sub: null,                                action: 'accountType' },
   { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
@@ -247,6 +249,119 @@ const ep = StyleSheet.create({
 })
 
 
+// ── Account Type Modal ───────────────────────────────────────────────────────
+// Lets the person change their general user_type (Student / Apprentice /
+// Gap Year / Worker) after signup. Backed by useUserType() — the same hook
+// any other screen reads from — so this write updates Budgeting's income
+// categories (and anywhere else the app reads it) the moment it's saved.
+function AccountTypeModal({ visible, onClose }) {
+  const { userType, types, setUserType } = useUserType()
+  const [selected, setSelected] = useState(userType)
+  const [saving,   setSaving]   = useState(false)
+  const [error,    setError]    = useState('')
+
+  useEffect(() => {
+    if (visible) { setSelected(userType); setError('') }
+  }, [visible, userType])
+
+  async function handleSave() {
+    if (saving || selected === userType) { onClose(); return }
+    setSaving(true)
+    setError('')
+    const { error: err } = await setUserType(selected)
+    setSaving(false)
+    if (err) { setError('Could not save this change. Please try again.'); return }
+    onClose()
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <View style={ep.container}>
+        <View style={ep.header}>
+          <View style={{ flex: 1 }}>
+            <Text style={ep.headerTitle}>Account Type</Text>
+            <Text style={ep.headerSub}>Tailors tools like Budgeting to your situation</Text>
+          </View>
+          <TouchableOpacity
+            style={ep.closeBtn}
+            onPress={onClose}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+          >
+            <X size={15} color={colors.navy} strokeWidth={2.5} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView contentContainerStyle={ep.scroll} showsVerticalScrollIndicator={false}>
+          {!!error && <Text style={{ fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, marginBottom: 12 }}>{error}</Text>}
+          <View style={{ gap: 10 }}>
+            {types.map(t => {
+              const isSelected = selected === t.key
+              return (
+                <TouchableOpacity
+                  key={t.key}
+                  style={[at.option, isSelected && at.optionActive]}
+                  onPress={() => setSelected(t.key)}
+                  activeOpacity={0.8}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={[at.optionLabel, isSelected && at.optionLabelActive]}>{t.label}</Text>
+                    <Text style={at.optionSub}>{t.sub}</Text>
+                  </View>
+                  <View style={[at.radio, isSelected && at.radioActive]}>
+                    {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          <TouchableOpacity
+            style={[ep.saveBtn, saving && { opacity: 0.6 }]}
+            onPress={handleSave}
+            disabled={saving}
+            activeOpacity={0.8}
+          >
+            <Text style={ep.saveBtnText}>{saving ? 'Saving…' : 'Save Changes'}</Text>
+          </TouchableOpacity>
+
+          <Text style={ep.note}>
+            This changes which income categories Budgeting shows you going forward. Your existing entries stay as they are.
+          </Text>
+        </ScrollView>
+      </View>
+    </Modal>
+  )
+}
+
+const at = StyleSheet.create({
+  option: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    backgroundColor: colors.white, borderRadius: radius.card,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
+    paddingHorizontal: 16, paddingVertical: 14,
+  },
+  optionActive: { borderColor: colors.navy, backgroundColor: 'rgba(30,58,95,0.04)' },
+  optionLabel:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 2 },
+  optionLabelActive: { color: colors.navy },
+  optionSub:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
+  radio: {
+    width: 22, height: 22, borderRadius: 11,
+    borderWidth: 2, borderColor: 'rgba(30,58,95,0.20)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  radioActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+})
+
+
 // ── Handler Rating Prompt ────────────────────────────────────────────────────
 // Shows once a Foundation submission is delivered and hasn't been rated yet.
 // One rating per submission (handler_ratings has a unique constraint on
@@ -374,10 +489,12 @@ const rp = StyleSheet.create({
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
+  const { label: userTypeLabel } = useUserType()
   const [signingOut,   setSigningOut]   = useState(false)
   const [stats,        setStats]        = useState({ cvs: 0, sessions: 0, notes: 0 })
   const [profileAvatar, setProfileAvatar] = useState(null)  // loaded from profiles table
   const [editVisible,  setEditVisible]  = useState(false)
+  const [accountTypeVisible, setAccountTypeVisible] = useState(false)
 
   const displayName      = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const institution      = user?.user_metadata?.institution || user?.user_metadata?.university || ''
@@ -589,19 +706,22 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionEyebrow}>ACCOUNT</Text>
           <Card style={{ padding: 0 }}>
-            {ACCOUNT_LINKS.map(({ Icon, label, sub, screen }, i, arr) => (
+            {ACCOUNT_LINKS.map(({ Icon, label, sub, screen, action }, i, arr) => (
               <TouchableOpacity
                 key={label}
                 activeOpacity={0.75}
                 style={[styles.settingsRow, i < arr.length - 1 && styles.divider]}
-                onPress={() => screen && navigation.navigate(screen)}
+                onPress={() => {
+                  if (action === 'accountType') setAccountTypeVisible(true)
+                  else if (screen) navigation.navigate(screen)
+                }}
               >
                 <View style={styles.settingsIcon}>
                   <Icon size={18} color={colors.navy} strokeWidth={1.8} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.settingsLabel}>{label}</Text>
-                  <Text style={styles.settingsSub}>{sub}</Text>
+                  <Text style={styles.settingsSub}>{action === 'accountType' ? userTypeLabel : sub}</Text>
                 </View>
                 <ChevronRight size={14} color={colors.light} />
               </TouchableOpacity>
@@ -638,6 +758,12 @@ export default function ProfileScreen({ navigation }) {
           if (updates?.avatarUrl) setProfileAvatar(updates.avatarUrl)
           // Display name refresh is handled by auth state change from updateUser()
         }}
+      />
+
+      {/* Account Type modal */}
+      <AccountTypeModal
+        visible={accountTypeVisible}
+        onClose={() => setAccountTypeVisible(false)}
       />
     </View>
   )

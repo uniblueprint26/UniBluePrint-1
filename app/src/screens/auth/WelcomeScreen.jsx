@@ -44,7 +44,7 @@ const SLIDES = [
     color: '#F0FDF4',
     eyebrow: 'BUDGETING TOOL',
     title: 'Know where\nyour money goes.',
-    sub: 'Track your spending, set savings goals, and understand your SUSI entitlement. Built around what life actually costs.',
+    sub: 'Track your spending, set savings goals, and see every grant, wage support or scheme you could be owed. Built around what life actually costs, student, apprentice, or working.',
   },
 ]
 

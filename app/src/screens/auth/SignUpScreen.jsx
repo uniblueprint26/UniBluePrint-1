@@ -18,6 +18,7 @@ import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
 import { WEBSITE_LINKS } from '../../constants/site'
 import { TERMS_VERSION, PRIVACY_VERSION } from '../../constants/legal'
+import { USER_TYPES, mapSituationToUserType } from '../../constants/userTypes'
 
 // ── Situations ────────────────────────────────────────────────────────────────
 
@@ -149,6 +150,12 @@ export default function SignUpScreen({ navigation }) {
   // Step 2
   const [situation, setSituation] = useState('')
 
+  // Step 3, account type — the general Student/Apprentice/Gap Year/Worker
+  // concept (see constants/userTypes.js), pre-filled from the situation
+  // just chosen and editable in case the default doesn't fit.
+  const [userType, setUserType]               = useState(() => mapSituationToUserType(''))
+  const [userTypeTouched, setUserTypeTouched] = useState(false)
+
   // Step 3, institution (in_college)
   const [institutionQuery, setInstitutionQuery]     = useState('')
   const [selectedInstitution, setSelectedInstitution] = useState(null)
@@ -181,6 +188,12 @@ export default function SignUpScreen({ navigation }) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false })
   }, [step])
+
+  // Keep the account-type default in step with the chosen situation until
+  // the person explicitly picks one themselves.
+  useEffect(() => {
+    if (!userTypeTouched) setUserType(mapSituationToUserType(situation))
+  }, [situation, userTypeTouched])
 
   // ── Validation ──────────────────────────────────────────────────────────────
 
@@ -290,6 +303,13 @@ export default function SignUpScreen({ navigation }) {
             { user_id: newUserId, document_type: 'privacy_policy',   version: PRIVACY_VERSION },
           ])
         } catch { /* best effort, account creation already succeeded */ }
+
+        // Write the chosen account type onto the profile the handle_new_user
+        // trigger just created. Best effort — the column already defaults to
+        // 'student', so a failure here just leaves that default in place.
+        try {
+          await supabase.from('profiles').update({ user_type: userType }).eq('id', newUserId)
+        } catch { /* best effort */ }
       }
 
       navigation.navigate('VerifyEmail', { email: email.trim() })
@@ -893,6 +913,38 @@ export default function SignUpScreen({ navigation }) {
                   </View>
                 </>
               )}
+
+              {/* ── Shared: Account type ────────────────────────────────────── */}
+              <View style={styles.sectionDivider} />
+              <Text style={styles.sectionLabel}>Your account type</Text>
+              <Text style={styles.sectionSub}>
+                We use this to tailor tools like Budgeting to you. Defaulted from what you picked above, change it if it's not quite right.
+              </Text>
+              <View style={{ gap: 8 }}>
+                {USER_TYPES.map(t => {
+                  const isSelected = userType === t.key
+                  return (
+                    <TouchableOpacity
+                      key={t.key}
+                      style={[styles.statusOption, isSelected && styles.statusOptionActive]}
+                      onPress={() => { setUserType(t.key); setUserTypeTouched(true) }}
+                      activeOpacity={0.8}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: isSelected }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.statusOptionLabel, isSelected && styles.statusOptionLabelActive]}>
+                          {t.label}
+                        </Text>
+                        <Text style={styles.statusOptionSub}>{t.sub}</Text>
+                      </View>
+                      <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
+                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
 
               {/* ── Shared: Interests chip grid ─────────────────────────────── */}
               <View style={styles.sectionDivider} />

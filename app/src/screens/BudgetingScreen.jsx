@@ -27,6 +27,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { formatNumber } from '../utils/formatNumber'
 import { useAuth } from '../context/AuthContext'
+import { useUserType } from '../hooks/useUserType'
 import { supabase } from '../lib/supabase'
 import { COACHES } from './ElevationScreen'
 
@@ -39,15 +40,42 @@ const GOAL_ICONS = {
 }
 const GOAL_ICON_KEYS = Object.keys(GOAL_ICONS)
 
-// ─── "Your situation" — tailors the default income label instead of shipping
-// a separate tool per situation. Picking one relabels the first income row.
-const SITUATIONS = [
-  { key: 'student-pt', label: 'Student · Part-time work', incomeLabel: 'Part-time work' },
-  { key: 'student-ft', label: 'Student · Full-time work', incomeLabel: 'Full-time work' },
-  { key: 'apprentice', label: 'Apprentice',                incomeLabel: 'Apprenticeship wage' },
-  { key: 'gapyear',    label: 'Gap Year',                  incomeLabel: 'Gap year income' },
-  { key: 'sidehustle', label: 'Side Hustle / Self-employed', incomeLabel: 'Side hustle income' },
-]
+// ─── Income categories per account-wide user type ────────────────────────────
+// Sourced from useUserType() (Student / Apprentice / Gap Year / Worker —
+// see constants/userTypes.js), set at signup and changeable any time in
+// Settings > Account Type. Template rows use ids 1-9 so a type switch can
+// swap just these out while leaving anything the person added themselves
+// (via "Add Income Source", ids 100+) alone. Amounts always start blank —
+// switching type changes what the categories *mean*, so carrying over a
+// number entered against a different category would be misleading.
+const INCOME_TEMPLATES = {
+  student: [
+    { id: 1, label: 'Part-time work' },
+    { id: 2, label: 'SUSI Grant' },
+    { id: 3, label: 'Family support' },
+    { id: 4, label: 'Scholarship / Bursary' },
+  ],
+  apprentice: [
+    { id: 1, label: 'Apprenticeship wage' },
+    { id: 2, label: 'Family support' },
+    { id: 3, label: 'Other income' },
+  ],
+  gap_year: [
+    { id: 1, label: 'Savings' },
+    { id: 2, label: 'Family support' },
+    { id: 3, label: 'Casual / seasonal work' },
+    { id: 4, label: 'Other income' },
+  ],
+  worker: [
+    { id: 1, label: 'Full wage' },
+    { id: 2, label: 'Other income' },
+  ],
+}
+
+function defaultIncomeForType(userType) {
+  const template = INCOME_TEMPLATES[userType] || INCOME_TEMPLATES.student
+  return template.map(row => ({ ...row, amount: '' }))
+}
 
 // ─── SUSI 2026/27 full-time undergraduate rates — source: susi.ie ────────────
 // Thresholds shown are for households with fewer than 4 dependant children.
@@ -383,7 +411,7 @@ function AddGoalSheet({ visible, onClose, onCreate }) {
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
-          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <Text style={sheet.label}>Goal name</Text>
             <TextInput style={sheet.input} value={name} onChangeText={setName} placeholder="e.g. New Laptop" placeholderTextColor={colors.light} />
 
@@ -583,12 +611,6 @@ function SUSIEstimator() {
 // ─── Budget Tab ───────────────────────────────────────────────────────────────
 let nextId = 100  // simple ID generator (not Date.now — breaks resume)
 
-const DEFAULT_INCOME = [
-  { id: 1, label: 'Part-time work',        amount: '' },
-  { id: 2, label: 'SUSI Grant',            amount: '' },
-  { id: 3, label: 'Family support',        amount: '' },
-  { id: 4, label: 'Scholarship / Bursary', amount: '' },
-]
 const DEFAULT_EXPENSES = [
   { id: 10, label: 'Rent / Accommodation', amount: '' },
   { id: 11, label: 'Food & Groceries',     amount: '' },
@@ -609,14 +631,18 @@ const DEFAULT_GOAL_SEEDS = [
   { name: 'Holiday Savings', target_amount: 300, icon: 'Plane' },
 ]
 
-function BudgetTab() {
+function BudgetTab({ navigation }) {
   const { user } = useAuth()
+  const { userType, loading: userTypeLoading, label: userTypeLabel } = useUserType()
   const [loaded, setLoaded]   = useState(false)
   const [period, setPeriod]   = useState('week')
   const [mode,   setMode]     = useState('both')
-  const [situation, setSituation] = useState('student-pt')
+  // Tracks which user type the income categories below were last generated
+  // for, so a change made in Settings (see Account Type there) regenerates
+  // them, while an unchanged type never clobbers what's already been typed.
+  const [appliedUserType, setAppliedUserType] = useState(null)
 
-  const [income,   setIncome]   = useState(DEFAULT_INCOME)
+  const [income,   setIncome]   = useState(() => defaultIncomeForType(userType))
   const [expenses, setExpenses] = useState(DEFAULT_EXPENSES)
 
   // Goals — persisted to Supabase (budget_goals table, RLS scoped to the
@@ -636,7 +662,10 @@ function BudgetTab() {
         const saved = JSON.parse(raw)
         if (saved.period)    setPeriod(saved.period)
         if (saved.mode)      setMode(saved.mode)
-        if (saved.situation) setSituation(saved.situation)
+        // saved.userType records which type the stored income categories
+        // were generated for (older saves have no field — or the pre-user_type
+        // "situation" one — and are treated as unset, below).
+        if (saved.userType)  setAppliedUserType(saved.userType)
         if (saved.income)    setIncome(saved.income)
         if (saved.expenses)  setExpenses(saved.expenses)
         const maxId = Math.max(100, ...(saved.income || []).map(i => i.id), ...(saved.expenses || []).map(i => i.id))
@@ -654,8 +683,23 @@ function BudgetTab() {
   // it's always saved.
   useEffect(() => {
     if (!loaded) return
-    AsyncStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify({ period, mode, situation, income, expenses })).catch(() => {})
-  }, [loaded, period, mode, situation, income, expenses])
+    AsyncStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify({ period, mode, userType: appliedUserType, income, expenses })).catch(() => {})
+  }, [loaded, period, mode, appliedUserType, income, expenses])
+
+  // Keep income categories in step with the account-wide user type (Student /
+  // Apprentice / Gap Year / Worker — changed only in Settings > Account
+  // Type, see useUserType()). Regenerates just the template rows (ids 1-9)
+  // when the type actually changes, leaving any income source the person
+  // added themselves (ids 100+, via "Add Income Source") untouched.
+  useEffect(() => {
+    if (!loaded || userTypeLoading) return
+    if (appliedUserType === userType) return
+    setIncome(prev => {
+      const custom = prev.filter(i => i.id >= 100)
+      return [...defaultIncomeForType(userType), ...custom]
+    })
+    setAppliedUserType(userType)
+  }, [loaded, userTypeLoading, userType, appliedUserType])
 
   // Load goals from Supabase, seeding the two defaults once for a brand new
   // user with nothing on file yet.
@@ -719,13 +763,10 @@ function BudgetTab() {
   // "available" any more, so it comes off the balance below.
   const totalGoalContributions = goals.reduce((s, g) => s + (parseFloat(g.current_amount) || 0), 0)
 
-  function changeSituation(key) {
-    setSituation(key)
-    const next = SITUATIONS.find(s => s.key === key)
-    if (!next) return
-    // Relabel the first income row to match the new situation, without
-    // touching anything the student has already typed in.
-    setIncome(prev => prev.map((item, i) => (i === 0 ? { ...item, label: next.incomeLabel } : item)))
+  function goToAccountType() {
+    // Budgeting is nested inside the Home stack — hop up to the tab
+    // navigator to reach Profile's Account Type setting.
+    navigation?.getParent()?.navigate('Profile', { screen: 'ProfileMain' })
   }
 
   const totalIncome   = income.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
@@ -763,20 +804,17 @@ function BudgetTab() {
 
   return (
     <View>
-      {/* Situation — tailors labels instead of shipping a separate tool per situation */}
-      <Text style={styles.situationLabel}>Your situation</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.situationScroll} contentContainerStyle={styles.situationContent}>
-        {SITUATIONS.map(s => (
-          <TouchableOpacity
-            key={s.key}
-            style={[styles.situationChip, situation === s.key && styles.situationChipActive]}
-            onPress={() => changeSituation(s.key)}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.situationChipText, situation === s.key && styles.situationChipTextActive]}>{s.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* Account type — the income categories below are tailored to this.
+          Changed in Settings (Profile > Account Type), not here, so it
+          stays the same single, reusable concept every screen reads. */}
+      <TouchableOpacity style={styles.userTypeRow} activeOpacity={0.8} onPress={goToAccountType}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.userTypeLabel}>Your account type</Text>
+          <Text style={styles.userTypeValue}>{userTypeLabel}</Text>
+        </View>
+        <Text style={styles.userTypeChange}>Change in Settings</Text>
+        <ChevronRight size={14} color={colors.light} />
+      </TouchableOpacity>
 
       {/* Period selector */}
       <View style={[styles.segmentRow, { marginTop: spacing.md }]}>
@@ -1144,6 +1182,7 @@ export default function BudgetingScreen({ navigation, route }) {
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <TopBar navigation={navigation} showBack />
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -1159,7 +1198,7 @@ export default function BudgetingScreen({ navigation, route }) {
           <Text style={styles.heroEyebrow}>FINANCIAL COMPANION</Text>
           <Text style={styles.heroTitle}>Know where your money goes, every week.</Text>
           <Text style={styles.heroSub}>
-            Track your term spending, set savings goals, understand what you're owed, and explore investing, all in one place.
+            Track what you spend, set savings goals, understand what you're owed, and explore investing, all in one place.
           </Text>
           {/* NOTE: Attribution copy — confirm "Suzi Grant" spelling and permission before going live */}
           {/*
@@ -1198,7 +1237,7 @@ export default function BudgetingScreen({ navigation, route }) {
         </View>
 
         <View style={styles.content}>
-          {tab === 'budget' && <BudgetTab />}
+          {tab === 'budget' && <BudgetTab navigation={navigation} />}
           {tab === 'susi'   && <SUSITab />}
           {tab === 'invest' && <InvestmentTab navigation={navigation} />}
         </View>
@@ -1239,18 +1278,16 @@ const styles = StyleSheet.create({
 
   content: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
 
-  // Situation picker
-  situationLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, marginBottom: 8 },
-  situationScroll: { marginHorizontal: -spacing.md },
-  situationContent: { paddingHorizontal: spacing.md, gap: 8, flexDirection: 'row' },
-  situationChip: {
-    paddingHorizontal: 14, paddingVertical: 9,
-    borderRadius: radius.pill, backgroundColor: colors.white,
+  // Account type row — links out to Settings rather than editing in place
+  userTypeRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: colors.white, borderRadius: radius.card,
     borderWidth: 1, borderColor: colors.border,
+    paddingHorizontal: 16, paddingVertical: 13,
   },
-  situationChipActive:     { backgroundColor: colors.navy, borderColor: colors.navy },
-  situationChipText:       { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, whiteSpace: 'nowrap' },
-  situationChipTextActive: { color: colors.white },
+  userTypeLabel:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 2 },
+  userTypeValue:  { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.navy },
+  userTypeChange: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.65 },
 
   // Tracking note
   trackingNote: {

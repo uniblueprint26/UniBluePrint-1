@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
+import { DEFAULT_USER_TYPE, isValidUserType } from '../constants/userTypes'
 
 const AuthContext = createContext({})
 
@@ -12,6 +13,8 @@ export function AuthProvider({ children }) {
   const [roles, setRoles] = useState([])
   const [subscription, setSubscription] = useState(null)
   const [portalMode, setPortalMode] = useState('personal') // 'personal' | 'studio', dual-portal switcher state
+  const [profile, setProfile] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(true)
   const subChannelRef = useRef(null)
 
   async function loadRolesAndSubscription(userId) {
@@ -27,6 +30,25 @@ export function AuthProvider({ children }) {
     setRoles((roleRows || []).map(r => r.role))
     setSubscription(subRow || null)
   }
+
+  // Loads the profiles row backing useUserType() and any other profile-wide
+  // reads. Kept separate from loadRolesAndSubscription so a failure here
+  // (or a slower query) never blocks role/subscription-gated UI.
+  const loadProfile = useCallback(async userId => {
+    if (!userId) {
+      setProfile(null)
+      setProfileLoading(false)
+      return
+    }
+    setProfileLoading(true)
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, user_type')
+      .eq('id', userId)
+      .maybeSingle()
+    setProfile(data || null)
+    setProfileLoading(false)
+  }, [])
 
   // Realtime watch on this user's own subscription row so Pro access updates
   // the instant it changes server-side, not at next app open. Per the spec:
@@ -57,7 +79,10 @@ export function AuthProvider({ children }) {
       setLoading(false)
       if (session?.user) {
         loadRolesAndSubscription(session.user.id)
+        loadProfile(session.user.id)
         watchSubscriptionChanges(session.user.id)
+      } else {
+        setProfileLoading(false)
       }
     })
 
@@ -65,11 +90,14 @@ export function AuthProvider({ children }) {
       setUser(session?.user ?? null)
       if (session?.user) {
         loadRolesAndSubscription(session.user.id)
+        loadProfile(session.user.id)
         watchSubscriptionChanges(session.user.id)
       } else {
         setRoles([])
         setSubscription(null)
         setPortalMode('personal')
+        setProfile(null)
+        setProfileLoading(false)
         watchSubscriptionChanges(null)
       }
     })
@@ -128,6 +156,20 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  // Writes the general user_type concept (see constants/userTypes.js) to
+  // this user's profile row and updates it locally so every screen reading
+  // useUserType() sees the change immediately — no refetch/reload needed.
+  // Backing store for both the signup step and the Settings editor.
+  const updateUserType = useCallback(async nextType => {
+    if (!user?.id || !isValidUserType(nextType)) return { error: new Error('Invalid user type') }
+    const { error } = await supabase
+      .from('profiles')
+      .update({ user_type: nextType })
+      .eq('id', user.id)
+    if (!error) setProfile(prev => ({ ...(prev || { id: user.id }), user_type: nextType }))
+    return { error }
+  }, [user?.id])
+
   function hasRole(role) {
     return roles.includes(role)
   }
@@ -153,6 +195,14 @@ export function AuthProvider({ children }) {
     : 'The Studio'
   const portalRole = roles.find(r => PORTAL_ROLES.includes(r)) || null
 
+  // The general user_type concept (Student / Apprentice / Gap Year /
+  // Worker) — falls back to the default while the profile is still loading
+  // or for a user with no profile row yet, so every consumer always gets a
+  // valid key. Prefer the useUserType() hook over reading these directly.
+  const userType = (profile?.user_type && isValidUserType(profile.user_type))
+    ? profile.user_type
+    : DEFAULT_USER_TYPE
+
   return (
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
@@ -161,6 +211,7 @@ export function AuthProvider({ children }) {
       isHandler, isCoach, isFounder, isOperations, isBusiness,
       isStudioEligible, isAnyPortalEligible, studioLabel,
       portalMode, setPortalMode,
+      profile, profileLoading, userType, updateUserType, refreshProfile: () => loadProfile(user?.id),
     }}>
       {children}
     </AuthContext.Provider>
