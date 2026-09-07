@@ -31,15 +31,15 @@ export const COURSE_BOARDS = [
     icon: '🎓',
     color: '#EFF6FF',
     table: 'course_boards_posts',
-    tagline: 'Discussion boards for your course — open to every student on it, anywhere in Ireland.',
-    postCta: 'Post to Your Course',
+    tagline: 'Discussion boards for your course, programme, or workplace — open to everyone on it, anywhere in Ireland.',
+    postCta: 'Post to Your Board',
     fields: [
-      { key: 'course', label: 'Course', type: T.TEXT, required: true, placeholder: 'e.g. Computer Science, UCD' },
+      { key: 'course', label: 'Course / Programme / Workplace', type: T.TEXT, required: true, placeholder: 'e.g. Computer Science, UCD — or Electrical Apprenticeship, ETB' },
       { key: 'title', label: 'Title (optional)', type: T.TEXT },
-      { key: 'body', label: 'Post', type: T.TEXTAREA, required: true, placeholder: "What's on your mind about this course?" },
+      { key: 'body', label: 'Post', type: T.TEXTAREA, required: true, placeholder: "What's on your mind?" },
     ],
     filters: [
-      { key: 'course', label: 'Course', type: 'search' },
+      { key: 'course', label: 'Course / Programme / Workplace', type: 'search' },
     ],
     cardTitle: p => p.title || p.course,
     cardMeta: p => [p.course].filter(Boolean),
@@ -58,7 +58,7 @@ export const COURSE_BOARDS = [
     fields: [
       { key: 'title', label: 'Title', type: T.TEXT, required: true, placeholder: 'e.g. Week 7 Consumer Behaviour Summary' },
       { key: 'subject', label: 'Subject', type: T.TEXT, required: true, placeholder: 'e.g. Consumer Behaviour' },
-      { key: 'course', label: 'Course', type: T.TEXT, required: true, placeholder: 'e.g. Business & Marketing' },
+      { key: 'course', label: 'Course / Programme', type: T.TEXT, required: true, placeholder: 'e.g. Business & Marketing' },
       { key: 'year', label: 'Year of study', type: T.SELECT, required: true, options: ['1st year', '2nd year', '3rd year', '4th year', 'Postgrad'] },
       { key: 'file_url', label: 'File (PDF or image)', type: T.FILE, required: true, mimeKey: 'file_mime', nameKey: 'file_name' },
     ],
@@ -81,7 +81,7 @@ export const COURSE_BOARDS = [
     postCta: 'Upload a Past Paper',
     fields: [
       { key: 'subject', label: 'Subject', type: T.TEXT, required: true, placeholder: 'e.g. Contract Law' },
-      { key: 'course', label: 'Course', type: T.TEXT, required: true, placeholder: 'e.g. Law' },
+      { key: 'course', label: 'Course / Programme', type: T.TEXT, required: true, placeholder: 'e.g. Law' },
       { key: 'year', label: 'Exam year', type: T.TEXT, required: true, placeholder: 'e.g. 2023' },
       { key: 'exam_session', label: 'Exam session', type: T.SELECT, required: true, options: ['Semester 1', 'Semester 2', 'Summer', 'Autumn/Repeat'] },
       { key: 'file_url', label: 'File (PDF or image)', type: T.FILE, required: true, mimeKey: 'file_mime', nameKey: 'file_name' },
@@ -103,7 +103,7 @@ export const COURSE_BOARDS = [
     postCta: 'Post a Study Group',
     fields: [
       { key: 'subject', label: 'Subject / module', type: T.TEXT, required: true, placeholder: 'e.g. FIN301' },
-      { key: 'university', label: 'University / college', type: T.TEXT, required: true, placeholder: 'e.g. UCD' },
+      { key: 'university', label: 'Institution / employer', type: T.TEXT, required: true, placeholder: 'e.g. UCD, or your training centre / employer' },
       { key: 'year_of_study', label: 'Year of study', type: T.SELECT, required: true, options: ['1st year', '2nd year', '3rd year', '4th year', 'Postgrad'] },
       { key: 'format', label: 'Format', type: T.SELECT, required: true, options: ['In person', 'Online', 'Hybrid'] },
       { key: 'frequency', label: 'Frequency', type: T.TEXT, required: true, placeholder: 'e.g. Weekly, Thursdays' },
@@ -112,7 +112,7 @@ export const COURSE_BOARDS = [
     ],
     filters: [
       { key: 'subject', label: 'Subject', type: 'search' },
-      { key: 'university', label: 'University', type: 'search' },
+      { key: 'university', label: 'Institution', type: 'search' },
       { key: 'year_of_study', label: 'Year', type: T.SELECT, options: ['1st year', '2nd year', '3rd year', '4th year', 'Postgrad'] },
       { key: 'format', label: 'Format', type: T.SELECT, options: ['In person', 'Online', 'Hybrid'] },
     ],
@@ -131,7 +131,7 @@ export const COURSE_BOARDS = [
     fields: [
       { key: 'title', label: 'Project title', type: T.TEXT, required: true },
       { key: 'description', label: 'Description', type: T.TEXTAREA, required: true },
-      { key: 'university', label: 'Your university / college', type: T.TEXT, required: true, placeholder: 'e.g. TCD' },
+      { key: 'university', label: 'Your institution / employer', type: T.TEXT, required: true, placeholder: 'e.g. TCD' },
       { key: 'skills_needed', label: 'Skills needed', type: T.TAGS, placeholder: 'Type a skill and press add' },
       { key: 'timeline', label: 'Timeline', type: T.TEXT, required: true, placeholder: 'e.g. One semester' },
       { key: 'collaborators_needed', label: 'Collaborators needed', type: T.NUMBER, required: true, min: 1, max: 50, default: 1 },
@@ -150,7 +150,7 @@ export const COURSE_BOARDS = [
     icon: '💼',
     color: '#FEF9C3',
     table: 'industry_discussions',
-    tagline: 'Careers, internships, and industry news, by sector — talk to people already in the field.',
+    tagline: 'Careers, internships, and industry news, by sector — for students, apprentices, and workers alike, talk to people already in the field.',
     postCta: 'Start a Discussion',
     fields: [
       { key: 'industry', label: 'Industry', type: T.SELECT, required: true, options: INDUSTRY_CATEGORIES },

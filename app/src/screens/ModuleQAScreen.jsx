@@ -153,7 +153,7 @@ export default function ModuleQAScreen({ navigation, route }) {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
           <View style={styles.navRow}>
             <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
@@ -163,7 +163,7 @@ export default function ModuleQAScreen({ navigation, route }) {
           </View>
           <Text style={styles.heroIcon}>❓</Text>
           <Text style={styles.heroTitle}>Module Q&A</Text>
-          <Text style={styles.heroSub}>Select your course and module, ask a question, and get answers from students who've been there.</Text>
+          <Text style={styles.heroSub}>Select your course, programme, or workplace, ask a question, and get answers from people who've been there.</Text>
         </View>
 
         <View style={styles.content}>
@@ -171,7 +171,7 @@ export default function ModuleQAScreen({ navigation, route }) {
             <Search size={13} color={colors.muted} />
             <TextInput
               style={styles.filterSearchInput}
-              placeholder="Filter by course or module"
+              placeholder="Filter by course, programme, or workplace"
               placeholderTextColor={colors.light}
               value={search}
               onChangeText={setSearch}
@@ -223,9 +223,9 @@ export default function ModuleQAScreen({ navigation, route }) {
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              <Text style={f.label}>Course</Text>
-              <TextInput style={f.input} value={askCourse} onChangeText={setAskCourse} placeholder="e.g. Computer Science, UCD" placeholderTextColor={colors.light} />
-              <Text style={[f.label, { marginTop: 14 }]}>Module</Text>
+              <Text style={f.label}>Course / Programme / Workplace</Text>
+              <TextInput style={f.input} value={askCourse} onChangeText={setAskCourse} placeholder="e.g. Computer Science, UCD — or your trade / employer" placeholderTextColor={colors.light} />
+              <Text style={[f.label, { marginTop: 14 }]}>Module / Unit</Text>
               <TextInput style={f.input} value={askModule} onChangeText={setAskModule} placeholder="e.g. CS2001 Data Structures" placeholderTextColor={colors.light} />
               <Text style={[f.label, { marginTop: 14 }]}>Your question</Text>
               <TextInput
@@ -258,7 +258,7 @@ export default function ModuleQAScreen({ navigation, route }) {
             <View style={{ width: 20 }} />
           </View>
           {!!selected && (
-            <ScrollView contentContainerStyle={{ padding: spacing.md, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
               <View style={styles.metaRow}>
                 <View style={styles.metaPill}><Text style={styles.metaPillText}>{selected.course}</Text></View>
                 <View style={styles.metaPill}><Text style={styles.metaPillText}>{selected.module}</Text></View>

@@ -758,7 +758,7 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
           <View style={styles.navRow}>
             <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
@@ -846,7 +846,7 @@ export default function BoardDetailScreen({ navigation, route }) {
             <View style={{ width: 20 }} />
           </View>
           {!!selectedProblem && (
-            <ScrollView contentContainerStyle={{ padding: spacing.md, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
               <View style={styles.metaRow}><View style={styles.metaPill}><Text style={styles.metaPillText}>{selectedProblem.category}</Text></View></View>
               <Text style={[styles.cardBody, { fontSize: 15, marginTop: 8 }]}>{selectedProblem.description}</Text>
               <Text style={styles.posterLine}>{posterLine(selectedProblem)}</Text>

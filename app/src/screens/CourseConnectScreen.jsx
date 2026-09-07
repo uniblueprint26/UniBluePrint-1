@@ -8,7 +8,7 @@ import {
   FileText, Users, MessageSquare, BookMarked, Search, Briefcase, Star,
   GraduationCap, Compass, Globe, Lightbulb,
   PenLine, BookOpenCheck, CalendarDays, Clock, BookOpen,
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus,
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus, Repeat,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -19,18 +19,73 @@ import UBPLogo from '../components/ui/UBPLogo'
 import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
+import { useUserType } from '../hooks/useUserType'
+import {
+  USER_TYPE_STUDENT, USER_TYPE_APPRENTICE, USER_TYPE_GAP_YEAR, USER_TYPE_WORKER,
+} from '../constants/userTypes'
+
+// ─── Reframe: "course" means life pathway, not just a college course ────────
+// Course Connect covers students, apprentices, gap-year people, and young
+// workers alike. Rather than one bolted-on "we also allow other people"
+// disclaimer, the hero copy, stats, and a few section framings below adapt
+// to the signed-in user's real userType (see hooks/useUserType.js) so an
+// Apprentice or Worker opening this hub sees language and numbers that
+// actually describe them, not a university portal with an asterisk.
+const PATH_CONTENT = {
+  [USER_TYPE_STUDENT]: {
+    banner: "Course Connect is built around your course and college — boards, notes, and mentors all scoped to what you're studying.",
+    sub: 'Notes, study groups, exam resources, and graduate mentors, built around your course and your college.',
+    academicEyebrow: 'ACADEMIC SUPPORT',
+    academicTitle: 'Built for how you actually study',
+    toolsSub: 'Practical tools, relevant notes, and mentors who recently graduated from your course.',
+    mentorsSub: 'Recently graduated from your course. Mentors who have been exactly where you are now.',
+  },
+  [USER_TYPE_APPRENTICE]: {
+    banner: 'As an Apprentice, the boards and tools below adapt to your trade and training provider, not just to college courses.',
+    sub: 'Discussion boards, shared resources, and a network of people on the same trade, apprentice to apprentice, not bolted onto a college portal.',
+    academicEyebrow: 'COURSE & TRADE SUPPORT',
+    academicTitle: 'Built for how you actually train',
+    toolsSub: "Practical tools and peer resources for your apprenticeship, whatever stage you're at.",
+    mentorsSub: "Recently graduated, several from routes other than a straight degree. Useful perspective wherever you're headed.",
+  },
+  [USER_TYPE_GAP_YEAR]: {
+    banner: 'On a Gap Year, Course Connect shows you what every path actually looks like, from people already on college, trade, and work routes.',
+    sub: 'Weighing up college, an apprenticeship, or work? Talk to people already on every path before you commit to yours.',
+    academicEyebrow: 'SUPPORT FOR YOUR NEXT STEP',
+    academicTitle: 'Built for wherever you land next',
+    toolsSub: 'Tools and resources that work whichever way you end up going next.',
+    mentorsSub: "Recently graduated from college, one route among several. Worth a look while you're still deciding.",
+  },
+  [USER_TYPE_WORKER]: {
+    banner: 'As a Worker, Industry Discussions and the career-facing boards below are built for you, not just people still in college.',
+    sub: 'Industry threads, career discussions, and a peer network for young people in work, not just people still in college.',
+    academicEyebrow: 'CAREER SUPPORT',
+    academicTitle: 'Built for how you actually work',
+    toolsSub: "Practical tools and peer resources, useful whether you're studying part-time or just in the field.",
+    mentorsSub: 'Recently graduated and now working. Their route was college, but the career advice travels either way.',
+  },
+}
+
+// Hero stats: the sourced CAO/HE figures below are genuinely student- and
+// CAO-specific, so showing them to an Apprentice, Gap Year, or Worker user
+// would misrepresent what the hub covers for them. Rather than fabricate
+// pathway-specific figures with no real source, those three user types see
+// three honest, unsourced-figure-free stats instead (all 32 counties,
+// the live tool/board count below, free to join) — the same category of
+// claim Campus Connect's hero already uses.
+const LIVE_TOOL_COUNT = 9 // COURSE_FEATURES.length, all "Live now" — see below
 
 // ─── Course feature products (9 total, all live) ────────────────────────────
 
 const COURSE_FEATURES = [
   {
     key: 'course_boards', label: 'COURSE BOARDS', Icon: GraduationCap, color: '#EFF6FF',
-    headline: 'Talk to everyone on your course',
-    sub: 'Discussion boards scoped to your course, not your campus — open to every student on it, anywhere in Ireland.',
+    headline: 'Talk to everyone on your path',
+    sub: 'Discussion boards scoped to your course, programme, or workplace, not your campus — open to everyone on it, anywhere in Ireland.',
     count: 'Live now',
     preview: [
       { text: 'Computer Science, UCD · Anyone doing the optional AI module next year?', meta: 'CS' },
-      { text: 'Law, TCD · Best way to structure a problem-question answer?', meta: 'Law' },
+      { text: 'Electrical apprenticeship, ETB · Anyone else on Phase 4 this block?', meta: 'Trade' },
     ],
   },
   {
@@ -46,7 +101,7 @@ const COURSE_FEATURES = [
   {
     key: 'groups', label: 'STUDY GROUPS', Icon: Users, color: '#F0FDF4',
     headline: 'Study with people who get it',
-    sub: 'Form or join groups by module, topic, or upcoming deadline. Open to every campus in Ireland.',
+    sub: 'Form or join groups by module, topic, or upcoming deadline, at any Irish college or training centre.',
     count: 'Live now',
     preview: [
       { text: 'CS2001 Exam Prep Group · UCD · 4 members', meta: 'Active' },
@@ -56,7 +111,7 @@ const COURSE_FEATURES = [
   {
     key: 'qa', label: 'MODULE Q&A', Icon: MessageSquare, color: '#FDF4FF',
     headline: 'Get unstuck, fast',
-    sub: 'Ask course-specific questions and get answers from students who have already been there.',
+    sub: 'Ask questions about your course, module, or on-the-job training, and get answers from people who have already been there.',
     count: 'Live now',
     preview: [
       { text: "What's the best way to approach Big O notation for the upcoming exam?", meta: 'CS2001' },
@@ -75,14 +130,14 @@ const COURSE_FEATURES = [
   },
   {
     key: 'resources', label: 'RESOURCE FINDER', Icon: Search, color: '#F0F9FF',
-    headline: 'Find academic supports from any institution',
+    headline: 'Find resources from any institution',
     sub: 'Search shared notes and past papers by subject, course, or keyword, across Ireland.',
     count: 'Live now',
   },
   {
     key: 'industry', label: 'INDUSTRY DISCUSSIONS', Icon: Briefcase, color: '#FEF9C3',
     headline: 'Talk to people already in your field',
-    sub: 'Industry-specific threads for young people exploring careers. Ask, listen, and connect with those ahead of you.',
+    sub: 'Industry-specific threads for young people exploring careers, on any route in. Ask, listen, and connect with those ahead of you.',
     count: 'Live now',
   },
   {
@@ -93,8 +148,8 @@ const COURSE_FEATURES = [
   },
   {
     key: 'cross_projects', label: 'PROJECT COLLABORATION', Icon: Lightbulb, color: '#FDF4FF',
-    headline: 'Build something real, with any college',
-    sub: 'Find teammates for college projects and side projects from students at any Irish institution.',
+    headline: 'Build something real, with anyone in Ireland',
+    sub: 'Find teammates for college projects and side projects, from students at any Irish institution.',
     count: 'Live now',
     preview: [
       { text: 'Cross-college Hackathon Team · UCD + TCD · 2 spots open', meta: 'Mobile Dev' },
@@ -345,9 +400,16 @@ function MentorCard({ mentor }) {
 export default function CourseConnectScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [pickerOpen, setPickerOpen] = useState(false)
+  const { userType, label: userTypeLabel } = useUserType()
+  const path = PATH_CONTENT[userType] || PATH_CONTENT[USER_TYPE_STUDENT]
+  const isStudent = userType === USER_TYPE_STUDENT
 
   function goToDirectory() {
     navigation.getParent()?.navigate('Directory')
+  }
+
+  function goToAccountType() {
+    navigation.getParent()?.navigate('Profile', { screen: 'ProfileMain' })
   }
 
   return (
@@ -372,13 +434,14 @@ export default function CourseConnectScreen({ navigation }) {
 
         <Text style={styles.heroEyebrow}>COURSE CONNECT</Text>
         <Text style={styles.heroTitle}>Course Connect</Text>
-        <Text style={styles.heroSub}>
-          Notes, study groups, exam resources, and graduate mentors, built around your course and institution.
-        </Text>
+        <Text style={styles.heroSub}>{path.sub}</Text>
 
         {/*
           Stats: real Irish HE figures, not platform usage metrics.
           Source: HEA.ie Annual Report 2022/23 and CAO.ie course listings.
+          Shown only to Student-type users, since they're genuinely CAO/HE
+          specific — see the PATH_CONTENT comment above for why every other
+          userType sees three unsourced, pathway-neutral stats instead.
 
           TODO (permanent): Confirm exact CAO course count at cao.ie before publishing.
           TODO (permanent): Confirm HE enrolment figure at hea.ie before publishing.
@@ -390,24 +453,54 @@ export default function CourseConnectScreen({ navigation }) {
             <Text style={styles.heroStatLabel}>Counties{'\n'}Across Ireland</Text>
           </View>
           <View style={styles.heroStatDivider} />
-          <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>1,300+</Text>
-            <Text style={styles.heroStatLabel}>CAO Courses{'\n'}Covered</Text>
-          </View>
+          {isStudent ? (
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>1,300+</Text>
+              <Text style={styles.heroStatLabel}>CAO Courses{'\n'}Covered</Text>
+            </View>
+          ) : (
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>{LIVE_TOOL_COUNT}</Text>
+              <Text style={styles.heroStatLabel}>Live Tools{'\n'}& Boards</Text>
+            </View>
+          )}
           <View style={styles.heroStatDivider} />
-          <View style={styles.heroStatItem}>
-            <Text style={styles.heroStatNumber}>240k+</Text>
-            <Text style={styles.heroStatLabel}>Young People{'\n'}in Irish HE</Text>
-          </View>
+          {isStudent ? (
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>240k+</Text>
+              <Text style={styles.heroStatLabel}>Young People{'\n'}in Irish HE</Text>
+            </View>
+          ) : (
+            <View style={styles.heroStatItem}>
+              <Text style={styles.heroStatNumber}>Free</Text>
+              <Text style={styles.heroStatLabel}>To join,{'\n'}every path</Text>
+            </View>
+          )}
         </View>
       </View>
 
       {/* ── Scrollable content ── */}
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 56 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
+
+          {/* ── Adaptive path banner — real reframe, not just a reworded
+              header: this reads userType and explains, concretely, how
+              the boards/tools below apply to *this* person, whether
+              they're a Student, Apprentice, Gap Year, or Worker. ── */}
+          <TouchableOpacity style={styles.pathBanner} activeOpacity={0.85} onPress={goToAccountType}>
+            <View style={styles.pathBannerIcon}>
+              <Repeat size={15} color={colors.navy} strokeWidth={2} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.pathBannerLabel}>VIEWING AS · {userTypeLabel.toUpperCase()}</Text>
+              <Text style={styles.pathBannerText}>{path.banner}</Text>
+              <Text style={styles.pathBannerChange}>Not right? Change your account type in Settings →</Text>
+            </View>
+          </TouchableOpacity>
 
           {/* ── Course Tools ── */}
           <SectionHeader eyebrow="What's Available" title="Course Tools" style={{ marginTop: spacing.lg }} />
@@ -419,14 +512,12 @@ export default function CourseConnectScreen({ navigation }) {
 
           {/* ── Academic Support (white breakout section) ── */}
           <View style={styles.academicSection}>
-            <Text style={styles.academicEyebrow}>ACADEMIC SUPPORT</Text>
-            <Text style={styles.academicTitle}>Built for how you actually study</Text>
-            <Text style={styles.academicSub}>
-              Practical tools, relevant notes, and mentors who recently graduated from your course.
-            </Text>
+            <Text style={styles.academicEyebrow}>{path.academicEyebrow}</Text>
+            <Text style={styles.academicTitle}>{path.academicTitle}</Text>
+            <Text style={styles.academicSub}>{path.toolsSub}</Text>
 
             <Text style={[styles.academicSubLabel, { marginTop: spacing.lg }]}>COURSE TOOLS</Text>
-            <Text style={styles.academicSubSub}>Practical academic tools for your studies. Exact tool set being confirmed.</Text>
+            <Text style={styles.academicSubSub}>Practical tools for your studies or training. Exact tool set being confirmed.</Text>
             <View style={{ gap: 12, marginTop: spacing.md }}>
               {ACADEMIC_TOOLS.map(f => <FeatureCard key={f.key} feature={f} />)}
             </View>
@@ -460,7 +551,7 @@ export default function CourseConnectScreen({ navigation }) {
             </View>
 
             <Text style={[styles.academicSubLabel, { marginTop: spacing.xl }]}>GRADUATE MENTORS</Text>
-            <Text style={styles.academicSubSub}>Recently graduated from your course. Mentors who have been exactly where you are now.</Text>
+            <Text style={styles.academicSubSub}>{path.mentorsSub}</Text>
             <MockContentBanner
               title="Mentorship programme: building now"
               subtitle="Mentors matched to your course and institution. Full programme launching soon."
@@ -624,8 +715,31 @@ const styles = StyleSheet.create({
   heroStatLabel:  { fontFamily: fonts.sans, fontSize: 10, color: 'rgba(245,240,232,0.65)', marginTop: 3, textAlign: 'center', lineHeight: 14 },
   heroStatDivider:{ width: 1, height: 36, backgroundColor: 'rgba(245,240,232,0.15)' },
 
+  // THE fix for the header floating/overlapping content on native — see
+  // HomeScreen.jsx's mainScroll comment for the full explanation. A
+  // ScrollView needs an explicit flex (not just contentContainerStyle) on
+  // its own `style` or native has nothing to size its clipped viewport
+  // against; react-native-web silently tolerates the omission, which is
+  // why this only broke on a physical phone.
+  scrollView: { flex: 1 },
   scroll:  {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
+
+  // Adaptive path banner
+  pathBanner: {
+    flexDirection: 'row', gap: 12, alignItems: 'flex-start',
+    backgroundColor: colors.white, borderRadius: radius.card,
+    padding: 14, marginTop: spacing.lg,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    ...shadows.card,
+  },
+  pathBannerIcon: {
+    width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(201,162,75,0.18)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
+  },
+  pathBannerLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldDeep, letterSpacing: 0.8 },
+  pathBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 19, marginTop: 4 },
+  pathBannerChange:{ fontFamily: fonts.sansMedium, fontSize: 11.5, color: colors.muted, marginTop: 6 },
 
   // Academic Support section (white breakout)
   academicSection: {
