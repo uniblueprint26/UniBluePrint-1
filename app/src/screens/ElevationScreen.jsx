@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, ChevronRight, MapPin, User,
-  LayoutGrid, Dumbbell, GraduationCap, TrendingUp, Megaphone, Palette, Trophy, Flower2,
+  LayoutGrid, Dumbbell, GraduationCap, TrendingUp, Megaphone,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -13,22 +13,20 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
-
-// ─── Service grid ─────────────────────────────────────────────────────────────
-// Same categories as the filter pills (minus "All", which the grid's own
-// "All Coaches" tile covers), rendered as a 2-column browse grid rather than
-// a plain list — same card aesthetic as the "coming soon" partner tiles in
-// Lifestyle Blueprint: white card, 12px radius, shadow, icon in a cream
-// circle, label below.
-const SERVICE_TILES = [
+// Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
+// Creative folded entirely into "Marketing" — real coach roster review left
+// only 4 real categories (Fitness, Academic Grinds, Trading, Marketing). The
+// previous 2-column tile grid (built for 7 categories) reads oddly with that
+// few — an awkward lone tile on its own row, lots of empty card padding for
+// not much information. A single horizontal row of filter pills is the
+// standard, compact pattern for a handful of categories and reads far less
+// awkward at this count, so the grid is retired in favour of it here.
+const FILTERS = [
   { label: 'All Coaches',      filter: 'All',             Icon: LayoutGrid    },
   { label: 'Fitness',          filter: 'Fitness',         Icon: Dumbbell      },
   { label: 'Academic Grinds',  filter: 'Academic Grinds', Icon: GraduationCap },
   { label: 'Trading',          filter: 'Trading',         Icon: TrendingUp    },
   { label: 'Marketing',        filter: 'Marketing',       Icon: Megaphone     },
-  { label: 'Creative',         filter: 'Creative',        Icon: Palette       },
-  { label: 'Sports',           filter: 'Sports',          Icon: Trophy        },
-  { label: 'Yoga',             filter: 'Yoga',            Icon: Flower2       },
 ]
 
 // ─── Coaches ──────────────────────────────────────────────────────────────────
@@ -61,8 +59,8 @@ export const COACHES = [
 
   // ── Sports ──
   {
-    id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Sports',
-    location: 'North Dublin, Available Nationwide', rating: '5.0', reviews: 41, from: 'From €50/hr',
+    id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Fitness',
+    location: 'North Dublin, Available Nationwide', from: 'From €50/hr',
     services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics Breakdown', 'Dietary Guidance', 'Agent Connections'],
     bio: "I offer elite sports coaching with fully personalised programmes for students serious about performance. In-person sessions run on North Dublin 4G Astro, plus football coaching and professional agent connections.",
     pricelist: [
@@ -74,8 +72,8 @@ export const COACHES = [
 
   // ── Creative ──
   {
-    id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Creative',
-    location: 'Dublin, Available Nationwide', rating: '4.9', reviews: 19, from: 'From €55/month',
+    id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Marketing',
+    location: 'Dublin, Available Nationwide', from: 'From €55/month',
     services: ['Monthly Mentorship', '1-1 Shoot Session', 'Editing Guidance', 'Creative Direction'],
     bio: "I'm a professional photographer and videographer offering mentorship and shoot sessions. My monthly subscription includes Zoom calls and editing guidance.",
     pricelist: [
@@ -89,6 +87,10 @@ export const COACHES = [
   {
     id: 4, name: 'DG Trading', category: 'Trading & Finance', filter: 'Trading',
     location: 'Ireland, Available Nationwide', from: 'Upon enquiry',
+    // from is vague/enquiry-based — priceDisplay overrides the bold price
+    // line wherever it's shown (card + profile) with a cleaner "Start Now"
+    // instead of the awkward "Starting from Upon enquiry" framing.
+    priceDisplay: 'Start Now',
     title: 'Funded Futures Trader | NQ / MNQ | Trading Coach',
     bio: "I'm Daniel, a funded futures trader specialising in NQ and MNQ. Having achieved a Topstep payout, I've developed a structured approach to trading built around confluence, patience, and disciplined execution. My strategy is ICT-based, combining market structure and liquidity concepts with standard deviation extensions and order flow confluence to identify high-probability opportunities during the New York pre-market.",
     quote: "The goal isn't to predict every move in the market. It's to build the ability to recognise when the conditions align, when to act, and when to stay out.",
@@ -295,7 +297,7 @@ export const COACHES = [
 
   // ── Yoga ──
   {
-    id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Yoga',
+    id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Fitness',
     location: 'Dublin, Available Nationwide',
     from: 'Book via bookwhen.com',
     title: '200 Hour Certified Yoga Teacher | Psychology | Life Coaching',
@@ -338,12 +340,9 @@ export const COACHES = [
 
 const GROUPS = [
   { label: 'Fitness & Physique',   filters: ['Fitness']                    },
-  { label: 'Sports Coaching',       filters: ['Sports']                     },
   { label: 'Academic Grinds',       filters: ['Academic Grinds']            },
   { label: 'Trading & Finance',     filters: ['Trading']                    },
   { label: 'Marketing & Branding',  filters: ['Marketing']                  },
-  { label: 'Creative',              filters: ['Creative']                   },
-  { label: 'Yoga',                  filters: ['Yoga']                       },
 ]
 
 // ─── Coach Card ───────────────────────────────────────────────────────────────
@@ -419,13 +418,6 @@ function CoachCard({ coach, navigation }) {
                 <Text style={styles.mentorPillText}>{coach.badge}</Text>
               </View>
             )}
-            {coach.rating && (
-              <View style={styles.ratingRow}>
-                <Text style={{ fontSize: 12, color: '#F59E0B' }}>★</Text>
-                <Text style={styles.ratingText}>{coach.rating}</Text>
-                <Text style={styles.ratingCount}>({coach.reviews} reviews)</Text>
-              </View>
-            )}
           </View>
         </View>
 
@@ -454,8 +446,14 @@ function CoachCard({ coach, navigation }) {
         {/* Footer */}
         <View style={styles.coachFooter}>
           <View>
-            <Text style={styles.fromLabel}>Starting from</Text>
-            <Text style={styles.fromPrice}>{coach.from}</Text>
+            {coach.priceDisplay ? (
+              <Text style={styles.fromPrice}>{coach.priceDisplay}</Text>
+            ) : (
+              <>
+                <Text style={styles.fromLabel}>Starting from</Text>
+                <Text style={styles.fromPrice}>{coach.from}</Text>
+              </>
+            )}
           </View>
           <View style={styles.profileBtn}>
             <Text style={styles.profileBtnText}>View Profile</Text>
@@ -490,12 +488,7 @@ export default function ElevationScreen({ navigation }) {
 
   const academicBanner = (
     <View style={styles.academicBanner}>
-      <View style={styles.academicBannerLeft}>
-        <View style={styles.newBadgeInline}>
-          <Text style={styles.newBadgeInlineText}>NEW</Text>
-        </View>
-        <Text style={styles.academicBannerTitle}>Academic Grinds</Text>
-      </View>
+      <Text style={styles.academicBannerTitle}>Academic Grinds</Text>
       <Text style={styles.academicBannerSub}>
         One-to-one Leaving Cert and university grinds now available through Elevation Blueprint.
       </Text>
@@ -526,7 +519,7 @@ export default function ElevationScreen({ navigation }) {
         <Text style={styles.heroEyebrow}>ELEVATION BLUEPRINT</Text>
         <Text style={styles.heroTitle}>Our Coaches</Text>
         <Text style={styles.heroSub}>
-          Verified coaches across fitness, sports, academic grinds, trading, and careers.
+          Verified coaches across fitness, academic grinds, trading, and marketing.
           Every coach is reviewed before joining the platform.
         </Text>
       </View>
@@ -540,24 +533,31 @@ export default function ElevationScreen({ navigation }) {
       >
         <View style={styles.content}>
 
-          {/* Browse by service — 2-column grid, same white/shadow/cream-circle
-              card aesthetic as the Lifestyle "coming soon" partner tiles. */}
+          {/* Browse by service — a single row of filter pills. With the
+              Round 2 category merge (Fitness+Sports+Yoga, Creative into
+              Marketing) there are only 4 real categories left; a compact
+              pill row reads far cleaner at that count than the old 2-column
+              tile grid, which left an awkward lone tile dangling on its own
+              row. See the FILTERS comment above for the full reasoning. */}
           <Text style={styles.serviceGridLabel}>Browse by Service</Text>
-          <View style={styles.serviceGrid}>
-            {SERVICE_TILES.map(({ label, filter, Icon }) => (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterPillRow}
+            style={styles.filterPillScroll}
+          >
+            {FILTERS.map(({ label, filter, Icon }) => (
               <TouchableOpacity
                 key={filter}
-                style={[styles.serviceTile, active === filter && styles.serviceTileActive]}
+                style={[styles.filterPill, active === filter && styles.filterPillActive]}
                 activeOpacity={0.85}
                 onPress={() => setActive(filter)}
               >
-                <View style={[styles.serviceTileIconWrap, active === filter && styles.serviceTileIconWrapActive]}>
-                  <Icon size={22} color={colors.navy} strokeWidth={2} />
-                </View>
-                <Text style={styles.serviceTileLabel}>{label}</Text>
+                <Icon size={15} color={active === filter ? colors.cream : colors.navy} strokeWidth={2} />
+                <Text style={[styles.filterPillLabel, active === filter && styles.filterPillLabelActive]}>{label}</Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
 
           <Text style={styles.resultsCount}>
             {visible.length} coach{visible.length !== 1 ? 'es' : ''} available
@@ -639,28 +639,23 @@ const styles = StyleSheet.create({
   heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
-  // Service grid — 2-column browse-by-category tiles, replacing the old
-  // horizontal pill list. Same white/shadow/cream-circle aesthetic as the
-  // Lifestyle "coming soon" partner tiles (ComingSoonGridCard).
+  // Filter pills — single horizontal row, replacing the old 2-column tile
+  // grid now that only 4 real categories remain post-merge (see FILTERS).
   serviceGridLabel: {
     fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
     textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
   },
-  serviceGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: spacing.lg,
-  },
-  serviceTile: {
-    width: '47.5%', backgroundColor: colors.white, borderRadius: radius.card,
-    paddingVertical: 18, paddingHorizontal: 12, alignItems: 'center',
+  filterPillScroll: { marginBottom: spacing.lg, marginHorizontal: -spacing.md },
+  filterPillRow: { flexDirection: 'row', gap: 8, paddingHorizontal: spacing.md },
+  filterPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+    backgroundColor: colors.white, borderRadius: radius.pill,
+    paddingVertical: 10, paddingHorizontal: 15,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },
-  serviceTileActive: { borderColor: colors.navy },
-  serviceTileIconWrap: {
-    width: 48, height: 48, borderRadius: 24, backgroundColor: colors.cream,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 10,
-  },
-  serviceTileIconWrapActive: { backgroundColor: colors.goldLight },
-  serviceTileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textAlign: 'center' },
+  filterPillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  filterPillLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  filterPillLabelActive: { color: colors.cream },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed navy header on every platform — without
@@ -672,12 +667,9 @@ const styles = StyleSheet.create({
 
   resultsCount: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginBottom: 4 },
 
-  academicBanner:     { backgroundColor: '#FEF9C3', borderRadius: radius.card, padding: 14, marginTop: 14, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
-  academicBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
-  academicBannerTitle:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  academicBanner:     { backgroundColor: 'rgba(30,58,95,0.05)', borderRadius: radius.card, padding: 14, marginTop: 14, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)', borderLeftWidth: 3, borderLeftColor: colors.navy },
+  academicBannerTitle:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginBottom: 6 },
   academicBannerSub:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
-  newBadgeInline:     { backgroundColor: '#7C3AED', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
-  newBadgeInlineText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#FFFFFF', letterSpacing: 0.5 },
 
   // Group headers
   groupHeader: {
@@ -709,10 +701,6 @@ const styles = StyleSheet.create({
 
   mentorPill:     { backgroundColor: '#F0FDF4', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 2, marginTop: 5, alignSelf: 'flex-start' },
   mentorPillText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#15803D', letterSpacing: 0.3, textTransform: 'uppercase' },
-
-  ratingRow:   { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
-  ratingText:  { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
-  ratingCount: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
 
   servicePills:   { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
   servicePill:    { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },

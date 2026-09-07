@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking,
   Image, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 import {
   ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star,
+  CalendarClock, Lock,
 } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
@@ -35,7 +37,7 @@ function openLink(type, value) {
 // Sits alongside the direct-contact links, not instead of them, since most
 // coaches in this listing are not yet registered platform users.
 
-function EnquiryModal({ visible, onClose, coach, userId }) {
+function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
   const [message, setMessage]   = useState('')
   const [sending, setSending]   = useState(false)
   const [sent, setSent]         = useState(false)
@@ -57,6 +59,7 @@ function EnquiryModal({ visible, onClose, coach, userId }) {
       })
       if (error) throw error
       setSent(true)
+      onSent?.()
     } catch {
       setErrorMsg('Could not send your enquiry. Please try again, or contact the coach directly below.')
     } finally {
@@ -296,6 +299,11 @@ export default function CoachProfileScreen({ route, navigation }) {
   const [enquiryOpen, setEnquiryOpen] = useState(false)
   const [rateOpen, setRateOpen] = useState(false)
   const [myRating, setMyRating] = useState(null)
+  // null while unknown, then true/false. Gates "Rate this coach" on the
+  // user having an actual booking or enquiry with this coach — never seeded,
+  // never assumed. Re-checked on focus so returning from the new booking
+  // flow (or after sending a quick enquiry) unlocks it without a reload.
+  const [hasEngaged, setHasEngaged] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -322,6 +330,24 @@ export default function CoachProfileScreen({ route, navigation }) {
       .then(({ data }) => { if (!cancelled && data) setMyRating(data.rating) })
     return () => { cancelled = true }
   }, [baseCoach.id, user?.id])
+
+  // Has this user ever booked or enquired with this coach? Checked against
+  // both real mechanisms already in the schema — coach_bookings (the new
+  // dedicated booking flow) and coach_enquiries (the existing quick-message
+  // path) — either one counts as "an actual booking/connection".
+  const checkEngagement = useCallback(() => {
+    if (!user?.id) { setHasEngaged(null); return }
+    const slug = coachSlug(baseCoach.id)
+    Promise.all([
+      supabase.from('coach_bookings').select('id').eq('coach_slug', slug).eq('user_id', user.id).limit(1),
+      supabase.from('coach_enquiries').select('id').eq('coach_slug', slug).eq('user_id', user.id).limit(1),
+    ]).then(([bookings, enquiries]) => {
+      const engaged = (bookings.data?.length > 0) || (enquiries.data?.length > 0)
+      setHasEngaged(engaged)
+    }).catch(() => setHasEngaged(false))
+  }, [baseCoach.id, user?.id])
+
+  useFocusEffect(useCallback(() => { checkEngagement() }, [checkEngagement]))
 
   const coach = override
     ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: override.photo_url }
@@ -370,6 +396,7 @@ export default function CoachProfileScreen({ route, navigation }) {
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -378,13 +405,15 @@ export default function CoachProfileScreen({ route, navigation }) {
         <View style={styles.identityBlock}>
           <View style={styles.priceChip}>
             <Text style={styles.priceChipText}>
-              {coach.shell ? 'Coming Soon' : (coach.from || 'Enquire for pricing')}
+              {coach.shell ? 'Coming Soon' : (coach.priceDisplay || coach.from || 'Enquire for pricing')}
             </Text>
           </View>
           {!coach.shell && coach.from?.includes('*') && (
             <Text style={styles.priceFootnote}>*A target, not a guarantee. See Risk Disclosure below.</Text>
           )}
-          <Text style={styles.coachCategory}>{coach.category}</Text>
+          <View style={styles.categoryPill}>
+            <Text style={styles.categoryPillText}>{coach.category}</Text>
+          </View>
           <View style={styles.locationRow}>
             <MapPin size={12} color={colors.muted} strokeWidth={1.8} />
             <Text style={styles.locationText}>{coach.location}</Text>
@@ -392,13 +421,6 @@ export default function CoachProfileScreen({ route, navigation }) {
           {coach.badge && (
             <View style={styles.mentorBadge}>
               <Text style={styles.mentorBadgeText}>{coach.badge}</Text>
-            </View>
-          )}
-          {coach.rating && (
-            <View style={styles.ratingRow}>
-              <Text style={styles.ratingStar}>★</Text>
-              <Text style={styles.ratingValue}>{coach.rating}</Text>
-              <Text style={styles.ratingCount}>({coach.reviews} reviews)</Text>
             </View>
           )}
         </View>
@@ -616,26 +638,45 @@ export default function CoachProfileScreen({ route, navigation }) {
             <TouchableOpacity
               style={styles.ctaBtn}
               activeOpacity={0.8}
+              onPress={() => navigation.navigate('CoachBooking', { coach })}
+            >
+              <CalendarClock size={16} color={colors.cream} strokeWidth={2} />
+              <Text style={styles.ctaBtnText}>Book a Coach</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.ctaSecondaryBtn}
+              activeOpacity={0.75}
               onPress={() => setEnquiryOpen(true)}
             >
-              <Text style={styles.ctaBtnText}>Book / Enquire</Text>
+              <Text style={styles.ctaSecondaryBtnText}>Send a Quick Message</Text>
             </TouchableOpacity>
             {coach.contact && (
               <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={handleEnquire}>
                 <Text style={styles.ctaSecondaryBtnText}>Or contact directly</Text>
               </TouchableOpacity>
             )}
-            {user?.id && (
-              myRating ? (
-                <View style={styles.ratedBanner}>
-                  <Star size={14} color="#F59E0B" fill="#F59E0B" />
-                  <Text style={styles.ratedBannerText}>You rated this coach {myRating} / 5</Text>
-                </View>
-              ) : (
-                <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={() => setRateOpen(true)}>
-                  <Text style={styles.ctaSecondaryBtnText}>Rate this coach</Text>
-                </TouchableOpacity>
-              )
+
+            {/* Rating — only reachable once the user has an actual booking
+                or enquiry on record with this coach, so "submit a rating"
+                isn't open to anyone who has never engaged with them. */}
+            {user?.id && myRating && (
+              <View style={styles.ratedBanner}>
+                <Star size={14} color="#F59E0B" fill="#F59E0B" />
+                <Text style={styles.ratedBannerText}>You rated this coach {myRating} / 5</Text>
+              </View>
+            )}
+            {user?.id && !myRating && hasEngaged === true && (
+              <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={() => setRateOpen(true)}>
+                <Text style={styles.ctaSecondaryBtnText}>Rate this coach</Text>
+              </TouchableOpacity>
+            )}
+            {user?.id && !myRating && hasEngaged === false && (
+              <View style={styles.rateLockedRow}>
+                <Lock size={12} color={colors.light} strokeWidth={2} />
+                <Text style={styles.rateLockedText}>
+                  You can rate {coach.name} once you've booked or enquired with them.
+                </Text>
+              </View>
             )}
           </View>
         )}
@@ -647,6 +688,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         onClose={() => setEnquiryOpen(false)}
         coach={coach}
         userId={user?.id}
+        onSent={() => setHasEngaged(true)}
       />
       <RateCoachModal
         visible={rateOpen}
@@ -663,6 +705,12 @@ export default function CoachProfileScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
+  // reliably fills the space below the fixed navy header on native — without
+  // it RN can size the ScrollView to its own content instead of the
+  // available viewport, which is what let content sit under the header /
+  // CTA buttons end up unreachable on a real phone (invisible on web).
+  scrollView: { flex: 1 },
   scroll: {},
 
   // Header
@@ -678,35 +726,47 @@ const styles = StyleSheet.create({
   },
   backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
 
-  // Double-ring frosted glass avatar
+  // Double-ring frosted glass avatar — outer ring picked up in brand gold
+  // (rather than plain cream) for a warmer, more premium feel befitting a
+  // paid coach's profile, matching the gold accents used elsewhere below.
   avatarOuter: {
-    width: 112, height: 112, borderRadius: 56,
+    width: 116, height: 116, borderRadius: 58,
     backgroundColor: 'rgba(245,240,232,0.08)',
-    borderWidth: 2, borderColor: 'rgba(245,240,232,0.18)',
+    borderWidth: 2, borderColor: 'rgba(201,162,75,0.45)',
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: colors.cream,
-    shadowOpacity: 0.10,
-    shadowRadius: 20,
+    shadowColor: colors.gold,
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
     shadowOffset: { width: 0, height: 0 },
     elevation: 0,
   },
   avatarInner: {
-    width: 84, height: 84, borderRadius: 42,
+    width: 86, height: 86, borderRadius: 43,
     backgroundColor: 'rgba(245,240,232,0.07)',
     borderWidth: 1, borderColor: 'rgba(245,240,232,0.13)',
     alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
   },
   headerName:  { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, textAlign: 'center', lineHeight: 32, marginTop: 16 },
   headerTitle: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.72)', textAlign: 'center', lineHeight: 19, marginTop: 4 },
 
+  // maxWidth + centered wrapping text: a longer enquiry-style price string
+  // (e.g. "Online coaching — pricing on enquiry") previously stretched this
+  // pill into a near-full-width banner instead of the compact centered
+  // capsule every other coach gets — the actual layout bug behind the "off"
+  // placement reported on longer-text profiles. Capping the width and
+  // letting it wrap keeps every coach's price pill the same proportioned
+  // shape regardless of how long their pricing text happens to be.
   priceChip: {
     alignSelf: 'center',
+    maxWidth: '78%',
     backgroundColor: colors.navy,
     borderRadius: radius.pill,
-    paddingHorizontal: 16, paddingVertical: 7,
+    borderWidth: 1, borderColor: 'rgba(201,162,75,0.5)',
+    paddingHorizontal: 18, paddingVertical: 9,
     marginBottom: 6,
   },
-  priceChipText:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  priceChipText:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream, textAlign: 'center' },
   priceFootnote:  { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
 
   // Identity
@@ -717,24 +777,25 @@ const styles = StyleSheet.create({
   },
   coachName:     { fontFamily: fonts.serif, fontSize: 30, color: colors.navy, textAlign: 'center', lineHeight: 36, marginBottom: 6 },
   coachTitle:    { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, marginBottom: 4 },
-  coachCategory: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy, opacity: 0.6, marginBottom: 8 },
+  // Category as a soft pill rather than plain text — small hierarchy lift
+  // consistent with the badge/tagline treatment elsewhere on the page.
+  categoryPill:     { backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5, marginBottom: 8 },
+  categoryPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.75 },
   locationRow:   { flexDirection: 'row', alignItems: 'center', gap: 4 },
   locationText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
-  ratingRow:     { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8 },
-  ratingStar:    { fontSize: 15, color: '#F59E0B' },
-  ratingValue:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  ratingCount:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
 
   // Mentor badge
   mentorBadge:     { backgroundColor: '#F0FDF4', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5, marginTop: 10 },
   mentorBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: '#15803D', letterSpacing: 0.4, textTransform: 'uppercase' },
 
-  // Tagline
+  // Tagline — gold left accent (rather than a plain tinted box) for a
+  // warmer, more premium editorial feel.
   taglineBlock: {
     marginHorizontal: spacing.md, marginBottom: spacing.lg,
-    backgroundColor: 'rgba(30,58,95,0.05)',
+    backgroundColor: colors.white,
     borderRadius: 10,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    borderLeftWidth: 3, borderLeftColor: colors.gold,
+    ...shadows.card,
     padding: 18, alignItems: 'center',
   },
   taglineText: {
@@ -761,7 +822,7 @@ const styles = StyleSheet.create({
   // Quote
   quoteBlock: {
     backgroundColor: colors.white,
-    borderLeftWidth: 3, borderLeftColor: colors.navy,
+    borderLeftWidth: 3, borderLeftColor: colors.gold,
     borderRadius: 6, padding: 18, ...shadows.card,
   },
   quoteText: { fontFamily: fonts.serif, fontSize: 15, color: colors.navy, lineHeight: 24, fontStyle: 'italic' },
@@ -776,7 +837,7 @@ const styles = StyleSheet.create({
   pricelistRow:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16 },
   pricelistDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   pricelistLabel:   { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, flex: 1, marginRight: 12 },
-  pricelistPrice:   { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
+  pricelistPrice:   { fontFamily: fonts.serif, fontSize: 18, color: colors.goldDeep },
 
   // Notes
   noteCard:    { backgroundColor: '#FFFBEB', borderRadius: 8, padding: 14, borderWidth: 1, borderColor: '#FDE68A', marginTop: 12 },
@@ -810,7 +871,11 @@ const styles = StyleSheet.create({
   contactHandle:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 
   // CTA
-  ctaBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 54, alignItems: 'center', justifyContent: 'center', marginHorizontal: spacing.md },
+  ctaBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: colors.navy, borderRadius: radius.button, height: 54,
+    marginHorizontal: spacing.md,
+  },
   ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
   ctaSecondaryBtn: {
     height: 48, borderRadius: radius.button, marginHorizontal: spacing.md,
@@ -824,5 +889,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245,158,11,0.08)',
   },
   ratedBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  avatarImg: { width: 84, height: 84, borderRadius: 42 },
+  rateLockedRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginHorizontal: spacing.md, paddingVertical: 6,
+  },
+  rateLockedText: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', flexShrink: 1 },
+  avatarImg: { width: 86, height: 86, borderRadius: 43 },
 })
