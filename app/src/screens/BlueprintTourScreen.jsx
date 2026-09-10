@@ -1,211 +1,133 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, useWindowDimensions,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { LinearGradient } from 'expo-linear-gradient'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
-  FileText, Compass, Building2, Heart, Globe, ChevronDown, CheckCircle,
+  FileText, Compass, Building2, Heart, Globe, CheckCircle,
   Calculator, Megaphone,
 } from 'lucide-react-native'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 
-// Same content as the website's /how-it-works five-pillar section and the
-// original tutorial draft, kept in sync manually across all three.
-const CARDS = [
+// The real, current screen components this tour walks through — the exact
+// same code every user sees once they leave the tour, not a screenshot or
+// an illustrative stand-in of them.
+import HomeScreen          from './HomeScreen'
+import FoundationScreen    from './FoundationScreen'
+import ElevationScreen     from './ElevationScreen'
+import LifestyleScreen     from './LifestyleScreen'
+import CampusConnectScreen from './CampusConnectScreen'
+import CourseConnectScreen from './CourseConnectScreen'
+import BudgetingScreen     from './BudgetingScreen'
+import AdBoardScreen       from './AdBoardScreen'
+
+// Each step's `screen` is a real screen component, mounted live for that
+// step only (see LiveBackdrop below) — genuinely the current app, fetching
+// real data, not a mockup or static illustration of it. Copy below is kept
+// in sync manually with what's actually on each of those screens right now;
+// see the comment above each step for what was checked against the code.
+const STEPS = [
   {
-    key: 'welcome', tint: colors.cream, accent: colors.navy, Icon: null,
+    key: 'welcome', screen: HomeScreen, accent: colors.navy, Icon: null,
     title: 'Welcome to UniBlueprint', tagline: null,
-    body: 'Five tools and two standalone features, built by students trying to get ahead for students trying to get ahead. This is the two-minute version, skip it any time and just start exploring.',
-    chips: null, features: null,
-    preview: [
-      { label: 'Foundation Blueprint', Icon: FileText, accent: '#2563EB', tint: '#EFF6FF' },
-      { label: 'Elevation Blueprint',  Icon: Compass,  accent: '#16A34A', tint: '#F0FDF4' },
-      { label: 'Lifestyle Blueprint',  Icon: Heart,    accent: '#A21CAF', tint: '#FDF4FF' },
-      { label: 'Campus Connect',       Icon: Building2, accent: '#C2660B', tint: '#FFF7ED' },
-      { label: 'Course Connect',       Icon: Globe,     accent: '#0369A1', tint: '#F0F9FF' },
-      { label: 'Budgeting',           Icon: Calculator, accent: '#B45309', tint: '#FEF3C7' },
-      { label: 'Ad Board',            Icon: Megaphone,  accent: '#7C3AED', tint: '#F5F3FF' },
-    ],
+    body: 'That’s your real dashboard behind this card, not a mockup — five Blueprints, plus Budgeting and the Ad Board. This is the two-minute tour of what’s actually here. Skip it any time and start exploring.',
+    chips: null,
   },
   {
-    key: 'foundation', tint: '#EFF6FF', accent: '#2563EB', Icon: FileText,
+    // Matches FoundationScreen's CAREER_SERVICES (8 services, exact titles).
+    key: 'foundation', screen: FoundationScreen, accent: '#2563EB', Icon: FileText,
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    body: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output. Real, human review.',
+    body: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you. Not AI output on its own — real, human review.',
     chips: [
-      'CV Builder', 'Cover Letter Builder', 'Portfolio Builder', 'LinkedIn Builder',
-      'Application Form Builder', 'Personal Statement', 'Interview Prep', 'Job Search Support',
-    ],
-    features: [
-      ['CV Builder', 'Structured, ATS-formatted, worded to get past the first screen.'],
-      ['Cover Letter Builder', 'Tailored per role, adds to your CV instead of repeating it.'],
-      ['LinkedIn Builder', 'Headline, about, experience and skills, optimised to get found.'],
-      ['Portfolio Builder', 'Shows your actual work, not just a list of skills.'],
-      ['Application Form Builder', 'STAR-method answers for competency and situational questions.'],
-      ['Personal Statement', 'Your own words, structured to actually land: CAO, postgrad, or scholarship.'],
-      ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
-      ['Job Search Support', 'A personalised search strategy, not blind applying.'],
-      ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
+      'CV Optimisation', 'Portfolio Building', 'LinkedIn Optimisation', 'Cover Letter Assistance',
+      'Personal Statement', 'Application Form Assistance', 'Interview Preparation', 'Job Search Support',
     ],
   },
   {
-    key: 'elevation', tint: '#F0FDF4', accent: '#16A34A', Icon: Compass,
+    // Matches ElevationScreen's FILTERS: only 4 real categories remain after
+    // the Fitness/Sports/Yoga merge and Creative folding into Marketing.
+    key: 'elevation', screen: ElevationScreen, accent: '#16A34A', Icon: Compass,
     title: 'Elevation Blueprint', tagline: 'Verified coaches, one enquiry away',
-    body: 'Browse real, verified coaches: fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
-    chips: ['Fitness', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Sports', 'Yoga'],
-    features: [
-      ['Browse by category', 'Filter the full coach directory to find the right fit.'],
-      ['Verified profiles', 'Every coach is checked before they’re listed.'],
-      ['Enquire, not book', 'You message the coach directly. UniBlueprint doesn’t process the booking or payment.'],
-    ],
+    body: 'Browse by service and see real, verified coach profiles, each with the same standardised price and View Profile layout. Message a coach to enquire directly — pricing and booking happen between you and them, not through UniBlueprint.',
+    chips: ['All Coaches', 'Fitness', 'Academic Grinds', 'Trading', 'Marketing'],
   },
   {
-    key: 'lifestyle', tint: '#FDF4FF', accent: '#A21CAF', Icon: Heart,
+    // Matches LifestyleScreen's Partner Listings (Grid/Map toggle, 5 real
+    // filter categories from PartnerCards.FILTERS) plus its Wellbeing and
+    // Budgeting sections, and the standalone LifestylePartnersScreen behind
+    // "Explore more".
+    key: 'lifestyle', screen: LifestyleScreen, accent: '#A21CAF', Icon: Heart,
     title: 'Lifestyle Blueprint', tagline: 'Student life, sorted',
-    body: 'Real discounts from verified local partners, a mental health and wellbeing support directory, and the money tools most students never get taught, including SUSI and every other real Irish grant worth knowing.',
-    chips: ['Health & Fitness', 'Beauty & Grooming', 'Fashion', 'Food & Drink'],
-    features: [
-      ['Partner deals', 'Verified local businesses, real student discounts.'],
-      ['Support directory', 'Categorised mental health and wellbeing resources, Irish and verified.'],
-      ['Budget Calculator', 'Plan rent, food, transport and more against what you actually have.'],
-      ['Grants & Schemes', 'SUSI plus every other real Irish student grant, with eligibility and how to apply.'],
-    ],
+    body: 'Real discounts from verified local partners, browsable as a grid or on a map, with a full standalone listings screen behind "Explore more". Plus a categorised mental health and wellbeing directory, and the budgeting tools most students never get taught.',
+    chips: ['Health & Fitness', 'Beauty & Grooming', 'Fashion', 'Food & Drink', 'Creative & Services'],
   },
   {
-    key: 'campus', tint: '#FFF7ED', accent: '#C2660B', Icon: Building2,
+    // Matches CampusConnectScreen's CAMPUS_BOARDS: 14 boards, each its own
+    // full-width card → BoardDetail page, Carpooling and Project
+    // Collaboration included — both recently moved onto that same shared
+    // board-page pattern.
+    key: 'campus', screen: CampusConnectScreen, accent: '#C2660B', Icon: Building2,
     title: 'Campus Connect', tagline: 'Your own college, in one place',
-    body: 'Everything happening at your own college specifically, organised into boards, plus carpooling, campus events, and finding people on your course to work on projects with.',
-    chips: ['Campus Boards', 'Carpooling', 'Campus Events', 'Project Collaboration'],
-    features: [
-      ['Accommodation', 'Rooms, sublets and housing posted by other students at your college.'],
-      ['Marketplace', 'Buy, sell, swap: textbooks, gear, whatever’s going.'],
-      ['Lost & Found', 'Report or claim something that went missing.'],
-      ['Societies', 'Find and connect with student societies.'],
-      ['Opportunities', 'Part-time roles, internships, one-off gigs.'],
-      ['Student Ads', 'Local student-run businesses and side hustles.'],
-    ],
+    body: 'Fourteen real boards for your own college, each with its own full board page — Accommodation, Campus Events, Study Groups, Lost & Found, Clubs & Societies and more. Carpooling and Project Collaboration just got that same treatment: browse, post, and reply right there.',
+    chips: ['Accommodation', 'Carpooling', 'Campus Events', 'Project Collaboration', 'Study Groups', 'Opportunities'],
   },
   {
-    key: 'course', tint: '#F0F9FF', accent: '#0369A1', Icon: Globe,
+    // Matches CourseConnectScreen's COURSE_FEATURES: 9 live tools, cross
+    // every Irish institution rather than one college.
+    key: 'course', screen: CourseConnectScreen, accent: '#0369A1', Icon: Globe,
     title: 'Course Connect', tagline: 'Cross-Ireland student network',
-    body: 'A networking board that spans every Irish college and university, not just your own. Connect with students and grads anywhere in the country, read honest college reviews, and tap into the shared academic resources that go with it: notes, study groups, and module-specific help.',
-    chips: ['Graduate Network', 'College Reviews', 'Notes Exchange', 'Study Groups'],
-    features: [
-      ['Graduate Network', 'Connect with students and graduates across every Irish institution, not just yours.'],
-      ['College Reviews', 'Honest reviews from students who’ve actually been there, any college, any course.'],
-      ['Notes Exchange', 'Shared notes by module code, searchable across universities.'],
-      ['Study Groups', 'Find or start a group for your module.'],
-      ['Module Q&A', 'Ask something specific, get an answer from someone who’s done it.'],
-      ['Exam Resources', 'Past papers, summaries, and revision material.'],
-    ],
+    body: 'Nine live tools spanning every Irish college, not just your own: Course Boards, Notes Exchange, Study Groups, Module Q&A, Exam Resources, a cross-institution Resource Finder, Industry Discussions, College Reviews, and Project Collaboration with students anywhere in the country.',
+    chips: ['Course Boards', 'Notes Exchange', 'Study Groups', 'Module Q&A', 'Exam Resources', 'College Reviews'],
   },
   {
-    key: 'budgeting', tint: '#FEF3C7', accent: '#B45309', Icon: Calculator,
+    // Matches BudgetingScreen's 3 real tabs.
+    key: 'budgeting', screen: BudgetingScreen, accent: '#B45309', Icon: Calculator,
     title: 'Budgeting', tagline: 'Your financial companion, not a Blueprint',
-    body: 'A standalone tool, not one of the five pillars: track what you spend, plan your term, and see every real Irish grant and scheme you might actually qualify for, not just SUSI.',
-    chips: ['Budget Tracker', 'Grants & Schemes', 'Investment Education'],
-    features: [
-      ['Budget Tracker', 'Set your income and outgoings once, and it stays up to date as you go.'],
-      ['Grants & Schemes', 'SUSI plus real niche schemes: Student Assistance Fund, 1916 Bursary, Disability Fund, Back to Education Allowance, Erasmus+, and more.'],
-      ['Investment Education', 'Independent trading and investing coaches, for students who want to learn, not just copy trades.'],
-    ],
+    body: 'A standalone tool, not one of the five pillars. Track what you spend and plan your term under Budget, see every real Irish grant and scheme you might qualify for under Grants & Schemes, not just SUSI, and learn from independent trading coaches under Investment.',
+    chips: ['Budget', 'Grants & Schemes', 'Investment'],
   },
   {
-    key: 'adboard', tint: '#F5F3FF', accent: '#7C3AED', Icon: Megaphone,
-    title: 'Ad Board', tagline: 'Not one of the five pillars, three sections in one place',
-    body: 'The Weekly Blueprint, a magazine you flip through, not scroll: partner deals, coach spotlights, campus events, and student stories. Plus a blog, and a marketplace to buy, sell, and offer your skills.',
+    // Matches AdBoardScreen: The Weekly Blueprint banner (13-section
+    // magazine), plus dedicated entry cards into Blog and Marketplace, plus
+    // the live curated ad list and Post an Ad on this page itself.
+    key: 'adboard', screen: AdBoardScreen, accent: '#7C3AED', Icon: Megaphone,
+    title: 'Ad Board', tagline: 'Not one of the five pillars, four things in one place',
+    body: 'The Weekly Blueprint, a 13-section magazine you flip through, not scroll: deals, coach spotlights, campus events, and student stories, new every week. A Blog with career and student-life articles, a Marketplace to buy, sell, or offer a skill, and the live Ad Board itself, where anyone can post a listing for review.',
     chips: ['The Weekly Blueprint', 'Blog', 'Marketplace', 'Post an Ad'],
-    features: [
-      ['The Weekly Blueprint', 'A new issue every week, swipe or tap the arrows to flip through.'],
-      ['Blog', 'Career and student-life articles, the same content as the website.'],
-      ['Marketplace', 'Offer a skill or find one, or buy and sell with other students.'],
-      ['Post an Ad', 'Anyone can submit a listing for review, students and partners alike.'],
-    ],
   },
   {
-    key: 'done', tint: colors.cream, accent: colors.navy, Icon: CheckCircle,
+    key: 'done', screen: HomeScreen, accent: colors.navy, Icon: CheckCircle,
     title: 'You’re set', tagline: null,
-    body: 'That’s the whole map. Come back to this any time from Profile, then How UniBlueprint Works. Nothing here is a one-time thing.',
-    chips: null, features: null,
+    body: 'That’s the whole map, live, exactly as it looks right now. Come back to this any time from Profile, then How UniBlueprint Works. Nothing here is a one-time thing.',
+    chips: null,
   },
 ]
 
 export const TOUR_SEEN_KEY_PREFIX = 'btb_tour_seen_'
 
-function TourCard({ item, width }) {
-  const [expanded, setExpanded] = useState(false)
-  const { Icon } = item
+// One-screen nested stack, remounted fresh (via the `key` prop) every time
+// the active step changes. Nesting a real Stack.Navigator — exactly the
+// pattern HomeStack/AdBoardStack already use elsewhere — is what lets the
+// real screen component render correctly here: several of these screens
+// rely on real navigation context (e.g. HomeScreen's useFocusEffect), which
+// only exists when the component is an actual routed screen, not a plain
+// child element. `pointerEvents="none"` keeps it a look-but-don't-touch
+// preview: real data renders and real layout happens, but a stray tap can't
+// carry the user off into a builder flow or post something mid-tour.
+const LiveStack = createNativeStackNavigator()
 
+function LiveBackdrop({ step }) {
+  const Screen = step.screen
   return (
-    <ScrollView
-      style={{ width }}
-      contentContainerStyle={styles.cardContent}
-      showsVerticalScrollIndicator={false}
-    >
-      {Icon && (
-        <View style={[styles.iconWrap, { backgroundColor: item.tint }]}>
-          <Icon size={26} color={item.accent} strokeWidth={1.8} />
-        </View>
-      )}
-      <Text style={styles.cardTitle}>{item.title}</Text>
-      {item.tagline && <Text style={[styles.cardTagline, { color: item.accent }]}>{item.tagline}</Text>}
-      <Text style={styles.cardBody}>{item.body}</Text>
-
-      {item.preview && (
-        <View style={styles.previewList}>
-          {item.preview.map(p => (
-            <View key={p.label} style={styles.previewRow}>
-              <View style={[styles.previewIconWrap, { backgroundColor: p.tint }]}>
-                <p.Icon size={18} color={p.accent} strokeWidth={1.8} />
-              </View>
-              <Text style={styles.previewLabel}>{p.label}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {item.chips && (
-        <View style={styles.chipRow}>
-          {item.chips.map(c => (
-            <View key={c} style={styles.chip}>
-              <Text style={styles.chipText}>{c}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {item.features && (
-        <View>
-          <TouchableOpacity
-            style={styles.expandBtn}
-            activeOpacity={0.7}
-            onPress={() => setExpanded(e => !e)}
-          >
-            <Text style={styles.expandBtnText}>
-              {expanded ? 'Show less' : 'See everything it covers'}
-            </Text>
-            <ChevronDown
-              size={14} color={colors.navy}
-              style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
-            />
-          </TouchableOpacity>
-
-          {expanded && (
-            <View style={styles.featureList}>
-              {item.features.map(([t, d]) => (
-                <View key={t} style={styles.featureRow}>
-                  <View style={[styles.featureDot, { backgroundColor: item.accent }]} />
-                  <Text style={styles.featureText}>
-                    <Text style={styles.featureTextBold}>{t}. </Text>{d}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      )}
-    </ScrollView>
+    <View style={styles.liveWrap} pointerEvents="none">
+      <LiveStack.Navigator key={step.key} screenOptions={{ headerShown: false, animation: 'none' }}>
+        <LiveStack.Screen name="TourLiveScreen" component={Screen} />
+      </LiveStack.Navigator>
+    </View>
   )
 }
 
@@ -219,8 +141,10 @@ export default function BlueprintTourScreen({ mode = 'first-launch', onFinish })
   const insets = useSafeAreaInsets()
   const { width } = useWindowDimensions()
   const { user } = useAuth()
-  const scrollRef = useRef(null)
   const [index, setIndex] = useState(0)
+
+  const step = STEPS[index]
+  const isLast = index === STEPS.length - 1
 
   function finish() {
     if (mode === 'first-launch' && user?.id) {
@@ -230,112 +154,144 @@ export default function BlueprintTourScreen({ mode = 'first-launch', onFinish })
   }
 
   function goTo(i) {
-    const clamped = Math.max(0, Math.min(CARDS.length - 1, i))
-    scrollRef.current?.scrollTo({ x: clamped * width, animated: true })
-    setIndex(clamped)
+    setIndex(Math.max(0, Math.min(STEPS.length - 1, i)))
   }
-
-  function onMomentumEnd(e) {
-    const i = Math.round(e.nativeEvent.contentOffset.x / width)
-    setIndex(i)
-  }
-
-  const isLast = index === CARDS.length - 1
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.chrome, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity onPress={finish} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Text style={styles.skipText}>Skip</Text>
+      {/* ── Real, live screen for this step ── */}
+      <View style={styles.liveArea}>
+        <LiveBackdrop step={step} />
+        <LinearGradient
+          colors={['rgba(245,240,232,0)', 'rgba(245,240,232,0.9)', colors.white]}
+          style={styles.liveScrim}
+          pointerEvents="none"
+        />
+      </View>
+
+      {/* ── Floating chrome over the live screen ── */}
+      <View style={[styles.floatingRow, { top: insets.top + 10 }]} pointerEvents="box-none">
+        <View style={styles.stepPill}>
+          <Text style={styles.stepPillText}>{index + 1} of {STEPS.length}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.skipPill}
+          activeOpacity={0.8}
+          onPress={finish}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.skipPillText}>Skip</Text>
         </TouchableOpacity>
+      </View>
+
+      {/* ── Explanation card, anchored to the bottom, over the live screen ── */}
+      <View style={styles.card}>
         <View style={styles.dots}>
-          {CARDS.map((c, i) => (
-            <TouchableOpacity key={c.key} onPress={() => goTo(i)} hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}>
+          {STEPS.map((s, i) => (
+            <TouchableOpacity key={s.key} onPress={() => goTo(i)} hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}>
               <View style={[styles.dot, i === index && styles.dotActive]} />
             </TouchableOpacity>
           ))}
         </View>
-        <View style={{ width: 40 }} />
-      </View>
 
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={onMomentumEnd}
-        scrollEventThrottle={16}
-      >
-        {CARDS.map(item => <TourCard key={item.key} item={item} width={width} />)}
-      </ScrollView>
+        <ScrollView
+          style={{ maxHeight: width < 380 ? 250 : 280 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {step.Icon && (
+            <View style={[styles.iconWrap, { backgroundColor: `${step.accent}1A` }]}>
+              <step.Icon size={22} color={step.accent} strokeWidth={1.8} />
+            </View>
+          )}
+          <Text style={styles.cardTitle}>{step.title}</Text>
+          {step.tagline && <Text style={[styles.cardTagline, { color: step.accent }]}>{step.tagline}</Text>}
+          <Text style={styles.cardBody}>{step.body}</Text>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
-        {isLast ? (
-          <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.85} onPress={finish}>
-            <Text style={styles.ctaBtnText}>
-              {mode === 'replay' ? 'Done' : 'Start exploring'}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.85} onPress={() => goTo(index + 1)}>
-            <Text style={styles.ctaBtnText}>Next</Text>
-          </TouchableOpacity>
-        )}
+          {step.chips && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.chipScroll}
+              contentContainerStyle={styles.chipRow}
+            >
+              {step.chips.map(c => (
+                <View key={c} style={styles.chip}>
+                  <Text style={styles.chipText}>{c}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          )}
+        </ScrollView>
+
+        <View style={[styles.footer, { paddingBottom: insets.bottom > 0 ? insets.bottom : spacing.md }]}>
+          {isLast ? (
+            <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.85} onPress={finish}>
+              <Text style={styles.ctaBtnText}>
+                {mode === 'replay' ? 'Done' : 'Start exploring'}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.85} onPress={() => goTo(index + 1)}>
+              <Text style={styles.ctaBtnText}>Next</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.white },
 
-  chrome: {
+  liveArea: { flex: 1, backgroundColor: colors.cream, overflow: 'hidden' },
+  liveWrap: { flex: 1 },
+  liveScrim: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 120 },
+
+  floatingRow: {
+    position: 'absolute', left: spacing.md, right: spacing.md,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: spacing.md, paddingBottom: spacing.sm,
   },
-  skipText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.muted, width: 40 },
-  dots: { flexDirection: 'row', gap: 6 },
+  stepPill: {
+    backgroundColor: 'rgba(15,23,32,0.55)', borderRadius: radius.pill,
+    paddingHorizontal: 11, paddingVertical: 6,
+  },
+  stepPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.cream },
+  skipPill: {
+    backgroundColor: 'rgba(15,23,32,0.55)', borderRadius: radius.pill,
+    paddingHorizontal: 14, paddingVertical: 6,
+  },
+  skipPillText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.cream },
+
+  card: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 26, borderTopRightRadius: 26,
+    paddingHorizontal: spacing.lg, paddingTop: spacing.md,
+    marginTop: -26,
+    ...shadows.elevated,
+  },
+
+  dots: { flexDirection: 'row', gap: 6, justifyContent: 'center', marginBottom: spacing.sm },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },
   dotActive: { width: 18, borderRadius: 3, backgroundColor: colors.navy },
 
-  cardContent: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.xxl },
-
   iconWrap: {
-    width: 56, height: 56, borderRadius: 16,
-    alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md,
+    width: 44, height: 44, borderRadius: 13,
+    alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm,
   },
-  cardTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy, marginBottom: 4 },
-  cardTagline: { fontFamily: fonts.sansSemiBold, fontSize: 14, marginBottom: spacing.sm },
-  cardBody: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, lineHeight: 23 },
+  cardTitle: { fontFamily: fonts.serif, fontSize: 23, color: colors.navy, marginBottom: 2 },
+  cardTagline: { fontFamily: fonts.sansSemiBold, fontSize: 13, marginBottom: spacing.sm },
+  cardBody: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, lineHeight: 21 },
 
-  previewList: { marginTop: spacing.xl, gap: 4 },
-  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
-  previewIconWrap: {
-    width: 38, height: 38, borderRadius: 11,
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-  },
-  previewLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: spacing.md },
+  chipScroll: { marginTop: spacing.md, marginHorizontal: -spacing.lg },
+  chipRow: { flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 4 },
   chip: {
     borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6,
-    backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.cream, borderWidth: 1, borderColor: colors.border,
   },
   chipText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
 
-  expandBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    marginTop: spacing.lg, paddingVertical: 4,
-  },
-  expandBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textDecorationLine: 'underline' },
-
-  featureList: { marginTop: spacing.md, gap: 12 },
-  featureRow: { flexDirection: 'row', gap: 10 },
-  featureDot: { width: 5, height: 5, borderRadius: 2.5, marginTop: 8 },
-  featureText: { flex: 1, fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 20 },
-  featureTextBold: { fontFamily: fonts.sansSemiBold, color: colors.navy },
-
-  footer: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
+  footer: { paddingTop: spacing.md },
   ctaBtn: {
     backgroundColor: colors.navy, borderRadius: radius.button,
     paddingVertical: 15, alignItems: 'center',
