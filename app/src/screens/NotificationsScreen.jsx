@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import {
   Bell, ChevronLeft, FileText, Calendar, Star, Megaphone,
   Clock, AlertTriangle, Sun, CreditCard, Archive, Repeat,
+  MessageCircle, MessagesSquare, UserCheck,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -29,6 +30,56 @@ const TYPE_CONFIG = {
   ticket_reassigned:  { Icon: Repeat,        color: '#7C3AED', bg: '#F5F3FF' },
   subscription:       { Icon: CreditCard,    color: '#15803D', bg: '#F0FDF4' },
   wallet:             { Icon: Archive,       color: '#B45309', bg: '#FEF3C7' },
+  foundation_blueprint: { Icon: FileText,    color: '#1d4ed8', bg: '#EFF6FF' },
+  coach_booking:      { Icon: UserCheck,     color: '#15803D', bg: '#F0FDF4' },
+  chat_message:       { Icon: MessageCircle, color: '#1d4ed8', bg: '#EFF6FF' },
+  board_reply:        { Icon: MessagesSquare, color: '#7C3AED', bg: '#F5F3FF' },
+}
+
+// ── Deep-link routing ────────────────────────────────────────────────────────
+// notifications.related_entity_type/related_entity_id are generic (an
+// entity kind + id, not a route name — see the notification_center
+// migration header) so the mapping to an actual in-app screen lives here,
+// not in the schema. A chat_room needs one extra lookup (its context_type/
+// context_id, which is what ChatRoomScreen actually keys off) since the
+// notification only carries the room's own id.
+async function goToRelatedEntity(navigation, notif) {
+  const type = notif.related_entity_type
+  const id = notif.related_entity_id
+  if (!type || !id) return
+
+  switch (type) {
+    case 'submission':
+      navigation.navigate('MyOutputs')
+      return
+    case 'coach_booking':
+      navigation.navigate('Elevation')
+      return
+    case 'problem_solution':
+      navigation.navigate('BoardDetail', { boardKey: 'problems' })
+      return
+    case 'module_answer':
+      navigation.navigate('ModuleQA')
+      return
+    case 'chat_room': {
+      const { data } = await supabase
+        .from('chat_rooms')
+        .select('context_type, context_id, name')
+        .eq('id', id)
+        .maybeSingle()
+      if (data) {
+        navigation.navigate('ChatRoom', {
+          contextType: data.context_type,
+          contextId: data.context_id,
+          roomName: data.name || 'Chat',
+          subtitle: null,
+        })
+      }
+      return
+    }
+    default:
+      return
+  }
 }
 
 function timeAgo(dateStr) {
@@ -96,7 +147,7 @@ export default function NotificationsScreen({ navigation }) {
     if (!user?.id) { setLoading(false); return }
     const { data, error } = await supabase
       .from('notifications')
-      .select('id, category, title, message, read, created_at')
+      .select('id, category, title, message, read, created_at, related_entity_type, related_entity_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50)
@@ -128,6 +179,7 @@ export default function NotificationsScreen({ navigation }) {
       setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))
       await supabase.from('notifications').update({ read: true }).eq('id', notif.id)
     }
+    await goToRelatedEntity(navigation, notif)
   }
 
   function onRefresh() {
