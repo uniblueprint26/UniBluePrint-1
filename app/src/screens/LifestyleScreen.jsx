@@ -1,22 +1,23 @@
 import { useState, useRef, useEffect } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image, Animated, Modal, Pressable,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Animated,
 } from 'react-native'
 import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
-  ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock, HelpCircle, ExternalLink,
-  Dumbbell, Sparkles, UtensilsCrossed, Wrench, Map as MapIcon, LayoutGrid, X,
+  ChevronDown, ChevronUp, Phone, ExternalLink,
+  Map as MapIcon, LayoutGrid,
   Siren, GraduationCap, LifeBuoy, Utensils, CloudRain, ShieldAlert, UserRound, Sun, MessagesSquare,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import PartnerMap from '../components/ui/PartnerMap'
-import VerifiedBadge from '../components/ui/VerifiedBadge'
-import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import {
+  FILTERS, CategorySectionHeader, PartnerGridCard, PartnerDetailSheet,
+  styles as partnerStyles,
+} from '../components/lifestyle/PartnerCards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
-import { COACHES } from './ElevationScreen'
-import { PARTNERS, MYSTERY_MAP_COUNTIES, maskComingSoonName } from '../data/lifestylePartners'
+import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
 import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 
 // Re-exported so existing imports elsewhere in the app (FounderPortalScreen,
@@ -24,30 +25,12 @@ import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 // so this screen and the map component don't import each other.
 export { PARTNERS, MYSTERY_MAP_COUNTIES }
 
-// ─── Filter Pills ────────────────────────────────────────────────────────────
-// Labels widened to actually cover everyone grouped under them: "Beauty"
-// on its own reads as nail/lash/makeup only, but the group also holds every
-// barber; "Services" was too vague for a group that's mostly photography,
-// marketing, and design work with automotive/housing mixed in.
-const FILTERS = [
-  { key: 'all',      label: 'All' },
-  { key: 'fitness',  label: 'Health & Fitness' },
-  { key: 'beauty',   label: 'Beauty & Grooming' },
-  { key: 'fashion',  label: 'Fashion' },
-  { key: 'food',     label: 'Food & Drink' },
-  { key: 'services', label: 'Creative & Services' },
-]
-
-// Section grouping metadata for the "All" view — same categories as the
-// filter pills, minus "All" itself, each with an icon and its own accent so
-// scanning a long list reads as curated sections, not one flat pile.
-const CATEGORY_META = {
-  fitness:  { label: 'Health & Fitness',   Icon: Dumbbell,        accent: '#15803D' },
-  beauty:   { label: 'Beauty & Grooming',  Icon: Sparkles,        accent: '#BE185D' },
-  fashion:  { label: 'Fashion',            Icon: ShoppingBag,     accent: '#1D4ED8' },
-  food:     { label: 'Food & Drink',       Icon: UtensilsCrossed, accent: '#B45309' },
-  services: { label: 'Creative & Services', Icon: Wrench,         accent: '#0369A1' },
-}
+// Live partners are previewed here, capped, with an "Explore N more" button
+// that pushes LifestylePartnersScreen for the full browsable set — the grid,
+// filters, and PartnerDetailSheet there are the exact same shared components,
+// just uncapped. Keeps this hub screen from turning into one long scroll
+// through every live + coming-soon partner on top of Wellbeing and Budgeting.
+const PREVIEW_CAP = 6
 
 // Icon + accent per Mental Health & Support category — same visual language
 // as CATEGORY_META above, so a long stack of 10 categories reads as a set of
@@ -82,282 +65,6 @@ const BUDGET_TOOLS = [
   // screen within Home's own stack.
   { title: 'Part-Time Work Finder', sub: 'Flexible roles near your campus', Icon: ShoppingBag, screen: 'AdBoard', params: { screen: 'AdBoardMain' } },
 ]
-
-// ─── Partner Logo / Initials Fallback ────────────────────────────────────────
-// Renders the partner's logo when one is available, falling back to a coloured
-// initials circle for every partner that doesn't have a logo yet.
-//
-// partner.logo can be:
-//   null / undefined , render initials fallback (permanent for shell cards)
-//   string (URL)     , remote image from Supabase Storage (partner-logos bucket)
-//   number           , static require() result, if ever used for bundled assets
-//
-// New partners are added with logo: null and updated via the admin-only
-// partner-logos Storage bucket. No logo assets should be committed to the repo.
-function PartnerLogo({ partner, size = 44 }) {
-  const bg       = partner.initBg
-  const label    = partner.initials
-  const fontSize = label.length > 2 ? 10 : 13
-
-  if (partner.logo) {
-    const source = typeof partner.logo === 'string'
-      ? { uri: partner.logo }   // remote URL from Storage
-      : partner.logo            // static require() (number), kept for future use
-    return (
-      <View style={[styles.logoCircle, { width: size, height: size, borderRadius: size / 2 }]}>
-        <Image source={source} style={{ width: size, height: size }} resizeMode="contain" />
-      </View>
-    )
-  }
-
-  return (
-    <View style={[styles.circle, { width: size, height: size, borderRadius: size / 2, backgroundColor: bg }]}>
-      <Text style={[styles.circleText, { fontSize }]}>{label}</Text>
-    </View>
-  )
-}
-
-// ─── Contact Chip ─────────────────────────────────────────────────────────────
-function ContactChip({ type, value }) {
-  const handlers = {
-    instagram: () => Linking.openURL(`https://instagram.com/${value}`),
-    tiktok:    () => Linking.openURL(`https://www.tiktok.com/@${value}`),
-    phone:     () => Linking.openURL(`tel:${value.replace(/\s/g, '')}`),
-    email:     () => Linking.openURL(`mailto:${value}`),
-    website:   () => Linking.openURL(value),
-  }
-  const labels  = { instagram: `@${value}`, tiktok: `@${value}`, phone: value, email: value, website: 'Portfolio' }
-  const icons   = {
-    instagram: <AtSign size={12} color={colors.cream} />,
-    tiktok:    <AtSign size={12} color={colors.cream} />,
-    phone:     <Phone  size={12} color={colors.cream} />,
-    email:     <Mail   size={12} color={colors.cream} />,
-    website:   <Link2  size={12} color={colors.cream} />,
-  }
-  if (!handlers[type]) return null
-  return (
-    <TouchableOpacity style={styles.contactChip} onPress={handlers[type]} activeOpacity={0.8}>
-      {icons[type]}
-      <Text style={styles.contactChipText}>{labels[type]}</Text>
-    </TouchableOpacity>
-  )
-}
-
-// ─── Category Section Header ──────────────────────────────────────────────────
-// Marks the start of a category group in the "All" view — an icon + accent
-// colour matching that category's filter pill, so a long list of 20+ live
-// partners reads as curated sections rather than one flat pile.
-function CategorySectionHeader({ filterKey }) {
-  const meta = CATEGORY_META[filterKey]
-  if (!meta) return null
-  return (
-    <View style={styles.categoryHeader}>
-      <View style={[styles.categoryHeaderIcon, { backgroundColor: `${meta.accent}1A` }]}>
-        <meta.Icon size={14} color={meta.accent} strokeWidth={2} />
-      </View>
-      <Text style={styles.categoryHeaderText}>{meta.label}</Text>
-    </View>
-  )
-}
-
-// ─── Coming Soon grid card — deliberately anonymous: black-and-white only
-// (the one exception being the gold question-mark badge, matching the map's
-// gold-for-live / grey-for-incoming language), name masked into a run of "?"
-// the same word/letter shape as the real name, only Location and Category
-// visible. Tapping opens the same "Coming Soon" sheet as a map pin — nothing
-// further is revealed either way. ───────────────────────────────────────────
-function ComingSoonGridCard({ partner, onPress }) {
-  return (
-    <TouchableOpacity style={styles.soonCard} activeOpacity={0.8} onPress={onPress}>
-      <View style={styles.soonIconWrap}>
-        <HelpCircle size={18} color="#FFFFFF" strokeWidth={2.4} />
-      </View>
-      <Text style={styles.soonBrand} numberOfLines={2}>{maskComingSoonName(partner.brand)}</Text>
-      {!!(partner.county || partner.counties) && (
-        <Text style={styles.soonLocation} numberOfLines={1}>
-          {partner.county || partner.counties.join(' · ')}
-        </Text>
-      )}
-      <Text style={styles.soonCategory} numberOfLines={1}>{partner.category}</Text>
-    </TouchableOpacity>
-  )
-}
-
-// ─── Partner Grid Card — compact square-ish tile for the live-partner grid.
-// Coming Soon has its own compact grid card above; this is the "live" sibling,
-// deliberately kept to logo + name + category + deal so a 2-up grid stays
-// tidy — tapping opens the full listing in PartnerDetailSheet below rather
-// than expanding in place, which would break the grid's rhythm. ─────────────
-function PartnerGridCard({ partner, onPress, highlighted }) {
-  const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
-
-  return (
-    <TouchableOpacity
-      style={[styles.gridCard, highlighted && styles.gridCardHighlighted]}
-      activeOpacity={0.8}
-      onPress={onPress}
-    >
-      <View style={[styles.gridCardAccent, { backgroundColor: accent }]} />
-      <View style={styles.gridCardTop}>
-        <PartnerLogo partner={partner} size={44} />
-        <VerifiedBadge verified={partner.verified} compact />
-      </View>
-      <Text style={styles.gridCardName} numberOfLines={2}>{partner.brand}</Text>
-      <Text style={styles.gridCardCategory} numberOfLines={2}>{partner.category}</Text>
-      {partner.deal ? (
-        <View style={styles.gridDealPill}>
-          <Text style={styles.gridDealPillText} numberOfLines={2}>{partner.deal}</Text>
-        </View>
-      ) : (
-        <View style={styles.gridCardSpacer} />
-      )}
-    </TouchableOpacity>
-  )
-}
-
-// ─── Partner Detail Sheet — the full listing (credentials, description,
-// services, pricing, how-to-start, hours, contact, cross-link), opened from
-// tapping a grid card. Everything PartnerCard used to reveal inline now lives
-// here, unchanged in content — only the presentation moved from an in-place
-// accordion to a bottom sheet, so the grid above it can stay a real grid. ───
-function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
-  if (!partner) return null
-  const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
-
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.detailBackdrop} onPress={onClose}>
-        <Pressable style={styles.detailSheet} onPress={e => e.stopPropagation?.()}>
-          <View style={styles.detailHandle} />
-          <TouchableOpacity
-            style={styles.detailCloseBtn}
-            onPress={onClose}
-            activeOpacity={0.75}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-          >
-            <X size={16} color={colors.muted} />
-          </TouchableOpacity>
-
-          <View style={styles.detailHeaderRow}>
-            <PartnerLogo partner={partner} size={52} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.detailBrandName}>{partner.brand}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 3 }}>
-                <Text style={styles.categoryLabel}>{partner.category}</Text>
-                <VerifiedBadge verified={partner.verified} compact />
-              </View>
-            </View>
-          </View>
-          <View style={[styles.detailAccentLine, { backgroundColor: accent }]} />
-
-          {partner.deal && (
-            <View style={styles.dealPill}>
-              <Text style={styles.dealPillText}>{partner.deal}</Text>
-            </View>
-          )}
-
-          <ScrollView style={styles.detailScroll} contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
-            {partner.credentials && (
-              <Text style={styles.credentialsText}>{partner.credentials}</Text>
-            )}
-
-            <View style={styles.expandDivider} />
-
-            {partner.description && (
-              <>
-                <Text style={styles.expandLabel}>ABOUT</Text>
-                <Text style={styles.expandBody}>{partner.description}</Text>
-              </>
-            )}
-
-            {partner.services && (
-              <View style={styles.servicePills}>
-                {partner.services.map(s => (
-                  <View key={s} style={styles.servicePill}>
-                    <Text style={styles.servicePillText}>{s}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            {partner.pricelist && (
-              <>
-                <Text style={[styles.expandLabel, { marginTop: 16 }]}>PRICING</Text>
-                <View style={styles.priceTable}>
-                  {partner.pricelist.map((row, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.priceRow,
-                        i < partner.pricelist.length - 1 && styles.priceRowBorder,
-                      ]}
-                    >
-                      <Text style={styles.priceRowLabel}>{row.label}</Text>
-                      <Text style={styles.priceRowValue}>{row.price}</Text>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
-
-            {partner.pricingNote && (
-              <Text style={styles.pricingNote}>{partner.pricingNote}</Text>
-            )}
-
-            {partner.howToStart && (
-              <>
-                <Text style={[styles.expandLabel, { marginTop: 16 }]}>HOW TO START</Text>
-                <Text style={styles.expandBody}>{partner.howToStart}</Text>
-              </>
-            )}
-
-            {partner.hours && (
-              <Text style={styles.hoursText}>{partner.hours}</Text>
-            )}
-
-            {partner.contact && (
-              <View style={styles.contactRow}>
-                {partner.contact.instagram && (
-                  <ContactChip type="instagram" value={partner.contact.instagram} />
-                )}
-                {partner.contact.tiktok && (
-                  <ContactChip type="tiktok" value={partner.contact.tiktok} />
-                )}
-                {partner.contact.phone && (
-                  <ContactChip type="phone" value={partner.contact.phone} />
-                )}
-                {partner.contact.email && (
-                  <ContactChip type="email" value={partner.contact.email} />
-                )}
-                {partner.contact.website && (
-                  <ContactChip type="website" value={partner.contact.website} />
-                )}
-              </View>
-            )}
-
-            {partner.crossLink && (
-              <TouchableOpacity
-                style={styles.crossLinkCard}
-                activeOpacity={0.75}
-                onPress={() => {
-                  const coach = COACHES.find(c => c.id === partner.crossLink.coachId)
-                  if (coach) {
-                    onClose()
-                    navigation.navigate('CoachProfile', { coach })
-                  }
-                }}
-              >
-                <Text style={styles.crossLinkText}>{partner.crossLink.label}</Text>
-                <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-        </Pressable>
-      </Pressable>
-    </Modal>
-  )
-}
 
 // ─── Mental Health support line card — a thin accent bar in the category's
 // colour ties every card back to its category header, the same visual
@@ -457,7 +164,6 @@ export default function LifestyleScreen({ navigation, route }) {
     return target ? target.filterKey : 'all'
   })
   const [viewMode, setViewMode] = useState('grid') // 'grid' | 'map'
-  const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [detailPartnerId, setDetailPartnerId] = useState(null)
 
   // Refs for the quick-jump tool buttons alongside the Grid/Map toggle — each
@@ -485,6 +191,24 @@ export default function LifestyleScreen({ navigation, route }) {
         .map(f => ({ key: f.key, items: liveVisible.filter(p => p.filterKey === f.key) }))
         .filter(g => g.items.length > 0)
     : [{ key: activeFilter, items: liveVisible }]
+
+  // Cap the hub's own grid to a short preview and hand everything past that
+  // off to the standalone LifestylePartnersScreen — "Explore N more" pushes
+  // a real screen instead of animating the rest open in place below the fold.
+  let previewRemaining = PREVIEW_CAP
+  const previewGroups = []
+  for (const group of liveGroups) {
+    if (previewRemaining <= 0) break
+    if (group.items.length <= previewRemaining) {
+      previewGroups.push(group)
+      previewRemaining -= group.items.length
+    } else {
+      previewGroups.push({ key: group.key, items: group.items.slice(0, previewRemaining) })
+      previewRemaining = 0
+    }
+  }
+  const hiddenLiveCount = liveVisible.length - (PREVIEW_CAP - Math.max(previewRemaining, 0))
+  const moreCount = hiddenLiveCount + soonVisible.length
 
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
 
@@ -580,17 +304,17 @@ export default function LifestyleScreen({ navigation, route }) {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.filterScroll}
-                contentContainerStyle={styles.filterContent}
+                style={partnerStyles.filterScroll}
+                contentContainerStyle={partnerStyles.filterContent}
               >
                 {FILTERS.map(f => (
                   <TouchableOpacity
                     key={f.key}
-                    style={[styles.filterPill, activeFilter === f.key && styles.filterPillActive]}
+                    style={[partnerStyles.filterPill, activeFilter === f.key && partnerStyles.filterPillActive]}
                     onPress={() => setActiveFilter(f.key)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.filterPillText, activeFilter === f.key && styles.filterPillTextActive]}>
+                    <Text style={[partnerStyles.filterPillText, activeFilter === f.key && partnerStyles.filterPillTextActive]}>
                       {f.label}
                     </Text>
                   </TouchableOpacity>
@@ -599,11 +323,13 @@ export default function LifestyleScreen({ navigation, route }) {
 
               {/* Live partners, grouped by category, as a real 2-up square
                   grid — tapping a tile opens the full listing in a sheet
-                  rather than expanding in place, so the grid stays a grid. */}
-              {liveGroups.map(group => (
+                  rather than expanding in place, so the grid stays a grid.
+                  Capped to a short preview; "Explore N more" below pushes
+                  the standalone screen with the full set + Coming Soon. */}
+              {previewGroups.map(group => (
                 <View key={group.key} style={{ marginBottom: spacing.lg }}>
                   {showSectionHeaders && <CategorySectionHeader filterKey={group.key} />}
-                  <View style={styles.partnerGrid}>
+                  <View style={partnerStyles.partnerGrid}>
                     {group.items.map(p => (
                       <PartnerGridCard
                         key={p.id}
@@ -617,22 +343,22 @@ export default function LifestyleScreen({ navigation, route }) {
               ))}
 
               {liveVisible.length === 0 && soonVisible.length === 0 && (
-                <Text style={styles.emptyText}>No partners in this category yet.</Text>
+                <Text style={partnerStyles.emptyText}>No partners in this category yet.</Text>
               )}
 
-              {/* Coming Soon — compact grid, separate from the live listings */}
-              {soonVisible.length > 0 && (
-                <View style={{ marginTop: spacing.sm }}>
-                  <View style={styles.soonHeaderRow}>
-                    <Lock size={12} color={colors.muted} />
-                    <Text style={styles.soonHeaderText}>Coming Soon · Locked Until Launch</Text>
-                  </View>
-                  <View style={styles.soonGrid}>
-                    {soonVisible.map(p => (
-                      <ComingSoonGridCard key={p.id} partner={p} onPress={() => setComingSoonOpen(true)} />
-                    ))}
-                  </View>
-                </View>
+              {moreCount > 0 && (
+                <TouchableOpacity
+                  style={styles.exploreMoreBtn}
+                  activeOpacity={0.75}
+                  onPress={() => navigation.navigate('LifestylePartners', { filterKey: activeFilter })}
+                >
+                  <Text style={styles.exploreMoreText}>
+                    {liveVisible.length === 0
+                      ? `${soonVisible.length} coming soon in this category`
+                      : `Explore ${moreCount} more`}
+                  </Text>
+                  <ChevronRight size={14} color={colors.navy} />
+                </TouchableOpacity>
               )}
             </>
           )}
@@ -718,7 +444,6 @@ export default function LifestyleScreen({ navigation, route }) {
         onClose={() => { setDetailPartnerId(null); setMapHighlightId(null) }}
         navigation={navigation}
       />
-      <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
     </View>
   )
 }
@@ -744,22 +469,10 @@ const styles = StyleSheet.create({
 
   section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
 
-  // Filter pills
-  filterScroll:  { marginHorizontal: -spacing.md, marginBottom: spacing.md },
-  filterContent: { paddingHorizontal: spacing.md, gap: 8, flexDirection: 'row' },
-  filterPill: {
-    paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: radius.pill,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterPillActive: {
-    backgroundColor: colors.navy,
-    borderColor: colors.navy,
-  },
-  filterPillText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
-  filterPillTextActive: { color: colors.cream },
+  // Filter pills, category headers, the partner grid, Coming Soon grid, and
+  // the Partner Detail Sheet all live in components/lifestyle/PartnerCards
+  // (imported above as `partnerStyles`) — shared with LifestylePartnersScreen
+  // so both render identically.
 
   // Grid / Map toggle + Mental Health / Budgeting quick-jump shortcuts — one
   // unified control row. flex:1 on every button divides the row evenly so
@@ -780,197 +493,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.card,
     padding: spacing.md, marginTop: 4,
   },
-
-  // Category section headers (shown in the "All" view)
-  categoryHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
-  categoryHeaderIcon: {
-    width: 26, height: 26, borderRadius: 8,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  categoryHeaderText: {
-    fontFamily: fonts.sansBold, fontSize: 12, color: colors.navy,
-    textTransform: 'uppercase', letterSpacing: 0.6,
-  },
-
-  emptyText:   { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', paddingVertical: 24 },
-
-  // Partner grid — 2-up square-ish tiles. gap handles the column/row spacing;
-  // each tile is a touch target that opens the full listing in a sheet.
-  partnerGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 10,
-  },
-  gridCard: {
-    width: '48%',
-    backgroundColor: colors.white,
-    borderRadius: radius.card,
-    overflow: 'hidden',
-    paddingHorizontal: 12, paddingBottom: 12,
-    ...shadows.card,
-  },
-  gridCardHighlighted: {
-    borderWidth: 1.5, borderColor: colors.gold,
-  },
-  gridCardAccent: { height: 4, marginHorizontal: -12, marginBottom: 10 },
-  gridCardTop: {
-    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6,
-  },
-  gridCardName: {
-    fontFamily: fonts.serif, fontSize: 15, color: colors.navy,
-    marginTop: 10, lineHeight: 19,
-  },
-  gridCardCategory: {
-    fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted,
-    marginTop: 3, lineHeight: 15,
-  },
-  gridDealPill: {
-    alignSelf: 'flex-start', marginTop: 8,
-    backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.badge,
-    paddingHorizontal: 8, paddingVertical: 3,
-  },
-  gridDealPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: '#145A3E', lineHeight: 14 },
-  // Reserves the same vertical rhythm a deal pill would take up, so a
-  // no-deal card (Z Vision Apparel, by design) doesn't read as visually
-  // "cut short" against its neighbours in the grid.
-  gridCardSpacer: { height: 4, marginTop: 8 },
-
-  circle: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  // Logo variant: white bg with subtle border, image fills the frame
-  logoCircle: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: 'rgba(30,58,95,0.1)',
-    overflow: 'hidden',
-  },
-  circleText: { fontFamily: fonts.sansBold, color: '#FFFFFF', letterSpacing: 0.3 },
-
-  categoryLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },
-  dealPill: {
-    alignSelf: 'flex-start', marginTop: 7,
-    backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.badge,
-    paddingHorizontal: 9, paddingVertical: 3,
-  },
-  dealPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: '#145A3E' },
-
-  // Coming Soon grid — compact, two-up
-  soonHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
-  soonHeaderText: {
-    fontFamily: fonts.sansBold, fontSize: 12, color: colors.muted,
-    textTransform: 'uppercase', letterSpacing: 0.6,
-  },
-  soonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  // Black-and-white only — the gold icon badge is the one deliberate
-  // exception (matches the map's gold = live / grey = incoming language).
-  soonCard: {
-    width: '47%',
-    backgroundColor: '#FFFFFF', borderRadius: radius.card,
-    borderWidth: 1, borderColor: '#000000',
-    padding: 12, ...shadows.card,
-  },
-  soonIconWrap: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: colors.gold,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  soonBrand:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: '#000000', marginTop: 10, lineHeight: 17, letterSpacing: 1 },
-  soonLocation: { fontFamily: fonts.sans, fontSize: 10.5, color: '#000000', marginTop: 4 },
-  soonCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: '#4B5563', marginTop: 2 },
-
-  // Partner Detail Sheet — full listing, opened from a grid card tap.
-  detailBackdrop: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
-  },
-  detailSheet: {
-    backgroundColor: colors.white,
-    borderTopLeftRadius: radius.card + 4,
-    borderTopRightRadius: radius.card + 4,
-    paddingHorizontal: 18,
-    paddingTop: 12,
-    maxHeight: '85%',
-  },
-  detailHandle: {
-    width: 40, height: 4, borderRadius: 2,
-    backgroundColor: 'rgba(30,58,95,0.15)', alignSelf: 'center', marginBottom: 14,
-  },
-  detailCloseBtn: {
-    position: 'absolute', top: 14, right: 14, zIndex: 1,
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
-  },
-  detailHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 34 },
-  detailBrandName: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
-  detailAccentLine: { height: 3, borderRadius: 2, marginTop: 14 },
-  // Explicit flex:1 (not just contentContainerStyle) so this ScrollView reliably
-  // clips to the sheet's maxHeight instead of growing past it — same fix as
-  // the screen's own root ScrollView above.
-  detailScroll: { flex: 1, marginTop: 10 },
-  detailScrollContent: { paddingBottom: 28 },
-
-  // Expanded detail content (inside the Partner Detail Sheet)
-  expandDivider: { height: 1, backgroundColor: colors.border, marginBottom: 14, marginTop: 2 },
-  expandLabel:   { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, marginBottom: 6 },
-  expandBody:    { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
-
-  credentialsText: {
-    fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
-    lineHeight: 18, marginTop: 12, marginBottom: 4,
-  },
-
-  servicePills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
-  servicePill: {
-    backgroundColor: colors.cream, borderRadius: radius.badge,
-    paddingHorizontal: 10, paddingVertical: 4,
-  },
-  servicePillText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
-
-  // Pricing table
-  priceTable: {
-    backgroundColor: colors.cream,
-    borderRadius: radius.button,
-    overflow: 'hidden',
-  },
-  priceRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 14, paddingVertical: 10,
-  },
-  priceRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(30,58,95,0.07)',
-  },
-  priceRowLabel: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, flex: 1, marginRight: 8 },
-  priceRowValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-
-  pricingNote: {
-    fontFamily: fonts.sans, fontSize: 11, color: colors.muted,
-    fontStyle: 'italic', marginTop: 8, lineHeight: 16,
-  },
-
-  hoursText: {
-    fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
-    marginTop: 8,
-  },
-
-  contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 16 },
-  contactChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: colors.navy, borderRadius: radius.pill,
-    paddingHorizontal: 12, paddingVertical: 7,
-  },
-  contactChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.cream },
-
-  // Cross-link (partner ↔ coach profile)
-  crossLinkCard: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-    backgroundColor: '#F5F3FF', borderRadius: 8, padding: 14,
-    borderWidth: 1, borderColor: '#DDD6FE', marginTop: 16,
-  },
-  crossLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#6D28D9', lineHeight: 19, flex: 1 },
 
   // Wellbeing
   // marginTop/marginBottom give the banner clear air from the Crisis Support

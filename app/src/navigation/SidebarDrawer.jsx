@@ -37,6 +37,7 @@ const ROUTE_TO_KEY = {
   Foundation: 'foundation',
   Elevation: 'elevation',
   Lifestyle: 'lifestyle',
+  LifestylePartners: 'lifestyle',
   CampusConnect: 'campus',
   CourseConnect: 'course',
   Compass: 'compass',

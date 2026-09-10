@@ -23,6 +23,7 @@ import CourseConnectScreen from '../screens/CourseConnectScreen'
 import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
+import LifestylePartnersScreen from '../screens/LifestylePartnersScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
 import WeeklyBlueprintScreen from '../screens/WeeklyBlueprintScreen'
 import BlogScreen          from '../screens/BlogScreen'
@@ -107,6 +108,7 @@ function HomeStack() {
       <Stack.Screen name="ModuleQA"      component={ModuleQAScreen}      />
       <Stack.Screen name="ResourceFinder" component={ResourceFinderScreen} />
       <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
+      <Stack.Screen name="LifestylePartners" component={LifestylePartnersScreen} />
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
