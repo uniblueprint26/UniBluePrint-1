@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
   Plus, ChevronRight, Megaphone, Menu, BookOpen, ShoppingBag, Sparkles,
+  Star, GraduationCap, Building2, Wallet,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
@@ -25,6 +26,17 @@ import { CATEGORY, CURATED_ADS, getAdPressHandler } from '../data/adBoardAds'
 import { POSTS as BLOG_POSTS } from '../data/blogPosts'
 
 const NAVY = colors.navy
+
+// A representative slice of the magazine's real, fixed 13-section table of
+// contents (see WeeklyBlueprintScreen's own TOC entries) — enough to read as
+// a genuine content teaser on the hub card without trying to list all 13.
+const TEASER_SECTIONS = [
+  { label: 'Deals & Discounts', Icon: Star },
+  { label: 'Coach Spotlights',  Icon: GraduationCap },
+  { label: 'Lifestyle Edit',    Icon: Sparkles },
+  { label: 'Campus Connect',    Icon: Building2 },
+  { label: 'Money Moves',       Icon: Wallet },
+]
 
 function shade(hex, percent) {
   const num = parseInt(hex.replace('#', ''), 16)
@@ -82,26 +94,41 @@ export default function AdBoardScreen({ navigation }) {
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
 
-        {/* ── The Weekly Blueprint — magazine cover + Open button ────────── */}
-        <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('WeeklyBlueprint')}>
+        {/* ── The Weekly Blueprint — magazine banner + real content teaser ── */}
+        <TouchableOpacity activeOpacity={0.92} onPress={() => navigation.navigate('WeeklyBlueprint')}>
           <Card style={styles.magazineCard}>
             <LinearGradient
               colors={[shade(NAVY, -12), NAVY, shade(NAVY, 10)]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.magazineCover}
+              style={styles.magazineBanner}
             >
               <View style={styles.magazineBadge}>
                 <Text style={styles.magazineBadgeText}>{issue ? `ISSUE ${issue.issue_number}` : 'THIS WEEK'}</Text>
               </View>
-              <Text style={styles.magazineCoverTitle}>The{'\n'}Weekly{'\n'}Blueprint</Text>
+              <Text style={styles.magazineBannerTitle}>The Weekly Blueprint</Text>
+              <View style={styles.magazineRule} />
+              <Text style={styles.magazineBannerTheme} numberOfLines={2}>
+                {issue?.theme || 'The structure behind your success.'}
+              </Text>
             </LinearGradient>
+
             <View style={styles.magazineInfo}>
-              <Text style={styles.magazineKicker}>THE WEEKLY BLUEPRINT</Text>
-              <Text style={styles.magazineTitle} numberOfLines={2}>{issue?.theme || 'The structure behind your success.'}</Text>
-              <Text style={styles.magazineSub}>Deals, coach spotlights, campus news, the Blog and Marketplace, and more — all in one weekly issue.</Text>
-              <View style={styles.magazineCta}>
-                <Text style={styles.magazineCtaText}>Open This Week's Issue</Text>
-                <ChevronRight size={15} color={colors.cream} />
+              <Text style={styles.magazineKicker}>WHAT'S INSIDE THIS WEEK</Text>
+              <View style={styles.teaserRow}>
+                {TEASER_SECTIONS.map(s => (
+                  <View key={s.label} style={styles.teaserChip}>
+                    <s.Icon size={12} color={NAVY} strokeWidth={2} />
+                    <Text style={styles.teaserChipText}>{s.label}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.magazineFooter}>
+                <View style={styles.magazineCta}>
+                  <Text style={styles.magazineCtaText}>Open This Week's Issue</Text>
+                  <ChevronRight size={15} color={colors.cream} />
+                </View>
+                <Text style={styles.magazineFooterNote}>13 sections, every week</Text>
               </View>
             </View>
           </Card>
@@ -192,18 +219,33 @@ const styles = StyleSheet.create({
   postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
   postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: NAVY },
 
-  // Magazine card
-  magazineCard: { flexDirection: 'row', padding: 0, overflow: 'hidden', marginBottom: spacing.md },
-  magazineCover: { width: 92, padding: 12, justifyContent: 'space-between' },
-  magazineBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(245,240,232,0.14)', borderRadius: radius.badge, paddingHorizontal: 7, paddingVertical: 3 },
-  magazineBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 8, color: 'rgba(245,240,232,0.85)', letterSpacing: 0.5 },
-  magazineCoverTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.cream, lineHeight: 19 },
-  magazineInfo: { flex: 1, padding: 16 },
+  // Magazine card — full-width gradient banner on top (readable at any
+  // width, unlike the old 92px cover column it replaced) with a real
+  // content teaser below, so the hub's hero card reads as the biggest,
+  // most inviting thing on the page rather than a cramped sliver.
+  magazineCard: { padding: 0, overflow: 'hidden', marginBottom: spacing.md },
+  magazineBanner: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 20 },
+  magazineBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,162,75,0.22)', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
+  magazineBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
+  magazineBannerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginTop: 10, lineHeight: 30 },
+  magazineRule: { width: 34, height: 2, backgroundColor: colors.gold, borderRadius: 1, marginTop: 10, marginBottom: 10 },
+  magazineBannerTheme: { fontFamily: fonts.sans, fontSize: 12.5, color: 'rgba(245,240,232,0.78)', lineHeight: 18 },
+
+  magazineInfo: { padding: 16 },
   magazineKicker: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
-  magazineTitle: { fontFamily: fonts.serif, fontSize: 16, color: NAVY, marginTop: 5, lineHeight: 20 },
-  magazineSub: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 6, lineHeight: 16 },
-  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: NAVY, borderRadius: radius.button, paddingHorizontal: 12, paddingVertical: 9, marginTop: 10, alignSelf: 'flex-start' },
-  magazineCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
+
+  teaserRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 10 },
+  teaserChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
+    paddingHorizontal: 9, paddingVertical: 6,
+  },
+  teaserChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: NAVY },
+
+  magazineFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginTop: 14 },
+  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: NAVY, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10 },
+  magazineCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.cream },
+  magazineFooterNote: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, fontStyle: 'italic' },
 
   // Entry cards (Blog / Marketplace)
   entryRow: { flexDirection: 'row', gap: 12, marginBottom: spacing.lg },
