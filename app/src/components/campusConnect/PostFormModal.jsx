@@ -207,7 +207,7 @@ export default function PostFormModal({
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <ScrollView style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {activeFields.map(field => {
               if (field.showIf && !field.showIf(values)) return null
               return (

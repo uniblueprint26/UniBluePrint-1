@@ -102,7 +102,7 @@ export default function SidebarDrawer({ state, navigation }) {
         <UBPLogo height={30} color={colors.cream} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.rows}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.rows}>
         {ITEMS.map(item => (
           <DrawerRow
             key={item.key}
@@ -119,6 +119,9 @@ export default function SidebarDrawer({ state, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.navy, paddingHorizontal: 14 },
   logoWrap: { paddingHorizontal: 6, marginBottom: 24 },
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the logo on native.
+  scrollView: { flex: 1 },
   rows: { gap: 4, paddingBottom: 12 },
   rowOuter: {
     flexDirection: 'row', alignItems: 'center',

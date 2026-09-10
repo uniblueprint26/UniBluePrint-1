@@ -524,7 +524,20 @@ export default function ElevationScreen({ navigation }) {
         </Text>
       </View>
 
-      {/* ── Scrollable content ── */}
+      {/* ── Scrollable content ──
+          Wrapped in an extra plain View with flex:1 (not just the ScrollView's
+          own style) as a defensive measure against a Fabric/New-Architecture
+          initial-layout race: this screen already had the documented
+          style={{flex:1}} fix (see `scrollView` below), and it is unchanged —
+          but flex:1 on the ScrollView alone was still reported to fail on a
+          real device on a fresh cold open (self-correcting after
+          backgrounding), which points at the native scroll-view frame
+          committing before Yoga finishes measuring the header sibling on the
+          very first paint, not a missing style. Forcing Yoga to resolve a
+          concrete height for a plain View first, then letting the ScrollView
+          simply fill that already-measured box, is the standard hardening
+          for this class of timing bug. Needs a real-device retest to confirm. */}
+      <View style={styles.scrollView}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
@@ -605,6 +618,7 @@ export default function ElevationScreen({ navigation }) {
 
         </View>
       </ScrollView>
+      </View>
     </View>
   )
 }

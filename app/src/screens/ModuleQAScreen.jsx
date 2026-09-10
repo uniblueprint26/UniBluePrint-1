@@ -222,7 +222,7 @@ export default function ModuleQAScreen({ navigation, route }) {
                 <X size={18} color={colors.muted} />
               </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <ScrollView style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <Text style={f.label}>Course / Programme / Workplace</Text>
               <TextInput style={f.input} value={askCourse} onChangeText={setAskCourse} placeholder="e.g. Computer Science, UCD — or your trade / employer" placeholderTextColor={colors.light} />
               <Text style={[f.label, { marginTop: 14 }]}>Module / Unit</Text>

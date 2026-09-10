@@ -75,7 +75,7 @@ export default function PrivacyDataScreen({ navigation }) {
         <Text style={styles.headerSub}>Your rights over your personal data under GDPR.</Text>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
 
         <TouchableOpacity
           style={styles.policyLink}
@@ -152,6 +152,7 @@ export default function PrivacyDataScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 20 },
   backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },

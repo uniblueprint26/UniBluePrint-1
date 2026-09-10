@@ -98,7 +98,7 @@ export default function PricingScreen({ navigation }) {
         <Text style={styles.heroSub}>Free to join. Upgrade only when you're ready.</Text>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
         <Animated.ScrollView
           ref={scrollRef}
           horizontal

@@ -105,6 +105,7 @@ export default function OperationsPortalScreen({ navigation }) {
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -223,6 +224,7 @@ export default function OperationsPortalScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerEyebrow: {

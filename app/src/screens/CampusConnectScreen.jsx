@@ -317,7 +317,7 @@ function PostRouteModal({ visible, onClose, onPosted, userId, posterName }) {
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <ScrollView style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <Text style={cm.fieldLabel}>From</Text>
             <TextInput style={cm.input} value={from} onChangeText={setFrom} placeholder="e.g. Limerick City" placeholderTextColor={colors.light} />
             <Text style={cm.fieldLabel}>To</Text>

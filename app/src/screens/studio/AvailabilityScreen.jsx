@@ -180,6 +180,7 @@ export default function AvailabilityScreen({ navigation }) {
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -292,6 +293,7 @@ export default function AvailabilityScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  scrollView: { flex: 1 },
 
   header: {
     backgroundColor: colors.navy,

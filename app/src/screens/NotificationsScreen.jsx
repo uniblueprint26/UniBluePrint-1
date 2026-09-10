@@ -152,6 +152,7 @@ export default function NotificationsScreen({ navigation }) {
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.navy} />}
@@ -197,6 +198,9 @@ const styles = StyleSheet.create({
   },
   topTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed header on native.
+  scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   loadingText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 32 },
 

@@ -202,7 +202,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
       {loading ? (
         <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
       ) : !activeIssue ? (
-        <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
+        <ScrollView style={s.scrollView} contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
           <TouchableOpacity style={s.newIssueBtn} activeOpacity={0.85} onPress={createIssue}>
             <Plus size={16} color={colors.cream} strokeWidth={2.5} />
             <Text style={s.newIssueBtnText}>New Issue</Text>
@@ -226,7 +226,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
           ))}
         </ScrollView>
       ) : (
-        <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 60 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView style={s.scrollView} contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 60 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
           <Card style={{ marginBottom: 16 }}>
             <Text style={s.fieldLabel}>Theme / headline for this issue</Text>
@@ -283,6 +283,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 20 },
   backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },

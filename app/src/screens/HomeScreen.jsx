@@ -372,6 +372,20 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
+          {/* Wrapped in an extra plain View with flex:1 (not just the
+              ScrollView's own style) as a defensive measure against a
+              Fabric/New-Architecture initial-layout race: this screen
+              already had the documented style={{flex:1}} fix (see
+              `mainScroll` below), and it's unchanged — but that alone was
+              still reported to fail on a real device on a fresh cold open
+              elsewhere in the app (self-correcting after backgrounding),
+              which points at the native scroll-view frame committing before
+              Yoga finishes measuring the header sibling on the very first
+              paint. Forcing Yoga to resolve a concrete height for a plain
+              View first, then letting the ScrollView fill that
+              already-measured box, is the standard hardening for this class
+              of timing bug. Needs a real-device retest to confirm. */}
+          <View style={styles.mainScroll}>
           <ScrollView
             style={styles.mainScroll}
             contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
@@ -448,6 +462,7 @@ export default function HomeScreen({ navigation }) {
             </Card>
 
           </ScrollView>
+          </View>
         </View>
       </View>
 

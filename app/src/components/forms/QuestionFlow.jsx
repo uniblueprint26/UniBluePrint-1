@@ -90,6 +90,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         keyboardShouldPersistTaps="handled"
       >
@@ -148,6 +149,11 @@ const styles = StyleSheet.create({
   progressFill: { height: '100%', backgroundColor: colors.navy, borderRadius: 2 },
   stepCount: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted, width: 34, textAlign: 'right' },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space between the header and footer bars on native — without
+  // it, RN can size the ScrollView to its own content instead of the
+  // available viewport. Shared by all 8 Foundation Blueprint intake flows.
+  scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   title: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, lineHeight: 30 },
   subtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 8, lineHeight: 20 },

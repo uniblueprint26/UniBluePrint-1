@@ -158,6 +158,7 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
           </View>
 
           <ScrollView
+            style={ep.scrollView}
             contentContainerStyle={ep.scroll}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -211,6 +212,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
 
 const ep = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.cream },
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed header on native.
+  scrollView: { flex: 1 },
   header: {
     backgroundColor: colors.navy,
     paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24,
@@ -298,7 +302,7 @@ function AccountTypeModal({ visible, onClose }) {
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={ep.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView style={ep.scrollView} contentContainerStyle={ep.scroll} showsVerticalScrollIndicator={false}>
           {!!error && <Text style={{ fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, marginBottom: 12 }}>{error}</Text>}
           <View style={{ gap: 10 }}>
             {types.map(t => {
@@ -596,6 +600,7 @@ export default function ProfileScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -773,6 +778,7 @@ export default function ProfileScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  scrollView: { flex: 1 },
   scroll: {},
 
   profileHeader: {

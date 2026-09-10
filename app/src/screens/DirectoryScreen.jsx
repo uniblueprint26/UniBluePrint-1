@@ -271,6 +271,7 @@ export default function DirectoryScreen({ navigation }) {
       </ScrollView>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -334,6 +335,9 @@ const styles = StyleSheet.create({
   filterText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
   filterTextActive: { color: colors.cream },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed header on native.
+  scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: 4 },
 
   resultMeta: { marginBottom: 12 },

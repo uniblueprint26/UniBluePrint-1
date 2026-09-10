@@ -119,6 +119,7 @@ export default function MyOutputsScreen({ navigation }) {
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.navy} />}
@@ -166,6 +167,9 @@ const styles = StyleSheet.create({
   heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 8 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.72)', lineHeight: 19 },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed header on native.
+  scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   loadingText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 40 },
 

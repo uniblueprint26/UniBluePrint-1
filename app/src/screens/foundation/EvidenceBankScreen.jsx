@@ -116,7 +116,7 @@ export default function EvidenceBankScreen({ navigation }) {
         <View style={styles.headerBtn} />
       </View>
 
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
         <Text style={styles.intro}>
           Real STAR stories from your own experience — a job, a project, a society, anything. Build this once and
           reuse it: Application Form Assistance drafts every answer from these stories, and Interview Preparation
@@ -228,6 +228,7 @@ export default function EvidenceBankScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  scrollView: { flex: 1 },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

@@ -283,6 +283,7 @@ export default function MessagesScreen({ navigation }) {
       </View>
 
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -337,6 +338,9 @@ const styles = StyleSheet.create({
   screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy },
   screenSub:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4 },
 
+  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
+  // fills the space below the fixed header on native.
+  scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: 4 },
 
   loadingWrap: { alignItems: 'center', paddingVertical: 48 },

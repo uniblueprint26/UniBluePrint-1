@@ -28,6 +28,18 @@ export default function BlogScreen({ navigation }) {
         <Text style={styles.heroSub}>Real Irish education news, CV and career guides, and campus life — the same articles as the UniBlueprint website.</Text>
       </View>
 
+      {/* Wrapped in an extra plain View with flex:1 (not just the ScrollView's
+          own style) as a defensive measure against a Fabric/New-Architecture
+          initial-layout race: this screen already had style={{flex:1}} on the
+          ScrollView, and it's unchanged — but that alone was still reported
+          to fail on a real device on a fresh cold open (self-correcting after
+          backgrounding), which points at the native scroll-view frame
+          committing before Yoga finishes measuring the header sibling on the
+          very first paint. Forcing Yoga to resolve a concrete height for a
+          plain View first, then letting the ScrollView fill that
+          already-measured box, is the standard hardening for this class of
+          timing bug. Needs a real-device retest to confirm. */}
+      <View style={{ flex: 1 }}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
         {POSTS.map(post => (
           <TouchableOpacity key={post.slug} activeOpacity={0.85} onPress={() => navigation.navigate('Article', { slug: post.slug })} style={{ marginBottom: spacing.md }}>
@@ -47,6 +59,7 @@ export default function BlogScreen({ navigation }) {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      </View>
     </View>
   )
 }
