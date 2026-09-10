@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase,
+  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Route,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ImageUploader from '../components/ui/ImageUploader'
@@ -15,6 +15,8 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
+import { useJourneyStage } from '../hooks/useJourneyStage'
+import JourneyStageModal from '../components/courseConnect/JourneyStageModal'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 
@@ -70,6 +72,7 @@ const EXPLORE_LINKS = [
 
 const ACCOUNT_LINKS = [
   { Icon: Briefcase, label: 'Account Type',    sub: null,                                action: 'accountType' },
+  { Icon: Route,     label: 'Journey Stage',   sub: null,                                action: 'journeyStage' },
   { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
@@ -494,6 +497,8 @@ export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
   const { label: userTypeLabel } = useUserType()
+  const { label: journeyStageLabel } = useJourneyStage()
+  const [journeyStageVisible, setJourneyStageVisible] = useState(false)
   const [signingOut,   setSigningOut]   = useState(false)
   const [stats,        setStats]        = useState({ cvs: 0, sessions: 0, notes: 0 })
   const [profileAvatar, setProfileAvatar] = useState(null)  // loaded from profiles table
@@ -718,6 +723,7 @@ export default function ProfileScreen({ navigation }) {
                 style={[styles.settingsRow, i < arr.length - 1 && styles.divider]}
                 onPress={() => {
                   if (action === 'accountType') setAccountTypeVisible(true)
+                  else if (action === 'journeyStage') setJourneyStageVisible(true)
                   else if (screen) navigation.navigate(screen)
                 }}
               >
@@ -726,7 +732,11 @@ export default function ProfileScreen({ navigation }) {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.settingsLabel}>{label}</Text>
-                  <Text style={styles.settingsSub}>{action === 'accountType' ? userTypeLabel : sub}</Text>
+                  <Text style={styles.settingsSub}>
+                    {action === 'accountType' ? userTypeLabel
+                      : action === 'journeyStage' ? (journeyStageLabel || 'Not set — tap to choose')
+                      : sub}
+                  </Text>
                 </View>
                 <ChevronRight size={14} color={colors.light} />
               </TouchableOpacity>
@@ -769,6 +779,12 @@ export default function ProfileScreen({ navigation }) {
       <AccountTypeModal
         visible={accountTypeVisible}
         onClose={() => setAccountTypeVisible(false)}
+      />
+
+      {/* Journey Stage modal — same picker Course Connect surfaces inline */}
+      <JourneyStageModal
+        visible={journeyStageVisible}
+        onClose={() => setJourneyStageVisible(false)}
       />
     </View>
   )

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useRef, useCallback } f
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { DEFAULT_USER_TYPE, isValidUserType } from '../constants/userTypes'
+import { isValidJourneyStage } from '../constants/journeyStages'
 
 const AuthContext = createContext({})
 
@@ -43,7 +44,7 @@ export function AuthProvider({ children }) {
     setProfileLoading(true)
     const { data } = await supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, user_type')
+      .select('id, full_name, avatar_url, user_type, journey_stage')
       .eq('id', userId)
       .maybeSingle()
     setProfile(data || null)
@@ -170,6 +171,19 @@ export function AuthProvider({ children }) {
     return { error }
   }, [user?.id])
 
+  // Writes the journey_stage concept (see constants/journeyStages.js) —
+  // shared life stage, deliberately separate from user_type. Same
+  // immediate-local-update pattern as updateUserType above.
+  const updateJourneyStage = useCallback(async nextStage => {
+    if (!user?.id || !isValidJourneyStage(nextStage)) return { error: new Error('Invalid journey stage') }
+    const { error } = await supabase
+      .from('profiles')
+      .update({ journey_stage: nextStage })
+      .eq('id', user.id)
+    if (!error) setProfile(prev => ({ ...(prev || { id: user.id }), journey_stage: nextStage }))
+    return { error }
+  }, [user?.id])
+
   function hasRole(role) {
     return roles.includes(role)
   }
@@ -203,6 +217,14 @@ export function AuthProvider({ children }) {
     ? profile.user_type
     : DEFAULT_USER_TYPE
 
+  // The journey_stage concept (Finding Your Feet / In the Thick of It /
+  // At a Crossroads / Wrapping Up) — unlike userType, has no fallback
+  // default: null means the person hasn't said yet, and consumers (Course
+  // Connect) should prompt for it rather than silently assuming one.
+  const journeyStage = (profile?.journey_stage && isValidJourneyStage(profile.journey_stage))
+    ? profile.journey_stage
+    : null
+
   return (
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
@@ -211,7 +233,9 @@ export function AuthProvider({ children }) {
       isHandler, isCoach, isFounder, isOperations, isBusiness,
       isStudioEligible, isAnyPortalEligible, studioLabel,
       portalMode, setPortalMode,
-      profile, profileLoading, userType, updateUserType, refreshProfile: () => loadProfile(user?.id),
+      profile, profileLoading, userType, updateUserType,
+      journeyStage, updateJourneyStage,
+      refreshProfile: () => loadProfile(user?.id),
     }}>
       {children}
     </AuthContext.Provider>
