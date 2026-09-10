@@ -51,7 +51,7 @@ export const COACHES = [
   // ── Academic ──
   {
     id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
-    location: 'Dublin, Ireland, Available Nationwide', from: 'Enquire for pricing',
+    location: 'Dublin, Ireland, Available Nationwide', from: 'Available on request',
     tagline: 'From under 400 points to 500+ — proven study strategy.',
     services: ['Leaving Cert Maths', 'Leaving Cert Biology', 'Leaving Cert Physics'],
     bio: "Hi, I'm Emmanuel, a UCD student who transformed my own Leaving Cert performance — taking my points from under 400 to 500+ in just a few months. Now I help students do the same, specialising in Leaving Cert Maths, Biology, and Physics, combining proven study strategies, smarter revision techniques, and exam-focused approaches to help students understand the material, maximise their marks, and make significant grade improvements. I'm not here to just teach you what's in the textbook — I'm here to show you how to study smarter, approach questions strategically, and perform when it matters most. If you're aiming for 500+, I'll help you build the structure, confidence, and exam technique to give yourself the best possible shot at getting there.",
@@ -60,7 +60,7 @@ export const COACHES = [
   // ── Sports ──
   {
     id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Fitness',
-    location: 'North Dublin, Available Nationwide', from: 'From €50/hr',
+    location: 'North Dublin, Available Nationwide', from: '€50/hr',
     services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics Breakdown', 'Dietary Guidance', 'Agent Connections'],
     bio: "I offer elite sports coaching with fully personalised programmes for students serious about performance. In-person sessions run on North Dublin 4G Astro, plus football coaching and professional agent connections.",
     pricelist: [
@@ -73,7 +73,7 @@ export const COACHES = [
   // ── Creative ──
   {
     id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Marketing',
-    location: 'Dublin, Available Nationwide', from: 'From €55/month',
+    location: 'Dublin, Available Nationwide', from: '€55/month',
     services: ['Monthly Mentorship', '1-1 Shoot Session', 'Editing Guidance', 'Creative Direction'],
     bio: "I'm a professional photographer and videographer offering mentorship and shoot sessions. My monthly subscription includes Zoom calls and editing guidance.",
     pricelist: [
@@ -86,11 +86,7 @@ export const COACHES = [
   // ── Trading ──
   {
     id: 4, name: 'DG Trading', category: 'Trading & Finance', filter: 'Trading',
-    location: 'Ireland, Available Nationwide', from: 'Upon enquiry',
-    // from is vague/enquiry-based — priceDisplay overrides the bold price
-    // line wherever it's shown (card + profile) with a cleaner "Start Now"
-    // instead of the awkward "Starting from Upon enquiry" framing.
-    priceDisplay: 'Start Now',
+    location: 'Ireland, Available Nationwide', from: 'Available on request',
     title: 'Funded Futures Trader | NQ / MNQ | Trading Coach',
     bio: "I'm Daniel, a funded futures trader specialising in NQ and MNQ. Having achieved a Topstep payout, I've developed a structured approach to trading built around confluence, patience, and disciplined execution. My strategy is ICT-based, combining market structure and liquidity concepts with standard deviation extensions and order flow confluence to identify high-probability opportunities during the New York pre-market.",
     quote: "The goal isn't to predict every move in the market. It's to build the ability to recognise when the conditions align, when to act, and when to stay out.",
@@ -111,7 +107,7 @@ export const COACHES = [
 
   {
     id: 15, name: 'Dinero Trading Group', category: 'Trading & Investment Education', filter: 'Trading',
-    location: 'Ireland, Available Nationwide', from: 'Copier target: 5–15%/month*',
+    location: 'Ireland, Available Nationwide', from: 'Available on request',
     tagline: 'DTG — structured trading systems, education, and business opportunities.',
     bio: "I'm a trader and entrepreneur focused on building structured trading systems, educational programmes, and business opportunities around the financial markets — from automated lower-risk copy trading and high-risk trading challenges, to 1-to-1 mentorship and opportunities to build a business around my services. My goal is to provide different routes for people depending on their experience, goals, and risk tolerance, with systems that are simple to understand, scalable, and built with a long-term vision.",
     services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship / Trading Course', 'IB Partner / White-Label Programme'],
@@ -143,7 +139,7 @@ export const COACHES = [
 
   {
     id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing & Finance Coach', filter: 'Trading',
-    location: 'Ireland, Available Nationwide', from: 'Pricing on request',
+    location: 'Ireland, Available Nationwide', from: 'Available on request',
     title: 'Chartered Accountant · Founder, Soft Life Investing',
     tagline: 'Personal finance without the finance bro jargon.',
     services: ['1:1 Personal Finance Coaching', 'Budgeting & Saving', 'Getting Started with Investing', 'Irish Investing Tax Rules (Deemed Disposal, Exit Tax, DIRT)'],
@@ -165,7 +161,7 @@ export const COACHES = [
   // ── Fitness ──
   {
     id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga', filter: 'Fitness',
-    location: 'Dublin 8, Ireland, Available Nationwide', from: 'PT from €60/session',
+    location: 'Dublin 8, Ireland, Available Nationwide', from: '€60/session',
     title: 'Certified Personal Trainer / Sport Nutritionist Coach / Muay Thai / Yoga / Functional Training',
     tagline: 'HEALTHY · WELLNESS · FITNESS',
     services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
@@ -190,7 +186,7 @@ export const COACHES = [
 
   {
     id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
-    location: 'Mayo, Available Nationwide', from: 'Via consultation',
+    location: 'Mayo, Available Nationwide', from: 'Available on request',
     services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
     bio: "I'm a 20-year-old qualified personal trainer with 5+ years of fitness experience. I specialise in weightlifting and calisthenics, and also work with clients in kickboxing and other sports. I provide personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme, and I'm available in and outside working hours.",
     package: [
@@ -205,7 +201,7 @@ export const COACHES = [
 
   {
     id: 7, name: 'Tadgh Darcy', category: 'Physique Development', filter: 'Fitness',
-    location: 'Dublin, Available Nationwide', from: 'Pricing on request',
+    location: 'Dublin, Available Nationwide', from: 'Available on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
     bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process — online physique development coaching built around you.",
@@ -214,7 +210,7 @@ export const COACHES = [
 
   {
     id: 8, name: 'Milan Piroska (MPFitness)', category: 'Personal Training', filter: 'Fitness',
-    location: 'Kildare, Available Nationwide', from: 'From €40/session',
+    location: 'Kildare, Available Nationwide', from: '€40/session',
     title: 'Certified Personal Trainer / Advanced Nutrition Coach / International Men\'s Physique Athlete',
     tagline: 'MPFitness. More Than Fitness.',
     services: ['Physique Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Lifestyle Transformation', 'Holiday & Contest Prep'],
@@ -238,7 +234,7 @@ export const COACHES = [
 
   {
     id: 9, name: 'Kevin (TrainWitKev)', category: 'Personal Training', filter: 'Fitness',
-    location: 'Dublin, Ireland, Available Nationwide', from: 'From €25',
+    location: 'Dublin, Ireland, Available Nationwide', from: '€25',
     tagline: 'Strength. Physique. Confidence. Mindset.',
     services: ['1-to-1 Personal Training', 'Beginner Gym Coaching', 'Personalised Training Programmes', 'Accountability & Progress Coaching'],
     bio: "I'm the coach behind TrainWitKev and the mindset behind WORKSYY. I help people get stronger, build a physique they're proud of, and gain real confidence in and out of the gym. I work with complete beginners through to people who've plateaued on consistency or progress, with a focus on structure, technique, understanding, and sustainable progress.",
@@ -257,7 +253,7 @@ export const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
-    location: 'Co. Mayo, Ireland, Available Nationwide', from: 'From €40',
+    location: 'Co. Mayo, Ireland, Available Nationwide', from: '€40',
     badge: 'Student Mentor Listing',
     services: ['Social Media Content Plans', 'Captions & Graphics', 'Creator Coordination', 'Client Reporting', 'Student Mentorship'],
     bio: "I'm a digital marketing specialist running my own freelance business, LEVA Impact, working across social media strategy, content creation, graphic design, and AI-powered video production. I bring students onto real, live client projects rather than mock briefs.",
@@ -289,7 +285,7 @@ export const COACHES = [
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
-    location: 'County Sligo, Available Nationwide', from: 'On request',
+    location: 'County Sligo, Available Nationwide', from: 'Available on request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
     bio: "I'm a qualified Personal Trainer with over a decade of experience, passionate about helping people balance school, work, fitness, sport, and social life. I'm also a League of Ireland player, and I'm available for both online and local in-person coaching in County Sligo.",
     contact: { instagram: 'JayRfitness6', tiktok: 'JayRfitness6' },
@@ -299,7 +295,7 @@ export const COACHES = [
   {
     id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Fitness',
     location: 'Dublin, Available Nationwide',
-    from: 'Book via bookwhen.com',
+    from: 'Available on request',
     title: '200 Hour Certified Yoga Teacher | Psychology | Life Coaching',
     tagline: 'The Brave Flow Yoga',
     services: ['Beginner Friendly Yoga', 'Relaxation & Stress Relief', 'Yoga for Focus & Concentration', 'Evening & Bedtime Yoga', '1-to-1 Yoga Sessions', 'Small Group Sessions', 'Meditation Classes', 'Journaling Sessions'],
@@ -321,7 +317,7 @@ export const COACHES = [
 
   {
     id: 18, name: 'Luana Ciweck', category: 'Online Fitness Coaching', filter: 'Fitness',
-    location: 'Co. Mayo, Ireland, Available Nationwide', from: 'Online coaching — pricing on enquiry',
+    location: 'Co. Mayo, Ireland, Available Nationwide', from: 'Available on request',
     tagline: 'Confidence. Strength. Sustainable change.',
     services: ['Online Fitness Coaching'],
     bio: "I'm Luana, 21, a qualified fitness professional with a huge passion for training, health, and helping others become the best version of themselves. I completed my training with Image Fitness and have gained hands-on experience working with clients on the gym floor. Everyone is different, which is why I build an approach tailored to each individual's goals, lifestyle, and experience level. Training is a huge part of my own life too — I've personally gone through both bulking and cutting phases, and having experienced those stages myself helps me understand the highs, lows, challenges, and rewards that come with pursuing your own fitness goals.",
@@ -376,7 +372,7 @@ function CoachCard({ coach, navigation }) {
           </View>
           <Text style={styles.shellMessage}>{coach.shellMessage}</Text>
           <View style={styles.coachFooter}>
-            <View>
+            <View style={styles.footerPrice}>
               <Text style={styles.fromLabel}>Starting from</Text>
               <Text style={styles.fromPrice}>{coach.from}</Text>
             </View>
@@ -443,17 +439,17 @@ function CoachCard({ coach, navigation }) {
           )}
         </View>
 
-        {/* Footer */}
+        {/* Footer — every coach shows the same "Starting from" label plus
+            either a real € price or the single standard fallback phrase
+            ("Available on request") for enquiry/booking-link-only coaches;
+            see the COACHES data above. The price side is flex:1 + wrapping
+            so a longer fallback string (or a future long price string) wraps
+            onto a second line instead of running behind the View Profile
+            button — the fixed-width overlap bug this replaces. */}
         <View style={styles.coachFooter}>
-          <View>
-            {coach.priceDisplay ? (
-              <Text style={styles.fromPrice}>{coach.priceDisplay}</Text>
-            ) : (
-              <>
-                <Text style={styles.fromLabel}>Starting from</Text>
-                <Text style={styles.fromPrice}>{coach.from}</Text>
-              </>
-            )}
+          <View style={styles.footerPrice}>
+            <Text style={styles.fromLabel}>Starting from</Text>
+            <Text style={styles.fromPrice}>{coach.from}</Text>
           </View>
           <View style={styles.profileBtn}>
             <Text style={styles.profileBtnText}>View Profile</Text>
@@ -720,13 +716,20 @@ const styles = StyleSheet.create({
   servicePill:    { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   servicePillText:{ fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
 
-  // Footer
+  // Footer — row with the price on the left and the View Profile button on
+  // the right. footerPrice takes flex:1 with a right margin so its text
+  // (a real price, or the standard "Available on request" fallback) wraps
+  // within its own column instead of running under the button on longer
+  // strings; the buttons get flexShrink:0 so they never get squeezed by it.
+  // This pairing is the fix for the price/button overlap bug — see the
+  // comment above the footer JSX for the full explanation.
   coachFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
+  footerPrice: { flex: 1, marginRight: 12 },
   fromLabel:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  fromPrice:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 1 },
-  profileBtn:        { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  fromPrice:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 1, flexShrink: 1 },
+  profileBtn:        { flexShrink: 0, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
   profileBtnText:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
-  profileBtnMuted:   { backgroundColor: colors.cream, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
+  profileBtnMuted:   { flexShrink: 0, backgroundColor: colors.cream, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
   profileBtnMutedText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
 
   // Shell card

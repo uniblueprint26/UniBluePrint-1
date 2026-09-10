@@ -142,7 +142,7 @@ export default function CoachBookingScreen({ route, navigation }) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.coachName}>{coach.name}</Text>
-              <Text style={styles.coachMeta}>{coach.priceDisplay || coach.from || 'Enquire for pricing'}</Text>
+              <Text style={styles.coachMeta}>{coach.from || 'Available on request'}</Text>
             </View>
           </View>
 

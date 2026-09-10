@@ -401,16 +401,19 @@ export default function CoachProfileScreen({ route, navigation }) {
         showsVerticalScrollIndicator={false}
       >
 
-        {/* ── Identity ── */}
+        {/* ── Identity ──
+            Price chip always reads "Starting from" — every coach shows
+            either a real € price or the single standard fallback phrase
+            ("Available on request"); see the COACHES data in
+            ElevationScreen.jsx. Kept structurally identical across all
+            coaches, shell placeholders aside. */}
         <View style={styles.identityBlock}>
           <View style={styles.priceChip}>
+            {!coach.shell && <Text style={styles.priceChipLabel}>Starting from</Text>}
             <Text style={styles.priceChipText}>
-              {coach.shell ? 'Coming Soon' : (coach.priceDisplay || coach.from || 'Enquire for pricing')}
+              {coach.shell ? 'Coming Soon' : (coach.from || 'Available on request')}
             </Text>
           </View>
-          {!coach.shell && coach.from?.includes('*') && (
-            <Text style={styles.priceFootnote}>*A target, not a guarantee. See Risk Disclosure below.</Text>
-          )}
           <View style={styles.categoryPill}>
             <Text style={styles.categoryPillText}>{coach.category}</Text>
           </View>
@@ -759,15 +762,16 @@ const styles = StyleSheet.create({
   // shape regardless of how long their pricing text happens to be.
   priceChip: {
     alignSelf: 'center',
+    alignItems: 'center',
     maxWidth: '78%',
     backgroundColor: colors.navy,
     borderRadius: radius.pill,
     borderWidth: 1, borderColor: 'rgba(201,162,75,0.5)',
     paddingHorizontal: 18, paddingVertical: 9,
-    marginBottom: 6,
+    marginBottom: 10,
   },
+  priceChipLabel: { fontFamily: fonts.sans, fontSize: 10, color: 'rgba(245,240,232,0.6)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 1 },
   priceChipText:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream, textAlign: 'center' },
-  priceFootnote:  { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
 
   // Identity
   identityBlock: {
