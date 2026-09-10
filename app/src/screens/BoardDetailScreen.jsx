@@ -15,6 +15,7 @@
  *   reviews       — aggregate rating header
  *   suggestions   — upvote, sorted most-upvoted first
  *   ads           — mark sold / remove (no auto-expiry)
+ *   carpool       — safety-terms gate before posting + a route-shaped card
  *   notes/papers  — Course Connect only: download button + count, no chat
  *
  * `registry` route param ('campus', default, or 'course') selects which
@@ -33,13 +34,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, Plus, MessageSquare, Flag, Trash2, ThumbsUp, ExternalLink,
   Users, Star, X, Search, AlertCircle, Send, CheckCircle2, RotateCcw,
-  Download, FileText, Image as ImageIcon,
+  Download, FileText, Image as ImageIcon, MapPin,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
 import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
-import { getBoard } from '../constants/campusBoards'
+import { getBoard, formatCarpoolDays } from '../constants/campusBoards'
 import { getCourseBoard } from '../constants/courseConnectBoards'
 import { getMarketplaceBoard } from '../constants/marketplaceBoards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -65,6 +66,8 @@ const RATING_CATEGORIES = [
 ]
 
 const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
+
+const CARPOOL_TERMS_VERSION = 'v1'
 
 export function fileTypeLabel(item) {
   const mime = (item.file_mime || '').toLowerCase()
@@ -116,6 +119,12 @@ export default function BoardDetailScreen({ navigation, route }) {
   // projects
   const [exampleSheetOpen, setExampleSheetOpen] = useState(false)
 
+  // carpool — safety-terms gate (mirrors the campus gate: block the post
+  // form, not the browse view, until accepted)
+  const [hasAcceptedCarpoolTerms, setHasAcceptedCarpoolTerms] = useState(null) // null = unknown yet
+  const [carpoolTermsOpen, setCarpoolTermsOpen] = useState(false)
+  const [carpoolAcceptingTerms, setCarpoolAcceptingTerms] = useState(false)
+
   // ads
   const [adBusyId, setAdBusyId] = useState(null)
 
@@ -164,6 +173,14 @@ export default function BoardDetailScreen({ navigation, route }) {
   useEffect(() => { load() }, [load])
 
   useEffect(() => {
+    if (board?.special !== 'carpool' || !user?.id) return
+    let cancelled = false
+    supabase.from('carpool_terms_acceptance').select('id').eq('user_id', user.id).limit(1)
+      .then(({ data }) => { if (!cancelled) setHasAcceptedCarpoolTerms((data || []).length > 0) })
+    return () => { cancelled = true }
+  }, [board?.special, user?.id])
+
+  useEffect(() => {
     if (openPostForm) {
       // Runs once on mount — matches the picker flow ("choose a board, land
       // straight in its post form").
@@ -204,8 +221,28 @@ export default function BoardDetailScreen({ navigation, route }) {
   function handlePostPress() {
     requireCampus(() => {
       if (board.special === 'clubs') setClubRequestOpen(true)
-      else setPostOpen(true)
+      else if (board.special === 'carpool') {
+        if (hasAcceptedCarpoolTerms) setPostOpen(true)
+        else setCarpoolTermsOpen(true)
+      } else setPostOpen(true)
     })
+  }
+
+  // ── Carpool ──────────────────────────────────────────────────────────────
+  async function acceptCarpoolTerms() {
+    if (carpoolAcceptingTerms) return
+    setCarpoolAcceptingTerms(true)
+    const { error } = await supabase
+      .from('carpool_terms_acceptance')
+      .insert({ user_id: user.id, version: CARPOOL_TERMS_VERSION })
+    setCarpoolAcceptingTerms(false)
+    if (error) {
+      Alert.alert('Something went wrong', 'Please try again.')
+      return
+    }
+    setHasAcceptedCarpoolTerms(true)
+    setCarpoolTermsOpen(false)
+    setPostOpen(true)
   }
 
   function handlePosted(row) {
@@ -496,6 +533,11 @@ export default function BoardDetailScreen({ navigation, route }) {
   function renderProjectCard(p) {
     return (
       <Card key={p.id} style={styles.card}>
+        {!!p.project_type && (
+          <View style={styles.metaRow}>
+            <View style={styles.metaPill}><Text style={styles.metaPillText}>{p.project_type}</Text></View>
+          </View>
+        )}
         <Text style={styles.cardTitle}>{p.title}</Text>
         <Text style={styles.cardBody} numberOfLines={4}>{p.description}</Text>
         {p.skills_needed?.length > 0 && (
@@ -514,6 +556,63 @@ export default function BoardDetailScreen({ navigation, route }) {
         >
           <Text style={styles.joinBtnText}>Join</Text>
         </TouchableOpacity>
+      </Card>
+    )
+  }
+
+  // ── Special: Carpool ──────────────────────────────────────────────────────
+  function renderCarpoolCard(route) {
+    const own = isOwn(route)
+    return (
+      <Card key={route.id} style={styles.card}>
+        <View style={styles.routeRow}>
+          <View style={styles.routeDot} />
+          <Text style={styles.routeFrom}>{route.from_location}</Text>
+        </View>
+        <View style={[styles.routeRow, { marginTop: 6 }]}>
+          <MapPin size={10} color={colors.navy} />
+          <Text style={styles.routeTo}>{route.to_location}</Text>
+        </View>
+        <View style={styles.metaRow}>
+          <View style={styles.metaPill}><Text style={styles.metaPillText}>{formatCarpoolDays(route.days)}</Text></View>
+          <View style={styles.metaPill}><Text style={styles.metaPillText}>Contribution: {route.contribution}</Text></View>
+        </View>
+        {!!route.notes && <Text style={styles.cardBody}>{route.notes}</Text>}
+        <Text style={styles.posterLine}>
+          {posterLine(route)} · Contact: {route.contact_preference}
+        </Text>
+        <View style={styles.actionsRow}>
+          <View style={styles.seatBadge}>
+            <Text style={styles.seatBadgeText}>
+              {route.departure_time} · {route.seats_available} seat{route.seats_available !== 1 ? 's' : ''} free
+            </Text>
+          </View>
+          {own ? (
+            <TouchableOpacity style={styles.msgBtn} activeOpacity={0.8} onPress={() => confirmRemove(route)}>
+              <Trash2 size={12} color={colors.navy} strokeWidth={2} />
+              <Text style={styles.msgBtnText}>Remove</Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.msgBtn}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('ChatRoom', {
+                  contextType: 'carpool',
+                  contextId: route.id,
+                  roomName: `${route.from_location} → ${route.to_location}`,
+                  subtitle: route.departure_time,
+                })}
+              >
+                <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
+                <Text style={styles.msgBtnText}>Chat</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(route, 'carpool_route')} accessibilityRole="button" accessibilityLabel="Report route">
+                <Flag size={13} color={colors.muted} strokeWidth={2} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </Card>
     )
   }
@@ -698,6 +797,7 @@ export default function BoardDetailScreen({ navigation, route }) {
     if (board.special === 'suggestions') return renderSuggestionCard(item)
     if (board.special === 'reviews') return renderReviewCard(item)
     if (board.special === 'ads') return renderAdCard(item)
+    if (board.special === 'carpool') return renderCarpoolCard(item)
     if (board.special === 'marketplace') return renderMarketplaceCard(item)
     if (board.special === 'accommodation') return renderAccommodationCard(item)
     if (board.special === 'notes' || board.special === 'papers') return renderFileCard(item)
@@ -773,6 +873,14 @@ export default function BoardDetailScreen({ navigation, route }) {
 
         <View style={styles.content}>
           {board.special === 'accommodation' && renderRoomyPanel()}
+          {board.special === 'carpool' && (
+            <View style={styles.safetyBanner}>
+              <AlertCircle size={15} color="#92400E" />
+              <Text style={styles.safetyBannerText}>
+                Always meet in a public place first. Share your plans with someone you trust.
+              </Text>
+            </View>
+          )}
 
           {renderFilterBar()}
 
@@ -817,6 +925,48 @@ export default function BoardDetailScreen({ navigation, route }) {
       />
 
       <CampusGateModal visible={gateOpen} onClose={() => setGateOpen(false)} onSelected={onCampusSelected} />
+
+      {/* Carpool: safety-terms gate, shown before the post form the first time */}
+      <Modal visible={carpoolTermsOpen} transparent animationType="slide" onRequestClose={() => setCarpoolTermsOpen(false)}>
+        <View style={styles.termsBackdrop}>
+          <View style={styles.termsSheet}>
+            <View style={styles.termsHeaderRow}>
+              <Text style={styles.termsTitle}>Carpool Safety Terms</Text>
+              <TouchableOpacity
+                onPress={() => setCarpoolTermsOpen(false)}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+              >
+                <X size={18} color={colors.muted} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
+              <Text style={styles.termsBody}>
+                UniBlueprint connects students who want to share a route. It does not vet drivers,
+                passengers, or vehicles, and does not guarantee anyone's identity or safety.{'\n\n'}
+                By posting or contacting a route, you agree to:{'\n'}
+                • Verify who you're travelling with before you get in a car, through your campus
+                student services or your own judgement.{'\n'}
+                • Share your trip details (who, when, route) with someone you trust before travelling.{'\n'}
+                • Meet in a public place for a first trip where possible.{'\n'}
+                • Report anything that feels wrong using the report option on a post.{'\n\n'}
+                UniBlueprint is not responsible for arrangements made between students through this
+                feature.
+              </Text>
+            </ScrollView>
+            <TouchableOpacity
+              style={[styles.termsAcceptBtn, carpoolAcceptingTerms && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              onPress={acceptCarpoolTerms}
+              disabled={carpoolAcceptingTerms}
+            >
+              <Text style={styles.termsAcceptBtnText}>{carpoolAcceptingTerms ? 'Saving…' : 'Accept & Continue'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Projects: "this is an example" confirmation sheet */}
       <Modal visible={exampleSheetOpen} transparent animationType="fade" onRequestClose={() => setExampleSheetOpen(false)}>
@@ -984,4 +1134,29 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 13, color: colors.navy, maxHeight: 90,
   },
   solutionSendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
+
+  // Carpool
+  safetyBanner: {
+    backgroundColor: '#FEF3C7', borderRadius: 8,
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 12,
+    borderLeftWidth: 4, borderLeftColor: '#D97706', marginBottom: spacing.sm,
+  },
+  safetyBannerText: { fontFamily: fonts.sans, fontSize: 12, color: '#92400E', flex: 1, lineHeight: 18 },
+  routeRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  routeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.navy },
+  routeFrom: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  routeTo: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
+  seatBadge: { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 6 },
+  seatBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+
+  termsBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+  termsSheet: {
+    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: spacing.lg, paddingBottom: 34, maxHeight: '85%',
+  },
+  termsHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },
+  termsTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  termsBody: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 21 },
+  termsAcceptBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
+  termsAcceptBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 })

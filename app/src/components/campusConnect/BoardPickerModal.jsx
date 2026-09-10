@@ -4,22 +4,16 @@
  * Tapping "Post to Board" anywhere in Campus Connect opens this once;
  * choosing a board pushes BoardDetailScreen for that board with
  * `openPostForm: true`, which opens straight into that board's post form
- * (after the campus gate, if needed) rather than just landing on the browse
- * view.
+ * (after the campus gate, and the carpool safety-terms gate if this is
+ * Carpooling) rather than just landing on the browse view.
  */
 import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { X } from 'lucide-react-native'
 import { CAMPUS_BOARDS } from '../../constants/campusBoards'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 
-// Carpooling predates this generic picker and keeps its own bespoke post
-// flow (safety-terms gate, seats stepper) on CampusConnectScreen rather than
-// the generic PostFormModal — it's not in CAMPUS_BOARDS for that reason, but
-// still belongs in the picker so "Post to Board" covers all 14 boards.
-const CARPOOL_TILE = { key: 'carpool', title: 'Carpooling', icon: '🚗', color: '#F0FDF4' }
-
 export default function BoardPickerModal({ visible, onClose, onPick }) {
-  const tiles = [CAMPUS_BOARDS[0], CARPOOL_TILE, ...CAMPUS_BOARDS.slice(1)]
+  const tiles = CAMPUS_BOARDS
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.backdrop}>

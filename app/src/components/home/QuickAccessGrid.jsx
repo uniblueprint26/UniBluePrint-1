@@ -1,6 +1,12 @@
-import { useRef, useState, useEffect, useMemo } from 'react'
-import { View, Text, Pressable, Animated, PanResponder, StyleSheet } from 'react-native'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Plus, X } from 'lucide-react-native'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import Animated, {
+  useSharedValue, useAnimatedStyle,
+  withSpring, withTiming, withRepeat, withSequence, withDelay,
+  runOnJS,
+} from 'react-native-reanimated'
 import { colors, fonts, radius, shadows } from '../../constants/theme'
 
 // ─── Layout constants ───────────────────────────────────────────────────────
@@ -9,12 +15,14 @@ const GAP         = 10
 const CARD_HEIGHT = 112
 
 function slotPosition(index, cardWidth) {
+  'worklet'
   const col = index % COLUMNS
   const row = Math.floor(index / COLUMNS)
   return { x: col * (cardWidth + GAP), y: row * (CARD_HEIGHT + GAP) }
 }
 
 function nearestIndex(x, y, cardWidth, count) {
+  'worklet'
   let best = 0
   let bestDist = Infinity
   for (let i = 0; i < count; i++) {
@@ -28,120 +36,180 @@ function nearestIndex(x, y, cardWidth, count) {
 }
 
 // ─── One card ────────────────────────────────────────────────────────────────
-
+//
+// Drag tracking runs entirely on the UI thread via react-native-gesture-
+// handler's Gesture API + Reanimated shared values (the same pair the rest
+// of the app already depends on — gesture-handler is required at the app
+// entrypoint for React Navigation, and Reanimated's worklets babel plugin is
+// already wired up in babel.config.js — so this isn't a new dependency,
+// just the first place the app's own code drives them directly). The old
+// implementation used PanResponder + the legacy Animated API: every touch-
+// move had to round-trip through the JS bridge to update `pan`, and — the
+// bigger issue — a card's rest position (`left`/`top`) was plain numbers
+// that jumped instantly whenever its `index` changed, so every *other* card
+// would pop into its new slot the instant a drag reordered them instead of
+// sliding there. Both are fixed below: position is a pair of shared values
+// driven by worklets (no bridge traffic while dragging), and any card whose
+// slot changes animates to it with a spring instead of snapping.
 function QuickAccessCard({
   item, index, cardWidth, itemCount, editing, isDragging,
   onNavigate, onRemove, onLongPressToggle, onDragStart, onDragMove, onDragEnd,
 }) {
-  const pan      = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current
-  const jiggle   = useRef(new Animated.Value(0)).current
-  const opacity  = useRef(new Animated.Value(1)).current
-  const removing = useRef(false)
+  const home = slotPosition(index, cardWidth)
+
+  const translateX = useSharedValue(home.x)
+  const translateY = useSharedValue(home.y)
+  const dragStartX  = useSharedValue(home.x)
+  const dragStartY  = useSharedValue(home.y)
+  const scale       = useSharedValue(1)
+  const jiggle       = useSharedValue(0)
+  const opacity      = useSharedValue(1)
+  const removingRef  = useRef(false)
+
+  // A reorder mid-drag changes THIS card's `index` (and, if the grid
+  // resizes, `cardWidth`/`itemCount`) — but the pan gesture below is built
+  // once and never recreated, so those live values are mirrored into shared
+  // values it can read on the UI thread instead of closing over the props
+  // directly. Recreating the gesture object whenever `index` changed (the
+  // first version of this did exactly that, keyed via useMemo like the old
+  // PanResponder was) turned out to drop the in-progress native touch the
+  // moment a drag caused a reorder — confirmed by a Playwright drag test
+  // that moved a card, saw the sibling swap animate, and then never got the
+  // onReorder commit because the gesture's onEnd never fired again after
+  // GestureDetector swapped in the recreated gesture mid-touch.
+  const indexSV     = useSharedValue(index)
+  const cardWidthSV = useSharedValue(cardWidth)
+  const itemCountSV = useSharedValue(itemCount)
+  useEffect(() => { indexSV.value = index }, [index])
+  useEffect(() => { cardWidthSV.value = cardWidth }, [cardWidth])
+  useEffect(() => { itemCountSV.value = itemCount }, [itemCount])
+
+  // Same idea for the JS-thread callbacks the gesture calls via runOnJS —
+  // proxied through refs kept current every render, so the never-recreated
+  // gesture always ends up invoking this render's actual handler instead of
+  // whichever one existed when the gesture object was first built.
+  const onDragStartRef = useRef(onDragStart)
+  const onDragMoveRef  = useRef(onDragMove)
+  const onDragEndRef   = useRef(onDragEnd)
+  onDragStartRef.current = onDragStart
+  onDragMoveRef.current  = onDragMove
+  onDragEndRef.current   = onDragEnd
+  function callDragStart(i) { onDragStartRef.current(i) }
+  function callDragMove(from, to) { onDragMoveRef.current(from, to) }
+  function callDragEnd() { onDragEndRef.current() }
+
+  // Slide to this card's slot whenever its index (or the grid width)
+  // changes. Skipped while this is the card being dragged — its position
+  // is driven live by the finger instead (see the pan gesture below).
+  useEffect(() => {
+    if (isDragging) return
+    translateX.value = withSpring(home.x, { damping: 20, stiffness: 220, mass: 0.6 })
+    translateY.value = withSpring(home.y, { damping: 20, stiffness: 220, mass: 0.6 })
+  }, [home.x, home.y, isDragging])
+
+  useEffect(() => {
+    scale.value = withTiming(isDragging ? 1.05 : 1, { duration: 150 })
+  }, [isDragging])
 
   // Classic iOS-style jiggle — a small looping rotate oscillation, phase
-  // offset per column so cards don't all wobble in lockstep.
+  // offset per column so cards don't all wobble in lockstep. Runs as a
+  // worklet on the UI thread, so it stays steady even while a drag is
+  // simultaneously animating other cards' positions.
   useEffect(() => {
-    let loop
     if (editing && !isDragging) {
-      jiggle.setValue(0)
       const delay = (index % COLUMNS) * 60
-      loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(jiggle, { toValue: 1, duration: 130, delay, useNativeDriver: true }),
-          Animated.timing(jiggle, { toValue: -1, duration: 260, useNativeDriver: true }),
-          Animated.timing(jiggle, { toValue: 0, duration: 130, useNativeDriver: true }),
-        ])
-      )
-      loop.start()
+      jiggle.value = withDelay(delay, withRepeat(
+        withSequence(
+          withTiming(1, { duration: 130 }),
+          withTiming(-1, { duration: 260 }),
+          withTiming(0, { duration: 130 }),
+        ),
+        -1,
+      ))
     } else {
-      jiggle.setValue(0)
+      jiggle.value = withTiming(0, { duration: 120 })
     }
-    return () => { loop?.stop() }
   }, [editing, isDragging, index])
 
-  // panResponder is rebuilt whenever inputs it closes over change, so its
-  // handlers never read stale index/cardWidth/itemCount values.
-  const panResponder = useMemo(() => PanResponder.create({
-    onStartShouldSetPanResponder: () => editing,
-    onMoveShouldSetPanResponder: (_, g) => editing && (Math.abs(g.dx) > 4 || Math.abs(g.dy) > 4),
-    onPanResponderGrant: () => {
-      pan.setValue({ x: 0, y: 0 })
-      onDragStart(index)
-    },
-    onPanResponderMove: (_, g) => {
-      pan.setValue({ x: g.dx, y: g.dy })
-      const home = slotPosition(index, cardWidth)
-      const target = nearestIndex(home.x + g.dx, home.y + g.dy, cardWidth, itemCount)
-      onDragMove(index, target)
-    },
-    onPanResponderRelease: () => {
-      Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: true, friction: 7 }).start()
-      onDragEnd()
-    },
-    onPanResponderTerminate: () => {
-      Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: true }).start()
-      onDragEnd()
-    },
-  }), [editing, index, cardWidth, itemCount])
-
   function handleRemove() {
-    if (removing.current) return
-    removing.current = true
-    Animated.timing(opacity, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => {
-      onRemove(item.key)
+    if (removingRef.current) return
+    removingRef.current = true
+    opacity.value = withTiming(0, { duration: 220 }, finished => {
+      if (finished) runOnJS(onRemove)(item.key)
     })
   }
 
-  const home = slotPosition(index, cardWidth)
-  const rotate = jiggle.interpolate({ inputRange: [-1, 1], outputRange: ['-1.4deg', '1.4deg'] })
+  // Only rebuilt when `editing` flips (mirrors .enabled(), which really
+  // does need to be set at creation time) — never on index/cardWidth/
+  // itemCount, so an in-progress touch is never handed to a freshly built
+  // gesture object mid-drag. Everything it needs that *can* change moves
+  // through the shared values and ref-callbacks above instead.
+  const pan = useMemo(() => Gesture.Pan()
+    .enabled(editing)
+    .minDistance(4)
+    .onStart(() => {
+      dragStartX.value = translateX.value
+      dragStartY.value = translateY.value
+      runOnJS(callDragStart)(indexSV.value)
+    })
+    .onUpdate(e => {
+      translateX.value = dragStartX.value + e.translationX
+      translateY.value = dragStartY.value + e.translationY
+      const liveHome = slotPosition(indexSV.value, cardWidthSV.value)
+      const target = nearestIndex(liveHome.x + e.translationX, liveHome.y + e.translationY, cardWidthSV.value, itemCountSV.value)
+      runOnJS(callDragMove)(indexSV.value, target)
+    })
+    .onEnd(() => {
+      runOnJS(callDragEnd)()
+    }),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [editing])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { rotate: isDragging ? '0deg' : `${jiggle.value * 1.4}deg` },
+      { scale: scale.value },
+    ],
+    opacity: opacity.value,
+    zIndex: isDragging ? 20 : 1,
+    elevation: isDragging ? 8 : 0,
+  }))
+
   const Icon = item.homeIcon || item.Icon
 
   return (
-    <Animated.View
-      {...(editing ? panResponder.panHandlers : {})}
-      style={[
-        styles.slot,
-        {
-          width: cardWidth, height: CARD_HEIGHT,
-          left: home.x, top: home.y,
-          opacity,
-          zIndex: isDragging ? 20 : 1,
-          elevation: isDragging ? 8 : 0,
-          transform: [
-            { translateX: pan.x }, { translateY: pan.y },
-            { rotate: isDragging ? '0deg' : rotate },
-            { scale: isDragging ? 1.04 : 1 },
-          ],
-        },
-      ]}
-    >
-      <Pressable
-        style={[styles.card, { backgroundColor: item.bg }]}
-        onPress={() => { if (!editing) onNavigate(item) }}
-        onLongPress={onLongPressToggle}
-        delayLongPress={420}
-        accessibilityRole="button"
-        accessibilityLabel={item.homeLabel || item.label}
-      >
-        <View style={styles.iconWrap}>
-          <Icon size={17} color={colors.navy} strokeWidth={1.8} />
-        </View>
-        <Text style={styles.label} numberOfLines={2}>{item.homeLabel || item.label}</Text>
-        <Text style={styles.sub} numberOfLines={2}>{item.homeSub || item.sub}</Text>
-      </Pressable>
-
-      {editing && (
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[styles.slot, { width: cardWidth, height: CARD_HEIGHT }, animatedStyle]}>
         <Pressable
-          style={styles.removeBadge}
-          onPress={handleRemove}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={[styles.card, { backgroundColor: item.bg }]}
+          onPress={() => { if (!editing) onNavigate(item) }}
+          onLongPress={onLongPressToggle}
+          delayLongPress={420}
           accessibilityRole="button"
-          accessibilityLabel={`Remove ${item.homeLabel || item.label} from Quick Access`}
+          accessibilityLabel={item.homeLabel || item.label}
         >
-          <X size={11} color="#fff" strokeWidth={3} />
+          <View style={styles.iconWrap}>
+            <Icon size={17} color={colors.navy} strokeWidth={1.8} />
+          </View>
+          <Text style={styles.label} numberOfLines={2}>{item.homeLabel || item.label}</Text>
+          <Text style={styles.sub} numberOfLines={2}>{item.homeSub || item.sub}</Text>
         </Pressable>
-      )}
-    </Animated.View>
+
+        {editing && (
+          <Pressable
+            style={styles.removeBadge}
+            onPress={handleRemove}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel={`Remove ${item.homeLabel || item.label} from Quick Access`}
+          >
+            <X size={11} color="#fff" strokeWidth={3} />
+          </Pressable>
+        )}
+      </Animated.View>
+    </GestureDetector>
   )
 }
 

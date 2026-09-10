@@ -7,6 +7,7 @@ import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold
 import { useFonts } from 'expo-font'
 import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { AuthProvider } from './src/context/AuthContext'
 import RootNavigator from './src/navigation'
 import { linking } from './src/navigation/linking'
@@ -54,13 +55,18 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar style="light" backgroundColor={colors.navy} />
-        <NavigationContainer linking={linking} fallback={null}>
-          <RootNavigator />
-        </NavigationContainer>
-      </AuthProvider>
-    </SafeAreaProvider>
+    // Required root for react-native-gesture-handler's Gesture API (used by
+    // Quick Access's drag-to-reorder grid) — without it, gesture recognition
+    // isn't reliably attached to the view tree, especially on Android.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <StatusBar style="light" backgroundColor={colors.navy} />
+          <NavigationContainer linking={linking} fallback={null}>
+            <RootNavigator />
+          </NavigationContainer>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }

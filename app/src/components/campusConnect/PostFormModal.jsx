@@ -90,6 +90,32 @@ function SelectPicker({ options, value, onChange }) {
   )
 }
 
+// Same chip look as SelectPicker, but toggles membership in an array rather
+// than replacing a single value — used by Carpool's "Days" field (a
+// text[] column) and any future multi-choice field.
+function MultiSelectPicker({ options, value, onChange }) {
+  function toggle(opt) {
+    onChange(value.includes(opt) ? value.filter(v => v !== opt) : [...value, opt])
+  }
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      {options.map(opt => {
+        const active = value.includes(opt)
+        return (
+          <TouchableOpacity
+            key={opt}
+            style={[f.chip, active && f.chipActive]}
+            onPress={() => toggle(opt)}
+            activeOpacity={0.8}
+          >
+            <Text style={[f.chipText, active && f.chipTextActive]}>{opt}</Text>
+          </TouchableOpacity>
+        )
+      })}
+    </View>
+  )
+}
+
 function TogglePicker({ value, onChange, onLabel, offLabel }) {
   return (
     <TouchableOpacity style={f.toggleRow} onPress={() => onChange(!value)} activeOpacity={0.8}>
@@ -112,7 +138,7 @@ export default function PostFormModal({
   const initial = {}
   activeFields.forEach(field => {
     if (field.type === 'toggle') initial[field.key] = false
-    else if (field.type === 'tags') initial[field.key] = []
+    else if (field.type === 'tags' || field.type === 'multiselect') initial[field.key] = []
     else if (field.type === 'stars') initial[field.key] = 0
     else if (field.default != null) initial[field.key] = field.default
     else initial[field.key] = ''
@@ -141,7 +167,7 @@ export default function PostFormModal({
       if (field.showIf && !field.showIf(values)) continue
       if (!field.required) continue
       const v = values[field.key]
-      const empty = field.type === 'tags' ? v.length === 0
+      const empty = field.type === 'tags' || field.type === 'multiselect' ? v.length === 0
         : field.type === 'stars' ? !v
         : field.type === 'toggle' ? false
         : v == null || String(v).trim() === ''
@@ -255,6 +281,9 @@ export default function PostFormModal({
                   )}
                   {field.type === 'select' && (
                     <SelectPicker options={field.options} value={values[field.key]} onChange={v => set(field.key, v)} />
+                  )}
+                  {field.type === 'multiselect' && (
+                    <MultiSelectPicker options={field.options} value={values[field.key]} onChange={v => set(field.key, v)} />
                   )}
                   {field.type === 'toggle' && (
                     <TogglePicker value={values[field.key]} onChange={v => set(field.key, v)} onLabel={field.onLabel} offLabel={field.offLabel} />

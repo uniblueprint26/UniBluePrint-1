@@ -10,7 +10,8 @@
  * generic card list (set on BoardDetailScreen): 'accommodation' (Roomy.ie
  * panel), 'clubs' (join button + request-a-society), 'projects' (example
  * confirmation sheet), 'problems' (solutions thread + upvote), 'reviews'
- * (aggregate ratings header), 'suggestions' (upvote), 'ads' (mark sold).
+ * (aggregate ratings header), 'suggestions' (upvote), 'ads' (mark sold),
+ * 'carpool' (safety-terms gate before posting + a route-shaped card).
  * Every board, special or not, still uses the shared PostFormModal for its
  * post form and the shared campus gate before posting.
  */
@@ -21,6 +22,7 @@ export const FIELD_TYPES = {
   NUMBER: 'number',
   DECIMAL: 'decimal',
   SELECT: 'select',
+  MULTISELECT: 'multiselect',
   TOGGLE: 'toggle',
   TAGS: 'tags',
   DATE: 'date',
@@ -29,6 +31,18 @@ export const FIELD_TYPES = {
   // Added for Course Connect (Shared Notes / Past Papers) — PDF or image
   // upload via FileUploader, distinct from PHOTO (image-only, compressed).
   FILE: 'file',
+}
+
+// Carpool's "days" field/filter (multi-select chips) and card display both
+// need the same fixed week-day list, so it's one shared constant rather
+// than three copies.
+export const CARPOOL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+export function formatCarpoolDays(days) {
+  if (!days || days.length === 0) return ''
+  if (days.length === 5 && CARPOOL_DAYS.slice(0, 5).every(d => days.includes(d))) return 'Mon–Fri'
+  if (days.length === 7) return 'Every day'
+  return days.join(', ')
 }
 
 const T = FIELD_TYPES
@@ -59,6 +73,40 @@ export const CAMPUS_BOARDS = [
     ],
     cardTitle: p => p.title,
     cardMeta: p => [p.post_type, p.rent_per_month != null ? `€${p.rent_per_month}/mo` : null, p.location].filter(Boolean),
+  },
+  {
+    key: 'carpool',
+    title: 'Carpooling',
+    icon: '🚗',
+    color: '#F0FDF4',
+    table: 'carpool_routes',
+    special: 'carpool',
+    tagline: 'Match with people on your route and split the cost of your commute.',
+    postCta: 'Post Your Route',
+    // A route can't actually be inserted until the user has accepted the
+    // Carpool Safety Terms — enforced at the DB level by a trigger on
+    // carpool_routes (see supabase/migrations/20260829150000_carpool_routes.sql).
+    // BoardDetailScreen shows that gate before ever opening this form.
+    fields: [
+      { key: 'from_location', label: 'From', type: T.TEXT, required: true, placeholder: 'e.g. Limerick City' },
+      { key: 'to_location', label: 'To', type: T.TEXT, required: true, placeholder: 'e.g. UL Campus' },
+      { key: 'days', label: 'Days', type: T.MULTISELECT, required: true, options: CARPOOL_DAYS },
+      { key: 'departure_time', label: 'Departure time', type: T.TEXT, required: true, placeholder: 'e.g. 8:30am' },
+      { key: 'seats_available', label: 'Seats available', type: T.NUMBER, required: true, min: 1, max: 4, default: 1 },
+      { key: 'contribution', label: 'Contribution towards fuel/costs', type: T.SELECT, required: true, options: ['Yes', 'No', 'Flexible'], default: 'Flexible' },
+      { key: 'contact_preference', label: 'Contact preference', type: T.TEXT, required: true, placeholder: 'Email, phone, or in-app chat' },
+      { key: 'notes', label: 'Notes (optional)', type: T.TEXTAREA, placeholder: 'Anything else worth knowing, e.g. splitting fuel cost' },
+    ],
+    filters: [
+      { key: 'route', label: 'Filter by route (e.g. Cork)', type: 'search', matches: (item, fv) => {
+        const q = String(fv).toLowerCase()
+        return (item.from_location || '').toLowerCase().includes(q) || (item.to_location || '').toLowerCase().includes(q)
+      } },
+      { key: 'day', label: 'Day', type: T.SELECT, options: CARPOOL_DAYS, matches: (item, fv) => (item.days || []).includes(fv) },
+      { key: 'time', label: 'Filter by time (e.g. 8:30am)', type: 'search', matches: (item, fv) => (item.departure_time || '').toLowerCase().includes(String(fv).toLowerCase()) },
+    ],
+    cardTitle: p => `${p.from_location} → ${p.to_location}`,
+    cardMeta: p => [formatCarpoolDays(p.days), `Contribution: ${p.contribution}`, p.departure_time].filter(Boolean),
   },
   {
     key: 'events',
@@ -180,6 +228,7 @@ export const CAMPUS_BOARDS = [
     tagline: 'Find teammates for college projects and side projects.',
     postCta: 'Post a Project',
     fields: [
+      { key: 'project_type', label: 'Project type', type: T.SELECT, required: true, options: ['Academic / Coursework', 'Personal / Side Project', 'Startup', 'Competition / Hackathon', 'Research'] },
       { key: 'title', label: 'Project title', type: T.TEXT, required: true },
       { key: 'description', label: 'Description', type: T.TEXTAREA, required: true },
       { key: 'skills_needed', label: 'Skills needed', type: T.TAGS, placeholder: 'Type a skill and press add' },
@@ -188,6 +237,7 @@ export const CAMPUS_BOARDS = [
       { key: 'contact_method', label: 'Contact method', type: T.TEXT, required: true },
     ],
     filters: [
+      { key: 'project_type', label: 'Type', type: T.SELECT, options: ['Academic / Coursework', 'Personal / Side Project', 'Startup', 'Competition / Hackathon', 'Research'] },
       { key: 'skills_needed', label: 'Skill', type: 'search' },
     ],
     cardTitle: p => p.title,
