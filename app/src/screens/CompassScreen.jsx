@@ -375,9 +375,12 @@ export default function CompassScreen({ navigation }) {
           <View style={[s.toolsHeader, { marginTop: spacing.xl }]}>
             <Text style={s.toolsEyebrow}>ALL TOOLS</Text>
             <Text style={s.toolsTitle}>{TOOLS.length} tools, one platform</Text>
+            <Text style={s.freeIntro}>
+              Each is a short assessment or builder on CourseCompass. Tap one to open it in your browser and get started.
+            </Text>
           </View>
 
-          <View style={{ gap: 14 }}>
+          <View style={{ gap: 16 }}>
             {TOOLS.map(tool => <ToolCard key={tool.key} tool={tool} />)}
           </View>
 
@@ -481,7 +484,7 @@ const s = StyleSheet.create({
   },
   bundleTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
   bundleIconBox: {
-    width: 40, height: 40, borderRadius: 10,
+    width: 40, height: 40, borderRadius: radius.circle,
     backgroundColor: colors.white,
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)',
@@ -539,7 +542,7 @@ const s = StyleSheet.create({
     padding: 14,
   },
   freeIconBox: {
-    width: 36, height: 36, borderRadius: 9,
+    width: 36, height: 36, borderRadius: radius.circle,
     backgroundColor: colors.cream,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
   },
@@ -568,14 +571,17 @@ const s = StyleSheet.create({
   toolCard: {
     backgroundColor: colors.white,
     borderRadius: radius.card,
-    padding: 16,
+    padding: 18,
     ...shadows.card,
   },
   toolTopRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12,
   },
+  // True icon-in-a-colored-circle, matching the circle pattern used
+  // elsewhere in the app (CourseConnectScreen's mentorCircle, Foundation's
+  // serviceIcon) — was a rounded square (borderRadius: 10) before this pass.
   toolIconBox: {
-    width: 44, height: 44, borderRadius: 10,
+    width: 44, height: 44, borderRadius: radius.circle,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   toolLabel: {
@@ -590,13 +596,16 @@ const s = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
     lineHeight: 19, marginBottom: 14,
   },
+  // Consistent raised-button treatment (shadow + letter-spacing), matching
+  // the CTA styling used on Foundation's service cards.
   toolCta: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: colors.navy, borderRadius: radius.button,
-    paddingHorizontal: 14, paddingVertical: 9,
+    paddingHorizontal: 14, height: 38,
     alignSelf: 'flex-end',
+    ...shadows.card,
   },
-  toolCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  toolCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream, letterSpacing: 0.2 },
 
   // Footer note
   footerNote: {
