@@ -9,6 +9,7 @@
  * split into their own screens.
  */
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, Phone, Mail, AtSign, Link2, HelpCircle, X,
   Dumbbell, Sparkles, ShoppingBag, UtensilsCrossed, Wrench,
@@ -183,13 +184,28 @@ export function PartnerGridCard({ partner, onPress, highlighted }) {
 // presentation moved from an in-place accordion to a bottom sheet, so the
 // grid above it can stay a real grid. ───────────────────────────────────────
 export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
+  // Bottom safe-area inset (home indicator on iOS, gesture bar on Android) —
+  // this sheet is anchored flush to the bottom of the screen (backdrop is
+  // justifyContent: 'flex-end'), and previously had no bottom padding of
+  // its own beyond a fixed 28px on the inner ScrollView's content. On a
+  // device with a tall inset that isn't enough clearance: the sheet's own
+  // last ~20-30px (and on a short listing, real content sitting there —
+  // contact chips, the cross-link card) sits under the home
+  // indicator/gesture bar, reading as "cut off" or "too low" — exactly the
+  // reported symptom. Feeding insets.bottom into the sheet's own bottom
+  // padding (not just the inner ScrollView's) fixes it regardless of how
+  // much content there is.
+  const insets = useSafeAreaInsets()
   if (!partner) return null
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.detailBackdrop} onPress={onClose}>
-        <Pressable style={styles.detailSheet} onPress={e => e.stopPropagation?.()}>
+        <Pressable
+          style={[styles.detailSheet, { paddingBottom: insets.bottom + 12 }]}
+          onPress={e => e.stopPropagation?.()}
+        >
           <View style={styles.detailHandle} />
           <TouchableOpacity
             style={styles.detailCloseBtn}

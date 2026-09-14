@@ -24,6 +24,9 @@ import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import LifestylePartnersScreen from '../screens/LifestylePartnersScreen'
+import LifestyleFeaturedDealsScreen from '../screens/LifestyleFeaturedDealsScreen'
+import LifestyleWellbeingScreen from '../screens/LifestyleWellbeingScreen'
+import LifestyleBudgetingPreviewScreen from '../screens/LifestyleBudgetingPreviewScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
 import WeeklyBlueprintScreen from '../screens/WeeklyBlueprintScreen'
 import BlogScreen          from '../screens/BlogScreen'
@@ -109,6 +112,9 @@ function HomeStack() {
       <Stack.Screen name="ResourceFinder" component={ResourceFinderScreen} />
       <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
       <Stack.Screen name="LifestylePartners" component={LifestylePartnersScreen} />
+      <Stack.Screen name="LifestyleFeaturedDeals" component={LifestyleFeaturedDealsScreen} />
+      <Stack.Screen name="LifestyleWellbeing" component={LifestyleWellbeingScreen} />
+      <Stack.Screen name="LifestyleBudgetingPreview" component={LifestyleBudgetingPreviewScreen} />
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />

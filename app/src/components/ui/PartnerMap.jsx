@@ -1,11 +1,25 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollView, Keyboard, PanResponder } from 'react-native'
+import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollView, Keyboard, PanResponder, Platform } from 'react-native'
 import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line, Rect } from 'react-native-svg'
 import { Lock, Search, X, Plus, Minus, RotateCcw } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { PARTNERS, MYSTERY_MAP_COUNTIES, maskComingSoonName } from '../../data/lifestylePartners'
 import ComingSoonSheet from './ComingSoonSheet'
 
+// Console note: on web these two also throw "Received `true` for a
+// non-boolean attribute `collapsable`" warnings. That prop isn't set
+// anywhere in this file — React Native's Animated.createAnimatedComponent
+// itself injects `collapsable={false}` on whatever it wraps (it's how RN
+// stops Android from flattening/collapsing a node whose native props
+// Animated is about to start mutating directly). `collapsable` only means
+// something to RN's native view-flattening optimiser; react-native-web
+// renders straight to real SVG/DOM nodes and has no such concept, but still
+// forwards the prop through, so React warns about an attribute the DOM
+// doesn't recognise. There's no prop here to remove or override — it's
+// coming from inside createAnimatedComponent, not from this component's own
+// JSX — so this is a react-native-web-only cosmetic console artifact with
+// no native-side effect (collapsable is exactly what it's meant to do
+// there) and no user-visible symptom on either platform.
 const AnimatedG = Animated.createAnimatedComponent(G)
 const AnimatedCircle = Animated.createAnimatedComponent(Circle)
 
@@ -187,7 +201,28 @@ function CompassMark() {
 // ─── A single pin — blueprint tack. Live = solid and seated. Incoming = the
 // same shape drafted as a dashed sketch, not yet inked. Compact = smaller,
 // calmer version used inside a crowded county so the group reads as tidy,
-// not busy; a solo pin elsewhere stays full-size and animated. ───────────────
+// not busy; a solo pin elsewhere stays full-size and animated.
+//
+// Console note: every pin's `onPress` below (on an SVG <G>, via AnimatedG)
+// is the other source of the "Unknown event handler property
+// `onResponderGrant`/`onResponderMove`/..." warnings on web, separate from
+// and larger than the stage's own PanResponder (fixed above). Traced to
+// react-native-svg itself: any Shape with a touchable prop (onPress here)
+// runs through its extractResponder.js, which is shared by both the native
+// and the web (WebShape.js -> SvgTouchableMixin) renderers and always sets
+// RN's legacy onResponderGrant/Move/Release/Terminate/onStartShouldSetResponder
+// props on the underlying element — react-native-svg's own choice, not
+// anything in this file. On native those are real Fabric/paper props and
+// do exactly what they're for. On web react-native-web doesn't recognise
+// them and logs the same warning React logs for any unknown prop — but
+// verified empirically (tapped a pin with these warnings present): the tap
+// still opens that pin's info card correctly, so this is a harmless,
+// web-only console artifact from a third-party library's own web shape
+// implementation, not a functional bug — and not something fixable from
+// this file without replacing every pin's native onPress with a parallel,
+// web-only absolutely-positioned touch-target overlay (its own project,
+// disproportionate to a cosmetic console warning with no user-facing
+// symptom).
 function Pin({ pinKey, live, x, y, compact, dimOpacity, matchRing, ping, onPress }) {
   const arriveOpacity = useRef(new Animated.Value(0)).current
   const r = compact ? 4.3 : 6.2
@@ -479,7 +514,24 @@ export default function PartnerMap({ onViewListing }) {
       <View
         style={styles.stage}
         onLayout={e => { stageSize.current = { width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height } }}
-        {...panResponder.panHandlers}
+        // PanResponder is built on RN's legacy touch-responder system
+        // (onStartShouldSetResponder, onResponderGrant/Move/Release/...).
+        // react-native-web doesn't implement that system — it renders to a
+        // real DOM node and has no responder chain to plug these into — so
+        // spreading panHandlers here doesn't attach any actual gesture
+        // handling, it just forwards these as literal prop names onto the
+        // underlying <div>, which is one of two sources of the "Unknown
+        // event handler property `onResponderGrant`/`onResponderMove`"
+        // console warnings on web (the other is react-native-svg's own
+        // per-pin onPress handling below, in Pin — see its comment; that
+        // one isn't fixable from here). This one is: real on native,
+        // inert-and-noisy on web. Gating it out on web removes its share of
+        // the warnings and changes nothing functionally there (pinch/pan
+        // via panHandlers was never actually wired up on web to begin
+        // with) — native pinch/pan is untouched. The +/- zoom buttons below
+        // already exist as the non-touch equivalent, so web (and any
+        // mouse/trackpad tester) still has a full way to zoom.
+        {...(Platform.OS === 'web' ? {} : panResponder.panHandlers)}
       >
         <Animated.View
           style={{

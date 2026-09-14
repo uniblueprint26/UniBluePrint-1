@@ -1,30 +1,39 @@
 /**
- * LifestylePartnersScreen — the full, uncapped Lifestyle partner listing as
- * its own standalone screen (reached via the "Explore N more" button on
- * LifestyleScreen's own short preview grid, not an in-place accordion below
- * the fold). Same filter pills, category-grouped grid, Coming Soon grid, and
- * PartnerDetailSheet as the hub — all shared from components/lifestyle/
- * PartnerCards so a card looks and opens identically wherever it's tapped.
- * Route params: { filterKey? } — carries over whichever filter was active
- * on the hub when "Explore more" was tapped.
+ * LifestylePartnersScreen ("Explore") — one of the 4 standalone Lifestyle
+ * destinations (see LifestyleScreen, the hub they're all reached from).
+ * File/route name kept as LifestylePartners for continuity with existing
+ * navigation registrations and deep links (Elevation's cross-links, the
+ * hub's own highlightId forwarding) — the display name is "Explore".
+ *
+ * The Ireland map and the full partner grid used to be an either/or Grid/Map
+ * toggle on the old combined Lifestyle screen. They're combined here
+ * instead, map first then the full categorised grid below it, both always
+ * visible on the one page — no toggle, matching how the map and the full
+ * roster actually get browsed together in practice.
  */
 import { useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
-import { Lock } from 'lucide-react-native'
-import TopBar from '../components/layout/TopBar'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ChevronLeft, Lock } from 'lucide-react-native'
+import UBPLogo from '../components/ui/UBPLogo'
 import SectionHeader from '../components/ui/SectionHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import PartnerMap from '../components/ui/PartnerMap'
 import {
   FILTERS, CategorySectionHeader, ComingSoonGridCard, PartnerGridCard, PartnerDetailSheet,
   styles as partnerStyles,
 } from '../components/lifestyle/PartnerCards'
-import { colors, fonts, spacing } from '../constants/theme'
+import { colors, fonts, spacing, radius } from '../constants/theme'
+import { goToHome } from '../navigation/helpers'
 import { PARTNERS } from '../data/lifestylePartners'
 
 export default function LifestylePartnersScreen({ navigation, route }) {
+  const insets = useSafeAreaInsets()
   const [activeFilter, setActiveFilter] = useState(route?.params?.filterKey || 'all')
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
-  const [detailPartnerId, setDetailPartnerId] = useState(null)
+  const [detailPartnerId, setDetailPartnerId] = useState(route?.params?.highlightId || null)
+  const [mapHighlightId, setMapHighlightId] = useState(null)
+  const highlightId = mapHighlightId || route?.params?.highlightId
 
   const liveVisible = PARTNERS.filter(p =>
     p.status === 'live' && (activeFilter === 'all' || p.filterKey === activeFilter))
@@ -43,32 +52,55 @@ export default function LifestylePartnersScreen({ navigation, route }) {
 
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
 
+  // Tapping "View full listing" on the map's info card jumps straight to
+  // that partner's detail sheet and switches the filter pills to match it,
+  // same behaviour the old combined Grid/Map screen had.
+  function handleViewListing(id) {
+    const target = PARTNERS.find(p => p.id === id)
+    setMapHighlightId(id)
+    setActiveFilter(target ? target.filterKey : 'all')
+    setDetailPartnerId(id)
+  }
+
   return (
     <View style={styles.screen}>
-      <TopBar navigation={navigation} showBack />
-
-      {/* Wrapped in an extra plain View with flex:1 (not just the ScrollView's
-          own style) as defensive hardening against a Fabric/New-Architecture
-          initial-layout race documented in ef69ca81 — forces Yoga to resolve
-          a concrete height for a plain View first, then lets the ScrollView
-          fill that already-measured box, on top of the ScrollView's own
-          explicit style={{flex:1}} below. */}
       <View style={{ flex: 1 }}>
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.hero}>
-            <Text style={styles.heroEyebrow}>LIFESTYLE</Text>
-            <Text style={styles.heroTitle}>All Partners</Text>
+          {/* ── Integrated header + hero ── */}
+          <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
+            <View style={styles.navRow}>
+              <TouchableOpacity
+                style={styles.backBtn}
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+              >
+                <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+                <Text style={styles.backBtnText}>Home</Text>
+              </TouchableOpacity>
+              <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+              <View style={{ width: 70 }} />
+            </View>
+
+            <Text style={styles.heroEyebrow}>LIFESTYLE · EXPLORE</Text>
+            <Text style={styles.heroTitle}>Explore</Text>
             <Text style={styles.heroSub}>
-              Every confirmed Lifestyle Blueprint partner and deal, plus who's launching soon.
+              Every confirmed Lifestyle Blueprint partner and deal, on the map and in the full list below.
             </Text>
           </View>
 
           <View style={styles.section}>
-            <SectionHeader eyebrow="Confirmed Partners" title="Partner Listings" />
+            {/* Map — always visible here, not behind a toggle. */}
+            <View style={styles.mapSection}>
+              <PartnerMap onViewListing={handleViewListing} />
+            </View>
+
+            <SectionHeader eyebrow="Confirmed Partners" title="Partner Listings" style={{ marginTop: spacing.xl }} />
 
             {/* Filter pills */}
             <ScrollView
@@ -102,6 +134,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
                     <PartnerGridCard
                       key={p.id}
                       partner={p}
+                      highlighted={p.id === highlightId}
                       onPress={() => setDetailPartnerId(p.id)}
                     />
                   ))}
@@ -134,7 +167,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
       <PartnerDetailSheet
         partner={detailPartner}
         visible={!!detailPartner}
-        onClose={() => setDetailPartnerId(null)}
+        onClose={() => { setDetailPartnerId(null); setMapHighlightId(null) }}
         navigation={navigation}
       />
       <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
@@ -148,17 +181,32 @@ const styles = StyleSheet.create({
   // reliably fills the space below the fixed navy header on every platform —
   // same pattern as every other screen-root ScrollView in the app.
   scrollView: { flex: 1 },
-  scroll: { paddingBottom: 56 },
+  scroll: {},
 
-  hero: {
+  heroBlock: {
     backgroundColor: colors.navy,
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.xl,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  heroEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2 },
-  heroTitle:   { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 4 },
-  heroSub:     { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', marginTop: 10, lineHeight: 22 },
+  navRow: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', marginBottom: spacing.lg,
+  },
+  backBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingVertical: 6, paddingRight: 10,
+  },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
+  heroEyebrow: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11,
+    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
+  },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
+  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
   section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
+  mapSection: {
+    backgroundColor: colors.navy, borderRadius: radius.card,
+    padding: spacing.md,
+  },
 })
