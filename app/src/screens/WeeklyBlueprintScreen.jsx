@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
   Plus, ChevronRight, ChevronLeft, Megaphone, Star, Crown, Menu,
-  MapPin, Users, Wallet, Newspaper, CalendarClock, Award, Heart, Clock, BookOpen,
+  MapPin, Users, Wallet, Newspaper, Award, Heart, Clock, BookOpen,
   Building2, GraduationCap, Sparkles, ShoppingBag,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
@@ -23,7 +23,7 @@ import { POSTS as BLOG_POSTS, calcReadTime, formatDate } from '../data/blogPosts
 import { CATEGORY, CURATED_ADS, getAdPressHandler } from '../data/adBoardAds'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
-// A fixed 27-page structure (see the spec Desmond sent — same page order
+// A fixed 26-page structure (see the spec Desmond sent — same page order
 // every week, content rotates). Most pages pull from data that's real
 // elsewhere in the app already (coaches, Lifestyle partners, Foundation
 // services, live deals, posted ads); the handful of genuinely one-off
@@ -222,15 +222,28 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
     }
 
     // ── Campus Connect & Events ─────────────────────────────────────────────
+    // The week's top event used to get its own standalone divider page
+    // (campus-events-highlight) repeating the same first entry shown just
+    // below in the list — pure duplication of a single line. Folded into a
+    // highlight card at the top of campus-events-1 instead: same "here's
+    // the one to know about" treatment, no information lost, one fewer page.
     case 'campus-events-1':
     case 'campus-events-2': {
       const lines = (content.campus_events?.lines || []).filter(Boolean)
       const half = Math.ceil(lines.length / 2)
       const slice = page.type === 'campus-events-1' ? lines.slice(0, half) : lines.slice(half)
+      const [hInstitution, hEvent, hDate, hLocation] = page.type === 'campus-events-1' ? parsePipe(lines[0]) : []
       return (
         <View style={styles.pageInner}>
           <Text style={styles.pageKicker}>CAMPUS CONNECT</Text>
           <Text style={styles.pageHeading}>{page.type === 'campus-events-1' ? "What's happening on your campus?" : 'More across Ireland'}</Text>
+          {page.type === 'campus-events-1' && !!hEvent && (
+            <View style={styles.eventHighlightCard}>
+              <Text style={styles.eventHighlightKicker}>THIS WEEK'S TOP EVENT</Text>
+              <Text style={styles.eventHighlightTitle}>{hEvent}</Text>
+              <Text style={styles.eventHighlightSub}>{hInstitution}{hDate ? ` · ${hDate}` : ''}{hLocation ? ` · ${hLocation}` : ''}</Text>
+            </View>
+          )}
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 16 }}>
             {slice.length === 0 ? (
               <EmptyNote>No campus events published for this issue yet.</EmptyNote>
@@ -249,27 +262,6 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
             })}
           </ScrollView>
         </View>
-      )
-    }
-
-    case 'campus-events-highlight': {
-      const lines = (content.campus_events?.lines || []).filter(Boolean)
-      const [institution, event, date, location] = parsePipe(lines[0])
-      return (
-        <LinearGradient colors={[shade('#B45309', -14), '#B45309', shade('#B45309', 14)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.dividerPage]}>
-          <View style={{ flex: 1 }} />
-          <CalendarClock size={34} color="rgba(245,240,232,0.95)" strokeWidth={1.5} />
-          <Text style={styles.pageKickerLight}>CAMPUS CONNECT: THIS WEEK</Text>
-          {lines.length === 0 ? (
-            <Text style={styles.dividerSub}>No highlighted event for this issue yet.</Text>
-          ) : (
-            <>
-              <Text style={styles.dividerTitle}>{event}</Text>
-              <Text style={styles.dividerSub}>{institution}{date ? ` · ${date}` : ''}{location ? ` · ${location}` : ''}</Text>
-            </>
-          )}
-          <View style={{ flex: 1 }} />
-        </LinearGradient>
       )
     }
 
@@ -541,23 +533,38 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
     }
 
     // ── UBP Board / Week Ahead ───────────────────────────────────────────────
-    case 'ubp-board':
-    case 'week-ahead': {
-      const key = page.type === 'ubp-board' ? 'ubp_board' : 'week_ahead'
-      const lines = (content[key]?.lines || []).filter(Boolean)
+    // Two short bullet-list pages, same rendering, rarely more than a
+    // handful of lines each — combined onto one page as two sections rather
+    // than two nearly-empty pages back to back. Both content sections (and
+    // both editor fields in weekly_issue_content) are unchanged, still
+    // editable independently; only the page they render on is shared now.
+    case 'ubp-board-week-ahead': {
+      const ubpLines = (content.ubp_board?.lines || []).filter(Boolean)
+      const weekLines = (content.week_ahead?.lines || []).filter(Boolean)
+      const bulletList = lines => lines.length === 0 ? (
+        <EmptyNote>Nothing published for this issue yet.</EmptyNote>
+      ) : (
+        <View style={{ gap: 14, marginTop: 16 }}>
+          {lines.map((line, i) => (
+            <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={styles.bulletDot} />
+              <Text style={styles.bulletText}>{line}</Text>
+            </View>
+          ))}
+        </View>
+      )
       return (
         <View style={styles.pageInner}>
-          <Text style={styles.pageKicker}>{page.type === 'ubp-board' ? "WHAT'S HAPPENING AT UBP?" : 'PLAN AHEAD'}</Text>
-          <Text style={styles.pageHeading}>{page.type === 'ubp-board' ? 'The UBP Board' : 'The Week Ahead'}</Text>
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 14, marginTop: 20 }}>
-            {lines.length === 0 ? (
-              <EmptyNote>Nothing published for this issue yet.</EmptyNote>
-            ) : lines.map((line, i) => (
-              <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={styles.bulletDot} />
-                <Text style={styles.bulletText}>{line}</Text>
-              </View>
-            ))}
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+            <Text style={styles.pageKicker}>WHAT'S HAPPENING AT UBP?</Text>
+            <Text style={styles.pageHeading}>The UBP Board</Text>
+            {bulletList(ubpLines)}
+
+            <View style={styles.sectionDivider} />
+
+            <Text style={styles.pageKicker}>PLAN AHEAD</Text>
+            <Text style={styles.pageHeading}>The Week Ahead</Text>
+            {bulletList(weekLines)}
           </ScrollView>
         </View>
       )
@@ -663,7 +670,13 @@ function MagazinePage({ page, index, scrollX, navigation, onJump, onOpenPost, da
   )
 }
 
-// ── Fixed 27-page structure ──────────────────────────────────────────────────
+// ── Fixed 26-page structure ──────────────────────────────────────────────────
+// Was 28 pages; trimmed by two, both merges rather than content cuts:
+//  - campus-events-highlight (a whole page repeating just the first line of
+//    campus-events-1's own list) folded into a highlight card at the top of
+//    campus-events-1 — same "week's top event" treatment, no page of its own.
+//  - ubp-board + week-ahead (two short bullet-list pages, identical layout)
+//    combined onto one page as two stacked sections.
 
 function buildPages() {
   const pages = [
@@ -672,7 +685,7 @@ function buildPages() {
     { type: 'deals-1' }, { type: 'deals-2' }, { type: 'deal-room' },
     { type: 'coach-1' }, { type: 'coach-2' },
     { type: 'foundation-1' }, { type: 'foundation-2' },
-    { type: 'campus-events-1' }, { type: 'campus-events-2' }, { type: 'campus-events-highlight' }, { type: 'off-campus' },
+    { type: 'campus-events-1' }, { type: 'campus-events-2' }, { type: 'off-campus' },
     { type: 'student-spotlight-grid' }, { type: 'student-spotlight-featured' },
     { type: 'campus-guide' },
     { type: 'lifestyle-edit' },
@@ -681,8 +694,7 @@ function buildPages() {
     { type: 'team' },
     { type: 'money-moves' },
     { type: 'coach-board' },
-    { type: 'ubp-board' },
-    { type: 'week-ahead' },
+    { type: 'ubp-board-week-ahead' },
     { type: 'ad-board' },
     { type: 'blueprint-feature' },
     { type: 'founders-note' },
@@ -951,11 +963,6 @@ const styles = StyleSheet.create({
   tocPageNum: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, fontVariant: ['tabular-nums'] },
   tocHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 18, lineHeight: 17, fontStyle: 'italic' },
 
-  // Divider-style pages (highlight, etc.)
-  dividerPage: { alignItems: 'center' },
-  dividerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginTop: 16, textAlign: 'center' },
-  dividerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.7)', marginTop: 6, textAlign: 'center' },
-
   // Deals
   dealRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
@@ -984,6 +991,13 @@ const styles = StyleSheet.create({
   secondaryCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: NAVY },
 
   // Events
+  eventHighlightCard: {
+    backgroundColor: '#B45309', borderRadius: radius.card,
+    paddingHorizontal: 16, paddingVertical: 14, marginTop: 16,
+  },
+  eventHighlightKicker: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: 'rgba(245,240,232,0.75)', letterSpacing: 1, textTransform: 'uppercase' },
+  eventHighlightTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.cream, marginTop: 6, lineHeight: 22 },
+  eventHighlightSub: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.75)', marginTop: 4 },
   eventRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   eventInstitution: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: '#B45309', textTransform: 'uppercase', letterSpacing: 0.5 },
   eventTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: NAVY, marginTop: 3 },
@@ -1022,6 +1036,7 @@ const styles = StyleSheet.create({
   // Bullets (UBP board / week ahead)
   bulletDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: NAVY, marginTop: 7, flexShrink: 0 },
   bulletText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, flex: 1, lineHeight: 21 },
+  sectionDivider: { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: 24 },
 
   // Post/upsell gradient pages
   postPage: { backgroundColor: NAVY, alignItems: 'center' },

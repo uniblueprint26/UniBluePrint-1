@@ -861,7 +861,11 @@ export default function BoardDetailScreen({ navigation, route }) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+    >
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
           <View style={styles.navRow}>
@@ -991,7 +995,11 @@ export default function BoardDetailScreen({ navigation, route }) {
 
       {/* Problems: solutions thread */}
       <Modal visible={!!selectedProblem} animationType="slide" onRequestClose={() => setSelectedProblem(null)}>
-        <KeyboardAvoidingView style={[styles.screen, { paddingTop: insets.top }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView
+          style={[styles.screen, { paddingTop: insets.top }]}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+        >
           <View style={styles.threadHeader}>
             <TouchableOpacity onPress={() => setSelectedProblem(null)} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Close">
               <ChevronLeft size={20} color={colors.navy} strokeWidth={2} />

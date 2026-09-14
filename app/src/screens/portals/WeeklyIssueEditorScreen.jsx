@@ -7,10 +7,13 @@ import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
-// Editorial content for the 9 Weekly Blueprint pages that have no other real
-// data source (see supabase/migrations/20260829160000_weekly_blueprint.sql
-// for why — the other 18 pages pull from deals, coach_profiles, Foundation
-// services, Lifestyle partners, and the ads table instead).
+// Editorial content for the 10 Weekly Blueprint content sections that have
+// no other real data source (see supabase/migrations/20260829160000_weekly_blueprint.sql
+// for why — the other pages pull from deals, coach_profiles, Foundation
+// services, Lifestyle partners, and the ads table instead). These 10
+// sections occupy 12 of the magazine's 26 pages (Campus Connect: Events and
+// Student Spotlight each span more than one page; The UBP Board and The
+// Week Ahead share a single page).
 //
 // 'lines' fields store one entry per line as a pipe-separated row, parsed
 // into structured data by AdBoardScreen.jsx at render time — a plain
@@ -18,20 +21,20 @@ import { supabase } from '../../lib/supabase'
 // the hint under each field shows the exact format expected.
 const PAGE_FIELDS = {
   campus_events: {
-    label: 'Campus Connect: Events (pages 10–13)',
+    label: 'Campus Connect: Events (pages 10–12)',
     fields: [{ key: 'lines', type: 'lines', label: 'One event per line', hint: 'Institution | Event | Date | Location' }],
   },
   student_spotlight: {
-    label: 'Student Spotlight (pages 14–15)',
+    label: 'Student Spotlight (pages 13–14)',
     fields: [
-      { key: 'lines', type: 'lines', label: 'Short story cards (page 14)', hint: 'Student name | Headline | Short teaser' },
-      { key: 'featuredName', type: 'text', label: 'Featured story: student name (page 15)' },
+      { key: 'lines', type: 'lines', label: 'Short story cards (page 13)', hint: 'Student name | Headline | Short teaser' },
+      { key: 'featuredName', type: 'text', label: 'Featured story: student name (page 14)' },
       { key: 'featuredTeaser', type: 'textarea', label: 'Featured story: opening hook', hint: 'A few sentences, then cut off — links out to the full story on the blog.' },
       { key: 'featuredSlug', type: 'text', label: 'Blog post slug to link to', hint: 'Matches a slug in src/data/blogPosts.js on the website' },
     ],
   },
   campus_guide: {
-    label: 'Campus Guide (page 16)',
+    label: 'Campus Guide (page 15)',
     fields: [
       { key: 'title', type: 'text', label: 'Guide title' },
       { key: 'body', type: 'textarea', label: 'Excerpt shown in the magazine' },
@@ -57,15 +60,15 @@ const PAGE_FIELDS = {
     fields: [{ key: 'lines', type: 'lines', label: 'One quote per line', hint: 'Coach name | Their role | "Quote"' }],
   },
   ubp_board: {
-    label: 'The UBP Board (page 22)',
+    label: 'The UBP Board (page 22, top half — shares the page with The Week Ahead)',
     fields: [{ key: 'lines', type: 'lines', label: 'One update per line' }],
   },
   week_ahead: {
-    label: 'The Week Ahead (page 23)',
+    label: 'The Week Ahead (page 22, bottom half — shares the page with The UBP Board)',
     fields: [{ key: 'lines', type: 'lines', label: 'One item per line', hint: 'What | When' }],
   },
   blueprint_feature: {
-    label: 'Blueprint Feature (page 25)',
+    label: 'Blueprint Feature (page 24)',
     fields: [
       { key: 'kicker', type: 'text', label: 'Feature type', hint: 'e.g. "Opportunity of the Week"' },
       { key: 'title', type: 'text', label: 'Title' },
@@ -73,7 +76,7 @@ const PAGE_FIELDS = {
     ],
   },
   founders_note: {
-    label: "Founders' Note (page 26)",
+    label: "Founders' Note (page 25)",
     fields: [{ key: 'body', type: 'textarea', label: 'The note itself, in your own voice' }],
   },
 }

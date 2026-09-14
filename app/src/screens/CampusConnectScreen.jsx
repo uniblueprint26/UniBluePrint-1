@@ -231,7 +231,8 @@ export default function CampusConnectScreen({ navigation }) {
   return (
     <KeyboardAvoidingView
       style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
     >
       {/* ── Scrollable content — header now scrolls with the page, same as every other screen ── */}
       <ScrollView

@@ -298,6 +298,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: colors.navy, borderRadius: radius.button,
     paddingVertical: 14, marginTop: 14,
+    // alignSelf: 'stretch' — this button's other use (the "Open Full
+    // Budgeting Tool" CTA) sits in a plain flex-column container so it
+    // already fills the width by default. This one lives inside emptyCard,
+    // which centers its children (alignItems: 'center') for the icon/title/
+    // sub text above it — without an explicit stretch the button shrinks to
+    // hug its own label instead of matching every other full-width primary
+    // CTA in the app (Post to Campus Board, Open Full Budgeting Tool, etc).
+    alignSelf: 'stretch',
   },
   primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 

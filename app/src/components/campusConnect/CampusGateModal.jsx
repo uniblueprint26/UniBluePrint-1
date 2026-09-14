@@ -11,7 +11,7 @@
 import { useState } from 'react'
 import {
   Modal, View, Text, TextInput, TouchableOpacity, ScrollView,
-  StyleSheet, ActivityIndicator,
+  StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { X, Search, MapPin } from 'lucide-react-native'
 import { searchInstitutions } from '../../data/institutions'
@@ -38,7 +38,11 @@ export default function CampusGateModal({ visible, onClose, onSelected }) {
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={s.backdrop}>
+      <KeyboardAvoidingView
+        style={s.backdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+      >
         <View style={s.sheet}>
           <View style={s.headerRow}>
             <Text style={s.title}>Select your campus</Text>
@@ -78,7 +82,7 @@ export default function CampusGateModal({ visible, onClose, onSelected }) {
             )}
           </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   )
 }
