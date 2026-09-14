@@ -20,6 +20,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, ExternalLink,
   CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap, BadgeEuro,
   X, PiggyBank, Plane, Heart, ShoppingBag, Home as HomeIcon, Laptop, ShieldCheck,
+  ShieldAlert, Scale, Clock as ClockIcon,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
@@ -196,6 +197,39 @@ const OTHER_SCHEMES = [
     forWho: 'Students on a PLC or further education course with an Education and Training Board',
     description: 'Education and Training Boards run their own bursary and hardship support for students on PLC and further education courses, separate from the mainstream SUSI system. Availability and amounts vary by ETB, apply through your own college\'s ETB office.',
     link: 'etbi.ie',
+  },
+]
+
+// Common investing vocabulary for the Investment tab's glossary. The Irish
+// tax-specific terms (exit tax, deemed disposal, DIRT) are deliberately
+// included, not generic filler, because they're real gaps most beginner
+// guides skip, and because Zainab Adeyemi's own coaching (below) is
+// explicitly built around exactly these rules, so the glossary sets up the
+// cross-link rather than duplicating her sessions.
+const INVEST_TERMS = [
+  {
+    term: 'Diversification',
+    plain: 'Spreading your money across different investments, companies, sectors, asset types, instead of putting it all in one place, so one bad outcome does not wipe out everything you have.',
+  },
+  {
+    term: 'Compounding',
+    plain: 'Earning returns not just on the money you put in, but on the returns that money already earned. It is the main reason starting early matters more than starting with a large amount, see "Why Starting Early Matters" above.',
+  },
+  {
+    term: 'ETF (Exchange-Traded Fund)',
+    plain: 'A single investment that holds a basket of many shares or bonds, bought and sold like an ordinary share. A common way for beginners to get instant diversification without picking individual companies.',
+  },
+  {
+    term: 'Risk Tolerance',
+    plain: 'How much loss you can actually handle, financially and emotionally, without panic-selling at the worst possible time. It is personal: two people the same age can reasonably have very different answers.',
+  },
+  {
+    term: 'Exit Tax & Deemed Disposal',
+    plain: 'Many EU-domiciled funds and ETFs are taxed in Ireland under a separate "exit tax" regime rather than standard Capital Gains Tax, and can trigger a taxable event every 8 years even if you never sold ("deemed disposal"). Rates and rules change, always confirm the current position on revenue.ie before investing. This is one of the specific things Zainab covers in her sessions below.',
+  },
+  {
+    term: 'DIRT',
+    plain: 'Deposit Interest Retention Tax, deducted automatically from interest earned in Irish bank and credit union savings accounts. It applies to savings interest, not investment growth, but the two are often mixed up.',
   },
 ]
 
@@ -1127,17 +1161,41 @@ function SUSITab() {
 }
 
 // ─── Investment Tab ───────────────────────────────────────────────────────────
-// Links out to the trading/investment coaches on Elevation Blueprint rather
-// than duplicating their profiles here.
+// Structure: fundamentals first (what investing is, risk basics, why time
+// matters, a plain-language glossary), then a bridge into the three real
+// trading/investment coaches on Elevation Blueprint, each presented with its
+// own distinct differentiator, then a strengthened risk disclosure. Coach
+// bio/services/pricing/risk-disclosure content itself lives once, on their
+// Elevation profiles, this tab links out to it rather than duplicating it.
 function InvestmentTab({ navigation }) {
   const zainab  = COACHES.find(c => c.id === 16)
   const dg      = COACHES.find(c => c.name === 'DG Trading')
   const dinero  = COACHES.find(c => c.name === 'Dinero Trading Group')
 
-  const OPTIONS = [
-    { key: 'zainab', label: 'Learn with Zainab',              sub: zainab?.category || 'Investing & Finance Coach', coach: zainab, Icon: GraduationCap },
-    { key: 'dg',      label: 'DG Trading',                     sub: dg?.title || 'Funded Futures Trader',            coach: dg,     Icon: InvestIcon },
-    { key: 'dinero',  label: 'Invest with Dinero Trading Group', sub: 'Low-Risk Copier · targets 5–15%/month',       coach: dinero, Icon: BadgeEuro },
+  // Each coach's real differentiator, grounded in their actual Elevation
+  // profile content (see ElevationScreen.jsx), not marketing copy invented
+  // here: Zainab's own services list is personal-finance coaching and tips;
+  // DG's "sections" describe 1-to-1 trading mentorship; Dinero's services
+  // list is the only one of the three that includes an automated copier.
+  const COACH_OPTIONS = [
+    {
+      key: 'zainab', coach: zainab, Icon: GraduationCap,
+      name: 'Zainab Adeyemi', badge: 'Tips & Tricks',
+      sub: zainab?.title || 'Chartered Accountant · Founder, Soft Life Investing',
+      detail: 'Best for plain-language personal finance tips: budgeting, saving, and getting started with investing, including Irish tax rules like deemed disposal, exit tax, and DIRT.',
+    },
+    {
+      key: 'dg', coach: dg, Icon: InvestIcon,
+      name: 'DG Trading', badge: 'Mentorship',
+      sub: dg?.title || 'Funded Futures Trader · Trading Coach',
+      detail: "Best for structured 1-to-1 mentorship in Daniel's ICT-based futures strategy, market structure, risk management, and trade execution. He teaches you to trade, nobody trades for you.",
+    },
+    {
+      key: 'dinero', coach: dinero, Icon: BadgeEuro,
+      name: 'Dinero Trading Group', badge: 'Mentoring + Copier',
+      sub: 'Low-Risk Copier · 10X Challenge · 1-to-1 Mentorship',
+      detail: 'The only option of the three with both routes: hands-on 1-to-1 trading mentorship, or the hands-off Low-Risk Copier, which automatically mirrors trades onto your own broker account.',
+    },
   ]
 
   return (
@@ -1145,32 +1203,114 @@ function InvestmentTab({ navigation }) {
       <Card style={styles.investIntro}>
         <Text style={styles.investIntroTitle}>Investing & trading education</Text>
         <Text style={styles.investIntroBody}>
-          UniBlueprint doesn't give financial advice. These are independent coaches and trading educators available through the platform. Do your own research, and only ever commit money you can afford to lose.
+          UniBlueprint doesn't give financial advice. Everything below is general education, not a recommendation to buy, sell, or trade anything. The coaches further down are independent educators available through the platform, not UniBlueprint staff. Do your own research, and only ever commit money you can afford to lose.
         </Text>
       </Card>
 
-      <View style={{ gap: 12, marginTop: spacing.md }}>
-        {OPTIONS.map(opt => (
-          <TouchableOpacity
-            key={opt.key}
-            activeOpacity={opt.coach ? 0.8 : 1}
-            disabled={!opt.coach}
-            onPress={() => opt.coach && navigation.navigate('CoachProfile', { coach: opt.coach })}
-          >
-            <Card style={styles.investCard}>
-              <View style={styles.investIconWrap}>
-                <opt.Icon size={20} color={colors.navy} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.investLabel}>{opt.label}</Text>
-                <Text style={styles.investSub} numberOfLines={1}>{opt.sub}</Text>
-              </View>
-              <ChevronRight size={16} color={colors.light} />
-            </Card>
-          </TouchableOpacity>
-        ))}
+      {/* Fundamentals */}
+      <SectionHeader eyebrow="Investing Basics" title="What Investing Actually Is" style={{ marginTop: spacing.xl }} />
+      <View style={{ gap: 12 }}>
+        <Card style={styles.investFactCard}>
+          <View style={styles.investFactHeader}>
+            <PiggyBank size={16} color={colors.navy} />
+            <Text style={styles.investFactTitle}>Saving vs. Investing</Text>
+          </View>
+          <Text style={styles.investFactBody}>
+            Saving means keeping money somewhere safe and easy to reach, a bank account, credit union, or An Post, for short-term goals and an emergency fund. It won't fall in value overnight, but it also won't grow much faster than inflation. Investing means putting money into assets, shares, funds, property, that can grow over time, but can also fall in value. You're accepting some risk of loss in exchange for the chance of growing your money faster than a savings account can. Most guidance says build a small emergency fund first, money you're not investing because you might need it at short notice, before putting anything into the markets.
+          </Text>
+        </Card>
+
+        <Card style={styles.investFactCard}>
+          <View style={styles.investFactHeader}>
+            <Scale size={16} color={colors.navy} />
+            <Text style={styles.investFactTitle}>Risk and Reward</Text>
+          </View>
+          <Text style={styles.investFactBody}>
+            There's no such thing as an investment that's both completely safe and fast-growing. As a rule, the higher the potential return, the higher the potential loss. Diversification, spreading money across many different investments instead of one company or one trade, is one of the main ways investors manage that risk. It doesn't remove risk, but it limits how much damage any single investment going badly can do. How much risk makes sense for you depends on your own situation: how soon you might need the money, and how much of a loss you could genuinely handle without panic-selling at the worst possible time.
+          </Text>
+        </Card>
       </View>
+
+      <SectionHeader eyebrow="The Power of Time" title="Why Starting Early Matters" style={{ marginTop: spacing.xl }} />
+      <Card style={styles.investFactCard}>
+        <View style={styles.investFactHeader}>
+          <ClockIcon size={16} color={colors.navy} />
+          <Text style={styles.investFactTitle}>Compounding, and time in the market</Text>
+        </View>
+        <Text style={styles.investFactBody}>
+          Compounding is what happens when the returns your money earns start earning returns of their own, it snowballs. That's why starting early tends to matter more than starting big.
+        </Text>
+        <View style={styles.investIllustration}>
+          <Text style={styles.investIllustrationLabel}>FOR ILLUSTRATION ONLY, NOT A FORECAST</Text>
+          <Text style={styles.investIllustrationBody}>
+            €50/month invested from age 20 to 60, at a hypothetical 6% average annual return, could grow to roughly €99,000 from €24,000 actually put in. The same €50/month starting ten years later, at 30, over 30 years, could grow to roughly €50,000, about half the result, from only €6,000 less contributed.
+          </Text>
+        </View>
+        <Text style={styles.investFactBody}>
+          Real returns aren't smooth or guaranteed, some years are negative. That's exactly why "time in the market", staying invested through the ups and downs, tends to matter more for long-term growth than trying to time exactly when to buy and sell.
+        </Text>
+      </Card>
+
+      {/* Glossary */}
+      <SectionHeader eyebrow="Plain Language" title="Common Investing Terms" style={{ marginTop: spacing.xl }} />
+      <View style={{ gap: 10 }}>
+        {INVEST_TERMS.map(t => <SUSITerm key={t.term} item={t} />)}
+      </View>
+
+      {/* Bridge into coaches */}
+      <Text style={styles.investBridge}>
+        None of the above replaces an actual person who trades or invests for a living. UniBlueprint's three investing and trading coaches each work differently, pick the one that matches how hands-on you want to be.
+      </Text>
+
+      <SectionHeader eyebrow="Real Coaches, Real Differences" title="Choose Your Path" style={{ marginTop: spacing.md }} />
+      <View style={{ gap: 12 }}>
+        {COACH_OPTIONS.map(opt => <CoachOptionCard key={opt.key} opt={opt} navigation={navigation} />)}
+      </View>
+
+      {/* Strengthened risk disclosure */}
+      <Card style={styles.investRiskCard}>
+        <View style={styles.investRiskHeader}>
+          <ShieldAlert size={17} color={colors.destructive} />
+          <Text style={styles.investRiskTitle}>Before You Commit Any Money</Text>
+        </View>
+        <Text style={styles.investRiskBody}>
+          Zainab, DG Trading, and Dinero Trading Group are independent coaches and educators, not UniBlueprint staff or licensed financial advisors, and their content, strategies, and results are their own. All trading and investing carries real risk, including the risk of losing some or all of the money involved. Past performance and any stated targets, including Dinero's Low-Risk Copier target range, are not guarantees of future results. Only ever trade or invest with money you can genuinely afford to lose. Read a coach's full profile, including their own risk disclosure, before booking or committing any money, and consider independent financial advice for anything beyond general education.
+        </Text>
+      </Card>
     </View>
+  )
+}
+
+// ─── Coach Option Card (Investment tab) ────────────────────────────────────────
+// Shows each coach's real differentiator up front (badge + one-line "best
+// for") before the tap-through to their full Elevation profile, so the
+// distinction is visible without leaving the Budgeting tool.
+function CoachOptionCard({ opt, navigation }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={opt.coach ? 0.8 : 1}
+      disabled={!opt.coach}
+      onPress={() => opt.coach && navigation.navigate('CoachProfile', { coach: opt.coach })}
+    >
+      <Card style={styles.investCard}>
+        <View style={styles.investCardTop}>
+          <View style={styles.investIconWrap}>
+            <opt.Icon size={20} color={colors.navy} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={styles.investCardNameRow}>
+              <Text style={styles.investLabel}>{opt.name}</Text>
+              <View style={styles.investBadge}>
+                <Text style={styles.investBadgeText}>{opt.badge}</Text>
+              </View>
+            </View>
+            <Text style={styles.investSub} numberOfLines={1}>{opt.sub}</Text>
+          </View>
+          <ChevronRight size={16} color={colors.light} />
+        </View>
+        <Text style={styles.investDetail}>{opt.detail}</Text>
+      </Card>
+    </TouchableOpacity>
   )
 }
 
@@ -1300,7 +1440,32 @@ const styles = StyleSheet.create({
   investIntro:      { padding: 18 },
   investIntroTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, marginBottom: 8 },
   investIntroBody:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
-  investCard:    { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
+
+  // Fundamentals cards (saving vs investing, risk/reward, compounding)
+  investFactCard:   { padding: 18 },
+  investFactHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  investFactTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  investFactBody:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
+  investIllustration: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    padding: 14, marginVertical: 10,
+  },
+  investIllustrationLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldDeep,
+    letterSpacing: 0.6, marginBottom: 6,
+  },
+  investIllustrationBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+
+  // Bridge line between fundamentals and coaches
+  investBridge: {
+    fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 21,
+    marginTop: spacing.xl, marginBottom: 4, fontStyle: 'italic',
+  },
+
+  // Coach option cards
+  investCard:    { padding: 16 },
+  investCardTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  investCardNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   investIconWrap: {
     width: 44, height: 44, borderRadius: 10,
     backgroundColor: colors.cream,
@@ -1308,6 +1473,27 @@ const styles = StyleSheet.create({
   },
   investLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
   investSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
+  investBadge: {
+    backgroundColor: '#F0FDF4', borderRadius: radius.badge,
+    paddingHorizontal: 8, paddingVertical: 2,
+  },
+  investBadgeText: {
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.success,
+    textTransform: 'uppercase', letterSpacing: 0.4,
+  },
+  investDetail: {
+    fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 18,
+    marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border,
+  },
+
+  // Strengthened risk disclosure, closing card of the Investment tab
+  investRiskCard: {
+    marginTop: spacing.xl, padding: 18,
+    backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: 'rgba(220,38,38,0.18)',
+  },
+  investRiskHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  investRiskTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.destructive },
+  investRiskBody:   { fontFamily: fonts.sans, fontSize: 12.5, color: colors.navy, lineHeight: 19 },
 
   // Segment / filter
   segmentRow: {

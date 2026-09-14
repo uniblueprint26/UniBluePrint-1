@@ -156,6 +156,7 @@ export const COACHES = [
     ],
     bookingNote: 'Reach out via Instagram to book — availability is flexible week to week rather than a fixed recurring slot.',
     contact: { instagram: 'iamzayade', tiktok: 'iamzayade' },
+    // Also linked from the Investment page in the Budgeting tool.
   },
 
   // ── Fitness ──
