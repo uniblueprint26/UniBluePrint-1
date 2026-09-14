@@ -128,7 +128,7 @@ export default function AdBoardScreen({ navigation }) {
                   <Text style={styles.magazineCtaText}>Open This Week's Issue</Text>
                   <ChevronRight size={15} color={colors.cream} />
                 </View>
-                <Text style={styles.magazineFooterNote}>13 sections, every week</Text>
+                <Text style={styles.magazineFooterNote}>This week's 28-page drop + a note from the team</Text>
               </View>
             </View>
           </Card>
