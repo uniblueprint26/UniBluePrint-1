@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking,
+  Platform, useWindowDimensions,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
@@ -95,6 +96,16 @@ function timeAgo(dateStr) {
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  // The full-navigation sidebar rail below is a desktop-web-only
+  // convenience (a wide browser window has the horizontal room for a
+  // persistent nav rail alongside the dashboard content). It duplicates
+  // the bottom tab bar, which is the only navigation surface on native —
+  // every real phone (Expo Go, dev/prod builds) is Platform.OS !== 'web',
+  // so `showSidebar` is always false there regardless of screen width, and
+  // on the web build it only appears once the viewport is wide enough to
+  // actually be a desktop layout, never at phone width in a mobile browser.
+  const { width: windowWidth } = useWindowDimensions()
+  const showSidebar = Platform.OS === 'web' && windowWidth >= 900
   const {
     user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness,
     studioLabel, isComplimentaryPro, portalMode, setPortalMode,
@@ -224,22 +235,54 @@ export default function HomeScreen({ navigation }) {
   const [unreadCount, setUnreadCount] = useState(0)
   useEffect(() => {
     if (!user?.id) return
+    let cancelled = false
+    let channel = null
+
     async function fetchUnread() {
       const { count } = await supabase
         .from('notifications')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('read', false)
-      setUnreadCount(count || 0)
+      if (!cancelled) setUnreadCount(count || 0)
     }
-    fetchUnread()
-    const channel = supabase
-      .channel(`unread-badge-${user.id}`)
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}`,
-      }, fetchUnread)
-      .subscribe()
-    return () => supabase.removeChannel(channel)
+
+    async function setup() {
+      // `supabase.channel(topic)` reuses an existing channel object with the
+      // same topic if one is still registered on the client — and
+      // `removeChannel()` is async (it awaits a real unsubscribe round trip
+      // before deregistering), so a fast unmount/remount of this screen
+      // (e.g. tapping the UBP logo, or the tutorial mounting HomeScreen
+      // again) can call `.channel()` again before the previous mount's
+      // `removeChannel` has actually finished. That returns the OLD,
+      // already-subscribed channel instead of a fresh one, and calling
+      // `.on('postgres_changes', ...)` on an already-subscribed channel is
+      // exactly what throws "cannot add postgres_changes callbacks ...
+      // after subscribe()". Defensively finish removing any stale channel
+      // with this topic first, so `.channel()` below is guaranteed to
+      // create a brand-new, not-yet-subscribed instance — only then do we
+      // register `.on()` and call `.subscribe()`.
+      const topic = `realtime:unread-badge-${user.id}`
+      const stale = supabase.getChannels().find(c => c.topic === topic)
+      if (stale) await supabase.removeChannel(stale)
+      if (cancelled) return
+
+      await fetchUnread()
+      if (cancelled) return
+
+      channel = supabase
+        .channel(`unread-badge-${user.id}`)
+        .on('postgres_changes', {
+          event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}`,
+        }, fetchUnread)
+        .subscribe()
+    }
+    setup()
+
+    return () => {
+      cancelled = true
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [user?.id])
 
   function handleNav(item) {
@@ -274,39 +317,46 @@ export default function HomeScreen({ navigation }) {
             deliberately distinct from Quick Access below (the user's own,
             editable shortcuts) — see the "MENU" label and each row's
             accessibility hint, which spell that out for anyone relying on
-            a screen reader too. */}
-        <View style={styles.sidebar} accessibilityRole="navigation" accessibilityLabel="Full navigation menu">
-          <View style={styles.sidebarLogoWrap}>
-            <UBPLogo height={33} color={colors.cream} onPress={() => handleNav({ action: 'home' })} />
-          </View>
-          <Text style={styles.sidebarCaption}>MENU</Text>
+            a screen reader too.
 
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-            {NAV_ITEMS.map(item => {
-              const isActive = item.key === activeNavKey
-              return (
-                <TouchableOpacity
-                  key={item.key}
-                  style={styles.navItemOuter}
-                  activeOpacity={0.65}
-                  onPress={() => handleNav(item)}
-                  accessibilityRole="button"
-                  accessibilityLabel={item.label.replace('\n', ' ')}
-                >
-                  {isActive && <View style={styles.navHighlight} />}
-                  <item.Icon
-                    size={20}
-                    color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
-                    strokeWidth={isActive ? 2 : 1.6}
-                  />
-                  <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </ScrollView>
-        </View>
+            Desktop-web only (`showSidebar`, defined above) — on native or a
+            narrow/mobile-width browser it renders nothing at all, so the
+            bottom tab bar (the only nav surface on a real phone) isn't
+            duplicated and the dashboard gets the screen's full width. */}
+        {showSidebar && (
+          <View style={styles.sidebar} accessibilityRole="navigation" accessibilityLabel="Full navigation menu">
+            <View style={styles.sidebarLogoWrap}>
+              <UBPLogo height={33} color={colors.cream} onPress={() => handleNav({ action: 'home' })} />
+            </View>
+            <Text style={styles.sidebarCaption}>MENU</Text>
+
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+              {NAV_ITEMS.map(item => {
+                const isActive = item.key === activeNavKey
+                return (
+                  <TouchableOpacity
+                    key={item.key}
+                    style={styles.navItemOuter}
+                    activeOpacity={0.65}
+                    onPress={() => handleNav(item)}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.label.replace('\n', ' ')}
+                  >
+                    {isActive && <View style={styles.navHighlight} />}
+                    <item.Icon
+                      size={20}
+                      color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
+                      strokeWidth={isActive ? 2 : 1.6}
+                    />
+                    <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </ScrollView>
+          </View>
+        )}
 
         {/* ── MAIN ── */}
         <View style={styles.main}>

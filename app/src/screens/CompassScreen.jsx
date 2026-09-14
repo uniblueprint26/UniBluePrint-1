@@ -268,44 +268,64 @@ export default function CompassScreen({ navigation }) {
   return (
     <View style={s.screen}>
 
-      {/* ── Integrated header + hero ── */}
-      <View style={[s.heroBlock, { paddingTop: insets.top + 8 }]}>
-        <View style={s.navRow}>
-          <TouchableOpacity
-            style={s.backBtn}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={s.backBtnText}>Home</Text>
-          </TouchableOpacity>
-          <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-          <View style={{ width: 70 }} />
-        </View>
-
-        <Text style={s.heroEyebrow}>COURSE COMPASS</Text>
-        <Text style={s.heroTitle}>Find Your Ideal Path</Text>
-        <Text style={s.heroSub}>
-          AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points.
-        </Text>
-
-        {/* Partnership attribution */}
-        <View style={s.attrRow}>
-          <View style={s.attrDot} />
-          <Text style={s.attrText}>
-            An independent platform by Stephen McKeon, integrated in partnership with UniBlueprint
-          </Text>
-        </View>
-      </View>
-
-      {/* ── Scrollable content ── */}
+      {/* ── Scrollable content ──
+          The navy hero block below is the FIRST CHILD of the ScrollView, not
+          a fixed sibling above it — same pattern as Campus Connect and
+          Lifestyle, the two screens in this family that never showed the
+          native sticky-header bug. Root cause (confirmed by structural
+          comparison across every affected/unaffected screen): a fixed
+          sibling View above a flex:1 ScrollView, where that sibling's own
+          height depends on wrapped multi-line Text (heroSub/attrText here),
+          needs a real Yoga/Fabric text-measurement pass before its height
+          is known. On a genuine cold start under the New Architecture that
+          pass can resolve after the ScrollView sibling has already
+          committed its frame sized against the header's stale/interim
+          height, so content renders under or over the header —
+          self-correcting on any later layout pass (background/foreground),
+          matching the previously reported symptom exactly. This screen was
+          believed already "fixed" in an earlier pass because its
+          ScrollView already had `style={{flex:1}}`, but that only ever
+          addressed the ScrollView side, never the actual unreliable
+          element: the header sibling's height. Making the header scroll
+          with the page removes the fixed-sibling/flex-sizing relationship
+          entirely, so there is nothing left to race. */}
       <ScrollView
         style={s.scrollView}
         contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* ── Integrated header + hero ── */}
+        <View style={[s.heroBlock, { paddingTop: insets.top + 8 }]}>
+          <View style={s.navRow}>
+            <TouchableOpacity
+              style={s.backBtn}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+              <Text style={s.backBtnText}>Home</Text>
+            </TouchableOpacity>
+            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+            <View style={{ width: 70 }} />
+          </View>
+
+          <Text style={s.heroEyebrow}>COURSE COMPASS</Text>
+          <Text style={s.heroTitle}>Find Your Ideal Path</Text>
+          <Text style={s.heroSub}>
+            AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points.
+          </Text>
+
+          {/* Partnership attribution */}
+          <View style={s.attrRow}>
+            <View style={s.attrDot} />
+            <Text style={s.attrText}>
+              An independent platform by Stephen McKeon, integrated in partnership with UniBlueprint
+            </Text>
+          </View>
+        </View>
+
         <View style={s.content}>
 
           {/* ── Featured bundles ── */}

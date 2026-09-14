@@ -282,7 +282,7 @@ export default function DirectoryScreen({ navigation }) {
             {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
             {q ? ` matching "${search}"` : ''}
           </Text>
-          {q && filtered.length === 0 && (
+          {Boolean(q) && filtered.length === 0 && (
             <Text style={styles.noResultSub}>
               No one matches that search yet. More people join every week.
             </Text>

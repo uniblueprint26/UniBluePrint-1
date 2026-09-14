@@ -364,42 +364,60 @@ export default function CoachProfileScreen({ route, navigation }) {
   return (
     <View style={styles.screen}>
 
-      {/* ── Navy header with frosted glass avatar ── */}
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-          <Text style={styles.backBtnText}>Coaches</Text>
-        </TouchableOpacity>
-
-        {/* Frosted glass avatar — double-ring treatment, real photo when available */}
-        <View style={styles.avatarOuter}>
-          <View style={styles.avatarInner}>
-            {coach.photoUrl ? (
-              <Image source={{ uri: coach.photoUrl }} style={styles.avatarImg} resizeMode="cover" />
-            ) : (
-              <User
-                size={44}
-                color={coach.shell ? 'rgba(245,240,232,0.3)' : 'rgba(245,240,232,0.6)'}
-                strokeWidth={1.2}
-              />
-            )}
-          </View>
-        </View>
-
-        <Text style={styles.headerName}>{coach.name}</Text>
-        <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'center', marginTop: 6 }} />
-        {coach.title && <Text style={styles.headerTitle} numberOfLines={2}>{coach.title}</Text>}
-      </View>
-
+      {/* ── Scrollable content ──
+          The navy header below is the FIRST CHILD of the ScrollView, not a
+          fixed sibling above it — same pattern as Campus Connect and
+          Lifestyle, the two screens in this family that never showed the
+          native sticky-header bug. Root cause (confirmed by structural
+          comparison across every affected/unaffected screen): a fixed
+          sibling View above a flex:1 ScrollView, where that sibling's own
+          height depends on wrapped multi-line Text (headerTitle allows up
+          to 2 lines here), needs a real Yoga/Fabric text-measurement pass
+          before its height is known. On a genuine cold start under the New
+          Architecture that pass can resolve after the ScrollView sibling
+          has already committed its frame sized against the header's
+          stale/interim height, so content renders under or over the
+          header — self-correcting on any later layout pass
+          (background/foreground), matching the previously reported symptom
+          exactly (this is the "Elevation coach profiles" case of that
+          report). Making the header scroll with the page removes the
+          fixed-sibling/flex-sizing relationship entirely, so there is
+          nothing left to race. */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* ── Navy header with frosted glass avatar ── */}
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
+            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <Text style={styles.backBtnText}>Coaches</Text>
+          </TouchableOpacity>
+
+          {/* Frosted glass avatar — double-ring treatment, real photo when available */}
+          <View style={styles.avatarOuter}>
+            <View style={styles.avatarInner}>
+              {coach.photoUrl ? (
+                <Image source={{ uri: coach.photoUrl }} style={styles.avatarImg} resizeMode="cover" />
+              ) : (
+                <User
+                  size={44}
+                  color={coach.shell ? 'rgba(245,240,232,0.3)' : 'rgba(245,240,232,0.6)'}
+                  strokeWidth={1.2}
+                />
+              )}
+            </View>
+          </View>
+
+          <Text style={styles.headerName}>{coach.name}</Text>
+          <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'center', marginTop: 6 }} />
+          {coach.title && <Text style={styles.headerTitle} numberOfLines={2}>{coach.title}</Text>}
+        </View>
 
         {/* ── Identity ──
             Price chip always reads "Starting from" — every coach shows

@@ -136,51 +136,57 @@ export default function FoundationScreen({ navigation }) {
   return (
     <View style={styles.screen}>
 
-      {/* ── Integrated header + hero (single navy block) ── */}
-      <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.navRow}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Home</Text>
-          </TouchableOpacity>
-          <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-          {/* Spacer to balance the back button */}
-          <View style={{ width: 70 }} />
-        </View>
-
-        <Text style={styles.heroEyebrow}>FOUNDATION BLUEPRINT</Text>
-        <Text style={styles.heroTitle}>Professional Documents</Text>
-        <Text style={styles.heroSub}>
-          Built on real research into what Irish employers and ATS systems actually screen for, not a generic
-          template. Every submission is checked by a real Campus Handler before it reaches you.
-        </Text>
-      </View>
-
       {/* ── Scrollable content ──
-          Wrapped in an extra plain View with flex:1 (not just the ScrollView's
-          own style) as a defensive measure against a Fabric/New-Architecture
-          initial-layout race: this screen already had the documented
-          style={{flex:1}} fix (see `scrollView` below), and it is unchanged —
-          but flex:1 on the ScrollView alone was still reported to fail on a
-          real device on a fresh cold open (self-correcting after
-          backgrounding), which points at the native scroll-view frame
-          committing before Yoga finishes measuring the header sibling on the
-          very first paint, not a missing style. Forcing Yoga to resolve a
-          concrete height for a plain View first, then letting the ScrollView
-          simply fill that already-measured box, is the standard hardening
-          for this class of timing bug. Needs a real-device retest to confirm. */}
-      <View style={styles.scrollView}>
+          The navy hero block below is the FIRST CHILD of the ScrollView,
+          not a fixed sibling above it — same pattern as Campus Connect and
+          Lifestyle, the two screens that never showed this bug. Root cause
+          (confirmed by comparing every screen in this family): a fixed
+          sibling View above a flex:1 ScrollView, where that sibling's own
+          height depends on wrapped multi-line Text (heroSub here), needs a
+          real Yoga/Fabric text-measurement pass before its height is known.
+          On a genuine cold start under the New Architecture that pass can
+          resolve after the ScrollView sibling has already committed its
+          frame sized against the header's stale/interim height, so content
+          renders under or over the header — self-correcting on any later
+          layout pass (background/foreground), which is exactly the
+          previously-reported symptom. Three earlier attempts
+          (`style={{flex:1}}` on the ScrollView, then an extra wrapping View
+          around it) only ever touched the ScrollView side and left the
+          actual unreliable element — the header sibling's height — in
+          place, which is why the bug kept coming back. Making the header
+          scroll with the page removes the fixed-sibling/flex-sizing
+          relationship entirely, so there is nothing left to race. */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* ── Integrated header + hero (single navy block) ── */}
+        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
+          <View style={styles.navRow}>
+            <TouchableOpacity
+              style={styles.backBtn}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+              <Text style={styles.backBtnText}>Home</Text>
+            </TouchableOpacity>
+            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+            {/* Spacer to balance the back button */}
+            <View style={{ width: 70 }} />
+          </View>
+
+          <Text style={styles.heroEyebrow}>FOUNDATION BLUEPRINT</Text>
+          <Text style={styles.heroTitle}>Professional Documents</Text>
+          <Text style={styles.heroSub}>
+            Built on real research into what Irish employers and ATS systems actually screen for, not a generic
+            template. Every submission is checked by a real Campus Handler before it reaches you.
+          </Text>
+        </View>
+
         <View style={styles.content}>
 
           {/* Service tiers — the decision every request starts with, so it
@@ -373,7 +379,6 @@ export default function FoundationScreen({ navigation }) {
 
         </View>
       </ScrollView>
-      </View>
     </View>
   )
 }

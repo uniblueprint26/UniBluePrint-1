@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { View, Image } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
@@ -36,13 +36,39 @@ export default function App() {
     DMSans_700Bold,
   })
 
-  const ready = fontsLoaded || fontError
+  const fontsReady = fontsLoaded || fontError
+
+  // `useFonts` resolving `true` means the JS promise for font registration
+  // has settled — on a genuine cold start (nothing cached yet), that can
+  // land a frame or two before the native text renderer actually has the
+  // face available for the very first paint, which is the well-known
+  // "flashes fallback font on cold load, fine on reload" pattern: a reload
+  // benefits from the OS having already resolved/cached the font faces, so
+  // the same race doesn't reopen. Rendering already waits for `fontsReady`
+  // before mounting any real UI (see below), so this isn't a missing gate —
+  // it's tightening the gate itself: two requestAnimationFrame ticks after
+  // `fontsReady` flips give native the extra time it needs to finish
+  // registering the faces before `appReady` (and therefore the first real
+  // paint) flips, at the cost of two frames of the same splash image that
+  // was already showing.
+  const [appReady, setAppReady] = useState(false)
+  useEffect(() => {
+    if (!fontsReady) return
+    let raf2
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setAppReady(true))
+    })
+    return () => {
+      cancelAnimationFrame(raf1)
+      if (raf2) cancelAnimationFrame(raf2)
+    }
+  }, [fontsReady])
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync().catch(() => {})
-  }, [ready])
+    if (appReady) SplashScreen.hideAsync().catch(() => {})
+  }, [appReady])
 
-  if (!ready) {
+  if (!appReady) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.navy }}>
         <Image
