@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, X, Menu } from 'lucide-react-native'
@@ -6,11 +6,19 @@ import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
+import { supabase } from '../lib/supabase'
+import { INTERESTS } from '../data/interests'
 
 // ── Mock student data ─────────────────────────────────────────────────────────
 // `statuses` is a multi-value array — matches what is now collected at sign-up.
-// `tags` are interest labels from interests.js — the primary search target.
-// Replace with a live Supabase query when user profiles are wired to the DB.
+// `tags` are interest labels from interests.js — the primary search AND filter
+// target (see FILTER PILLS below). Replace with a live Supabase query when
+// user profiles themselves are wired to the DB — a separate, bigger call than
+// Task #12: it needs its own RLS/visibility decision (today `profiles` only
+// allows a user to read their own row; there's no "listed in Directory" or
+// real connect-status column yet). This mock roster already uses the same
+// interests.js vocabulary as real profiles, so the tag-based filter pills
+// below work correctly against it either way.
 
 const STUDENTS = [
   {
@@ -107,12 +115,56 @@ const STATUS_STYLES = {
   mentor: { color: '#6d28d9', bg: 'rgba(109,40,217,0.07)', border: 'rgba(109,40,217,0.14)',  label: 'Happy to Mentor' },
 }
 
-const FILTERS = [
-  { key: 'All',     label: 'All' },
-  { key: 'open',    label: 'Open to Connect' },
-  { key: 'study',   label: 'Study Group' },
-  { key: 'mentor',  label: 'Mentor Available' },
-]
+// ── Dynamic tag filter pills (Task #12) ────────────────────────────────────
+// Filter pills are no longer a fixed list. The SET of interest tags shown is
+// generated from real usage: get_popular_interests() (see migration
+// 20260915120000_popular_interests_rpc.sql) aggregates the real
+// `profiles.interests` column — added by the shared interest-tag system
+// (data/interests.js + hooks/useInterests.js) — across every real profile
+// and hands back only (label, usage_count), no per-user data, so this can
+// run without loosening that table's own-row-only read policy. Whatever
+// tags real users have actually picked or typed, most-used first, is what
+// shows here — the list genuinely grows and reorders as more people set
+// interests through Course Connect, Profile Settings, or Sign-Up.
+const POPULAR_TAG_LIMIT = 8
+const RPC_FETCH_LIMIT = 24 // fetched pre-merge, so case-variant merging (below) rarely leaves fewer than POPULAR_TAG_LIMIT
+
+// Case-insensitive label -> canonical predefined casing, so a custom-typed
+// "software dev" and the predefined "Software Dev" count as the same tag and
+// display with the vocabulary's real label.
+const PREDEFINED_LABEL_BY_LOWER = new Map(INTERESTS.map(i => [i.label.toLowerCase(), i.label]))
+
+function mergePopularityRows(rows) {
+  const counts = new Map() // canonical label -> summed usage_count
+  for (const row of rows) {
+    const raw = String(row?.label || '').trim()
+    if (!raw) continue
+    const canonical = PREDEFINED_LABEL_BY_LOWER.get(raw.toLowerCase()) || raw
+    counts.set(canonical, (counts.get(canonical) || 0) + Number(row?.usage_count || 0))
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, POPULAR_TAG_LIMIT)
+    .map(([label]) => label)
+}
+
+// Cold-start fallback ONLY — used while real `profiles.interests` usage is
+// still zero across the whole user base (a brand new product has no
+// popularity signal yet, same situation Course Connect's own tool-ranking
+// falls back to a fixed order for when its activity counts are 0). Derived
+// from the tags actually present on this screen's own listed people, not a
+// separate hardcoded vocabulary, and stops being used the instant real
+// get_popular_interests() usage exists.
+function topTagsFromRoster(students, limit) {
+  const counts = new Map()
+  for (const s of students) {
+    for (const tag of s.tags) counts.set(tag, (counts.get(tag) || 0) + 1)
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([tag]) => tag)
+}
 
 // ── StudentCard ───────────────────────────────────────────────────────────────
 
@@ -181,13 +233,48 @@ export default function DirectoryScreen({ navigation }) {
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
 
+  // Real, dynamic tag popularity — see the block above FILTERS constants.
+  const [popularTags, setPopularTags] = useState([])
+  const [tagsLoading, setTagsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_popular_interests', { limit_count: RPC_FETCH_LIMIT })
+        if (error) throw error
+        if (!cancelled) setPopularTags(mergePopularityRows(data || []))
+      } catch {
+        // Network/RPC failure — fall through to the roster-derived fallback below
+        // rather than showing broken/empty pills.
+        if (!cancelled) setPopularTags([])
+      } finally {
+        if (!cancelled) setTagsLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const fallbackTags = useMemo(() => topTagsFromRoster(STUDENTS, POPULAR_TAG_LIMIT), [])
+
+  // While the real query is in flight, show only "All" — never a flash of
+  // empty or fake-looking pills. Once it resolves: real popular tags if any
+  // exist, otherwise the roster-derived cold-start fallback.
+  const tagFilters = tagsLoading ? [] : (popularTags.length > 0 ? popularTags : fallbackTags)
+  const FILTERS = useMemo(
+    () => [{ key: 'All', label: 'All' }, ...tagFilters.map(t => ({ key: t, label: t }))],
+    [tagFilters]
+  )
+
   const q = search.trim().toLowerCase()
 
   const filtered = STUDENTS.filter(s => {
-    // Filter pill: check if the student has the selected status
+    // Filter pill: check if the student has the selected interest tag
+    // (case-insensitive — custom-typed interests can differ in casing from
+    // the predefined vocabulary).
     const matchFilter =
       filter === 'All' ||
-      s.statuses.includes(filter)
+      s.tags.some(tag => tag.toLowerCase() === filter.toLowerCase())
 
     // Search: match name, course, university, OR any interest tag
     const matchSearch =
@@ -282,9 +369,11 @@ export default function DirectoryScreen({ navigation }) {
             {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
             {q ? ` matching "${search}"` : ''}
           </Text>
-          {Boolean(q) && filtered.length === 0 && (
+          {filtered.length === 0 && (
             <Text style={styles.noResultSub}>
-              No one matches that search yet. More people join every week.
+              {q
+                ? 'No one matches that search yet. More people join every week.'
+                : 'No one has that interest set yet. More people join every week.'}
             </Text>
           )}
         </View>
