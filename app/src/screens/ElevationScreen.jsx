@@ -160,7 +160,14 @@ export const COACHES = [
 
   // ── Fitness ──
   {
-    id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga', filter: 'Fitness',
+    id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga',
+    // Card-only single specialty tag — the full compound category above still
+    // shows on her profile page, but the grid card shows one clear tag per
+    // coach (see CoachCard). Personal Training is the most representative of
+    // her three: it's her core discipline and the lead item in her services
+    // list, with Muay Thai/Yoga as complementary offerings rather than
+    // co-equal specialties.
+    cardTag: 'Personal Training', filter: 'Fitness',
     location: 'Dublin 8, Ireland, Available Nationwide', from: '€60/session',
     title: 'Certified Personal Trainer / Sport Nutritionist Coach / Muay Thai / Yoga / Functional Training',
     tagline: 'HEALTHY · WELLNESS · FITNESS',
@@ -234,7 +241,7 @@ export const COACHES = [
 
   {
     id: 9, name: 'Kevin (TrainWitKev)', category: 'Personal Training', filter: 'Fitness',
-    location: 'Dublin, Ireland, Available Nationwide', from: '€25',
+    location: 'Dublin, Ireland, Available Nationwide', from: '€25/session',
     tagline: 'Strength. Physique. Confidence. Mindset.',
     services: ['1-to-1 Personal Training', 'Beginner Gym Coaching', 'Personalised Training Programmes', 'Accountability & Progress Coaching'],
     bio: "I'm the coach behind TrainWitKev and the mindset behind WORKSYY. I help people get stronger, build a physique they're proud of, and gain real confidence in and out of the gym. I work with complete beginners through to people who've plateaued on consistency or progress, with a focus on structure, technique, understanding, and sustainable progress.",
@@ -253,7 +260,11 @@ export const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
-    location: 'Co. Mayo, Ireland, Available Nationwide', from: '€40',
+    location: 'Co. Mayo, Ireland, Available Nationwide',
+    // No set price and no pricelist to clarify a number against — a bare
+    // "€40" reads as a real fixed rate when it isn't one. Standardized
+    // fallback phrase for coaches without fixed pricing.
+    from: "Let's chat pricing",
     badge: 'Student Mentor Listing',
     services: ['Social Media Content Plans', 'Captions & Graphics', 'Creator Coordination', 'Client Reporting', 'Student Mentorship'],
     bio: "I'm a digital marketing specialist running my own freelance business, LEVA Impact, working across social media strategy, content creation, graphic design, and AI-powered video production. I bring students onto real, live client projects rather than mock briefs.",
@@ -404,7 +415,12 @@ function CoachCard({ coach, navigation }) {
             {coach.title && (
               <Text style={styles.coachTitle} numberOfLines={2}>{coach.title}</Text>
             )}
-            <Text style={styles.coachCategory}>{coach.category}</Text>
+            {/* One clear specialty tag per card — coach.cardTag overrides
+                coach.category for coaches whose real category is a compound
+                string (e.g. multiple specialties joined by "·"); every other
+                coach's category is already a single specialty and is used
+                as-is. The full category still shows on the profile page. */}
+            <Text style={styles.coachCategory}>{coach.cardTag || coach.category}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
               <MapPin size={11} color={colors.muted} />
               <Text style={styles.coachLocation}>{coach.location}</Text>
