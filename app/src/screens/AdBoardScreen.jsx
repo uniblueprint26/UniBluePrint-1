@@ -9,7 +9,7 @@
  * reader itself.
  */
 import { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
@@ -19,10 +19,11 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import PostAdModal from '../components/ads/PostAdModal'
+import PartnerContactModal from '../components/ads/PartnerContactModal'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
-import { CATEGORY, CURATED_ADS, getAdPressHandler } from '../data/adBoardAds'
+import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 import { POSTS as BLOG_POSTS } from '../data/blogPosts'
 
 const NAVY = colors.navy
@@ -53,6 +54,7 @@ export default function AdBoardScreen({ navigation }) {
   const [loading, setLoading] = useState(true)
   const [liveBoardAds, setLiveBoardAds] = useState([])
   const [issue, setIssue] = useState(null)
+  const [contactAd, setContactAd] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -181,7 +183,15 @@ export default function AdBoardScreen({ navigation }) {
                 key={ad.id}
                 style={[styles.adRow, i === ads.length - 1 && { borderBottomWidth: 0 }]}
                 activeOpacity={0.8}
-                onPress={getAdPressHandler(ad)}
+                onPress={() => {
+                  // A live-ad's own booking link opens directly, same as
+                  // before. Everything else — every curated partner, plus
+                  // any live ad without one — opens the branded contact
+                  // card instead of the old system Alert.alert() popup.
+                  const url = ad.link || ad.target_url
+                  if (url) return Linking.openURL(url)
+                  setContactAd(ad)
+                }}
               >
                 <View style={[styles.adIcon, { backgroundColor: cat?.bg || '#F5F0E8' }]}>
                   {cat ? <cat.Icon size={16} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={16} color={NAVY} strokeWidth={1.8} />}
@@ -204,6 +214,7 @@ export default function AdBoardScreen({ navigation }) {
       </ScrollView>
 
       <PostAdModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+      <PartnerContactModal ad={contactAd} visible={!!contactAd} onClose={() => setContactAd(null)} />
     </View>
   )
 }
