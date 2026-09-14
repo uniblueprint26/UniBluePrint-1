@@ -97,7 +97,11 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filterValues, setFilterValues] = useState({})
+  // presetFilter — lets a caller (e.g. Course Connect's "Popular Right Now",
+  // which ranks real courses by post count) deep-link straight into a
+  // filtered view instead of just naming the board. Same filterValues shape
+  // the filter bar itself writes to, just pre-seeded from the route.
+  const [filterValues, setFilterValues] = useState(() => route.params?.presetFilter || {})
   const [postOpen, setPostOpen] = useState(false)
   const [gateOpen, setGateOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // fn to run once campus is set

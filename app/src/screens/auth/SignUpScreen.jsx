@@ -16,6 +16,7 @@ import UBPLogo from '../../components/ui/UBPLogo'
 import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
+import { normalizeInterestLabel } from '../../hooks/useInterests'
 import { WEBSITE_LINKS } from '../../constants/site'
 import { TERMS_VERSION, PRIVACY_VERSION } from '../../constants/legal'
 import { USER_TYPES, mapSituationToUserType } from '../../constants/userTypes'
@@ -177,6 +178,14 @@ export default function SignUpScreen({ navigation }) {
 
   // Step 3, interests and availability (all situations)
   const [selectedInterests, setSelectedInterests] = useState(new Set())
+  // Custom, self-typed interests — kept separate from the predefined Set
+  // above (which stores ids) since a custom interest has no id, but both
+  // land in the same flat label array written to profiles.interests. See
+  // hooks/useInterests.js, the same shared system Course Connect and the
+  // Directory's tag filters (Task #12) read from — this picker is just the
+  // sign-up-time entry point into it, not a separate concept.
+  const [customInterests, setCustomInterests]     = useState([])
+  const [customInterestText, setCustomInterestText] = useState('')
   const [selectedStatuses, setSelectedStatuses]   = useState(new Set())
 
   // Meta
@@ -234,9 +243,24 @@ export default function SignUpScreen({ navigation }) {
     setSelectedInterests(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
-      else if (next.size < MAX_INTERESTS) next.add(id)
+      else if (next.size + customInterests.length < MAX_INTERESTS) next.add(id)
       return next
     })
+  }
+
+  function addCustomInterest() {
+    const clean = normalizeInterestLabel(customInterestText)
+    if (!clean) return
+    const existingLabels = [...selectedInterests].map(id => INTERESTS.find(i => i.id === id)?.label).filter(Boolean)
+    const already = [...existingLabels, ...customInterests].some(l => l.toLowerCase() === clean.toLowerCase())
+    if (already) { setCustomInterestText(''); return }
+    if (selectedInterests.size + customInterests.length >= MAX_INTERESTS) return
+    setCustomInterests(prev => [...prev, clean])
+    setCustomInterestText('')
+  }
+
+  function removeCustomInterest(label) {
+    setCustomInterests(prev => prev.filter(l => l !== label))
   }
 
   function toggleStatus(key) {
@@ -284,10 +308,14 @@ export default function SignUpScreen({ navigation }) {
         }
       }
 
-      // Interests and availability, collected in step 3 for all situations
-      const interestLabels = [...selectedInterests]
-        .map(id => INTERESTS.find(i => i.id === id)?.label)
-        .filter(Boolean)
+      // Interests and availability, collected in step 3 for all situations.
+      // Predefined picks (by id) and self-typed custom ones combine into one
+      // flat label array — same shape profiles.interests stores, see
+      // hooks/useInterests.js.
+      const interestLabels = [
+        ...[...selectedInterests].map(id => INTERESTS.find(i => i.id === id)?.label).filter(Boolean),
+        ...customInterests,
+      ]
       if (interestLabels.length)   metadata.interests = interestLabels
       if (selectedStatuses.size)   metadata.statuses  = [...selectedStatuses]
 
@@ -304,11 +332,15 @@ export default function SignUpScreen({ navigation }) {
           ])
         } catch { /* best effort, account creation already succeeded */ }
 
-        // Write the chosen account type onto the profile the handle_new_user
-        // trigger just created. Best effort — the column already defaults to
-        // 'student', so a failure here just leaves that default in place.
+        // Write the chosen account type and interests onto the profile the
+        // handle_new_user trigger just created. Best effort — user_type
+        // already defaults to 'student' and interests defaults to '{}', so
+        // a failure here just leaves those defaults in place.
         try {
-          await supabase.from('profiles').update({ user_type: userType }).eq('id', newUserId)
+          await supabase.from('profiles').update({
+            user_type: userType,
+            ...(interestLabels.length ? { interests: interestLabels } : {}),
+          }).eq('id', newUserId)
         } catch { /* best effort */ }
       }
 
@@ -947,16 +979,17 @@ export default function SignUpScreen({ navigation }) {
                 })}
               </View>
 
-              {/* ── Shared: Interests chip grid ─────────────────────────────── */}
+              {/* ── Shared: Interests chip grid + your own ──────────────────── */}
               <View style={styles.sectionDivider} />
               <Text style={styles.sectionLabel}>Your interests</Text>
               <Text style={styles.sectionSub}>
-                Select up to {MAX_INTERESTS}. These help others find you in the Directory.
+                Select up to {MAX_INTERESTS}, or add your own — these are how Course Connect and the
+                Directory find people who match you, whatever course, trade, or job they're on.
               </Text>
               <View style={styles.chipGrid}>
                 {INTERESTS.map(interest => {
                   const isSelected = selectedInterests.has(interest.id)
-                  const atMax = selectedInterests.size >= MAX_INTERESTS && !isSelected
+                  const atMax = (selectedInterests.size + customInterests.length) >= MAX_INTERESTS && !isSelected
                   return (
                     <TouchableOpacity
                       key={interest.id}
@@ -971,8 +1004,50 @@ export default function SignUpScreen({ navigation }) {
                   )
                 })}
               </View>
-              {selectedInterests.size > 0 && (
-                <Text style={styles.chipCount}>{selectedInterests.size} of {MAX_INTERESTS} selected</Text>
+
+              {/* Add your own — same custom-label mechanism as the Interests
+                  settings screen (components/profile/InterestsModal.jsx),
+                  just surfaced at sign-up time too. */}
+              <View style={styles.customInterestRow}>
+                <TextInput
+                  style={styles.customInterestInput}
+                  placeholder="Add your own interest..."
+                  placeholderTextColor={colors.light}
+                  value={customInterestText}
+                  onChangeText={setCustomInterestText}
+                  onSubmitEditing={addCustomInterest}
+                  returnKeyType="done"
+                  maxLength={30}
+                  editable={(selectedInterests.size + customInterests.length) < MAX_INTERESTS}
+                />
+                <TouchableOpacity
+                  style={[styles.customInterestAddBtn, !customInterestText.trim() && { opacity: 0.5 }]}
+                  activeOpacity={0.8}
+                  onPress={addCustomInterest}
+                  disabled={!customInterestText.trim()}
+                  accessibilityRole="button"
+                  accessibilityLabel="Add custom interest"
+                >
+                  <Text style={styles.customInterestAddBtnText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+              {customInterests.length > 0 && (
+                <View style={styles.chipGrid}>
+                  {customInterests.map(label => (
+                    <TouchableOpacity
+                      key={label}
+                      style={[styles.chip, styles.chipActive]}
+                      onPress={() => removeCustomInterest(label)}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={styles.chipTextActive}>{label} ✕</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {(selectedInterests.size + customInterests.length) > 0 && (
+                <Text style={styles.chipCount}>{selectedInterests.size + customInterests.length} of {MAX_INTERESTS} selected</Text>
               )}
 
               {/* ── Shared: Availability ────────────────────────────────────── */}
@@ -1193,6 +1268,20 @@ const styles = StyleSheet.create({
   chipDisabled:    { opacity: 0.35 },
   chipText:        { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
   chipTextActive:  { color: colors.cream },
+
+  // Add-your-own custom interest
+  customInterestRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 12 },
+  customInterestInput: {
+    flex: 1, backgroundColor: colors.white, borderRadius: 20,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
+    paddingHorizontal: 14, paddingVertical: 10,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
+  },
+  customInterestAddBtn: {
+    backgroundColor: colors.navy, borderRadius: 20,
+    paddingHorizontal: 16, paddingVertical: 10,
+  },
+  customInterestAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   // Availability (status) multi-select
   statusOption: {

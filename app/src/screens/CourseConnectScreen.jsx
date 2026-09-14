@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity,
-  StyleSheet, Linking,
+  StyleSheet, Linking, ActivityIndicator,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Users, MessageSquare, BookMarked, Search, Briefcase, Star,
   GraduationCap, Compass, Globe, Lightbulb,
   PenLine, BookOpenCheck, CalendarDays, Clock, BookOpen,
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus, Repeat, Route,
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus, Heart, TrendingUp,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -17,38 +17,41 @@ import MockContentBanner from '../components/ui/MockContentBanner'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
-import JourneyStageModal from '../components/courseConnect/JourneyStageModal'
+import InterestsModal from '../components/profile/InterestsModal'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { useUserType } from '../hooks/useUserType'
-import { useJourneyStage } from '../hooks/useJourneyStage'
-import { JOURNEY_STAGES } from '../constants/journeyStages'
+import { useInterests } from '../hooks/useInterests'
+import { supabase } from '../lib/supabase'
 import {
   USER_TYPE_STUDENT, USER_TYPE_APPRENTICE, USER_TYPE_GAP_YEAR, USER_TYPE_WORKER,
-  userTypeLabel as labelForUserType,
 } from '../constants/userTypes'
 
-// ─── Reframe, round 2: matched by journey stage, not by path ────────────────
-// Round 1 (Phase 6, commit 0a67f782) made the copy below adapt to userType
-// (Student/Apprentice/Gap Year/Worker) so it no longer read as a university
-// portal with an apprentice-shaped asterisk. That was real progress but it
-// didn't fix the actual complaint: everything a person was actually matched
-// or grouped with — Course Boards, Study Groups, Notes, the old "Student
-// Database" — was still keyed on course/subject/institution, i.e. exactly
-// what they're doing. The founder's correction: Course Connect should
-// connect people by shared SITUATION — same stage, same age, same journey —
-// merging across student/apprentice/gap-year/worker, not siloed by it.
+// ─── Reframe, round 3: interests + real popularity, not stages ─────────────
+// Round 2 (the journey_stage system: 4 self-reported "stages", a Your Stage
+// banner, a stage-grouped "Journey Match" section) has been REMOVED per the
+// founder's direct correction: "its not about stages its about maybe giving
+// them an expanded version of interests to pick and even add their own but
+// course connect should just show popular content like campus [Connect]."
+// That system — the journey_stage column, useJourneyStage(), JourneyStageModal,
+// constants/journeyStages.js, and every piece of UI built on it — is gone
+// (see 20260915110000_drop_profiles_journey_stage.sql).
 //
-// This pass adds that missing axis: journeyStage (see
-// constants/journeyStages.js + hooks/useJourneyStage.js), and makes it the
-// PRIMARY grouping key for the "Journey Match" section below (see
-// JOURNEY_PROFILES) — course/institution stays available only as a
-// secondary filter via "Browse Full Directory". PATH_CONTENT below (and
-// userType generally) is kept as-is and still useful: it says *what* a
-// person is doing, which still legitimately changes which boards/copy make
-// sense to show them. journeyStage says *where they are in it*, which is
-// the actual connecting mechanism — the two are complementary, not the same
-// thing, and conflating them was Round 1's gap.
+// What replaces it, concretely:
+//  1. A real, expandable interest-tag system (data/interests.js +
+//     hooks/useInterests.js, backed by profiles.interests) — predefined tags
+//     AND self-typed custom ones, built as shared infrastructure so
+//     Directory's upcoming tag filters (Task #12) read the exact same
+//     column/hook rather than a Course-Connect-only copy.
+//  2. "Popular Right Now" below, ranked by real recent post counts from
+//     course_boards_posts — not a designed taxonomy, not fake numbers.
+// Both connect people across student/apprentice/gap-year/worker by what's
+// actually true of the data (a shared interest, a course everyone's
+// actively posting in) rather than a self-reported life-stage category.
+// PATH_CONTENT below stays: userType still legitimately changes which
+// boards/copy make sense to *show* someone, which is a different question
+// from what *connects* them to other people — see the demoted "viewing as"
+// note further down for why that distinction now matters more, not less.
 const PATH_CONTENT = {
   [USER_TYPE_STUDENT]: {
     banner: "Course Connect is built around your course and college — boards, notes, and mentors all scoped to what you're studying.",
@@ -176,6 +179,35 @@ const COURSE_FEATURES = [
   },
 ]
 
+// Maps each Course Tools feature key to the real Supabase table backing it,
+// so tile order can be driven by genuine recent-activity counts instead of
+// the fixed order above. 'resources' has no table of its own (Resource
+// Finder searches shared_notes and past_papers together), so its count is
+// derived from 'notes' + 'exams' rather than queried separately.
+const FEATURE_ACTIVITY_TABLE = {
+  course_boards: 'course_boards_posts',
+  notes: 'shared_notes',
+  groups: 'course_connect_study_groups',
+  qa: 'module_questions',
+  exams: 'past_papers',
+  industry: 'industry_discussions',
+  college_reviews: 'college_reviews',
+  cross_projects: 'cross_ireland_projects',
+}
+const POPULARITY_WINDOW_DAYS = 30
+
+async function countRecentRows(table, cutoffIso) {
+  try {
+    const { count } = await supabase
+      .from(table)
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', cutoffIso)
+    return count || 0
+  } catch {
+    return 0
+  }
+}
+
 // Maps each Course Tools feature card to its real destination.
 function openCourseFeature(navigation, key) {
   const boardRoute = k => navigation.navigate('BoardDetail', { boardKey: k, registry: 'course' })
@@ -273,52 +305,62 @@ const GRADUATE_MENTORS = [
   },
 ]
 
-// ─── Journey Match (28 members) ──────────────────────────────────────────────
-// THE reframe, concretely: this used to be a "Student Database" keyed on
-// uni/course/cao — matching people by what they're literally doing. Per the
-// founder's correction, that's backwards. Every profile below now carries a
-// journeyStage (see constants/journeyStages.js) as its primary grouping key,
-// and a userType (Student/Apprentice/Gap Year/Worker) that's deliberately
-// MIXED within every stage rather than siloed — a Student, an Apprentice, a
-// Gap Year person, and a Worker who are all "In the Thick of It" show up
-// together, because that's the actual match. `what`/`place` (course, trade,
-// employer) is kept only as a secondary detail line on the card, same role
-// `cao` and `course` played before, just no longer the organizing principle.
-const JOURNEY_PROFILES = [
-  // ── Finding Your Feet ──
-  { name: 'Ethan',    userType: USER_TYPE_STUDENT,    journeyStage: 'finding_feet',    what: 'Computer Science, UCD · 1st year',           skills: ['React', 'Python'],     initials: 'ET', color: '#EFF6FF' },
-  { name: 'Fiza',      userType: USER_TYPE_APPRENTICE, journeyStage: 'finding_feet',    what: 'Electrical Apprenticeship, ETB Cork · Phase 1', skills: ['Wiring', 'Safety'],     initials: 'FZ', color: '#F0FDF4' },
-  { name: 'Nicole',    userType: USER_TYPE_GAP_YEAR,   journeyStage: 'finding_feet',    what: 'Gap year · just started, still deciding',    skills: ['Open to anything'],     initials: 'NL', color: '#FDF4FF' },
-  { name: 'Eman',      userType: USER_TYPE_WORKER,     journeyStage: 'finding_feet',    what: 'Marketing Assistant, Version 1 · new hire',  skills: ['PR', 'Content'],        initials: 'EN', color: '#FFF7ED' },
-  { name: 'Mohammed',  userType: USER_TYPE_STUDENT,    journeyStage: 'finding_feet',    what: 'Engineering, UCD · 1st year',                skills: ['CAD', 'Matlab'],        initials: 'MH', color: '#FEF9C3' },
-  { name: 'Wami',      userType: USER_TYPE_APPRENTICE, journeyStage: 'finding_feet',    what: 'Plumbing Apprenticeship, ETB Dublin · Phase 1', skills: ['Fitting', 'Reading Plans'], initials: 'WM', color: '#F0F9FF' },
-  // ── In the Thick of It ──
-  { name: 'Abdullah',  userType: USER_TYPE_STUDENT,    journeyStage: 'building_momentum', what: 'Computer Science, UCC · 2nd year',         skills: ['Java', 'React'],        initials: 'AB', color: '#EFF6FF' },
-  { name: 'Siobhan',   userType: USER_TYPE_APPRENTICE, journeyStage: 'building_momentum', what: 'Carpentry Apprenticeship, ETB Limerick · Phase 3', skills: ['Joinery', 'CAD'],  initials: 'SB', color: '#F0FDF4' },
-  { name: 'Ciaran',    userType: USER_TYPE_WORKER,     journeyStage: 'building_momentum', what: 'Civil Engineer, Arup · 2 years in',         skills: ['AutoCAD', 'Survey'],    initials: 'CI', color: '#FDF4FF' },
-  { name: 'Aoife',     userType: USER_TYPE_GAP_YEAR,   journeyStage: 'building_momentum', what: 'Gap year · mid-way, working and saving',    skills: ['Writing', 'Sales'],     initials: 'AF', color: '#FFF7ED' },
-  { name: 'Emily',     userType: USER_TYPE_STUDENT,    journeyStage: 'building_momentum', what: 'Journalism, DCU · 3rd year',               skills: ['Writing', 'Social'],    initials: 'EM', color: '#F0F9FF' },
-  { name: 'Zafur',     userType: USER_TYPE_WORKER,     journeyStage: 'building_momentum', what: 'Software Engineer, Stripe · 2 years in',    skills: ['Python', 'AI/ML'],      initials: 'ZF', color: '#FEF9C3' },
-  // ── At a Crossroads ──
-  { name: 'Maura',     userType: USER_TYPE_STUDENT,    journeyStage: 'at_a_crossroads', what: 'Law, UCC · deciding masters vs. training contract', skills: ['Research', 'Advocacy'], initials: 'MR', color: '#EFF6FF' },
-  { name: 'Billy',     userType: USER_TYPE_APPRENTICE, journeyStage: 'at_a_crossroads', what: 'Fitness trade · deciding specialise or go contracting', skills: ['Coaching', 'Business'], initials: 'BL', color: '#F0FDF4' },
-  { name: 'Oisin',     userType: USER_TYPE_GAP_YEAR,   journeyStage: 'at_a_crossroads', what: 'Gap year · deciding: college, trade, or travel on',  skills: ['Research', 'Data'],     initials: 'OS', color: '#FDF4FF' },
-  { name: 'Sinead',    userType: USER_TYPE_WORKER,     journeyStage: 'at_a_crossroads', what: 'In work · weighing going back to study Psychology', skills: ['Research', 'Stats'],    initials: 'SD', color: '#FFF7ED' },
-  { name: 'Kofi',      userType: USER_TYPE_STUDENT,    journeyStage: 'at_a_crossroads', what: 'Engineering, TCD · considering a course change',    skills: ['Circuits', 'Python'],   initials: 'KF', color: '#F0F9FF' },
-  { name: 'Seamus',    userType: USER_TYPE_WORKER,     journeyStage: 'at_a_crossroads', what: 'In Sales · weighing a switch into Marketing',        skills: ['Sales', 'Marketing'],   initials: 'SM', color: '#FEF9C3' },
-  // ── Wrapping Up ──
-  { name: 'Sean',      userType: USER_TYPE_STUDENT,    journeyStage: 'wrapping_up',     what: 'Business & French, UCC · final year, job hunting',  skills: ['French', 'Finance'],    initials: 'SN', color: '#EFF6FF' },
-  { name: 'David',     userType: USER_TYPE_APPRENTICE, journeyStage: 'wrapping_up',     what: 'Electrical Apprenticeship · final phase, near qualified', skills: ['Wiring', 'Testing'], initials: 'DV', color: '#F0FDF4' },
-  { name: 'Isaac',     userType: USER_TYPE_WORKER,     journeyStage: 'wrapping_up',     what: 'Contract ending · figuring out the next role',       skills: ['Languages', 'Trade'],   initials: 'IC', color: '#FDF4FF' },
-  { name: 'Basmali',   userType: USER_TYPE_STUDENT,    journeyStage: 'wrapping_up',     what: 'Pharmacy, TCD · final year, registration exams ahead', skills: ['Chemistry', 'Science'], initials: 'BM', color: '#FFF7ED' },
-  { name: 'Fatima',    userType: USER_TYPE_GAP_YEAR,   journeyStage: 'wrapping_up',     what: 'Gap year ending · starting college in September',   skills: ['Empathy', 'Policy'],    initials: 'FT', color: '#F0F9FF' },
-  { name: 'Sienna',    userType: USER_TYPE_WORKER,     journeyStage: 'wrapping_up',     what: 'Leaving a role · lining up the next opportunity',    skills: ['Branding', 'Content'],  initials: 'SI', color: '#FEF9C3' },
-  // ── A few more, spread out ──
-  { name: 'Gigi',      userType: USER_TYPE_STUDENT,    journeyStage: 'finding_feet',    what: 'Business, NUIG · 1st year',                  skills: ['Marketing', 'Excel'],   initials: 'GG', color: '#EFF6FF' },
-  { name: 'Alex',      userType: USER_TYPE_APPRENTICE, journeyStage: 'building_momentum', what: 'Architectural Technology Apprenticeship · mid-way', skills: ['Revit', 'SketchUp'], initials: 'AX', color: '#F0FDF4' },
-  { name: 'Daniel',     userType: USER_TYPE_WORKER,     journeyStage: 'at_a_crossroads', what: 'In Commerce role · weighing a return to study',      skills: ['Accounting', 'Law'],    initials: 'DN', color: '#FDF4FF' },
-  { name: 'Aisling',    userType: USER_TYPE_GAP_YEAR,   journeyStage: 'wrapping_up',     what: 'Gap year ending · apprenticeship offer accepted',   skills: ['Adaptable', 'Teamwork'], initials: 'AS', color: '#FFF7ED' },
-]
+// ─── Popular Right Now ────────────────────────────────────────────────────────
+// Replaces the old "Journey Match" stage-grouped mock profile grid entirely.
+// No mock data here — see loadPopularCourses() in the screen component,
+// which groups real course_boards_posts rows by `course` (case-insensitive,
+// original casing kept for display) over the last POPULARITY_WINDOW_DAYS
+// days and ranks by count. `course` is free text a poster fills in
+// themselves — "Computer Science, UCD", "Electrical Apprenticeship, ETB",
+// "Marketing Assistant, Version 1" all live in the same column — so ranking
+// by real post volume naturally interleaves student/apprentice/gap-year/
+// worker activity instead of requiring a designed taxonomy to do it.
+function groupPopularCourses(rows) {
+  const counts = {} // lowercased key -> { label, count }
+  rows.forEach(row => {
+    const raw = (row.course || '').trim()
+    if (!raw) return
+    const key = raw.toLowerCase()
+    if (!counts[key]) counts[key] = { label: raw, count: 0 }
+    counts[key].count += 1
+  })
+  return Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 8)
+}
+
+// Small tile grid for the popular-courses cards below — same measured-width,
+// flex-wrap tile pattern Campus Connect's board grid uses (see
+// CampusConnectScreen.jsx's BoardTileGrid), adapted to 2 columns since these
+// tiles carry a full course name rather than a single emoji + short label.
+const POPULAR_TILE_COLUMNS = 2
+const POPULAR_TILE_GAP = 10
+
+function PopularCourseGrid({ items, onPress }) {
+  const [containerWidth, setContainerWidth] = useState(0)
+  const tileWidth = containerWidth > 0
+    ? (containerWidth - POPULAR_TILE_GAP * (POPULAR_TILE_COLUMNS - 1)) / POPULAR_TILE_COLUMNS
+    : 0
+
+  return (
+    <View style={styles.popularGrid} onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}>
+      {containerWidth > 0 && items.map(item => (
+        <TouchableOpacity
+          key={item.label}
+          style={[styles.popularTile, { width: tileWidth }]}
+          activeOpacity={0.82}
+          onPress={() => onPress(item.label)}
+          accessibilityRole="button"
+          accessibilityLabel={`Open ${item.label} Course Board`}
+        >
+          <View style={styles.popularTileTop}>
+            <TrendingUp size={13} color={colors.goldDeep} strokeWidth={2.2} />
+            <Text style={styles.popularTileCount}>{item.count} post{item.count !== 1 ? 's' : ''}</Text>
+          </View>
+          <Text style={styles.popularTileLabel} numberOfLines={2}>{item.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
 
 // ─── Course Discussions ───────────────────────────────────────────────────────
 
@@ -433,22 +475,62 @@ function MentorCard({ mentor }) {
 export default function CourseConnectScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [stageModalOpen, setStageModalOpen] = useState(false)
+  const [interestsModalOpen, setInterestsModalOpen] = useState(false)
   const { userType, label: userTypeLabel } = useUserType()
-  const { journeyStage, label: journeyStageLabel } = useJourneyStage()
+  const { interests } = useInterests()
   const path = PATH_CONTENT[userType] || PATH_CONTENT[USER_TYPE_STUDENT]
   const isStudent = userType === USER_TYPE_STUDENT
 
-  // Journey Match filter — defaults to the signed-in person's own stage once
-  // they've set one, so the first thing they see is people at THEIR stage,
-  // not an arbitrary default. Falls back to showing every stage until then.
-  const [stageFilter, setStageFilter] = useState(journeyStage || 'all')
+  // ── Real popularity signal #1: Course Tools tile order ──────────────────
+  // Recent-activity counts (last POPULARITY_WINDOW_DAYS days) per feature's
+  // real backing table (see FEATURE_ACTIVITY_TABLE above) — genuine signal,
+  // not a fabricated number. All-zero (a fresh table with no posts yet)
+  // falls back to the curated order below via the stable sort, rather than
+  // shuffling tiles for no reason.
+  const [featureCounts, setFeatureCounts] = useState({})
   useEffect(() => {
-    if (journeyStage) setStageFilter(journeyStage)
-  }, [journeyStage])
-  const filteredProfiles = stageFilter === 'all'
-    ? JOURNEY_PROFILES
-    : JOURNEY_PROFILES.filter(p => p.journeyStage === stageFilter)
+    let cancelled = false
+    const cutoff = new Date(Date.now() - POPULARITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
+    ;(async () => {
+      const entries = Object.entries(FEATURE_ACTIVITY_TABLE)
+      const results = await Promise.all(entries.map(async ([key, table]) => [key, await countRecentRows(table, cutoff)]))
+      if (cancelled) return
+      const counts = Object.fromEntries(results)
+      counts.resources = (counts.notes || 0) + (counts.exams || 0)
+      setFeatureCounts(counts)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const sortedCourseFeatures = useMemo(() => {
+    return COURSE_FEATURES
+      .map((f, i) => ({ f, i, count: featureCounts[f.key] || 0 }))
+      .sort((a, b) => (b.count - a.count) || (a.i - b.i))
+      .map(({ f, count }) => count > 0 ? { ...f, count: `${count} this month` } : f)
+  }, [featureCounts])
+
+  // ── Real popularity signal #2: "Popular Right Now" courses/programmes ───
+  // Replaces the old mock Journey Match grid outright — see
+  // groupPopularCourses() above for how real course_boards_posts rows
+  // become this ranking.
+  const [popularCourses, setPopularCourses] = useState([])
+  const [popularLoading, setPopularLoading] = useState(true)
+  useEffect(() => {
+    let cancelled = false
+    const cutoff = new Date(Date.now() - POPULARITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
+    ;(async () => {
+      setPopularLoading(true)
+      const { data } = await supabase
+        .from('course_boards_posts')
+        .select('course, created_at')
+        .gte('created_at', cutoff)
+        .limit(2000)
+      if (cancelled) return
+      setPopularCourses(groupPopularCourses(data || []))
+      setPopularLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   function goToDirectory() {
     navigation.getParent()?.navigate('Directory')
@@ -456,6 +538,10 @@ export default function CourseConnectScreen({ navigation }) {
 
   function goToAccountType() {
     navigation.getParent()?.navigate('Profile', { screen: 'ProfileMain' })
+  }
+
+  function openPopularCourse(course) {
+    navigation.navigate('BoardDetail', { boardKey: 'course-boards', registry: 'course', presetFilter: { course } })
   }
 
   return (
@@ -507,8 +593,8 @@ export default function CourseConnectScreen({ navigation }) {
           <Text style={styles.heroEyebrow}>COURSE CONNECT</Text>
           <Text style={styles.heroTitle}>Course Connect</Text>
           <Text style={styles.heroTagline}>
-            Not matched by course or path. Matched by where you're actually at — same
-            stage, same age, same journey, whatever you're doing to get there.
+            Not sorted by course, trade, or path. Connected by what you're actually into,
+            and what's busiest here right now, whatever route got you here.
           </Text>
           <Text style={styles.heroSub}>{path.sub}</Text>
 
@@ -557,47 +643,48 @@ export default function CourseConnectScreen({ navigation }) {
 
         <View style={styles.content}>
 
-          {/* ── Journey Stage banner — the actual matching mechanism. This
-              is the primary framing on the screen now: same situation,
-              same age, same journey, not same course/industry/path. ── */}
-          <TouchableOpacity style={styles.stageBanner} activeOpacity={0.85} onPress={() => setStageModalOpen(true)}>
-            <View style={styles.stageBannerIcon}>
-              <Route size={15} color={colors.cream} strokeWidth={2} />
+          {/* ── Interests banner — the actual connecting mechanism now.
+              Same shared InterestsModal Profile Settings uses, surfaced
+              here too since this is where the matching it powers happens. ── */}
+          <TouchableOpacity style={styles.interestsBanner} activeOpacity={0.85} onPress={() => setInterestsModalOpen(true)}>
+            <View style={styles.interestsBannerIcon}>
+              <Heart size={15} color={colors.cream} strokeWidth={2} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.stageBannerLabel}>
-                YOUR STAGE · {journeyStageLabel ? journeyStageLabel.toUpperCase() : 'NOT SET'}
+              <Text style={styles.interestsBannerLabel}>
+                YOUR INTERESTS · {interests.length ? `${interests.length} SET` : 'NOT SET'}
               </Text>
-              <Text style={styles.stageBannerText}>
-                {journeyStageLabel
-                  ? `You're grouped with everyone else at "${journeyStageLabel}" below — students, apprentices, gap year, and working people alike.`
-                  : "Tell us where you're at so we can group you with people in the same boat, not just the same course."}
+              <Text style={styles.interestsBannerText}>
+                {interests.length
+                  ? `Matched on ${interests.slice(0, 3).join(', ')}${interests.length > 3 ? ', and more' : ''} — students, apprentices, gap year, and working people alike.`
+                  : "Add what you're into so we can connect you with people who share it, not just your course."}
               </Text>
-              <Text style={styles.stageBannerChange}>
-                {journeyStageLabel ? 'Change your stage →' : 'Set your stage →'}
+              <Text style={styles.interestsBannerChange}>
+                {interests.length ? 'Edit your interests →' : 'Add your interests →'}
               </Text>
             </View>
           </TouchableOpacity>
 
-          {/* ── Adaptive path banner — this is secondary now: it explains
-              how the boards/tools below apply to *what* this person is
-              doing (Student, Apprentice, Gap Year, Worker). The Journey
-              Stage banner above is the primary "who you'll meet" framing. ── */}
-          <TouchableOpacity style={styles.pathBanner} activeOpacity={0.85} onPress={goToAccountType}>
-            <View style={styles.pathBannerIcon}>
-              <Repeat size={15} color={colors.navy} strokeWidth={2} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.pathBannerLabel}>VIEWING AS · {userTypeLabel.toUpperCase()}</Text>
-              <Text style={styles.pathBannerText}>{path.banner}</Text>
-              <Text style={styles.pathBannerChange}>Not right? Change your account type in Settings →</Text>
-            </View>
+          {/* ── "Viewing as" note — demoted deliberately. This screen is no
+              longer organised BY path (that's the whole point of the
+              interests + popularity reframe above and below); userType still
+              legitimately nudges some copy/stats (see PATH_CONTENT), but
+              that's a minor styling detail, not the screen's structure, so
+              it gets one quiet line rather than a competing full banner. ── */}
+          <TouchableOpacity activeOpacity={0.7} onPress={goToAccountType} style={styles.viewingAsRow}>
+            <Text style={styles.viewingAsText}>
+              Some copy below is tailored for {userTypeLabel} · <Text style={styles.viewingAsLink}>change account type</Text>
+            </Text>
           </TouchableOpacity>
 
-          {/* ── Course Tools ── */}
-          <SectionHeader eyebrow="What's Available" title="Course Tools" style={{ marginTop: spacing.lg }} />
+          {/* ── Course Tools — ordered by real recent-activity counts from
+              each tool's own table (see FEATURE_ACTIVITY_TABLE), same
+              "genuine popularity, not fabricated" principle as the section
+              below. Falls back to the curated order when there's no
+              activity yet to differentiate by. ── */}
+          <SectionHeader eyebrow="Most Active First" title="Course Tools" style={{ marginTop: spacing.lg }} />
           <View style={{ gap: 14 }}>
-            {COURSE_FEATURES.map(f => (
+            {sortedCourseFeatures.map(f => (
               <FeatureCard key={f.key} feature={f} onPress={() => openCourseFeature(navigation, f.key)} />
             ))}
           </View>
@@ -654,84 +741,33 @@ export default function CourseConnectScreen({ navigation }) {
             </View>
           </View>
 
-          {/* ── Journey Match — the primary grouping mechanism. People are
-              filtered by shared journey stage FIRST, explicitly mixing
-              Student/Apprentice/Gap Year/Worker within a stage. Course,
-              institution, and subject stay available as a secondary,
-              opt-in filter/detail via "Browse Full Directory" below,
-              never the organizing principle for this section. ── */}
-          <SectionHeader eyebrow="Journey Match" title="People at Your Stage" style={{ marginTop: spacing.xl }} />
-          <Text style={styles.journeyIntro}>
-            Not grouped by course, industry, or path — by where people actually are
-            right now. Filter by stage below and you'll see students, apprentices,
-            gap-year people, and workers together, whenever they're at the same one.
+          {/* ── Popular Right Now — replaces the old stage-grouped Journey
+              Match section. Real data only: ranked by actual post counts
+              from course_boards_posts (see groupPopularCourses() above),
+              not a mock preview. Courses, trades, and workplaces show up
+              side by side purely because people are actually posting in
+              them — nothing here is grouped by user_type. ── */}
+          <SectionHeader eyebrow="Popular Right Now" title="What's Busiest on Course Connect" style={{ marginTop: spacing.xl }} />
+          <Text style={styles.popularIntro}>
+            Not sorted by stage or path — this is what people are actually posting about
+            right now, across every course, trade, and workplace in Ireland. Ranked by
+            real activity in the last {POPULARITY_WINDOW_DAYS} days.
           </Text>
-          <MockContentBanner
-            title="Preview shown below"
-            subtitle="These cards are illustrative — browse the real Journey Match and User Database in the Directory tab."
-          />
 
-          {/* Stage filter chips */}
-          <ScrollView
-            horizontal showsHorizontalScrollIndicator={false}
-            style={{ marginTop: spacing.md }}
-            contentContainerStyle={{ gap: 8, paddingRight: spacing.md }}
-          >
-            <TouchableOpacity
-              style={[styles.stageChip, stageFilter === 'all' && styles.stageChipActive]}
-              activeOpacity={0.8}
-              onPress={() => setStageFilter('all')}
-            >
-              <Text style={[styles.stageChipText, stageFilter === 'all' && styles.stageChipTextActive]}>All stages</Text>
-            </TouchableOpacity>
-            {JOURNEY_STAGES.map(st => {
-              const active = stageFilter === st.key
-              return (
-                <TouchableOpacity
-                  key={st.key}
-                  style={[styles.stageChip, active && styles.stageChipActive]}
-                  activeOpacity={0.8}
-                  onPress={() => setStageFilter(st.key)}
-                >
-                  <Text style={[styles.stageChipText, active && styles.stageChipTextActive]}>{st.label}</Text>
-                </TouchableOpacity>
-              )
-            })}
-          </ScrollView>
+          {popularLoading ? (
+            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.lg }} />
+          ) : popularCourses.length === 0 ? (
+            <Text style={styles.popularEmptyText}>
+              Nothing posted yet — be the first to start a Course Board thread for your course, trade, or workplace.
+            </Text>
+          ) : (
+            <PopularCourseGrid items={popularCourses} onPress={openPopularCourse} />
+          )}
 
-          <ScrollView
-            horizontal showsHorizontalScrollIndicator={false}
-            style={[styles.rowScroll, { marginTop: spacing.md }]}
-            contentContainerStyle={{ paddingRight: spacing.md }}
-          >
-            {filteredProfiles.map((p, i) => (
-              <TouchableOpacity key={i} activeOpacity={0.8} onPress={goToDirectory}>
-                <View style={[styles.studentCard, { backgroundColor: p.color }]}>
-                  <View style={styles.studentAvatar}>
-                    <Text style={styles.studentInitials}>{p.initials}</Text>
-                  </View>
-                  <Text style={styles.studentName} numberOfLines={1}>{p.name}</Text>
-                  <View style={styles.pathTag}>
-                    <Text style={styles.pathTagText}>{labelForUserType(p.userType)}</Text>
-                  </View>
-                  <Text style={styles.studentCourse} numberOfLines={2}>{p.what}</Text>
-                  <View style={styles.studentSkills}>
-                    {p.skills.slice(0, 2).map(sk => (
-                      <View key={sk} style={styles.skillPill}>
-                        <Text style={styles.skillPillText}>{sk}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-            {filteredProfiles.length === 0 && (
-              <View style={styles.stageEmpty}>
-                <Text style={styles.stageEmptyText}>No preview profiles at this stage yet — try a different stage, or check All stages.</Text>
-              </View>
-            )}
-          </ScrollView>
-          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8} onPress={goToDirectory}>
+          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8} onPress={() => navigation.navigate('BoardDetail', { boardKey: 'course-boards', registry: 'course' })}>
+            <Text style={styles.secondaryBtnText}>Browse All Course Boards</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.sm }]} activeOpacity={0.8} onPress={goToDirectory}>
             <Text style={styles.secondaryBtnText}>Browse Full Directory</Text>
           </TouchableOpacity>
 
@@ -810,9 +846,9 @@ export default function CourseConnectScreen({ navigation }) {
         }}
       />
 
-      <JourneyStageModal
-        visible={stageModalOpen}
-        onClose={() => setStageModalOpen(false)}
+      <InterestsModal
+        visible={interestsModalOpen}
+        onClose={() => setInterestsModalOpen(false)}
       />
     </View>
   )
@@ -868,36 +904,26 @@ const styles = StyleSheet.create({
   scroll:  {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
-  // Journey Stage banner — primary framing, so it's the bolder (navy) card
-  stageBanner: {
+  // Interests banner — primary framing now, so it's the bolder (navy) card
+  interestsBanner: {
     flexDirection: 'row', gap: 12, alignItems: 'flex-start',
     backgroundColor: colors.navy, borderRadius: radius.card,
     padding: 14, marginTop: spacing.lg,
     ...shadows.card,
   },
-  stageBannerIcon: {
+  interestsBannerIcon: {
     width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(245,240,232,0.15)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
   },
-  stageBannerLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
-  stageBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.cream, lineHeight: 19, marginTop: 4 },
-  stageBannerChange:{ fontFamily: fonts.sansMedium, fontSize: 11.5, color: 'rgba(245,240,232,0.65)', marginTop: 6 },
+  interestsBannerLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
+  interestsBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.cream, lineHeight: 19, marginTop: 4 },
+  interestsBannerChange:{ fontFamily: fonts.sansMedium, fontSize: 11.5, color: 'rgba(245,240,232,0.65)', marginTop: 6 },
 
-  // Adaptive path banner
-  pathBanner: {
-    flexDirection: 'row', gap: 12, alignItems: 'flex-start',
-    backgroundColor: colors.white, borderRadius: radius.card,
-    padding: 14, marginTop: spacing.lg,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    ...shadows.card,
-  },
-  pathBannerIcon: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(201,162,75,0.18)',
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
-  },
-  pathBannerLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldDeep, letterSpacing: 0.8 },
-  pathBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 19, marginTop: 4 },
-  pathBannerChange:{ fontFamily: fonts.sansMedium, fontSize: 11.5, color: colors.muted, marginTop: 6 },
+  // "Viewing as" note — deliberately a single quiet line, not a competing
+  // banner (see the comment where it's rendered for why).
+  viewingAsRow: { marginTop: spacing.sm, paddingHorizontal: 2 },
+  viewingAsText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, lineHeight: 16 },
+  viewingAsLink: { fontFamily: fonts.sansMedium, color: colors.navy, textDecorationLine: 'underline' },
 
   // Academic Support section (white breakout)
   academicSection: {
@@ -961,7 +987,6 @@ const styles = StyleSheet.create({
   mentorConnectBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   // Notes
-  rowScroll:       { marginHorizontal: -spacing.md, paddingHorizontal: spacing.md },
   noteCard:        { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
   noteModuleBadge: { backgroundColor: colors.navy, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 5, flexShrink: 0 },
   noteModuleText:  { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.cream },
@@ -969,32 +994,24 @@ const styles = StyleSheet.create({
   noteMeta:        { flexDirection: 'row', gap: 5, marginTop: 3 },
   noteMetaText:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
 
-  // Journey Match intro + stage filter chips
-  journeyIntro: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 8 },
-  stageChip: {
-    borderRadius: radius.badge, paddingHorizontal: 14, paddingVertical: 8,
-    backgroundColor: colors.white, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
+  // Popular Right Now — intro copy + empty state
+  popularIntro: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 8 },
+  popularEmptyText: {
+    fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic',
+    textAlign: 'center', marginTop: spacing.lg, lineHeight: 19,
   },
-  stageChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  stageChipText:   { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },
-  stageChipTextActive: { color: colors.cream },
-  stageEmpty:  { width: 260, padding: spacing.md, justifyContent: 'center' },
-  stageEmptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
 
-  // Journey Match cards (mix of Student/Apprentice/Gap Year/Worker per stage)
-  studentCard:     { width: 158, borderRadius: radius.card, padding: 14, marginRight: 12, alignItems: 'center' },
-  studentAvatar:   { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(30,58,95,0.12)', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  studentInitials: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
-  studentName:     { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textAlign: 'center' },
-  pathTag: {
-    backgroundColor: 'rgba(30,58,95,0.10)', borderRadius: radius.badge,
-    paddingHorizontal: 7, paddingVertical: 2, marginTop: 5,
+  // Popular Right Now — tile grid (same measured-width flex-wrap pattern as
+  // Campus Connect's board grid, see PopularCourseGrid above)
+  popularGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: POPULAR_TILE_GAP, marginTop: spacing.md },
+  popularTile: {
+    borderRadius: radius.card, padding: 14, minHeight: 92,
+    backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    justifyContent: 'space-between', ...shadows.card,
   },
-  pathTagText:     { fontFamily: fonts.sansSemiBold, fontSize: 9.5, color: colors.navy, opacity: 0.7, letterSpacing: 0.4 },
-  studentCourse:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, textAlign: 'center', marginTop: 6, lineHeight: 15 },
-  studentSkills:   { flexDirection: 'row', gap: 4, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' },
-  skillPill:       { backgroundColor: 'rgba(30,58,95,0.1)', borderRadius: radius.badge, paddingHorizontal: 7, paddingVertical: 3 },
-  skillPillText:   { fontFamily: fonts.sans, fontSize: 10, color: colors.navy },
+  popularTileTop:   { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  popularTileCount: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.goldDeep },
+  popularTileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 10, lineHeight: 18 },
 
   // Discussions
   discussionCard:     { padding: 14 },
