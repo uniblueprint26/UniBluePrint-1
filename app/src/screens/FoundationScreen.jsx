@@ -14,8 +14,12 @@ import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 
 // ─── Career services ──────────────────────────────────────────────────────────
+// Exported (same pattern as ElevationScreen's COACHES) so other real-data
+// consumers — the Home dashboard's curated Spotlight carousel — can pull
+// the same real tagline/description/pricing shown here, live, instead of
+// duplicating or fabricating a second copy of this content.
 
-const CAREER_SERVICES = [
+export const CAREER_SERVICES = [
   {
     icon: FileText,
     title: 'CV Optimisation',

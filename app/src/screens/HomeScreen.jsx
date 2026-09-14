@@ -9,7 +9,7 @@ import {
   Bell, User, FileText, TrendingUp, Building2,
   Heart, Globe, Compass, Calculator, Megaphone,
   LayoutGrid, MessageSquare, Users, Menu, CheckCircle,
-  Activity as ActivityIcon,
+  Activity as ActivityIcon, ChevronDown, ChevronUp,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import UBPLogo from '../components/ui/UBPLogo'
@@ -18,11 +18,14 @@ import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import QuickAccessGrid from '../components/home/QuickAccessGrid'
 import DestinationPickerModal from '../components/home/DestinationPickerModal'
+import SpotlightCarousel from '../components/home/SpotlightCarousel'
+import CondensedDashboard from '../components/home/CondensedDashboard'
 import { colors, fonts } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { fetchHomeActivity } from '../lib/homeActivityFeed'
+import { fetchSpotlightSlides } from '../lib/featuredContent'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -143,10 +146,33 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
+  // ── Spotlight carousel — manually curated (featured_content), resolved to
+  // real, live data. See lib/featuredContent.js for how each slide is
+  // resolved and Task #13 notes for why this replaced the old "random
+  // deals" framing inside Live Activity. ──────────────────────────────────
+  const [spotlightSlides, setSpotlightSlides] = useState([])
+  useEffect(() => {
+    let cancelled = false
+    fetchSpotlightSlides().then(slides => { if (!cancelled) setSpotlightSlides(slides) })
+    return () => { cancelled = true }
+  }, [])
+
+  function handleSpotlightPress(slide) {
+    if (!slide?.nav?.screen) return
+    navigation.navigate(slide.nav.screen, slide.nav.params)
+  }
+
   // ── Quick Access ────────────────────────────────────────────────────────
   const [shortcutKeys, setShortcutKeys] = useState(DEFAULT_SHORTCUTS)
   const [editingQA, setEditingQA]       = useState(false)
   const [pickerOpen, setPickerOpen]     = useState(false)
+
+  // Quick Access used to just duplicate a normal navigation hop (tap a
+  // shortcut, land on a screen the sidebar/tab bar already reaches). This
+  // gives its header a second, distinct job: expand/collapse a condensed,
+  // real-data account summary in place — see CondensedDashboard — without
+  // navigating anywhere. Independent of editingQA (drag-reorder mode).
+  const [dashboardExpanded, setDashboardExpanded] = useState(false)
 
   useEffect(() => {
     if (!profileRow) return
@@ -442,6 +468,19 @@ export default function HomeScreen({ navigation }) {
             showsVerticalScrollIndicator={false}
             scrollEnabled={!editingQA}
           >
+            {/* Spotlight — manually curated, real content (see Task #13 notes
+                in lib/featuredContent.js). Sits first, above Quick Access:
+                this is the "front page" the founder wants Home to feel
+                like, not a buried activity-feed entry. */}
+            {spotlightSlides.length > 0 && (
+              <View style={{ marginBottom: 22 }}>
+                <View style={[styles.sectionRow, { marginBottom: 8 }]}>
+                  <Text style={styles.eyebrow}>Spotlight</Text>
+                </View>
+                <SpotlightCarousel slides={spotlightSlides} onSlidePress={handleSpotlightPress} />
+              </View>
+            )}
+
             {/* Quick Access */}
             <View
               ref={gridBlockRef}
@@ -451,7 +490,7 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.sectionRow}>
                 <View>
                   <Text style={styles.eyebrow}>Quick Access</Text>
-                  <Text style={styles.sectionCaption}>Your own shortcuts — pick any 4</Text>
+                  <Text style={styles.sectionCaption}>Your own shortcuts — pick any 4 · Press &amp; hold to edit</Text>
                 </View>
                 {editingQA ? (
                   <TouchableOpacity
@@ -464,9 +503,30 @@ export default function HomeScreen({ navigation }) {
                     <Text style={styles.doneBtnText}>Done</Text>
                   </TouchableOpacity>
                 ) : (
-                  <Text style={styles.editHint}>Press &amp; hold to edit</Text>
+                  <TouchableOpacity
+                    onPress={() => setDashboardExpanded(v => !v)}
+                    style={styles.overviewToggle}
+                    activeOpacity={0.75}
+                    accessibilityRole="button"
+                    accessibilityLabel={dashboardExpanded ? 'Hide dashboard overview' : 'Show dashboard overview'}
+                  >
+                    <Text style={styles.overviewToggleText}>
+                      {dashboardExpanded ? 'Hide overview' : 'Overview'}
+                    </Text>
+                    {dashboardExpanded
+                      ? <ChevronUp size={13} color={colors.navy} strokeWidth={2} />
+                      : <ChevronDown size={13} color={colors.navy} strokeWidth={2} />}
+                  </TouchableOpacity>
                 )}
               </View>
+
+              <CondensedDashboard
+                expanded={dashboardExpanded}
+                userId={user?.id}
+                unreadCount={unreadCount}
+                isComplimentaryPro={isComplimentaryPro}
+                navigation={navigation}
+              />
 
               <View style={{ marginBottom: 24 }}>
                 <QuickAccessGrid
@@ -665,7 +725,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     gap: 8, marginBottom: 10,
   },
-  editHint: { fontFamily: fonts.sans, fontSize: 10, color: colors.light },
+  overviewToggle: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: 14,
+    paddingHorizontal: 12, paddingVertical: 6,
+  },
+  overviewToggleText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.navy },
   doneBtn: {
     backgroundColor: colors.navy, borderRadius: 14,
     paddingHorizontal: 14, paddingVertical: 6,

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ArrowLeftRight, Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
+  Sparkles, Plus, Trash2,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -12,10 +13,48 @@ import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { COACHES, coachSlug } from '../ElevationScreen'
+import { CAREER_SERVICES } from '../FoundationScreen'
 import { PARTNERS } from '../../data/lifestylePartners'
+import { CAMPUS_BOARDS } from '../../constants/campusBoards'
+import { COURSE_BOARDS } from '../../constants/courseConnectBoards'
 
 const LIVE_COACHES  = COACHES.filter(c => !c.shell)
 const LIVE_PARTNERS = PARTNERS.filter(p => p.status === 'live')
+
+// ── Home "Spotlight" carousel — minimal curation UI ─────────────────────────
+// Full CRUD lives in the featured_content table (RLS: Founder/Operations
+// only); this is a lightweight pick-from-real-data-and-post UI rather than
+// a full editor — see Task #13 notes for why a richer admin screen (custom
+// images, scheduling windows) was left for a later pass. Every option here
+// is drawn from the exact same real registries the carousel itself resolves
+// against (lib/featuredContent.js), so nothing added here can be fake.
+const FEATURED_TYPES = [
+  {
+    type: 'foundation_service', label: 'Foundation Service',
+    options: CAREER_SERVICES.map(s => ({ refId: s.title, name: s.title })),
+  },
+  {
+    type: 'coach', label: 'Coach',
+    options: LIVE_COACHES.map(c => ({ refId: String(c.id), name: c.name })),
+  },
+  {
+    type: 'lifestyle_partner', label: 'Lifestyle Partner',
+    options: LIVE_PARTNERS.map(p => ({ refId: p.id, name: p.brand })),
+  },
+  {
+    type: 'campus_board', label: 'Campus Board',
+    options: CAMPUS_BOARDS.map(b => ({ refId: b.key, name: b.title })),
+  },
+  {
+    type: 'course_board', label: 'Course Board',
+    options: COURSE_BOARDS.map(b => ({ refId: b.key, name: b.title })),
+  },
+]
+const FEATURED_TYPE_LABEL = Object.fromEntries(FEATURED_TYPES.map(t => [t.type, t.label]))
+function nameForFeatured(row) {
+  const group = FEATURED_TYPES.find(t => t.type === row.content_type)
+  return group?.options.find(o => o.refId === row.ref_id)?.name || row.ref_id
+}
 
 // ── Photo picker modal ──────────────────────────────────────────────────────
 // One modal, reused for both coaches and partners — upserts by slug so a
@@ -115,6 +154,52 @@ export default function FounderPortalScreen({ navigation }) {
   const [queue, setQueue]       = useState(null)
   const [gdprPending, setGdprPending] = useState(null)
   const [photoEntity, setPhotoEntity] = useState(null)
+
+  // ── Spotlight carousel curation ──────────────────────────────────────────
+  const [featuredList, setFeaturedList]     = useState([])
+  const [featuredLoading, setFeaturedLoading] = useState(true)
+  const [addOpen, setAddOpen]     = useState(false)
+  const [addType, setAddType]     = useState(FEATURED_TYPES[0].type)
+  const [addRefId, setAddRefId]   = useState(null)
+  const [addCaption, setAddCaption] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  async function loadFeatured() {
+    setFeaturedLoading(true)
+    const { data } = await supabase
+      .from('featured_content').select('*')
+      .order('priority', { ascending: true }).order('created_at', { ascending: true })
+    setFeaturedList(data || [])
+    setFeaturedLoading(false)
+  }
+  useEffect(() => { loadFeatured() }, [])
+
+  function openAdd() {
+    setAddType(FEATURED_TYPES[0].type)
+    setAddRefId(null)
+    setAddCaption('')
+    setAddOpen(true)
+  }
+
+  async function confirmAdd() {
+    if (!addRefId || saving) return
+    setSaving(true)
+    const nextPriority = featuredList.reduce((max, r) => Math.max(max, r.priority), -1) + 1
+    await supabase.from('featured_content').insert({
+      content_type: addType,
+      ref_id: addRefId,
+      caption: addCaption.trim() || null,
+      priority: nextPriority,
+    })
+    setSaving(false)
+    setAddOpen(false)
+    loadFeatured()
+  }
+
+  async function removeFeatured(id) {
+    await supabase.from('featured_content').delete().eq('id', id)
+    setFeaturedList(list => list.filter(r => r.id !== id))
+  }
 
   function backToMyBlueprint() {
     setPortalMode('personal')
@@ -232,6 +317,43 @@ export default function FounderPortalScreen({ navigation }) {
         </TouchableOpacity>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <Sparkles size={14} color={colors.navy} />
+          <Text style={styles.sectionEyebrow}>HOME SPOTLIGHT CAROUSEL</Text>
+        </View>
+        <Text style={styles.sectionCaption}>
+          What rotates on the Home dashboard's Spotlight carousel — every item is real,
+          live-pulled content (a real service, coach, partner, or board), never a placeholder.
+        </Text>
+
+        {!featuredLoading && featuredList.length === 0 && (
+          <Text style={styles.emptyText}>Nothing pinned yet — the carousel is hidden on Home until you add something.</Text>
+        )}
+
+        {featuredList.map(row => (
+          <Card key={row.id} style={styles.featuredRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.featuredType}>{FEATURED_TYPE_LABEL[row.content_type]}</Text>
+              <Text style={styles.featuredName} numberOfLines={1}>{nameForFeatured(row)}</Text>
+              {!!row.caption && <Text style={styles.featuredCaption} numberOfLines={1}>“{row.caption}”</Text>}
+            </View>
+            <TouchableOpacity
+              onPress={() => removeFeatured(row.id)}
+              style={styles.featuredRemoveBtn}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Remove ${nameForFeatured(row)} from the Spotlight carousel`}
+            >
+              <Trash2 size={14} color={colors.destructive} />
+            </TouchableOpacity>
+          </Card>
+        ))}
+
+        <TouchableOpacity style={styles.addFeaturedBtn} activeOpacity={0.8} onPress={openAdd}>
+          <Plus size={15} color={colors.navy} strokeWidth={2.2} />
+          <Text style={styles.addFeaturedBtnText}>Add to Spotlight</Text>
+        </TouchableOpacity>
+
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <ImageIcon size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>MANAGE PHOTOS</Text>
         </View>
@@ -275,6 +397,69 @@ export default function FounderPortalScreen({ navigation }) {
         onClose={() => setPhotoEntity(null)}
         entity={photoEntity}
       />
+
+      <Modal visible={addOpen} transparent animationType="fade" onRequestClose={() => setAddOpen(false)}>
+        <View style={pm.backdrop}>
+          <View style={[pm.sheet, { maxHeight: '80%' }]}>
+            <View style={pm.headerRow}>
+              <Text style={pm.title}>Add to Spotlight</Text>
+              <TouchableOpacity onPress={() => setAddOpen(false)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Close">
+                <X size={18} color={colors.muted} />
+              </TouchableOpacity>
+            </View>
+            <Text style={pm.sub}>Pick a real item already in the app — nothing here is fabricated.</Text>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.addLabel}>Type</Text>
+              <View style={styles.pillWrap}>
+                {FEATURED_TYPES.map(t => (
+                  <TouchableOpacity
+                    key={t.type}
+                    style={[styles.typePill, addType === t.type && styles.typePillActive]}
+                    activeOpacity={0.75}
+                    onPress={() => { setAddType(t.type); setAddRefId(null) }}
+                  >
+                    <Text style={[styles.typePillText, addType === t.type && styles.typePillTextActive]}>{t.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.addLabel}>Item</Text>
+              <View style={styles.pillWrap}>
+                {FEATURED_TYPES.find(t => t.type === addType)?.options.map(o => (
+                  <TouchableOpacity
+                    key={o.refId}
+                    style={[styles.typePill, addRefId === o.refId && styles.typePillActive]}
+                    activeOpacity={0.75}
+                    onPress={() => setAddRefId(o.refId)}
+                  >
+                    <Text style={[styles.typePillText, addRefId === o.refId && styles.typePillTextActive]} numberOfLines={1}>{o.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.addLabel}>Caption (optional)</Text>
+              <TextInput
+                value={addCaption}
+                onChangeText={setAddCaption}
+                placeholder="e.g. Founder's pick this month"
+                placeholderTextColor={colors.light}
+                style={styles.captionInput}
+                maxLength={80}
+              />
+
+              <TouchableOpacity
+                style={[styles.confirmAddBtn, !addRefId && { opacity: 0.4 }]}
+                activeOpacity={0.85}
+                disabled={!addRefId || saving}
+                onPress={confirmAdd}
+              >
+                <Text style={styles.confirmAddBtnText}>{saving ? 'Adding…' : 'Add to carousel'}</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -327,4 +512,31 @@ const styles = StyleSheet.create({
   photoGroupLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, marginTop: 14, marginBottom: 2 },
   photoPill: { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
   photoPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+
+  featuredRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8, padding: 14 },
+  featuredType: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
+  featuredName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, marginTop: 2 },
+  featuredCaption: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2, fontStyle: 'italic' },
+  featuredRemoveBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(220,38,38,0.08)' },
+
+  addFeaturedBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginTop: 10, paddingVertical: 11, borderRadius: radius.pill,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.18)', borderStyle: 'dashed',
+    backgroundColor: 'rgba(30,58,95,0.03)',
+  },
+  addFeaturedBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+
+  addLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 14, marginBottom: 6 },
+  typePill: { backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)', maxWidth: 220 },
+  typePillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  typePillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  typePillTextActive: { color: colors.cream },
+  captionInput: {
+    fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)', borderRadius: radius.button,
+    paddingHorizontal: 12, paddingVertical: 10,
+  },
+  confirmAddBtn: { backgroundColor: colors.navy, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: 18, marginBottom: 4 },
+  confirmAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.cream },
 })
