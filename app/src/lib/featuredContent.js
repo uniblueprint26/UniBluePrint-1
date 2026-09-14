@@ -44,13 +44,17 @@ async function coach(row) {
   const id = Number(row.ref_id)
   const c = COACHES.find(x => x.id === id)
   if (!c) return null
-  let photoUrl = null
+  // Bundled hero photo (e.g. Milan Piroska, Tadgh Darcy) is the default —
+  // a founder-uploaded coach_profiles.photo_url, if one exists, overrides
+  // it below. photoUrl can end up as either a remote URL string or a local
+  // require()'d image module; SpotlightCarousel's SlideMedia handles both.
+  let photoUrl = c.heroImage || null
   try {
     const { data } = await supabase
       .from('coach_profiles').select('photo_url')
       .eq('coach_slug', coachSlug(c.id)).maybeSingle()
-    photoUrl = data?.photo_url || null
-  } catch { /* fall back to initials treatment below */ }
+    if (data?.photo_url) photoUrl = data.photo_url
+  } catch { /* keep bundled hero (or fall back to initials) below */ }
   return {
     id: row.id,
     kicker: 'Find a Coach',

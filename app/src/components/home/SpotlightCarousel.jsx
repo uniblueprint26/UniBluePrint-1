@@ -32,7 +32,13 @@ function shade(hex, percent) {
 
 function SlideMedia({ slide }) {
   if (slide.photoUrl) {
-    return <Image source={{ uri: slide.photoUrl }} style={styles.mediaPhoto} />
+    // photoUrl is either a remote URL string (a founder-uploaded photo/logo)
+    // or a local require()'d image module (a bundled coach hero shot) — both
+    // are valid RN Image sources, just handled differently. resizeMode
+    // 'contain' (not the previous 'cover' circle crop) so a real portrait
+    // studio photo always shows full-frame, never cropped to fit the chip.
+    const source = typeof slide.photoUrl === 'string' ? { uri: slide.photoUrl } : slide.photoUrl
+    return <Image source={source} style={styles.mediaPhoto} resizeMode="contain" />
   }
   if (slide.emoji) {
     return (
@@ -202,9 +208,14 @@ const styles = StyleSheet.create({
   ctaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 10 },
   ctaText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.gold },
 
+  // Portrait-ratio rounded chip (not a 1:1 circle) — paired with
+  // resizeMode 'contain' above, so a tall studio portrait is never cropped
+  // to fit a square/circular slot. A subtle cream fill shows through any
+  // letterboxing on photos that aren't an exact match for this ratio.
   mediaPhoto: {
-    width: 44, height: 44, borderRadius: 22,
+    width: 44, height: 56, borderRadius: 10,
     borderWidth: 1.5, borderColor: 'rgba(245,240,232,0.35)',
+    backgroundColor: 'rgba(245,240,232,0.1)',
   },
   mediaEmojiWrap: {
     width: 44, height: 44, borderRadius: 22,

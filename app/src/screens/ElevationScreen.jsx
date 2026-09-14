@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, ChevronRight, MapPin, User,
@@ -214,6 +214,16 @@ export const COACHES = [
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
     bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process — online physique development coaching built around you.",
     contact: { instagram: 'tdarcycoaching', tiktok: 'darcy.lifts', linktree: 'https://linktr.ee/tadghdarcy123' },
+    // Studio photoshoot set (Sept 2026 asset round). heroImage is the
+    // designated Spotlight/card image; gallery is the full supplied set for
+    // the profile's sliding photo gallery — see CoachProfileScreen.
+    heroImage: require('../../assets/coaches/tadgh-darcy/hero.jpg'),
+    gallery: [
+      require('../../assets/coaches/tadgh-darcy/gallery-1.jpg'),
+      require('../../assets/coaches/tadgh-darcy/gallery-2.jpg'),
+      require('../../assets/coaches/tadgh-darcy/gallery-3.jpg'),
+      require('../../assets/coaches/tadgh-darcy/gallery-4.jpg'),
+    ],
   },
 
   {
@@ -224,6 +234,21 @@ export const COACHES = [
     services: ['Physique Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Lifestyle Transformation', 'Holiday & Contest Prep'],
     bio: "I specialise in Physique and Lifestyle Transformations via Fat Loss and Lean Muscle Gain, with 20+ client transformations behind me. I work with clients on physique development, muscle gain, fat loss, nutrition, lifestyle change, and holiday, photoshoot, and contest prep.",
     quote: 'Guarantee of achieving your true potential through proven systems and methodologies with personalised training solutions to fit your lifestyle, goals and preferences. Crafted with precision and backed by results.',
+    // Studio/gym photoshoot set (Sept 2026 asset round), trimmed from the
+    // 14 supplied non-hero shots down to 7 of the strongest, most varied —
+    // 2 action/training shots plus front/back, relaxed/flexed physique
+    // poses — rather than padding the slider with near-duplicate mirror
+    // selfies. heroImage is the designated Spotlight/card image.
+    heroImage: require('../../assets/coaches/milan-piroska/hero.jpg'),
+    gallery: [
+      require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
+      require('../../assets/coaches/milan-piroska/gallery-2.jpg'),
+      require('../../assets/coaches/milan-piroska/gallery-3.jpg'),
+      require('../../assets/coaches/milan-piroska/gallery-4.jpg'),
+      require('../../assets/coaches/milan-piroska/gallery-5.jpg'),
+      require('../../assets/coaches/milan-piroska/gallery-6.jpg'),
+      require('../../assets/coaches/milan-piroska/gallery-7.jpg'),
+    ],
     pricelist: [
       { label: '1x per week', price: '€50/session' },
       { label: '2x per week', price: '€45/session' },
@@ -403,9 +428,18 @@ function CoachCard({ coach, navigation }) {
         {/* Header */}
         <View style={styles.coachTop}>
           <View style={styles.coachAvatarWrap}>
-            <View style={styles.coachAvatar}>
-              <User size={26} color={colors.light} />
-            </View>
+            {coach.heroImage ? (
+              // Portrait-ratio frame (not a square/circle crop) so a real
+              // studio photo shows full-frame — resizeMode 'contain' keeps
+              // the whole shot visible rather than cutting off the subject.
+              <View style={styles.coachAvatarPhotoFrame}>
+                <Image source={coach.heroImage} style={styles.coachAvatarPhoto} resizeMode="contain" />
+              </View>
+            ) : (
+              <View style={styles.coachAvatar}>
+                <User size={26} color={colors.light} />
+              </View>
+            )}
             <View style={styles.coachOnlineDot} />
           </View>
           <View style={{ flex: 1, marginLeft: 14 }}>
@@ -723,6 +757,10 @@ const styles = StyleSheet.create({
   coachTop:        { flexDirection: 'row', alignItems: 'flex-start' },
   coachAvatarWrap: { position: 'relative' },
   coachAvatar:     { width: 52, height: 52, borderRadius: radius.circle, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)' },
+  // Portrait-ratio (not square/circle) so a real headshot's natural framing
+  // — closer to 3:4/4:5 than 1:1 — never gets cropped to fit a round slot.
+  coachAvatarPhotoFrame: { width: 52, height: 68, borderRadius: 12, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)', overflow: 'hidden' },
+  coachAvatarPhoto: { width: '100%', height: '100%' },
   coachOnlineDot:  { position: 'absolute', bottom: 1, right: 1, width: 12, height: 12, borderRadius: 6, backgroundColor: '#16A34A', borderWidth: 2, borderColor: colors.white },
 
   coachName:     { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },

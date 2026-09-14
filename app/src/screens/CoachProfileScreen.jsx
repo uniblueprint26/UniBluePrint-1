@@ -15,6 +15,58 @@ import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 
+// ── Photo gallery ────────────────────────────────────────────────────────────
+//
+// Sliding, swipe-paged set of a coach's studio/gym photos (e.g. Milan
+// Piroska, Tadgh Darcy — see COACHES.gallery in ElevationScreen.jsx). Only
+// rendered when a coach actually has a gallery — every other coach's
+// profile renders exactly as before. Each frame uses resizeMode 'contain'
+// on a fixed aspect-ratio box (not 'cover') so these real portrait studio
+// photos are never cropped to fill the slot.
+function PhotoGallery({ photos }) {
+  const [width, setWidth] = useState(0)
+  const [index, setIndex] = useState(0)
+
+  if (!photos || photos.length === 0) return null
+
+  function onMomentumEnd(e) {
+    if (width === 0) return
+    setIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+  }
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>Photos</Text>
+      <View onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+        {width > 0 && (
+          <>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onMomentumScrollEnd={onMomentumEnd}
+              style={styles.galleryScroller}
+            >
+              {photos.map((photo, i) => (
+                <View key={i} style={[styles.galleryFrame, { width }]}>
+                  <Image source={photo} style={styles.galleryImage} resizeMode="contain" />
+                </View>
+              ))}
+            </ScrollView>
+            {photos.length > 1 && (
+              <View style={styles.galleryDots}>
+                {photos.map((_, i) => (
+                  <View key={i} style={[styles.galleryDot, i === index && styles.galleryDotActive]} />
+                ))}
+              </View>
+            )}
+          </>
+        )}
+      </View>
+    </View>
+  )
+}
+
 // ── Link helper ───────────────────────────────────────────────────────────────
 
 function openLink(type, value) {
@@ -349,9 +401,15 @@ export default function CoachProfileScreen({ route, navigation }) {
 
   useFocusEffect(useCallback(() => { checkEngagement() }, [checkEngagement]))
 
+  // Photo precedence: a founder/self-uploaded coach_profiles.photo_url wins
+  // when present, otherwise fall back to the coach's bundled heroImage
+  // (e.g. Milan Piroska, Tadgh Darcy's studio shots) — same precedence as
+  // the Home Spotlight carousel (see lib/featuredContent.js coach()), so a
+  // coach's photo is consistent everywhere it appears.
+  const resolvedPhoto = override?.photo_url || baseCoach.heroImage || null
   const coach = override
-    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: override.photo_url }
-    : baseCoach
+    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto }
+    : { ...baseCoach, photoUrl: resolvedPhoto }
 
   function handleEnquire() {
     if (!coach.contact) return
@@ -403,7 +461,16 @@ export default function CoachProfileScreen({ route, navigation }) {
           <View style={styles.avatarOuter}>
             <View style={styles.avatarInner}>
               {coach.photoUrl ? (
-                <Image source={{ uri: coach.photoUrl }} style={styles.avatarImg} resizeMode="cover" />
+                // coach.photoUrl is either a remote URL string (self-uploaded
+                // via coach_profiles) or a local require()'d image module (a
+                // bundled hero shot) — both are valid Image sources.
+                // resizeMode 'contain' keeps the whole studio portrait
+                // visible rather than cropping it to fill this circle.
+                <Image
+                  source={typeof coach.photoUrl === 'string' ? { uri: coach.photoUrl } : coach.photoUrl}
+                  style={styles.avatarImg}
+                  resizeMode="contain"
+                />
               ) : (
                 <User
                   size={44}
@@ -452,6 +519,9 @@ export default function CoachProfileScreen({ route, navigation }) {
             <Text style={styles.taglineText}>{coach.tagline}</Text>
           </View>
         )}
+
+        {/* ── Photo gallery ── */}
+        {coach.gallery && <PhotoGallery photos={coach.gallery} />}
 
         {/* ── Shell placeholder ── */}
         {coach.shell && coach.shellMessage && (
@@ -840,6 +910,24 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8, marginBottom: 12,
   },
   bioText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 23 },
+
+  // Photo gallery — a fixed 4:5 aspect-ratio frame (close to the natural
+  // ratio of the supplied studio portraits) with resizeMode 'contain', so
+  // the full photo always shows regardless of its exact source ratio;
+  // any letterboxing is filled by the cream frame background rather than
+  // cropping the subject.
+  galleryScroller: {
+    borderRadius: radius.card, overflow: 'hidden',
+    backgroundColor: colors.cream, ...shadows.card,
+  },
+  galleryFrame: {
+    aspectRatio: 4 / 5, backgroundColor: colors.cream,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  galleryImage: { width: '100%', height: '100%' },
+  galleryDots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 },
+  galleryDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(30,58,95,0.18)' },
+  galleryDotActive: { backgroundColor: colors.gold, width: 16 },
 
   // Quote
   quoteBlock: {
