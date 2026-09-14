@@ -225,7 +225,11 @@ export default function PostFormModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={f.backdrop}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={f.backdrop}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+      >
         <View style={f.sheet}>
           <View style={f.headerRow}>
             <Text style={f.title}>{titleOverride || board?.postCta || 'New post'}</Text>
@@ -233,7 +237,12 @@ export default function PostFormModal({
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
-          <ScrollView style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={{ flexShrink: 1 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+          >
             {activeFields.map(field => {
               if (field.showIf && !field.showIf(values)) return null
               return (

@@ -6,12 +6,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, ChevronLeft, Plus } from 'lucide-react-native'
 
-import FeatureCard from '../components/ui/FeatureCard'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
-import { colors, fonts, spacing, shadows } from '../constants/theme'
+import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 
@@ -53,6 +52,7 @@ function buildBoardTiles(boardsData) {
     const sample = boardsData.find(x => x.key === b.key)?.posts?.map(p => ({ text: p.text, meta: p.time }))
     return {
       key: b.key,
+      title: b.title,
       label: b.title.toUpperCase(),
       emoji: b.icon,
       color: b.color,
@@ -62,6 +62,45 @@ function buildBoardTiles(boardsData) {
       preview: sample && sample.length ? sample : undefined,
     }
   })
+}
+
+// ─── Board grid — smaller square tiles, 3 per row ───────────────────────────
+// Replaces the old one-full-width-FeatureCard-per-board list: with 14 boards
+// that list ran to a very long scroll before a student ever saw the bottom.
+// Square tiles get every board in view a few at a time and read as a single
+// scannable grid instead of a feed, closer to how Quick Access's square
+// cards already work on Home. Tile width is measured (not a percentage) —
+// combining RN's flex `gap` with percentage widths in the same row is the
+// exact bug QuickAccessGrid's own COLUMNS math was written to avoid.
+const TILE_COLUMNS = 3
+const TILE_GAP = 10
+
+function BoardTileGrid({ tiles, onPress }) {
+  const [containerWidth, setContainerWidth] = useState(0)
+  const tileSize = containerWidth > 0
+    ? (containerWidth - TILE_GAP * (TILE_COLUMNS - 1)) / TILE_COLUMNS
+    : 0
+
+  return (
+    <View
+      style={styles.tileGrid}
+      onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}
+    >
+      {containerWidth > 0 && tiles.map(t => (
+        <TouchableOpacity
+          key={t.key}
+          style={[styles.tile, { width: tileSize, height: tileSize, backgroundColor: t.color }]}
+          activeOpacity={0.82}
+          onPress={() => onPress(t.key)}
+          accessibilityRole="button"
+          accessibilityLabel={`Open ${t.title}`}
+        >
+          <Text style={styles.tileEmoji}>{t.emoji}</Text>
+          <Text style={styles.tileLabel} numberOfLines={2}>{t.title}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
 }
 
 // ─── Boards (sample posts feeding buildBoardTiles above) ───────────────────
@@ -259,20 +298,17 @@ export default function CampusConnectScreen({ navigation }) {
             />
           </View>
 
-          {/* ── Board showcase: every board, one consistent card ── */}
+          {/* ── Board showcase: every board, one tap-sized square tile ── */}
           <SectionHeader eyebrow="What's Available" title="14 Boards, One Place" style={{ marginTop: spacing.lg }} />
           <Text style={styles.boardsIntro}>
             Live from day one — browse any board straight away, no campus sign-up required. Posting just needs your
             institution on file.
           </Text>
-          <View style={{ gap: 14 }}>
-            {filteredBoardTiles.map(f => (
-              <FeatureCard key={f.key} feature={f} onPress={() => openBoardTile(f.key)} />
-            ))}
-            {filteredBoardTiles.length === 0 && (
-              <Text style={styles.emptyBoardsText}>No boards match “{search}”.</Text>
-            )}
-          </View>
+          {filteredBoardTiles.length > 0 ? (
+            <BoardTileGrid tiles={filteredBoardTiles} onPress={openBoardTile} />
+          ) : (
+            <Text style={styles.emptyBoardsText}>No boards match “{search}”.</Text>
+          )}
 
           <TouchableOpacity
             style={styles.primaryBtn}
@@ -347,6 +383,17 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
   boardsIntro: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 6, marginBottom: 12, lineHeight: 18 },
   emptyBoardsText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', paddingVertical: spacing.md },
+
+  // Board tile grid — small square tiles, 3 per row (see BoardTileGrid above)
+  tileGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
+  tile: {
+    borderRadius: radius.card, padding: 10,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    alignItems: 'flex-start', justifyContent: 'space-between',
+    ...shadows.card,
+  },
+  tileEmoji: { fontSize: 24 },
+  tileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 15 },
 
   // CTA
   primaryBtn:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: 8, height: 54, marginTop: spacing.lg },
