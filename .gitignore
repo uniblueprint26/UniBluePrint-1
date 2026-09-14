@@ -33,3 +33,6 @@ app/.expo/
 *.sln
 *.sw?
 supabase/.temp/
+
+# Local agent worktree checkouts (not part of the project)
+.claude/
