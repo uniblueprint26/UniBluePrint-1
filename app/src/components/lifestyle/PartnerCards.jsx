@@ -78,6 +78,28 @@ export function PartnerLogo({ partner, size = 44 }) {
   )
 }
 
+// ─── Partner Hero / Gallery Image ─────────────────────────────────────────────
+// Aspect-ratio-aware image frame used for a partner's hero photo (grid card +
+// detail sheet) and gallery thumbnails. Photos supplied by partners come in
+// whatever ratio they were shot in — portrait product flat-lays, square
+// lifestyle shots, landscape group photos — and must never be cropped or
+// stretched to fit. Rather than force `resizeMode: 'cover'` (which crops),
+// this renders a fixed-ratio box in the card's own cream surface colour and
+// letterboxes the photo inside it with `resizeMode: 'contain'`, so the full
+// frame — logo, face, product — is always fully visible.
+//
+// source follows the same shape as PartnerLogo's `partner.logo`: a string
+// (remote Storage URL) or a number (static require() result).
+export function PartnerHeroImage({ source, aspectRatio = 4 / 3, style, imageStyle }) {
+  if (!source) return null
+  const resolved = typeof source === 'string' ? { uri: source } : source
+  return (
+    <View style={[styles.heroFrame, { aspectRatio }, style]}>
+      <Image source={resolved} style={[styles.heroFrameImage, imageStyle]} resizeMode="contain" />
+    </View>
+  )
+}
+
 // ─── Contact Chip ─────────────────────────────────────────────────────────────
 function ContactChip({ type, value }) {
   const handlers = {
@@ -159,6 +181,9 @@ export function PartnerGridCard({ partner, onPress, highlighted }) {
       onPress={onPress}
     >
       <View style={[styles.gridCardAccent, { backgroundColor: accent }]} />
+      {partner.hero && (
+        <PartnerHeroImage source={partner.hero} aspectRatio={1} style={styles.gridCardHero} />
+      )}
       <View style={styles.gridCardTop}>
         <PartnerLogo partner={partner} size={44} />
         <VerifiedBadge verified={partner.verified} compact />
@@ -217,6 +242,10 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
             <X size={16} color={colors.muted} />
           </TouchableOpacity>
 
+          {partner.hero && (
+            <PartnerHeroImage source={partner.hero} aspectRatio={4 / 3} style={styles.detailHero} />
+          )}
+
           <View style={styles.detailHeaderRow}>
             <PartnerLogo partner={partner} size={52} />
             <View style={{ flex: 1 }}>
@@ -250,6 +279,26 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
                 </>
               )}
 
+              {partner.gallery && partner.gallery.length > 0 && (
+                <>
+                  <Text style={[styles.expandLabel, { marginTop: 16 }]}>GALLERY</Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.galleryRow}
+                  >
+                    {partner.gallery.map((src, i) => (
+                      <PartnerHeroImage
+                        key={i}
+                        source={src}
+                        aspectRatio={3 / 4}
+                        style={styles.galleryThumb}
+                      />
+                    ))}
+                  </ScrollView>
+                </>
+              )}
+
               {partner.services && (
                 <View style={styles.servicePills}>
                   {partner.services.map(s => (
@@ -272,8 +321,16 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
                           i < partner.pricelist.length - 1 && styles.priceRowBorder,
                         ]}
                       >
-                        <Text style={styles.priceRowLabel}>{row.label}</Text>
-                        <Text style={styles.priceRowValue}>{row.price}</Text>
+                        <Text style={[styles.priceRowLabel, row.soldOut && styles.priceRowLabelSoldOut]}>
+                          {row.label}
+                        </Text>
+                        {row.soldOut ? (
+                          <View style={styles.soldOutPill}>
+                            <Text style={styles.soldOutPillText}>Sold Out</Text>
+                          </View>
+                        ) : (
+                          <Text style={styles.priceRowValue}>{row.price}</Text>
+                        )}
                       </View>
                     ))}
                   </View>
@@ -389,6 +446,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: colors.gold,
   },
   gridCardAccent: { height: 4, marginHorizontal: -12, marginBottom: 10 },
+  // Hero thumbnail bleeds edge-to-edge under the accent bar, above the
+  // logo/name block — same cream letterbox treatment as the detail sheet's
+  // larger hero, just square to keep the 2-up grid tidy.
+  gridCardHero: { marginHorizontal: -12, marginBottom: 10, borderRadius: 0 },
   gridCardTop: {
     flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6,
   },
@@ -409,6 +470,20 @@ export const styles = StyleSheet.create({
   // Reserves the same vertical rhythm a deal pill would take up, so a
   // no-deal card doesn't read as visually "cut short" against its neighbours.
   gridCardSpacer: { height: 4, marginTop: 8 },
+
+  // Aspect-ratio-aware hero/gallery frame — see PartnerHeroImage above.
+  // Cream letterbox background (matches the card/sheet surface) so a photo
+  // that doesn't natively match the frame's ratio pillar/letterboxes onto a
+  // colour that reads as intentional, not empty space.
+  heroFrame: {
+    width: '100%',
+    backgroundColor: colors.cream,
+    borderRadius: radius.card,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroFrameImage: { width: '100%', height: '100%' },
 
   circle: {
     alignItems: 'center',
@@ -480,6 +555,9 @@ export const styles = StyleSheet.create({
     width: 28, height: 28, borderRadius: 14,
     backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
   },
+  // Detail sheet hero — inset (not edge-bled) so its own rounded corners sit
+  // cleanly inside the sheet's padding, above the logo/name row.
+  detailHero: { marginBottom: 14 },
   detailHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 34 },
   detailBrandName: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
   detailAccentLine: { height: 3, borderRadius: 2, marginTop: 14 },
@@ -498,6 +576,11 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
     lineHeight: 18, marginTop: 12, marginBottom: 4,
   },
+
+  // Gallery — horizontal scroller of letterboxed thumbnails, portrait ratio
+  // (most partner photos supplied are portrait product/lifestyle shots).
+  galleryRow: { flexDirection: 'row', gap: 8 },
+  galleryThumb: { width: 110 },
 
   servicePills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   servicePill: {
@@ -522,6 +605,12 @@ export const styles = StyleSheet.create({
   },
   priceRowLabel: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, flex: 1, marginRight: 8 },
   priceRowValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  priceRowLabelSoldOut: { color: colors.light, textDecorationLine: 'line-through' },
+  soldOutPill: {
+    backgroundColor: 'rgba(220,38,38,0.1)', borderRadius: radius.badge,
+    paddingHorizontal: 8, paddingVertical: 3,
+  },
+  soldOutPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.destructive },
 
   pricingNote: {
     fontFamily: fonts.sans, fontSize: 11, color: colors.muted,

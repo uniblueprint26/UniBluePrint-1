@@ -219,6 +219,8 @@ export const PARTNERS = [
   {
     id: 'saiemsent',
     brand: 'Saiemsent',
+    logo: require('../../assets/partners/saiemsent/logo.jpg'),
+    hero: require('../../assets/partners/saiemsent/hero.jpg'),
     initials: 'SS',
     initBg: '#0369A1',
     filterKey: 'fashion',
@@ -226,12 +228,35 @@ export const PARTNERS = [
     tagline: 'Bold graphics, unique silhouettes, Irish streetwear.',
     status: 'live',
     description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures — bold graphics, unique silhouettes, and experimental details. Building a new visual identity for Irish fashion rooted in creativity, individuality, and self-expression.',
+    pricelist: [
+      { label: 'clrfulshirt',              price: '€20.20' },
+      { label: 'cursemark (longsleeve)',   price: '€50.00' },
+      { label: 'furhoodiewash',            price: '€95.00' },
+      { label: 'gaze (thermal)',           price: '€40.02' },
+      { label: 'irish.soldier.jersey',     price: '€55.00' },
+      { label: 'saiemhenlycrop',           price: '€25.20' },
+      { label: 'snipertee',                price: '€20.92' },
+      { label: 'teethtee',                 price: '€20.20' },
+      { label: 'triplestee',               price: '€30.20' },
+      { label: 'jpns.saiemsent',           price: '€20.00', soldOut: true },
+      { label: 'leopardneck',              price: '€70.00', soldOut: true },
+      { label: 'panoptes.tank',            price: '€50.00', soldOut: true },
+      { label: 'pupil.longsleeve',         price: '€60.00', soldOut: true },
+      { label: 'ryukpolo',                 price: '€50.00', soldOut: true },
+    ],
     howToStart: 'DM @saiemsent on Instagram or visit saiemsent.ie.',
     contact: { instagram: 'saiemsent', tiktok: 'saiemsent', website: 'https://saiemsent.ie' },
   },
   {
     id: 'elect',
     brand: 'Elect',
+    logo: require('../../assets/partners/elect/logo.png'),
+    hero: require('../../assets/partners/elect/hero.jpg'),
+    gallery: [
+      require('../../assets/partners/elect/gallery-1.jpg'),
+      require('../../assets/partners/elect/gallery-2.jpg'),
+      require('../../assets/partners/elect/gallery-3.jpg'),
+    ],
     initials: 'EL',
     initBg: '#111827',
     filterKey: 'fashion',
@@ -483,6 +508,13 @@ export const PARTNERS = [
   {
     id: 'zvisionapparel',
     brand: 'Z Vision Apparel',
+    hero: require('../../assets/partners/zvision/hero.jpg'),
+    gallery: [
+      require('../../assets/partners/zvision/gallery-1.jpg'),
+      require('../../assets/partners/zvision/gallery-2.jpg'),
+      require('../../assets/partners/zvision/gallery-3.jpg'),
+      require('../../assets/partners/zvision/gallery-4.jpg'),
+    ],
     initials: 'ZV',
     initBg: '#065F46',
     filterKey: 'fashion',
@@ -499,6 +531,18 @@ export const PARTNERS = [
   {
     id: 'pouvoirs',
     brand: 'Pouvoirs Gallery',
+    // Same source image used as BOTH the brand logo and the main hero, per
+    // Desmond's explicit instruction — not a placeholder, a deliberate choice.
+    logo: require('../../assets/partners/pouvoirs/logo-hero.jpg'),
+    hero: require('../../assets/partners/pouvoirs/logo-hero.jpg'),
+    gallery: [
+      require('../../assets/partners/pouvoirs/gallery-1.jpg'),
+      require('../../assets/partners/pouvoirs/gallery-2.jpg'),
+      require('../../assets/partners/pouvoirs/gallery-3.jpg'),
+      require('../../assets/partners/pouvoirs/gallery-4.jpg'),
+      require('../../assets/partners/pouvoirs/gallery-5.jpg'),
+      require('../../assets/partners/pouvoirs/gallery-6.jpg'),
+    ],
     initials: 'PG',
     initBg: '#4B5563',
     filterKey: 'fashion',
@@ -509,7 +553,6 @@ export const PARTNERS = [
     // to the user; same treatment as Z Vision Apparel, which genuinely has no
     // deal by design. Add a real `deal` string here once one is confirmed.
     status: 'live',
-    logo: null, // upload via partner-logos bucket when available
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
     howToStart: 'Contact details to be confirmed with the partner before launch.',
     contact: null,
@@ -531,6 +574,56 @@ export const PARTNERS = [
     contact: null,
   },
 
+  // ── Live: Sept 2026 Partner Additions ───────────────────────────────────
+  {
+    id: 'secondnature',
+    brand: 'Second Nature',
+    hero: require('../../assets/partners/second_nature/hero.jpg'),
+    initials: 'SN',
+    initBg: '#7C2D12',
+    filterKey: 'fashion',
+    category: 'Fashion/Clothing',
+    status: 'live',
+    contact: null,
+  },
+  {
+    id: 'njoy',
+    brand: 'N-joy',
+    hero: require('../../assets/partners/njoy/hero.jpg'),
+    gallery: [
+      require('../../assets/partners/njoy/gallery-1.jpg'),
+      require('../../assets/partners/njoy/gallery-2.jpg'),
+    ],
+    initials: 'NJ',
+    initBg: '#B45309',
+    filterKey: 'food',
+    category: 'Food & Drink',
+    status: 'live',
+    contact: null,
+  },
+  // No photos supplied yet for these two — logo/hero/gallery left unset
+  // rather than invented; text-only cards until real assets/details land.
+  {
+    id: 'islandsips',
+    brand: 'Island Sips',
+    initials: 'IS',
+    initBg: '#0891B2',
+    filterKey: 'food',
+    category: 'Food & Drink',
+    status: 'live',
+    contact: null,
+  },
+  {
+    id: 'styledbybene',
+    brand: 'StyledByBene',
+    initials: 'SB',
+    initBg: '#6D28D9',
+    filterKey: 'services',
+    category: 'Services · Creative Director',
+    status: 'live',
+    contact: null,
+  },
+
   // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
   // county set where a real one is on file — this is also what the map reads.
   { id: 'mbcuts',       brand: 'Manni The Barber',        initials: 'MB', initBg: '#374151', filterKey: 'beauty',   county: 'Louth',  category: 'Barber · Dundalk', status: 'shell' },
@@ -544,10 +637,8 @@ export const PARTNERS = [
   { id: 'streetclth',   brand: 'Street Clothing',         initials: 'SC', initBg: '#111827', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'timing',       brand: 'Timing',                  initials: 'TM', initBg: '#374151', filterKey: 'fashion', category: 'Clothing', status: 'shell' },
   { id: 'lume',         brand: 'Lume',                    initials: 'LM', initBg: '#D97706', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'njoy',         brand: 'N-joy',                   initials: 'NJ', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
   { id: 'tuckin',       brand: 'Tuck Inn',                initials: 'TI', initBg: '#92400E', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
   { id: 'coffeespot',   brand: 'The Coffee Spot',         initials: 'CS', initBg: '#78350F', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
-  { id: 'islandsips',   brand: 'Island Sips',             initials: 'IS', initBg: '#0891B2', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
   { id: 'joyoffoods',   brand: 'JoyofFoods',              initials: 'JF', initBg: '#B45309', filterKey: 'food', category: 'Food & Drink', status: 'shell' },
   { id: 'droghedafoodie', brand: 'The Drogheda Foodie',   initials: 'DF', initBg: '#92400E', filterKey: 'food', county: 'Louth', category: 'Food & Drink', status: 'shell' },
   { id: 'hardluck',     brand: 'Hardluck Club',           initials: 'HC', initBg: '#78350F', filterKey: 'food', county: 'Louth', category: 'Food & Drink', status: 'shell' },
