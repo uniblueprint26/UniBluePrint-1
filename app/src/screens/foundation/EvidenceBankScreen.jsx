@@ -118,9 +118,12 @@ export default function EvidenceBankScreen({ navigation }) {
 
       <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
         <Text style={styles.intro}>
-          Real STAR stories from your own experience — a job, a project, a society, anything. Build this once and
-          reuse it: Application Form Assistance drafts every answer from these stories, and Interview Preparation
-          uses them for model answers.
+          This is where you bank your best real-life examples — a job, a class project, a society you ran, a time
+          something went wrong and you fixed it. For each one you write down what actually happened using STAR: the
+          Situation you were in, the Task you had, the Action you took, and the Result it got. Save a handful here
+          once, and you never have to think them up again — Application Form Assistance drafts every competency
+          question straight from these stories instead of generic filler, and Interview Preparation turns them into
+          model answers you can rehearse before the real thing.
         </Text>
 
         {loading ? (

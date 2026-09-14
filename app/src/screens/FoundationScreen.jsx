@@ -245,13 +245,13 @@ export default function FoundationScreen({ navigation }) {
           >
             <View style={{ flex: 1 }}>
               <Text style={styles.evidenceBankTitle}>Your Evidence Bank</Text>
-              <Text style={styles.evidenceBankSubtitle}>Real STAR stories that power Application Form Assistance and Interview Prep</Text>
+              <Text style={styles.evidenceBankSubtitle}>Save your best real-life examples once, in STAR format — Application Form Assistance and Interview Prep both pull answers straight from them instead of starting blank</Text>
             </View>
             <ChevronRight size={20} color={colors.navy} />
           </TouchableOpacity>
 
           <Text style={styles.servicesSubHeader}>Career Services</Text>
-          <View style={{ gap: 14 }}>
+          <View style={{ gap: 16 }}>
             {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, originalStd, trialStd, originalPrem, trialPrem, color }) => (
               <TouchableOpacity
                 key={title}
@@ -460,14 +460,17 @@ const styles = StyleSheet.create({
   evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
   // Service cards
-  serviceCard:       { padding: 16 },
+  serviceCard:       { padding: 18 },
   serviceCardActive: { borderWidth: 1.5, borderColor: colors.navy },
   fiftyBadge:        { position: 'absolute', top: -9, right: 14, backgroundColor: colors.navy, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3, ...shadows.card },
   fiftyBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.cream, letterSpacing: 0.3 },
   serviceCardTop:    { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
-  serviceIcon:       { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  // True icon-in-a-colored-circle, matching the circle pattern already used
+  // elsewhere in the app (e.g. CourseConnectScreen's mentorCircle) — was a
+  // rounded square (borderRadius: 10) before this pass.
+  serviceIcon:       { width: 46, height: 46, borderRadius: radius.circle, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   serviceTitle:      { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  serviceTagline:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, fontStyle: 'italic', lineHeight: 17 },
+  serviceTagline:    { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.6, marginTop: 2, lineHeight: 17 },
   serviceExpanded:   { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   serviceDesc:       { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 14 },
 
@@ -481,8 +484,10 @@ const styles = StyleSheet.create({
   priceBoxSub:     { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 4, textAlign: 'center' },
   trialNote:       { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 10, fontStyle: 'italic' },
 
-  orderBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 44, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
-  orderBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  // One consistent CTA across all 8 service cards — same height, radius,
+  // weight and shadow regardless of which service it's for.
+  orderBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, alignItems: 'center', justifyContent: 'center', marginTop: 12, ...shadows.card },
+  orderBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream, letterSpacing: 0.2 },
 
   // Course Compass
   ccCard:       { padding: 18, marginBottom: 4 },
