@@ -189,7 +189,7 @@ function ProfileStack() {
       <Stack.Screen name="FAQs"         component={FAQsScreen}        />
       <Stack.Screen name="Help"         component={HelpScreen}        />
       <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
-      <Stack.Screen name="BlueprintTour">
+      <Stack.Screen name="BlueprintTour" options={{ gestureEnabled: false }}>
         {({ navigation }) => (
           <BlueprintTourScreen mode="replay" onFinish={() => navigation.goBack()} />
         )}

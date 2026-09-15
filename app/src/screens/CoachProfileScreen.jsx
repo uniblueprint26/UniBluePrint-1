@@ -339,6 +339,19 @@ const m = StyleSheet.create({
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 })
 
+// ── Phase 14 investigation: "View Profile shows nothing" ──────────────────
+// Re-verified end to end (Playwright against Expo web, every entry point
+// that navigates here — ElevationScreen's card, Budgeting's Investment tab,
+// Lifestyle's coach cross-link, the Weekly Blueprint coach spotlight, the
+// Home Spotlight carousel — all pass the same full COACHES record from
+// ElevationScreen.jsx, never a stripped-down one). Screenshotted six
+// coaches spanning the full range of how much data they have, from the
+// sparsest (Jayden Reynolds: bio + services + contact, no tagline/quote/
+// pricelist) to the richest (Milan Piroska: 7-photo gallery, pricelist,
+// package, quote). Every one rendered a complete profile — header, price,
+// category, bio, services, contact, and both CTAs — nothing here reproduced
+// as empty or broken. Kept as-is rather than rebuilt; see ElevationScreen's
+// COACHES for the underlying data every field below reads from.
 export default function CoachProfileScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
