@@ -8,7 +8,7 @@
  * used for PostAdModal / data/adBoardAds.js when Blog and Marketplace were
  * split into their own screens.
  */
-import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, ChevronDown, Phone, Mail, AtSign, Link2, HelpCircle, X,
@@ -365,6 +365,18 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
   // padding (not just the inner ScrollView's) fixes it regardless of how
   // much content there is.
   const insets = useSafeAreaInsets()
+  // A *definite* height, not just a maxHeight cap, is required here:
+  // with only maxHeight, this sheet's own height resolves from its
+  // non-scrolling children (hero + name + deal pill) via CSS/Yoga's
+  // auto-height sizing, which does NOT reserve any space for the
+  // flexGrow:1 ScrollView below — that child's flexBasis:0 contributes
+  // zero to the parent's own size, so it ends up with an actual 0px
+  // render height (confirmed via computed-style inspection), silently
+  // dropping About/Gallery/contact with no visible scroll affordance at
+  // all. Giving the sheet a real, definite height (not a cap) removes
+  // that ambiguity — the flexGrow child then always has real, non-zero
+  // leftover space to grow into and scroll within.
+  const { height: winHeight } = useWindowDimensions()
   if (!partner) return null
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
@@ -372,7 +384,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.detailBackdrop} onPress={onClose}>
         <Pressable
-          style={[styles.detailSheet, { paddingBottom: insets.bottom + 12 }]}
+          style={[styles.detailSheet, { height: Math.round(winHeight * 0.85), paddingBottom: insets.bottom + 12 }]}
           onPress={e => e.stopPropagation?.()}
         >
           <View style={styles.detailHandle} />
@@ -408,7 +420,13 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
             </View>
           )}
 
-          <View style={{ flex: 1, marginTop: 10 }}>
+          {/* flexBasis: 0 (not plain flex: 1, whose basis defaults to
+              'auto') — inside a maxHeight-only parent, a flex:1 child's
+              auto basis can size to its own content instead of the
+              remaining sheet space on native Yoga, so everything below
+              the deal pill (About, Gallery, contact) silently never
+              rendered/scrolled into view on a real device. */}
+          <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0, marginTop: 10 }}>
             <ScrollView style={styles.detailScroll} contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
               {partner.credentials && (
                 <Text style={styles.credentialsText}>{partner.credentials}</Text>
@@ -748,7 +766,8 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: radius.card + 4,
     paddingHorizontal: 18,
     paddingTop: 12,
-    maxHeight: '85%',
+    // maxHeight set inline per-render from useWindowDimensions — see
+    // PartnerDetailSheet above for why a plain percentage here isn't safe.
   },
   detailHandle: {
     width: 40, height: 4, borderRadius: 2,
@@ -768,7 +787,7 @@ export const styles = StyleSheet.create({
   // Explicit flex:1 (not just contentContainerStyle) so this ScrollView reliably
   // clips to the sheet's maxHeight instead of growing past it — same fix as
   // every screen-root ScrollView elsewhere in the app.
-  detailScroll: { flex: 1 },
+  detailScroll: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0 },
   detailScrollContent: { paddingBottom: 28 },
 
   // Expanded detail content (inside the Partner Detail Sheet)
