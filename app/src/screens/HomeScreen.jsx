@@ -8,11 +8,10 @@ import * as Haptics from 'expo-haptics'
 import {
   Bell, User, FileText, TrendingUp, Building2,
   Heart, Globe, Compass, Calculator, Megaphone,
-  LayoutGrid, MessageSquare, Users, Menu, CheckCircle,
+  MessageSquare, Users, Menu, CheckCircle,
   Activity as ActivityIcon, ChevronDown, ChevronUp,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
-import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
@@ -20,6 +19,7 @@ import QuickAccessGrid from '../components/home/QuickAccessGrid'
 import DestinationPickerModal from '../components/home/DestinationPickerModal'
 import SpotlightCarousel from '../components/home/SpotlightCarousel'
 import CondensedDashboard from '../components/home/CondensedDashboard'
+import SidebarRail from '../components/home/SidebarRail'
 import { colors, fonts } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
@@ -57,9 +57,12 @@ const ALL_SHORTCUTS = [
   { key: 'notifications', label: 'Notifications',        sub: 'Everything that needs your attention', Icon: Bell,    bg: '#FEF3C7', action: 'notifications' },
 ]
 
-// Sidebar nav items — corrected order per spec
+// Sidebar rail nav items — matched 1:1 to SidebarDrawer's icon set (same
+// icons, same order): the rail and the wide hamburger drawer are meant to
+// read as one system, just icon-only vs. icon+label. No standalone
+// "Dashboard" entry — same as the drawer, the logomark above the rail
+// (tap to go home) covers that instead of a 9th icon.
 const NAV_ITEMS = [
-  { key: 'dashboard',  label: 'Dashboard',             Icon: LayoutGrid, action: 'home'      },
   { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
   { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
   { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
@@ -337,51 +340,15 @@ export default function HomeScreen({ navigation }) {
     >
       <View style={styles.layout}>
 
-        {/* ── SIDEBAR ──
-            The complete, fixed navigation: every section of UniBlueprint,
-            always in the same order, never personalised. This is
-            deliberately distinct from Quick Access below (the user's own,
-            editable shortcuts) — see the "MENU" label and each row's
-            accessibility hint, which spell that out for anyone relying on
-            a screen reader too.
-
-            Desktop-web only (`showSidebar`, defined above) — on native or a
-            narrow/mobile-width browser it renders nothing at all, so the
-            bottom tab bar (the only nav surface on a real phone) isn't
-            duplicated and the dashboard gets the screen's full width. */}
+        {/* ── SIDEBAR RAIL ──
+            The old narrow, icon-only nav rail — always visible by default,
+            desktop-web only (`showSidebar`, defined above). Distinct from
+            (and rendered in addition to) the Quick Access overview toggle
+            below and the wide icon+label drawer opened by the ☰ hamburger
+            (SidebarDrawer.jsx, unchanged) — a third, slim companion rail,
+            collapsible via its own handle. See SidebarRail.jsx. */}
         {showSidebar && (
-          <View style={styles.sidebar} accessibilityRole="navigation" accessibilityLabel="Full navigation menu">
-            <View style={styles.sidebarLogoWrap}>
-              <UBPLogo height={33} color={colors.cream} onPress={() => handleNav({ action: 'home' })} />
-            </View>
-            <Text style={styles.sidebarCaption}>MENU</Text>
-
-            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-              {NAV_ITEMS.map(item => {
-                const isActive = item.key === activeNavKey
-                return (
-                  <TouchableOpacity
-                    key={item.key}
-                    style={styles.navItemOuter}
-                    activeOpacity={0.65}
-                    onPress={() => handleNav(item)}
-                    accessibilityRole="button"
-                    accessibilityLabel={item.label.replace('\n', ' ')}
-                  >
-                    {isActive && <View style={styles.navHighlight} />}
-                    <item.Icon
-                      size={20}
-                      color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
-                      strokeWidth={isActive ? 2 : 1.6}
-                    />
-                    <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </ScrollView>
-          </View>
+          <SidebarRail items={NAV_ITEMS} activeKey={activeNavKey} onNavigate={handleNav} />
         )}
 
         {/* ── MAIN ── */}
@@ -592,51 +559,6 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   screen:  { flex: 1, backgroundColor: colors.navy },
   layout:  { flex: 1, flexDirection: 'row' },
-
-  // Sidebar
-  sidebar: {
-    width: 78,
-    backgroundColor: colors.navy,
-    borderRightWidth: 1,
-    borderRightColor: 'rgba(245,240,232,0.09)',
-  },
-  sidebarLogoWrap: {
-    paddingTop: 16, paddingBottom: 16, paddingHorizontal: 10,
-    alignItems: 'center',
-    borderBottomWidth: 1, borderBottomColor: 'rgba(245,240,232,0.09)',
-  },
-  // Small caption clarifying this rail's role — the complete, fixed
-  // navigation — distinct from the personalised Quick Access grid below.
-  sidebarCaption: {
-    fontFamily: fonts.sansSemiBold, fontSize: 8.5,
-    color: 'rgba(245,240,232,0.4)', letterSpacing: 1,
-    textAlign: 'center', textTransform: 'uppercase',
-    marginTop: 10, marginBottom: 2,
-  },
-  navItemOuter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 17,
-    paddingHorizontal: 6,
-    position: 'relative',
-  },
-  navHighlight: {
-    position: 'absolute',
-    top: 5, left: 5, right: 5, bottom: 5,
-    backgroundColor: 'rgba(255,255,255,0.13)',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  navLabel: {
-    fontFamily: fonts.sans,
-    fontSize: 9,
-    color: 'rgba(245,240,232,0.5)',
-    marginTop: 5,
-    textAlign: 'center',
-    lineHeight: 12,
-  },
-  navLabelActive: { color: 'rgba(245,240,232,0.92)' },
 
   // Main
   main: { flex: 1, backgroundColor: colors.cream },

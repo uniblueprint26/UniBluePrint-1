@@ -2,11 +2,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
-import { Platform, View, Animated } from 'react-native'
-import { useRef, useEffect, useState } from 'react'
+import { Platform, View } from 'react-native'
+import { useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import UBPLogo from '../components/ui/UBPLogo'
 import UnverifiedEmailBanner from '../components/ui/UnverifiedEmailBanner'
+import LoadingScreen from '../components/ui/LoadingScreen'
 import SidebarDrawer from './SidebarDrawer'
 
 import { useAuth } from '../context/AuthContext'
@@ -302,25 +302,14 @@ function AuthStack() {
 }
 
 // ── Splash Screen ─────────────────────────────────────────────────────────────
-// Shown while auth state resolves. Fade + scale matches Apple launch-screen feel.
+// Shown while auth state resolves — every app open, not just cold start
+// (getSession() is always async). This used to be its own fade+scale
+// wrapper around a live <UBPLogo> Text; it's now the same LoadingScreen
+// used pre-fonts-loaded in App.jsx, so there's exactly one loading surface
+// in the whole app (one navy+shine screen, not two visually different
+// ones), and one less place a live custom-font Text can ever flash.
 function SplashScreen() {
-  const fadeAnim  = useRef(new Animated.Value(0)).current
-  const scaleAnim = useRef(new Animated.Value(0.88)).current
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 640, useNativeDriver: true }),
-      Animated.timing(scaleAnim, { toValue: 1, duration: 640, useNativeDriver: true }),
-    ]).start()
-  }, [])
-
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.navy }}>
-      <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }], alignItems: 'flex-start' }}>
-        <UBPLogo height={80} color={colors.cream} variant="wordmark" />
-      </Animated.View>
-    </View>
-  )
+  return <LoadingScreen />
 }
 
 export default function RootNavigator() {

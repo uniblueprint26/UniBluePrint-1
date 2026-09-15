@@ -24,7 +24,17 @@ const STAGE_LABEL = {
   in_review: 'In review', delivered: 'Delivered',
 }
 
-const PANEL_HEIGHT = 176
+// Fallback only, used for the very first expand before the real content has
+// ever reported its own height (see `handleContentLayout` below) — not the
+// real target height. It used to be the ONLY target height, hardcoded, and
+// came up short of the actual 4-row panel (Notifications, Foundation
+// Blueprint, Coaching, Membership) by enough to clip the last row
+// (Membership) at the bottom on every expand. Any future change to a row's
+// content — a longer value string wrapping to a second line, a platform's
+// font-scaling accessibility setting, an added row — would have reopened
+// the same class of bug with another hardcoded guess, so this now measures
+// the panel's real, current height instead of assuming one.
+const FALLBACK_PANEL_HEIGHT = 220
 
 function StatRow({ Icon, label, value, onPress }) {
   return (
@@ -56,14 +66,26 @@ export default function CondensedDashboard({
   const [nextBooking, setNextBooking] = useState(null)
 
   const heightAnim = useRef(new Animated.Value(0)).current
+  // The panel's real, measured height — see `handleContentLayout`. Layout
+  // still runs (and reports a size) for a child of a zero-height,
+  // overflow:hidden parent in RN's Yoga engine, since clipping is a paint
+  // concern, not a layout one — so this is already known correctly before
+  // the very first expand in the overwhelmingly common case, not just on
+  // the second one.
+  const [contentHeight, setContentHeight] = useState(FALLBACK_PANEL_HEIGHT)
 
   useEffect(() => {
     Animated.timing(heightAnim, {
-      toValue: expanded ? PANEL_HEIGHT : 0,
+      toValue: expanded ? contentHeight : 0,
       duration: 240,
       useNativeDriver: false,
     }).start()
-  }, [expanded, heightAnim])
+  }, [expanded, contentHeight, heightAnim])
+
+  function handleContentLayout(e) {
+    const h = e.nativeEvent.layout.height
+    if (h > 0 && Math.round(h) !== Math.round(contentHeight)) setContentHeight(h)
+  }
 
   // Lazy-load real account data the first time the panel is opened.
   useEffect(() => {
@@ -107,30 +129,37 @@ export default function CondensedDashboard({
 
   return (
     <Animated.View style={[styles.wrap, { height: heightAnim }]}>
-      <View style={styles.panel}>
-        <StatRow
-          Icon={Bell}
-          label="Notifications"
-          value={unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
-          onPress={() => navigation.navigate('Notifications')}
-        />
-        <StatRow
-          Icon={FileText}
-          label="Foundation Blueprint"
-          value={submissionValue}
-          onPress={() => navigation.navigate('MyOutputs')}
-        />
-        <StatRow
-          Icon={Users}
-          label="Coaching"
-          value={bookingValue}
-          onPress={() => navigation.navigate('Elevation')}
-        />
-        <StatRow
-          Icon={Award}
-          label="Membership"
-          value={isComplimentaryPro ? 'Complimentary Pro — active' : 'Standard'}
-        />
+      {/* Measured on this outer, auto-sized wrapper rather than `panel`
+          directly — a parent's auto height includes a child's own margin
+          box, so this correctly captures panel's trailing marginBottom
+          (the gap before Quick Access's cards below) as part of
+          `contentHeight` too, not just the rows themselves. */}
+      <View onLayout={handleContentLayout}>
+        <View style={styles.panel}>
+          <StatRow
+            Icon={Bell}
+            label="Notifications"
+            value={unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+            onPress={() => navigation.navigate('Notifications')}
+          />
+          <StatRow
+            Icon={FileText}
+            label="Foundation Blueprint"
+            value={submissionValue}
+            onPress={() => navigation.navigate('MyOutputs')}
+          />
+          <StatRow
+            Icon={Users}
+            label="Coaching"
+            value={bookingValue}
+            onPress={() => navigation.navigate('Elevation')}
+          />
+          <StatRow
+            Icon={Award}
+            label="Membership"
+            value={isComplimentaryPro ? 'Complimentary Pro — active' : 'Standard'}
+          />
+        </View>
       </View>
     </Animated.View>
   )

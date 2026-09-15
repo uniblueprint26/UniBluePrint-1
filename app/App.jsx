@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Image } from 'react-native'
+import { Platform } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { DMSerifDisplay_400Regular, DMSerifDisplay_400Regular_Italic } from '@expo-google-fonts/dm-serif-display'
@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { AuthProvider } from './src/context/AuthContext'
 import RootNavigator from './src/navigation'
 import { linking } from './src/navigation/linking'
+import LoadingScreen from './src/components/ui/LoadingScreen'
 import { colors } from './src/constants/theme'
 
 // Keep the native splash (a plain image, no custom fonts involved) on
@@ -20,11 +21,64 @@ import { colors } from './src/constants/theme'
 // live <UBPLogo> here, but UBPLogo hardcodes fontFamily: 'DMSerifDisplay...'
 // unconditionally, and text set to a fontFamily that hasn't registered yet
 // renders in the platform's fallback font — a real, if brief, flash of the
-// wrong typeface right at cold start. Rendering the exported splash PNG
-// instead (same navy background, same lockup, baked into pixels) closes
-// that gap completely: there is no code path left where the wordmark can
-// paint before its font is ready.
+// wrong typeface. LoadingScreen (image + gradient only, no Text) closes
+// that gap: there is no code path left where the wordmark can paint before
+// its font is ready.
 SplashScreen.preventAutoHideAsync().catch(() => {})
+
+// ── Web font-readiness: the *actual* root cause of the "still happening on
+// every load" flash ──────────────────────────────────────────────────────
+//
+// `useFonts()` resolving `true` was assumed to mean every requested face is
+// genuinely paintable, and the previous fix (two rAF ticks below) only
+// hardened against a native cold-start registration lag on that
+// assumption. That assumption is false on web. expo-font's browser loader
+// (node_modules/expo-font/build/ExpoFontLoader.web.js) injects the
+// @font-face rule, then tries to *confirm* the face has actually finished
+// downloading/rasterizing with the `fontfaceobserver` polyfill — but only
+// after checking `isFontLoadingListenerSupported()`, which is hardcoded to
+// return `false` for Safari, iOS and Edge ("WebKit is broken", per that
+// file's own comment). On every one of those browsers `loadAsync()` skips
+// the observer entirely and returns an already-resolved `Promise.resolve()`
+// — so `fontsLoaded` flips `true` the instant the stylesheet is injected,
+// not once the font is actually ready to paint. That gap exists on *every*
+// load (it isn't a caching thing, so reloading doesn't fix it), which
+// matches the reported symptom exactly, and it's untouched by the rAF
+// hardening below, which only ever waits on `fontsLoaded` itself.
+//
+// `document.fonts.ready` is the browser's own primitive for "every
+// requested face has settled (loaded or failed)" — unlike the vendored
+// polyfill it isn't disabled per-browser, so gating on it (web only) closes
+// the real gap. `document.fonts.load(...)` is also called explicitly per
+// face first: `ready` only reflects faces the page has actually requested
+// a load for, and relying solely on the CSS rule being present doesn't
+// guarantee a fetch was ever kicked off before `ready` resolves trivially.
+const WEB_FONT_SPECS = [
+  '400 16px DMSerifDisplay_400Regular',
+  'italic 400 16px DMSerifDisplay_400Regular_Italic',
+  '400 16px DMSans_400Regular',
+  '500 16px DMSans_500Medium',
+  '600 16px DMSans_600SemiBold',
+  '700 16px DMSans_700Bold',
+]
+
+function useWebFontsSettled(active) {
+  const [settled, setSettled] = useState(Platform.OS !== 'web')
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !active || settled) return
+    let cancelled = false
+    const fontsApi = typeof document !== 'undefined' ? document.fonts : null
+    if (!fontsApi?.ready) { setSettled(true); return }
+    Promise.all([...WEB_FONT_SPECS.map(spec => fontsApi.load(spec).catch(() => {})), fontsApi.ready])
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setSettled(true) })
+    // Safety net — never block app open forever if a browser's Font Loading
+    // API misbehaves; worst case we're back to the old (racy) behaviour.
+    const timeout = setTimeout(() => { if (!cancelled) setSettled(true) }, 3000)
+    return () => { cancelled = true; clearTimeout(timeout) }
+  }, [active, settled])
+  return settled
+}
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -37,23 +91,17 @@ export default function App() {
   })
 
   const fontsReady = fontsLoaded || fontError
+  const webFontsSettled = useWebFontsSettled(fontsReady)
 
-  // `useFonts` resolving `true` means the JS promise for font registration
-  // has settled — on a genuine cold start (nothing cached yet), that can
-  // land a frame or two before the native text renderer actually has the
-  // face available for the very first paint, which is the well-known
-  // "flashes fallback font on cold load, fine on reload" pattern: a reload
-  // benefits from the OS having already resolved/cached the font faces, so
-  // the same race doesn't reopen. Rendering already waits for `fontsReady`
-  // before mounting any real UI (see below), so this isn't a missing gate —
-  // it's tightening the gate itself: two requestAnimationFrame ticks after
-  // `fontsReady` flips give native the extra time it needs to finish
-  // registering the faces before `appReady` (and therefore the first real
-  // paint) flips, at the cost of two frames of the same splash image that
-  // was already showing.
+  // On native, `fontsReady` is the reliable native-module signal (it only
+  // resolves once the face is genuinely registered with the OS), so two rAF
+  // ticks after it flips is still a reasonable, cheap safety margin for the
+  // very first native paint. On web, `webFontsSettled` is now the gate that
+  // actually matters (see above) — `fontsReady` alone is not trustworthy
+  // there on Safari/iOS/Edge.
   const [appReady, setAppReady] = useState(false)
   useEffect(() => {
-    if (!fontsReady) return
+    if (!fontsReady || !webFontsSettled) return
     let raf2
     const raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => setAppReady(true))
@@ -62,22 +110,14 @@ export default function App() {
       cancelAnimationFrame(raf1)
       if (raf2) cancelAnimationFrame(raf2)
     }
-  }, [fontsReady])
+  }, [fontsReady, webFontsSettled])
 
   useEffect(() => {
     if (appReady) SplashScreen.hideAsync().catch(() => {})
   }, [appReady])
 
   if (!appReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.navy }}>
-        <Image
-          source={require('./assets/splash.png')}
-          style={{ width: 240, height: 149 }}
-          resizeMode="contain"
-        />
-      </View>
-    )
+    return <LoadingScreen />
   }
 
   return (
