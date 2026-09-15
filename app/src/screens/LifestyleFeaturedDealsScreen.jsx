@@ -33,7 +33,7 @@
  */
 import { useRef, useState, useCallback, useEffect } from 'react'
 import {
-  View, Text, TouchableOpacity, StyleSheet, FlatList, Animated,
+  View, Text, TouchableOpacity, StyleSheet, FlatList, Animated, Image,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -56,6 +56,11 @@ const FEATURED_DEALS = [
   { id: 'zvisionapparel',    productLabel: 'Custom Embroidered Hoodie' },
   { id: 'saiemsent',         productLabel: 'Signature Streetwear Drop' },
   { id: 'elect',             productLabel: 'Faith-Led Streetwear' },
+  { id: 'pouvoirs',          productLabel: 'Gallery Pieces & Prints' },
+  { id: 'secondnature',      productLabel: 'Signature Clothing Piece' },
+  { id: 'njoy',              productLabel: 'Bar & Drinks Menu' },
+  { id: 'styledbybene',      productLabel: 'Personal Styling Session' },
+  { id: 'islandsips',        productLabel: 'Tropical Drinks Menu' },
   { id: 'eabakeditt',        productLabel: 'Loaded Brownie Box' },
   { id: 'nailnurse',         productLabel: 'Signature Nail Set' },
   { id: 'veeslash',          productLabel: 'Signature Lash Set' },
@@ -79,9 +84,12 @@ const CATEGORY_ICON_FALLBACK = { fitness: ShoppingBag, beauty: Sparkles, fashion
 // ─── Branded placeholder tile — structurally ready for a real photo: pass
 // `partner.productImage` (a Storage URL, once one exists) and this renders
 // that Image instead, with the exact same caption layout around it. Until
-// then it's a deliberate, honest "no photo yet" treatment — a soft
-// blueprint-sketch texture in the category's accent colour, the category
-// icon, and the partner's monogram — never a fake stock photo standing in. ──
+// then, falls back to the partner's real bundled `hero`/`logo` photo
+// (letterboxed, never cropped — same rule as PartnerHeroImage elsewhere)
+// when one exists. Only partners with neither get the honest "no photo
+// yet" sketch treatment — a soft blueprint-sketch texture in the
+// category's accent colour, the category icon, and the partner's
+// monogram — never a fake stock photo standing in. ─────────────────────────
 function ProductPlaceholder({ partner, hero }) {
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
   const Icon = CATEGORY_META[partner.filterKey]?.Icon || CATEGORY_ICON_FALLBACK[partner.filterKey] || ShoppingBag
@@ -93,6 +101,18 @@ function ProductPlaceholder({ partner, hero }) {
         style={[styles.placeholderBase, hero ? styles.placeholderHero : styles.placeholderGrid]}
         resizeMode="cover"
       />
+    )
+  }
+
+  const bundledPhoto = partner.hero || partner.logo
+  if (bundledPhoto) {
+    return (
+      <View style={[
+        styles.placeholderBase, hero ? styles.placeholderHero : styles.placeholderGrid,
+        { backgroundColor: `${accent}0D` },
+      ]}>
+        <Image source={bundledPhoto} style={styles.placeholderPhoto} resizeMode="contain" />
+      </View>
     )
   }
 
@@ -350,6 +370,7 @@ const styles = StyleSheet.create({
   },
   placeholderHero: { height: 180 },
   placeholderGrid: { height: 118, borderRadius: 0 },
+  placeholderPhoto: { width: '100%', height: '100%' },
   placeholderLinesWrap: { ...StyleSheet.absoluteFillObject },
   placeholderLine: { position: 'absolute', left: '-15%', right: '-15%', height: 1, opacity: 0.14, transform: [{ rotate: '-8deg' }] },
   placeholderIconWrap: {
