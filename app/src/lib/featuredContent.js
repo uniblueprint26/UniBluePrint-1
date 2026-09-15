@@ -5,7 +5,8 @@ import { PARTNERS } from '../data/lifestylePartners'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { COURSE_BOARDS } from '../constants/courseConnectBoards'
 
-// ─── Home dashboard "Spotlight" carousel — resolving real, live content ───
+// ─── Home dashboard "Trending Right Now" carousel — resolving real, live
+// content (renamed from "Spotlight" in Phase 20) ───────────────────────────
 //
 // featured_content (Supabase) only stores WHAT to feature (content_type +
 // ref_id) and how to present it (an optional caption/CTA override, a
@@ -47,7 +48,8 @@ async function coach(row) {
   // Bundled hero photo (e.g. Milan Piroska, Tadgh Darcy) is the default —
   // a founder-uploaded coach_profiles.photo_url, if one exists, overrides
   // it below. photoUrl can end up as either a remote URL string or a local
-  // require()'d image module; SpotlightCarousel's SlideMedia handles both.
+  // require()'d image module; SpotlightCarousel's SlideHero (via
+  // PartnerHeroImage) handles both.
   let photoUrl = c.heroImage || null
   try {
     const { data } = await supabase
@@ -72,7 +74,13 @@ async function coach(row) {
 async function lifestylePartner(row) {
   const p = PARTNERS.find(x => x.id === row.ref_id)
   if (!p) return null
-  let photoUrl = p.logo || null
+  // `hero` (a wide, portfolio-style shot) reads better as a Spotlight
+  // centerpiece than `logo` (a square brandmark) when a partner has both —
+  // several of the Sept 2026 roster (Second Nature, N-joy, Island Sips,
+  // StyledByBene, Z Vision) only ever set `hero`, not `logo`, so falling
+  // back to `logo` alone silently dropped their photo here. A
+  // founder-uploaded `partners.logo_url` still overrides either below.
+  let photoUrl = p.hero || p.logo || null
   try {
     const { data } = await supabase
       .from('partners').select('logo_url')
@@ -141,10 +149,32 @@ const RESOLVERS = {
   course_board: row => board(row, 'course_board'),
 }
 
-// Fetches the active, in-window featured_content rows and resolves each one
-// against its real live source. Rows that fail to resolve (a stale ref_id
-// pointing at something removed) are silently dropped rather than shown
-// broken — curation errors should never crash or blank the home screen.
+// ─── "Trending Right Now" rotation ─────────────────────────────────────────
+// There's no real trending/engagement data behind this yet — Founder Portal
+// curation just pins whatever real items should be eligible. Rather than
+// dumping every pinned item on Home at once (which only gets noisier as the
+// founder pins more), or inventing fake view counts to justify a ranking,
+// each content_type category shows a capped, rotating window into its own
+// pinned list: which items are visible shifts on a deterministic time-based
+// schedule, so the carousel still reads as "what's trending" without
+// claiming to measure anything real. Same pinned pool, different slice.
+const ROTATION_WINDOW_MS = 1000 * 60 * 60 * 3 // shift the visible slice every 3 hours
+const MAX_PER_CATEGORY = 3
+
+function rotatingSlice(items, maxCount) {
+  if (items.length <= maxCount) return items
+  const bucket = Math.floor(Date.now() / ROTATION_WINDOW_MS)
+  const start = bucket % items.length
+  const picked = []
+  for (let i = 0; i < maxCount; i++) picked.push(items[(start + i) % items.length])
+  return picked
+}
+
+// Fetches the active, in-window featured_content rows, resolves each one
+// against its real live source, then applies the rotation above per
+// content_type. Rows that fail to resolve (a stale ref_id pointing at
+// something removed) are silently dropped rather than shown broken —
+// curation errors should never crash or blank the home screen.
 export async function fetchSpotlightSlides() {
   const nowIso = new Date().toISOString()
   const { data, error } = await supabase
@@ -163,5 +193,18 @@ export async function fetchSpotlightSlides() {
     if (!resolver) return null
     try { return await resolver(row) } catch { return null }
   }))
-  return resolved.filter(Boolean)
+
+  // Group resolved slides by content_type, in the priority/created_at order
+  // the query already returned, then rotate a 2-3 item window per group.
+  const groups = new Map()
+  data.forEach((row, i) => {
+    const slide = resolved[i]
+    if (!slide) return
+    if (!groups.has(row.content_type)) groups.set(row.content_type, [])
+    groups.get(row.content_type).push(slide)
+  })
+
+  const visible = []
+  for (const group of groups.values()) visible.push(...rotatingSlice(group, MAX_PER_CATEGORY))
+  return visible
 }

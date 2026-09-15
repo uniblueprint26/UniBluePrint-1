@@ -435,20 +435,13 @@ export default function HomeScreen({ navigation }) {
             showsVerticalScrollIndicator={false}
             scrollEnabled={!editingQA}
           >
-            {/* Spotlight — manually curated, real content (see Task #13 notes
-                in lib/featuredContent.js). Sits first, above Quick Access:
-                this is the "front page" the founder wants Home to feel
-                like, not a buried activity-feed entry. */}
-            {spotlightSlides.length > 0 && (
-              <View style={{ marginBottom: 22 }}>
-                <View style={[styles.sectionRow, { marginBottom: 8 }]}>
-                  <Text style={styles.eyebrow}>Spotlight</Text>
-                </View>
-                <SpotlightCarousel slides={spotlightSlides} onSlidePress={handleSpotlightPress} />
-              </View>
-            )}
-
-            {/* Quick Access */}
+            {/* Quick Access — sits first now (Phase 20): a student's own
+                shortcuts plus the collapsible account Overview are the
+                "get things done" block, so they anchor the very top of
+                Home. Trending Right Now (below) is the "front page" visual
+                centerpiece — previously above Quick Access — now second,
+                since it's a bigger, slower-to-scan block that reads better
+                once the utility row is already out of the way. */}
             <View
               ref={gridBlockRef}
               onLayout={measureGridBlock}
@@ -507,6 +500,26 @@ export default function HomeScreen({ navigation }) {
                 />
               </View>
             </View>
+
+            {/* Trending Right Now — manually curated, real content (see
+                lib/featuredContent.js), renamed from "Spotlight" and
+                promoted to Home's visual centerpiece in Phase 20: a bigger,
+                letterboxed-photo carousel that rotates a capped 2-3 item
+                window per category rather than a small static strip. The
+                "trending" framing is honest about what it is — a curated
+                rotation, not a real engagement ranking — see
+                fetchSpotlightSlides() for how the rotation works. */}
+            {spotlightSlides.length > 0 && (
+              <View style={{ marginBottom: 24 }}>
+                <View style={[styles.sectionRow, { marginBottom: 10 }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <View style={styles.trendingPulse} />
+                    <Text style={styles.trendingTitle}>Trending Right Now</Text>
+                  </View>
+                </View>
+                <SpotlightCarousel slides={spotlightSlides} onSlidePress={handleSpotlightPress} />
+              </View>
+            )}
 
             {/* Live Activity */}
             <View style={styles.sectionRow}>
@@ -661,6 +674,17 @@ const styles = StyleSheet.create({
   livePulse: {
     width: 7, height: 7, borderRadius: 3.5,
     backgroundColor: '#16A34A',
+  },
+
+  // Trending Right Now — a bigger, serif section title (not the small
+  // uppercase eyebrow used everywhere else) so it reads as Home's
+  // centerpiece heading, paired with a gold pulse dot in the same spot
+  // Live Activity uses its green one, just recoloured to match the brand
+  // gold accent instead of "live data" green.
+  trendingTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
+  trendingPulse: {
+    width: 7, height: 7, borderRadius: 3.5,
+    backgroundColor: colors.gold,
   },
 
   // Activity feed
