@@ -11,7 +11,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronRight, Phone, Mail, AtSign, Link2, HelpCircle, X,
+  ChevronRight, ChevronDown, Phone, Mail, AtSign, Link2, HelpCircle, X,
   Dumbbell, Sparkles, ShoppingBag, UtensilsCrossed, Wrench,
 } from 'lucide-react-native'
 import VerifiedBadge from '../ui/VerifiedBadge'
@@ -198,6 +198,150 @@ export function PartnerGridCard({ partner, onPress, highlighted }) {
         <View style={styles.gridCardSpacer} />
       )}
     </TouchableOpacity>
+  )
+}
+
+// ─── Partner List Row — the compact "list" tier of Explore's collapsible
+// category → list → card pattern: sits inside an expanded CategoryAccordion
+// below, one row per partner, tapping it opens PartnerExpandCard (the same
+// click-to-expand card used by The Collection). ─────────────────────────────
+export function PartnerListRow({ partner, onPress, highlighted }) {
+  return (
+    <TouchableOpacity
+      style={[styles.listRow, highlighted && styles.listRowHighlighted]}
+      activeOpacity={0.75}
+      onPress={onPress}
+    >
+      <PartnerLogo partner={partner} size={40} />
+      <View style={{ flex: 1, marginLeft: 12 }}>
+        <Text style={styles.listRowName} numberOfLines={1}>{partner.brand}</Text>
+        <Text style={styles.listRowCategory} numberOfLines={1}>{partner.category}</Text>
+      </View>
+      {partner.deal ? (
+        <View style={styles.listRowDealPill}>
+          <Text style={styles.listRowDealText} numberOfLines={1}>{partner.deal}</Text>
+        </View>
+      ) : null}
+      <ChevronRight size={16} color={colors.light} />
+    </TouchableOpacity>
+  )
+}
+
+// ─── Category Accordion — one collapsible section of Explore: tapping the
+// header expands/collapses the category, revealing its PartnerListRows below.
+// Categories with no live partners render nothing, same defensive pattern
+// FEATURED_DEALS uses elsewhere in Lifestyle. ────────────────────────────────
+export function CategoryAccordion({ filterKey, items, expanded, onToggle, onPressPartner, highlightId }) {
+  const meta = CATEGORY_META[filterKey]
+  if (!meta || items.length === 0) return null
+  return (
+    <View style={styles.accordionSection}>
+      <TouchableOpacity
+        style={styles.accordionHeader}
+        activeOpacity={0.75}
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+      >
+        <View style={[styles.categoryHeaderIcon, { backgroundColor: `${meta.accent}1A` }]}>
+          <meta.Icon size={14} color={meta.accent} strokeWidth={2} />
+        </View>
+        <Text style={styles.accordionHeaderText}>{meta.label}</Text>
+        <Text style={styles.accordionCount}>{items.length}</Text>
+        <View style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}>
+          <ChevronDown size={16} color={colors.muted} />
+        </View>
+      </TouchableOpacity>
+      {expanded && (
+        <View style={styles.accordionList}>
+          {items.map(p => (
+            <PartnerListRow
+              key={p.id}
+              partner={p}
+              highlighted={p.id === highlightId}
+              onPress={() => onPressPartner(p.id)}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  )
+}
+
+// ─── Partner Expand Card — the click-to-expand card interaction shared by
+// The Collection and Explore's list rows: tapping a partner opens this
+// (same modal/bottom-sheet scaffold as PartnerDetailSheet below, just with
+// lighter content) showing the partner's uncropped photo, brand name, and
+// social handle — nothing else, so it reads as a quick peek rather than the
+// full listing. `onViewFull`, when passed, adds a CTA into the full
+// PartnerDetailSheet for pricing/services/contact — the same one destination
+// every partner listing in the app already ends at. ─────────────────────────
+export function PartnerExpandCard({ partner, visible, onClose, onViewFull }) {
+  const insets = useSafeAreaInsets()
+  if (!partner) return null
+
+  const social = partner.contact?.instagram
+    ? { type: 'instagram', handle: partner.contact.instagram }
+    : partner.contact?.tiktok
+      ? { type: 'tiktok', handle: partner.contact.tiktok }
+      : null
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.detailBackdrop} onPress={onClose}>
+        <Pressable
+          style={[styles.expandSheet, { paddingBottom: insets.bottom + 20 }]}
+          onPress={e => e.stopPropagation?.()}
+        >
+          <View style={styles.detailHandle} />
+          <TouchableOpacity
+            style={styles.detailCloseBtn}
+            onPress={onClose}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+          >
+            <X size={16} color={colors.muted} />
+          </TouchableOpacity>
+
+          {partner.hero ? (
+            <PartnerHeroImage source={partner.hero} aspectRatio={4 / 3} style={styles.expandHero} />
+          ) : (
+            <View style={[styles.expandHero, styles.expandNoPhoto]}>
+              <PartnerLogo partner={partner} size={64} />
+            </View>
+          )}
+
+          <Text style={styles.expandBrandName}>{partner.brand}</Text>
+
+          {social && (
+            <TouchableOpacity
+              style={styles.expandSocialRow}
+              activeOpacity={0.75}
+              onPress={() => Linking.openURL(
+                social.type === 'instagram'
+                  ? `https://instagram.com/${social.handle}`
+                  : `https://www.tiktok.com/@${social.handle}`,
+              )}
+            >
+              <AtSign size={13} color={colors.gold} />
+              <Text style={styles.expandSocialText}>@{social.handle}</Text>
+            </TouchableOpacity>
+          )}
+
+          {onViewFull && (
+            <TouchableOpacity
+              style={styles.expandViewFullBtn}
+              activeOpacity={0.8}
+              onPress={() => { onClose(); onViewFull(partner.id) }}
+            >
+              <Text style={styles.expandViewFullText}>View full listing</Text>
+              <ChevronRight size={14} color={colors.navy} />
+            </TouchableOpacity>
+          )}
+        </Pressable>
+      </Pressable>
+    </Modal>
   )
 }
 
@@ -533,6 +677,66 @@ export const styles = StyleSheet.create({
   soonBrand:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: '#000000', marginTop: 10, lineHeight: 17, letterSpacing: 1 },
   soonLocation: { fontFamily: fonts.sans, fontSize: 10.5, color: '#000000', marginTop: 4 },
   soonCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: '#4B5563', marginTop: 2 },
+
+  // Partner List Row — Explore's collapsible category → list → card pattern
+  listRow: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: colors.white, borderRadius: radius.button,
+    paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8,
+    borderWidth: 1, borderColor: colors.border,
+  },
+  listRowHighlighted: { borderColor: colors.gold, borderWidth: 1.5 },
+  listRowName:     { fontFamily: fonts.serif, fontSize: 14.5, color: colors.navy },
+  listRowCategory: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2 },
+  listRowDealPill: {
+    backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.badge,
+    paddingHorizontal: 8, paddingVertical: 3, marginRight: 8, maxWidth: 100,
+  },
+  listRowDealText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: '#145A3E' },
+
+  // Category Accordion — collapsible section wrapping a category's list rows
+  accordionSection: { marginBottom: 10 },
+  accordionHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: colors.white, borderRadius: radius.button,
+    borderWidth: 1, borderColor: colors.border,
+    paddingHorizontal: 12, paddingVertical: 12, marginBottom: 8,
+  },
+  accordionHeaderText: {
+    flex: 1, fontFamily: fonts.sansBold, fontSize: 13, color: colors.navy,
+    textTransform: 'uppercase', letterSpacing: 0.5,
+  },
+  accordionCount: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted },
+  accordionList: { paddingLeft: 2 },
+
+  // Partner Expand Card — click-to-expand quick peek (photo + brand + social),
+  // same modal scaffold as the Partner Detail Sheet below, lighter content.
+  expandSheet: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: radius.card + 4,
+    borderTopRightRadius: radius.card + 4,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+  },
+  expandHero: { marginTop: 6, marginBottom: 16 },
+  expandNoPhoto: {
+    aspectRatio: 4 / 3, backgroundColor: colors.cream, borderRadius: radius.card,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  expandBrandName: {
+    fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center',
+  },
+  expandSocialRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
+    marginTop: 10,
+  },
+  expandSocialText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.gold },
+  expandViewFullBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginTop: 20, paddingVertical: 12, borderRadius: radius.button,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cream,
+  },
+  expandViewFullText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
 
   // Partner Detail Sheet — full listing, opened from a grid card tap.
   detailBackdrop: {

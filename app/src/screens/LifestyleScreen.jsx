@@ -27,9 +27,9 @@ const LIVE_PARTNER_COUNT = PARTNERS.filter(p => p.status === 'live').length
 // the same family of pattern rather than a bespoke one-off.
 const FEATURES = [
   {
-    key: 'featured', label: 'FEATURED DEALS', Icon: ShoppingBag, color: '#FDF1DD',
-    headline: 'Shop the boutique',
-    sub: 'Real products from real partners: apparel, beauty sets, prints, and bakes, curated into one storefront. No checkout, just a direct line to claim it.',
+    key: 'featured', label: 'THE COLLECTION', Icon: ShoppingBag, color: '#FDF1DD',
+    headline: 'Curated by UniBlueprint',
+    sub: 'Real products from real partners: apparel, beauty sets, prints, and bakes, curated into one collection. No checkout, just a direct line to claim it.',
     count: 'New', isNew: true,
     screen: 'LifestyleFeaturedDeals',
   },

@@ -5,13 +5,20 @@
  * navigation registrations and deep links (Elevation's cross-links, the
  * hub's own highlightId forwarding) — the display name is "Explore".
  *
- * The Ireland map and the full partner grid used to be an either/or Grid/Map
- * toggle on the old combined Lifestyle screen. They're combined here
- * instead, map first then the full categorised grid below it, both always
- * visible on the one page — no toggle, matching how the map and the full
- * roster actually get browsed together in practice.
+ * The Ireland map and the full partner roster used to be an either/or
+ * Grid/Map toggle on the old combined Lifestyle screen, then a flat
+ * filter-pill + grid layout. Now it's a collapsible category → list → card
+ * pattern: each category (pulled straight from PartnerCards' shared
+ * CATEGORY_META/FILTERS, never hardcoded here) is its own accordion section
+ * — tap the header to expand/collapse it — and an expanded category reveals
+ * a plain list of its live partners. Tapping a partner in that list opens
+ * the same click-to-expand PartnerExpandCard The Collection uses (photo,
+ * brand, social handle), which itself can drill into the full
+ * PartnerDetailSheet for pricing/services/contact — one consistent
+ * "list → card → full detail" path across both screens rather than a third
+ * interaction variant.
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, Lock } from 'lucide-react-native'
@@ -20,45 +27,59 @@ import SectionHeader from '../components/ui/SectionHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import PartnerMap from '../components/ui/PartnerMap'
 import {
-  FILTERS, CategorySectionHeader, ComingSoonGridCard, PartnerGridCard, PartnerDetailSheet,
+  FILTERS, ComingSoonGridCard, CategoryAccordion, PartnerExpandCard, PartnerDetailSheet,
   styles as partnerStyles,
 } from '../components/lifestyle/PartnerCards'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { PARTNERS } from '../data/lifestylePartners'
 
+const CATEGORY_KEYS = FILTERS.filter(f => f.key !== 'all').map(f => f.key)
+
 export default function LifestylePartnersScreen({ navigation, route }) {
   const insets = useSafeAreaInsets()
-  const [activeFilter, setActiveFilter] = useState(route?.params?.filterKey || 'all')
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
+  const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [detailPartnerId, setDetailPartnerId] = useState(route?.params?.highlightId || null)
   const [mapHighlightId, setMapHighlightId] = useState(null)
   const highlightId = mapHighlightId || route?.params?.highlightId
 
-  const liveVisible = PARTNERS.filter(p =>
-    p.status === 'live' && (activeFilter === 'all' || p.filterKey === activeFilter))
-  const soonVisible = PARTNERS.filter(p =>
-    p.status === 'shell' && (activeFilter === 'all' || p.filterKey === activeFilter))
+  // A category arriving already-highlighted (deep link, or the map's "view
+  // full listing") should open expanded, not buried behind a collapsed
+  // header the person then has to find and tap themselves.
+  const initialExpanded = useMemo(() => {
+    if (!highlightId) return new Set()
+    const target = PARTNERS.find(p => p.id === highlightId)
+    return target ? new Set([target.filterKey]) : new Set()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- deliberately one-time seed, see toggle/expand logic below
+  const [expandedKeys, setExpandedKeys] = useState(initialExpanded)
 
-  // Grouped into sections when browsing everything; a single filter already
-  // does the grouping for you, so headers would just repeat the filter pill.
-  const showSectionHeaders = activeFilter === 'all'
-  const liveGroups = showSectionHeaders
-    ? FILTERS
-        .filter(f => f.key !== 'all')
-        .map(f => ({ key: f.key, items: liveVisible.filter(p => p.filterKey === f.key) }))
-        .filter(g => g.items.length > 0)
-    : [{ key: activeFilter, items: liveVisible }]
+  function toggleCategory(key) {
+    setExpandedKeys(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
+  // Live partners grouped dynamically by category — pulled straight from
+  // lifestylePartners.js every render, nothing hardcoded here.
+  const categoryGroups = CATEGORY_KEYS
+    .map(key => ({ key, items: PARTNERS.filter(p => p.status === 'live' && p.filterKey === key) }))
+    .filter(g => g.items.length > 0)
+  const liveCount = categoryGroups.reduce((n, g) => n + g.items.length, 0)
+  const soonVisible = PARTNERS.filter(p => p.status === 'shell')
+
+  const expandPartner = PARTNERS.find(p => p.id === expandPartnerId) || null
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
 
   // Tapping "View full listing" on the map's info card jumps straight to
-  // that partner's detail sheet and switches the filter pills to match it,
-  // same behaviour the old combined Grid/Map screen had.
+  // that partner's full detail sheet and expands its category, same
+  // behaviour the old combined Grid/Map screen had.
   function handleViewListing(id) {
     const target = PARTNERS.find(p => p.id === id)
     setMapHighlightId(id)
-    setActiveFilter(target ? target.filterKey : 'all')
+    if (target) setExpandedKeys(prev => new Set(prev).add(target.filterKey))
     setDetailPartnerId(id)
   }
 
@@ -90,7 +111,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
             <Text style={styles.heroEyebrow}>LIFESTYLE · EXPLORE</Text>
             <Text style={styles.heroTitle}>Explore</Text>
             <Text style={styles.heroSub}>
-              Every confirmed Lifestyle Blueprint partner and deal, on the map and in the full list below.
+              Every confirmed Lifestyle Blueprint partner and deal, on the map and by category below.
             </Text>
           </View>
 
@@ -100,50 +121,29 @@ export default function LifestylePartnersScreen({ navigation, route }) {
               <PartnerMap onViewListing={handleViewListing} />
             </View>
 
-            <SectionHeader eyebrow="Confirmed Partners" title="Partner Listings" style={{ marginTop: spacing.xl }} />
+            <SectionHeader
+              eyebrow={`${liveCount} live partners`}
+              title="Browse by category"
+              style={{ marginTop: spacing.xl }}
+            />
+            <Text style={styles.hint}>Tap a category to open it, then tap a partner for a quick look.</Text>
 
-            {/* Filter pills */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={partnerStyles.filterScroll}
-              contentContainerStyle={partnerStyles.filterContent}
-            >
-              {FILTERS.map(f => (
-                <TouchableOpacity
-                  key={f.key}
-                  style={[partnerStyles.filterPill, activeFilter === f.key && partnerStyles.filterPillActive]}
-                  onPress={() => setActiveFilter(f.key)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[partnerStyles.filterPillText, activeFilter === f.key && partnerStyles.filterPillTextActive]}>
-                    {f.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* Live partners, grouped by category, as a real 2-up square
-                grid — tapping a tile opens the full listing in a sheet
-                rather than expanding in place, so the grid stays a grid. */}
-            {liveGroups.map(group => (
-              <View key={group.key} style={{ marginBottom: spacing.lg }}>
-                {showSectionHeaders && <CategorySectionHeader filterKey={group.key} />}
-                <View style={partnerStyles.partnerGrid}>
-                  {group.items.map(p => (
-                    <PartnerGridCard
-                      key={p.id}
-                      partner={p}
-                      highlighted={p.id === highlightId}
-                      onPress={() => setDetailPartnerId(p.id)}
-                    />
-                  ))}
-                </View>
-              </View>
+            {/* Categories, each a collapsible section → a plain list of its
+                live partners → the click-to-expand card on tap. */}
+            {categoryGroups.map(group => (
+              <CategoryAccordion
+                key={group.key}
+                filterKey={group.key}
+                items={group.items}
+                expanded={expandedKeys.has(group.key)}
+                onToggle={() => toggleCategory(group.key)}
+                onPressPartner={setExpandPartnerId}
+                highlightId={highlightId}
+              />
             ))}
 
-            {liveVisible.length === 0 && soonVisible.length === 0 && (
-              <Text style={partnerStyles.emptyText}>No partners in this category yet.</Text>
+            {categoryGroups.length === 0 && soonVisible.length === 0 && (
+              <Text style={partnerStyles.emptyText}>No partners yet.</Text>
             )}
 
             {/* Coming Soon — compact grid, separate from the live listings */}
@@ -164,6 +164,12 @@ export default function LifestylePartnersScreen({ navigation, route }) {
         </ScrollView>
       </View>
 
+      <PartnerExpandCard
+        partner={expandPartner}
+        visible={!!expandPartner}
+        onClose={() => setExpandPartnerId(null)}
+        onViewFull={id => setDetailPartnerId(id)}
+      />
       <PartnerDetailSheet
         partner={detailPartner}
         visible={!!detailPartner}
@@ -208,5 +214,9 @@ const styles = StyleSheet.create({
   mapSection: {
     backgroundColor: colors.navy, borderRadius: radius.card,
     padding: spacing.md,
+  },
+  hint: {
+    fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
+    marginTop: -6, marginBottom: 14,
   },
 })

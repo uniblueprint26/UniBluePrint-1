@@ -1,7 +1,9 @@
 /**
- * LifestyleFeaturedDealsScreen — the Lifestyle Blueprint's boutique
- * storefront: one of the 4 standalone Lifestyle destinations (see
- * LifestyleScreen, the hub they're all reached from).
+ * LifestyleFeaturedDealsScreen — "The Collection", the Lifestyle Blueprint's
+ * curated storefront: one of the 4 standalone Lifestyle destinations (see
+ * LifestyleScreen, the hub they're all reached from). File/route name kept
+ * as LifestyleFeaturedDeals for continuity with existing navigation
+ * registrations and deep links — the display name is "The Collection".
  *
  * Curated, not comprehensive: only partners who genuinely sell something
  * showcase-able — a physical product (Z Vision Apparel's embroidery,
@@ -13,18 +15,21 @@
  * services, Roomy's housing platform, Nyz3ditz's mentorship subscription)
  * are deliberately left out: there's no single "item" to put in a hero
  * spot or a grid tile for a membership or a monthly retainer, and this is
- * what actually separates "featured deal" from the full Explore roster.
+ * what actually separates a Collection item from the full Explore roster.
  *
- * No real product photography exists yet, so every tile renders a clean,
- * branded placeholder (blueprint-sketch texture + category icon + brand
- * monogram) rather than a fake stock photo — see ProductPlaceholder below.
- * It already branches on `partner.productImage`, so dropping in a real
- * photo later (once partner-product-photos Storage assets exist) needs no
+ * No real product photography exists yet for every partner, so a tile
+ * without one renders a clean, branded placeholder (blueprint-sketch
+ * texture + category icon + brand monogram) rather than a fake stock photo
+ * — see ProductPlaceholder below. It already branches on
+ * `partner.productImage`, so dropping in a real photo later needs no
  * structural change here, only that field being set.
  *
- * Tapping any tile — hero or grid — opens the exact same PartnerDetailSheet
- * used on Explore, ending in the same contact/claim flow. No in-app
- * checkout anywhere on this screen, by design.
+ * Tapping any tile — hero or grid — opens the click-to-expand
+ * PartnerExpandCard (photo, brand, social handle — the same quick-peek
+ * pattern Explore's list rows use), which itself can drill into the full
+ * PartnerDetailSheet for pricing/services/contact, ending in the same
+ * contact/claim flow either way. No in-app checkout anywhere on this
+ * screen, by design.
  */
 import { useRef, useState, useCallback, useEffect } from 'react'
 import {
@@ -37,7 +42,7 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import SectionHeader from '../components/ui/SectionHeader'
 import {
-  CATEGORY_META, PartnerDetailSheet,
+  CATEGORY_META, PartnerDetailSheet, PartnerExpandCard,
 } from '../components/lifestyle/PartnerCards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
@@ -153,9 +158,11 @@ function DealTile({ item, revealed, onPress }) {
 export default function LifestyleFeaturedDealsScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [detailPartnerId, setDetailPartnerId] = useState(null)
+  const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [revealedKeys, setRevealedKeys] = useState(() => new Set())
 
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
+  const expandPartner = PARTNERS.find(p => p.id === expandPartnerId) || null
 
   // FlatList calls this with whichever rows just crossed the visibility
   // threshold — merge their keys into the revealed set so each tile's own
@@ -174,7 +181,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 15, minimumViewTime: 0 }).current
 
   const renderItem = useCallback(({ item }) => (
-    <DealTile item={item} revealed={revealedKeys.has(item.id)} onPress={() => setDetailPartnerId(item.id)} />
+    <DealTile item={item} revealed={revealedKeys.has(item.id)} onPress={() => setExpandPartnerId(item.id)} />
   ), [revealedKeys])
 
   return (
@@ -212,17 +219,18 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
                 <View style={{ width: 70 }} />
               </View>
 
-              <Text style={styles.heroEyebrow}>LIFESTYLE · FEATURED DEALS</Text>
-              <Text style={styles.heroTitle}>The Boutique</Text>
+              <Text style={styles.heroEyebrow}>LIFESTYLE · THE COLLECTION</Text>
+              <Text style={styles.heroTitle}>The Collection</Text>
+              <Text style={styles.heroTagline}>Curated by UniBlueprint</Text>
               <Text style={styles.heroSub}>
-                Real products from real partners, curated into one storefront. No checkout here, every
-                deal ends with a direct message to the person behind it.
+                Real products from real partners, curated into one collection. No checkout here, every
+                item ends with a direct message to the person behind it.
               </Text>
             </View>
 
             <View style={styles.content}>
               {/* Hero product spot */}
-              <TouchableOpacity activeOpacity={0.9} onPress={() => setDetailPartnerId(HERO.id)}>
+              <TouchableOpacity activeOpacity={0.9} onPress={() => setExpandPartnerId(HERO.id)}>
                 <View style={styles.heroCard}>
                   <ProductPlaceholder partner={HERO.partner} hero />
                   <View style={styles.heroCaption}>
@@ -237,7 +245,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
                 </View>
               </TouchableOpacity>
 
-              <SectionHeader eyebrow="Shop the edit" title="More from the boutique" style={{ marginTop: spacing.xl }} />
+              <SectionHeader eyebrow="Shop the edit" title="More from the collection" style={{ marginTop: spacing.xl }} />
             </View>
           </>
         }
@@ -245,8 +253,8 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
           <View style={styles.content}>
             <View style={styles.footerNote}>
               <Text style={styles.footerNoteText}>
-                Every tile here opens the full partner listing, credentials, pricing, and how to book,
-                the same detail sheet you'd see on Explore. Nothing is purchased in-app.
+                Tap any item for a quick look, then view the full listing for credentials, pricing,
+                and how to book, the same detail sheet you'd see on Explore. Nothing is purchased in-app.
               </Text>
             </View>
             <TouchableOpacity
@@ -261,6 +269,12 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
         }
       />
 
+      <PartnerExpandCard
+        partner={expandPartner}
+        visible={!!expandPartner}
+        onClose={() => setExpandPartnerId(null)}
+        onViewFull={id => setDetailPartnerId(id)}
+      />
       <PartnerDetailSheet
         partner={detailPartner}
         visible={!!detailPartner}
@@ -294,7 +308,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 6 },
+  heroTagline: {
+    fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.gold,
+    letterSpacing: 0.6, marginBottom: 10,
+  },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
