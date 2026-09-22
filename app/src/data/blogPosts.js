@@ -205,7 +205,7 @@ export const POSTS = [
         'Pro subscription: available at 50% trial pricing throughout September 2026',
       ]},
       { type: 'heading', text: 'September trial pricing' },
-      { type: 'paragraph', text: 'To celebrate the launch, all Foundation Blueprint and Elevation Blueprint services are 50% off throughout September 2026. Pro subscription is €6.99 per month or €49.99 per year during the trial. Standard pricing resumes from 1 October 2026. If you sign up for Pro in September and stay subscribed, your rate is locked until the end of your first billing year.' },
+      { type: 'paragraph', text: 'To celebrate the launch, all Foundation Blueprint and Elevation Blueprint services are 50% off throughout September 2026. Pro subscription is also 50% off during the trial, €3.50 per month or €24.99 per year instead of the standard €6.99 or €49.99. Standard pricing resumes from 1 October 2026. If you sign up for Pro in September and stay subscribed, your rate is locked until the end of your first billing year.' },
       { type: 'heading', text: 'Get involved before launch' },
       { type: 'paragraph', text: 'Campus Handler applications are now open. Uni Coach applications are open. Ambassador applications are open. If you want to be part of the team that brings UniBlueprint to your campus, apply now, onboarding happens throughout the summer ahead of the September launch. You can apply via the Join pages on this site.' },
     ],
