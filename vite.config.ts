@@ -48,12 +48,6 @@ const ROUTES = [
   "/sign-up",
   "/sign-in",
   "/forgot-password",
-  "/ad-board",
-  "/behind-the-blueprint",
-  "/budgeting",
-  "/course-compass",
-  "/join",
-  "/partners",
 ];
 
 // https://vitejs.dev/config/

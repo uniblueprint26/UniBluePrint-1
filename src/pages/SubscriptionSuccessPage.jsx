@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
 export default function SubscriptionSuccessPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [status, setStatus] = useState('checking') // 'checking' | 'active' | 'none'
 
   useEffect(() => {
@@ -25,8 +25,10 @@ export default function SubscriptionSuccessPage() {
         (!data.current_period_end || new Date(data.current_period_end) > new Date())
       setStatus(active ? 'active' : 'none')
     }
+    if (authLoading) return
     if (user) checkPro()
-  }, [user])
+    else setStatus('none')
+  }, [user, authLoading])
 
   return (
     <>
