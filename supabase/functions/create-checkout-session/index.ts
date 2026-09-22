@@ -23,14 +23,23 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 // Kept in sync with src/lib/stripe-products.js — if pricing changes, update
 // both. Amounts in cents, matching Stripe's unit_amount convention.
 //
-// TODO: this always charges the standard `amount`, not the 50%-off free
-// trial price shown on the Pricing page (src/lib/stripe-products.js's
-// `trialAmount`). Wire trial pricing through here before Stripe actually
-// goes live, otherwise the site advertises €3.50/€24.99 but Stripe charges
-// full price at checkout.
-const PRICING: Record<string, { name: string; amount: number; interval: 'month' | 'year' }> = {
-  pro_monthly: { name: 'UniBlueprint Pro (Monthly)', amount: 699, interval: 'month' },
-  pro_annual:  { name: 'UniBlueprint Pro (Annual)',  amount: 4999, interval: 'year' },
+// Trial window during which Pro is 50% off, per the site's own copy
+// (src/pages/FoundationBlueprintPage.jsx: "September trial prices apply
+// throughout September 2026 only. Standard prices resume from 1 October
+// 2026"; src/pages/FAQsPage.jsx says the same for Pro specifically). This
+// only gates the price charged AT CHECKOUT — an existing subscription's
+// future renewals keep whatever unit_amount was set at signup, same as any
+// Stripe subscription. The blog post's separate "locked until the end of
+// your first billing year" line (src/data/blogPosts.js) implies a monthly
+// trial subscriber should keep the discounted rate for a full year even
+// past 1 October 2026 — that would need a Stripe subscription schedule or
+// a follow-up price change and is NOT implemented here; flagging rather
+// than guessing at the exact intended mechanic.
+const TRIAL_ENDS_AT = new Date('2026-10-01T00:00:00Z')
+
+const PRICING: Record<string, { name: string; amount: number; trialAmount: number; interval: 'month' | 'year' }> = {
+  pro_monthly: { name: 'UniBlueprint Pro (Monthly)', amount: 699, trialAmount: 350, interval: 'month' },
+  pro_annual:  { name: 'UniBlueprint Pro (Annual)',  amount: 4999, trialAmount: 2499, interval: 'year' },
 }
 
 const CORS_HEADERS = {
@@ -73,6 +82,8 @@ Deno.serve(async req => {
     }
 
     const siteUrl = Deno.env.get('SITE_URL') || 'https://uniblueprint.ie'
+    const inTrial = new Date() < TRIAL_ENDS_AT
+    const unitAmount = inTrial ? plan.trialAmount : plan.amount
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -82,13 +93,13 @@ Deno.serve(async req => {
         price_data: {
           currency: 'eur',
           product_data: { name: plan.name },
-          unit_amount: plan.amount,
+          unit_amount: unitAmount,
           recurring: { interval: plan.interval },
         },
         quantity: 1,
       }],
       subscription_data: {
-        metadata: { user_id: user.id, tier },
+        metadata: { user_id: user.id, tier, trial_price_applied: String(inTrial) },
       },
       metadata: { user_id: user.id, tier },
       success_url: `${siteUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
