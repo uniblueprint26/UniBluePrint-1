@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, ActivityIndicator, Alert } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, ActivityIndicator, Alert, Share } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, Download, Trash2, ExternalLink, Clock } from 'lucide-react-native'
 import Card from '../components/ui/Card'
@@ -8,12 +8,20 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 
-// Files a request into gdpr_requests — Operations/Founder are notified and
-// action it from their side (see migration 20260811090000). This screen does
-// not itself export or delete data, it is the request intake.
+// Export and deletion are both immediate and self-service (GDPR Art. 17/20,
+// and Apple Guideline 5.1.1(v) requires the deletion half specifically):
+// export calls the export_my_gdpr_data() RPC and hands the result to the
+// native share sheet; deletion calls the delete-account Edge Function, which
+// uses the Auth Admin API to remove the account outright — every
+// personal-data table cascade-deletes via its user_id FK the moment that
+// happens (see migration 20260922090000_gdpr_self_service.sql). This screen
+// still logs completed export requests into gdpr_requests so "YOUR
+// REQUESTS" below has something to show; a deletion isn't logged there
+// since that row would itself be cascade-deleted along with the account —
+// the Edge Function writes to gdpr_deletion_log instead, which survives.
 export default function PrivacyDataScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
 
   const [requests, setRequests] = useState([])
   const [loading, setLoading]   = useState(true)
@@ -29,37 +37,61 @@ export default function PrivacyDataScreen({ navigation }) {
       .then(({ data }) => { setRequests(data || []); setLoading(false) })
   }, [user?.id])
 
-  async function submitRequest(type) {
+  async function handleExport() {
     if (submitting) return
-    setSubmitting(type)
+    setSubmitting('export')
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase.rpc('export_my_gdpr_data')
+      if (error) throw error
+
+      const { data: logged } = await supabase
         .from('gdpr_requests')
-        .insert({ user_id: user.id, request_type: type })
+        .insert({
+          user_id: user.id,
+          request_type: 'export',
+          status: 'completed',
+          processed_at: new Date().toISOString(),
+          notes: 'Self-service export via app.',
+        })
         .select('id, request_type, status, requested_at')
         .single()
-      if (error) throw error
-      setRequests(prev => [data, ...prev])
-      Alert.alert(
-        'Request submitted',
-        type === 'export'
-          ? "We've received your data export request. The UniBlueprint team will follow up by email within 30 days, as required under GDPR."
-          : "We've received your account deletion request. The UniBlueprint team will follow up by email to confirm before anything is deleted.",
-      )
-    } catch {
-      Alert.alert('Something went wrong', 'Please try again, or contact us directly.')
+      if (logged) setRequests(prev => [logged, ...prev])
+
+      await Share.share({
+        title: 'My UniBlueprint data',
+        message: JSON.stringify(data ?? {}, null, 2),
+      })
+    } catch (err) {
+      Alert.alert('Something went wrong', err?.message || 'Please try again, or contact us directly.')
     } finally {
+      setSubmitting(null)
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (submitting) return
+    setSubmitting('deletion')
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-account')
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
+      await signOut().catch(() => {})
+      // No further navigation needed: the root navigator switches to the
+      // signed-out flow automatically once the auth context's user becomes
+      // null (see app/src/navigation/index.jsx).
+    } catch (err) {
+      Alert.alert('Something went wrong', err?.message || 'Please try again, or contact us directly.')
       setSubmitting(null)
     }
   }
 
   function confirmDeletion() {
     Alert.alert(
-      'Request account deletion',
-      'This starts the process of permanently deleting your UniBlueprint account and associated data. The team will confirm with you by email before anything is deleted. Continue?',
+      'Delete your account',
+      'This permanently and immediately deletes your UniBlueprint account and every piece of personal data attached to it. This cannot be undone. Continue?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Request Deletion', style: 'destructive', onPress: () => submitRequest('deletion') },
+        { text: 'Delete Account', style: 'destructive', onPress: handleDeleteAccount },
       ],
     )
   }
@@ -89,18 +121,18 @@ export default function PrivacyDataScreen({ navigation }) {
         <Card style={styles.actionCard}>
           <View style={styles.actionIconWrap}><Download size={16} color={colors.navy} /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.actionTitle}>Request a copy of your data</Text>
-            <Text style={styles.actionSub}>Export everything UniBlueprint holds about you.</Text>
+            <Text style={styles.actionTitle}>Get a copy of your data</Text>
+            <Text style={styles.actionSub}>Export everything UniBlueprint holds about you, right away.</Text>
           </View>
           <TouchableOpacity
             style={styles.actionBtn}
             activeOpacity={0.85}
-            onPress={() => submitRequest('export')}
+            onPress={handleExport}
             disabled={!!submitting}
           >
             {submitting === 'export'
               ? <ActivityIndicator size="small" color={colors.cream} />
-              : <Text style={styles.actionBtnText}>Request</Text>}
+              : <Text style={styles.actionBtnText}>Export</Text>}
           </TouchableOpacity>
         </Card>
 
@@ -110,7 +142,7 @@ export default function PrivacyDataScreen({ navigation }) {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.actionTitle}>Delete your account</Text>
-            <Text style={styles.actionSub}>Permanently remove your account and personal data.</Text>
+            <Text style={styles.actionSub}>Immediately and permanently remove your account and personal data.</Text>
           </View>
           <TouchableOpacity
             style={[styles.actionBtn, styles.actionBtnDanger]}
@@ -120,7 +152,7 @@ export default function PrivacyDataScreen({ navigation }) {
           >
             {submitting === 'deletion'
               ? <ActivityIndicator size="small" color="#DC2626" />
-              : <Text style={styles.actionBtnDangerText}>Request</Text>}
+              : <Text style={styles.actionBtnDangerText}>Delete</Text>}
           </TouchableOpacity>
         </Card>
 
