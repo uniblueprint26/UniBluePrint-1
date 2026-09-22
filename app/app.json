@@ -14,6 +14,21 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.",
         "NSCameraUsageDescription": "UniBlueprint needs camera access so you can take a photo to use as your profile picture or ad image."
+      },
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyCollectedDataTypes": [],
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+          }
+        ]
       }
     },
     "android": {
