@@ -281,7 +281,7 @@ const LIVE_PARTNERS = [
     initBg: '#4B5563',
     category: 'Fashion',
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
-    deal: 'TODO — confirm with partner before launch',
+    deal: '???',
   },
   {
     id: 'dylanpower',
@@ -290,7 +290,7 @@ const LIVE_PARTNERS = [
     initBg: '#374151',
     category: 'Sports Photography',
     description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
-    deal: 'TODO — confirm with partner before launch',
+    deal: '???',
   },
 ]
 
