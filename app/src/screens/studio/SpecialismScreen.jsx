@@ -67,6 +67,7 @@ export default function SpecialismScreen({ navigation }) {
   const { user } = useAuth()
   const [specialisms, setSpecialisms] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     if (!user?.id) return
@@ -75,8 +76,9 @@ export default function SpecialismScreen({ navigation }) {
       .from('handler_specialisms')
       .select('id, confidence, tickets_completed, rating_sum, services(name)')
       .eq('handler_id', user.id)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return
+        if (error) { setLoadError(true); setLoading(false); return }
         setSpecialisms((data || []).map(s => ({
           id: s.id,
           serviceType: s.services?.name || 'Unknown service',
@@ -86,6 +88,7 @@ export default function SpecialismScreen({ navigation }) {
         })))
         setLoading(false)
       })
+      .catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
     return () => { cancelled = true }
   }, [user?.id])
 
@@ -118,6 +121,8 @@ export default function SpecialismScreen({ navigation }) {
 
         {loading ? (
           <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 30 }} />
+        ) : loadError ? (
+          <Text style={styles.emptyText}>Couldn't load your specialisms. Check your connection and try again later.</Text>
         ) : specialisms.length === 0 ? (
           <Text style={styles.emptyText}>
             No declared specialisms yet. These are set up with Operations when you join the queue

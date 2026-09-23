@@ -45,6 +45,7 @@ export default function PromptLibraryScreen({ navigation }) {
   const [query, setQuery]     = useState('')
   const [prompts, setPrompts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -52,14 +53,16 @@ export default function PromptLibraryScreen({ navigation }) {
       .from('prompt_library')
       .select('id, title, prompt_text, services(name)')
       .eq('active', true)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return
+        if (error) { setLoadError(true); setLoading(false); return }
         setPrompts((data || []).map(p => ({
           id: p.id, title: p.title, prompt: p.prompt_text,
           serviceType: p.services?.name || 'General',
         })))
         setLoading(false)
       })
+      .catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
     return () => { cancelled = true }
   }, [])
 
@@ -110,6 +113,8 @@ export default function PromptLibraryScreen({ navigation }) {
       >
         {loading ? (
           <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
+        ) : loadError ? (
+          <Text style={styles.emptyText}>Couldn't load the prompt library. Check your connection and try again later.</Text>
         ) : groups.length === 0 ? (
           <Text style={styles.emptyText}>No prompts match your search.</Text>
         ) : (

@@ -38,7 +38,8 @@ const DEMO_SPECIALISMS = ['Career Strategy', 'Interview Coaching', 'Postgraduate
 // broken form. Every save is picked up by a database trigger that notifies
 // Operations/Founder, so self-edit is never silent.
 function EditProfileSection({ userId }) {
-  const [loading, setLoading]   = useState(true)
+  const [loading, setLoading]     = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [profile, setProfile]   = useState(null) // { coach_slug, bio, photo_url } or null if unlinked
   const [bio, setBio]           = useState('')
   const [photoUrl, setPhotoUrl] = useState(null)
@@ -53,13 +54,15 @@ function EditProfileSection({ userId }) {
       .select('coach_slug, bio, photo_url')
       .eq('user_id', userId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return
+        if (error) { setLoadError(true); setLoading(false); return }
         setProfile(data || null)
         setBio(data?.bio || '')
         setPhotoUrl(data?.photo_url || null)
         setLoading(false)
       })
+      .catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
     return () => { cancelled = true }
   }, [userId])
 
