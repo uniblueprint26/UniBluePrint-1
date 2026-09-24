@@ -1,7 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { Download, Trash2, Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { invokeFunction } from '../../lib/invokeFunction'
+import { useAuth } from '../../context/AuthContext'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, parseDbError,
@@ -116,6 +119,161 @@ function GdprForm() {
       <FormConsent />
       <SubmitButton loading={loading} label="Submit request" />
     </form>
+  )
+}
+
+// ─── Self-service export/delete (logged-in users only) ─────────────────────
+// Same two operations PrivacyDataScreen.jsx already ships on mobile
+// (export_my_gdpr_data RPC + delete-account Edge Function), ported to the
+// browser: no Share API here, so export downloads a JSON file via a Blob
+// instead, and there's no native Alert.alert, so deletion gets an inline
+// confirm panel before it fires.
+
+const actionBtnBase = {
+  height: '48px', borderRadius: '8px', border: 'none',
+  fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+  width: '100%', transition: 'background 150ms',
+}
+
+function GdprSelfServiceActions({ user }) {
+  const navigate = useNavigate()
+  const [busy, setBusy] = useState(null) // 'export' | 'delete' | null
+  const [error, setError] = useState(null)
+  const [confirming, setConfirming] = useState(false)
+
+  async function handleExport() {
+    setBusy('export'); setError(null)
+    try {
+      const { data, error: rpcError } = await supabase.rpc('export_my_gdpr_data')
+      if (rpcError) throw rpcError
+      // Best-effort audit trail, mirrors the mobile app; must not block the
+      // download if this insert fails for any reason.
+      supabase.from('gdpr_requests').insert({
+        user_id: user.id, request_type: 'export', status: 'completed',
+        processed_at: new Date().toISOString(), notes: 'Self-service export via website.',
+      }).then(({ error: logError }) => {
+        if (logError) console.warn('gdpr_requests log insert failed (non-blocking):', logError)
+      })
+      const blob = new Blob([JSON.stringify(data ?? {}, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `uniblueprint-my-data-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 0)
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function handleDelete() {
+    setBusy('delete'); setError(null)
+    try {
+      await invokeFunction('delete-account')
+      await supabase.auth.signOut()
+      navigate('/')
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+      setBusy(null)
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: '28px', paddingBottom: '28px', borderBottom: '1px solid rgba(30,58,95,0.1)' }}>
+      <h3 style={H3}>Logged in as {user.email}</h3>
+      <p style={P}>Get an instant copy of your data, or delete your account. Both actions run immediately, no 30-day wait.</p>
+      {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <button
+          onClick={handleExport}
+          disabled={busy !== null}
+          style={{
+            ...actionBtnBase,
+            background: busy === 'export' ? 'rgba(30,58,95,0.7)' : '#1E3A5F',
+            color: '#F5F0E8',
+            cursor: busy !== null ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {busy === 'export'
+            ? <Loader2 size={16} aria-hidden="true" style={{ animation: 'spin 0.8s linear infinite' }} />
+            : <Download size={16} aria-hidden="true" />}
+          {busy === 'export' ? 'Preparing your data...' : 'Download my data'}
+        </button>
+
+        {!confirming ? (
+          <button
+            onClick={() => setConfirming(true)}
+            disabled={busy !== null}
+            style={{
+              ...actionBtnBase,
+              background: 'transparent',
+              border: '1.5px solid #DC2626',
+              color: '#DC2626',
+              cursor: busy !== null ? 'not-allowed' : 'pointer',
+            }}
+          >
+            <Trash2 size={16} aria-hidden="true" />
+            Delete my account
+          </button>
+        ) : (
+          <div style={{ background: 'rgba(220,38,38,0.06)', borderRadius: '8px', padding: '16px' }}>
+            <p style={{ ...P, color: '#1E3A5F', marginBottom: '12px' }}>
+              This permanently deletes your account and cannot be undone. Are you sure?
+            </p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setConfirming(false)}
+                disabled={busy !== null}
+                style={{
+                  ...actionBtnBase,
+                  background: 'transparent',
+                  border: '1.5px solid rgba(30,58,95,0.2)',
+                  color: '#1E3A5F',
+                  cursor: busy !== null ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={busy !== null}
+                style={{
+                  ...actionBtnBase,
+                  background: busy === 'delete' ? 'rgba(220,38,38,0.7)' : '#DC2626',
+                  color: '#F5F0E8',
+                  cursor: busy !== null ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {busy === 'delete'
+                  ? <Loader2 size={16} aria-hidden="true" style={{ animation: 'spin 0.8s linear infinite' }} />
+                  : <Trash2 size={16} aria-hidden="true" />}
+                {busy === 'delete' ? 'Deleting...' : 'Yes, delete my account'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function GdprSection() {
+  const { user } = useAuth()
+  return (
+    <>
+      {user && <GdprSelfServiceActions user={user} />}
+      <p style={{ ...P, marginBottom: '16px' }}>
+        {user
+          ? 'For a correction or restriction request, or anything not covered above, submit a request below.'
+          : 'Submit a request below and we will process it within 30 days.'}
+      </p>
+      <GdprForm />
+    </>
   )
 }
 
@@ -284,9 +442,9 @@ export default function PrivacyPage() {
           <div style={{ marginTop: '48px' }}>
             <FormCard
               title="Exercise Your Rights"
-              subtitle="Submit a GDPR request and we will respond within 30 days."
+              subtitle="Manage your data below."
             >
-              <GdprForm />
+              <GdprSection />
             </FormCard>
           </div>
         </div>
