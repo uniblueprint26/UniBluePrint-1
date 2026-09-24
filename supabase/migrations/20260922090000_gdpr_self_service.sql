@@ -72,6 +72,13 @@ comment on function public.export_my_gdpr_data() is
 
 revoke all on function public.export_my_gdpr_data() from public;
 grant execute on function public.export_my_gdpr_data() to authenticated;
+-- Supabase grants EXECUTE on new public-schema functions to anon via
+-- default privileges at CREATE time; the two lines above only revoke from
+-- PUBLIC and grant to authenticated, which doesn't touch that separate
+-- anon grant. The function already guards on auth.uid() is null, so this
+-- isn't a live data leak, but there's no reason to leave callable-by-anon
+-- as the ambient default: revoke it explicitly.
+revoke execute on function public.export_my_gdpr_data() from anon;
 
 create table if not exists public.gdpr_deletion_log (
   id              uuid primary key default gen_random_uuid(),
