@@ -106,7 +106,7 @@ This is the practical face of **#53 (migration drift)**. The fix has two steps:
 
 | # | Issue | Scale | Fix |
 |---|---|---|---|
-| L1 | **SemiBold text renders in the fallback system font.** `@expo-google-fonts/dm-sans@0.2.3` has no 600 weight, so the `DMSans_600SemiBold` import is `undefined`. Affects every button, card title, label and eyebrow. | 377 uses in 79 files | Bump to `@expo-google-fonts/dm-sans@^0.4` (it ships 600). One-line fix. |
+| L1 | ✅ **FIXED 2026-09-25 (dm-sans ^0.4.2 + per-weight imports).** **SemiBold text renders in the fallback system font.** `@expo-google-fonts/dm-sans@0.2.3` has no 600 weight, so the `DMSans_600SemiBold` import is `undefined`. Affects every button, card title, label and eyebrow. | 377 uses in 79 files | Bump to `@expo-google-fonts/dm-sans@^0.4` (it ships 600). One-line fix. |
 | L2 | Italic DM Sans isn't loaded (fake slant on Android, none on iOS) | 27 styles | Load `DMSans_400Regular_Italic`, or switch to `fonts.serifItalic` |
 | L3 | **Status bar invisible** (white icons on cream) | AdBoard, Blog, Marketplace, Article, Messages, Pricing, WeeklyBlueprint, Welcome, VerifyEmail, … | Set status bar style per screen, or navy inset |
 | L4 | **Tab bar has hard-coded heights** (88/68) that ignore safe-area insets; labels clip on Android/web | every screen | Use `useSafeAreaInsets()`: `height: 56 + insets.bottom` |

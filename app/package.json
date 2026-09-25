@@ -8,7 +8,7 @@
     "ios": "expo start --ios"
   },
   "dependencies": {
-    "@expo-google-fonts/dm-sans": "^0.2.3",
+    "@expo-google-fonts/dm-sans": "^0.4.2",
     "@expo-google-fonts/dm-serif-display": "^0.2.3",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-navigation/bottom-tabs": "^7.0.0",

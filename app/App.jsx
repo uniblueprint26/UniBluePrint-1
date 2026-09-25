@@ -3,7 +3,12 @@ import { Platform } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { DMSerifDisplay_400Regular, DMSerifDisplay_400Regular_Italic } from '@expo-google-fonts/dm-serif-display'
-import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold } from '@expo-google-fonts/dm-sans'
+// Per-weight subpath imports: the package root requires all 18 faces, which
+// would bundle ~1MB of fonts the app never uses.
+import { DMSans_400Regular } from '@expo-google-fonts/dm-sans/400Regular'
+import { DMSans_500Medium } from '@expo-google-fonts/dm-sans/500Medium'
+import { DMSans_600SemiBold } from '@expo-google-fonts/dm-sans/600SemiBold'
+import { DMSans_700Bold } from '@expo-google-fonts/dm-sans/700Bold'
 import { useFonts } from 'expo-font'
 import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
