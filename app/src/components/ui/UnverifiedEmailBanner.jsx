@@ -5,22 +5,12 @@ import { AlertTriangle } from 'lucide-react-native'
 import { colors, fonts } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 
-// September trial window used to switch the banner copy. Trial runs the
-// whole of September; from the 15th the message shifts from a general
-// verification nudge to one tied to the trial ending, per the spec.
-const SEPT_START = new Date('2026-09-01T00:00:00Z')
-const SEPT_MID   = new Date('2026-09-15T00:00:00Z')
-const SEPT_END   = new Date('2026-09-30T23:59:59Z')
-
+// Neutral copy — this used to reference a "free trial ends September 30th"
+// that doesn't exist (there is no free trial; Pricing offers a permanent
+// Free plan alongside paid Pro/Premium). Kept as a plain function so a
+// future real trial or promo window can swap the copy in one place again.
 function bannerCopy() {
-  const now = new Date()
-  if (now >= SEPT_MID && now <= SEPT_END) {
-    return 'Your free trial ends September 30th. Verify your email to receive your trial summary and subscription options.'
-  }
-  if (now >= SEPT_START && now < SEPT_MID) {
-    return 'Your email is unverified. Add a verified email to receive important Blueprint updates.'
-  }
-  return 'Your email is unverified. Verify it to receive important Blueprint updates.'
+  return 'Your email is unverified. Verify it to secure your account and receive important Blueprint updates.'
 }
 
 /**

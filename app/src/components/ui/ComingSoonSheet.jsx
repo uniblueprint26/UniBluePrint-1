@@ -4,9 +4,9 @@ import { colors, fonts, radius } from '../../constants/theme'
 
 // Shared "Coming Soon" bottom sheet — opened both from a Lifestyle Blueprint
 // coming-soon grid card and from tapping a greyed-out pin on the partner map.
-// Deliberately reveals nothing about the partner beyond what's already
-// visible on the card/pin (no name, no category-specific detail) — the
-// partner's real identity stays anonymous until launch.
+// Deliberately reveals nothing beyond what's already visible on the
+// card/pin (name, county, category) — it's the partner's specific deal
+// (pricing, how-to-start) that's still pending, not their identity.
 export default function ComingSoonSheet({ visible, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>

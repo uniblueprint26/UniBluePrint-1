@@ -17,7 +17,6 @@ import {
 import VerifiedBadge from '../ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { COACHES } from '../../screens/ElevationScreen'
-import { maskComingSoonName } from '../../data/lifestylePartners'
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
 // Labels widened to actually cover everyone grouped under them: "Beauty"
@@ -143,19 +142,20 @@ export function CategorySectionHeader({ filterKey }) {
   )
 }
 
-// ─── Coming Soon grid card — deliberately anonymous: black-and-white only
-// (the one exception being the gold question-mark badge, matching the map's
-// gold-for-live / grey-for-incoming language), name masked into a run of "?"
-// the same word/letter shape as the real name, only Location and Category
-// visible. Tapping opens the same "Coming Soon" sheet as a map pin — nothing
-// further is revealed either way. ───────────────────────────────────────────
+// ─── Coming Soon grid card — black-and-white only (the one exception being
+// the gold question-mark badge, matching the map's gold-for-live /
+// grey-for-incoming language). These are confirmed partners whose full deal
+// isn't published yet — now that the app has launched, the name mask that
+// used to say "locked until launch" no longer makes sense, so the real
+// brand name is shown; only the deal itself stays pending. Tapping still
+// opens the same "Coming Soon" sheet as a map pin. ─────────────────────────
 export function ComingSoonGridCard({ partner, onPress }) {
   return (
     <TouchableOpacity style={styles.soonCard} activeOpacity={0.8} onPress={onPress}>
       <View style={styles.soonIconWrap}>
         <HelpCircle size={18} color="#FFFFFF" strokeWidth={2.4} />
       </View>
-      <Text style={styles.soonBrand} numberOfLines={2}>{maskComingSoonName(partner.brand)}</Text>
+      <Text style={styles.soonBrand} numberOfLines={2}>{partner.brand}</Text>
       {!!(partner.county || partner.counties) && (
         <Text style={styles.soonLocation} numberOfLines={1}>
           {partner.county || partner.counties.join(' · ')}

@@ -580,7 +580,7 @@ export default function ProfileScreen({ navigation }) {
 
   const STATS = [
     { value: stats.cvs.toString(),      label: 'CVs Submitted',  Icon: FileText,  color: '#1d4ed8', bg: '#EFF6FF' },
-    { value: stats.sessions.toString(), label: 'Session Booked', Icon: Calendar,  color: '#15803D', bg: '#F0FDF4' },
+    { value: stats.sessions.toString(), label: 'Sessions Booked', Icon: Calendar,  color: '#15803D', bg: '#F0FDF4' },
     { value: stats.notes.toString(),    label: 'Notes Saved',    Icon: BookOpen,  color: '#7C3AED', bg: '#F5F3FF' },
   ]
 

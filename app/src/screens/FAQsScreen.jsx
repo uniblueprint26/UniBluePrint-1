@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronRight, ChevronLeft } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
+import { WEBSITE_LINKS } from '../constants/site'
 
 const FAQS = [
   {
@@ -20,7 +21,7 @@ const FAQS = [
   },
   {
     q: 'How do I book a coach through Elevation Blueprint?',
-    a: 'Browse the coach directory in the Elevation tab, view each coach\'s profile, services, and pricing, then tap "View Profile" to contact or book directly. Each coach manages their own availability.',
+    a: 'Open Elevation Blueprint from the menu, view each coach\'s profile, services, and pricing, then tap "View Profile" to contact or book directly. Each coach manages their own availability.',
   },
   {
     q: 'How do partner deals work?',
@@ -32,7 +33,8 @@ const FAQS = [
   },
   {
     q: 'How do I cancel or get a refund?',
-    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at uniblueprintoperations@gmail.com and we will work with you to resolve it. See our refund policy for full details.',
+    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at uniblueprintoperations@gmail.com and we will work with you to resolve it.',
+    link: { label: 'Read our refund policy', url: WEBSITE_LINKS.refundPolicy },
   },
   {
     q: 'Can I become a Campus Handler or Coach?',
@@ -66,7 +68,7 @@ export default function FAQsScreen({ navigation }) {
 
       <View style={styles.body}>
         <View style={{ gap: 10 }}>
-          {FAQS.map(({ q, a }, i) => (
+          {FAQS.map(({ q, a, link }, i) => (
             <TouchableOpacity
               key={i}
               activeOpacity={0.85}
@@ -82,7 +84,17 @@ export default function FAQsScreen({ navigation }) {
                   />
                 </View>
                 {open === i && (
-                  <Text style={styles.faqA}>{a}</Text>
+                  <>
+                    <Text style={styles.faqA}>{a}</Text>
+                    {link && (
+                      <Text
+                        style={styles.faqLink}
+                        onPress={() => Linking.openURL(link.url)}
+                      >
+                        {link.label} →
+                      </Text>
+                    )}
+                  </>
                 )}
               </Card>
             </TouchableOpacity>
@@ -128,6 +140,7 @@ const styles = StyleSheet.create({
   faqTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   faqQ: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1, lineHeight: 20 },
   faqA: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 12 },
+  faqLink: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 10, textDecorationLine: 'underline' },
 
   contactCard: {
     backgroundColor: colors.navy, padding: 18, marginTop: spacing.xl,
