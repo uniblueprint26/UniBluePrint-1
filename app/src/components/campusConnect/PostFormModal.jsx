@@ -202,10 +202,13 @@ export default function PostFormModal({
         if (field.nameKey) payload[field.nameKey] = values[field.nameKey] || null
       }
     })
-    // Anonymous posts still carry poster_name in the row (so the poster can
-    // still see their own name on their own post if that's ever surfaced),
-    // but the client never displays it when anonymous — see BoardDetailScreen.
-    if (includePosterName && !('poster_name' in (extraValues || {}))) {
+    // Anonymous posts never get poster_name written to the row at all — the
+    // DB-level fix (see migration 20260926090000) also nulls user_id/
+    // poster_name when the row is read back by anyone but the poster, but
+    // we don't rely on that alone: if this post is anonymous, we simply
+    // never store the display name in the first place.
+    const isAnonymousPost = payload.anonymous === true
+    if (includePosterName && !isAnonymousPost && !('poster_name' in (extraValues || {}))) {
       payload.poster_name = displayName
     }
 

@@ -374,7 +374,7 @@ export default function CoachProfileScreen({ route, navigation }) {
     let cancelled = false
     supabase
       .from('coach_profiles')
-      .select('bio, photo_url')
+      .select('bio, photo_url, verified')
       .eq('coach_slug', coachSlug(baseCoach.id))
       .maybeSingle()
       .then(({ data }) => { if (!cancelled && data) setOverride(data) })
@@ -420,9 +420,11 @@ export default function CoachProfileScreen({ route, navigation }) {
   // the Home Spotlight carousel (see lib/featuredContent.js coach()), so a
   // coach's photo is consistent everywhere it appears.
   const resolvedPhoto = override?.photo_url || baseCoach.heroImage || null
+  // Verified is never assumed — only a real coach_profiles.verified = true
+  // row earns the badge (see VerifiedBadge's own default of false).
   const coach = override
-    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto }
-    : { ...baseCoach, photoUrl: resolvedPhoto }
+    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto, verified: !!override.verified }
+    : { ...baseCoach, photoUrl: resolvedPhoto, verified: false }
 
   function handleEnquire() {
     if (!coach.contact) return

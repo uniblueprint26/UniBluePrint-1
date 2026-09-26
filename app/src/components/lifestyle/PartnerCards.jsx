@@ -8,7 +8,7 @@
  * used for PostAdModal / data/adBoardAds.js when Blog and Marketplace were
  * split into their own screens.
  */
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -20,6 +20,37 @@ import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { COACHES } from '../../screens/ElevationScreen'
 import { useAuth } from '../../context/AuthContext'
 import { logPartnerEvent } from '../../lib/partnerEvents'
+import { supabase } from '../../lib/supabase'
+
+// Real verification, not a blanket claim — see VerifiedBadge's own header
+// comment. partners.verified (migration 20260926091500_verified_field.sql,
+// not yet applied) is the only source of truth; the static PARTNERS
+// listing never sets a `verified` field itself. Fetched once as a
+// partner_slug -> verified map (module-level cache, shared by every card
+// instance instead of one query per card) and looked up per-partner below.
+let verifiedPartnerSlugsPromise = null
+function fetchVerifiedPartnerSlugs() {
+  if (!verifiedPartnerSlugsPromise) {
+    verifiedPartnerSlugsPromise = supabase.from('partners').select('partner_slug, verified')
+      .then(({ data }) => {
+        const map = {}
+        ;(data || []).forEach(row => { if (row.partner_slug) map[row.partner_slug] = !!row.verified })
+        return map
+      })
+      .catch(() => ({}))
+  }
+  return verifiedPartnerSlugsPromise
+}
+
+function useVerifiedPartner(partnerId) {
+  const [verified, setVerified] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    fetchVerifiedPartnerSlugs().then(map => { if (!cancelled) setVerified(!!map[partnerId]) })
+    return () => { cancelled = true }
+  }, [partnerId])
+  return verified
+}
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
 // Labels widened to actually cover everyone grouped under them: "Beauty"
@@ -191,6 +222,7 @@ export function ComingSoonGridCard({ partner, onPress }) {
 // than expanding in place, which would break the grid's rhythm. ─────────────
 export function PartnerGridCard({ partner, onPress, highlighted }) {
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
+  const verified = useVerifiedPartner(partner.id)
 
   return (
     <TouchableOpacity
@@ -204,7 +236,7 @@ export function PartnerGridCard({ partner, onPress, highlighted }) {
       )}
       <View style={styles.gridCardTop}>
         <PartnerLogo partner={partner} size={44} />
-        <VerifiedBadge verified={partner.verified} compact />
+        <VerifiedBadge verified={verified} compact />
       </View>
       <Text style={styles.gridCardName} numberOfLines={2}>{partner.brand}</Text>
       <Text style={styles.gridCardCategory} numberOfLines={2}>{partner.category}</Text>
@@ -418,6 +450,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
     }
   }, [visible, partner?.id, user?.id])
 
+  const verified = useVerifiedPartner(partner?.id)
   if (!partner) return null
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
@@ -449,7 +482,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
               <Text style={styles.detailBrandName}>{partner.brand}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 3 }}>
                 <Text style={styles.categoryLabel}>{partner.category}</Text>
-                <VerifiedBadge verified={partner.verified} compact />
+                <VerifiedBadge verified={verified} compact />
               </View>
             </View>
           </View>

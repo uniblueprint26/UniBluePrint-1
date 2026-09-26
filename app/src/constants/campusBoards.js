@@ -375,3 +375,29 @@ export const CAMPUS_BOARDS = [
 export function getBoard(key) {
   return CAMPUS_BOARDS.find(b => b.key === key) || null
 }
+
+// Tables whose `anonymous` toggle is enforced at the database level (see
+// migration 20260926090000_anonymous_board_posts_lockdown.sql, not yet
+// applied). Direct `select` on these base tables now only returns your own
+// rows — RLS was tightened from "any signed-in user, every row" to
+// "owner only" — so browsing the board goes through a SECURITY DEFINER RPC
+// instead, which returns every row but nulls `user_id`/`poster_name` for
+// any row that is anonymous and isn't yours. `college_reviews` is reused by
+// both Campus Connect's own "reviews" board and Course Connect's
+// "course-reviews" board, so this is keyed by table name, not board key.
+const ANONYMIZED_BOARD_FEED_RPC = {
+  campus_conversations: 'get_campus_conversations_feed',
+  problems_posts: 'get_problems_posts_feed',
+  college_reviews: 'get_college_reviews_feed',
+  campus_suggestions: 'get_campus_suggestions_feed',
+}
+
+// Reads a board's rows the right way for that table: through the masking
+// RPC for the 4 anonymous-capable tables above, or a plain ordered select
+// for everything else. Always returns `{ data, error }`, like a normal
+// supabase-js query.
+export async function readBoardRows(supabase, table) {
+  const rpcName = ANONYMIZED_BOARD_FEED_RPC[table]
+  if (rpcName) return supabase.rpc(rpcName)
+  return supabase.from(table).select('*').order('created_at', { ascending: false })
+}

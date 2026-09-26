@@ -34,7 +34,7 @@ function foundationService(row) {
     title: svc.title,
     subtitle: row.caption || svc.tagline,
     body: svc.description,
-    priceLabel: `From ${svc.trialStd} · trial pricing`,
+    priceLabel: `From ${svc.priceStd}`,
     tint: svc.color,
     ctaLabel: row.cta_label || 'View service',
     nav: { screen: 'Foundation' },

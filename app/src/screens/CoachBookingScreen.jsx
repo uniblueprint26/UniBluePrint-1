@@ -169,29 +169,36 @@ export default function CoachBookingScreen({ route, navigation }) {
             })}
           </ScrollView>
 
-          {/* Step 2 — time */}
+          {/* Step 2 — time. These are candidate slots, not the coach's real
+              calendar (see the header comment) — labelled "preferred time"
+              throughout rather than "available time" so this reads as a
+              request the coach still has to confirm, not a live booking
+              against their actual availability. */}
           <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
             <Clock size={14} color={colors.navy} />
-            <Text style={styles.stepLabel}>2. Pick a time</Text>
+            <Text style={styles.stepLabel}>2. Pick a preferred time</Text>
           </View>
           {!selectedDay ? (
-            <Text style={styles.hintText}>Choose a date above to see available times.</Text>
+            <Text style={styles.hintText}>Choose a date above to pick a preferred time.</Text>
           ) : (
-            <View style={styles.timeGrid}>
-              {TIME_SLOTS.map(t => {
-                const active = selectedTime === t
-                return (
-                  <TouchableOpacity
-                    key={t}
-                    style={[styles.timeChip, active && styles.timeChipActive]}
-                    activeOpacity={0.85}
-                    onPress={() => setSelectedTime(t)}
-                  >
-                    <Text style={[styles.timeChipText, active && styles.timeChipTextActive]}>{t}</Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </View>
+            <>
+              <Text style={styles.hintText}>Preferred times — {coach.name} will confirm what actually works.</Text>
+              <View style={styles.timeGrid}>
+                {TIME_SLOTS.map(t => {
+                  const active = selectedTime === t
+                  return (
+                    <TouchableOpacity
+                      key={t}
+                      style={[styles.timeChip, active && styles.timeChipActive]}
+                      activeOpacity={0.85}
+                      onPress={() => setSelectedTime(t)}
+                    >
+                      <Text style={[styles.timeChipText, active && styles.timeChipTextActive]}>{t}</Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            </>
           )}
 
           {/* Step 3 — confirm */}
