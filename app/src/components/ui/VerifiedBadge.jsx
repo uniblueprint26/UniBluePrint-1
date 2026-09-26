@@ -4,16 +4,16 @@ import { fonts, radius } from '../../constants/theme'
 
 // Small "✓ Verified" pill, shared across every place the app claims something
 // is verified — Elevation coaches, Lifestyle partners, and anywhere else that
-// makes the claim in copy. Before this, "verified" was only ever a blanket
-// marketing line ("every coach is checked before they're listed") with no
-// per-entity data behind it anywhere. This makes it a real, per-item field
-// instead: pass `verified={false}` to withhold it from something that hasn't
-// actually been checked yet. Every existing coach/partner entry already went
-// through the team's own curation before being added, so the default is
-// `true` — entries don't need to be touched individually, only ones that
-// genuinely aren't vetted need `verified={false}` set explicitly.
+// makes the claim in copy. `verified` must be a real per-entity value sourced
+// from coach_profiles.verified / partners.verified (see
+// migration 20260926091500_verified_field.sql, not yet applied) — never
+// assumed. The default is `false`: nothing has actually been vetted yet, so
+// nothing gets the badge until the team explicitly sets that flag on a real
+// row. ElevationScreen, CoachProfileScreen and PartnerCards all fetch that
+// real column and pass it in explicitly; no caller should hand this a
+// hardcoded `true`.
 
-export default function VerifiedBadge({ verified = true, style, compact = false }) {
+export default function VerifiedBadge({ verified = false, style, compact = false }) {
   if (!verified) return null
   return (
     <View style={[styles.badge, compact && styles.badgeCompact, style]}>

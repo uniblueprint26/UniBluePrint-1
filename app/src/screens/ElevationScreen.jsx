@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -11,6 +11,7 @@ import UBPLogo from '../components/ui/UBPLogo'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
+import { supabase } from '../lib/supabase'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 // Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
@@ -531,7 +532,30 @@ export default function ElevationScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [active, setActive] = useState('All')
 
-  const visible = active === 'All' ? COACHES : COACHES.filter(c => c.filter === active)
+  // Real verification, not a blanket claim: coach_profiles.verified is the
+  // only source of truth (see VerifiedBadge's own header comment and
+  // migration 20260926091500_verified_field.sql, not yet applied). Fetched
+  // once as a coach_slug -> verified map and merged onto each static
+  // listing below, so a coach only ever shows "Verified" once the team has
+  // actually set that flag on their row — never by default.
+  const [verifiedSlugs, setVerifiedSlugs] = useState({})
+  useEffect(() => {
+    let cancelled = false
+    supabase.from('coach_profiles').select('coach_slug, verified')
+      .then(({ data }) => {
+        if (cancelled || !data) return
+        const map = {}
+        data.forEach(row => { if (row.coach_slug) map[row.coach_slug] = !!row.verified })
+        setVerifiedSlugs(map)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  function withVerified(coach) {
+    return { ...coach, verified: verifiedSlugs[coachSlug(coach.id)] ?? false }
+  }
+
+  const visible = (active === 'All' ? COACHES : COACHES.filter(c => c.filter === active)).map(withVerified)
 
   const academicBanner = (
     <View style={styles.academicBanner}>
@@ -637,7 +661,7 @@ export default function ElevationScreen({ navigation }) {
             {active === 'All' ? (
               /* Grouped view */
               GROUPS.map((group, gi) => {
-                const groupCoaches = COACHES.filter(c => group.filters.includes(c.filter))
+                const groupCoaches = COACHES.filter(c => group.filters.includes(c.filter)).map(withVerified)
                 if (groupCoaches.length === 0) return null
                 return (
                   <View key={group.label}>
