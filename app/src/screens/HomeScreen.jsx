@@ -114,7 +114,7 @@ export default function HomeScreen({ navigation }) {
   const showSidebar = Platform.OS === 'web' && windowWidth >= 900
   const {
     user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness,
-    studioLabel, isComplimentaryPro, portalMode, setPortalMode,
+    studioLabel, isComplimentaryPro, isPro, subscription, portalMode, setPortalMode,
   } = useAuth()
 
   // Profile row — full_name (canonical source of truth) and this student's
@@ -485,6 +485,8 @@ export default function HomeScreen({ navigation }) {
                 userId={user?.id}
                 unreadCount={unreadCount}
                 isComplimentaryPro={isComplimentaryPro}
+                isPro={isPro}
+                subscriptionTier={subscription?.tier}
                 navigation={navigation}
               />
 

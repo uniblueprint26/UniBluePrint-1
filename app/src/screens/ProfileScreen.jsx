@@ -496,7 +496,7 @@ const rp = StyleSheet.create({
 
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const { user, signOut } = useAuth()
+  const { user, signOut, isPro, isComplimentaryPro, subscription } = useAuth()
   const { label: userTypeLabel } = useUserType()
   const { interests } = useInterests()
   const [interestsVisible, setInterestsVisible] = useState(false)
@@ -513,6 +513,15 @@ export default function ProfileScreen({ navigation }) {
   const trade            = user?.user_metadata?.trade || ''
   const trainingProvider = user?.user_metadata?.training_provider || ''
   const initials         = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+  // Real membership state (P0-5) — was hard-coded to "Free Member" for
+  // everyone, including paying Pro/Premium users. Mirrors the tier naming
+  // PricingScreen already uses (`pro_annual` → Premium, otherwise Pro).
+  const membershipLabel = isComplimentaryPro
+    ? 'Complimentary Pro'
+    : isPro
+      ? (subscription?.tier === 'pro_annual' ? 'Premium Member' : 'Pro Member')
+      : 'Free Member'
 
   // Build the sub-line shown beneath the display name in the profile header
   const SITUATION_LABELS = {
@@ -660,7 +669,9 @@ export default function ProfileScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Membership banner */}
+        {/* Membership banner — reflects the real subscription state from
+            AuthContext rather than a hard-coded "Free Member" for everyone,
+            including paying Pro/Premium users (P0-5). */}
         <View style={styles.membershipCard}>
           <View style={styles.membershipTop}>
             <View style={styles.membershipStarWrap}>
@@ -668,19 +679,22 @@ export default function ProfileScreen({ navigation }) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.membershipEyebrow}>CURRENT PLAN</Text>
-              <Text style={styles.membershipTitle}>Free Member</Text>
+              <Text style={styles.membershipTitle}>{membershipLabel}</Text>
             </View>
-            <TouchableOpacity
-              style={styles.upgradeBtn}
-              activeOpacity={0.8}
-              onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}
-            >
-              <Text style={styles.upgradeBtnText}>Upgrade</Text>
-            </TouchableOpacity>
+            {!isPro && !isComplimentaryPro && (
+              <TouchableOpacity
+                style={styles.upgradeBtn}
+                activeOpacity={0.8}
+                onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}
+              >
+                <Text style={styles.upgradeBtnText}>Upgrade</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <Text style={styles.membershipSub}>
-            Upgrade to unlock priority coach access and premium document services. Plans and
-            payment are handled securely on the UniBlueprint website, never in the app.
+            {isPro || isComplimentaryPro
+              ? 'Thanks for being a member. Manage or change your plan on the UniBlueprint website.'
+              : 'Upgrade to unlock priority coach access and premium document services. Plans and payment are handled securely on the UniBlueprint website, never in the app.'}
           </Text>
         </View>
 
