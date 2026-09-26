@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ArrowLeftRight, Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
@@ -185,20 +185,42 @@ export default function FounderPortalScreen({ navigation }) {
     if (!addRefId || saving) return
     setSaving(true)
     const nextPriority = featuredList.reduce((max, r) => Math.max(max, r.priority), -1) + 1
-    await supabase.from('featured_content').insert({
+    const { error } = await supabase.from('featured_content').insert({
       content_type: addType,
       ref_id: addRefId,
       caption: addCaption.trim() || null,
       priority: nextPriority,
     })
     setSaving(false)
+    if (error) {
+      Alert.alert('Couldn\'t add to Spotlight', 'Please try again.')
+      return
+    }
     setAddOpen(false)
     loadFeatured()
   }
 
   async function removeFeatured(id) {
-    await supabase.from('featured_content').delete().eq('id', id)
+    const { error } = await supabase.from('featured_content').delete().eq('id', id)
+    if (error) {
+      Alert.alert('Couldn\'t remove', 'Please try again.')
+      return
+    }
+    // Only drop it from local state once the delete has actually succeeded —
+    // previously this ran unconditionally, so a failed delete still made the
+    // item disappear from the list even though it was still live on Home.
     setFeaturedList(list => list.filter(r => r.id !== id))
+  }
+
+  function confirmRemoveFeatured(row) {
+    Alert.alert(
+      'Remove from Spotlight?',
+      `"${nameForFeatured(row)}" will stop showing on the Home dashboard's Spotlight carousel.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removeFeatured(row.id) },
+      ]
+    )
   }
 
   function backToMyBlueprint() {
@@ -338,7 +360,7 @@ export default function FounderPortalScreen({ navigation }) {
               {!!row.caption && <Text style={styles.featuredCaption} numberOfLines={1}>“{row.caption}”</Text>}
             </View>
             <TouchableOpacity
-              onPress={() => removeFeatured(row.id)}
+              onPress={() => confirmRemoveFeatured(row)}
               style={styles.featuredRemoveBtn}
               activeOpacity={0.7}
               accessibilityRole="button"
