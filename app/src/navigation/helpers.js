@@ -13,7 +13,11 @@ export function goToHome(navigation) {
   try {
     const state = navigation.getState?.()
     if (state?.routeNames?.includes('HomeMain')) {
-      navigation.navigate('HomeMain')
+      // React Navigation v7's navigate() pushes rather than pops when the
+      // target is already in the stack, so this would grow the stack (and
+      // Back would return into whatever screen was on top) every time the
+      // logo is tapped. popTo pops back to the existing HomeMain instead.
+      navigation.popTo('HomeMain')
       return
     }
   } catch {}

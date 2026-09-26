@@ -145,7 +145,12 @@ export default function HomeScreen({ navigation }) {
         : isOperations ? 'OperationsPortal'
         : isBusiness ? 'PartnerPortalApp'
         : 'CoachStudio'
-      navigation.navigate(landing)
+      // popTo, not navigate: React Navigation v7's navigate() pushes a new
+      // instance even if the landing screen is already in the stack (e.g.
+      // switching to Studio, back to My Blueprint, then to Studio again),
+      // growing the stack every time. popTo pops back to it when present,
+      // and pushes it when it isn't — the pre-v7 navigate() behaviour.
+      navigation.popTo(landing)
     }
   }
 
