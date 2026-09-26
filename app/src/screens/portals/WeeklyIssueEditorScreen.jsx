@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, Switch } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, Switch, KeyboardAvoidingView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { usePreventRemove } from '@react-navigation/native'
 import { ChevronLeft, Plus, Save, CheckCircle2 } from 'lucide-react-native'
 import Card from '../../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
@@ -125,6 +126,23 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
   const [content, setContent] = useState({}) // page_key -> { field_key: value }
   const [saving, setSaving] = useState(null) // page_key currently saving, or null
   const [savedFlash, setSavedFlash] = useState(null)
+  const [dirtyPages, setDirtyPages] = useState(new Set()) // page_keys edited since their last save
+  const hasUnsavedChanges = dirtyPages.size > 0
+
+  // Guard against losing up to 10 cards' worth of unsaved edits to a
+  // hardware-back press or an iOS swipe-back gesture while any page is
+  // dirty — the in-screen "All Issues" button has its own confirm below,
+  // this covers actually leaving the screen.
+  usePreventRemove(hasUnsavedChanges, ({ data }) => {
+    Alert.alert(
+      'Discard unsaved changes?',
+      'You have unsaved edits on one or more sections of this issue. Leaving now will lose them.',
+      [
+        { text: 'Keep Editing', style: 'cancel' },
+        { text: 'Discard', style: 'destructive', onPress: () => { setDirtyPages(new Set()); navigation.dispatch(data.action) } },
+      ]
+    )
+  })
 
   const loadIssues = useCallback(async () => {
     setLoading(true)
@@ -137,10 +155,23 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
 
   async function openIssue(issue) {
     setActiveIssue(issue)
+    setDirtyPages(new Set())
     const { data } = await supabase.from('weekly_issue_content').select('page_key, content').eq('issue_id', issue.id)
     const byKey = {}
     for (const row of data || []) byKey[row.page_key] = row.content
     setContent(byKey)
+  }
+
+  function closeIssue() {
+    if (!hasUnsavedChanges) { setActiveIssue(null); return }
+    Alert.alert(
+      'Discard unsaved changes?',
+      'You have unsaved edits on one or more sections of this issue. Going back to All Issues will lose them.',
+      [
+        { text: 'Keep Editing', style: 'cancel' },
+        { text: 'Discard', style: 'destructive', onPress: () => { setDirtyPages(new Set()); setActiveIssue(null) } },
+      ]
+    )
   }
 
   async function createIssue() {
@@ -164,7 +195,34 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
     if (!error) {
       setActiveIssue(data)
       setIssues(prev => prev.map(i => i.id === data.id ? data : i))
+    } else {
+      Alert.alert('Something went wrong', 'Please try again.')
     }
+  }
+
+  function requestSetPublished(v) {
+    if (!v) {
+      // Un-publishing needs no confirmation — it only ever takes the issue
+      // offline, never puts anything live.
+      updateIssueField({ published: false })
+      return
+    }
+    if (hasUnsavedChanges) {
+      Alert.alert(
+        'Save your changes first',
+        'One or more sections have unsaved edits. Save them before publishing, or your changes won\'t be part of what goes live.',
+        [{ text: 'OK' }]
+      )
+      return
+    }
+    Alert.alert(
+      `Publish Issue ${activeIssue?.issue_number}?`,
+      'This makes it live to every student immediately, replacing whatever issue is currently showing on the Ad Board.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Publish', onPress: () => updateIssueField({ published: true }) },
+      ]
+    )
   }
 
   async function savePage(pageKey) {
@@ -175,12 +233,14 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
       .upsert({ issue_id: activeIssue.id, page_key: pageKey, content: content[pageKey] || {} }, { onConflict: 'issue_id,page_key' })
     setSaving(null)
     if (error) { Alert.alert('Could not save', 'Please try again.'); return }
+    setDirtyPages(prev => { const next = new Set(prev); next.delete(pageKey); return next })
     setSavedFlash(pageKey)
     setTimeout(() => setSavedFlash(f => f === pageKey ? null : f), 1800)
   }
 
   function setFieldValue(pageKey, fieldKey, value) {
     setContent(prev => ({ ...prev, [pageKey]: { ...(prev[pageKey] || {}), [fieldKey]: value } }))
+    setDirtyPages(prev => (prev.has(pageKey) ? prev : new Set(prev).add(pageKey)))
   }
 
   return (
@@ -188,7 +248,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
       <View style={[s.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity
           style={s.backBtn}
-          onPress={() => activeIssue ? setActiveIssue(null) : navigation.goBack()}
+          onPress={() => activeIssue ? closeIssue() : navigation.goBack()}
           activeOpacity={0.7}
         >
           <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
@@ -229,6 +289,10 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
           ))}
         </ScrollView>
       ) : (
+        <KeyboardAvoidingView
+          style={s.scrollView}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
         <ScrollView style={s.scrollView} contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 60 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
           <Card style={{ marginBottom: 16 }}>
@@ -247,7 +311,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
               </View>
               <Switch
                 value={activeIssue.published}
-                onValueChange={v => updateIssueField({ published: v })}
+                onValueChange={requestSetPublished}
                 trackColor={{ false: 'rgba(30,58,95,0.15)', true: colors.navy }}
               />
             </View>
@@ -279,6 +343,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
             </Card>
           ))}
         </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </View>
   )
