@@ -521,7 +521,7 @@ export default function HomeScreen({ navigation }) {
                 <View style={[styles.sectionRow, { marginBottom: 10 }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <View style={styles.trendingPulse} />
-                    <Text style={styles.trendingTitle}>Trending Right Now</Text>
+                    <Text style={styles.trendingTitle}>Featured this week</Text>
                   </View>
                 </View>
                 <SpotlightCarousel slides={spotlightSlides} onSlidePress={handleSpotlightPress} />

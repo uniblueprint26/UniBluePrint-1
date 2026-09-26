@@ -30,7 +30,7 @@ const PAGE_FIELDS = {
       { key: 'lines', type: 'lines', label: 'Short story cards (page 13)', hint: 'Student name | Headline | Short teaser' },
       { key: 'featuredName', type: 'text', label: 'Featured story: student name (page 14)' },
       { key: 'featuredTeaser', type: 'textarea', label: 'Featured story: opening hook', hint: 'A few sentences, then cut off — links out to the full story on the blog.' },
-      { key: 'featuredSlug', type: 'text', label: 'Blog post slug to link to', hint: 'Matches a slug in src/data/blogPosts.js on the website' },
+      { key: 'featuredSlug', type: 'text', label: 'Blog post slug to link to', hint: "The blog post's URL slug, e.g. back-to-campus-guide" },
     ],
   },
   campus_guide: {

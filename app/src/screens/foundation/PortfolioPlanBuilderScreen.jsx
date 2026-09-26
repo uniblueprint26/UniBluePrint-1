@@ -64,7 +64,7 @@ const STEPS = [
   {
     key: 'unsure_about',
     title: 'Anything you\'re unsure about?',
-    subtitle: 'Whether you have enough to show, how to present a weak or unfinished piece, something else — tell us and your Coach will double-check it specifically.',
+    subtitle: 'Whether you have enough to show, how to present a weak or unfinished piece, something else — tell us and your Campus Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
