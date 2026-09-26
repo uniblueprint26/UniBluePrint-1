@@ -236,7 +236,8 @@ export default function MessagesScreen({ navigation }) {
   }
 
   function goToDirectory()  { navigation.getParent()?.navigate('Directory') }
-  function goToConnect()    { navigation.getParent()?.navigate('Home')      }
+  // Used to land on Home instead of Campus Connect.
+  function goToConnect()    { navigation.getParent()?.navigate('Home', { screen: 'CampusConnect' }) }
 
   const hasRooms = rooms.length > 0
   const unreadTotal = rooms.reduce((n, r) => n + r.unreadCount, 0)
