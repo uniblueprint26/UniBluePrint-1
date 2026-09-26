@@ -114,8 +114,8 @@ export default function RefundPolicyPage() {
               <p style={P}>If you believe a charge is incorrect, please contact us before initiating a chargeback with your bank or card provider. We will investigate promptly and issue a refund if appropriate. Initiating a chargeback without first contacting UniBlueprint may result in suspension of your Account while the dispute is investigated. If a chargeback is found to be fraudulent or raised without good cause, we reserve the right to recover costs incurred.</p>
             </Section>
 
-            <Section title="11. VAT on Refunds">
-              <p style={P}>Where VAT was charged on a payment, it will be included in any refund issued. Where applicable, UniBlueprint will issue a VAT credit note in accordance with Irish Revenue requirements.</p>
+            <Section title="11. VAT">
+              <p style={P}>UniBlueprint Limited is not currently VAT-registered, so VAT is not charged on any payment. If this changes in future, this policy and our pricing pages will be updated to reflect it, and any VAT charged would be included in refunds in accordance with Irish Revenue requirements.</p>
             </Section>
 
             <Section title="12. Your Statutory Rights">

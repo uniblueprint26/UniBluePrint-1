@@ -30,7 +30,7 @@ export default function TermsPage() {
           Terms of Service
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: June 2026
+          Last updated: September 2026
         </p>
       </section>
 
@@ -43,8 +43,8 @@ export default function TermsPage() {
           }}>
 
             <Section title="1. Introduction and Acceptance">
-              <p style={P}>These Terms of Service ("Terms") govern your access to and use of the UniBlueprint platform, including the website, mobile application, and all associated services (collectively, the "Platform"). UniBlueprint is operated by UniBlueprint Ltd, a company registered in Ireland.</p>
-              <p style={P}>By creating an account, accessing the Platform, or using any UniBlueprint service, you agree to be bound by these Terms. If you do not agree to these Terms, you must not use UniBlueprint. These Terms form a legally binding agreement between you and UniBlueprint Ltd.</p>
+              <p style={P}>These Terms of Service ("Terms") govern your access to and use of the UniBlueprint platform, including the website, mobile application, and all associated services (collectively, the "Platform"). UniBlueprint is operated by UniBlueprint Limited, a company registered in Ireland under company number 826545, with its registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland.</p>
+              <p style={P}>By creating an account, accessing the Platform, or using any UniBlueprint service, you agree to be bound by these Terms. If you do not agree to these Terms, you must not use UniBlueprint. These Terms form a legally binding agreement between you and UniBlueprint Limited.</p>
               <p style={P}>
                 These Terms should be read alongside our{' '}
                 <Link to="/privacy" style={{ color: '#1E3A5F', fontWeight: '500' }}>Privacy Policy</Link>,{' '}
@@ -66,7 +66,7 @@ export default function TermsPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Pro Subscription</strong> means the paid tier of UniBlueprint membership that unlocks access to premium services.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Uni Coach</strong> means a vetted professional who delivers Elevation Blueprint sessions.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>User Content</strong> means any content you submit, post, or transmit through the Platform.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>We / Us / Our</strong> means UniBlueprint Ltd.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>We / Us / Our</strong> means UniBlueprint Limited.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>You / Your</strong> means the individual accessing or using the Platform.</li>
               </ul>
             </Section>
@@ -92,7 +92,7 @@ export default function TermsPage() {
               <p style={P}>UniBlueprint offers a free tier and a Pro subscription. The free tier includes access to Campus Connect, Course Connect, and certain other features at no charge. The Pro subscription unlocks access to purchase Foundation Blueprint and Elevation Blueprint services, Lifestyle Blueprint partner deals, and other premium features as set out on the Pricing page.</p>
 
               <h3 style={H3}>5.2 Payments via Stripe</h3>
-              <p style={P}>All Pro subscription payments are processed by Stripe, Inc., a third-party payment processor. By subscribing, you authorise UniBlueprint to charge your selected payment method through Stripe for the applicable subscription fee. UniBlueprint does not store your card details directly. Payment is due at the beginning of each billing period. All prices are displayed in Euro (EUR) and are inclusive of VAT where applicable under Irish law.</p>
+              <p style={P}>All Pro subscription payments are processed by Stripe, Inc., a third-party payment processor. By subscribing, you authorise UniBlueprint to charge your selected payment method through Stripe for the applicable subscription fee. UniBlueprint does not store your card details directly. Payment is due at the beginning of each billing period. All prices are displayed in Euro (EUR). UniBlueprint Limited is not currently VAT-registered, so VAT is not charged; if this changes, prices will be updated to reflect it.</p>
 
               <h3 style={H3}>5.3 Auto-Renewal</h3>
               <p style={P}>Your Pro subscription renews automatically at the end of each billing period unless you cancel before the renewal date. You may cancel your subscription at any time via Account Settings. Cancellation takes effect at the end of the current billing period and access continues until that date. No partial-period refunds are issued on cancellation except where required by law or as set out in our Refund Policy.</p>
@@ -125,7 +125,7 @@ export default function TermsPage() {
             </Section>
 
             <Section title="10. Intellectual Property">
-              <p style={P}>All intellectual property on the UniBlueprint Platform, including the brand, name, logo, design, software, and content created by UniBlueprint or on its behalf, is owned by UniBlueprint Ltd or its licensors. All rights are reserved.</p>
+              <p style={P}>All intellectual property on the UniBlueprint Platform, including the brand, name, logo, design, software, and content created by UniBlueprint or on its behalf, is owned by UniBlueprint Limited or its licensors. All rights are reserved.</p>
               <p style={P}>Nothing in these Terms grants you any right to use UniBlueprint's intellectual property without express written permission. You may not copy, reproduce, distribute, modify, or create derivative works of any part of the Platform without our prior written consent.</p>
               <p style={P}>You retain ownership of your User Content. By submitting User Content to UniBlueprint, you grant UniBlueprint a non-exclusive, royalty-free, worldwide licence to use, store, and display that content as necessary to provide the service and improve the Platform. This licence ends when you delete your content or close your Account, subject to any legal retention obligations.</p>
             </Section>
@@ -151,14 +151,14 @@ export default function TermsPage() {
             </Section>
 
             <Section title="13. Disclaimers and Limitation of Liability">
-              <p style={P}>UniBlueprint is provided on an "as is" and "as available" basis. To the fullest extent permitted by applicable law, UniBlueprint Ltd disclaims all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+              <p style={P}>UniBlueprint is provided on an "as is" and "as available" basis. To the fullest extent permitted by applicable law, UniBlueprint Limited disclaims all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
               <p style={P}>UniBlueprint does not guarantee that the Platform will be uninterrupted, error-free, or free from harmful components. We do not warrant that any service output will meet your specific requirements or expectations beyond the quality commitment set out in the Refund Policy.</p>
-              <p style={P}>To the fullest extent permitted by applicable law, UniBlueprint Ltd shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of or inability to use the Platform. Our total aggregate liability to you in connection with any claim arising out of or relating to these Terms or the Platform shall not exceed the total fees paid by you to UniBlueprint in the 12 months preceding the claim.</p>
+              <p style={P}>To the fullest extent permitted by applicable law, UniBlueprint Limited shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of or inability to use the Platform. Our total aggregate liability to you in connection with any claim arising out of or relating to these Terms or the Platform shall not exceed the total fees paid by you to UniBlueprint in the 12 months preceding the claim.</p>
               <p style={P}>Nothing in these Terms limits or excludes our liability for death or personal injury caused by our negligence, fraudulent misrepresentation, or any other liability that cannot be excluded or limited under Irish or EU law, including your rights under the Consumer Rights Act 2022.</p>
             </Section>
 
             <Section title="14. Indemnification">
-              <p style={P}>You agree to indemnify, defend, and hold harmless UniBlueprint Ltd and its officers, directors, employees, agents, and partners from and against any claims, liabilities, damages, losses, costs, and expenses (including reasonable legal fees) arising out of or relating to: your use of the Platform; your breach of these Terms; your User Content; or your violation of any law or the rights of any third party.</p>
+              <p style={P}>You agree to indemnify, defend, and hold harmless UniBlueprint Limited and its officers, directors, employees, agents, and partners from and against any claims, liabilities, damages, losses, costs, and expenses (including reasonable legal fees) arising out of or relating to: your use of the Platform; your breach of these Terms; your User Content; or your violation of any law or the rights of any third party.</p>
             </Section>
 
             <Section title="15. Termination">
@@ -184,7 +184,7 @@ export default function TermsPage() {
 
             <Section title="18. General Provisions">
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Severability.</strong> If any provision of these Terms is found by a court of competent jurisdiction to be invalid, illegal, or unenforceable, that provision will be modified to the minimum extent necessary to make it enforceable, or if it cannot be modified, it will be severed from these Terms. The remaining provisions will continue in full force and effect.</p>
-              <p style={P}><strong style={{ color: '#1E3A5F' }}>Entire agreement.</strong> These Terms, together with the Privacy Policy, Cookie Policy, and Refund Policy, constitute the entire agreement between you and UniBlueprint Ltd with respect to your use of the Platform and supersede all prior agreements, representations, and understandings.</p>
+              <p style={P}><strong style={{ color: '#1E3A5F' }}>Entire agreement.</strong> These Terms, together with the Privacy Policy, Cookie Policy, and Refund Policy, constitute the entire agreement between you and UniBlueprint Limited with respect to your use of the Platform and supersede all prior agreements, representations, and understandings.</p>
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Waiver.</strong> A failure by UniBlueprint to enforce any right or provision of these Terms at any time does not constitute a waiver of that right or provision and does not prevent UniBlueprint from enforcing it at a later date.</p>
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Assignment.</strong> You may not assign or transfer your rights or obligations under these Terms without our prior written consent. UniBlueprint may assign its rights and obligations under these Terms to any affiliate, successor, or purchaser of all or substantially all of its assets.</p>
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Force majeure.</strong> UniBlueprint will not be liable for any delay or failure to perform its obligations where such failure results from circumstances beyond its reasonable control, including but not limited to acts of God, power failures, server outages at third-party providers, or internet disruptions. We will restore the service as soon as reasonably practicable.</p>

@@ -292,7 +292,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: June 2026
+          Last updated: September 2026
         </p>
       </section>
 
@@ -305,7 +305,7 @@ export default function PrivacyPage() {
           }}>
 
             <Section title="1. Who We Are">
-              <p style={P}>UniBlueprint Ltd is the data controller for personal data collected through the UniBlueprint platform. We are registered in Ireland and operate under the EU General Data Protection Regulation (GDPR) 2016/679 and the Irish Data Protection Act 2018.</p>
+              <p style={P}>UniBlueprint Limited is the data controller for personal data collected through the UniBlueprint platform. We are a company registered in Ireland under company number 826545, with our registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland, and we operate under the EU General Data Protection Regulation (GDPR) 2016/679 and the Irish Data Protection Act 2018.</p>
               <p style={P}>
                 For privacy-related queries, contact us at{' '}
                 <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>.
@@ -415,7 +415,7 @@ export default function PrivacyPage() {
             </Section>
 
             <Section title="13. Data Protection Officer">
-              <p style={P}>UniBlueprint Ltd does not currently have an appointed Data Protection Officer. Under GDPR Article 37, a DPO is required only where processing is carried out by a public authority, where core activities consist of large-scale systematic monitoring of individuals, or where core activities involve large-scale processing of special categories of data. UniBlueprint does not meet any of these criteria at this time.</p>
+              <p style={P}>UniBlueprint Limited does not currently have an appointed Data Protection Officer. Under GDPR Article 37, a DPO is required only where processing is carried out by a public authority, where core activities consist of large-scale systematic monitoring of individuals, or where core activities involve large-scale processing of special categories of data. UniBlueprint does not meet any of these criteria at this time.</p>
               <p style={P}>All data protection matters are handled directly by the UniBlueprint team. For any privacy-related query or GDPR rights request, contact us at <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>.</p>
             </Section>
 

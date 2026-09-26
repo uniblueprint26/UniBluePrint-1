@@ -195,7 +195,7 @@ export default function PricingScreen({ navigation }) {
           ))}
         </View>
 
-        <Text style={styles.footNote}>All prices include VAT where applicable. Pro and Premium purchases are completed on uniblueprint.ie.</Text>
+        <Text style={styles.footNote}>UniBlueprint is not currently VAT-registered, so VAT is not charged. Pro and Premium purchases are completed on uniblueprint.ie.</Text>
       </ScrollView>
     </View>
   )

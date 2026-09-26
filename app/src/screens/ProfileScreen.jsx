@@ -19,6 +19,7 @@ import { useInterests } from '../hooks/useInterests'
 import InterestsModal from '../components/profile/InterestsModal'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
+import { LEGAL_ENTITY_LINE } from '../constants/legal'
 
 // ── Explore links ──────────────────────────────────────────────────────────────
 
@@ -758,6 +759,7 @@ export default function ProfileScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
           <Text style={styles.versionText}>UniBlueprint · v1.0.0</Text>
+          <Text style={styles.legalText}>{LEGAL_ENTITY_LINE}</Text>
         </View>
 
       </ScrollView>
@@ -916,5 +918,9 @@ const styles = StyleSheet.create({
   versionText: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.light,
     textAlign: 'center', marginTop: spacing.lg,
+  },
+  legalText: {
+    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    textAlign: 'center', marginTop: spacing.xs, lineHeight: 16, paddingHorizontal: spacing.lg,
   },
 })

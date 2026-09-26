@@ -450,7 +450,7 @@ export default function PricingPage() {
         </div>
 
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '20px' }}>
-          All prices include VAT where applicable.
+          UniBlueprint Limited is not currently VAT-registered, so VAT is not charged on the prices shown.
         </p>
       </section>
 

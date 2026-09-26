@@ -7,6 +7,7 @@ import { colors, fonts, spacing, radius } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
+import { LEGAL_ENTITY_LINE } from '../constants/legal'
 
 // Export and deletion are both immediate and self-service (GDPR Art. 17/20,
 // and Apple Guideline 5.1.1(v) requires the deletion half specifically):
@@ -177,6 +178,8 @@ export default function PrivacyDataScreen({ navigation }) {
             ))}
           </Card>
         )}
+
+        <Text style={styles.legalText}>{LEGAL_ENTITY_LINE}</Text>
       </ScrollView>
     </View>
   )
@@ -217,6 +220,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8, textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: 10,
   },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic' },
+  legalText: {
+    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    textAlign: 'center', marginTop: spacing.xl, lineHeight: 16,
+  },
 
   reqRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },

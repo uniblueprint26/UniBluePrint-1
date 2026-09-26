@@ -15,6 +15,7 @@ import { ChevronLeft, UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react-
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { WEBSITE_LINKS } from '../constants/site'
+import { LEGAL_ENTITY_LINE } from '../constants/legal'
 
 const AVATAR_COLORS = ['#1E3A5F', '#0369A1', '#B45309', '#7C3AED', '#15803D', '#9D174D', '#C2410C', '#0F766E']
 
@@ -197,9 +198,11 @@ export default function AboutScreen({ navigation }) {
 
         {/* Launch CTA */}
         <View style={styles.launchCta}>
-          <Text style={styles.launchTitle}>Launching September 2026.</Text>
+          <Text style={styles.launchTitle}>Launched September 2026.</Text>
           <Text style={styles.launchSub}>Across Irish universities and colleges during freshers week.</Text>
         </View>
+
+        <Text style={styles.legalText}>{LEGAL_ENTITY_LINE}</Text>
       </View>
     </ScrollView>
   )
@@ -262,4 +265,8 @@ const styles = StyleSheet.create({
   launchCta: { backgroundColor: colors.navy, borderRadius: radius.card, padding: 26, marginTop: spacing.xl, alignItems: 'center' },
   launchTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream, textAlign: 'center' },
   launchSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.6)', marginTop: 8, textAlign: 'center' },
+  legalText: {
+    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    textAlign: 'center', marginTop: spacing.lg, lineHeight: 16, paddingHorizontal: spacing.md,
+  },
 })
