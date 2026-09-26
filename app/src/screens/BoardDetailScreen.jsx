@@ -292,6 +292,10 @@ export default function BoardDetailScreen({ navigation, route }) {
       contextId: `${board.key}-${item.id}`,
       roomName,
       subtitle,
+      // Add the original poster as a participant so they actually see/get
+      // notified of the chat, instead of a room only the opener ever joins.
+      posterId: item.user_id ?? item.created_by ?? null,
+      posterName: item.poster_name || null,
     })
   }
 
@@ -606,6 +610,8 @@ export default function BoardDetailScreen({ navigation, route }) {
                   contextId: route.id,
                   roomName: `${route.from_location} → ${route.to_location}`,
                   subtitle: route.departure_time,
+                  posterId: route.user_id ?? route.created_by ?? null,
+                  posterName: route.poster_name || null,
                 })}
               >
                 <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
