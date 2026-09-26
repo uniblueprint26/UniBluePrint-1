@@ -517,6 +517,7 @@ export default function BoardDetailScreen({ navigation, route }) {
   // ── Special: Clubs ───────────────────────────────────────────────────────
   function renderClubCard(club) {
     const joined = clubMine.has(club.id)
+    const own = isOwn(club)
     return (
       <Card key={club.id} style={styles.card}>
         <Text style={styles.cardTitle}>{club.name}</Text>
@@ -526,19 +527,27 @@ export default function BoardDetailScreen({ navigation, route }) {
         </View>
         <Text style={styles.cardBody} numberOfLines={4}>{club.description}</Text>
         {!!club.contact && <Text style={styles.posterLine}>Contact: {club.contact}</Text>}
-        <TouchableOpacity
-          style={[styles.joinBtn, joined && styles.joinBtnActive]}
-          activeOpacity={0.85}
-          onPress={() => joined ? leaveClub(club) : joinClub(club)}
-        >
-          <Text style={[styles.joinBtnText, joined && styles.joinBtnTextActive]}>{joined ? 'Joined · Leave' : 'Join / Express Interest'}</Text>
-        </TouchableOpacity>
+        <View style={styles.actionsRow}>
+          <TouchableOpacity
+            style={[styles.joinBtn, joined && styles.joinBtnActive, { flex: 1 }]}
+            activeOpacity={0.85}
+            onPress={() => joined ? leaveClub(club) : joinClub(club)}
+          >
+            <Text style={[styles.joinBtnText, joined && styles.joinBtnTextActive]}>{joined ? 'Joined · Leave' : 'Join / Express Interest'}</Text>
+          </TouchableOpacity>
+          {!own && (
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(club)} accessibilityRole="button" accessibilityLabel="Report club">
+              <Flag size={13} color={colors.muted} strokeWidth={2} />
+            </TouchableOpacity>
+          )}
+        </View>
       </Card>
     )
   }
 
   // ── Special: Projects ────────────────────────────────────────────────────
   function renderProjectCard(p) {
+    const own = !p.is_example && isOwn(p)
     return (
       <Card key={p.id} style={styles.card}>
         {!!p.project_type && (
@@ -557,13 +566,20 @@ export default function BoardDetailScreen({ navigation, route }) {
           {p.timeline} · {p.collaborators_needed} spot{p.collaborators_needed !== 1 ? 's' : ''} needed
           {!p.is_example && ` · ${posterLine(p)}`}
         </Text>
-        <TouchableOpacity
-          style={styles.joinBtn}
-          activeOpacity={0.85}
-          onPress={() => p.is_example ? setExampleSheetOpen(true) : openChat(p, p.title, 'Project Collaboration')}
-        >
-          <Text style={styles.joinBtnText}>Join</Text>
-        </TouchableOpacity>
+        <View style={styles.actionsRow}>
+          <TouchableOpacity
+            style={[styles.joinBtn, { flex: 1 }]}
+            activeOpacity={0.85}
+            onPress={() => p.is_example ? setExampleSheetOpen(true) : openChat(p, p.title, 'Project Collaboration')}
+          >
+            <Text style={styles.joinBtnText}>Join</Text>
+          </TouchableOpacity>
+          {!p.is_example && !own && (
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(p)} accessibilityRole="button" accessibilityLabel="Report project">
+              <Flag size={13} color={colors.muted} strokeWidth={2} />
+            </TouchableOpacity>
+          )}
+        </View>
       </Card>
     )
   }
@@ -629,23 +645,34 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   // ── Special: Problems ────────────────────────────────────────────────────
   function renderProblemCard(item) {
+    const own = isOwn(item)
     return (
-      <TouchableOpacity key={item.id} activeOpacity={0.85} onPress={() => openProblem(item)}>
-        <Card style={styles.card}>
+      <Card key={item.id} style={styles.card}>
+        <TouchableOpacity activeOpacity={0.85} onPress={() => openProblem(item)}>
           <View style={styles.metaRow}><View style={styles.metaPill}><Text style={styles.metaPillText}>{item.category}</Text></View></View>
           <Text style={styles.cardBody} numberOfLines={3}>{item.description}</Text>
-          <View style={[styles.metaRow, { marginTop: 10 }]}>
-            <Text style={styles.posterLine}>{posterLine(item)}</Text>
-            <Text style={styles.viewSolutionsText}>View solutions →</Text>
+        </TouchableOpacity>
+        <View style={[styles.metaRow, { marginTop: 10, justifyContent: 'space-between' }]}>
+          <Text style={styles.posterLine}>{posterLine(item)}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => openProblem(item)}>
+              <Text style={styles.viewSolutionsText}>View solutions →</Text>
+            </TouchableOpacity>
+            {!own && (
+              <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(item)} accessibilityRole="button" accessibilityLabel="Report post">
+                <Flag size={13} color={colors.muted} strokeWidth={2} />
+              </TouchableOpacity>
+            )}
           </View>
-        </Card>
-      </TouchableOpacity>
+        </View>
+      </Card>
     )
   }
 
   // ── Special: Suggestions ─────────────────────────────────────────────────
   function renderSuggestionCard(item) {
     const voted = mySuggestionVotes.has(item.id)
+    const own = isOwn(item)
     return (
       <Card key={item.id} style={[styles.card, { flexDirection: 'row', gap: 12 }]}>
         <TouchableOpacity style={[styles.voteCol, voted && styles.voteColActive]} activeOpacity={0.8} onPress={() => toggleSuggestionVote(item)}>
@@ -656,7 +683,14 @@ export default function BoardDetailScreen({ navigation, route }) {
           <Text style={styles.cardTitle}>{item.title}</Text>
           <View style={styles.metaRow}><View style={styles.metaPill}><Text style={styles.metaPillText}>{item.category}</Text></View></View>
           <Text style={styles.cardBody} numberOfLines={3}>{item.description}</Text>
-          <Text style={styles.posterLine}>{posterLine(item)}</Text>
+          <View style={[styles.metaRow, { justifyContent: 'space-between' }]}>
+            <Text style={styles.posterLine}>{posterLine(item)}</Text>
+            {!own && (
+              <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(item)} accessibilityRole="button" accessibilityLabel="Report suggestion">
+                <Flag size={13} color={colors.muted} strokeWidth={2} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </Card>
     )
@@ -664,6 +698,7 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   // ── Special: Reviews ─────────────────────────────────────────────────────
   function renderReviewCard(r) {
+    const own = isOwn(r)
     return (
       <Card key={r.id} style={styles.card}>
         <View style={styles.metaRow}>
@@ -679,7 +714,14 @@ export default function BoardDetailScreen({ navigation, route }) {
             </View>
           ))}
         </View>
-        <Text style={styles.posterLine}>{posterLine(r)}</Text>
+        <View style={[styles.metaRow, { justifyContent: 'space-between' }]}>
+          <Text style={styles.posterLine}>{posterLine(r)}</Text>
+          {!own && (
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(r)} accessibilityRole="button" accessibilityLabel="Report review">
+              <Flag size={13} color={colors.muted} strokeWidth={2} />
+            </TouchableOpacity>
+          )}
+        </View>
       </Card>
     )
   }
@@ -1023,6 +1065,7 @@ export default function BoardDetailScreen({ navigation, route }) {
               <View style={{ gap: 10 }}>
                 {solutions.map(sol => {
                   const voted = mySolutionVotes.has(sol.id)
+                  const ownSolution = sol.user_id === user?.id
                   return (
                     <Card key={sol.id} style={[styles.card, { flexDirection: 'row', gap: 12, padding: 14 }]}>
                       <TouchableOpacity style={[styles.voteCol, voted && styles.voteColActive]} activeOpacity={0.8} onPress={() => toggleSolutionVote(sol)}>
@@ -1031,7 +1074,14 @@ export default function BoardDetailScreen({ navigation, route }) {
                       </TouchableOpacity>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.cardBody}>{sol.body}</Text>
-                        <Text style={styles.posterLine}>{posterLine(sol)}</Text>
+                        <View style={[styles.metaRow, { justifyContent: 'space-between' }]}>
+                          <Text style={styles.posterLine}>{posterLine(sol)}</Text>
+                          {!ownSolution && (
+                            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(sol, 'problem_solutions')} accessibilityRole="button" accessibilityLabel="Report solution">
+                              <Flag size={13} color={colors.muted} strokeWidth={2} />
+                            </TouchableOpacity>
+                          )}
+                        </View>
                       </View>
                     </Card>
                   )

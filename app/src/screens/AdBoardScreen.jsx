@@ -9,12 +9,12 @@
  * reader itself.
  */
 import { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
   Plus, ChevronRight, Megaphone, Menu, BookOpen, ShoppingBag, Sparkles,
-  Star, GraduationCap, Building2, Wallet,
+  Star, GraduationCap, Building2, Wallet, Flag,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
@@ -23,8 +23,13 @@ import PartnerContactModal from '../components/ads/PartnerContactModal'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
+import { useAuth } from '../context/AuthContext'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 import { POSTS as BLOG_POSTS } from '../data/blogPosts'
+
+// Same reasons/flow as the rest of Campus Connect's Report action
+// (BoardDetailScreen), reused here rather than reinvented.
+const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 const NAVY = colors.navy
 
@@ -50,6 +55,7 @@ function shade(hex, percent) {
 
 export default function AdBoardScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
   const [modalVisible, setModalVisible] = useState(false)
   const [loading, setLoading] = useState(true)
   const [liveBoardAds, setLiveBoardAds] = useState([])
@@ -72,7 +78,28 @@ export default function AdBoardScreen({ navigation }) {
     return () => { cancelled = true }
   }, [])
 
-  const ads = [...CURATED_ADS, ...liveBoardAds]
+  // Only ads posted by a student through the app (liveBoardAds, from the
+  // `ads` table) are reportable user-generated content — curated partner
+  // ads are our own content and don't carry a real `ads` row id.
+  const ads = [
+    ...CURATED_ADS.map(a => ({ ...a, _live: false })),
+    ...liveBoardAds.map(a => ({ ...a, _live: true })),
+  ]
+
+  function reportAd(ad) {
+    Alert.alert('Report this ad', 'What best describes the issue?', [
+      ...REPORT_REASONS.map(reason => ({
+        text: reason,
+        onPress: async () => {
+          const { error } = await supabase.from('operations_flags').insert({
+            flagged_by: user.id, target_type: 'ads', target_id: ad.id, reason,
+          })
+          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.')
+        },
+      })),
+      { text: 'Cancel', style: 'cancel' },
+    ])
+  }
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -200,6 +227,18 @@ export default function AdBoardScreen({ navigation }) {
                   <Text style={styles.adBrand}>{ad.brand || ad.title}</Text>
                   <Text style={styles.adTitle} numberOfLines={1}>{ad.title}</Text>
                 </View>
+                {ad._live && (
+                  <TouchableOpacity
+                    style={styles.adReportBtn}
+                    activeOpacity={0.7}
+                    onPress={(e) => { e.stopPropagation(); reportAd(ad) }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Report ad"
+                  >
+                    <Flag size={13} color={colors.muted} strokeWidth={2} />
+                  </TouchableOpacity>
+                )}
                 <ChevronRight size={14} color={colors.light} />
               </TouchableOpacity>
             )
@@ -276,6 +315,7 @@ const styles = StyleSheet.create({
   adIcon: { width: 36, height: 36, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   adBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
   adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: NAVY, marginTop: 2 },
+  adReportBtn: { padding: 4, marginRight: 2 },
 
   advertiseCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
