@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
 import { Platform, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import UnverifiedEmailBanner from '../components/ui/UnverifiedEmailBanner'
@@ -220,6 +221,13 @@ function MainTabs() {
 }
 
 function MainTabsInner() {
+  // L4: the tab bar used hard-coded heights (88/68) that ignore the actual
+  // safe-area inset, so labels clip on Android/web where insets.bottom
+  // varies by device (gesture nav, browser chrome, etc). Deriving both the
+  // height and its own bottom padding from useSafeAreaInsets() keeps the
+  // bar exactly tall enough for its content plus whatever inset the device
+  // actually reports.
+  const insets = useSafeAreaInsets()
   return (
     <Tab.Navigator
       screenOptions={{
@@ -228,8 +236,8 @@ function MainTabsInner() {
           backgroundColor: colors.white,
           borderTopColor: 'rgba(30,58,95,0.08)',
           borderTopWidth: 1,
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+          height: 56 + insets.bottom,
+          paddingBottom: insets.bottom + (Platform.OS === 'ios' ? 8 : 12),
           paddingTop: 10,
         },
         tabBarActiveTintColor:   colors.navy,
