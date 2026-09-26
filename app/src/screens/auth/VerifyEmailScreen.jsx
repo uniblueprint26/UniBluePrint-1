@@ -6,9 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, CheckCircle, AlertCircle, ChevronLeft } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { useLightBackgroundStatusBar } from '../../hooks/useStatusBarStyle'
 import UBPLogo from '../../components/ui/UBPLogo'
 
 export default function VerifyEmailScreen({ route, navigation }) {
+  // Cream strip under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const email = route?.params?.email || ''
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)

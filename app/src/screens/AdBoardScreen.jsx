@@ -23,6 +23,7 @@ import PartnerContactModal from '../components/ads/PartnerContactModal'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 import { POSTS as BLOG_POSTS } from '../data/blogPosts'
 
@@ -49,6 +50,9 @@ function shade(hex, percent) {
 }
 
 export default function AdBoardScreen({ navigation }) {
+  // Cream hero under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
   const [loading, setLoading] = useState(true)

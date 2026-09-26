@@ -13,11 +13,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, ChevronRight, Sparkles, ShoppingBag } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { MARKETPLACE_BOARDS } from '../constants/marketplaceBoards'
 
 const ICONS = { skills: Sparkles, buysell: ShoppingBag }
 
 export default function MarketplaceScreen({ navigation }) {
+  // Cream hero under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
 
   return (

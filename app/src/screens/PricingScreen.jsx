@@ -22,6 +22,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Linki
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, Check, CheckCircle } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { WEBSITE_LINKS } from '../constants/site'
 
@@ -65,6 +66,9 @@ function CurrentPlanPill({ light }) {
 }
 
 export default function PricingScreen({ navigation }) {
+  // Cream hero under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
   const { subscription } = useAuth()
   const scrollRef = useRef(null)

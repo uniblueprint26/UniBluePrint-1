@@ -8,6 +8,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, Clock } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../constants/theme'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { getPost, calcReadTime, formatDate } from '../data/blogPosts'
 
 function Section({ section, index }) {
@@ -30,6 +31,9 @@ function Section({ section, index }) {
 }
 
 export default function ArticleScreen({ navigation, route }) {
+  // Cream screen throughout — the global light icons are invisible here
+  // without this (L3).
+  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
   const { slug } = route.params ?? {}
   const post = getPost(slug)

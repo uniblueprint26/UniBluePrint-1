@@ -10,9 +10,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, ChevronRight, Clock } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { POSTS, calcReadTime, formatDate } from '../data/blogPosts'
 
 export default function BlogScreen({ navigation }) {
+  // Cream hero under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
 
   return (
