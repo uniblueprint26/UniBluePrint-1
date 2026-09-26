@@ -1,14 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity,
-  StyleSheet, Linking, ActivityIndicator,
+  StyleSheet, ActivityIndicator,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Users, MessageSquare, BookMarked, Search, Briefcase, Star,
   GraduationCap, Compass, Globe, Lightbulb,
   PenLine, BookOpenCheck, CalendarDays, Clock, BookOpen,
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus, Heart, TrendingUp,
+  ChevronLeft, ChevronRight, Plus, Heart, TrendingUp,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -54,12 +54,11 @@ import {
 // note further down for why that distinction now matters more, not less.
 const PATH_CONTENT = {
   [USER_TYPE_STUDENT]: {
-    banner: "Course Connect is built around your course and college — boards, notes, and mentors all scoped to what you're studying.",
-    sub: 'Notes, study groups, exam resources, and graduate mentors, built around your course and your college.',
+    banner: "Course Connect is built around your course and college — boards, notes, and tools all scoped to what you're studying.",
+    sub: 'Notes, study groups, exam resources, and course tools, built around your course and your college.',
     academicEyebrow: 'ACADEMIC SUPPORT',
     academicTitle: 'Built for how you actually study',
-    toolsSub: 'Practical tools, relevant notes, and mentors who recently graduated from your course.',
-    mentorsSub: 'Recently graduated from your course. Mentors who have been exactly where you are now.',
+    toolsSub: 'Practical tools and relevant notes for your course.',
   },
   [USER_TYPE_APPRENTICE]: {
     banner: 'As an Apprentice, the boards and tools below adapt to your trade and training provider, not just to college courses.',
@@ -67,7 +66,6 @@ const PATH_CONTENT = {
     academicEyebrow: 'COURSE & TRADE SUPPORT',
     academicTitle: 'Built for how you actually train',
     toolsSub: "Practical tools and peer resources for your apprenticeship, whatever stage you're at.",
-    mentorsSub: "Recently graduated, several from routes other than a straight degree. Useful perspective wherever you're headed.",
   },
   [USER_TYPE_GAP_YEAR]: {
     banner: 'On a Gap Year, Course Connect shows you what every path actually looks like, from people already on college, trade, and work routes.',
@@ -75,7 +73,6 @@ const PATH_CONTENT = {
     academicEyebrow: 'SUPPORT FOR YOUR NEXT STEP',
     academicTitle: 'Built for wherever you land next',
     toolsSub: 'Tools and resources that work whichever way you end up going next.',
-    mentorsSub: "Recently graduated from college, one route among several. Worth a look while you're still deciding.",
   },
   [USER_TYPE_WORKER]: {
     banner: 'As a Worker, Industry Discussions and the career-facing boards below are built for you, not just people still in college.',
@@ -83,7 +80,6 @@ const PATH_CONTENT = {
     academicEyebrow: 'CAREER SUPPORT',
     academicTitle: 'Built for how you actually work',
     toolsSub: "Practical tools and peer resources, useful whether you're studying part-time or just in the field.",
-    mentorsSub: 'Recently graduated and now working. Their route was college, but the career advice travels either way.',
   },
 }
 
@@ -272,39 +268,6 @@ const RECENT_NOTES = [
   { module: 'AC3010', title: 'Financial Accounting, Ratio Analysis', university: 'UCC', views: 87, saved: 19 },
 ]
 
-// ─── Graduate Mentors ─────────────────────────────────────────────────────────
-
-const GRADUATE_MENTORS = [
-  {
-    id: 'ciara', name: 'Ciara Nolan', shell: false,
-    institution: 'UCD', course: 'Business & Finance', year: '2023',
-    role: 'Graduate at KPMG Dublin',
-    areas: ['Graduate Applications', 'Finance Careers', 'CV & LinkedIn'],
-    bio: "Ciara completed her Business & Finance degree at UCD in 2023 and joined KPMG's graduate programme. She mentors students on navigating graduate applications, crafting strong CVs, and getting the most out of final year.",
-    initials: 'CN', initBg: '#EFF6FF',
-  },
-  {
-    id: 'james', name: 'James Healy', shell: false,
-    institution: 'TCD', course: 'Computer Science', year: '2022',
-    role: 'Software Engineer at Stripe',
-    areas: ['Tech Careers', 'Technical Interviews', 'CS Projects'],
-    bio: "James graduated from TCD's Computer Science programme in 2022 and joined Stripe's engineering team. He mentors on cracking technical interviews, building side projects that matter, and getting into top-tier tech roles.",
-    initials: 'JH', initBg: '#F0FDF4',
-  },
-  {
-    id: 'sarah', name: 'Sarah Fitzpatrick', shell: true,
-    institution: 'UCC', course: 'Law', year: '2023',
-    shellMessage: 'Full mentor profile coming soon.',
-    initials: 'SF', initBg: '#FDF4FF',
-  },
-  {
-    id: 'david', name: 'David Okafor', shell: true,
-    institution: 'DCU', course: 'Communications', year: '2022',
-    shellMessage: 'Full mentor profile coming soon.',
-    initials: 'DO', initBg: '#FFF7ED',
-  },
-]
-
 // ─── Popular Right Now ────────────────────────────────────────────────────────
 // Replaces the old "Journey Match" stage-grouped mock profile grid entirely.
 // No mock data here — see loadPopularCourses() in the screen component,
@@ -404,71 +367,6 @@ const CROSS_IRELAND_FEATURES = [
     count: 'Live now',
   },
 ]
-
-// ─── Mentor Card ──────────────────────────────────────────────────────────────
-
-function MentorCard({ mentor }) {
-  const [open, setOpen] = useState(false)
-  const initials = mentor.name.split(' ').map(n => n[0]).join('')
-
-  return (
-    <View style={styles.mentorCard}>
-      <TouchableOpacity
-        style={styles.mentorRow}
-        activeOpacity={mentor.shell ? 1 : 0.75}
-        onPress={() => !mentor.shell && setOpen(v => !v)}
-        disabled={mentor.shell}
-      >
-        <View style={[styles.mentorCircle, { backgroundColor: mentor.initBg }]}>
-          <Text style={styles.mentorInitials}>{initials}</Text>
-        </View>
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={styles.mentorName}>{mentor.name}</Text>
-          {mentor.shell ? (
-            <Text style={styles.mentorShell}>{mentor.shellMessage}</Text>
-          ) : (
-            <>
-              <Text style={styles.mentorRole}>{mentor.role}</Text>
-              <Text style={styles.mentorCourse}>
-                {mentor.course} · {mentor.institution} {mentor.year}
-              </Text>
-            </>
-          )}
-        </View>
-        {!mentor.shell && (
-          open
-            ? <ChevronUp   size={15} color={colors.navy} />
-            : <ChevronDown size={15} color={colors.muted} />
-        )}
-      </TouchableOpacity>
-
-      {!mentor.shell && mentor.areas && (
-        <View style={styles.mentorAreaRow}>
-          {mentor.areas.map(a => (
-            <View key={a} style={styles.mentorAreaPill}>
-              <Text style={styles.mentorAreaPillText}>{a}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {open && !mentor.shell && (
-        <View style={styles.mentorExpanded}>
-          <View style={styles.mentorDivider} />
-          <Text style={styles.mentorBioLabel}>ABOUT</Text>
-          <Text style={styles.mentorBio}>{mentor.bio}</Text>
-          <TouchableOpacity
-            style={styles.mentorConnectBtn}
-            activeOpacity={0.8}
-            onPress={() => Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Mentorship request: ${mentor.name}`)}`)}
-          >
-            <Text style={styles.mentorConnectBtnText}>Request Mentorship</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  )
-}
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
@@ -729,16 +627,6 @@ export default function CourseConnectScreen({ navigation }) {
               ))}
             </View>
 
-            <Text style={[styles.academicSubLabel, { marginTop: spacing.xl }]}>GRADUATE MENTORS</Text>
-            <Text style={styles.academicSubSub}>{path.mentorsSub}</Text>
-            <MockContentBanner
-              title="Mentorship programme: building now"
-              subtitle="Mentors matched to your course and institution. Full programme launching soon."
-              style={{ marginTop: spacing.md }}
-            />
-            <View style={{ gap: 12, marginTop: spacing.sm }}>
-              {GRADUATE_MENTORS.map(m => <MentorCard key={m.id} mentor={m} />)}
-            </View>
           </View>
 
           {/* ── Popular Right Now — replaces the old stage-grouped Journey
@@ -963,28 +851,6 @@ const styles = StyleSheet.create({
   },
   crossIrelandTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 33 },
   crossIrelandSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.65)', marginTop: 8, lineHeight: 21 },
-
-  // Mentor Card
-  mentorCard: {
-    backgroundColor: colors.white, borderRadius: radius.card, overflow: 'hidden',
-    ...shadows.card,
-  },
-  mentorRow:     { flexDirection: 'row', alignItems: 'center', padding: 14 },
-  mentorCircle:  { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  mentorInitials:{ fontFamily: fonts.serif, fontSize: 16, color: colors.navy },
-  mentorName:    { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  mentorRole:    { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.75, marginTop: 1 },
-  mentorCourse:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
-  mentorShell:   { fontFamily: fonts.sans, fontSize: 12, color: colors.light, fontStyle: 'italic', marginTop: 2 },
-  mentorAreaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingHorizontal: 14, paddingBottom: 14 },
-  mentorAreaPill:     { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
-  mentorAreaPillText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
-  mentorExpanded:     { paddingHorizontal: 14, paddingBottom: 16 },
-  mentorDivider:      { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginBottom: 14 },
-  mentorBioLabel:     { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, marginBottom: 6 },
-  mentorBio:          { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
-  mentorConnectBtn:   { backgroundColor: colors.navy, borderRadius: 8, height: 42, alignItems: 'center', justifyContent: 'center', marginTop: 14 },
-  mentorConnectBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   // Notes
   noteCard:        { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
