@@ -25,8 +25,8 @@ export const CAREER_SERVICES = [
     title: 'CV Optimisation',
     tagline: 'A CV that opens doors, not one that gets ignored',
     description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
-    originalStd: '€20', trialStd: '€10',
-    originalPrem: '€30', trialPrem: '€15',
+    priceStd: '€10',
+    pricePrem: '€15',
     color: '#EFF6FF',
   },
   {
@@ -34,8 +34,8 @@ export const CAREER_SERVICES = [
     title: 'Portfolio Building',
     tagline: 'Show your work, not just tell it',
     description: 'Employers and clients want to see proof, not just a list of skills. UniBlueprint helps you put together a portfolio that actually showcases your projects, work samples, and results, structured clearly and built to make an impression.',
-    originalStd: '€20', trialStd: '€10',
-    originalPrem: '€30', trialPrem: '€15',
+    priceStd: '€10',
+    pricePrem: '€15',
     color: '#FEF9C3',
   },
   {
@@ -43,8 +43,8 @@ export const CAREER_SERVICES = [
     title: 'LinkedIn Optimisation',
     tagline: 'Turn your LinkedIn from invisible to irresistible',
     description: 'Recruiters search LinkedIn every day. UniBlueprint optimises your entire profile: headline, about section, experience, skills, and featured section, so you show up in searches and make the right impression.',
-    originalStd: '€20', trialStd: '€10',
-    originalPrem: '€30', trialPrem: '€15',
+    priceStd: '€10',
+    pricePrem: '€15',
     color: '#EEF2FF',
   },
   {
@@ -52,8 +52,8 @@ export const CAREER_SERVICES = [
     title: 'Cover Letter Assistance',
     tagline: 'A cover letter that actually gets read',
     description: 'Most cover letters are ignored because they are generic. UniBlueprint writes you a tailored, compelling cover letter for a specific role or company, one that adds to your CV rather than repeating it.',
-    originalStd: '€20', trialStd: '€10',
-    originalPrem: '€30', trialPrem: '€15',
+    priceStd: '€10',
+    pricePrem: '€15',
     color: '#F0FDF4',
   },
   {
@@ -61,8 +61,8 @@ export const CAREER_SERVICES = [
     title: 'Personal Statement',
     tagline: 'Tell your story in a way that actually lands',
     description: 'A personal statement is where you make the case for yourself in your own words, not a bullet point. UniBlueprint helps you write one that is specific, honest, and structured to stand out, whether it is for a CAO application, a postgraduate course, or a scholarship.',
-    originalStd: '€20', trialStd: '€10',
-    originalPrem: '€30', trialPrem: '€15',
+    priceStd: '€10',
+    pricePrem: '€15',
     color: '#F0F9FF',
   },
   {
@@ -70,8 +70,8 @@ export const CAREER_SERVICES = [
     title: 'Application Form Assistance',
     tagline: 'Answer every question with confidence and clarity',
     description: 'Competency questions, situational questions, motivation questions: UniBlueprint gives you structured, polished answers using the STAR method that demonstrate exactly what employers are looking for.',
-    originalStd: 'From €20', trialStd: 'From €10',
-    originalPrem: 'From €30', trialPrem: 'From €15',
+    priceStd: 'From €10',
+    pricePrem: 'From €15',
     color: '#FFF7ED',
   },
   {
@@ -79,8 +79,8 @@ export const CAREER_SERVICES = [
     title: 'Interview Preparation',
     tagline: 'Walk in prepared. Walk out confident.',
     description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler.',
-    originalStd: 'From €20', trialStd: 'From €10',
-    originalPrem: 'From €30', trialPrem: 'From €15',
+    priceStd: 'From €10',
+    pricePrem: 'From €15',
     color: '#FDF4FF',
   },
   {
@@ -88,8 +88,8 @@ export const CAREER_SERVICES = [
     title: 'Job Search Support',
     tagline: 'Stop applying blindly. Start searching strategically.',
     description: 'UniBlueprint builds you a personalised job search strategy: the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year, and goals.',
-    originalStd: '€15', trialStd: '€8',
-    originalPrem: '€22', trialPrem: '€11',
+    priceStd: '€8',
+    pricePrem: '€11',
     color: '#F0F9FF',
   },
 ]
@@ -199,9 +199,6 @@ export default function FoundationScreen({ navigation }) {
           <View style={styles.tierBanner}>
             <View style={styles.tierBannerHeader}>
               <Text style={styles.tierBannerTitle}>Choose your turnaround</Text>
-              <View style={styles.tierBannerBadge}>
-                <Text style={styles.tierBannerBadgeText}>50% OFF LAUNCH PRICING</Text>
-              </View>
             </View>
             <View style={styles.tierRow}>
               <View style={styles.tierBox}>
@@ -256,16 +253,13 @@ export default function FoundationScreen({ navigation }) {
 
           <Text style={styles.servicesSubHeader}>Career Services</Text>
           <View style={{ gap: 16 }}>
-            {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, originalStd, trialStd, originalPrem, trialPrem, color }) => (
+            {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, priceStd, pricePrem, color }) => (
               <TouchableOpacity
                 key={title}
                 activeOpacity={0.88}
                 onPress={() => setSelected(selected === title ? null : title)}
               >
                 <Card style={[styles.serviceCard, selected === title && styles.serviceCardActive]}>
-                  <View style={styles.fiftyBadge}>
-                    <Text style={styles.fiftyBadgeText}>50% OFF</Text>
-                  </View>
                   <View style={styles.serviceCardTop}>
                     <View style={[styles.serviceIcon, { backgroundColor: color }]}>
                       <Icon size={20} color={colors.navy} />
@@ -285,24 +279,17 @@ export default function FoundationScreen({ navigation }) {
                       <View style={styles.pricingRow}>
                         <View style={styles.priceBox}>
                           <Text style={styles.priceBoxLabel}>Standard</Text>
-                          <View style={styles.priceStack}>
-                            <Text style={styles.priceOriginal}>{originalStd}</Text>
-                            <Text style={styles.priceTrial}>{trialStd}</Text>
-                          </View>
+                          <Text style={styles.priceTrial}>{priceStd}</Text>
                           <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
                         </View>
                         <View style={[styles.priceBox, styles.priceBoxPremium]}>
                           <Text style={[styles.priceBoxLabel, { color: colors.cream }]}>Premium</Text>
-                          <View style={styles.priceStack}>
-                            <Text style={[styles.priceOriginal, { color: 'rgba(245,240,232,0.5)' }]}>{originalPrem}</Text>
-                            <Text style={[styles.priceTrial, { color: colors.cream }]}>{trialPrem}</Text>
-                          </View>
+                          <Text style={[styles.priceTrial, { color: colors.cream }]}>{pricePrem}</Text>
                           <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
                             {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.trialNote}>* Limited-time launch pricing, 50% off standard rates</Text>
                       <TouchableOpacity
                         style={styles.orderBtn}
                         activeOpacity={0.8}
@@ -434,8 +421,6 @@ const styles = StyleSheet.create({
   },
   tierBannerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   tierBannerTitle:  { fontFamily: fonts.serif, fontSize: 17, color: colors.cream },
-  tierBannerBadge:  { backgroundColor: colors.gold, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
-  tierBannerBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.navy, letterSpacing: 0.3 },
   tierRow:  { flexDirection: 'row', alignItems: 'stretch' },
   tierBox:  { flex: 1, alignItems: 'center' },
   tierPremiumLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -466,8 +451,6 @@ const styles = StyleSheet.create({
   // Service cards
   serviceCard:       { padding: 18 },
   serviceCardActive: { borderWidth: 1.5, borderColor: colors.navy },
-  fiftyBadge:        { position: 'absolute', top: -9, right: 14, backgroundColor: colors.navy, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3, ...shadows.card },
-  fiftyBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.cream, letterSpacing: 0.3 },
   serviceCardTop:    { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   // True icon-in-a-colored-circle, matching the circle pattern already used
   // elsewhere in the app (e.g. CourseConnectScreen's mentorCircle) — was a
@@ -482,11 +465,8 @@ const styles = StyleSheet.create({
   priceBox:        { flex: 1, backgroundColor: colors.cream, borderRadius: radius.button, padding: 14, alignItems: 'center' },
   priceBoxPremium: { backgroundColor: colors.navy },
   priceBoxLabel:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  priceStack:      { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
-  priceOriginal:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textDecorationLine: 'line-through' },
   priceTrial:      { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
   priceBoxSub:     { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 4, textAlign: 'center' },
-  trialNote:       { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 10, fontStyle: 'italic' },
 
   // One consistent CTA across all 8 service cards — same height, radius,
   // weight and shadow regardless of which service it's for.
