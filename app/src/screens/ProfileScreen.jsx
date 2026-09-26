@@ -74,7 +74,7 @@ const EXPLORE_LINKS = [
 const ACCOUNT_LINKS = [
   { Icon: Briefcase, label: 'Account Type',    sub: null,                                action: 'accountType' },
   { Icon: Heart,     label: 'Interests',       sub: null,                                action: 'interests' },
-  { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
+  { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  action: 'notifications' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
@@ -739,6 +739,10 @@ export default function ProfileScreen({ navigation }) {
                 onPress={() => {
                   if (action === 'accountType') setAccountTypeVisible(true)
                   else if (action === 'interests') setInterestsVisible(true)
+                  // NotificationsScreen lives in the Home stack, not this
+                  // Profile stack, so it needs a cross-stack navigate — this
+                  // row used to be a dead tap (screen: null).
+                  else if (action === 'notifications') navigation.getParent()?.navigate('Home', { screen: 'Notifications' })
                   else if (screen) navigation.navigate(screen)
                 }}
               >
