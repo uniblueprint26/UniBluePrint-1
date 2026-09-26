@@ -8,6 +8,7 @@
  * used for PostAdModal / data/adBoardAds.js when Blog and Marketplace were
  * split into their own screens.
  */
+import { useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -17,6 +18,8 @@ import {
 import VerifiedBadge from '../ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { COACHES } from '../../screens/ElevationScreen'
+import { useAuth } from '../../context/AuthContext'
+import { logPartnerEvent } from '../../lib/partnerEvents'
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
 // Labels widened to actually cover everyone grouped under them: "Beauty"
@@ -100,7 +103,11 @@ export function PartnerHeroImage({ source, aspectRatio = 4 / 3, style, imageStyl
 }
 
 // ─── Contact Chip ─────────────────────────────────────────────────────────────
-function ContactChip({ type, value }) {
+// Tapping any of these is the closest thing to a "claim this deal" action
+// the app has (no in-app checkout — see PartnerDetailSheet/LifestyleFeaturedDealsScreen
+// notes), so this is where a 'partner_deal_claimed' activity event is logged.
+function ContactChip({ type, value, partner }) {
+  const { user } = useAuth()
   const handlers = {
     instagram: () => Linking.openURL(`https://instagram.com/${value}`),
     tiktok:    () => Linking.openURL(`https://www.tiktok.com/@${value}`),
@@ -117,8 +124,19 @@ function ContactChip({ type, value }) {
     website:   <Link2  size={12} color={colors.cream} />,
   }
   if (!handlers[type]) return null
+  function onPress() {
+    if (partner?.id && user?.id) {
+      logPartnerEvent({
+        userId: user.id,
+        partnerSlug: partner.id,
+        type: 'partner_deal_claimed',
+        title: `Claimed ${partner.brand}'s deal`,
+      })
+    }
+    handlers[type]()
+  }
   return (
-    <TouchableOpacity style={styles.contactChip} onPress={handlers[type]} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.contactChip} onPress={onPress} activeOpacity={0.8}>
       {icons[type]}
       <Text style={styles.contactChipText}>{labels[type]}</Text>
     </TouchableOpacity>
@@ -377,6 +395,29 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
   // that ambiguity — the flexGrow child then always has real, non-zero
   // leftover space to grow into and scroll within.
   const { height: winHeight } = useWindowDimensions()
+  const { user } = useAuth()
+  // Log a 'partner_deal_viewed' event once per time the sheet actually opens
+  // for a given partner — this is the full listing (deal, pricing, contact),
+  // the closest the app has to "viewing the deal". Guarded by a ref so it
+  // fires once per open, not on every re-render while visible.
+  const loggedForRef = useRef(null)
+  useEffect(() => {
+    if (!visible || !partner?.id) {
+      if (!visible) loggedForRef.current = null
+      return
+    }
+    if (loggedForRef.current === partner.id) return
+    loggedForRef.current = partner.id
+    if (user?.id) {
+      logPartnerEvent({
+        userId: user.id,
+        partnerSlug: partner.id,
+        type: 'partner_deal_viewed',
+        title: `Viewed ${partner.brand}'s deal`,
+      })
+    }
+  }, [visible, partner?.id, user?.id])
+
   if (!partner) return null
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
@@ -517,19 +558,19 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
               {partner.contact && (
                 <View style={styles.contactRow}>
                   {partner.contact.instagram && (
-                    <ContactChip type="instagram" value={partner.contact.instagram} />
+                    <ContactChip type="instagram" value={partner.contact.instagram} partner={partner} />
                   )}
                   {partner.contact.tiktok && (
-                    <ContactChip type="tiktok" value={partner.contact.tiktok} />
+                    <ContactChip type="tiktok" value={partner.contact.tiktok} partner={partner} />
                   )}
                   {partner.contact.phone && (
-                    <ContactChip type="phone" value={partner.contact.phone} />
+                    <ContactChip type="phone" value={partner.contact.phone} partner={partner} />
                   )}
                   {partner.contact.email && (
-                    <ContactChip type="email" value={partner.contact.email} />
+                    <ContactChip type="email" value={partner.contact.email} partner={partner} />
                   )}
                   {partner.contact.website && (
-                    <ContactChip type="website" value={partner.contact.website} />
+                    <ContactChip type="website" value={partner.contact.website} partner={partner} />
                   )}
                 </View>
               )}

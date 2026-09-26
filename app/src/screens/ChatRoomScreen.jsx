@@ -2,10 +2,13 @@
  * ChatRoomScreen — the single reusable chat room used across the platform.
  *
  * Route params:
- *   contextType  'ad' | 'carpool' | 'board' | 'direct'
- *   contextId    stable string id for the parent context
- *   roomName     display title (shown in header)
- *   subtitle     secondary header line (optional)
+ *   contextType     'ad' | 'carpool' | 'board' | 'direct'
+ *   contextId       stable string id for the parent context
+ *   roomName        display title (shown in header)
+ *   subtitle        secondary header line (optional)
+ *   posterId         user id of the other party (e.g. the original poster),
+ *                     added as a room participant so they actually see the chat
+ *   posterName       display name for posterId (optional)
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
@@ -39,7 +42,7 @@ function formatChatTime(dateStr) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ChatRoomScreen({ navigation, route }) {
-  const { contextType, contextId, roomName, subtitle } = route.params ?? {}
+  const { contextType, contextId, roomName, subtitle, posterId, posterName } = route.params ?? {}
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -59,6 +62,8 @@ export default function ChatRoomScreen({ navigation, route }) {
     roomName,
     userId,
     userDisplayName,
+    otherParticipantId: posterId,
+    otherParticipantName: posterName,
   })
 
   // Mark messages as read whenever this screen is focused

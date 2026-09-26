@@ -10,12 +10,21 @@
  *
  * contextType: 'ad' | 'carpool' | 'board' | 'direct'
  * contextId:   stable string identifier for the parent context
+ *
+ * otherParticipantId / otherParticipantName: when a chat is opened against a
+ * specific other person (e.g. tapping "Message"/"Join"/"Chat" on someone
+ * else's post), pass their user id and display name so they're added as a
+ * room participant too — otherwise they never see or get notified of the
+ * message, since only the opener ever joins the room.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
-export function useChat({ contextType, contextId, roomName, userId, userDisplayName }) {
+export function useChat({
+  contextType, contextId, roomName, userId, userDisplayName,
+  otherParticipantId, otherParticipantName,
+}) {
   const [roomId,    setRoomId]    = useState(null)
   const [messages,  setMessages]  = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -72,24 +81,39 @@ export function useChat({ contextType, contextId, roomName, userId, userDisplayN
         if (!id || cancelled) return
 
         // Join as participant — ON CONFLICT DO NOTHING if already joined
+        const participantRows = [
+          { room_id: id, user_id: userId, display_name: userDisplayName },
+        ]
+        // Also add the other party (e.g. the original poster) as a participant,
+        // so they actually see/get notified of the room instead of it existing
+        // with only the opener ever joined.
+        if (otherParticipantId && otherParticipantId !== userId) {
+          participantRows.push({
+            room_id: id,
+            user_id: otherParticipantId,
+            display_name: otherParticipantName || null,
+          })
+        }
         await supabase
           .from('chat_participants')
           .upsert(
-            { room_id: id, user_id: userId, display_name: userDisplayName },
+            participantRows,
             { onConflict: 'room_id,user_id', ignoreDuplicates: true }
           )
 
-        // Load initial message history (most recent 100 messages, oldest first)
+        // Load the most recent 100 messages (newest first), then reverse for
+        // chronological display — fetching oldest-first with a limit would
+        // strand the newest messages out of view in any busy room.
         const { data: msgs } = await supabase
           .from('chat_messages')
           .select('id, room_id, user_id, author_name, content, created_at')
           .eq('room_id', id)
-          .order('created_at', { ascending: true })
+          .order('created_at', { ascending: false })
           .limit(100)
 
         if (!cancelled) {
           setRoomId(id)
-          setMessages(msgs || [])
+          setMessages((msgs || []).slice().reverse())
         }
       } catch (e) {
         if (!cancelled) setError(e?.message || 'Could not load the chat room.')

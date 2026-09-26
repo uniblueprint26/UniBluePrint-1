@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare, Check, X } from 'lucide-react-native'
+import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
@@ -29,6 +29,8 @@ export default function OperationsPortalScreen({ navigation }) {
 
   const [queue, setQueue] = useState(null)
   const [gdprRequests, setGdprRequests] = useState([])
+  const [gdprLoading, setGdprLoading] = useState(true)
+  const [gdprError, setGdprError] = useState(null)
   const [enquiries, setEnquiries] = useState([])
   const [markingDone, setMarkingDone] = useState(null) // the request being actioned, or null
   const [doneNote, setDoneNote] = useState('')
@@ -42,13 +44,24 @@ export default function OperationsPortalScreen({ navigation }) {
   }
 
   async function loadGdpr() {
-    const { data } = await supabase
+    setGdprLoading(true)
+    setGdprError(null)
+    const { data, error } = await supabase
       .from('gdpr_requests')
       .select('id, request_type, status, requested_at, due_at, name, email, user_id')
       .eq('status', 'pending')
       .order('due_at', { ascending: true })
       .limit(10)
+    // A statutory DSAR backlog must never be silently hidden behind an
+    // "empty" state — a failed load (RLS, network) is tracked and shown
+    // distinctly from "nothing pending", never conflated with it.
+    if (error) {
+      setGdprError(error.message || 'Could not load GDPR requests.')
+      setGdprLoading(false)
+      return
+    }
     setGdprRequests(data || [])
+    setGdprLoading(false)
   }
 
   function openMarkDone(req) {
@@ -136,7 +149,22 @@ export default function OperationsPortalScreen({ navigation }) {
           <Text style={styles.sectionEyebrow}>GDPR REQUESTS AWAITING ACTION</Text>
         </View>
         <Card style={{ padding: 0 }}>
-          {gdprRequests.length === 0 ? (
+          {gdprLoading ? (
+            <View style={styles.gdprStateRow}>
+              <ActivityIndicator size="small" color={colors.navy} />
+              <Text style={styles.gdprStateText}>Loading GDPR requests…</Text>
+            </View>
+          ) : gdprError ? (
+            <View style={styles.gdprStateRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.gdprErrorText}>Couldn't load GDPR requests. This may be hiding a real backlog — please retry.</Text>
+              </View>
+              <TouchableOpacity style={styles.retryBtn} activeOpacity={0.8} onPress={loadGdpr}>
+                <RotateCcw size={13} color={colors.navy} strokeWidth={2} />
+                <Text style={styles.retryBtnText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : gdprRequests.length === 0 ? (
             <Text style={styles.emptyRow}>Nothing pending.</Text>
           ) : gdprRequests.map((r, i, arr) => {
             const overdue = new Date(r.due_at) < new Date()
@@ -265,6 +293,15 @@ const styles = StyleSheet.create({
   listRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textTransform: 'capitalize' },
   listRowSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, textTransform: 'capitalize' },
   emptyRow: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic', padding: 14 },
+  gdprStateRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
+  gdprStateText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
+  gdprErrorText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: '#DC2626', lineHeight: 18 },
+  retryBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 0,
+    backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
+    paddingHorizontal: 12, paddingVertical: 7,
+  },
+  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
 
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   modalSheet: {

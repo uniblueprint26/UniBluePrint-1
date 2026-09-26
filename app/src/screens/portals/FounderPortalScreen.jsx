@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ArrowLeftRight, Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
@@ -185,20 +185,42 @@ export default function FounderPortalScreen({ navigation }) {
     if (!addRefId || saving) return
     setSaving(true)
     const nextPriority = featuredList.reduce((max, r) => Math.max(max, r.priority), -1) + 1
-    await supabase.from('featured_content').insert({
+    const { error } = await supabase.from('featured_content').insert({
       content_type: addType,
       ref_id: addRefId,
       caption: addCaption.trim() || null,
       priority: nextPriority,
     })
     setSaving(false)
+    if (error) {
+      Alert.alert('Couldn\'t add to Spotlight', 'Please try again.')
+      return
+    }
     setAddOpen(false)
     loadFeatured()
   }
 
   async function removeFeatured(id) {
-    await supabase.from('featured_content').delete().eq('id', id)
+    const { error } = await supabase.from('featured_content').delete().eq('id', id)
+    if (error) {
+      Alert.alert('Couldn\'t remove', 'Please try again.')
+      return
+    }
+    // Only drop it from local state once the delete has actually succeeded —
+    // previously this ran unconditionally, so a failed delete still made the
+    // item disappear from the list even though it was still live on Home.
     setFeaturedList(list => list.filter(r => r.id !== id))
+  }
+
+  function confirmRemoveFeatured(row) {
+    Alert.alert(
+      'Remove from Spotlight?',
+      `"${nameForFeatured(row)}" will stop showing on the Home dashboard's Spotlight carousel.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removeFeatured(row.id) },
+      ]
+    )
   }
 
   function backToMyBlueprint() {
@@ -212,24 +234,25 @@ export default function FounderPortalScreen({ navigation }) {
     let cancelled = false
     async function load() {
       const [
-        { count: totalUsers },
-        { data: roles },
-        { count: activePro },
+        { data: platformStats },
         { data: queueSnapshot },
         { count: pendingGdpr },
       ] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('user_roles').select('role'),
-        supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+        // profiles/user_roles/subscriptions are RLS-scoped to "your own row",
+        // so querying them directly from here (as this used to) always read
+        // the founder's own single row back — Total Users = 1, Active Pro
+        // Members = 0 or 1. get_founder_platform_stats() is a SECURITY
+        // DEFINER RPC (migration 20260926090000) that checks the caller's
+        // own role, then returns the real, unscoped platform totals.
+        supabase.rpc('get_founder_platform_stats'),
         supabase.rpc('get_ops_queue_snapshot'),
         supabase.from('gdpr_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       ])
       if (cancelled) return
-      setUserCount(totalUsers ?? 0)
-      const counts = {}
-      ;(roles || []).forEach(r => { counts[r.role] = (counts[r.role] || 0) + 1 })
-      setRoleCounts(counts)
-      setProCount(activePro ?? 0)
+      const stats = platformStats?.[0] || null
+      setUserCount(stats?.total_users ?? 0)
+      setRoleCounts(stats?.role_counts || {})
+      setProCount(stats?.active_pro_members ?? 0)
       setQueue(queueSnapshot?.[0] || null)
       setGdprPending(pendingGdpr ?? 0)
       setLoading(false)
@@ -339,7 +362,7 @@ export default function FounderPortalScreen({ navigation }) {
               {!!row.caption && <Text style={styles.featuredCaption} numberOfLines={1}>“{row.caption}”</Text>}
             </View>
             <TouchableOpacity
-              onPress={() => removeFeatured(row.id)}
+              onPress={() => confirmRemoveFeatured(row)}
               style={styles.featuredRemoveBtn}
               activeOpacity={0.7}
               accessibilityRole="button"

@@ -11,15 +11,19 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet,
-  ActivityIndicator, Modal, KeyboardAvoidingView, Platform,
+  ActivityIndicator, Modal, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, Plus, MessageSquare, ThumbsUp, X, Search, Send, Check } from 'lucide-react-native'
+import { ChevronLeft, Plus, MessageSquare, ThumbsUp, X, Search, Send, Check, Flag } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+
+// Same reasons/flow as the rest of the app's Report action (BoardDetailScreen),
+// reused here rather than reinvented.
+const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
@@ -139,6 +143,21 @@ export default function ModuleQAScreen({ navigation, route }) {
     }
   }
 
+  function report(item, targetType) {
+    Alert.alert('Report this content', 'What best describes the issue?', [
+      ...REPORT_REASONS.map(reason => ({
+        text: reason,
+        onPress: async () => {
+          const { error } = await supabase.from('operations_flags').insert({
+            flagged_by: user.id, target_type: targetType, target_id: item.id, reason,
+          })
+          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.')
+        },
+      })),
+      { text: 'Cancel', style: 'cancel' },
+    ])
+  }
+
   async function toggleVote(answer) {
     const already = myVotes.has(answer.id)
     if (already) await supabase.from('qa_answer_votes').delete().eq('answer_id', answer.id).eq('user_id', user.id)
@@ -189,24 +208,34 @@ export default function ModuleQAScreen({ navigation, route }) {
             <Text style={styles.emptyText}>No questions yet — be the first to ask.</Text>
           ) : (
             <View style={{ gap: 10, marginTop: spacing.md }}>
-              {filtered.map(q => (
-                <TouchableOpacity key={q.id} activeOpacity={0.85} onPress={() => openThread(q)}>
-                  <Card style={styles.card}>
-                    <View style={styles.metaRow}>
-                      <View style={styles.metaPill}><Text style={styles.metaPillText}>{q.course}</Text></View>
-                      <View style={styles.metaPill}><Text style={styles.metaPillText}>{q.module}</Text></View>
-                    </View>
-                    <Text style={styles.cardBody} numberOfLines={3}>{q.question_text}</Text>
+              {filtered.map(q => {
+                const own = q.user_id === user?.id
+                return (
+                  <Card key={q.id} style={styles.card}>
+                    <TouchableOpacity activeOpacity={0.85} onPress={() => openThread(q)}>
+                      <View style={styles.metaRow}>
+                        <View style={styles.metaPill}><Text style={styles.metaPillText}>{q.course}</Text></View>
+                        <View style={styles.metaPill}><Text style={styles.metaPillText}>{q.module}</Text></View>
+                      </View>
+                      <Text style={styles.cardBody} numberOfLines={3}>{q.question_text}</Text>
+                    </TouchableOpacity>
                     <View style={[styles.metaRow, { marginTop: 10, justifyContent: 'space-between' }]}>
                       <Text style={styles.posterLine}>{q.poster_name || 'A student'} · {timeAgo(q.created_at)}</Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                        <MessageSquare size={12} color={colors.muted} />
-                        <Text style={styles.viewSolutionsText}>{answerCounts[q.id] || 0} answer{(answerCounts[q.id] || 0) !== 1 ? 's' : ''}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <TouchableOpacity activeOpacity={0.85} onPress={() => openThread(q)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                          <MessageSquare size={12} color={colors.muted} />
+                          <Text style={styles.viewSolutionsText}>{answerCounts[q.id] || 0} answer{(answerCounts[q.id] || 0) !== 1 ? 's' : ''}</Text>
+                        </TouchableOpacity>
+                        {!own && (
+                          <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(q, 'module_questions')} accessibilityRole="button" accessibilityLabel="Report question">
+                            <Flag size={13} color={colors.muted} strokeWidth={2} />
+                          </TouchableOpacity>
+                        )}
                       </View>
                     </View>
                   </Card>
-                </TouchableOpacity>
-              ))}
+                )
+              })}
             </View>
           )}
         </View>
@@ -270,6 +299,7 @@ export default function ModuleQAScreen({ navigation, route }) {
               <View style={{ gap: 10 }}>
                 {answers.map(a => {
                   const voted = myVotes.has(a.id)
+                  const ownAnswer = a.user_id === user?.id
                   return (
                     <Card key={a.id} style={[styles.card, { flexDirection: 'row', gap: 12, padding: 14 }]}>
                       <TouchableOpacity style={[styles.voteCol, voted && styles.voteColActive]} activeOpacity={0.8} onPress={() => toggleVote(a)}>
@@ -278,7 +308,14 @@ export default function ModuleQAScreen({ navigation, route }) {
                       </TouchableOpacity>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.cardBody}>{a.body}</Text>
-                        <Text style={styles.posterLine}>{a.poster_name || 'A student'} · {timeAgo(a.created_at)}</Text>
+                        <View style={[styles.metaRow, { justifyContent: 'space-between' }]}>
+                          <Text style={styles.posterLine}>{a.poster_name || 'A student'} · {timeAgo(a.created_at)}</Text>
+                          {!ownAnswer && (
+                            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(a, 'module_answers')} accessibilityRole="button" accessibilityLabel="Report answer">
+                              <Flag size={13} color={colors.muted} strokeWidth={2} />
+                            </TouchableOpacity>
+                          )}
+                        </View>
                       </View>
                     </Card>
                   )
@@ -362,6 +399,7 @@ const styles = StyleSheet.create({
   metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
   posterLine: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 10 },
   viewSolutionsText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  iconBtn: { padding: 4 },
 
   voteCol: { width: 46, borderRadius: radius.card, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, gap: 3 },
   voteColActive: { backgroundColor: colors.navy },
