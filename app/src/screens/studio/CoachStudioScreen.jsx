@@ -11,24 +11,18 @@ import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
-// DEMO DATA — replace with a live Supabase query filtered by coach_id once
-// the coaching booking and messaging schema exists.
-
-const DEMO_UPCOMING_SESSIONS = [
-  { id: 'sess1', clientFirstName: 'Ruth', sessionType: 'Career Strategy Session', date: 'Mon, 11 Aug', time: '10:00 AM' },
-  { id: 'sess2', clientFirstName: 'Cian', sessionType: 'Mock Interview', date: 'Mon, 11 Aug', time: '3:00 PM' },
-  { id: 'sess3', clientFirstName: 'Molly', sessionType: 'Goal Setting Check-in', date: 'Wed, 13 Aug', time: '9:30 AM' },
-  { id: 'sess4', clientFirstName: 'Tadhg', sessionType: 'Career Strategy Session', date: 'Thu, 14 Aug', time: '1:00 PM' },
-]
-
-const DEMO_CLIENT_ACTIVITY = [
-  { id: 'act1', clientFirstName: 'Ruth', detail: 'Sent a message ahead of tomorrow\'s session.', time: '2h ago' },
-  { id: 'act2', clientFirstName: 'Cian', detail: 'Completed the pre-session goals worksheet.', time: '5h ago' },
-  { id: 'act3', clientFirstName: 'Molly', detail: 'Hit a milestone: first interview booked.', time: 'Yesterday' },
-  { id: 'act4', clientFirstName: 'Tadhg', detail: 'Left a 5-star review after last session.', time: '2d ago' },
-]
-
+// Upcoming Sessions and the header stats now read live coach_bookings rows
+// (20260907120000) via the coach's own matching_coach_reads_own_coach_bookings
+// policy — no more fabricated names/counts shown to a real coach. There is
+// still no messaging/goals-worksheet/milestone schema anywhere, so Client
+// Activity has no live data to read; it shows the same honest "Coming soon"
+// treatment already used below for Earnings rather than inventing a feed.
 const DEMO_SPECIALISMS = ['Career Strategy', 'Interview Coaching', 'Postgraduate Planning', 'Confidence Building']
+// ^ Still a static placeholder — coach_profiles only has a single
+// `specialisation` text field today, not the tag list this UI implies. Left
+// as-is (a bio detail, not a fabricated stat/count/activity claim); a real
+// fix needs a schema change to a proper tags column plus a coach-facing
+// editor, out of scope for this pass.
 
 // ── Edit My Profile ──────────────────────────────────────────────────────────
 // Self-serve bio/photo editing for a coach whose coach_profiles row has
@@ -143,12 +137,65 @@ function EditProfileSection({ userId }) {
   )
 }
 
+// Live upcoming-session rows for this coach, plus the two header stats
+// derived from the same query — active client count (distinct students with
+// a confirmed booking) and this calendar month's confirmed booking count.
+function useCoachBookings(userId) {
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [bookings, setBookings] = useState([])
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+
+    async function load() {
+      const { data: profile, error: profileError } = await supabase
+        .from('coach_profiles')
+        .select('coach_slug')
+        .eq('user_id', userId)
+        .maybeSingle()
+
+      if (cancelled) return
+      if (profileError || !profile?.coach_slug) {
+        setLoadError(!!profileError)
+        setBookings([])
+        setLoading(false)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('coach_bookings')
+        .select('id, user_id, slot_date, slot_label, status')
+        .eq('coach_slug', profile.coach_slug)
+        .eq('status', 'confirmed')
+        .order('slot_date', { ascending: true })
+
+      if (cancelled) return
+      if (error) { setLoadError(true); setBookings([]); setLoading(false); return }
+      setBookings(data || [])
+      setLoading(false)
+    }
+
+    load().catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }, [userId])
+
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const upcoming = bookings.filter(b => new Date(b.slot_date) >= today)
+  const activeClientCount = new Set(bookings.map(b => b.user_id)).size
+  const monthlyBookings = bookings.filter(b => {
+    const d = new Date(b.slot_date)
+    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()
+  }).length
+
+  return { loading, loadError, upcoming, activeClientCount, monthlyBookings }
+}
+
 export default function CoachStudioScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { setPortalMode, user } = useAuth()
-
-  const activeClientCount = 12
-  const monthlyBookings = 9
+  const { loading: bookingsLoading, loadError: bookingsError, upcoming, activeClientCount, monthlyBookings } = useCoachBookings(user?.id)
 
   function backToMyBlueprint() {
     setPortalMode('personal')
@@ -190,41 +237,46 @@ export default function CoachStudioScreen({ navigation }) {
           <Calendar size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>UPCOMING SESSIONS</Text>
         </View>
-        <View style={{ gap: 8 }}>
-          {DEMO_UPCOMING_SESSIONS.map(sess => (
-            <Card key={sess.id} style={styles.sessionCard}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.sessionClient}>{sess.clientFirstName}</Text>
-                <Text style={styles.sessionType}>{sess.sessionType}</Text>
-              </View>
-              <View style={styles.sessionTimeWrap}>
-                <Text style={styles.sessionDate}>{sess.date}</Text>
-                <View style={styles.sessionTimeRow}>
-                  <Clock size={11} color={colors.muted} />
-                  <Text style={styles.sessionTime}>{sess.time}</Text>
+        {bookingsLoading ? (
+          <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
+            <ActivityIndicator size="small" color={colors.navy} />
+          </Card>
+        ) : bookingsError ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>Couldn't load your sessions right now. Pull to refresh or check back shortly.</Text>
+          </Card>
+        ) : upcoming.length === 0 ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>No confirmed sessions yet. Booking requests will show here once you confirm them.</Text>
+          </Card>
+        ) : (
+          <View style={{ gap: 8 }}>
+            {upcoming.map(sess => (
+              <Card key={sess.id} style={styles.sessionCard}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sessionType}>Confirmed session</Text>
                 </View>
-              </View>
-            </Card>
-          ))}
-        </View>
+                <View style={styles.sessionTimeWrap}>
+                  <Text style={styles.sessionDate}>{new Date(sess.slot_date).toLocaleDateString('en-IE', { weekday: 'short', day: '2-digit', month: 'short' })}</Text>
+                  <View style={styles.sessionTimeRow}>
+                    <Clock size={11} color={colors.muted} />
+                    <Text style={styles.sessionTime}>{sess.slot_label}</Text>
+                  </View>
+                </View>
+              </Card>
+            ))}
+          </View>
+        )}
 
-        {/* Client activity feed */}
+        {/* Client activity — no messaging/goals/milestone schema exists yet
+            to populate a real feed, so this is an honest placeholder rather
+            than fabricated activity (same treatment as Earnings below). */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <MessageSquare size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>CLIENT ACTIVITY</Text>
         </View>
-        <Card style={{ padding: 0 }}>
-          {DEMO_CLIENT_ACTIVITY.map((item, i, arr) => (
-            <View key={item.id} style={[styles.activityRow, i < arr.length - 1 && styles.divider]}>
-              <View style={styles.activityDot} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.activityText}>
-                  <Text style={styles.activityName}>{item.clientFirstName}</Text> {item.detail}
-                </Text>
-                <Text style={styles.activityTime}>{item.time}</Text>
-              </View>
-            </View>
-          ))}
+        <Card>
+          <Text style={styles.editUnlinkedText}>Coming soon — client messages and milestones will show up here.</Text>
         </Card>
 
         {/* Earnings */}
