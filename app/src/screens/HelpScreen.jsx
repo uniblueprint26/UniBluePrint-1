@@ -20,7 +20,7 @@ const TOPICS = [
     icon: MessageCircle,
     title: 'Elevation Blueprint (Coaches)',
     items: [
-      { label: 'How to find and book a coach',         detail: 'Go to the Blueprint tab and select Elevation. Browse coaches by category or use the filter pills to narrow by specialism.' },
+      { label: 'How to find and book a coach',         detail: 'Open the menu and select Elevation Blueprint. Browse coaches by category or use the filter pills to narrow by specialism.' },
       { label: 'What happens after I book',            detail: 'Your coach will confirm the session via Messages. Check your Messages tab for confirmation details and any pre-session instructions.' },
       { label: 'Rescheduling or cancelling a session', detail: 'Contact your coach directly through Messages to reschedule or cancel. Cancellation policies vary by coach and are listed on their profile.' },
       { label: 'How coach pricing works',              detail: 'Each coach sets their own rates. Pricing is shown on the coach card. Some coaches offer free initial consultations.' },

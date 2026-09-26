@@ -11,6 +11,7 @@ import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { formatNumber } from '../utils/formatNumber'
 import { goToHome, openMenu } from '../navigation/helpers'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -139,6 +140,9 @@ function EmptyState({ onDirectoryPress, onConnectPress }) {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
 export default function MessagesScreen({ navigation }) {
+  // Cream strip under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const insets      = useSafeAreaInsets()
   const { user }    = useAuth()
   const userId      = user?.id
@@ -232,7 +236,8 @@ export default function MessagesScreen({ navigation }) {
   }
 
   function goToDirectory()  { navigation.getParent()?.navigate('Directory') }
-  function goToConnect()    { navigation.getParent()?.navigate('Home')      }
+  // Used to land on Home instead of Campus Connect.
+  function goToConnect()    { navigation.getParent()?.navigate('Home', { screen: 'CampusConnect' }) }
 
   const hasRooms = rooms.length > 0
   const unreadTotal = rooms.reduce((n, r) => n + r.unreadCount, 0)

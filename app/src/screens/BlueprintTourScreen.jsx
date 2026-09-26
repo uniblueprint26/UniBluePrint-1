@@ -149,12 +149,12 @@ const STEPS = [
   {
     key: 'messages', accent: colors.goldDeep, Icon: MessageSquare,
     title: 'Messages & Directory', tagline: 'Stay connected',
-    body: "Once you enquire with a coach or work with a Handler, keep the conversation going in Messages. The Directory helps you find other students and coaches who share your interests.",
+    body: "Chat with people you've connected with on Campus Connect and Course Connect boards in Messages. The Directory lets you browse other students by course, university and interest.",
     mock: {
       kind: 'cards',
       items: [
-        { title: 'Messages', sub: 'Chat with coaches and handlers you’ve engaged with' },
-        { title: 'Directory', sub: 'Find students and coaches by interest' },
+        { title: 'Messages', sub: 'Chat with people you’ve connected with on boards' },
+        { title: 'Directory', sub: 'Browse other students by course and interest' },
       ],
     },
   },

@@ -151,7 +151,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
               <View style={{ marginTop: spacing.sm }}>
                 <View style={partnerStyles.soonHeaderRow}>
                   <Lock size={12} color={colors.muted} />
-                  <Text style={partnerStyles.soonHeaderText}>Coming Soon · Locked Until Launch</Text>
+                  <Text style={partnerStyles.soonHeaderText}>More Partners Joining Soon</Text>
                 </View>
                 <View style={partnerStyles.soonGrid}>
                   {soonVisible.map(p => (

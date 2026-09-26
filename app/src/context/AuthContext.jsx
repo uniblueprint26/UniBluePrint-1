@@ -3,6 +3,7 @@ import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { DEFAULT_USER_TYPE, isValidUserType } from '../constants/userTypes'
 import { MAX_INTERESTS, MAX_CUSTOM_INTEREST_LENGTH } from '../data/interests'
+import { SITE_URL } from '../constants/site'
 
 const AuthContext = createContext({})
 
@@ -148,7 +149,12 @@ export function AuthProvider({ children }) {
   }
 
   async function resetPassword(email) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email)
+    // Without redirectTo, the reset email links to the site root, but the
+    // website only handles the recovery flow at /reset-password — a user
+    // resetting from the app couldn't finish the reset.
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${SITE_URL}/reset-password`,
+    })
     if (error) throw error
   }
 

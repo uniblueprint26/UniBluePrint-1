@@ -57,7 +57,7 @@ function StatRow({ Icon, label, value, onPress }) {
 }
 
 export default function CondensedDashboard({
-  expanded, userId, unreadCount, isComplimentaryPro, navigation,
+  expanded, userId, unreadCount, isComplimentaryPro, isPro, subscriptionTier, navigation,
 }) {
   const [loading, setLoading] = useState(true)
   const [loaded, setLoaded] = useState(false)
@@ -157,7 +157,13 @@ export default function CondensedDashboard({
           <StatRow
             Icon={Award}
             label="Membership"
-            value={isComplimentaryPro ? 'Complimentary Pro — active' : 'Standard'}
+            value={
+              isComplimentaryPro
+                ? 'Complimentary Pro — active'
+                : isPro
+                  ? (subscriptionTier === 'pro_annual' ? 'Premium — active' : 'Pro — active')
+                  : 'Free'
+            }
           />
         </View>
       </View>

@@ -203,7 +203,9 @@ export default function FounderPortalScreen({ navigation }) {
 
   function backToMyBlueprint() {
     setPortalMode('personal')
-    navigation.navigate('HomeMain')
+    // React Navigation v7's navigate() pushes rather than pops, which would
+    // grow the stack on every switch; popTo returns to the existing HomeMain.
+    navigation.popTo('HomeMain')
   }
 
   useEffect(() => {

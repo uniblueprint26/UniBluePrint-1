@@ -12,6 +12,13 @@ import { goToHome } from '../../navigation/helpers'
 export default function TopBar({ navigation, showBack = false, notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
 
+  // Both icons used to render with no handler at all when the caller (e.g.
+  // BudgetingScreen) passed neither prop — dead taps. Default to sensible
+  // in-app destinations instead: Notifications is a sibling screen in the
+  // same stack TopBar is used from, Profile is a different bottom tab.
+  const handleBellPress = onBellPress || (() => navigation?.navigate('Notifications'))
+  const handleProfilePress = onProfilePress || (() => navigation?.getParent()?.navigate('Profile'))
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <View style={styles.left}>
@@ -30,9 +37,10 @@ export default function TopBar({ navigation, showBack = false, notificationCount
       </View>
       <View style={styles.right}>
         <TouchableOpacity
-          onPress={onBellPress}
+          onPress={handleBellPress}
           style={styles.iconButton}
           activeOpacity={0.7}
+          accessibilityRole="button"
           accessibilityLabel="Notifications"
         >
           <Bell size={20} color={colors.cream} />
@@ -43,9 +51,10 @@ export default function TopBar({ navigation, showBack = false, notificationCount
           )}
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={onProfilePress}
+          onPress={handleProfilePress}
           style={styles.avatarBtn}
           activeOpacity={0.7}
+          accessibilityRole="button"
           accessibilityLabel="Profile"
         >
           <User size={17} color={colors.navy} />

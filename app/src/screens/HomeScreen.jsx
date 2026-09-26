@@ -114,7 +114,7 @@ export default function HomeScreen({ navigation }) {
   const showSidebar = Platform.OS === 'web' && windowWidth >= 900
   const {
     user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness,
-    studioLabel, isComplimentaryPro, portalMode, setPortalMode,
+    studioLabel, isComplimentaryPro, isPro, subscription, portalMode, setPortalMode,
   } = useAuth()
 
   // Profile row — full_name (canonical source of truth) and this student's
@@ -145,7 +145,12 @@ export default function HomeScreen({ navigation }) {
         : isOperations ? 'OperationsPortal'
         : isBusiness ? 'PartnerPortalApp'
         : 'CoachStudio'
-      navigation.navigate(landing)
+      // popTo, not navigate: React Navigation v7's navigate() pushes a new
+      // instance even if the landing screen is already in the stack (e.g.
+      // switching to Studio, back to My Blueprint, then to Studio again),
+      // growing the stack every time. popTo pops back to it when present,
+      // and pushes it when it isn't — the pre-v7 navigate() behaviour.
+      navigation.popTo(landing)
     }
   }
 
@@ -485,6 +490,8 @@ export default function HomeScreen({ navigation }) {
                 userId={user?.id}
                 unreadCount={unreadCount}
                 isComplimentaryPro={isComplimentaryPro}
+                isPro={isPro}
+                subscriptionTier={subscription?.tier}
                 navigation={navigation}
               />
 
@@ -514,7 +521,7 @@ export default function HomeScreen({ navigation }) {
                 <View style={[styles.sectionRow, { marginBottom: 10 }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <View style={styles.trendingPulse} />
-                    <Text style={styles.trendingTitle}>Trending Right Now</Text>
+                    <Text style={styles.trendingTitle}>Featured this week</Text>
                   </View>
                 </View>
                 <SpotlightCarousel slides={spotlightSlides} onSlidePress={handleSpotlightPress} />

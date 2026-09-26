@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollVi
 import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line, Rect } from 'react-native-svg'
 import { Lock, Search, X, Plus, Minus, RotateCcw } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
-import { PARTNERS, MYSTERY_MAP_COUNTIES, maskComingSoonName } from '../../data/lifestylePartners'
+import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../../data/lifestylePartners'
 import ComingSoonSheet from './ComingSoonSheet'
 
 // Console note: on web these two also throw "Received `true` for a
@@ -171,7 +171,10 @@ const GROUPED_COUNTIES = new Set(Object.keys(GROUP_BOUNDS))
 // anonymity guarantee as the grid card and the pin itself.
 const SEARCH_INDEX = [
   ...LIVE_PINS.map(p => ({ kind: 'live', id: p.id, name: p.name, county: p.county, sub: p.category })),
-  ...INCOMING_PINS.map(p => ({ kind: 'incoming', id: p.key, name: maskComingSoonName(p.name), county: p.county, sub: 'Coming soon' })),
+  // Real brand name now shown, not masked — see PartnerCards.jsx's
+  // ComingSoonGridCard comment: launch has happened, so a "locked until
+  // launch" name mask is stale; only the deal itself stays pending.
+  ...INCOMING_PINS.map(p => ({ kind: 'incoming', id: p.key, name: p.name, county: p.county, sub: 'Coming soon' })),
   ...Object.keys(COUNTY_POS).map(k => ({ kind: 'county', id: k, name: COUNTY_LABEL[k], county: k, sub: 'County' })),
 ]
 

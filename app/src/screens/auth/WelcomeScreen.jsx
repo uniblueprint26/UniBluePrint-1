@@ -6,6 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Calculator } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { useLightBackgroundStatusBar } from '../../hooks/useStatusBarStyle'
 import UBPLogo from '../../components/ui/UBPLogo'
 
 const { width } = Dimensions.get('window')
@@ -49,6 +50,9 @@ const SLIDES = [
 ]
 
 export default function WelcomeScreen({ navigation }) {
+  // Cream screen — the global light icons are invisible here without this
+  // (L3).
+  useLightBackgroundStatusBar()
   const [slide, setSlide] = useState(0)
   const scrollRef = useRef(null)
   const insets = useSafeAreaInsets()

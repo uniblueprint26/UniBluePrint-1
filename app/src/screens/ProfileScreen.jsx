@@ -74,7 +74,7 @@ const EXPLORE_LINKS = [
 const ACCOUNT_LINKS = [
   { Icon: Briefcase, label: 'Account Type',    sub: null,                                action: 'accountType' },
   { Icon: Heart,     label: 'Interests',       sub: null,                                action: 'interests' },
-  { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  screen: null },
+  { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  action: 'notifications' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
@@ -496,7 +496,7 @@ const rp = StyleSheet.create({
 
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const { user, signOut } = useAuth()
+  const { user, signOut, isPro, isComplimentaryPro, subscription } = useAuth()
   const { label: userTypeLabel } = useUserType()
   const { interests } = useInterests()
   const [interestsVisible, setInterestsVisible] = useState(false)
@@ -513,6 +513,15 @@ export default function ProfileScreen({ navigation }) {
   const trade            = user?.user_metadata?.trade || ''
   const trainingProvider = user?.user_metadata?.training_provider || ''
   const initials         = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+  // Real membership state (P0-5) — was hard-coded to "Free Member" for
+  // everyone, including paying Pro/Premium users. Mirrors the tier naming
+  // PricingScreen already uses (`pro_annual` → Premium, otherwise Pro).
+  const membershipLabel = isComplimentaryPro
+    ? 'Complimentary Pro'
+    : isPro
+      ? (subscription?.tier === 'pro_annual' ? 'Premium Member' : 'Pro Member')
+      : 'Free Member'
 
   // Build the sub-line shown beneath the display name in the profile header
   const SITUATION_LABELS = {
@@ -571,7 +580,7 @@ export default function ProfileScreen({ navigation }) {
 
   const STATS = [
     { value: stats.cvs.toString(),      label: 'CVs Submitted',  Icon: FileText,  color: '#1d4ed8', bg: '#EFF6FF' },
-    { value: stats.sessions.toString(), label: 'Session Booked', Icon: Calendar,  color: '#15803D', bg: '#F0FDF4' },
+    { value: stats.sessions.toString(), label: 'Sessions Booked', Icon: Calendar,  color: '#15803D', bg: '#F0FDF4' },
     { value: stats.notes.toString(),    label: 'Notes Saved',    Icon: BookOpen,  color: '#7C3AED', bg: '#F5F3FF' },
   ]
 
@@ -660,7 +669,9 @@ export default function ProfileScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Membership banner */}
+        {/* Membership banner — reflects the real subscription state from
+            AuthContext rather than a hard-coded "Free Member" for everyone,
+            including paying Pro/Premium users (P0-5). */}
         <View style={styles.membershipCard}>
           <View style={styles.membershipTop}>
             <View style={styles.membershipStarWrap}>
@@ -668,19 +679,22 @@ export default function ProfileScreen({ navigation }) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.membershipEyebrow}>CURRENT PLAN</Text>
-              <Text style={styles.membershipTitle}>Free Member</Text>
+              <Text style={styles.membershipTitle}>{membershipLabel}</Text>
             </View>
-            <TouchableOpacity
-              style={styles.upgradeBtn}
-              activeOpacity={0.8}
-              onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}
-            >
-              <Text style={styles.upgradeBtnText}>Upgrade</Text>
-            </TouchableOpacity>
+            {!isPro && !isComplimentaryPro && (
+              <TouchableOpacity
+                style={styles.upgradeBtn}
+                activeOpacity={0.8}
+                onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}
+              >
+                <Text style={styles.upgradeBtnText}>Upgrade</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <Text style={styles.membershipSub}>
-            Upgrade to unlock priority coach access and premium document services. Plans and
-            payment are handled securely on the UniBlueprint website, never in the app.
+            {isPro || isComplimentaryPro
+              ? 'Thanks for being a member. Manage or change your plan on the UniBlueprint website.'
+              : 'Upgrade to unlock priority coach access and premium document services. Plans and payment are handled securely on the UniBlueprint website, never in the app.'}
           </Text>
         </View>
 
@@ -725,6 +739,10 @@ export default function ProfileScreen({ navigation }) {
                 onPress={() => {
                   if (action === 'accountType') setAccountTypeVisible(true)
                   else if (action === 'interests') setInterestsVisible(true)
+                  // NotificationsScreen lives in the Home stack, not this
+                  // Profile stack, so it needs a cross-stack navigate — this
+                  // row used to be a dead tap (screen: null).
+                  else if (action === 'notifications') navigation.getParent()?.navigate('Home', { screen: 'Notifications' })
                   else if (screen) navigation.navigate(screen)
                 }}
               >

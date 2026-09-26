@@ -38,35 +38,42 @@ export const linking = {
       ForgotPassword: 'forgot-password',
       VerifyEmail:    'verify-email',
 
-      // Main tabs — mounted while signed in. Each tab is its own Stack.Navigator,
-      // so paths nest under the tab name that owns them.
-      Home: {
+      // Main tabs — mounted while signed in, behind the Drawer's single
+      // "MainTabs" screen (Drawer > MainTabs > Tab.Navigator > each tab's own
+      // Stack.Navigator). Without this MainTabs level, React Navigation can't
+      // match any nested path and every deep link falls back to the Drawer's
+      // default screen (Home).
+      MainTabs: {
         screens: {
-          HomeMain:      'home',
-          Foundation:    'foundation',
-          Elevation:     'elevation',
-          CampusConnect: 'campus-connect',
-          CourseConnect: 'course-connect',
-          Lifestyle:     'lifestyle',
-          Budgeting:     'budgeting',
-        },
-      },
-      AdBoard: {
-        screens: { AdBoardMain: 'ad-board', WeeklyBlueprint: 'weekly-blueprint', Blog: 'blog', Marketplace: 'marketplace' },
-      },
-      Messages: {
-        screens: { MessagesMain: 'messages' },
-      },
-      Directory: {
-        screens: { DirectoryMain: 'directory' },
-      },
-      Profile: {
-        screens: {
-          ProfileMain: { path: 'profile', alias: ['subscription', 'pro'] }, // several paths, same destination — membership status lives on Profile
-          About:       'about',
-          Pricing:     'pricing',
-          PrivacyData: 'privacy',
-          BlueprintTour: 'tour',
+          Home: {
+            screens: {
+              HomeMain:      'home',
+              Foundation:    'foundation',
+              Elevation:     'elevation',
+              CampusConnect: 'campus-connect',
+              CourseConnect: 'course-connect',
+              Lifestyle:     'lifestyle',
+              Budgeting:     'budgeting',
+            },
+          },
+          AdBoard: {
+            screens: { AdBoardMain: 'ad-board', WeeklyBlueprint: 'weekly-blueprint', Blog: 'blog', Marketplace: 'marketplace' },
+          },
+          Messages: {
+            screens: { MessagesMain: 'messages' },
+          },
+          Directory: {
+            screens: { DirectoryMain: 'directory' },
+          },
+          Profile: {
+            screens: {
+              ProfileMain: { path: 'profile', alias: ['subscription', 'pro'] }, // several paths, same destination — membership status lives on Profile
+              About:       'about',
+              Pricing:     'pricing',
+              PrivacyData: 'privacy',
+              BlueprintTour: 'tour',
+            },
+          },
         },
       },
     },

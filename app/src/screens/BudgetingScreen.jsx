@@ -267,7 +267,7 @@ function LineItem({ item, onChangeAmount, onRemove, tint }) {
     <View style={styles.lineItem}>
       <View style={[styles.lineItemDot, { backgroundColor: tint }]} />
       <Text style={styles.lineItemLabel} numberOfLines={1}>{item.label}</Text>
-      <View style={styles.lineItemInput}>
+      <View style={styles.lineItemAmountCol}>
         <Text style={styles.lineItemCurrency}>€</Text>
         <TextInput
           style={styles.lineItemAmount}
@@ -1544,10 +1544,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 13,
   },
   lineItemDot:     { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  lineItemLabel:   { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  // L9: the label column gets the row's remaining space (with a floor of 0
+  // so it can actually shrink instead of pushing the row wider). The amount
+  // column itself stays auto-width here — it's reused by the full-width
+  // "Add to Goal"/"New Goal" sheet inputs below, which shouldn't be capped —
+  // see `lineItemAmountCol`, the fixed-width column used by the actual
+  // income/expense list rows.
+  lineItemLabel:   { flex: 1, minWidth: 0, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
   lineItemInput:   { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  lineItemAmountCol: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 2, width: 90, flexShrink: 0 },
   lineItemCurrency:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  lineItemAmount:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, minWidth: 60, textAlign: 'right' },
+  lineItemAmount:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, minWidth: 0, flexShrink: 1, textAlign: 'right' },
   lineItemDivider: { height: 1, backgroundColor: colors.border, marginHorizontal: 14 },
 
   // Balance summary

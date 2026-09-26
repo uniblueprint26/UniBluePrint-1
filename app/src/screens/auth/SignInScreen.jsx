@@ -142,11 +142,11 @@ export default function SignInScreen({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.backBtn}
+            style={styles.textBackBtn}
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Welcome')}
           >
-            <Text style={styles.backBtnText}>← Back to Welcome</Text>
+            <Text style={styles.textBackBtnText}>← Back to Welcome</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -218,6 +218,10 @@ const styles = StyleSheet.create({
   },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
 
-  backBtn: { alignItems: 'center', marginTop: spacing.lg },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
+  // L12: this used to be a second `backBtn`/`backBtnText` key in the same
+  // StyleSheet as the round header chevron above, silently overriding it —
+  // the chevron lost its 32px circle and picked up this rule's
+  // `marginTop: 24`, misaligning it next to the logo.
+  textBackBtn: { alignItems: 'center', marginTop: spacing.lg },
+  textBackBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
 })

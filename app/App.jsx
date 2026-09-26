@@ -17,6 +17,7 @@ import { AuthProvider } from './src/context/AuthContext'
 import RootNavigator from './src/navigation'
 import { linking } from './src/navigation/linking'
 import LoadingScreen from './src/components/ui/LoadingScreen'
+import ErrorBoundary from './src/components/ErrorBoundary'
 import { colors } from './src/constants/theme'
 
 // Keep the native splash (a plain image, no custom fonts involved) on
@@ -131,12 +132,16 @@ export default function App() {
     // isn't reliably attached to the view tree, especially on Android.
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <StatusBar style="light" backgroundColor={colors.navy} />
-          <NavigationContainer linking={linking} fallback={null}>
-            <RootNavigator />
-          </NavigationContainer>
-        </AuthProvider>
+        <ErrorBoundary>
+          {resetKey => (
+            <AuthProvider key={resetKey}>
+              <StatusBar style="light" backgroundColor={colors.navy} />
+              <NavigationContainer linking={linking} fallback={null}>
+                <RootNavigator />
+              </NavigationContainer>
+            </AuthProvider>
+          )}
+        </ErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   )

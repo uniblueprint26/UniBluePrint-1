@@ -15,6 +15,7 @@ import PostAdModal from '../components/ads/PostAdModal'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
+import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { COACHES } from './ElevationScreen'
@@ -725,6 +726,9 @@ const PAGES = buildPages()
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
 export default function WeeklyBlueprintScreen({ navigation }) {
+  // Cream strip under the status bar — the global light icons are invisible
+  // here without this (L3).
+  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
   const { user, isPro } = useAuth()
   const [modalVisible, setModalVisible] = useState(false)
