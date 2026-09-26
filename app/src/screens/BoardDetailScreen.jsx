@@ -40,7 +40,7 @@ import {
 import Card from '../components/ui/Card'
 import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
-import { getBoard, formatCarpoolDays } from '../constants/campusBoards'
+import { getBoard, formatCarpoolDays, readBoardRows } from '../constants/campusBoards'
 import { getCourseBoard } from '../constants/courseConnectBoards'
 import { getMarketplaceBoard } from '../constants/marketplaceBoards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -154,7 +154,7 @@ export default function BoardDetailScreen({ navigation, route }) {
       setRows(clubs || [])
     } else if (board.key === 'suggestions') {
       const [{ data: suggestions }, { data: votes }] = await Promise.all([
-        supabase.from('campus_suggestions').select('*'),
+        readBoardRows(supabase, 'campus_suggestions'),
         supabase.from('suggestion_votes').select('suggestion_id,user_id'),
       ])
       const counts = {}
@@ -168,7 +168,7 @@ export default function BoardDetailScreen({ navigation, route }) {
       setMySuggestionVotes(mine)
       setRows(withCounts)
     } else {
-      const { data } = await supabase.from(board.table).select('*').order('created_at', { ascending: false })
+      const { data } = await readBoardRows(supabase, board.table)
       setRows(data || [])
     }
     setLoading(false)
