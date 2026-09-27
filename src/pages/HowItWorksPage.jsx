@@ -26,7 +26,7 @@ const PILLARS = [
       ['Personal Statement', 'Your own words, structured to actually land: CAO, postgrad, or scholarship.'],
       ['Interview Prep', 'Predicted questions, model answers, and a live mock interview on Premium.'],
       ['Job Search Support', 'A personalised search strategy, not blind applying.'],
-      ['Turnaround', 'Standard: 48 hours. Premium: 24 hours and first in the queue.'],
+      ['Turnaround', 'Standard: 48 hours. Premium: same day and first in the queue.'],
     ],
   },
   {
@@ -127,7 +127,7 @@ const STEPS = [
     n: 2,
     title: 'Choose your service',
     description:
-      'Browse Foundation or Elevation Blueprint. Select your service, choose Standard (48hr) or Premium (same-day), and submit your brief.',
+      'Browse Foundation or Elevation Blueprint. Select your service, choose Standard (48hr) or Premium (same-day) once your Blueprint opens, and submit your brief.',
     screenTitle: 'Foundation Blueprint',
     screenItems: ['CV Optimisation', 'LinkedIn Profile', 'Cover Letter', 'Interview Prep'],
     screenCta: 'Select',
@@ -141,13 +141,13 @@ const STEPS = [
     screenTitle: 'Campus Handler',
     screenItems: ['Reviewing your CV...', 'Quality check', 'Feedback ready'],
     screenCta: null,
-    screenNote: 'Est. delivery: 48 hrs',
+    screenNote: 'Target delivery: 48 hrs',
   },
   {
     n: 4,
     title: 'Delivered to you',
     description:
-      'Your finished output arrives in-app and by email. Standard: 48 hours. Premium: same day.',
+      'Once your Blueprint opens, your finished output arrives in-app and by email. Standard: 48 hours. Premium: same day.',
     screenTitle: 'Your CV is ready',
     screenItems: ['Review in-app', 'Email delivered', 'Download PDF'],
     screenCta: 'Download',
@@ -163,8 +163,8 @@ const QUALITY_CARDS = [
   },
   {
     icon: '⏱',
-    heading: '48-hour standard delivery',
-    body: 'Standard turnaround is 48 hours. Same-day Premium delivery is available at booking. Clear timelines, every time.',
+    heading: '48-hour delivery target',
+    body: 'Standard turnaround target is 48 hours, with same-day Premium delivery once bookings open. Clear timelines, every time.',
   },
   {
     icon: '🆓',
@@ -176,7 +176,7 @@ const QUALITY_CARDS = [
 const FAQS = [
   {
     q: 'How long does delivery actually take?',
-    a: 'Standard tier is delivered within 48 hours of submission. Premium tier is delivered the same day. Submissions made after 11pm on Saturday night are delivered by end of day Monday on the Premium tier.',
+    a: 'Once Foundation Blueprint submissions open, Standard tier is delivered within 48 hours of submission and Premium tier the same day. Submissions made after 11pm on Saturday night are delivered by end of day Monday on the Premium tier.',
   },
   {
     q: 'What is the difference between a Campus Handler and a Uni Coach?',

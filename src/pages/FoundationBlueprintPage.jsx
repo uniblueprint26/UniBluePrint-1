@@ -24,8 +24,8 @@ const CAREER_SERVICES = [
       'Reviewed by a trained Campus Handler before delivery',
     ],
     tierNote: {
-      standard: 'Full CV build or complete transformation, 48 hour delivery',
-      premium: 'Same day delivery plus cover letter ready formatting',
+      standard: 'Full CV build or complete transformation, 48-hour delivery once your Blueprint opens',
+      premium: 'Same day delivery once your Blueprint opens, plus cover letter ready formatting',
     },
     icon: FileText,
     originalStandard: '€20', trialStandard: '€10',
@@ -855,7 +855,7 @@ export default function FoundationBlueprintPage() {
               Delivered to you
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '4px', maxWidth: '140px', lineHeight: 1.5 }}>
-              48hr Standard · Same day Premium
+              48hr Standard · Same day Premium, once your Blueprint opens
             </p>
           </div>
         </div>
@@ -870,6 +870,13 @@ export default function FoundationBlueprintPage() {
         }}>
           Standard vs Premium
         </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '14px', color: '#6B7280',
+          textAlign: 'center', marginTop: '10px',
+        }}>
+          Turnaround times are our target once Foundation Blueprint submissions open.
+        </p>
 
         <div style={{
           maxWidth: '900px', margin: '40px auto 0',
@@ -1054,7 +1061,7 @@ export default function FoundationBlueprintPage() {
             Download the App
           </Link>
           <Link
-            to="/sign-up"
+            to="/coming-soon"
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               height: '52px', padding: '0 32px',
@@ -1065,7 +1072,7 @@ export default function FoundationBlueprintPage() {
               textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
-            Sign up free
+            Join the waitlist
           </Link>
         </div>
       </section>
