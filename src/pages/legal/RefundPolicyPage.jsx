@@ -30,7 +30,7 @@ export default function RefundPolicyPage() {
           Refund Policy
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: June 2026
+          Last updated: September 2026
         </p>
       </section>
 
@@ -43,7 +43,7 @@ export default function RefundPolicyPage() {
           }}>
 
             <Section title="1. Introduction">
-              <p style={P}>This Refund Policy sets out the terms on which UniBlueprint Ltd ("UniBlueprint", "we", "us") handles refunds, cancellations, and cooling-off rights for Pro subscriptions, Foundation Blueprint services, and Elevation Blueprint services.</p>
+              <p style={P}>This Refund Policy sets out the terms on which UniBlueprint Limited ("UniBlueprint", "we", "us"), a company registered in Ireland under company number 826545 with its registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland, handles refunds, cancellations, and cooling-off rights for Pro subscriptions, Foundation Blueprint services, and Elevation Blueprint services.</p>
               <p style={P}>This policy is issued in compliance with the Consumer Rights Act 2022 (Ireland) and the EU Consumer Rights Directive 2011/83/EU. It does not affect any statutory rights you have under Irish or EU consumer law.</p>
             </Section>
 
