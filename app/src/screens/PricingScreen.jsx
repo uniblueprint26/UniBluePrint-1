@@ -20,7 +20,8 @@
 import { useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Linking, Animated } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, Check, CheckCircle } from 'lucide-react-native'
+import { Check, CheckCircle } from 'lucide-react-native'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
@@ -89,18 +90,16 @@ export default function PricingScreen({ navigation }) {
   }
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <View style={styles.heroBlock}>
-        <View style={styles.navRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Back</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.heroEyebrow}>TRANSPARENT PRICING</Text>
-        <Text style={styles.heroTitle}>Simple. Honest. No surprises.</Text>
-        <Text style={styles.heroSub}>Free to join. Upgrade only when you're ready.</Text>
-      </View>
+    <View style={styles.screen}>
+      <ScreenHeader
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        eyebrow="TRANSPARENT PRICING"
+        title="Simple. Honest. No surprises."
+        subtitle="Free to join. Upgrade only when you're ready."
+        style={styles.heroBlock}
+        titleStyle={styles.heroTitle}
+      />
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
         <Animated.ScrollView
@@ -209,12 +208,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md, paddingTop: 8 },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2 },
   heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, lineHeight: 34 },
-  heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 8, lineHeight: 20 },
 
   card: {
     backgroundColor: colors.white, borderRadius: radius.card,

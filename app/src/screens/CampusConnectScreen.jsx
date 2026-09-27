@@ -4,9 +4,10 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, ChevronLeft, Plus } from 'lucide-react-native'
+import { Search, Plus } from 'lucide-react-native'
 
 import SectionHeader from '../components/ui/SectionHeader'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
@@ -242,30 +243,17 @@ export default function CampusConnectScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         {/* ── Integrated header + hero ── */}
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Home</Text>
-            </TouchableOpacity>
-            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-            <View style={{ width: 70 }} />
-          </View>
-
-          <Text style={styles.heroEyebrow}>CAMPUS CONNECT</Text>
-          <Text style={styles.heroTitle}>
-            {institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
-          </Text>
-          <Text style={styles.heroSub}>
-            From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place.
-          </Text>
-
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          backLabel="Home"
+          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          eyebrow="CAMPUS CONNECT"
+          title={institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
+          subtitle="From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place."
+          style={styles.heroBlock}
+          titleStyle={styles.heroTitle}
+        >
           {/* Stats */}
           <View style={styles.heroStats}>
             <View style={styles.heroStatItem}>
@@ -283,7 +271,7 @@ export default function CampusConnectScreen({ navigation }) {
               <Text style={styles.heroStatLabel}>To join{'\n'}your campus</Text>
             </View>
           </View>
-        </View>
+        </ScreenHeader>
 
         <View style={styles.content}>
 
@@ -346,20 +334,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  navRow: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', marginBottom: spacing.lg,
-  },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingVertical: 6, paddingRight: 10,
-  },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginTop: 6, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
   heroStats:       { flexDirection: 'row', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.12)' },
   heroStatItem:    { flex: 1, alignItems: 'flex-start' },

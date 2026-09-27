@@ -1,7 +1,8 @@
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Mail, MessageCircle, FileText, Shield, ChevronRight, ChevronLeft } from 'lucide-react-native'
+import { Mail, MessageCircle, FileText, Shield, ChevronRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 
 const TOPICS = [
@@ -51,17 +52,15 @@ export default function HelpScreen({ navigation }) {
       contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
       showsVerticalScrollIndicator={false}
     >
-      <View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <ChevronLeft size={20} color={colors.cream} />
-          <Text style={styles.backBtnText}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.heroEyebrow}>SUPPORT</Text>
-        <Text style={styles.heroTitle}>Help and Support</Text>
-        <Text style={styles.heroSub}>
-          Everything you need to get the most out of UniBlueprint.
-        </Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        eyebrow="SUPPORT"
+        title="Help and Support"
+        subtitle="Everything you need to get the most out of UniBlueprint."
+        style={styles.hero}
+        titleStyle={styles.heroTitle}
+      />
 
       <View style={styles.body}>
 
@@ -134,11 +133,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl,
   },
-  backBtn: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream, marginLeft: 4 },
-  heroEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2 },
   heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 4 },
-  heroSub: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', marginTop: 8, lineHeight: 22 },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 

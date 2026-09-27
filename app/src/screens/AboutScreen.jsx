@@ -11,8 +11,9 @@
  */
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react-native'
+import { UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { WEBSITE_LINKS } from '../constants/site'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
@@ -78,17 +79,15 @@ export default function AboutScreen({ navigation }) {
       showsVerticalScrollIndicator={false}
     >
       {/* Hero */}
-      <View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <ChevronLeft size={20} color={colors.cream} />
-          <Text style={styles.backBtnText}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.heroEyebrow}>OUR STORY</Text>
-        <Text style={styles.heroTitle}>Built from a birthday dinner in Belfast.</Text>
-        <Text style={styles.heroSub}>
-          An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a Belfast birthday dinner that changed everything. This is how UniBlueprint started.
-        </Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        eyebrow="OUR STORY"
+        title="Built from a birthday dinner in Belfast."
+        subtitle="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a Belfast birthday dinner that changed everything. This is how UniBlueprint started."
+        style={styles.hero}
+        titleStyle={styles.heroTitle}
+      />
 
       <View style={styles.body}>
         {/* Founder's note */}
@@ -213,11 +212,7 @@ const styles = StyleSheet.create({
   scroll: {},
 
   hero: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.xl },
-  backBtn: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream, marginLeft: 4 },
-  heroEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2 },
   heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, lineHeight: 35 },
-  heroSub: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', marginTop: 10, lineHeight: 22 },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
 

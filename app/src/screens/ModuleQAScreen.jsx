@@ -14,7 +14,8 @@ import {
   ActivityIndicator, Modal, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, Plus, MessageSquare, ThumbsUp, X, Search, Send, Check, Flag } from 'lucide-react-native'
+import { Plus, MessageSquare, ThumbsUp, X, Search, Send, Check, Flag } from 'lucide-react-native'
+import ScreenHeader from '../components/ui/ScreenHeader'
 
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -173,17 +174,15 @@ export default function ModuleQAScreen({ navigation, route }) {
   return (
     <View style={styles.screen}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Course Connect</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.heroIcon}>❓</Text>
-          <Text style={styles.heroTitle}>Module Q&A</Text>
-          <Text style={styles.heroSub}>Select your course, programme, or workplace, ask a question, and get answers from people who've been there.</Text>
-        </View>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          backLabel="Course Connect"
+          title="Module Q&A"
+          subtitle="Select your course, programme, or workplace, ask a question, and get answers from people who've been there."
+          style={styles.heroBlock}
+          titleStyle={styles.heroTitle}
+        />
 
         <View style={styles.content}>
           <View style={styles.filterSearch}>
@@ -279,13 +278,16 @@ export default function ModuleQAScreen({ navigation, route }) {
       {/* Thread */}
       <Modal visible={!!selected} animationType="slide" onRequestClose={() => setSelected(null)}>
         <KeyboardAvoidingView style={[styles.screen, { paddingTop: insets.top }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={styles.threadHeader}>
-            <TouchableOpacity onPress={() => setSelected(null)} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Close">
-              <ChevronLeft size={20} color={colors.navy} strokeWidth={2} />
-            </TouchableOpacity>
-            <Text style={styles.threadHeaderTitle}>Question & Answers</Text>
-            <View style={{ width: 20 }} />
-          </View>
+          <ScreenHeader
+            compact
+            topInset={false}
+            variant="cream"
+            onBack={() => setSelected(null)}
+            backLabel=""
+            title="Question & Answers"
+            titleStyle={styles.threadHeaderTitle}
+            style={styles.threadHeader}
+          />
           {!!selected && (
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
               <View style={styles.metaRow}>
@@ -369,10 +371,6 @@ const f = StyleSheet.create({
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroIcon: { fontSize: 30, marginBottom: 4 },
   heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
 

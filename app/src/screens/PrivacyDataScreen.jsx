@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, ActivityIndicator, Alert, Share } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, Download, Trash2, ExternalLink, Clock } from 'lucide-react-native'
+import { Download, Trash2, ExternalLink, Clock } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -99,14 +100,14 @@ export default function PrivacyDataScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-          <Text style={styles.backBtnText}>Profile</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Privacy and Data</Text>
-        <Text style={styles.headerSub}>Your rights over your personal data under GDPR.</Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        title="Privacy and Data"
+        subtitle="Your rights over your personal data under GDPR."
+        style={styles.header}
+        titleStyle={styles.headerTitle}
+      />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
 
@@ -189,10 +190,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 20 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginBottom: 6 },
-  headerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.7)', lineHeight: 19 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 

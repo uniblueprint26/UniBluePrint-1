@@ -3,11 +3,12 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import {
-  Bell, ChevronLeft, FileText, Calendar, Star, Megaphone,
+  Bell, FileText, Calendar, Star, Megaphone,
   Clock, AlertTriangle, Sun, CreditCard, Archive, Repeat,
   MessageCircle, MessagesSquare, UserCheck,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -189,19 +190,14 @@ export default function NotificationsScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.topBar, { paddingTop: insets.top + 14 }]}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-        </TouchableOpacity>
-        <Text style={styles.topTitle}>Notifications</Text>
-        <View style={{ width: 36 }} />
-      </View>
+      <ScreenHeader
+        compact
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        backLabel=""
+        title="Notifications"
+        titleStyle={styles.topTitle}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -235,19 +231,6 @@ export default function NotificationsScreen({ navigation }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
-  topBar: {
-    backgroundColor: colors.navy,
-    paddingHorizontal: spacing.md,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(245,240,232,0.1)',
-    alignItems: 'center', justifyContent: 'center',
-  },
   topTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably

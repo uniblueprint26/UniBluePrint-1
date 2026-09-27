@@ -32,12 +32,13 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, Plus, MessageSquare, Flag, Trash2, ThumbsUp, ExternalLink,
+  Plus, MessageSquare, Flag, Trash2, ThumbsUp, ExternalLink,
   Users, Star, X, Search, AlertCircle, Send, CheckCircle2, RotateCcw,
   Download, FileText, Image as ImageIcon, MapPin,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
 import { getBoard, formatCarpoolDays, readBoardRows } from '../constants/campusBoards'
@@ -195,7 +196,8 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   if (!board) {
     return (
-      <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <View style={styles.screen}>
+        <ScreenHeader compact variant="cream" onBack={() => navigation.goBack()} backLabel="" title="Board" />
         <Text style={styles.notFound}>Board not found.</Text>
       </View>
     )
@@ -915,17 +917,16 @@ export default function BoardDetailScreen({ navigation, route }) {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
     >
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>{backLabel}</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.heroIcon}>{board.icon}</Text>
-          <Text style={styles.heroTitle}>{board.title}</Text>
-          <Text style={styles.heroSub}>{board.tagline}</Text>
-        </View>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          backLabel={backLabel}
+          icon={<Text style={styles.heroIcon}>{board.icon}</Text>}
+          title={board.title}
+          subtitle={board.tagline}
+          style={styles.heroBlock}
+          titleStyle={styles.heroTitle}
+        />
 
         <View style={styles.content}>
           {board.special === 'accommodation' && renderRoomyPanel()}
@@ -1048,13 +1049,16 @@ export default function BoardDetailScreen({ navigation, route }) {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
         >
-          <View style={styles.threadHeader}>
-            <TouchableOpacity onPress={() => setSelectedProblem(null)} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Close">
-              <ChevronLeft size={20} color={colors.navy} strokeWidth={2} />
-            </TouchableOpacity>
-            <Text style={styles.threadHeaderTitle}>Problem & Solutions</Text>
-            <View style={{ width: 20 }} />
-          </View>
+          <ScreenHeader
+            compact
+            topInset={false}
+            variant="cream"
+            onBack={() => setSelectedProblem(null)}
+            backLabel=""
+            title="Problem & Solutions"
+            titleStyle={styles.threadHeaderTitle}
+            style={styles.threadHeader}
+          />
           {!!selectedProblem && (
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
               <View style={styles.metaRow}><View style={styles.metaPill}><Text style={styles.metaPillText}>{selectedProblem.category}</Text></View></View>
@@ -1114,9 +1118,6 @@ const styles = StyleSheet.create({
   notFound: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, padding: spacing.md },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
   heroIcon: { fontSize: 30, marginBottom: 4 },
   heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
