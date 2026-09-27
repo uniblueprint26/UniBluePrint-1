@@ -48,7 +48,6 @@ const COACHES = [
   { id: 13, name: 'Stephen',     via: 'via Course Compass', photo: '/coaches/coursecompass.jpg', category: 'Course Compass',       location: 'Ireland',       filter: 'Career',           services: ['Career Planning', 'Graduate Pathways', 'Interview Prep', 'CAO Guidance'], accent: '#1B4B5A', href: '/course-compass' },
   { id: 14, name: 'Camila',      photo: '/coaches/camila.jpg',    category: 'Personal Training · Muay Thai · Yoga', location: 'Dublin 8', filter: 'Fitness', from: 'Enquire in the app', services: ['Physique Development', 'Muay Thai Fitness', 'Nutrition Coaching'], accent: '#145A3E', crossLinkHref: '/partners#camila', crossLinkLabel: "See Camila's Lifestyle listing" },
   { id: 15, name: 'Aoife',       via: 'via The Brave Flow Yoga', photo: '/coaches/aoife.jpg', category: 'Yoga',                 location: 'Dublin',        filter: 'Yoga',             from: 'Enquire in the app', services: ['Beginner Friendly Yoga', '1-to-1 Sessions', 'Meditation Classes'], accent: '#145A3E' },
-  { id: 17, name: 'Dinero Trading Group', photo: '/coaches/dinero.jpg', category: 'Trading & Investment Education', location: 'Ireland', filter: 'Trading and Finance', from: 'Enquire in the app', services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship'],   accent: '#1B4B5A' },
   { id: 18, name: 'Zainab Adeyemi', via: 'via Soft Life Investing', photo: '/coaches/zainab.jpg', category: 'Investing & Finance Coach', location: 'Ireland', filter: 'Trading and Finance',       from: 'Enquire in the app', services: ['Personal Finance Coaching', 'Budgeting & Saving', 'Irish Investing Rules'], accent: '#1B4B5A' },
   { id: 19, name: 'Luana Ciweck', photo: '/coaches/luana.jpg', category: 'Online Fitness Coaching', location: 'Co. Mayo',  filter: 'Fitness',        from: 'Enquire in the app', services: ['Online Fitness Coaching', 'Personalised Programmes', 'Confidence & Strength Coaching'], accent: '#145A3E' },
 ]
@@ -313,9 +312,9 @@ export default function ElevationBlueprintPage() {
     <>
       <Helmet>
         <title>Meet Our Coaches | UniBlueprint</title>
-        <meta name="description" content="Verified Uni Coaches delivering personal training, career coaching, trading, creative skills, and more across Ireland. Book directly in the app." />
+        <meta name="description" content="Uni Coaches delivering personal training, career coaching, trading, creative skills, and more across Ireland. Book directly in the app." />
         <meta property="og:title" content="Meet Our Coaches | UniBlueprint" />
-        <meta property="og:description" content="Verified Uni Coaches delivering personal training, career coaching, trading, creative skills, and more across Ireland." />
+        <meta property="og:description" content="Uni Coaches delivering personal training, career coaching, trading, creative skills, and more across Ireland." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
@@ -358,7 +357,7 @@ export default function ElevationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              Verified Coaches across Ireland in fitness, career, trading, creative skills, and more.
+              Coaches across Ireland in fitness, career, trading, creative skills, and more.
               Find your coach and book directly in the app.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
