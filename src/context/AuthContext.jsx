@@ -22,12 +22,16 @@ export function AuthProvider({ children }) {
       setRolesLoaded(true)
       return
     }
-    const [{ data: roleRows }, { data: subRow }] = await Promise.all([
+    const [{ data: roleRows, error: rolesError }, { data: subRow, error: subError }] = await Promise.all([
       supabase.from('user_roles').select('role').eq('user_id', userId),
       supabase.from('subscriptions').select('*').eq('user_id', userId).maybeSingle(),
     ])
-    setRoles((roleRows || []).map(r => r.role))
-    setSubscription(subRow || null)
+    // On a transient failure, keep whatever was already loaded rather than
+    // overwriting good data with null/[] — a real Pro user shouldn't drop to
+    // free-tier UI (or a real staff role lose its portal access) just because
+    // one refetch hit a network blip or an RLS hiccup.
+    if (!rolesError) setRoles((roleRows || []).map(r => r.role))
+    if (!subError) setSubscription(subRow || null)
     setRolesLoaded(true)
   }
 
@@ -67,6 +71,12 @@ export function AuthProvider({ children }) {
       } else {
         setRolesLoaded(true)
       }
+    }).catch(() => {
+      // A rejected getSession() (network blip, storage error) must not leave
+      // `loading` stuck at true forever — every ProtectedRoute/RequireRole
+      // treats that as "still loading" and shows a permanent spinner.
+      setLoading(false)
+      setRolesLoaded(true)
     })
 
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((_event, session) => {

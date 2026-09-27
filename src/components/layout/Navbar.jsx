@@ -55,6 +55,19 @@ const JOIN_LINKS = [
   { label: 'Blueprint Contributor', href: '/contributors' },
 ]
 
+// Which staff surface a signed-in user's account-dropdown "Dashboard" link
+// points at, keyed by role and checked in this order (same roles + priority
+// RequireRole's allow-lists use per staff route in App.jsx: founder outranks
+// operations, which outranks finance/handler/business, since a founder also
+// passes every other route's role check).
+const DASHBOARD_ROLE_ROUTES = [
+  { role: 'founder', href: '/admin/founder' },
+  { role: 'operations', href: '/admin/operations' },
+  { role: 'finance', href: '/admin/finance' },
+  { role: 'handler', href: '/handler/queue' },
+  { role: 'business', href: '/portal/partner' },
+]
+
 const MOBILE_SERVICE_LINKS = [
   { label: 'Foundation Blueprint', href: '/foundation-blueprint' },
   { label: 'Elevation Blueprint', href: '/elevation-blueprint' },
@@ -135,8 +148,9 @@ function DropdownTrigger({ id, controls, label, isOpen, onClick, onFocus, onMous
 // ─── Main component ────────────────────────────────────────────────────────────
 
 export default function Navbar({ onSearchOpen }) {
-  const { user } = useAuth()
+  const { user, roles = [] } = useAuth()
   const navigate = useNavigate()
+  const dashboardLink = DASHBOARD_ROLE_ROUTES.find(r => roles.includes(r.role)) || null
 
   const [isServicesOpen, setIsServicesOpen] = useState(false)
   const [isJoinOpen, setIsJoinOpen] = useState(false)
@@ -268,6 +282,22 @@ export default function Navbar({ onSearchOpen }) {
           overflow: 'hidden',
           zIndex: 99,
         }}>
+          <Link
+            to="/foundation/my-documents"
+            onClick={() => setIsUserOpen(false)}
+            style={{ display: 'block', padding: '12px 16px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', borderBottom: '1px solid rgba(30,58,95,0.08)' }}
+          >
+            My Documents
+          </Link>
+          {dashboardLink && (
+            <Link
+              to={dashboardLink.href}
+              onClick={() => setIsUserOpen(false)}
+              style={{ display: 'block', padding: '12px 16px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', borderBottom: '1px solid rgba(30,58,95,0.08)' }}
+            >
+              Dashboard
+            </Link>
+          )}
           <Link
             to="/subscription-management"
             onClick={() => setIsUserOpen(false)}
@@ -766,6 +796,34 @@ export default function Navbar({ onSearchOpen }) {
         <div style={{ padding: '24px 24px 40px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {user ? (
             <>
+              <Link
+                to="/foundation/my-documents"
+                onClick={closeMenu}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  height: '52px', borderRadius: '8px',
+                  border: '1px solid #1E3A5F',
+                  fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+                  color: '#1E3A5F', textDecoration: 'none',
+                }}
+              >
+                My Documents
+              </Link>
+              {dashboardLink && (
+                <Link
+                  to={dashboardLink.href}
+                  onClick={closeMenu}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    height: '52px', borderRadius: '8px',
+                    border: '1px solid #1E3A5F',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+                    color: '#1E3A5F', textDecoration: 'none',
+                  }}
+                >
+                  Dashboard
+                </Link>
+              )}
               <Link
                 to="/subscription-management"
                 onClick={closeMenu}

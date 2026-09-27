@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet-async'
 import {
   ListChecks, Clock, CheckCircle2, Timer, Truck, AlertTriangle,
-  AlertCircle, ShieldAlert, Star, Ghost,
+  AlertCircle, ShieldAlert, Star, Ghost, Check, X,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../context/AuthContext'
 
 // Real data, sourced from the Supabase functions added in
 // supabase/migrations/20260828170000_dashboard_ratings_and_finance_role.sql
@@ -20,6 +21,12 @@ const RANGES = [
   { key: 'month', label: 'This Month' },
   { key: 'year',  label: 'This Year' },
 ]
+
+// Same labels the app's Operations Portal uses for these (OperationsPortalScreen.jsx).
+const GDPR_LABELS = {
+  export: 'Data export', deletion: 'Account deletion',
+  correction: 'Data correction', restriction: 'Restrict processing',
+}
 
 const NAVY = '#1E3A5F'
 const CREAM = '#F5F0E8'
@@ -165,6 +172,7 @@ const EMPTY_SUNDAY = { depth: 0, monday_rota_handlers: 0, declared_capacity_avg:
 const EMPTY_TIER_MIX = { premium_count: 0, standard_count: 0, protected_standard_count: 0 }
 
 export default function OperationsDashboardPage() {
+  const { user } = useAuth()
   const [range, setRange] = useState('month')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -178,6 +186,61 @@ export default function OperationsDashboardPage() {
   const [hottest, setHottest] = useState({ Today: [], 'This Week': [], 'This Year': [] })
   const [tierMix, setTierMix] = useState(EMPTY_TIER_MIX)
   const [asOf, setAsOf] = useState('')
+
+  // ── GDPR requests panel ─────────────────────────────────────────────────
+  // Same table + fields the app's Operations Portal reads/writes
+  // (OperationsPortalScreen.jsx) — no dedicated RPC exists for this yet, so
+  // this mirrors that raw supabase.from('gdpr_requests') query rather than
+  // inventing one.
+  const [gdprRequests, setGdprRequests] = useState([])
+  const [gdprLoading, setGdprLoading] = useState(true)
+  const [viewingRequest, setViewingRequest] = useState(null)
+  const [markingDone, setMarkingDone] = useState(null)
+  const [doneNote, setDoneNote] = useState('')
+  const [savingDone, setSavingDone] = useState(false)
+  const [gdprActionError, setGdprActionError] = useState('')
+
+  const loadGdpr = useCallback(async () => {
+    setGdprLoading(true)
+    const { data, error: gdprError } = await supabase
+      .from('gdpr_requests')
+      .select('id, request_type, status, requested_at, due_at, name, email, message, user_id, notes')
+      .in('status', ['pending', 'in_progress'])
+      .order('due_at', { ascending: true })
+    if (!gdprError) setGdprRequests(data || [])
+    setGdprLoading(false)
+  }, [])
+
+  useEffect(() => { loadGdpr() }, [loadGdpr])
+
+  function openMarkDone(req) {
+    setGdprActionError('')
+    setDoneNote(req.notes || '')
+    setMarkingDone(req)
+  }
+
+  async function confirmMarkDone() {
+    if (!markingDone || savingDone) return
+    setSavingDone(true)
+    setGdprActionError('')
+    const { error: markError } = await supabase
+      .from('gdpr_requests')
+      .update({
+        status: 'completed',
+        processed_at: new Date().toISOString(),
+        processed_by: user?.id,
+        notes: doneNote.trim() || null,
+      })
+      .eq('id', markingDone.id)
+    setSavingDone(false)
+    if (markError) {
+      setGdprActionError(markError.message || 'Could not mark this request complete. Please try again.')
+      return
+    }
+    setGdprRequests(prev => prev.filter(r => r.id !== markingDone.id))
+    setMarkingDone(null)
+    if (viewingRequest?.id === markingDone.id) setViewingRequest(null)
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -346,6 +409,76 @@ export default function OperationsDashboardPage() {
           </div>
         </Card>
 
+        {/* ── GDPR REQUESTS ───────────────────────────────────────────── */}
+        <Card style={{ marginBottom: '20px' }}>
+          <SectionTitle
+            eyebrow="Compliance"
+            title="GDPR requests awaiting action"
+            caption="Export, deletion, correction, and restriction requests submitted via the website form or the app, in order of statutory due date."
+          />
+          {gdprLoading ? (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: MUTED }}>Loading…</p>
+          ) : gdprRequests.length === 0 ? (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: MUTED }}>Nothing pending.</p>
+          ) : (
+            <div className="od-table-wrap">
+              <table className="od-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Requester</th>
+                    <th>Submitted</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gdprRequests.map(r => {
+                    const overdue = new Date(r.due_at) < new Date()
+                    return (
+                      <tr key={r.id}>
+                        <td style={{ fontWeight: '600', textTransform: 'capitalize' }}>{GDPR_LABELS[r.request_type] || r.request_type}</td>
+                        <td>{r.name || r.email || 'Registered app user'}</td>
+                        <td>{new Date(r.requested_at).toLocaleDateString('en-IE')}</td>
+                        <td style={{ color: overdue ? RED : undefined, fontWeight: overdue ? '600' : undefined }}>
+                          {overdue ? 'Overdue — was ' : ''}{new Date(r.due_at).toLocaleDateString('en-IE')}
+                        </td>
+                        <td style={{ textTransform: 'capitalize' }}>{r.status.replace('_', ' ')}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                            <button
+                              onClick={() => setViewingRequest(r)}
+                              style={{
+                                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
+                                color: NAVY, background: CREAM, border: 'none', borderRadius: '6px',
+                                padding: '5px 10px', cursor: 'pointer', whiteSpace: 'nowrap',
+                              }}
+                            >
+                              View
+                            </button>
+                            <button
+                              onClick={() => openMarkDone(r)}
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
+                                color: NAVY, background: 'rgba(30,58,95,0.06)', border: 'none', borderRadius: '6px',
+                                padding: '5px 10px', cursor: 'pointer', whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <Check size={12} /> Mark Done
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
         {/* ── CAMPUS HANDLER ROSTER ──────────────────────────────────── */}
         <Card style={{ marginBottom: '20px' }}>
           <SectionTitle eyebrow="Roster" title="Campus Handler roster" caption="Live status, load, and specialism per handler." />
@@ -509,6 +642,116 @@ export default function OperationsDashboardPage() {
         </Card>
 
       </div>
+
+      {!!viewingRequest && (
+        <div
+          role="dialog" aria-modal="true" aria-labelledby="gdpr-view-title"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(30,58,95,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 50 }}
+          onClick={() => setViewingRequest(null)}
+        >
+          <div
+            style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 8px 32px rgba(30,58,95,0.25)', padding: '26px', maxWidth: '460px', width: '100%' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+              <h2 id="gdpr-view-title" style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: NAVY, margin: 0 }}>
+                {GDPR_LABELS[viewingRequest.request_type] || viewingRequest.request_type}
+              </h2>
+              <button
+                onClick={() => setViewingRequest(null)} aria-label="Close"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: GREY, flexShrink: 0, padding: '4px' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: GREY, marginTop: '10px', lineHeight: 1.6 }}>
+              From {viewingRequest.name || viewingRequest.email || 'a registered app user'}
+              {viewingRequest.email && viewingRequest.name ? ` (${viewingRequest.email})` : ''}
+              {' '}&middot; submitted {new Date(viewingRequest.requested_at).toLocaleString('en-IE')}
+            </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
+              color: new Date(viewingRequest.due_at) < new Date() ? RED : GREY, marginTop: '4px',
+              fontWeight: new Date(viewingRequest.due_at) < new Date() ? '600' : undefined,
+            }}>
+              Statutory due date: {new Date(viewingRequest.due_at).toLocaleDateString('en-IE')}
+            </p>
+            {viewingRequest.message && (
+              <>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '16px', marginBottom: '6px' }}>
+                  Message from requester
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: NAVY, lineHeight: 1.6, background: CREAM, borderRadius: '8px', padding: '10px 12px', whiteSpace: 'pre-wrap' }}>
+                  {viewingRequest.message}
+                </p>
+              </>
+            )}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+              <button
+                type="button" onClick={() => setViewingRequest(null)}
+                style={{ height: '42px', padding: '0 18px', background: '#FFFFFF', color: NAVY, border: '1.5px solid rgba(30,58,95,0.2)', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+              <button
+                type="button" onClick={() => openMarkDone(viewingRequest)}
+                style={{ height: '42px', padding: '0 18px', background: NAVY, color: CREAM, border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Check size={14} /> Mark Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!!markingDone && (
+        <div
+          role="dialog" aria-modal="true" aria-labelledby="gdpr-done-title"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(30,58,95,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 60 }}
+          onClick={() => !savingDone && setMarkingDone(null)}
+        >
+          <div
+            style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 8px 32px rgba(30,58,95,0.25)', padding: '26px', maxWidth: '440px', width: '100%' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 id="gdpr-done-title" style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: NAVY, margin: 0 }}>
+              Mark request completed
+            </h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#374151', marginTop: '10px', lineHeight: 1.6 }}>
+              Confirm the {(GDPR_LABELS[markingDone.request_type] || markingDone.request_type).toLowerCase()} request from{' '}
+              {markingDone.name || markingDone.email || 'this user'} has actually been actioned.
+            </p>
+            <textarea
+              value={doneNote}
+              onChange={e => setDoneNote(e.target.value)}
+              placeholder="What was done? e.g. exported to CSV and emailed, or deleted per retention policy"
+              rows={3}
+              style={{
+                width: '100%', boxSizing: 'border-box', marginTop: '14px', padding: '10px 12px',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: NAVY,
+                background: CREAM, border: '1px solid rgba(30,58,95,0.1)', borderRadius: '8px', resize: 'vertical',
+              }}
+            />
+            {!!gdprActionError && (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: RED, marginTop: '8px' }}>{gdprActionError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '18px', justifyContent: 'flex-end' }}>
+              <button
+                type="button" onClick={() => setMarkingDone(null)} disabled={savingDone}
+                style={{ height: '42px', padding: '0 18px', background: '#FFFFFF', color: NAVY, border: '1.5px solid rgba(30,58,95,0.2)', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: savingDone ? 'not-allowed' : 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button" onClick={confirmMarkDone} disabled={savingDone}
+                style={{ height: '42px', padding: '0 18px', background: NAVY, color: CREAM, border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: savingDone ? 'not-allowed' : 'pointer', opacity: savingDone ? 0.7 : 1 }}
+              >
+                {savingDone ? 'Saving…' : 'Mark Done'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
