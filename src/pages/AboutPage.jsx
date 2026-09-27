@@ -458,7 +458,7 @@ export default function AboutPage() {
               fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
               marginTop: '12px', lineHeight: 1.15, textWrap: 'balance',
             }}>
-              A note from founder
+              A note from the founder
             </h2>
 
             <p style={{
