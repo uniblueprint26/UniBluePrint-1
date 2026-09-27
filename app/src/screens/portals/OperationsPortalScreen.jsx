@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ArrowLeftRight, Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw } from 'lucide-react-native'
+import { Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import ScreenHeader from '../../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
@@ -108,16 +109,14 @@ export default function OperationsPortalScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <View style={styles.headerTopRow}>
-          <Text style={styles.headerEyebrow}>OPERATIONS DASHBOARD</Text>
-          <TouchableOpacity style={styles.backLink} activeOpacity={0.75} onPress={backToMyBlueprint}>
-            <ArrowLeftRight size={12} color="rgba(245,240,232,0.6)" strokeWidth={2} />
-            <Text style={styles.backLinkText}>My Blueprint</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.headerTitle}>Operations Queue</Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        eyebrow="OPERATIONS DASHBOARD"
+        exitTo={{ label: 'My Blueprint', onPress: backToMyBlueprint }}
+        title="Operations Queue"
+        style={styles.header}
+        titleStyle={styles.headerTitle}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -256,13 +255,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)',
-    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
-  },
-  backLink: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  backLinkText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
   headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },

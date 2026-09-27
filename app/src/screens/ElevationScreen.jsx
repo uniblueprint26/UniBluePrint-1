@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, ChevronRight, MapPin, User,
+  ChevronRight, MapPin, User,
   LayoutGrid, Dumbbell, GraduationCap, TrendingUp, Megaphone,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -597,30 +598,17 @@ export default function ElevationScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         {/* ── Integrated header + hero (single navy block) ── */}
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Home</Text>
-            </TouchableOpacity>
-            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-            {/* Spacer to balance the back button */}
-            <View style={{ width: 70 }} />
-          </View>
-
-          <Text style={styles.heroEyebrow}>ELEVATION BLUEPRINT</Text>
-          <Text style={styles.heroTitle}>Our Coaches</Text>
-          <Text style={styles.heroSub}>
-            Verified coaches across fitness, academic grinds, trading, and marketing.
-            Every coach is reviewed before joining the platform.
-          </Text>
-        </View>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          backLabel="Home"
+          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          eyebrow="ELEVATION BLUEPRINT"
+          title="Our Coaches"
+          subtitle="Verified coaches across fitness, academic grinds, trading, and marketing. Every coach is reviewed before joining the platform."
+          style={styles.heroBlock}
+          titleStyle={styles.heroTitle}
+        />
 
         <View style={styles.content}>
 
@@ -711,24 +699,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
-  navRow: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingVertical: 6, paddingRight: 10,
-  },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-
-  heroEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
-    textTransform: 'uppercase', marginBottom: 6,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
-  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 6, marginBottom: 10 },
 
   // Filter pills — single horizontal row, replacing the old 2-column tile
   // grid now that only 4 real categories remain post-merge (see FILTERS).

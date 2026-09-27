@@ -13,13 +13,14 @@
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, ChevronRight, ExternalLink,
+  ChevronRight, ExternalLink,
   Compass, Wrench, GraduationCap, BookOpen,
   Lightbulb, Globe, FileText, MessageSquare, Star,
   ClipboardCheck, Target, Users, Laptop,
   Calculator, Sparkles, Search, ShieldCheck,
 } from 'lucide-react-native'
 
+import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo    from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
@@ -295,28 +296,17 @@ export default function CompassScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         {/* ── Integrated header + hero ── */}
-        <View style={[s.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={s.navRow}>
-            <TouchableOpacity
-              style={s.backBtn}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={s.backBtnText}>Home</Text>
-            </TouchableOpacity>
-            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-            <View style={{ width: 70 }} />
-          </View>
-
-          <Text style={s.heroEyebrow}>COURSE COMPASS</Text>
-          <Text style={s.heroTitle}>Find Your Ideal Path</Text>
-          <Text style={s.heroSub}>
-            AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points.
-          </Text>
-
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          backLabel="Home"
+          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          eyebrow="COURSE COMPASS"
+          title="Find Your Ideal Path"
+          subtitle="AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points."
+          style={s.heroBlock}
+          titleStyle={s.heroTitle}
+        >
           {/* Partnership attribution */}
           <View style={s.attrRow}>
             <View style={s.attrDot} />
@@ -324,7 +314,7 @@ export default function CompassScreen({ navigation }) {
               An independent platform by Stephen McKeon, integrated in partnership with UniBlueprint
             </Text>
           </View>
-        </View>
+        </ScreenHeader>
 
         <View style={s.content}>
 
@@ -426,25 +416,8 @@ const s = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  navRow: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', marginBottom: spacing.lg,
-  },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingVertical: 6, paddingRight: 10,
-  },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
-  },
   heroTitle: {
-    fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginBottom: 10,
-  },
-  heroSub: {
-    fontFamily: fonts.sans, fontSize: 14,
-    color: 'rgba(245,240,232,0.72)', lineHeight: 22,
+    fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginTop: 6, marginBottom: 10,
   },
 
   // Attribution

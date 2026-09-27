@@ -6,6 +6,7 @@ import {
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import ScreenHeader from '../../components/ui/ScreenHeader'
 import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 
@@ -100,10 +101,13 @@ export default function StudioQueueScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Text style={styles.headerEyebrow}>THE BLUEPRINT STUDIO</Text>
-        <Text style={styles.headerTitle}>Your Queue</Text>
-
+      <ScreenHeader
+        variant="navy"
+        eyebrow="THE BLUEPRINT STUDIO"
+        title="Your Queue"
+        style={styles.header}
+        titleStyle={styles.headerTitle}
+      >
         <View style={styles.headerRow}>
           <StatusChip online={online} />
           <TouchableOpacity
@@ -117,7 +121,7 @@ export default function StudioQueueScreen({ navigation }) {
         </View>
 
         <StudioTabBar navigation={navigation} active="StudioQueue" />
-      </View>
+      </ScreenHeader>
 
       <ScrollView
         style={styles.scrollView}

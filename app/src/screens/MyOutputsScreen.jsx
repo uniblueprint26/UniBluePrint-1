@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { ChevronLeft, CheckCircle, FileText } from 'lucide-react-native'
+import { CheckCircle, FileText } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
@@ -94,29 +95,19 @@ export default function MyOutputsScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.navRow}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Home</Text>
-          </TouchableOpacity>
-          <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-          <View style={{ width: 70 }} />
-        </View>
-        <Text style={styles.heroEyebrow}>MY OUTPUTS</Text>
-        <Text style={styles.heroTitle}>Your Completed Documents</Text>
-        <Text style={styles.heroSub}>
-          {deliveredCount > 0
-            ? `${deliveredCount} document${deliveredCount !== 1 ? 's' : ''} delivered so far.`
-            : 'Every service you order and everything a Campus Handler delivers back to you shows up here.'}
-        </Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        backLabel="Home"
+        logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+        eyebrow="MY OUTPUTS"
+        title="Your Completed Documents"
+        subtitle={deliveredCount > 0
+          ? `${deliveredCount} document${deliveredCount !== 1 ? 's' : ''} delivered so far.`
+          : 'Every service you order and everything a Campus Handler delivers back to you shows up here.'}
+        style={styles.heroBlock}
+        titleStyle={styles.heroTitle}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -157,15 +148,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)',
-    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 8 },
-  heroSub:   { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.72)', lineHeight: 19 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, marginBottom: 8 },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed header on native.

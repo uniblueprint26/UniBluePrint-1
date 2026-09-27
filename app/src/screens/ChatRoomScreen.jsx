@@ -20,10 +20,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import {
-  ChevronLeft, MoreVertical, Send, MessageSquare,
+  MoreVertical, Send, MessageSquare,
   Flag, UserX,
 } from 'lucide-react-native'
 
+import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
@@ -128,30 +129,22 @@ export default function ChatRoomScreen({ navigation, route }) {
     >
 
       {/* ── Header ── */}
-      <View style={[s.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-          <Text style={s.backBtnText}>Back</Text>
-        </TouchableOpacity>
-        <View style={s.headerCenter}>
-          <Text style={s.headerTitle} numberOfLines={1}>{roomName || 'Chat'}</Text>
-          {!!subtitle && <Text style={s.headerSub} numberOfLines={1}>{subtitle}</Text>}
-        </View>
-        <TouchableOpacity
-          style={s.moreBtn}
-          onPress={() => setMoreVisible(true)}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          accessibilityRole="button"
-          accessibilityLabel="More options"
-        >
-          <MoreVertical size={18} color="rgba(245,240,232,0.65)" strokeWidth={2} />
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader
+        compact
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        title={roomName || 'Chat'}
+        subtitle={subtitle}
+        rightAccessory={
+          <HeaderIconButton
+            icon={MoreVertical}
+            size={18}
+            color="rgba(245,240,232,0.65)"
+            onPress={() => setMoreVisible(true)}
+            accessibilityLabel="More options"
+          />
+        }
+      />
 
       {/* ── Messages ── */}
       <ScrollView
@@ -295,24 +288,6 @@ export default function ChatRoomScreen({ navigation, route }) {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
-  // Header
-  header: {
-    backgroundColor: colors.navy,
-    paddingHorizontal: spacing.md,
-    paddingBottom: 14,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 10,
-  },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingBottom: 2, flexShrink: 0,
-  },
-  backBtnText:  { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  headerCenter: { flex: 1, alignItems: 'center', paddingBottom: 2 },
-  headerTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream, textAlign: 'center' },
-  headerSub:    { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.55)', marginTop: 2, textAlign: 'center' },
-  moreBtn:      { width: 28, alignItems: 'flex-end', flexShrink: 0, paddingBottom: 2 },
 
   // Message area
   messagesScroll:  { flex: 1 },

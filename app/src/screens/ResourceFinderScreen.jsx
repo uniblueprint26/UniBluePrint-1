@@ -9,7 +9,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, ActivityIndicator, Platform, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, Search, Download, FileText, Image as ImageIcon } from 'lucide-react-native'
+import { Search, Download, FileText, Image as ImageIcon } from 'lucide-react-native'
+import ScreenHeader from '../components/ui/ScreenHeader'
 
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -67,17 +68,15 @@ export default function ResourceFinderScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 80 }} keyboardShouldPersistTaps="handled">
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Course Connect</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.heroIcon}>🔎</Text>
-          <Text style={styles.heroTitle}>Resource Finder</Text>
-          <Text style={styles.heroSub}>Search shared notes and past papers from every Irish college by subject, course, or keyword.</Text>
-        </View>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          backLabel="Course Connect"
+          title="Resource Finder"
+          subtitle="Search shared notes and past papers from every Irish college by subject, course, or keyword."
+          style={styles.heroBlock}
+          titleStyle={styles.heroTitle}
+        />
 
         <View style={styles.content}>
           <View style={styles.searchWrap}>
@@ -139,10 +138,6 @@ export default function ResourceFinderScreen({ navigation }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroIcon: { fontSize: 30, marginBottom: 4 },
   heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
 

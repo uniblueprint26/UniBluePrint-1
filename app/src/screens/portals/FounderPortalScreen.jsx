@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ArrowLeftRight, Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
+  Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
   Sparkles, Plus, Trash2,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
+import ScreenHeader from '../../components/ui/ScreenHeader'
 import ImageUploader from '../../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { formatNumber } from '../../utils/formatNumber'
@@ -263,16 +264,14 @@ export default function FounderPortalScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <View style={styles.headerTopRow}>
-          <Text style={styles.headerEyebrow}>FOUNDER DASHBOARD</Text>
-          <TouchableOpacity style={styles.backLink} activeOpacity={0.75} onPress={backToMyBlueprint}>
-            <ArrowLeftRight size={12} color="rgba(245,240,232,0.6)" strokeWidth={2} />
-            <Text style={styles.backLinkText}>My Blueprint</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.headerTitle}>Platform Overview</Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        eyebrow="FOUNDER DASHBOARD"
+        exitTo={{ label: 'My Blueprint', onPress: backToMyBlueprint }}
+        title="Platform Overview"
+        style={styles.header}
+        titleStyle={styles.headerTitle}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -494,13 +493,6 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
 
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)',
-    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
-  },
-  backLink: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  backLinkText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
   headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },

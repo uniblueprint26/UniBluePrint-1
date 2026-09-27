@@ -4,7 +4,8 @@ import {
   ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, User, CalendarDays, Clock, CheckCircle2 } from 'lucide-react-native'
+import { User, CalendarDays, Clock, CheckCircle2 } from 'lucide-react-native'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -86,13 +87,13 @@ export default function CoachBookingScreen({ route, navigation }) {
   if (sent) {
     return (
       <View style={styles.screen}>
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Profile</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Request Sent</Text>
-        </View>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          title="Request Sent"
+          style={styles.header}
+          titleStyle={styles.headerTitle}
+        />
         <View style={styles.confirmWrap}>
           <View style={styles.confirmIconWrap}>
             <CheckCircle2 size={48} color={colors.gold} strokeWidth={1.5} />
@@ -115,15 +116,15 @@ export default function CoachBookingScreen({ route, navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-          <Text style={styles.backBtnText}>Profile</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerEyebrow}>BOOK A COACH</Text>
-        <Text style={styles.headerTitle}>{coach.name}</Text>
-        <Text style={styles.headerSub}>{coach.category}</Text>
-      </View>
+      <ScreenHeader
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        eyebrow="BOOK A COACH"
+        title={coach.name}
+        subtitle={coach.category}
+        style={styles.header}
+        titleStyle={styles.headerTitle}
+      />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -257,15 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.lg,
   },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 18 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  headerEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
-    textTransform: 'uppercase', marginBottom: 6,
-  },
   headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream },
-  headerSub:   { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.65)', marginTop: 2 },
 
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
