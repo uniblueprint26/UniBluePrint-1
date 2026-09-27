@@ -11,6 +11,10 @@
  * a highlighted border and its button swapped for a "Current Plan" pill
  * instead of a duplicate purchase button.
  *
+ * iOS only (App Store 3.1.1, D1): no purchase buttons, prices or upgrade
+ * copy render for a plan the user doesn't already have — just plan status
+ * and a neutral pointer to uniblueprint.ie. Web and Android are unchanged.
+ *
  * There is no reachable Sign-Up screen from inside the authenticated app —
  * SignUp lives in the separate, mutually-exclusive AuthStack RootNavigator
  * renders only while signed out (see navigation/index.jsx). Anyone who can
@@ -18,7 +22,7 @@
  * that instead of a dead link to a screen that isn't mounted.
  */
 import { useRef, useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Linking, Animated } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Linking, Animated, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check, CheckCircle } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
@@ -31,7 +35,12 @@ const { width: SCREEN_W } = Dimensions.get('window')
 const CARD_W = Math.min(320, SCREEN_W - 64)
 const CARD_GAP = 14
 
+// iOS: no purchase CTAs, prices or upgrade steering in the app (App Store
+// 3.1.1) — plan status only, for v1 (D1). Web and Android are unchanged.
+const IS_IOS = Platform.OS === 'ios'
+
 const FREE_FEATURES = [
+  'Foundation Blueprint (pay-per-service)',
   'Campus Connect (all boards)',
   'Course Connect (all boards)',
   'Mental Health and Wellbeing resources',
@@ -41,7 +50,7 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   'Everything in Free',
-  'Foundation Blueprint (all services)',
+  'Discount + priority queue on Foundation services',
   'Elevation Blueprint (all services)',
   'Lifestyle Blueprint deals access',
   'Priority Handler and Coach assignment',
@@ -96,7 +105,7 @@ export default function PricingScreen({ navigation }) {
         onBack={() => navigation.goBack()}
         eyebrow="TRANSPARENT PRICING"
         title="Simple. Honest. No surprises."
-        subtitle="Free to join. Upgrade only when you're ready."
+        subtitle={IS_IOS ? 'Free to join. See what each plan includes below.' : "Free to join. Upgrade only when you're ready."}
         style={styles.heroBlock}
         titleStyle={styles.heroTitle}
       />
@@ -140,15 +149,21 @@ export default function PricingScreen({ navigation }) {
 
           {/* Pro (monthly) */}
           <View style={[styles.card, { width: CARD_W }, styles.cardGoldBorder, currentPlan === 'pro' && styles.cardHighlightNavy]}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Most Popular</Text>
-            </View>
+            {!IS_IOS && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>Most Popular</Text>
+              </View>
+            )}
             <Text style={styles.planName}>UniBlueprint Pro</Text>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceBig}>€6.99</Text>
-              <Text style={styles.priceSub}>/month</Text>
-            </View>
-            <Text style={styles.priceNote}>Cancel any time</Text>
+            {!IS_IOS && (
+              <>
+                <View style={styles.priceRow}>
+                  <Text style={styles.priceBig}>€6.99</Text>
+                  <Text style={styles.priceSub}>/month</Text>
+                </View>
+                <Text style={styles.priceNote}>Cancel any time</Text>
+              </>
+            )}
 
             <View style={{ marginTop: 20, gap: 10, flex: 1 }}>
               {PRO_FEATURES.map(f => <FeatureRow key={f} text={f} />)}
@@ -156,6 +171,8 @@ export default function PricingScreen({ navigation }) {
 
             {currentPlan === 'pro' ? (
               <CurrentPlanPill />
+            ) : IS_IOS ? (
+              <Text style={styles.iosManageNote}>Manage your plan on uniblueprint.ie</Text>
             ) : (
               <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.85} onPress={openWebsitePricing}>
                 <Text style={styles.ctaBtnText}>Get Pro</Text>
@@ -165,15 +182,21 @@ export default function PricingScreen({ navigation }) {
 
           {/* Premium (annual) */}
           <View style={[styles.card, styles.cardNavy, { width: CARD_W }, currentPlan === 'premium' && styles.cardHighlightGold]}>
-            <View style={styles.badgeLight}>
-              <Text style={styles.badgeLightText}>Best Value</Text>
-            </View>
+            {!IS_IOS && (
+              <View style={styles.badgeLight}>
+                <Text style={styles.badgeLightText}>Best Value</Text>
+              </View>
+            )}
             <Text style={styles.planNameLight}>UniBlueprint Premium</Text>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceBigLight}>€49.99</Text>
-              <Text style={styles.priceSubLight}>/year</Text>
-            </View>
-            <Text style={styles.priceNoteLight}>Less than €1 a week</Text>
+            {!IS_IOS && (
+              <>
+                <View style={styles.priceRow}>
+                  <Text style={styles.priceBigLight}>€49.99</Text>
+                  <Text style={styles.priceSubLight}>/year</Text>
+                </View>
+                <Text style={styles.priceNoteLight}>Less than €1 a week</Text>
+              </>
+            )}
 
             <View style={{ marginTop: 20, gap: 10, flex: 1 }}>
               {PRO_FEATURES.map(f => <FeatureRow key={f} text={f} dim />)}
@@ -181,6 +204,8 @@ export default function PricingScreen({ navigation }) {
 
             {currentPlan === 'premium' ? (
               <CurrentPlanPill light />
+            ) : IS_IOS ? (
+              <Text style={styles.iosManageNoteLight}>Manage your plan on uniblueprint.ie</Text>
             ) : (
               <TouchableOpacity style={styles.ctaBtnLight} activeOpacity={0.85} onPress={openWebsitePricing}>
                 <Text style={styles.ctaBtnLightText}>Get Premium</Text>
@@ -198,7 +223,11 @@ export default function PricingScreen({ navigation }) {
           ))}
         </View>
 
-        <Text style={styles.footNote}>UniBlueprint is not currently VAT-registered, so VAT is not charged. Pro and Premium purchases are completed on uniblueprint.ie.</Text>
+        <Text style={styles.footNote}>
+          {IS_IOS
+            ? 'Manage your plan on uniblueprint.ie.'
+            : 'UniBlueprint is not currently VAT-registered, so VAT is not charged. Pro and Premium purchases are completed on uniblueprint.ie.'}
+        </Text>
       </ScrollView>
     </View>
   )
@@ -258,6 +287,9 @@ const styles = StyleSheet.create({
     marginTop: 22, paddingVertical: 13, borderRadius: radius.button, backgroundColor: 'rgba(30,58,95,0.08)',
   },
   currentPillText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+
+  iosManageNote: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, textAlign: 'center', marginTop: 22 },
+  iosManageNoteLight: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: 'rgba(245,240,232,0.7)', textAlign: 'center', marginTop: 22 },
 
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 7, marginTop: spacing.lg },
   dot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: 'rgba(30,58,95,0.2)' },
