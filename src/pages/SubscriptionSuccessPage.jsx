@@ -60,12 +60,12 @@ export default function SubscriptionSuccessPage() {
                 Welcome to Pro
               </h1>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.6 }}>
-                Your Pro subscription is now active. Foundation Blueprint, Elevation Blueprint, and every other Pro feature live in the UniBlueprint app, open it and sign in with the same email and password to start using them right away.
+                Your Pro subscription is now active. Elevation Blueprint and every other Pro feature live in the UniBlueprint app, open it and sign in with the same email and password to start using them right away.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
                 {[
-                  'Foundation Blueprint services unlocked',
                   'Elevation Blueprint services unlocked',
+                  'Discount + priority queue on Foundation Blueprint services',
                   'Priority Campus Handler and Uni Coach access',
                   'Free trial pricing applies while the trial is active',
                 ].map(item => (

@@ -7,6 +7,7 @@ import CheckoutButton from '../components/pricing/CheckoutButton'
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const FREE_FEATURES = [
+  'Foundation Blueprint (pay-per-service)',
   'Campus Connect (all boards)',
   'Course Connect (all boards)',
   'Mental Health and Wellbeing resources',
@@ -16,7 +17,7 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   'Everything in Free',
-  'Foundation Blueprint (all services)',
+  'Discount + priority queue on Foundation services',
   'Elevation Blueprint (all services)',
   'Lifestyle Blueprint deals access',
   'Priority Handler and Coach assignment',
