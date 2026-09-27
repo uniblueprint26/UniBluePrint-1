@@ -24,18 +24,18 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 // both. Amounts in cents, matching Stripe's unit_amount convention.
 //
 // Trial window during which Pro is 50% off, per the site's own copy
-// (src/pages/FoundationBlueprintPage.jsx: "September trial prices apply
-// throughout September 2026 only. Standard prices resume from 1 October
+// (src/pages/FoundationBlueprintPage.jsx: "launch trial prices apply
+// through 26 November 2026. Standard prices resume from 27 November
 // 2026"; src/pages/FAQsPage.jsx says the same for Pro specifically). This
 // only gates the price charged AT CHECKOUT — an existing subscription's
 // future renewals keep whatever unit_amount was set at signup, same as any
 // Stripe subscription. The blog post's separate "locked until the end of
 // your first billing year" line (src/data/blogPosts.js) implies a monthly
 // trial subscriber should keep the discounted rate for a full year even
-// past 1 October 2026 — that would need a Stripe subscription schedule or
-// a follow-up price change and is NOT implemented here; flagging rather
+// past 26 November 2026 — that would need a Stripe subscription schedule
+// or a follow-up price change and is NOT implemented here; flagging rather
 // than guessing at the exact intended mechanic.
-const TRIAL_ENDS_AT = new Date('2026-10-01T00:00:00Z')
+const TRIAL_ENDS_AT = new Date('2026-11-26T00:00:00Z')
 
 const PRICING: Record<string, { name: string; amount: number; trialAmount: number; interval: 'month' | 'year' }> = {
   pro_monthly: { name: 'UniBlueprint Pro (Monthly)', amount: 699, trialAmount: 350, interval: 'month' },

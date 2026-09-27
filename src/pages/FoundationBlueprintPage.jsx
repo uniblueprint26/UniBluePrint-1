@@ -337,7 +337,7 @@ function TrialBadge() {
       fontSize: '12px', fontWeight: '700',
     }}>
       <Sparkles size={13} />
-      50% OFF — September Trial
+      50% OFF — Launch Trial
     </div>
   )
 }
@@ -518,7 +518,7 @@ function ServiceCard({ name, tagline, description, icon: Icon, bullets, standard
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '11px', color: '#9CA3AF', marginTop: '2px',
       }}>
-        September trial price
+        Launch trial price
       </p>
 
       {ctaHref && (
@@ -1015,7 +1015,7 @@ export default function FoundationBlueprintPage() {
             padding: '14px 24px',
             borderTop: '1px solid rgba(30,58,95,0.06)',
           }}>
-            * September trial prices apply throughout September 2026 only. Standard prices resume from 1 October 2026.
+            * Launch trial prices apply through 26 November 2026. Standard prices resume from 27 November 2026.
           </p>
         </div>
       </section>
@@ -1037,7 +1037,7 @@ export default function FoundationBlueprintPage() {
           fontSize: '16px', color: 'rgba(245,240,232,0.7)',
           marginTop: '12px',
         }}>
-          Free to join. September trial — 50% off everything.
+          Free to join. Launch trial — 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link

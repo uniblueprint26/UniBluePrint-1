@@ -681,7 +681,8 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.membershipEyebrow}>CURRENT PLAN</Text>
               <Text style={styles.membershipTitle}>{membershipLabel}</Text>
             </View>
-            {!isPro && !isComplimentaryPro && (
+            {/* iOS: no purchase CTA in the app (App Store 3.1.1) — plan status only (D1). */}
+            {!isPro && !isComplimentaryPro && Platform.OS !== 'ios' && (
               <TouchableOpacity
                 style={styles.upgradeBtn}
                 activeOpacity={0.8}
@@ -694,7 +695,9 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.membershipSub}>
             {isPro || isComplimentaryPro
               ? 'Thanks for being a member. Manage or change your plan on the UniBlueprint website.'
-              : 'Upgrade to unlock priority coach access and premium document services. Plans and payment are handled securely on the UniBlueprint website, never in the app.'}
+              : Platform.OS === 'ios'
+                ? 'Manage your plan on uniblueprint.ie.'
+                : 'Upgrade to unlock priority coach access and premium document services. Plans and payment are handled securely on the UniBlueprint website, never in the app.'}
           </Text>
         </View>
 

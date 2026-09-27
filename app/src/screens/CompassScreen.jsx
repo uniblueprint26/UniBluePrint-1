@@ -10,7 +10,7 @@
  * release in case paths change.
  */
 
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, ExternalLink,
@@ -24,6 +24,11 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo    from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
+
+// iOS: no purchase CTAs or prices for the CourseCompass bundles (App Store
+// 3.1.1) — the bundles section is hidden entirely for v1 (D1). Web/Android
+// are unchanged, and the free/individual tool links below are unaffected.
+const IS_IOS = Platform.OS === 'ios'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 // All tool names, descriptions, and URLs verified against coursecompass.ie.
@@ -319,47 +324,53 @@ export default function CompassScreen({ navigation }) {
         <View style={s.content}>
 
           {/* ── Featured bundles ── */}
-          <View style={s.toolsHeader}>
-            <Text style={s.toolsEyebrow}>BUNDLES</Text>
-            <Text style={s.toolsTitle}>Save by bundling</Text>
-          </View>
+          {/* iOS: no purchase CTAs or prices in the app — hide the bundles
+              section entirely (D1). */}
+          {!IS_IOS && (
+            <>
+              <View style={s.toolsHeader}>
+                <Text style={s.toolsEyebrow}>BUNDLES</Text>
+                <Text style={s.toolsTitle}>Save by bundling</Text>
+              </View>
 
-          <View style={{ gap: 14, marginBottom: spacing.sm }}>
-            {[BUNDLE, BUNDLE_TWO].map(bundle => (
+              <View style={{ gap: 14, marginBottom: spacing.sm }}>
+                {[BUNDLE, BUNDLE_TWO].map(bundle => (
+                  <TouchableOpacity
+                    key={bundle.name}
+                    activeOpacity={0.88}
+                    style={s.bundleCard}
+                    onPress={() => Linking.openURL(bundle.url)}
+                  >
+                    <View style={s.bundleTop}>
+                      <View style={s.bundleIconBox}>
+                        <Star size={18} color={colors.navy} strokeWidth={2} />
+                      </View>
+                      <View style={s.bundlePricePill}>
+                        <Text style={s.bundlePriceText}>{bundle.price}</Text>
+                      </View>
+                    </View>
+
+                    <Text style={s.bundleName}>{bundle.name}</Text>
+                    <Text style={s.bundleIncludes}>{bundle.includes}</Text>
+
+                    <View style={s.bundleCta}>
+                      <Text style={s.bundleCtaText}>Get the Bundle</Text>
+                      <ChevronRight size={14} color={colors.navy} />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
               <TouchableOpacity
-                key={bundle.name}
-                activeOpacity={0.88}
-                style={s.bundleCard}
-                onPress={() => Linking.openURL(bundle.url)}
+                activeOpacity={0.7}
+                style={s.sampleLink}
+                onPress={() => Linking.openURL('https://coursecompass.ie/sample-results/overview')}
               >
-                <View style={s.bundleTop}>
-                  <View style={s.bundleIconBox}>
-                    <Star size={18} color={colors.navy} strokeWidth={2} />
-                  </View>
-                  <View style={s.bundlePricePill}>
-                    <Text style={s.bundlePriceText}>{bundle.price}</Text>
-                  </View>
-                </View>
-
-                <Text style={s.bundleName}>{bundle.name}</Text>
-                <Text style={s.bundleIncludes}>{bundle.includes}</Text>
-
-                <View style={s.bundleCta}>
-                  <Text style={s.bundleCtaText}>Get the Bundle</Text>
-                  <ChevronRight size={14} color={colors.navy} />
-                </View>
+                <Text style={s.sampleLinkText}>See a real sample result before you buy</Text>
+                <ChevronRight size={13} color={colors.navy} />
               </TouchableOpacity>
-            ))}
-          </View>
-
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={s.sampleLink}
-            onPress={() => Linking.openURL('https://coursecompass.ie/sample-results/overview')}
-          >
-            <Text style={s.sampleLinkText}>See a real sample result before you buy</Text>
-            <ChevronRight size={13} color={colors.navy} />
-          </TouchableOpacity>
+            </>
+          )}
 
           {/* ── Individual tools ── */}
           <View style={[s.toolsHeader, { marginTop: spacing.xl }]}>
