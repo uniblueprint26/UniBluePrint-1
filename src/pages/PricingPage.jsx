@@ -23,18 +23,27 @@ const PRO_FEATURES = [
   'Discount on service bundles',
 ]
 
+// `href`, where present, is that service's actual Foundation Blueprint
+// builder page (see src/pages/foundation/ and its routes in App.jsx) — a
+// signed-out visitor still lands on /sign-in first (ProtectedRoute), then
+// continues straight to the builder they clicked, rather than a bare
+// /sign-up with no memory of which service they wanted. Rows with no
+// dedicated builder page (no clean 1:1 route) omit `href` and fall back to
+// the general Foundation/Elevation Blueprint page at render time — there is
+// no per-service builder under Elevation Blueprint at all yet, so every
+// elevation row falls back.
 const PRICING_ROWS = {
   foundation: [
-    { name: 'CV Optimisation',             std: '€20',      trial: '€10'      },
-    { name: 'LinkedIn Optimisation',        std: '€20',      trial: '€10'      },
-    { name: 'Cover Letter Assistance',      std: '€20',      trial: '€10'      },
-    { name: 'Application Form Assistance',  std: 'From €20', trial: 'From €10' },
-    { name: 'Interview Preparation',        std: 'From €20', trial: 'From €10' },
-    { name: 'Job Search Support',           std: '€15',      trial: '€8'       },
-    { name: 'CAO Personal Statement',       std: '€20',      trial: '€10'      },
-    { name: 'College Interview Prep',       std: '€20',      trial: '€10'      },
-    { name: 'Scholarship and Grants',       std: '€20',      trial: '€10'      },
-    { name: 'Course Selection Guidance',    std: '€15',      trial: '€8'       },
+    { name: 'CV Optimisation',             std: '€20',      trial: '€10',      href: '/foundation/cv-builder' },
+    { name: 'LinkedIn Optimisation',        std: '€20',      trial: '€10',      href: '/foundation/linkedin-optimisation' },
+    { name: 'Cover Letter Assistance',      std: '€20',      trial: '€10',      href: '/foundation/cover-letter' },
+    { name: 'Application Form Assistance',  std: 'From €20', trial: 'From €10', href: '/foundation/application-form-assistance' },
+    { name: 'Interview Preparation',        std: 'From €20', trial: 'From €10', href: '/foundation/interview-preparation' },
+    { name: 'Job Search Support',           std: '€15',      trial: '€8',       href: '/foundation/job-search-support' },
+    { name: 'CAO Personal Statement',       std: '€20',      trial: '€10',      href: '/foundation/personal-statement' },
+    { name: 'College Interview Prep',       std: '€20',      trial: '€10' },
+    { name: 'Scholarship and Grants',       std: '€20',      trial: '€10' },
+    { name: 'Course Selection Guidance',    std: '€15',      trial: '€8'  },
   ],
   elevation: [
     { name: 'Personal Branding Support',        std: '€40', trial: '€20' },
@@ -45,6 +54,8 @@ const PRICING_ROWS = {
     { name: 'Personal Statement and Postgrad',  std: '€30', trial: '€15' },
   ],
 }
+
+const FALLBACK_SERVICE_LINK = { foundation: '/foundation-blueprint', elevation: '/elevation-blueprint' }
 
 const FAQS = [
   {
@@ -573,7 +584,7 @@ export default function PricingPage() {
                     {row.trial}
                   </span>
                   <Link
-                    to="/sign-up"
+                    to={row.href || FALLBACK_SERVICE_LINK[tab]}
                     style={{
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       padding: '6px 12px',
