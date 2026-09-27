@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, Linking,
-  Animated, Dimensions, StyleSheet,
+  Animated, Dimensions, StyleSheet, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -163,10 +163,14 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
               ? 'You have full access. Every Lifestyle Partner deal is unlocked, not just Mental Health.'
               : 'Pro unlocks every Lifestyle Partner deal on the platform, not just Mental Health, which is always free for everyone.'}
           </Text>
-          {!isPro && (
+          {/* iOS: no purchase CTA in the app (App Store 3.1.1) — status only (D1). */}
+          {!isPro && Platform.OS !== 'ios' && (
             <TouchableOpacity style={styles.postPageCta} activeOpacity={0.85} onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
               <Text style={styles.postPageCtaText}>Upgrade to Pro</Text>
             </TouchableOpacity>
+          )}
+          {!isPro && Platform.OS === 'ios' && (
+            <Text style={[styles.postPageBody, { fontSize: 12.5, opacity: 0.7 }]}>Manage your plan on uniblueprint.ie</Text>
           )}
           <View style={{ flex: 1 }} />
         </LinearGradient>
