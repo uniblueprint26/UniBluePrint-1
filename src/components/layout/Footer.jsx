@@ -231,15 +231,14 @@ export default function Footer() {
           <div className="footer-bottom">
             {/* Left, copyright */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-              &copy; 2026 UniBlueprint Ltd. All rights reserved.
+              &copy; 2026 UniBlueprint Limited. All rights reserved.
             </span>
 
             {/* Centre, registered territory */}
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-              Registered in Ireland
+              UniBlueprint Limited, company no. 826545, registered office Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland.
             </span>
 
-            {/* Right, placeholder until incorporated */}
             <div className="footer-legal-right">
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
                 uniblueprintoperations@gmail.com
