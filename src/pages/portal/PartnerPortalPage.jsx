@@ -1,9 +1,27 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet-async'
 import {
-  ShieldCheck, Eye, Ticket, Percent, TrendingUp, TrendingDown,
-  GraduationCap, Lock, Instagram, Mail, Dumbbell,
+  ShieldCheck, Eye, Ticket, Percent, Lock, Mail, Tag, AlertCircle, Clock3,
 } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+
+// Real data, sourced from supabase/migrations/20260810120100_portals_operations_schema.sql
+// (partner_users, get_my_partner_stats(), partner_category_benchmark()) plus
+// 20260927180000_partner_portal_own_deals_policy.sql, which lets a business
+// user read their own deals row directly. This used to be a hardcoded DEMO
+// object inventing a fictional business's numbers -- every real partner was
+// seeing that same fake company's stats presented as their own. See
+// docs/audits/2026-09-26-website-product-audit.md, P0-4.
+//
+// No day-by-day or week-by-week trend here on purpose, same reasoning as
+// FounderDashboardPage: there is no historical snapshot table for a
+// partner's views/claims yet, and no per-institution or per-day breakdown a
+// business role is allowed to read (activity_events' own RLS only lets a
+// user read their own rows, not another user's view/claim event, even
+// filtered to "about my listing"). Rather than fabricate a trend or a
+// breakdown the data can't actually support, those sections show an honest
+// "Coming soon" -- same pattern used for CoachStudioScreen's Client Activity
+// fix in the app.
 
 // ─── Design tokens (matches site-wide system) ──────────────────────────────────
 const NAVY   = '#1E3A5F'
@@ -18,101 +36,18 @@ const CARD_SHADOW = '0px 2px 12px rgba(30,58,95,0.08)'
 const SERIF = "'DM Serif Display', serif"
 const SANS  = "'DM Sans', sans-serif"
 
-// DEMO DATA, replace with a live Supabase query scoped to the logged-in partner's own partner_id once the analytics schema is populated
-const DEMO = {
-  partner: {
-    name: 'MPFitness',
-    category: 'Fitness',
-    initials: 'MP',
-    initBg: '#15803D',
-    instagram: 'milanpir_fitness',
-  },
-  ranges: {
-    week: {
-      label: 'This Week',
-      previousLabel: 'vs last week',
-      views: 214,
-      viewsDeltaPct: 9,
-      claims: 15,
-      claimsDeltaPct: 25,
-      ctrPct: 7.0,
-      ctrDeltaPp: 1.1,
-      viewsSeries: [
-        { label: 'Mon', value: 24 },
-        { label: 'Tue', value: 28 },
-        { label: 'Wed', value: 35 },
-        { label: 'Thu', value: 30 },
-        { label: 'Fri', value: 38 },
-        { label: 'Sat', value: 33 },
-        { label: 'Sun', value: 26 },
-      ],
-    },
-    month: {
-      label: 'This Month',
-      previousLabel: 'vs last month',
-      views: 3180,
-      viewsDeltaPct: 14,
-      claims: 224,
-      claimsDeltaPct: 18,
-      ctrPct: 7.0,
-      ctrDeltaPp: 0.4,
-      viewsSeries: [
-        { label: 'Week 1', value: 690 },
-        { label: 'Week 2', value: 740 },
-        { label: 'Week 3', value: 815 },
-        { label: 'Week 4', value: 935 },
-      ],
-    },
-    all: {
-      label: 'All Time',
-      previousLabel: 'vs prior 90 days',
-      views: 28460,
-      viewsDeltaPct: 22,
-      claims: 1860,
-      claimsDeltaPct: 19,
-      ctrPct: 6.5,
-      ctrDeltaPp: 0.2,
-      viewsSeries: [
-        { label: 'Mar', value: 3450 },
-        { label: 'Apr', value: 3820 },
-        { label: 'May', value: 4010 },
-        { label: 'Jun', value: 4460 },
-        { label: 'Jul', value: 4890 },
-        { label: 'Aug', value: 5230 },
-      ],
-    },
-  },
-  // Top institutions claiming this deal, last 30 days
-  engagementByInstitution: [
-    { name: 'University College Dublin', claims: 68 },
-    { name: 'Dublin City University',    claims: 45 },
-    { name: 'Trinity College Dublin',    claims: 34 },
-    { name: 'Maynooth University',       claims: 27 },
-    { name: 'All other institutions',    claims: 50 },
-  ],
-  // Redemption claims by day of week, last 30 days
-  redemptionByDay: [
-    { day: 'Mon', claims: 50 },
-    { day: 'Tue', claims: 27 },
-    { day: 'Wed', claims: 43 },
-    { day: 'Thu', claims: 25 },
-    { day: 'Fri', claims: 21 },
-    { day: 'Sat', claims: 34 },
-    { day: 'Sun', claims: 24 },
-  ],
-  // Anonymized category benchmarking, Fitness category, this month
-  comparison: {
-    rankPercentile: 20,
-    engagementMultiplier: 1.4,
-    yourViewsPerWeek: 740,
-    categoryMedianViewsPerWeek: 560,
-    yourRedemptionRatePct: 7.0,
-    categoryAvgRedemptionRatePct: 5.1,
-  },
-  deal: {
-    dealLabel: '20% off your first personal training package',
-    description: 'Certified Personal Trainer and Advanced Nutrition Coach. Full client packages built around your goals, lifestyle, and schedule, combining personalised training with nutrition coaching.',
-  },
+const EMPTY_STATS = { views: 0, claims: 0, uniqueEngagedUsers: 0 }
+
+function fmt(n) {
+  if (n === null || n === undefined) return '—'
+  return Number(n).toLocaleString('en-IE')
+}
+
+// partners.type is a lowercase slug ('fitness', 'mental-health', ...) --
+// this is display formatting only, not a source of truth for the value.
+function formatCategoryLabel(type) {
+  if (!type) return 'Lifestyle'
+  return type.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
 
 // ─── Small shared bits ──────────────────────────────────────────────────────────
@@ -139,24 +74,9 @@ function Card({ children, style = {} }) {
   )
 }
 
-function TrendBadge({ deltaValue, deltaLabel, suffix = '%' }) {
-  const positive = deltaValue >= 0
-  const color = positive ? GREEN : RED
-  const Icon = positive ? TrendingUp : TrendingDown
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-      <Icon size={13} color={color} strokeWidth={2.4} />
-      <span style={{ fontFamily: SANS, fontSize: '12px', fontWeight: '700', color }}>
-        {positive ? '+' : ''}{deltaValue}{suffix}
-      </span>
-      <span style={{ fontFamily: SANS, fontSize: '11px', color: MUTED }}>{deltaLabel}</span>
-    </div>
-  )
-}
+// ─── Stat tile row (all-time counts, no fabricated delta) ──────────────────────
 
-// ─── Stat tile row ───────────────────────────────────────────────────────────────
-
-function StatTile({ icon: Icon, label, value, deltaValue, deltaLabel, suffix }) {
+function StatTile({ icon: Icon, label, value, caption }) {
   return (
     <Card style={{ padding: '22px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -171,195 +91,37 @@ function StatTile({ icon: Icon, label, value, deltaValue, deltaLabel, suffix }) 
       <p style={{ fontFamily: SERIF, fontSize: '34px', color: NAVY, marginTop: '14px', lineHeight: 1 }}>
         {value}
       </p>
-      <div style={{ marginTop: '10px' }}>
-        <TrendBadge deltaValue={deltaValue} deltaLabel={deltaLabel} suffix={suffix} />
-      </div>
+      {caption && (
+        <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED, marginTop: '10px' }}>{caption}</p>
+      )}
     </Card>
   )
 }
 
-// ─── Views over time chart (SVG line + area, single hue, hover crosshair) ───────
+// ─── Coming soon placeholder for a section the real schema can't back yet ─────
 
-function niceCeil(n) {
-  if (n <= 0) return 10
-  const magnitude = Math.pow(10, Math.floor(Math.log10(n)))
-  const step = magnitude / 2
-  return Math.ceil(n / step) * step
-}
-
-function ViewsChart({ series, periodLabel }) {
-  const [hoverIdx, setHoverIdx] = useState(null)
-  const width = 720
-  const height = 220
-  const padL = 44, padR = 16, padT = 16, padB = 30
-  const plotW = width - padL - padR
-  const plotH = height - padT - padB
-
-  const maxVal = useMemo(() => niceCeil(Math.max(...series.map(d => d.value)) * 1.15), [series])
-  const n = series.length
-
-  const points = series.map((d, i) => {
-    const x = padL + (n === 1 ? 0 : (i / (n - 1)) * plotW)
-    const y = padT + plotH - (d.value / maxVal) * plotH
-    return { ...d, x, y }
-  })
-
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
-  const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(padT + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`
-
-  const gridLines = [0, 0.25, 0.5, 0.75, 1]
-
-  function handleMove(e) {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const relX = ((e.clientX - rect.left) / rect.width) * width
-    let closest = 0
-    let closestDist = Infinity
-    points.forEach((p, i) => {
-      const dist = Math.abs(p.x - relX)
-      if (dist < closestDist) { closestDist = dist; closest = i }
-    })
-    setHoverIdx(closest)
-  }
-
-  const hovered = hoverIdx !== null ? points[hoverIdx] : null
-
+function ComingSoonCard({ title, message }) {
   return (
-    <div style={{ position: 'relative' }}>
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        style={{ width: '100%', height: 'auto', display: 'block' }}
-        onMouseMove={handleMove}
-        onMouseLeave={() => setHoverIdx(null)}
-        role="img"
-        aria-label={`Views over time for ${periodLabel}`}
-      >
-        {gridLines.map(g => {
-          const y = padT + plotH - g * plotH
-          return (
-            <g key={g}>
-              <line x1={padL} x2={width - padR} y1={y} y2={y} stroke="rgba(30,58,95,0.08)" strokeWidth="1" />
-              <text x={padL - 8} y={y + 3} textAnchor="end" fontFamily={SANS} fontSize="10" fill={MUTED}>
-                {Math.round(maxVal * g).toLocaleString()}
-              </text>
-            </g>
-          )
-        })}
-
-        <path d={areaPath} fill="rgba(30,58,95,0.10)" stroke="none" />
-        <path d={linePath} fill="none" stroke={NAVY} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-
-        {points.map((p, i) => (
-          <text key={p.label} x={p.x} y={height - 6} textAnchor="middle" fontFamily={SANS} fontSize="10" fill={MUTED}>
-            {i === 0 || i === points.length - 1 || i === hoverIdx ? p.label : (n <= 8 ? p.label : '')}
-          </text>
-        ))}
-
-        {/* end point marker */}
-        <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="4" fill={NAVY} stroke="#FFFFFF" strokeWidth="2" />
-
-        {hovered && (
-          <>
-            <line x1={hovered.x} x2={hovered.x} y1={padT} y2={padT + plotH} stroke="rgba(30,58,95,0.25)" strokeWidth="1" />
-            <circle cx={hovered.x} cy={hovered.y} r="4" fill={NAVY} stroke="#FFFFFF" strokeWidth="2" />
-          </>
-        )}
-      </svg>
-
-      {hovered && (
-        <div style={{
-          position: 'absolute', top: '4px',
-          left: `${Math.min(Math.max((hovered.x / width) * 100, 10), 90)}%`,
-          transform: 'translateX(-50%)',
-          background: NAVY, color: CREAM, borderRadius: '8px', padding: '6px 10px',
-          fontFamily: SANS, fontSize: '11px', whiteSpace: 'nowrap', pointerEvents: 'none',
-          boxShadow: CARD_SHADOW,
-        }}>
-          <strong style={{ fontWeight: 700 }}>{hovered.value.toLocaleString()}</strong> views &middot; {hovered.label}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Ranked bar list (member engagement by institution) ────────────────────────
-
-function RankBar({ name, claims, maxClaims, rank }) {
-  const pctWidth = Math.max((claims / maxClaims) * 100, 4)
-  return (
-    <div style={{ marginBottom: '14px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px', gap: '10px' }}>
-        <span style={{ fontFamily: SANS, fontSize: '13px', color: NAVY, fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-          <span style={{
-            fontFamily: SANS, fontSize: '10px', fontWeight: '700', color: MUTED,
-            width: '14px', flexShrink: 0,
-          }}>
-            {rank}
-          </span>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
-        </span>
-        <span style={{ fontFamily: SANS, fontSize: '12px', color: GREY, flexShrink: 0 }}>{claims} claims</span>
+    <Card>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+        <Clock3 size={17} color={NAVY} />
+        <p style={{ fontFamily: SERIF, fontSize: '19px', color: NAVY }}>{title}</p>
       </div>
-      <div style={{ height: '8px', borderRadius: '4px', background: 'rgba(30,58,95,0.07)', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pctWidth}%`, borderRadius: '4px', background: NAVY }} />
-      </div>
-    </div>
+      <p style={{
+        fontFamily: SANS, fontSize: '11px', fontWeight: '700', color: AMBER,
+        textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '10px', marginBottom: '10px',
+      }}>
+        Coming soon
+      </p>
+      <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, lineHeight: 1.65 }}>{message}</p>
+    </Card>
   )
 }
 
-// ─── Redemption by day of week (small bar chart) ────────────────────────────────
+// ─── Comparison paired bar (you vs anonymized category average/median) ────────
 
-function DayOfWeekChart({ data }) {
-  const [hoverIdx, setHoverIdx] = useState(null)
-  const maxClaims = Math.max(...data.map(d => d.claims))
-  const peakIdx = data.findIndex(d => d.claims === maxClaims)
-  const barMaxHeight = 110
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', height: `${barMaxHeight + 44}px`, paddingTop: '20px' }}>
-      {data.map((d, i) => {
-        const h = Math.max((d.claims / maxClaims) * barMaxHeight, 6)
-        const isPeak = i === peakIdx
-        return (
-          <div
-            key={d.day}
-            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}
-            onMouseEnter={() => setHoverIdx(i)}
-            onMouseLeave={() => setHoverIdx(null)}
-          >
-            {isPeak && (
-              <span style={{
-                fontFamily: SANS, fontSize: '9px', fontWeight: '700', color: GREEN,
-                textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px', whiteSpace: 'nowrap',
-              }}>
-                Busiest
-              </span>
-            )}
-            {hoverIdx === i && (
-              <div style={{
-                position: 'absolute', bottom: `${h + 26}px`,
-                background: NAVY, color: CREAM, borderRadius: '6px', padding: '4px 8px',
-                fontFamily: SANS, fontSize: '11px', whiteSpace: 'nowrap', boxShadow: CARD_SHADOW, zIndex: 1,
-              }}>
-                <strong>{d.claims}</strong> claims
-              </div>
-            )}
-            <div style={{
-              width: '22px', maxWidth: '24px', height: `${h}px`, borderRadius: '4px 4px 0 0',
-              background: NAVY, opacity: isPeak ? 1 : 0.5,
-              transition: 'opacity 150ms',
-            }} />
-            <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY, marginTop: '8px' }}>{d.day}</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// ─── Comparison paired bar (you vs anonymized category average) ────────────────
-
-function ComparisonBar({ label, yourValue, categoryValue, suffix = '', captionPrefix }) {
-  const maxV = Math.max(yourValue, categoryValue) * 1.1
+function ComparisonBar({ label, yourValue, categoryValue, categoryLabel = 'Category average', suffix = '', captionPrefix }) {
+  const maxV = Math.max(yourValue, categoryValue, 1) * 1.1
   const yourPct = (yourValue / maxV) * 100
   const catPct = (categoryValue / maxV) * 100
   return (
@@ -372,17 +134,17 @@ function ComparisonBar({ label, yourValue, categoryValue, suffix = '', captionPr
           <div style={{ height: '100%', width: `${yourPct}%`, borderRadius: '5px', background: NAVY }} />
         </div>
         <span style={{ fontFamily: SANS, fontSize: '12px', fontWeight: '700', color: NAVY, width: '52px', textAlign: 'right', flexShrink: 0 }}>
-          {yourValue}{suffix}
+          {Number.isFinite(yourValue) ? `${Math.round(yourValue * 10) / 10}${suffix}` : '—'}
         </span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY, width: '108px', flexShrink: 0 }}>Category average</span>
+        <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY, width: '108px', flexShrink: 0 }}>{categoryLabel}</span>
         <div style={{ flex: 1, height: '10px', borderRadius: '5px', background: 'rgba(30,58,95,0.07)', overflow: 'hidden' }}>
           <div style={{ height: '100%', width: `${catPct}%`, borderRadius: '5px', background: AMBER }} />
         </div>
         <span style={{ fontFamily: SANS, fontSize: '12px', fontWeight: '700', color: '#B45309', width: '52px', textAlign: 'right', flexShrink: 0 }}>
-          {categoryValue}{suffix}
+          {Number.isFinite(categoryValue) ? `${Math.round(categoryValue * 10) / 10}${suffix}` : '—'}
         </span>
       </div>
 
@@ -395,7 +157,7 @@ function ComparisonBar({ label, yourValue, categoryValue, suffix = '', captionPr
 
 const PAGE_STYLES = `
   .ppp-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .ppp-split-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; align-items: stretch; }
+  .ppp-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch; }
   .ppp-highlight-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .ppp-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
   @media (max-width: 820px) {
@@ -410,11 +172,338 @@ const PAGE_STYLES = `
 // ─── Page ────────────────────────────────────────────────────────────────────────
 
 export default function PartnerPortalPage() {
-  const [range, setRange] = useState('month')
-  const data = DEMO.ranges[range]
-  const { engagementByInstitution, redemptionByDay, comparison, deal, partner } = DEMO
-  const maxInstitutionClaims = Math.max(...engagementByInstitution.map(e => e.claims))
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [notLinked, setNotLinked] = useState(false)
 
+  const [partner, setPartner] = useState(null)
+  const [deal, setDeal] = useState(null)
+  const [stats, setStats] = useState(EMPTY_STATS)
+  const [benchmark, setBenchmark] = useState(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    setNotLinked(false)
+    try {
+      // Who am I, as a partner? A business user with no row here can log in
+      // but the portal has nothing to scope to -- that's a setup error on
+      // our side, shown honestly below, not a silent empty dashboard.
+      const { data: partnerUser, error: partnerUserError } = await supabase
+        .from('partner_users')
+        .select('partner_id')
+        .limit(1)
+        .maybeSingle()
+      if (partnerUserError) throw partnerUserError
+
+      if (!partnerUser) {
+        setNotLinked(true)
+        setLoading(false)
+        return
+      }
+
+      const [partnerRes, dealRes, statsRes] = await Promise.all([
+        supabase.from('partners').select('id, name, type, logo_url, verified').eq('id', partnerUser.partner_id).maybeSingle(),
+        supabase.from('deals')
+          .select('id, title, description, discount_percent, active')
+          .eq('partner_id', partnerUser.partner_id)
+          .order('active', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase.rpc('get_my_partner_stats'),
+      ])
+      if (partnerRes.error) throw partnerRes.error
+      if (dealRes.error) throw dealRes.error
+      if (statsRes.error) throw statsRes.error
+
+      const partnerRow = partnerRes.data
+      setPartner(partnerRow)
+      setDeal(dealRes.data || null)
+
+      const statsRow = statsRes.data?.[0]
+      setStats(statsRow
+        ? { views: statsRow.views || 0, claims: statsRow.claims || 0, uniqueEngagedUsers: statsRow.unique_engaged_users || 0 }
+        : EMPTY_STATS)
+
+      // Anonymized category benchmark -- only ever an aggregate across other
+      // partners in the same category, never another partner's individual
+      // numbers (see partner_category_benchmark()'s own comment).
+      if (partnerRow?.type) {
+        const { data: benchmarkData, error: benchmarkError } = await supabase
+          .rpc('partner_category_benchmark', { _category: partnerRow.type })
+        if (benchmarkError) throw benchmarkError
+        const row = benchmarkData?.[0]
+        setBenchmark(row && row.avg_views != null
+          ? { avgViews: Number(row.avg_views), avgClaims: Number(row.avg_claims) || 0, medianViews: Number(row.median_views) || 0 }
+          : null)
+      } else {
+        setBenchmark(null)
+      }
+    } catch (err) {
+      setError(err.message || 'Could not load your Partner Portal data.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  if (loading) {
+    return (
+      <PageShell>
+        <Card style={{ textAlign: 'center' }}>
+          <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY }}>Loading your Partner Portal…</p>
+        </Card>
+      </PageShell>
+    )
+  }
+
+  if (error) {
+    return (
+      <PageShell>
+        <Card style={{ border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <p style={{ fontFamily: SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={15} /> {error}
+          </p>
+        </Card>
+      </PageShell>
+    )
+  }
+
+  if (notLinked) {
+    return (
+      <PageShell>
+        <Card style={{ textAlign: 'center' }}>
+          <ShieldCheck size={22} color={MUTED} style={{ marginBottom: '10px' }} />
+          <p style={{ fontFamily: SERIF, fontSize: '20px', color: NAVY, marginBottom: '8px' }}>Not linked to a partner yet</p>
+          <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, lineHeight: 1.65, maxWidth: '440px', margin: '0 auto' }}>
+            Your account isn't linked to a partner listing yet, so there's nothing to show here. Contact your Partnership Contact or uniblueprintoperations@gmail.com to get set up.
+          </p>
+        </Card>
+      </PageShell>
+    )
+  }
+
+  const categoryLabel = formatCategoryLabel(partner?.type)
+  const redemptionRatePct = stats.views > 0 ? (stats.claims / stats.views) * 100 : null
+  const categoryAvgRedemptionRatePct = benchmark && benchmark.avgViews > 0
+    ? (benchmark.avgClaims / benchmark.avgViews) * 100
+    : null
+  const viewsMultiplier = benchmark && benchmark.avgViews > 0 ? stats.views / benchmark.avgViews : null
+  const redemptionDeltaPp = redemptionRatePct != null && categoryAvgRedemptionRatePct != null
+    ? redemptionRatePct - categoryAvgRedemptionRatePct
+    : null
+
+  const isMentalHealth = partner?.type === 'mental-health'
+  const initials = (partner?.name || '?')
+    .split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+
+  return (
+    <PageShell>
+      {/* ── HEADER ─────────────────────────────────────────────────────── */}
+      <Card style={{ marginBottom: '24px' }}>
+        <div className="ppp-header-row">
+          <div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: SAND, borderRadius: '20px', padding: '5px 12px', marginBottom: '14px',
+            }}>
+              <ShieldCheck size={13} color={NAVY} />
+              <span style={{ fontFamily: SANS, fontSize: '11px', fontWeight: '600', color: NAVY }}>
+                Logged in as {partner?.name || 'your business'} &middot; Partner Portal
+              </span>
+            </div>
+            <h1 style={{ fontFamily: SERIF, fontSize: '32px', color: NAVY, lineHeight: 1.15 }}>
+              Welcome back, {partner?.name || 'partner'}.
+            </h1>
+            <p style={{ fontFamily: SANS, fontSize: '14px', color: GREY, marginTop: '8px', maxWidth: '520px', lineHeight: 1.6 }}>
+              Here is how your Lifestyle Blueprint listing is performing, and how it compares to other {categoryLabel} partners on the platform.
+            </p>
+          </div>
+
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            background: SAND, borderRadius: '10px', padding: '8px 14px', flexShrink: 0,
+          }}>
+            <span style={{ fontFamily: SANS, fontSize: '12px', fontWeight: '600', color: NAVY }}>All-time performance</span>
+          </div>
+        </div>
+      </Card>
+
+      {/* ── YOUR LISTING PERFORMANCE ──────────────────────────────────── */}
+      <div style={{ marginBottom: '10px' }}>
+        <SectionLabel>Your listing performance &middot; All time</SectionLabel>
+      </div>
+      <div className="ppp-stat-grid" style={{ marginBottom: '24px' }}>
+        <StatTile icon={Eye} label="Views" value={fmt(stats.views)} />
+        <StatTile icon={Ticket} label="Deal claims" value={fmt(stats.claims)} />
+        <StatTile
+          icon={Percent} label="Redemption rate"
+          value={redemptionRatePct != null ? `${redemptionRatePct.toFixed(1)}%` : '—'}
+          caption={redemptionRatePct == null ? 'Not enough data yet -- shows once your listing has views.' : 'Share of views that turned into a claim.'}
+        />
+      </div>
+
+      {/* ── VIEWS OVER TIME (no history table yet -- honest placeholder) ─ */}
+      <div style={{ marginBottom: '24px' }}>
+        <ComingSoonCard
+          title="Views over time"
+          message="A day-by-day trend needs a historical snapshot we don't record yet. Once we do, you'll see how your views move week to week here."
+        />
+      </div>
+
+      {/* ── MEMBER ENGAGEMENT + REDEMPTION BY DAY (same reason) ─────────── */}
+      <div className="ppp-split-grid" style={{ marginBottom: '24px' }}>
+        <ComingSoonCard
+          title="Member engagement"
+          message="A breakdown of which institutions your claims come from isn't available yet -- claim events aren't currently linked to institution data."
+        />
+        <ComingSoonCard
+          title="Redemption by day"
+          message="Which days your deal gets claimed most isn't available yet -- useful for staffing, and on our list to add."
+        />
+      </div>
+
+      {/* ── HOW YOU COMPARE ───────────────────────────────────────────── */}
+      <div style={{ marginBottom: '10px' }}>
+        <SectionLabel>How you compare</SectionLabel>
+      </div>
+      {!benchmark ? (
+        <Card style={{ marginBottom: '24px' }}>
+          <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, lineHeight: 1.65 }}>
+            Not enough other {categoryLabel} partners yet for an anonymized category comparison. This section will fill in as more {categoryLabel} listings go live.
+          </p>
+        </Card>
+      ) : (
+        <Card style={{ marginBottom: '24px' }}>
+          <div className="ppp-highlight-grid" style={{ marginBottom: '24px' }}>
+            <div style={{ background: 'rgba(22,163,74,0.08)', borderRadius: '12px', padding: '18px 20px' }}>
+              <p style={{ fontFamily: SERIF, fontSize: '26px', color: GREEN }}>
+                {viewsMultiplier != null ? `${viewsMultiplier.toFixed(1)}x` : '—'}
+              </p>
+              <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, marginTop: '6px', lineHeight: 1.55 }}>
+                {viewsMultiplier != null
+                  ? `Your all-time views are ${viewsMultiplier.toFixed(1)}x the ${categoryLabel} category average.`
+                  : 'Not enough category data yet.'}
+              </p>
+            </div>
+            <div style={{ background: 'rgba(30,58,95,0.06)', borderRadius: '12px', padding: '18px 20px' }}>
+              <p style={{ fontFamily: SERIF, fontSize: '26px', color: NAVY }}>
+                {redemptionDeltaPp != null ? `${redemptionDeltaPp >= 0 ? '+' : ''}${redemptionDeltaPp.toFixed(1)}pp` : '—'}
+              </p>
+              <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, marginTop: '6px', lineHeight: 1.55 }}>
+                {redemptionDeltaPp != null
+                  ? `Your redemption rate is ${redemptionDeltaPp >= 0 ? 'above' : 'below'} the ${categoryLabel} category average.`
+                  : 'Not enough data yet to compare your redemption rate.'}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: NAVY }} />
+            <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY }}>You</span>
+            <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: AMBER, marginLeft: '10px' }} />
+            <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY }}>Category average</span>
+          </div>
+
+          <ComparisonBar
+            label="Views (all time)"
+            yourValue={stats.views}
+            categoryValue={benchmark.medianViews}
+            categoryLabel="Category median"
+            captionPrefix={`Category median all-time views: ${fmt(Math.round(benchmark.medianViews))}. Your all-time views: ${fmt(stats.views)}.`}
+          />
+          <ComparisonBar
+            label="Redemption rate"
+            yourValue={redemptionRatePct ?? 0}
+            categoryValue={categoryAvgRedemptionRatePct ?? 0}
+            suffix="%"
+          />
+
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '22px',
+            paddingTop: '18px', borderTop: '1px solid rgba(30,58,95,0.08)',
+          }}>
+            <Lock size={13} color={MUTED} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED, lineHeight: 1.6 }}>
+              Comparisons are anonymized category averages. We never share another partner's individual performance data or name them directly.
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {/* ── YOUR DEAL, AS MEMBERS SEE IT ──────────────────────────────── */}
+      <div style={{ marginBottom: '10px' }}>
+        <SectionLabel>Your deal, as members see it</SectionLabel>
+      </div>
+      <Card style={{ marginBottom: '24px', maxWidth: '380px' }}>
+        {!deal ? (
+          <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, lineHeight: 1.65 }}>
+            You don't have a deal listed yet. Contact your Partnership Contact to get one live in the Lifestyle Blueprint tab.
+          </p>
+        ) : (
+          <div style={{ position: 'relative' }}>
+            {!isMentalHealth && (
+              <span style={{
+                position: 'absolute', top: '-4px', right: '-4px',
+                background: NAVY, color: CREAM, borderRadius: '4px', padding: '3px 8px',
+                fontFamily: SANS, fontSize: '10px', fontWeight: '700',
+              }}>
+                Pro Deal
+              </span>
+            )}
+
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '12px', background: NAVY,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontFamily: SERIF, fontSize: '18px', color: '#FFFFFF' }}>{initials}</span>
+            </div>
+
+            <p style={{ fontFamily: SERIF, fontSize: '20px', color: NAVY, marginTop: '14px' }}>{partner?.name}</p>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+              <span style={{ background: SAND, color: NAVY, borderRadius: '6px', padding: '3px 10px', fontFamily: SANS, fontSize: '11px' }}>
+                <Tag size={10} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
+                {categoryLabel}
+              </span>
+              <span style={{ background: 'rgba(20,90,62,0.1)', color: '#145A3E', borderRadius: '6px', padding: '3px 10px', fontFamily: SANS, fontSize: '11px', fontWeight: '600' }}>
+                {deal.discount_percent ? `${deal.discount_percent}% off — ` : ''}{deal.title}
+              </span>
+            </div>
+
+            {deal.description && (
+              <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, marginTop: '12px', lineHeight: 1.65 }}>
+                {deal.description}
+              </p>
+            )}
+
+            {!deal.active && (
+              <p style={{ fontFamily: SANS, fontSize: '11px', color: RED, marginTop: '12px', fontWeight: '600' }}>
+                This listing is currently switched off and not visible to members.
+              </p>
+            )}
+
+            <p style={{ fontFamily: SANS, fontSize: '11px', color: MUTED, marginTop: '14px' }}>
+              This is close to how your listing renders to members in the Lifestyle Blueprint tab.
+            </p>
+          </div>
+        )}
+      </Card>
+
+      {/* ── FOOTER NOTE ────────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '32px', textAlign: 'center' }}>
+        <Mail size={12} color={MUTED} />
+        <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED }}>
+          Questions about your listing or performance? Contact your Partnership Contact or uniblueprintoperations@gmail.com.
+        </p>
+      </div>
+    </PageShell>
+  )
+}
+
+function PageShell({ children }) {
   return (
     <>
       <Helmet>
@@ -426,223 +515,7 @@ export default function PartnerPortalPage() {
 
       <div style={{ background: CREAM, minHeight: '100vh', padding: '48px 20px 88px' }}>
         <div style={{ maxWidth: 1040, margin: '0 auto' }}>
-
-          {/* ── HEADER ─────────────────────────────────────────────────────── */}
-          <Card style={{ marginBottom: '24px' }}>
-            <div className="ppp-header-row">
-              <div>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  background: SAND, borderRadius: '20px', padding: '5px 12px', marginBottom: '14px',
-                }}>
-                  <ShieldCheck size={13} color={NAVY} />
-                  <span style={{ fontFamily: SANS, fontSize: '11px', fontWeight: '600', color: NAVY }}>
-                    Logged in as {partner.name} &middot; Partner Portal
-                  </span>
-                </div>
-                <h1 style={{ fontFamily: SERIF, fontSize: '32px', color: NAVY, lineHeight: 1.15 }}>
-                  Welcome back, {partner.name}.
-                </h1>
-                <p style={{ fontFamily: SANS, fontSize: '14px', color: GREY, marginTop: '8px', maxWidth: '520px', lineHeight: 1.6 }}>
-                  Here is how your Lifestyle Blueprint listing is performing, and how it compares to other {partner.category} partners on the platform.
-                </p>
-              </div>
-
-              {/* Date range toggle (visual only) */}
-              <div style={{
-                display: 'inline-flex', background: SAND, borderRadius: '10px', padding: '4px', flexShrink: 0,
-              }}>
-                {Object.entries(DEMO.ranges).map(([key, r]) => (
-                  <button
-                    key={key}
-                    onClick={() => setRange(key)}
-                    style={{
-                      border: 'none', cursor: 'pointer',
-                      background: range === key ? NAVY : 'transparent',
-                      color: range === key ? CREAM : GREY,
-                      fontFamily: SANS, fontSize: '12px', fontWeight: '600',
-                      borderRadius: '7px', padding: '8px 14px',
-                      transition: 'background 150ms, color 150ms',
-                    }}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </Card>
-
-          {/* ── YOUR LISTING PERFORMANCE ──────────────────────────────────── */}
-          <div style={{ marginBottom: '10px' }}>
-            <SectionLabel>Your listing performance &middot; {data.label}</SectionLabel>
-          </div>
-          <div className="ppp-stat-grid" style={{ marginBottom: '24px' }}>
-            <StatTile
-              icon={Eye} label="Views" value={data.views.toLocaleString()}
-              deltaValue={data.viewsDeltaPct} deltaLabel={data.previousLabel}
-            />
-            <StatTile
-              icon={Ticket} label="Deal claims" value={data.claims.toLocaleString()}
-              deltaValue={data.claimsDeltaPct} deltaLabel={data.previousLabel}
-            />
-            <StatTile
-              icon={Percent} label="Click-through rate" value={`${data.ctrPct}%`}
-              deltaValue={data.ctrDeltaPp} deltaLabel={data.previousLabel} suffix="pp"
-            />
-          </div>
-
-          {/* ── VIEWS OVER TIME ───────────────────────────────────────────── */}
-          <Card style={{ marginBottom: '24px' }}>
-            <p style={{ fontFamily: SERIF, fontSize: '19px', color: NAVY, marginBottom: '4px' }}>Views over time</p>
-            <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED, marginBottom: '18px' }}>
-              How many members viewed your listing, {data.label.toLowerCase()}. Hover the chart for exact figures.
-            </p>
-            <ViewsChart series={data.viewsSeries} periodLabel={data.label} />
-          </Card>
-
-          {/* ── MEMBER ENGAGEMENT + REDEMPTION BY DAY ─────────────────────── */}
-          <div className="ppp-split-grid" style={{ marginBottom: '24px' }}>
-            <Card>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <GraduationCap size={17} color={NAVY} />
-                <p style={{ fontFamily: SERIF, fontSize: '19px', color: NAVY }}>Member engagement</p>
-              </div>
-              <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED, marginBottom: '18px' }}>
-                Where your claims are coming from, last 30 days.
-              </p>
-              {engagementByInstitution.map((inst, i) => (
-                <RankBar
-                  key={inst.name}
-                  name={inst.name}
-                  claims={inst.claims}
-                  maxClaims={maxInstitutionClaims}
-                  rank={i + 1}
-                />
-              ))}
-            </Card>
-
-            <Card>
-              <p style={{ fontFamily: SERIF, fontSize: '19px', color: NAVY, marginBottom: '4px' }}>Redemption by day</p>
-              <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED, marginBottom: '4px' }}>
-                Which days your deal gets claimed most, last 30 days. Useful for staffing and stock planning.
-              </p>
-              <DayOfWeekChart data={redemptionByDay} />
-            </Card>
-          </div>
-
-          {/* ── HOW YOU COMPARE ───────────────────────────────────────────── */}
-          <div style={{ marginBottom: '10px' }}>
-            <SectionLabel>How you compare</SectionLabel>
-          </div>
-          <Card style={{ marginBottom: '24px' }}>
-            <div className="ppp-highlight-grid" style={{ marginBottom: '24px' }}>
-              <div style={{ background: 'rgba(22,163,74,0.08)', borderRadius: '12px', padding: '18px 20px' }}>
-                <p style={{ fontFamily: SERIF, fontSize: '26px', color: GREEN }}>Top {comparison.rankPercentile}%</p>
-                <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, marginTop: '6px', lineHeight: 1.55 }}>
-                  You rank in the top {comparison.rankPercentile}% of {partner.category} category partners by redemption rate this month.
-                </p>
-              </div>
-              <div style={{ background: 'rgba(30,58,95,0.06)', borderRadius: '12px', padding: '18px 20px' }}>
-                <p style={{ fontFamily: SERIF, fontSize: '26px', color: NAVY }}>{comparison.engagementMultiplier}x</p>
-                <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, marginTop: '6px', lineHeight: 1.55 }}>
-                  Your average member engagement is {comparison.engagementMultiplier}x the {partner.category} category average.
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: NAVY }} />
-              <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY }}>You</span>
-              <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: AMBER, marginLeft: '10px' }} />
-              <span style={{ fontFamily: SANS, fontSize: '11px', color: GREY }}>Category average</span>
-            </div>
-
-            <ComparisonBar
-              label="Views per week"
-              yourValue={comparison.yourViewsPerWeek}
-              categoryValue={comparison.categoryMedianViewsPerWeek}
-              captionPrefix={`Category median views per week: ${comparison.categoryMedianViewsPerWeek}. Your views per week: ${comparison.yourViewsPerWeek}.`}
-            />
-            <ComparisonBar
-              label="Redemption rate"
-              yourValue={comparison.yourRedemptionRatePct}
-              categoryValue={comparison.categoryAvgRedemptionRatePct}
-              suffix="%"
-            />
-
-            <div style={{
-              display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '22px',
-              paddingTop: '18px', borderTop: '1px solid rgba(30,58,95,0.08)',
-            }}>
-              <Lock size={13} color={MUTED} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED, lineHeight: 1.6 }}>
-                Comparisons are anonymized category averages. We never share another partner's individual performance data or name them directly.
-              </p>
-            </div>
-          </Card>
-
-          {/* ── YOUR DEAL, AS MEMBERS SEE IT ──────────────────────────────── */}
-          <div style={{ marginBottom: '10px' }}>
-            <SectionLabel>Your deal, as members see it</SectionLabel>
-          </div>
-          <Card style={{ marginBottom: '24px', maxWidth: '380px' }}>
-            <div style={{ position: 'relative' }}>
-              <span style={{
-                position: 'absolute', top: '-4px', right: '-4px',
-                background: NAVY, color: CREAM, borderRadius: '4px', padding: '3px 8px',
-                fontFamily: SANS, fontSize: '10px', fontWeight: '700',
-              }}>
-                Pro Deal
-              </span>
-
-              <div style={{
-                width: '56px', height: '56px', borderRadius: '12px', background: partner.initBg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{ fontFamily: SERIF, fontSize: '18px', color: '#FFFFFF' }}>{partner.initials}</span>
-              </div>
-
-              <p style={{ fontFamily: SERIF, fontSize: '20px', color: NAVY, marginTop: '14px' }}>{partner.name}</p>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-                <span style={{ background: SAND, color: NAVY, borderRadius: '6px', padding: '3px 10px', fontFamily: SANS, fontSize: '11px' }}>
-                  <Dumbbell size={10} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
-                  {partner.category}
-                </span>
-                <span style={{ background: 'rgba(20,90,62,0.1)', color: '#145A3E', borderRadius: '6px', padding: '3px 10px', fontFamily: SANS, fontSize: '11px', fontWeight: '600' }}>
-                  {deal.dealLabel}
-                </span>
-              </div>
-
-              <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, marginTop: '12px', lineHeight: 1.65 }}>
-                {deal.description}
-              </p>
-
-              <div style={{ marginTop: '14px' }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '5px',
-                  background: NAVY, color: CREAM, borderRadius: '20px', padding: '5px 12px',
-                  fontFamily: SANS, fontSize: '12px',
-                }}>
-                  <Instagram size={12} />
-                  @{partner.instagram}
-                </span>
-              </div>
-
-              <p style={{ fontFamily: SANS, fontSize: '11px', color: MUTED, marginTop: '14px' }}>
-                This is exactly how your listing renders to members in the Lifestyle Blueprint tab.
-              </p>
-            </div>
-          </Card>
-
-          {/* ── FOOTER NOTE ────────────────────────────────────────────────── */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '32px', textAlign: 'center' }}>
-            <Mail size={12} color={MUTED} />
-            <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED }}>
-              Questions about your listing or performance? Contact your Partnership Contact or uniblueprintoperations@gmail.com.
-            </p>
-          </div>
-
+          {children}
         </div>
       </div>
     </>
