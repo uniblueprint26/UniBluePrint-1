@@ -57,7 +57,13 @@ export default function SignInPage() {
     <AuthLayout
       title="Welcome back"
       subtitle="Sign in to your Blueprint"
-      note="Signing in here manages your plan and billing. Your Foundation and Elevation Blueprint tools are in the UniBlueprint app, sign in there with the same email and password."
+      note={
+        <>
+          Your Foundation Blueprint tools are right here — head to{' '}
+          <Link to="/foundation/my-documents" style={linkStyle}>My Documents</Link> or{' '}
+          <Link to="/foundation/career-profile" style={linkStyle}>your Career Profile</Link> once you're signed in.
+        </>
+      }
       footer={
         <p style={belowCardStyle}>
           New to UniBlueprint?{' '}
