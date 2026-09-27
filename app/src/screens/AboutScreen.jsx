@@ -92,7 +92,7 @@ export default function AboutScreen({ navigation }) {
       <View style={styles.body}>
         {/* Founder's note */}
         <Text style={styles.sectionEyebrow}>BEHIND THE BLUEPRINT</Text>
-        <Text style={styles.sectionTitle}>A note from founder</Text>
+        <Text style={styles.sectionTitle}>A note from the founder</Text>
         <Text style={styles.para}>
           On February 28th, 2026, I flew to Belfast International for a friend's birthday. Little did I know the Blueprint was about to be born.
         </Text>

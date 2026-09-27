@@ -28,7 +28,7 @@ export default function AccessibilityPage() {
           Accessibility Statement
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: June 2026
+          Last updated: September 2026
         </p>
       </section>
 
@@ -42,6 +42,7 @@ export default function AccessibilityPage() {
             <Section title="Our Commitment">
               <p style={P}>UniBlueprint is committed to ensuring that our platform is accessible to all users, including those with disabilities. We believe that every young person should be able to access the tools and services that help them succeed, regardless of how they interact with technology.</p>
               <p style={P}>We are actively working to improve the accessibility of the UniBlueprint platform and to ensure that it meets recognised accessibility standards ahead of and beyond our September 2026 launch.</p>
+              <p style={P}>This Platform is operated by UniBlueprint Limited, a company registered in Ireland under company number 826545, with its registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland.</p>
             </Section>
 
             <Section title="Standards We Aim to Meet">

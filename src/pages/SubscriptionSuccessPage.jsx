@@ -60,7 +60,7 @@ export default function SubscriptionSuccessPage() {
                 Welcome to Pro
               </h1>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.6 }}>
-                Your Pro subscription is now active. Elevation Blueprint and every other Pro feature live in the UniBlueprint app, open it and sign in with the same email and password to start using them right away.
+                Your Pro subscription is now active. Elevation Blueprint and your other Pro features are ready right here on the website, start using them right away.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
                 {[
@@ -76,7 +76,7 @@ export default function SubscriptionSuccessPage() {
                 ))}
               </ul>
               <Link
-                to="/download"
+                to="/foundation/my-documents"
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   height: '48px', padding: '0 28px',
@@ -86,10 +86,10 @@ export default function SubscriptionSuccessPage() {
                   textDecoration: 'none',
                 }}
               >
-                Open the app
+                Go to My Documents
               </Link>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', marginTop: '16px' }}>
-                Already testing UniBlueprint? Just reopen the app you already have, no need to reinstall anything.
+                Or set up your <Link to="/foundation/career-profile" style={{ color: '#1E3A5F', fontWeight: '500' }}>Career Profile</Link> first.
               </p>
             </div>
           )}

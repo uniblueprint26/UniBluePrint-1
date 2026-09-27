@@ -1,7 +1,7 @@
 import { useState, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Landmark, BookOpen, HeartHandshake, User } from 'lucide-react'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -16,22 +16,22 @@ const CALCULATOR_SERVICES = [
 
 const FREE_FEATURES = [
   {
-    icon: '🏛',
+    icon: Landmark,
     title: 'Campus Connect',
     body: 'Community boards for accommodation, carpooling, marketplace, events, and study groups at your college.',
   },
   {
-    icon: '📚',
+    icon: BookOpen,
     title: 'Course Connect',
     body: 'Course-specific discussion boards, shared notes, and module Q&A. Collaborate with young people on the same course.',
   },
   {
-    icon: '💚',
+    icon: HeartHandshake,
     title: 'Mental Health Resources',
     body: 'A curated library of mental health and wellbeing resources. Always free, always available in the app.',
   },
   {
-    icon: '👤',
+    icon: User,
     title: 'Basic Profile',
     body: 'Your UniBlueprint profile: manage your account, track your activity, and access your Blueprint history.',
   },
@@ -457,8 +457,8 @@ export default function FreeTrialPage() {
                 Always Free
               </span>
 
-              <span style={{ fontSize: '28px', lineHeight: 1, display: 'block', marginBottom: '14px' }}>
-                {f.icon}
+              <span style={{ display: 'block', marginBottom: '14px' }}>
+                <f.icon size={28} color="#1E3A5F" />
               </span>
               <h3 style={{
                 fontFamily: "'DM Serif Display', serif",

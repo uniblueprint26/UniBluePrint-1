@@ -34,6 +34,7 @@ const ROUTES = [
   "/join-handler",
   "/join-coach",
   "/ambassadors",
+  "/contributors",
   "/faqs",
   "/contact",
   "/help",

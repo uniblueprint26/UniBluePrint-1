@@ -35,25 +35,6 @@
       }
     }
     </script>
-    <!-- Conditional GA4 load — only fires after cookie consent -->
-    <script>
-      (function () {
-        var GA_ID = 'GA_MEASUREMENT_ID'; // TODO: Replace with real GA4 measurement ID
-        try {
-          if (localStorage.getItem('ubp_cookie_consent') === 'accepted') {
-            var s = document.createElement('script');
-            s.id = 'ga-script';
-            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-            s.async = true;
-            document.head.appendChild(s);
-            window.dataLayer = window.dataLayer || [];
-            window.gtag = function () { window.dataLayer.push(arguments); };
-            window.gtag('js', new Date());
-            window.gtag('config', GA_ID);
-          }
-        } catch (e) {}
-      })();
-    </script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>

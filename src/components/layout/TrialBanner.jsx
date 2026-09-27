@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 
 const STORAGE_KEY = 'ubp_trial_banner_dismissed'
@@ -33,15 +34,20 @@ export default function TrialBanner() {
         position: 'relative',
       }}
     >
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '13px',
-        color: '#F5F0E8',
-        textAlign: 'center',
-        lineHeight: 1.4,
-      }}>
+      <Link
+        to="/pricing"
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '13px',
+          color: '#F5F0E8',
+          textAlign: 'center',
+          lineHeight: 1.4,
+          textDecoration: 'underline',
+          textUnderlineOffset: '2px',
+        }}
+      >
         50% OFF all services, free trial. Your Blueprint. Half the price.
-      </p>
+      </Link>
 
       <button
         onClick={dismiss}

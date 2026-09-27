@@ -57,7 +57,7 @@ export default function CookiesPage() {
           Cookie Policy
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: June 2026
+          Last updated: September 2026
         </p>
       </section>
 
@@ -72,6 +72,7 @@ export default function CookiesPage() {
             <Section title="1. What Are Cookies">
               <p style={P}>Cookies are small text files placed on your device when you visit a website or use a web application. They are widely used to make websites work, to improve efficiency, and to provide information to website operators. Cookies do not damage your device or files.</p>
               <p style={P}>This Cookie Policy is issued in compliance with the EU ePrivacy Directive (2002/58/EC as amended by 2009/136/EC), implemented in Ireland as the European Communities (Electronic Communications Networks and Services) (Privacy and Electronic Communications) Regulations 2011 (S.I. No. 336/2011), and in line with the EU General Data Protection Regulation (GDPR) 2016/679.</p>
+              <p style={P}>This Platform is operated by UniBlueprint Limited, a company registered in Ireland under company number 826545, with its registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland.</p>
             </Section>
 
             <Section title="2. Strictly Necessary Cookies">

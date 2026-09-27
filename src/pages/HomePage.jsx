@@ -654,9 +654,9 @@ export default function HomePage() {
     <>
       <Helmet>
         <title>UniBlueprint, The Structure Behind Your Success</title>
-        <meta name="description" content="The all-in-one platform for young people across Ireland, every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta name="description" content="The all-in-one platform for young people across Ireland, every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching soon." />
         <meta property="og:title" content="UniBlueprint, The Structure Behind Your Success" />
-        <meta property="og:description" content="The all-in-one platform for young people across Ireland, every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching September 2026." />
+        <meta property="og:description" content="The all-in-one platform for young people across Ireland, every pathway, every ambition. CV support, career coaching, campus community, and lifestyle deals. Launching soon." />
         <meta name="twitter:card" content="summary_large_image" />
         <style>{PAGE_STYLES}</style>
         <script type="application/ld+json">{JSON.stringify({

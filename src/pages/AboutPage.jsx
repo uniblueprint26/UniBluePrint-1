@@ -458,7 +458,7 @@ export default function AboutPage() {
               fontSize: 'clamp(26px, 3.2vw, 38px)', color: '#1E3A5F',
               marginTop: '12px', lineHeight: 1.15, textWrap: 'balance',
             }}>
-              A note from founder
+              A note from the founder
             </h2>
 
             <p style={{
@@ -488,7 +488,7 @@ export default function AboutPage() {
               What followed was weeks of brainstorming, long phone calls, voice messages,
               recruiting, the pieces forming one by one. By April the app had its first look.
               By May we were visiting campuses, ATU Galway, UCD, Maynooth, and back to
-              Ballyhaunis Community School where it all began. September 2026 is launch.
+              Ballyhaunis Community School where it all began. Launch is coming soon.
             </p>
 
             <p style={{
