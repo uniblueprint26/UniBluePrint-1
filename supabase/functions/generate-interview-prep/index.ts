@@ -68,6 +68,8 @@ const INTERVIEW_FORMAT_BY_INDUSTRY: Record<string, string> = {
     'Expect direct questions on governance and accountability (Charities Regulator registration, the Governance Code) alongside mission-fit questions — panels probe for operational substance behind stated passion for the cause, not passion alone. Fundraising and programme roles often include a scenario question on a real donor or beneficiary situation.',
   'Telecommunications and Utilities':
     'Expect scenario-based technical questions (a network fault, a compliance documentation check) and direct questions distinguishing the relevant regulator (ComReg for telecoms, the CRU for utilities) — conflating the two is a specifically watched-for gap. Field and network roles may include a practical or technical assessment stage.',
+  'Pharmaceuticals, Biotechnology and Medical Devices':
+    'Expect direct questions on GMP and the specific regulatory framework relevant to the role (HPRA and Manufacturer\'s Authorisation for medicinal products, EU MDR 2017/745 and ISO 13485 for medical devices) — conflating the two regulatory pathways is a specifically watched-for gap. Scenario-based questions on a real deviation, CAPA, or audit-observation situation are common for quality and manufacturing roles.',
 }
 
 const SYSTEM_PROMPT = `You are building a personalised interview preparation pack.

@@ -38,7 +38,18 @@ const COURSE_RULES: Rule[] = [
     'youth and community', 'community development', 'counselling'], 'Social Work and Community'],
   [['culinary arts', 'hospitality management', 'hotel management', 'tourism management',
     'bar management', 'event management'], 'Hospitality and Tourism'],
-  [['biomedical engineering', 'medical device'], 'Engineering'],
+  [['biomedical engineering'], 'Engineering'],
+  // Pharma/biotech/medtech compounds, tested before both the bare 'science'
+  // rule at the bottom and Science and Research's own discipline rule below
+  // (which used to claim 'biotechnology') — a dedicated industry now exists
+  // for these. 'medical device(s)' is split out of the 'biomedical
+  // engineering' rule above: a biomedical engineering degree is still
+  // Engineering, but a medical devices degree/role is this industry's own
+  // manufacturing/regulatory pathway, not general engineering.
+  [['pharmaceutical science', 'biopharmaceutical science', 'biopharmaceutical chemistry',
+    'biopharmaceutical engineering', 'pharmaceutical engineering', 'pharmaceutical technology',
+    'biotechnology', 'medical device', 'medical devices', 'industrial biosciences'],
+    'Pharmaceuticals, Biotechnology and Medical Devices'],
   [['business and law', 'law and business', 'commercial law'], 'Law'],
   [['environmental science', 'marine science', 'food science',
     'sport and exercise'], 'Science and Research'],
@@ -133,7 +144,11 @@ const COURSE_RULES: Rule[] = [
   [['marketing', 'communications', 'journalism'], 'Marketing and Communications'],
   [['graphic design', 'fine art', 'fashion', 'animation', 'film', 'music',
     'drama', 'creative', 'media', 'design', 'photography', 'visual'], 'Creative and Media'],
-  [['biotechnology', 'genetics', 'biology', 'chemistry', 'physics',
+  // 'biotechnology' moved to the dedicated compound rule above — a dedicated
+  // Pharmaceuticals, Biotechnology and Medical Devices industry now exists
+  // for it, the same "vacate the superseded generic bucket" move used
+  // throughout this file.
+  [['genetics', 'biology', 'chemistry', 'physics',
     'biochemistry', 'microbiology', 'neuroscience', 'pharmacology'], 'Science and Research'],
   // 'human resource' moved to its own compound rule above — it used to fall
   // in here, the closest available bucket before a dedicated HR industry
