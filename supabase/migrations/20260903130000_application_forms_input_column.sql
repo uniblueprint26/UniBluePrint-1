@@ -8,4 +8,4 @@
 -- already has.
 
 alter table public.application_forms
-  add column input jsonb not null default '{}'::jsonb;
+  add column if not exists input jsonb not null default '{}'::jsonb;
