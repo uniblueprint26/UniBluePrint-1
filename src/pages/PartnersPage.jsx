@@ -23,7 +23,6 @@ const LIVE_PARTNERS = [
     initBg: '#15803D',
     category: 'Personal Training',
     description: 'Certified Personal Trainer and Advanced Nutrition Coach. Full client packages built around your goals, lifestyle, and schedule, combining personalised training with nutrition coaching. Competition athlete mindset for every client.',
-    deal: '???',
     instagram: 'milanpir_fitness',
   },
   {
@@ -32,8 +31,7 @@ const LIVE_PARTNERS = [
     logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
     initials: 'EF', initBg: '#0369A1', // temp fallback until the real logo lands
     category: 'Gym Membership',
-    description: 'Full gym access at an exclusive member rate, ???/month versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
-    deal: '???',
+    description: 'Full gym access at an exclusive member rate versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
   },
   {
     id: 'jmc',
@@ -42,7 +40,6 @@ const LIVE_PARTNERS = [
     initials: 'JMC', initBg: '#166534', // temp fallback until the real logo lands
     category: 'Sports Coaching',
     description: 'Elite sports coaching with fully personalised programmes. Online coaching, in-person training on North Dublin 4G astro, dietary guidance, specialist football coaching, and connections to professional agents.',
-    deal: '???',
   },
   {
     id: 'nyz3ditz',
@@ -51,7 +48,6 @@ const LIVE_PARTNERS = [
     initials: 'N3', initBg: '#C2410C', // temp fallback until the real logo lands
     category: 'Photography & Video',
     description: 'Professional photography and videography mentorship from Nathan Yanzo. Monthly subscriptions include Zoom mentorship calls and editing guidance. One-to-one shoot sessions also available for those building their creative portfolio.',
-    deal: '???',
     instagram: 'Nyz3ditz',
     phone: '+353857272875',
   },
@@ -62,7 +58,6 @@ const LIVE_PARTNERS = [
     initials: 'WW', initBg: '#1E3A5F', // temp fallback until the real logo lands
     category: 'Automotive',
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment, all with student-friendly pricing.',
-    deal: '???',
   },
   {
     id: 'nailnurse',
@@ -71,7 +66,6 @@ const LIVE_PARTNERS = [
     initBg: '#BE185D',
     category: 'Nail Tech · Galway',
     description: 'Professional nail technician based in Galway. Full range of nail treatments at student-friendly prices. Student discount with valid ID.',
-    deal: '???',
     instagram: 'theenailnurse__',
   },
   {
@@ -81,7 +75,6 @@ const LIVE_PARTNERS = [
     initBg: '#0369A1',
     category: 'Digital Marketing & Design',
     description: 'Freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, content creation, UGC coordination, AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
-    deal: '???',
     instagram: 'leva.impact',
     tiktok: 'leva.media',
     phone: '089 966 2635',
@@ -96,7 +89,6 @@ const LIVE_PARTNERS = [
     initBg: '#92400E',
     category: 'Creative Content Creation',
     description: 'Creative content studio based in County Mayo. Photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. A creative eye and professional finish for brands, businesses, and events.',
-    deal: '???',
     instagram: 'henrysistersco',
     email: 'henrysistersco@gmail.com',
   },
@@ -107,7 +99,6 @@ const LIVE_PARTNERS = [
     initBg: '#B91C1C',
     category: 'Personal Training · Muay Thai · Yoga',
     description: 'Certified Personal Trainer and Sport Nutritionist Coach based in Dublin 8, Muay Thai, yoga, and functional training alongside physique development, weight loss, and muscle building. Online and in person, built around realistic, sustainable routines.',
-    deal: '???',
     instagram: 'camilaaruk.coach',
     email: 'camila.coachfitness@gmail.com',
     phone: '0838602227',
@@ -130,7 +121,6 @@ const LIVE_PARTNERS = [
     initBg: '#111827',
     category: 'Clothing Brand',
     description: 'Irish Christian streetwear brand built around faith, purpose, and individuality, modern, high-quality clothing inspired by Scripture and Christian values, with a meaning behind every piece.',
-    deal: '???',
     instagram: 'elect_co',
     tiktok: 'elect_co',
     email: 'electgodschosen@gmail.com',
@@ -142,7 +132,6 @@ const LIVE_PARTNERS = [
     initBg: '#B45309',
     category: 'Home Baking · Dublin 15',
     description: 'Home baking business in Mulhuddart, Dublin 15, brownies, blondies, cookies, cupcakes, and fully customisable cakes made with love and care for every occasion. Every item on the menu is customisable, with pricing adjusted accordingly.',
-    deal: '???',
     instagram: 'eabakeditt',
     tiktok: 'eabakedittt',
     phone: '0899485617',
@@ -155,7 +144,6 @@ const LIVE_PARTNERS = [
     initBg: '#9333EA',
     category: 'Lash Tech · Dundalk',
     description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions as well as lash lifts.',
-    deal: '???',
     instagram: 'ilashedbydiya',
     tiktok: 'ilashedbydiya',
     phone: '0899428910',
@@ -168,7 +156,6 @@ const LIVE_PARTNERS = [
     initBg: '#0891B2',
     category: 'Housing Platform',
     description: 'Modern housing platform making it simpler, safer, and more transparent to find a room or home in Ireland, connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
-    deal: '???',
     instagram: 'Roomy.ie',
     phone: '+353899809654',
     email: 'admin@roomy.ie',
@@ -181,7 +168,6 @@ const LIVE_PARTNERS = [
     initBg: '#78350F',
     category: 'Photography · Dublin',
     description: 'Dublin-based photography service capturing events, graduations, portraits, personal branding, and creative shoots with a natural, professional finish, imagery clients are genuinely excited to share and use.',
-    deal: '???',
     instagram: 'royalty.productions1',
     phone: '085 185 2451',
     email: 'chidoziemenyoazu1@gmail.com',
@@ -193,7 +179,6 @@ const LIVE_PARTNERS = [
     initBg: '#DB2777',
     category: 'Lash Tech · Galway',
     description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
-    deal: '???',
     phone: '+3530852758798',
     email: 'vickylukau123@gmail.com',
   },
@@ -204,7 +189,6 @@ const LIVE_PARTNERS = [
     initBg: '#374151',
     category: 'Barber · Sligo',
     description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, kids cuts, and a home service for an extra fee depending on distance.',
-    deal: '???',
     instagram: 'cutbyire',
   },
   {
@@ -237,7 +221,6 @@ const LIVE_PARTNERS = [
     initBg: '#EC4899',
     category: 'Nail Tech · Mayo',
     description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac. Booking via Instagram DM.',
-    deal: '???',
     instagram: 'claras_beauty_room',
   },
   {
@@ -247,7 +230,6 @@ const LIVE_PARTNERS = [
     initBg: '#7C3AED',
     category: 'Lash Tech · Kildare',
     description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets. Booking via Instagram DM.',
-    deal: '???',
     instagram: 'lashedbystephhx',
   },
   {
@@ -257,7 +239,6 @@ const LIVE_PARTNERS = [
     initBg: '#312E81',
     category: 'Photography, Printing & Studio Rental · Tallaght',
     description: 'Professional photography and digital printing services alongside creative space rental, based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74. Their mission is to serve people, businesses, and communities with images of the highest calibre, building a strong connection with every client to understand their vision and goals.',
-    deal: '???',
     instagram: 'coded69studios',
     phone: '0897011898',
     email: 'info@coded69studios.com',
@@ -281,7 +262,6 @@ const LIVE_PARTNERS = [
     initBg: '#4B5563',
     category: 'Fashion',
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
-    deal: '???',
   },
   {
     id: 'dylanpower',
@@ -290,7 +270,6 @@ const LIVE_PARTNERS = [
     initBg: '#374151',
     category: 'Sports Photography',
     description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
-    deal: '???',
   },
 ]
 
