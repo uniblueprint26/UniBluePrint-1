@@ -149,7 +149,7 @@ const DEALS = {
   'Fitness': [
     { brand: 'MPFitness',           deal: 'Up to ?% off membership',   locked: true },
     { brand: 'Energie Fitness',     deal: 'First session free',         locked: true },
-    { brand: 'JMC Fitness',         deal: '???',                        locked: true },
+    { brand: 'JMC Fitness',         deal: 'Deal details being confirmed', locked: true },
   ],
   'Shopping': [
     { brand: 'Saiemsent',           deal: 'Up to ?% off clothing',      locked: true },
