@@ -6,7 +6,10 @@ import { AuthProvider } from './context/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import LaunchGate from './components/LaunchGate'
 import App from './App'
+import { initErrorReporting } from './lib/errorReporting'
 import './index.css'
+
+initErrorReporting()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

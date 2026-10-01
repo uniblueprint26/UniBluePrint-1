@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import UBPLogo from './ui/UBPLogo'
+import { reportError } from '../lib/errorReporting'
 
 // Top-level crash guard. Without this, any unhandled render error anywhere
 // in the tree unmounts the whole app and the visitor gets a blank white
@@ -20,6 +21,7 @@ export default class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // eslint-disable-next-line no-console
     console.error('Unhandled render error caught by ErrorBoundary:', error, info)
+    reportError(error, { componentStack: info?.componentStack })
   }
 
   render() {
