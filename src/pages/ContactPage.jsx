@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { MessageSquare, Handshake, Users } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -75,8 +75,8 @@ const TABS = [
 
 // ─── General Enquiry Form ──────────────────────────────────────────────────────
 
-function GeneralForm() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
+function GeneralForm({ initialSubject = '', initialMessage = '' }) {
+  const [form, setForm] = useState({ name: '', email: '', subject: initialSubject, message: initialMessage })
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -246,6 +246,8 @@ function TeamForm() {
 // ─── ContactPage ───────────────────────────────────────────────────────────────
 
 export default function ContactPage() {
+  const [searchParams] = useSearchParams()
+  const topic = searchParams.get('topic') || ''
   const [activeTab, setActiveTab] = useState('general')
 
   return (
@@ -319,7 +321,12 @@ export default function ContactPage() {
               "Interested in working with UniBlueprint? Tell us about yourself."
             }
           >
-            {activeTab === 'general'     && <GeneralForm />}
+            {activeTab === 'general'     && (
+              <GeneralForm
+                initialSubject={topic ? 'General question' : ''}
+                initialMessage={topic ? `I have a question about: ${topic}\n\n` : ''}
+              />
+            )}
             {activeTab === 'partnership' && <PartnershipForm />}
             {activeTab === 'team'        && <TeamForm />}
           </FormCard>

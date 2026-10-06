@@ -121,18 +121,21 @@ function CategoryCard({ icon: Icon, title, description, articles }) {
       <ul style={{ marginTop: '16px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {articles.map(a => (
           <li key={a}>
-            {/* TODO: Link to individual help articles when they are created */}
-            <span
+            {/* No individual article pages exist yet, so each topic routes to
+                Contact with the topic pre-filled, a real answer instead of a
+                dead click. */}
+            <Link
+              to={`/contact?topic=${encodeURIComponent(a)}`}
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '13px', color: '#1E3A5F',
-                cursor: 'default',
+                textDecoration: 'none',
               }}
             >
               <ChevronRight size={13} color="#9CA3AF" style={{ flexShrink: 0 }} />
               {a}
-            </span>
+            </Link>
           </li>
         ))}
       </ul>
@@ -142,12 +145,16 @@ function CategoryCard({ icon: Icon, title, description, articles }) {
 
 function SearchResult({ category, article }) {
   return (
-    <div style={{
-      background: '#FFFFFF', borderRadius: '10px',
-      boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-      padding: '16px 20px',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
-    }}>
+    <Link
+      to={`/contact?topic=${encodeURIComponent(article)}`}
+      style={{
+        background: '#FFFFFF', borderRadius: '10px',
+        boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+        padding: '16px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+        textDecoration: 'none',
+      }}
+    >
       <div>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#1E3A5F', fontWeight: '500' }}>
           {article}
@@ -157,7 +164,7 @@ function SearchResult({ category, article }) {
         </p>
       </div>
       <ChevronRight size={16} color="#9CA3AF" style={{ flexShrink: 0 }} />
-    </div>
+    </Link>
   )
 }
 
