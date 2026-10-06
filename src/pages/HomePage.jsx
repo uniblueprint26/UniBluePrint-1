@@ -693,6 +693,49 @@ export default function HomePage() {
         </p>
       </div>
 
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      {/* The page used to drop straight from the announcement bar into the
+          navy "glass box" app showcase below, no plain-language explainer
+          of what UniBlueprint actually is first. .ubp-hero-headline and
+          .ubp-cta-row (in PAGE_STYLES above) were already sized for exactly
+          this, just never used by any element, left over from an earlier
+          version of this page. */}
+      <section style={{ background: '#F5F0E8', padding: '88px 24px 64px', textAlign: 'center' }}>
+        <SectionLabel>What is UniBlueprint?</SectionLabel>
+        <h1 className="ubp-hero-headline">
+          One app for every step of student life in Ireland
+        </h1>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: '17px', color: '#6B7280',
+          margin: '20px auto 0', maxWidth: '620px', lineHeight: 1.7,
+        }}>
+          UniBlueprint brings CV and career document support, 1:1 coaching, campus community, and verified student deals together in one free app, built for students, apprentices, and young people across Ireland.
+        </p>
+        <div className="ubp-cta-row">
+          <Link to="/sign-up" style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            height: '48px', padding: '0 28px',
+            background: '#1E3A5F', color: '#F5F0E8',
+            borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none',
+          }}>
+            Get started free
+          </Link>
+          <Link to="/how-it-works" style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            height: '48px', padding: '0 28px',
+            background: 'none', color: '#1E3A5F',
+            border: '1.5px solid rgba(30,58,95,0.2)',
+            borderRadius: '8px',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: '600',
+            textDecoration: 'none',
+          }}>
+            See how it works
+          </Link>
+        </div>
+      </section>
+
       {/* ── SECTION 1, GLASS BOX: THE APP ──────────────────────────────────── */}
       <section style={{
         background: '#1E3A5F',
@@ -730,14 +773,14 @@ export default function HomePage() {
             padding: '48px 40px',
           }}>
             <SectionLabel light>The App</SectionLabel>
-            <h1 style={{
+            <h2 style={{
               fontFamily: "'DM Serif Display', Georgia, serif",
               fontSize: 'clamp(30px, 3.8vw, 48px)', color: '#F5F0E8',
               marginTop: '10px', lineHeight: 1.12,
               textWrap: 'balance',
             }}>
               The Structure Behind Your Success
-            </h1>
+            </h2>
             <p style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',

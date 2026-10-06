@@ -1,3 +1,19 @@
+// Blog posts are intentionally NOT imported here: this file is pulled in
+// eagerly by every page (via Layout -> SearchModal), and blogPosts.js is
+// ~30kB of content that otherwise lazy-loads only when someone visits
+// /blog. SearchModal dynamically imports blogPosts itself, on first open,
+// to keep that weight out of every page's initial bundle. See
+// buildBlogSearchData() there.
+export function buildBlogSearchData(posts) {
+  return posts.map(post => ({
+    id: `blog-${post.slug}`,
+    type: 'blog',
+    title: post.title,
+    description: post.excerpt,
+    path: `/blog/${post.slug}`,
+  }))
+}
+
 export const SEARCH_DATA = [
   // Pages
   { id: 'home', type: 'page', title: 'Home', description: "Ireland's platform for young people, the structure behind your success.", path: '/' },

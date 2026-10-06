@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, X, FileText, BookOpen, HelpCircle } from 'lucide-react'
-import { SEARCH_DATA } from '../../data/searchData'
+import { Search, X, FileText, BookOpen, HelpCircle, Newspaper } from 'lucide-react'
+import { SEARCH_DATA, buildBlogSearchData } from '../../data/searchData'
 
-const TYPE_LABELS = { page: 'Pages', service: 'Services', faq: 'FAQs' }
-const TYPE_ICONS  = { page: FileText, service: BookOpen, faq: HelpCircle }
-const TYPE_ORDER  = ['service', 'page', 'faq']
+const TYPE_LABELS = { page: 'Pages', service: 'Services', faq: 'FAQs', blog: 'Blog' }
+const TYPE_ICONS  = { page: FileText, service: BookOpen, faq: HelpCircle, blog: Newspaper }
+const TYPE_ORDER  = ['service', 'page', 'faq', 'blog']
 
 export default function SearchModal({ isOpen, onClose }) {
   const [query, setQuery] = useState('')
+  const [blogItems, setBlogItems] = useState([])
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -25,15 +26,27 @@ export default function SearchModal({ isOpen, onClose }) {
     }
   }, [isOpen, onClose])
 
+  // Loaded on first open rather than imported at module scope, so blog
+  // content (~30kB) doesn't ship in every page's initial bundle just
+  // because the search modal lives in the layout.
+  useEffect(() => {
+    if (!isOpen || blogItems.length > 0) return
+    import('../../data/blogPosts').then(({ POSTS }) => {
+      setBlogItems(buildBlogSearchData(POSTS))
+    })
+  }, [isOpen, blogItems.length])
+
+  const allData = useMemo(() => [...SEARCH_DATA, ...blogItems], [blogItems])
+
   const results = useMemo(() => {
     const q = query.toLowerCase().trim()
     if (!q) return []
-    return SEARCH_DATA.filter(
+    return allData.filter(
       item =>
         item.title.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q)
     )
-  }, [query])
+  }, [query, allData])
 
   const grouped = useMemo(() => {
     const g = {}
@@ -105,7 +118,7 @@ export default function SearchModal({ isOpen, onClose }) {
           type="search"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search pages, services, FAQs…"
+          placeholder="Search pages, services, FAQs, blog…"
           aria-label="Search UniBlueprint"
           style={{
             width: '100%',
@@ -204,7 +217,7 @@ export default function SearchModal({ isOpen, onClose }) {
             color: '#9CA3AF',
             textAlign: 'center',
           }}>
-            Start typing to search pages, services, and FAQs.
+            Start typing to search pages, services, FAQs, and the blog.
           </p>
         )}
       </div>
