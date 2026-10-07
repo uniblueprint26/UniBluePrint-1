@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   X, ChevronLeft, Trash2, Plus, Pencil,
@@ -273,12 +273,22 @@ export default function EvidenceBankScreen({ navigation }) {
     loadStories()
   }
 
-  async function deleteDetail() {
-    const id = selectedStory.id
+  async function removeStory(id) {
     closeDetail()
     setStories(prev => prev.filter(s => s.id !== id)) // optimistic
     const { error: deleteErr } = await supabase.from('evidence_bank_stories').delete().eq('id', id)
     if (deleteErr) loadStories() // reconcile on failure
+  }
+
+  function deleteDetail() {
+    Alert.alert(
+      'Delete this story?',
+      'This removes it from your Evidence Bank for good. This can\'t be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => removeStory(selectedStory.id) },
+      ],
+    )
   }
 
   // ── Guided add flow ──────────────────────────────────────────────────────
@@ -337,7 +347,7 @@ export default function EvidenceBankScreen({ navigation }) {
   // ── Story detail / edit ──────────────────────────────────────────────────
   if (mode === 'detail' && selectedStory && detailDraft) {
     return (
-      <View style={styles.screen}>
+      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity onPress={closeDetail} activeOpacity={0.7} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Back">
             <ChevronLeft size={20} color={colors.navy} />
@@ -402,7 +412,7 @@ export default function EvidenceBankScreen({ navigation }) {
             </View>
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     )
   }
 
