@@ -145,6 +145,10 @@ export const ATS_KEYWORD_BANKS: Record<Industry | typeof GENERAL, string[]> = {
     'comreg', 'cru', 'network operations', 'fault resolution', 'safe electric',
     'rgii', 'broadband', 'network uptime', 'field engineering',
   ],
+  'Pharmaceuticals, Biotechnology and Medical Devices': [
+    'gmp', 'hpra', 'iso 13485', 'eu mdr', 'capa', 'batch record', 'deviation',
+    'validation', 'quality assurance', 'notified body',
+  ],
   general: [
     'communication', 'teamwork', 'leadership', 'problem solving', 'initiative',
     'time management', 'attention to detail', 'adaptability', 'collaboration',

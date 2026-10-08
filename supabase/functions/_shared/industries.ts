@@ -49,6 +49,7 @@ export const INDUSTRIES = [
   'Food and Beverage Manufacturing',
   'Non-Profit and NGO Management',
   'Telecommunications and Utilities',
+  'Pharmaceuticals, Biotechnology and Medical Devices',
 ] as const
 
 export type Industry = typeof INDUSTRIES[number]
@@ -161,9 +162,14 @@ const ALIASES: Record<string, Industry> = {
   chemistry: 'Science and Research',
   physics: 'Science and Research',
   research: 'Science and Research',
-  biotechnology: 'Science and Research',
   laboratory: 'Science and Research',
-  pharmaceutical: 'Science and Research',
+  // 'biotechnology' and 'pharmaceutical' moved to Pharmaceuticals, Biotechnology
+  // and Medical Devices below — a dedicated bucket now exists for them, the
+  // same "vacate the superseded generic bucket" move as actuarial/veterinary/
+  // supply chain/HR earlier. Bare 'science'/'scientific'/'biology'/'chemistry'/
+  // 'physics'/'research' stay here — those are still the more accurate, more
+  // general resolution for a plain science degree that isn't specifically
+  // pharma/biotech/medtech.
 
   // Construction and Architecture
   construction: 'Construction and Architecture',
@@ -450,6 +456,37 @@ const ALIASES: Record<string, Industry> = {
   // generic words used well outside this industry (a software utility, a
   // computer network), and the compounds above still resolve the
   // utilities-specific meaning correctly.
+
+  // Pharmaceuticals, Biotechnology and Medical Devices
+  pharmaceutical: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  pharmaceuticals: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  biotechnology: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  biotech: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  biopharma: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  biopharmaceutical: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  'medical devices': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  'medical device': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  medtech: 'Pharmaceuticals, Biotechnology and Medical Devices',
+  'med tech': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  'life sciences': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  'life science': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  // Compounds, so the longest-first sort keeps these out of Engineering —
+  // bare 'manufacturing' already resolves there, and remains the right
+  // general-case answer. These two specific phrases are common enough in
+  // job titles and course names (GMP manufacturing operator/technician
+  // roles at the Cork/Galway/Kildare plants) to deserve their own explicit
+  // routing rather than falling through to the generic Engineering bucket.
+  'pharmaceutical manufacturing': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  'biopharmaceutical manufacturing': 'Pharmaceuticals, Biotechnology and Medical Devices',
+  // Deliberately not claiming bare 'pharma' — 'pharmacist' contains it as a
+  // substring and 'pharmacist' has no explicit alias of its own, so a bare
+  // 'pharma' alias would wrongly capture pharmacy/pharmacist text that
+  // should stay in Healthcare and Nursing via the existing 'pharmacy' alias.
+  // Deliberately not touching 'medical' or 'medicine' — both stay correctly
+  // resolved to Healthcare and Nursing above; this industry is about
+  // manufacturing/developing/regulating medical devices and medicines, not
+  // clinical practice, and the 'medical device(s)' compounds above already
+  // catch the manufacturing-side meaning without needing the bare word.
 }
 
 /**
