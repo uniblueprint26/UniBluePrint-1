@@ -215,16 +215,19 @@ const STEPS = [
   {
     key: '_targeting',
     title: 'Targeting a specific role?',
-    subtitle: 'Optional, but it sharpens the CV toward exactly what you’re applying for.',
-    optional: true,
+    subtitle: 'Target industry is required so we can tailor your CV properly — role, company, and job description are optional.',
     render: (_, __, values, setValue) => (
       <View style={{ gap: 14 }}>
         <View><FieldLabel hint="Optional">Target role</FieldLabel><FormTextInput value={values.target_role} onChangeText={t => setValue('target_role', t)} placeholder="e.g. Marketing Intern" /></View>
-        <View><FieldLabel hint="Optional">Target industry</FieldLabel><FormTextInput value={values.target_industry} onChangeText={t => setValue('target_industry', t)} placeholder="e.g. Tech, Finance" /></View>
+        <View><FieldLabel required>Target industry</FieldLabel><FormTextInput value={values.target_industry} onChangeText={t => setValue('target_industry', t)} placeholder="e.g. Tech, Finance" /></View>
         <View><FieldLabel hint="Optional">Target company</FieldLabel><FormTextInput value={values.target_company} onChangeText={t => setValue('target_company', t)} placeholder="e.g. Stripe" /></View>
         <View><FieldLabel hint="Optional">Job description</FieldLabel><FormTextArea value={values.job_description} onChangeText={t => setValue('job_description', t)} placeholder="Paste the job ad if you have one..." /></View>
       </View>
     ),
+    // generate-cv/index.ts hard-requires target_industry (422 "Target
+    // industry/field is required." if blank) — this step can no longer be
+    // skipped or left blank, unlike the other targeting fields.
+    validate: (_, values) => (isBlank(values.target_industry) ? 'Target industry is required.' : null),
   },
   {
     key: 'opportunity_type',
