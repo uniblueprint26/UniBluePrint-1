@@ -27,17 +27,32 @@ export default function PrivacyDataScreen({ navigation }) {
 
   const [requests, setRequests] = useState([])
   const [loading, setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [submitting, setSubmitting] = useState(null) // 'export' | 'deletion' | null
 
-  useEffect(() => {
+  async function loadRequests() {
     if (!user?.id) return
-    supabase
-      .from('gdpr_requests')
-      .select('id, request_type, status, requested_at')
-      .eq('user_id', user.id)
-      .order('requested_at', { ascending: false })
-      .then(({ data }) => { setRequests(data || []); setLoading(false) })
-  }, [user?.id])
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const { data, error } = await supabase
+        .from('gdpr_requests')
+        .select('id, request_type, status, requested_at')
+        .eq('user_id', user.id)
+        .order('requested_at', { ascending: false })
+      if (error) throw error
+      setRequests(data || [])
+    } catch {
+      // A dropped connection shouldn't leave this stuck spinning forever —
+      // this screen's whole point is giving someone control over their
+      // data, so a silent indefinite load here is worse than most.
+      setLoadError('Could not load your requests.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { loadRequests() }, [user?.id])
 
   async function handleExport() {
     if (submitting) return
@@ -161,6 +176,13 @@ export default function PrivacyDataScreen({ navigation }) {
         <Text style={styles.sectionEyebrow}>YOUR REQUESTS</Text>
         {loading ? (
           <ActivityIndicator size="small" color={colors.navy} />
+        ) : loadError ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{loadError}</Text>
+            <TouchableOpacity onPress={loadRequests} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
+              <Text style={styles.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
         ) : requests.length === 0 ? (
           <Text style={styles.emptyText}>No requests submitted yet.</Text>
         ) : (
@@ -218,6 +240,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8, textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: 10,
   },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic' },
+  errorBox: {
+    backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
+    padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+  },
+  errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+  retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
   legalText: {
     fontFamily: fonts.sans, fontSize: 11, color: colors.light,
     textAlign: 'center', marginTop: spacing.xl, lineHeight: 16,
