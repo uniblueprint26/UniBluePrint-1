@@ -2,8 +2,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, Switch, KeyboardAvoidingView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { usePreventRemove } from '@react-navigation/native'
-import { ChevronLeft, Plus, Save, CheckCircle2 } from 'lucide-react-native'
+import { ChevronLeft, Plus, Save, CheckCircle2, Newspaper } from 'lucide-react-native'
 import Card from '../../components/ui/Card'
+import EmptyState from '../../components/ui/EmptyState'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -271,7 +272,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
             <Text style={s.newIssueBtnText}>New Issue</Text>
           </TouchableOpacity>
           {issues.length === 0 ? (
-            <Text style={s.emptyText}>No issues yet. Create the first one above.</Text>
+            <EmptyState icon={Newspaper} title="No issues yet" subtitle="Create the first one above." />
           ) : issues.map(issue => (
             <TouchableOpacity key={issue.id} activeOpacity={0.8} onPress={() => openIssue(issue)}>
               <Card style={s.issueCard}>
@@ -365,7 +366,6 @@ const s = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginBottom: 16,
   },
   newIssueBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-  emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', marginTop: 20 },
 
   issueCard: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
   issueTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },

@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import { FieldLabel, FormTextInput, FormTextArea } from '../../components/forms/FormControls'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
+import EmptyState from '../../components/ui/EmptyState'
 
 // Evidence Bank — real STAR stories (Situation/Task/Action/Result) a student
 // builds up once and reuses across services. Application Form Assistance
@@ -486,9 +487,13 @@ export default function EvidenceBankScreen({ navigation }) {
         {loading ? (
           <ActivityIndicator color={colors.navy} style={{ marginTop: 24 }} />
         ) : storiesCount === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No evidence saved yet — start by adding your first story.</Text>
-          </View>
+          <EmptyState
+            icon={BookOpen}
+            title="No stories yet"
+            subtitle="Your evidence bank is empty — add your first story to start building real, reusable proof for applications and interviews."
+            ctaLabel="Add your first story"
+            onCtaPress={() => startAdd(null)}
+          />
         ) : (
           <View style={{ gap: 12 }}>
             {stories.map(story => {
@@ -561,9 +566,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6,
   },
   categoryTileText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.navy, textAlign: 'center', letterSpacing: 0.3 },
-
-  emptyState: { paddingVertical: 32, alignItems: 'center', paddingHorizontal: spacing.md },
-  emptyStateText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 20 },
 
   storyCard: { backgroundColor: colors.white, borderRadius: radius.card, padding: 16, ...shadows.card },
   storyCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

@@ -5,6 +5,7 @@ import { Info, Star } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
+import EmptyState from '../../components/ui/EmptyState'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -124,10 +125,11 @@ export default function SpecialismScreen({ navigation }) {
         ) : loadError ? (
           <Text style={styles.emptyText}>Couldn't load your specialisms. Check your connection and try again later.</Text>
         ) : specialisms.length === 0 ? (
-          <Text style={styles.emptyText}>
-            No declared specialisms yet. These are set up with Operations when you join the queue
-            for a service type.
-          </Text>
+          <EmptyState
+            icon={Star}
+            title="No specialisms yet"
+            subtitle="These are set up with Operations when you join the queue for a service type."
+          />
         ) : (
           <View style={{ gap: 10, marginTop: 16 }}>
             {specialisms.map(item => (
