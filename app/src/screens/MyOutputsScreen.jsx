@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { CheckCircle, FileText, Inbox, Clock } from 'lucide-react-native'
+import { CheckCircle, FileText, Inbox, Clock, UserCheck } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import StatTile, { StatTileRow } from '../components/ui/StatTile'
@@ -53,6 +53,12 @@ function OutputRow({ row, isLast }) {
           {row.tier === 'premium' ? 'Premium' : 'Standard'} · Submitted {formatDate(row.submitted_at)}
           {delivered ? ` · Delivered ${formatDate(row.delivered_at)}` : ''}
         </Text>
+        {delivered && (
+          <View style={styles.reviewBadge}>
+            <UserCheck size={10} color={colors.navy} strokeWidth={2.2} />
+            <Text style={styles.reviewBadgeText}>Reviewed by your Campus Handler</Text>
+          </View>
+        )}
       </View>
       <View style={[styles.stagePill, { backgroundColor: stageColor.bg }]}>
         <Text style={[styles.stagePillText, { color: stageColor.fg }]}>{STAGE_LABEL[row.stage] || row.stage}</Text>
@@ -180,6 +186,8 @@ const styles = StyleSheet.create({
   rowIcon: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   rowMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
+  reviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.navy },
   stagePill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
 })
