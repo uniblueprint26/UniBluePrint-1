@@ -2,6 +2,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, ArrowLeftRight } from 'lucide-react-native'
 import { colors, fonts, spacing } from '../../constants/theme'
+import BlueprintGrid from './BlueprintGrid'
+
+// The subtle "Blueprint" dot-grid motif (see BlueprintGrid.jsx), applied to
+// every navy header block app-wide — ties the app's headers to the same
+// visual language already used on the marketing/website side. Cream dots at
+// low opacity on navy, mirroring the navy-on-cream version used elsewhere.
+const HEADER_DOT_COLOR = 'rgba(245,240,232,0.07)'
 
 // One shared header for every screen that used to hand-roll its own
 // back-button row (audit L5: at least six different styles — "‹ Home",
@@ -64,6 +71,7 @@ export default function ScreenHeader({
           style,
         ]}
       >
+        {dark && <BlueprintGrid color={HEADER_DOT_COLOR} />}
         <TouchableOpacity
           style={styles.compactSide}
           onPress={onBack}
@@ -93,6 +101,7 @@ export default function ScreenHeader({
         style,
       ]}
     >
+      {dark && <BlueprintGrid color={HEADER_DOT_COLOR} />}
       {onBack ? (
         <View style={styles.topRow}>
           <TouchableOpacity
