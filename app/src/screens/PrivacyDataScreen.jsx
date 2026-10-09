@@ -230,7 +230,9 @@ const styles = StyleSheet.create({
   },
   actionTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 2 },
   actionSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 16 },
-  actionBtn: { backgroundColor: colors.navy, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 9, minWidth: 78, alignItems: 'center' },
+  // radius.button, not radius.pill — this was the one pill-shaped button
+  // sitting alone among the rest of the app's square-cornered convention.
+  actionBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 9, minWidth: 78, alignItems: 'center' },
   actionBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
   actionBtnDanger: { backgroundColor: 'rgba(220,38,38,0.08)' },
   actionBtnDangerText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: '#DC2626' },

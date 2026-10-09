@@ -10,6 +10,7 @@ import {
   Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
 import ImageUploader from '../components/ui/ImageUploader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
@@ -768,17 +769,14 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Sign out */}
         <View style={[styles.section, { paddingBottom: 0 }]}>
-          <TouchableOpacity
-            style={[styles.signOutBtn, signingOut && { opacity: 0.7 }]}
-            activeOpacity={0.8}
+          <Button
+            label={signingOut ? 'Signing out...' : 'Sign Out'}
+            icon={LogOut}
+            variant="destructive"
+            loading={signingOut}
             onPress={handleSignOut}
-            disabled={signingOut}
-          >
-            <LogOut size={16} color="#DC2626" />
-            <Text style={styles.signOutText}>
-              {signingOut ? 'Signing out...' : 'Sign Out'}
-            </Text>
-          </TouchableOpacity>
+            style={{ height: 50 }}
+          />
           <Text style={styles.versionText}>UniBlueprint · v1.0.0</Text>
           <Text style={styles.legalText}>{LEGAL_ENTITY_LINE}</Text>
         </View>
@@ -930,12 +928,6 @@ const styles = StyleSheet.create({
   settingsLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   settingsSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
 
-  signOutBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    borderWidth: 1.5, borderColor: '#FCA5A5', borderRadius: radius.card,
-    height: 50, backgroundColor: '#FEF2F2',
-  },
-  signOutText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: '#DC2626' },
   versionText: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.light,
     textAlign: 'center', marginTop: spacing.lg,
