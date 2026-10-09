@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, X, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
+import MockContentBanner from '../components/ui/MockContentBanner'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
@@ -307,6 +308,10 @@ export default function DirectoryScreen({ navigation }) {
         <Text style={styles.screenSub}>
           Search by name, course, or any interest area
         </Text>
+        <MockContentBanner
+          title="Example profiles, shown until the Directory goes live"
+          subtitle="These are illustrative, not real students. Real profiles and direct connections will appear here once the Directory launches."
+        />
       </View>
 
       {/* Search bar */}
