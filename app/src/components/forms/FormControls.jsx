@@ -57,12 +57,18 @@ export function FormTextArea({ value, onChangeText, placeholder, maxLength, minH
  *  default (value is one option, onChange receives the new value); pass
  *  `multiple` to make it a multi-select (value is an array, onChange
  *  receives the updated array on each toggle) — e.g. competency tags. */
+// `accent: true` on an option (e.g. a Premium tier choice) gives it a gold
+// border + small badge regardless of selection state — a deliberate visual
+// nudge, not a different interaction. Every other ChoiceGrid usage across
+// the app (tone, length, opportunity type, etc.) is unaffected since none of
+// those options set `accent`.
 export function ChoiceGrid({ options, value, onChange, multiple = false }) {
   return (
     <View style={s.choiceGrid}>
       {options.map(opt => {
         const optValue = typeof opt === 'string' ? opt : opt.value
         const optLabel = typeof opt === 'string' ? opt : opt.label
+        const optAccent = typeof opt === 'object' && !!opt.accent
         const active = multiple ? (value || []).includes(optValue) : value === optValue
         function handlePress() {
           if (multiple) {
@@ -77,10 +83,15 @@ export function ChoiceGrid({ options, value, onChange, multiple = false }) {
             key={optValue}
             activeOpacity={0.8}
             onPress={handlePress}
-            style={[s.choicePill, active && s.choicePillActive]}
+            style={[s.choicePill, optAccent && s.choicePillAccent, active && s.choicePillActive]}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
           >
+            {optAccent && (
+              <View style={s.choicePillBadge}>
+                <Text style={s.choicePillBadgeText}>PRIORITY</Text>
+              </View>
+            )}
             <Text style={[s.choicePillText, active && s.choicePillTextActive]}>{optLabel}</Text>
           </TouchableOpacity>
         )
@@ -182,8 +193,17 @@ const s = StyleSheet.create({
     borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.white,
   },
   choicePillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  choicePillAccent: { borderColor: colors.gold, borderWidth: 1.5 },
   choicePillText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
   choicePillTextActive: { color: colors.cream },
+  choicePillBadge: {
+    position: 'absolute', top: -8, left: 12,
+    backgroundColor: colors.gold, borderRadius: radius.pill,
+    paddingHorizontal: 7, paddingVertical: 2,
+  },
+  choicePillBadgeText: {
+    fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.navy, letterSpacing: 0.4,
+  },
 
   tagRow: { flexDirection: 'row', gap: 8 },
   tagAddBtn: { width: 48, height: 48, borderRadius: radius.button, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },

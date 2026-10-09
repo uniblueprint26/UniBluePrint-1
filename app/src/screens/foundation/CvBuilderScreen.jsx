@@ -48,7 +48,7 @@ const LENGTHS = [
 ]
 const TIERS = [
   { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, same-day delivery' },
+  { value: 'premium', label: 'Premium — priority queue, same-day delivery', accent: true },
 ]
 
 function isBlank(v) {
