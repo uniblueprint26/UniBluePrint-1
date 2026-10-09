@@ -28,8 +28,14 @@ import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
+import { supabase } from '../lib/supabase'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// Same reporting pattern as BoardDetailScreen's report() — operations_flags'
+// RLS insert policy and notify_ops_on_flag() trigger already work for any
+// target_type, so 'chat_room' needs no schema changes of its own.
+const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 function formatChatTime(dateStr) {
   if (!dateStr) return ''
@@ -57,7 +63,7 @@ export default function ChatRoomScreen({ navigation, route }) {
   const [sending,     setSending]     = useState(false)
   const scrollRef = useRef(null)
 
-  const { messages, isLoading, error, sendMessage, markRead } = useChat({
+  const { roomId, messages, isLoading, error, sendMessage, markRead } = useChat({
     contextType,
     contextId,
     roomName,
@@ -98,19 +104,74 @@ export default function ChatRoomScreen({ navigation, route }) {
 
   function handleReport() {
     setMoreVisible(false)
+    if (!roomId) return
     Alert.alert(
-      'Report Content',
-      'This room and its messages will be reviewed by the UniBlueprint moderation team. Thank you for helping keep the community safe.',
-      [{ text: 'OK' }]
+      'Report this room',
+      'What best describes the issue?',
+      [
+        ...REPORT_REASONS.map(reason => ({
+          text: reason,
+          onPress: async () => {
+            const { error: flagErr } = await supabase.from('operations_flags').insert({
+              flagged_by: userId, target_type: 'chat_room', target_id: roomId, reason,
+            })
+            Alert.alert(
+              flagErr ? 'Something went wrong' : 'Reported',
+              flagErr ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.'
+            )
+          },
+        })),
+        { text: 'Cancel', style: 'cancel' },
+      ]
     )
   }
 
-  function handleBlock() {
+  async function handleBlock() {
     setMoreVisible(false)
+    if (!roomId) return
+
+    // posterId is already known for most contexts this screen is opened
+    // from (ad/carpool enquiries, direct chats); fall back to querying the
+    // room's other participant for contexts where it wasn't passed.
+    let otherId = posterId
+    let otherName = posterName
+    if (!otherId) {
+      const { data } = await supabase
+        .from('chat_participants')
+        .select('user_id, display_name')
+        .eq('room_id', roomId)
+        .neq('user_id', userId)
+        .limit(1)
+        .maybeSingle()
+      otherId = data?.user_id
+      otherName = data?.display_name
+    }
+    if (!otherId) {
+      Alert.alert('Could not block', 'Could not find the other person in this chat. Please try again.')
+      return
+    }
+
     Alert.alert(
-      'Block a User',
-      'Full block and moderation tools are coming soon. For urgent issues, contact the team at uniblueprintoperations@gmail.com.',
-      [{ text: 'OK' }]
+      'Block this user?',
+      `You won't see messages from ${otherName || 'this person'} again, and in a direct chat they won't be able to message you. This doesn't remove them from a shared group chat — use Report for that instead.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Block',
+          style: 'destructive',
+          onPress: async () => {
+            const { error: blockErr } = await supabase.from('blocked_users').insert({
+              blocker_id: userId, blocked_id: otherId,
+            })
+            // 23505 = already blocked (unique constraint) — not a real failure
+            const failed = blockErr && blockErr.code !== '23505'
+            Alert.alert(
+              failed ? 'Something went wrong' : 'Blocked',
+              failed ? 'Please try again.' : `You won't see messages from ${otherName || 'this person'} again.`
+            )
+          },
+        },
+      ]
     )
   }
 
@@ -264,7 +325,7 @@ export default function ChatRoomScreen({ navigation, route }) {
                 Block a user
               </Text>
               <Text style={s.moreRowSub}>
-                Coming soon. Contact uniblueprintoperations@gmail.com for urgent issues.
+                Stop seeing messages from the other person in this chat.
               </Text>
             </View>
           </TouchableOpacity>
