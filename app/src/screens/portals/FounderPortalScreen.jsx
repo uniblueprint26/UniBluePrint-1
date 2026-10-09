@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
@@ -65,18 +65,28 @@ function nameForFeatured(row) {
 function PhotoPickerModal({ visible, onClose, entity }) {
   const [currentUrl, setCurrentUrl] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
 
-  useEffect(() => {
+  function loadPhoto() {
     if (!visible || !entity) return
     setLoading(true)
+    setLoadError(null)
     const query = entity.kind === 'coach'
       ? supabase.from('coach_profiles').select('photo_url').eq('coach_slug', entity.slug).maybeSingle()
       : supabase.from('partners').select('logo_url').eq('partner_slug', entity.slug).maybeSingle()
-    query.then(({ data }) => {
-      setCurrentUrl(entity.kind === 'coach' ? data?.photo_url : data?.logo_url)
+    query.then(({ data, error }) => {
+      if (error) {
+        // Without this, a failed fetch left the modal showing just the
+        // header with a blank body forever — no spinner, no error, no retry.
+        setLoadError('Could not load the current photo.')
+      } else {
+        setCurrentUrl(entity.kind === 'coach' ? data?.photo_url : data?.logo_url)
+      }
       setLoading(false)
     })
-  }, [visible, entity])
+  }
+
+  useEffect(loadPhoto, [visible, entity])
 
   async function handleUpload(url) {
     setCurrentUrl(url)
@@ -110,7 +120,16 @@ function PhotoPickerModal({ visible, onClose, entity }) {
           <Text style={pm.sub}>
             Replacing this photo updates it live for every user. No re-upload elsewhere needed.
           </Text>
-          {!loading && (
+          {loading ? (
+            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 16 }} />
+          ) : loadError ? (
+            <View style={pm.errorBox}>
+              <Text style={pm.errorText}>{loadError}</Text>
+              <TouchableOpacity onPress={loadPhoto} activeOpacity={0.7} style={pm.retryBtn} accessibilityRole="button">
+                <Text style={pm.retryBtnText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
             <ImageUploader
               bucket={entity.kind === 'coach' ? 'coach-photos' : 'partner-logos'}
               storagePath={`${entity.slug}/photo.jpg`}
@@ -132,6 +151,13 @@ const pm = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
   title: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17, marginBottom: 16 },
+  errorBox: {
+    backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
+    padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+  },
+  errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+  retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
 })
 
 // ── Metric tile ──────────────────────────────────────────────────────────────
@@ -149,6 +175,7 @@ export default function FounderPortalScreen({ navigation }) {
   const { setPortalMode } = useAuth()
 
   const [loading, setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [userCount, setUserCount] = useState(null)
   const [roleCounts, setRoleCounts] = useState({})
   const [proCount, setProCount] = useState(null)
@@ -231,13 +258,14 @@ export default function FounderPortalScreen({ navigation }) {
     navigation.popTo('HomeMain')
   }
 
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
+  async function loadDashboard() {
+    setLoading(true)
+    setLoadError(null)
+    try {
       const [
-        { data: platformStats },
-        { data: queueSnapshot },
-        { count: pendingGdpr },
+        { data: platformStats, error: statsErr },
+        { data: queueSnapshot, error: queueErr },
+        { count: pendingGdpr, error: gdprErr },
       ] = await Promise.all([
         // profiles/user_roles/subscriptions are RLS-scoped to "your own row",
         // so querying them directly from here (as this used to) always read
@@ -249,18 +277,22 @@ export default function FounderPortalScreen({ navigation }) {
         supabase.rpc('get_ops_queue_snapshot'),
         supabase.from('gdpr_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       ])
-      if (cancelled) return
+      if (statsErr || queueErr || gdprErr) throw statsErr || queueErr || gdprErr
       const stats = platformStats?.[0] || null
       setUserCount(stats?.total_users ?? 0)
       setRoleCounts(stats?.role_counts || {})
       setProCount(stats?.active_pro_members ?? 0)
       setQueue(queueSnapshot?.[0] || null)
       setGdprPending(pendingGdpr ?? 0)
+    } catch {
+      // Without this, any network failure here left every metric tile
+      // showing "—" forever with no indication anything had gone wrong.
+      setLoadError('Could not load platform stats.')
+    } finally {
       setLoading(false)
     }
-    load()
-    return () => { cancelled = true }
-  }, [])
+  }
+  useEffect(() => { loadDashboard() }, [])
 
   return (
     <View style={styles.screen}>
@@ -278,6 +310,15 @@ export default function FounderPortalScreen({ navigation }) {
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
+        {!!loadError && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{loadError}</Text>
+            <TouchableOpacity onPress={loadDashboard} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
+              <Text style={styles.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <View style={styles.sectionRow}>
           <Users size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>PLATFORM</Text>
@@ -556,4 +597,12 @@ const styles = StyleSheet.create({
   },
   confirmAddBtn: { backgroundColor: colors.navy, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: 18, marginBottom: 4 },
   confirmAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.cream },
+
+  errorBox: {
+    marginBottom: spacing.md, backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
+    padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+  },
+  errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+  retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
 })

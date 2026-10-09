@@ -14,6 +14,7 @@ export default function PartnerPortalScreen({ navigation }) {
   const { setPortalMode, user } = useAuth()
 
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [stats, setStats]     = useState(null) // row from get_my_partner_stats()
   const [linked, setLinked]   = useState(true) // false if no partner_users row exists yet
 
@@ -24,12 +25,18 @@ export default function PartnerPortalScreen({ navigation }) {
     navigation.popTo('HomeMain')
   }
 
-  useEffect(() => {
+  function loadStats() {
     if (!user?.id) return
     let cancelled = false
-    supabase.rpc('get_my_partner_stats').then(({ data }) => {
+    setLoading(true)
+    setLoadError(null)
+    supabase.rpc('get_my_partner_stats').then(({ data, error }) => {
       if (cancelled) return
-      if (!data || data.length === 0) {
+      if (error) {
+        // Without this, a dropped connection left the spinner spinning
+        // forever with no timeout, error, or retry path.
+        setLoadError('Could not load your stats.')
+      } else if (!data || data.length === 0) {
         setLinked(false)
       } else {
         setStats(data[0])
@@ -37,7 +44,9 @@ export default function PartnerPortalScreen({ navigation }) {
       setLoading(false)
     })
     return () => { cancelled = true }
-  }, [user?.id])
+  }
+
+  useEffect(loadStats, [user?.id])
 
   return (
     <View style={styles.screen}>
@@ -57,6 +66,13 @@ export default function PartnerPortalScreen({ navigation }) {
       >
         {loading ? (
           <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
+        ) : loadError ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{loadError}</Text>
+            <TouchableOpacity onPress={loadStats} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
+              <Text style={styles.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
         ) : !linked ? (
           <Card style={styles.unlinkedCard}>
             <Text style={styles.unlinkedText}>
@@ -124,4 +140,12 @@ const styles = StyleSheet.create({
 
   unlinkedCard: { marginTop: 10 },
   unlinkedText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
+
+  errorBox: {
+    marginTop: 10, backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
+    padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+  },
+  errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+  retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
 })
