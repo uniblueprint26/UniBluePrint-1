@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw } from 'lucide-react-native'
+import { Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw, Clock, CheckCircle2 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
+import StatTile from '../../components/ui/StatTile'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
@@ -13,15 +14,6 @@ import { supabase } from '../../lib/supabase'
 const GDPR_LABELS = {
   export: 'Data export', deletion: 'Account deletion',
   correction: 'Data correction', restriction: 'Restrict processing',
-}
-
-function MetricTile({ label, value, border }) {
-  return (
-    <View style={[styles.metricTile, border && styles.metricTileBorder]}>
-      <Text style={styles.metricValue}>{value != null ? formatNumber(value) : '—'}</Text>
-      <Text style={styles.metricLabel}>{label}</Text>
-    </View>
-  )
 }
 
 export default function OperationsPortalScreen({ navigation }) {
@@ -129,9 +121,18 @@ export default function OperationsPortalScreen({ navigation }) {
         </View>
         <Card style={styles.queueCard}>
           <View style={styles.queueRow}>
-            <MetricTile label="Queued" value={queue?.queued} />
-            <MetricTile label="In Progress" value={queue?.in_progress} border />
-            <MetricTile label="Completed Today" value={queue?.completed_today} border />
+            <StatTile
+              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.navy}
+              value={queue?.queued != null ? formatNumber(queue.queued) : '—'} label="Queued" border
+            />
+            <StatTile
+              icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+              value={queue?.in_progress != null ? formatNumber(queue.in_progress) : '—'} label="In Progress" border
+            />
+            <StatTile
+              icon={CheckCircle2} iconBg="#F0FDF4" iconColor={colors.success}
+              value={queue?.completed_today != null ? formatNumber(queue.completed_today) : '—'} label="Completed Today"
+            />
           </View>
           <View style={styles.urgencyRow}>
             <View style={[styles.urgencyDot, { backgroundColor: '#DC2626' }]} />
@@ -263,10 +264,6 @@ const styles = StyleSheet.create({
 
   queueCard: {},
   queueRow: { flexDirection: 'row', marginBottom: 14 },
-  metricTile: { flex: 1 },
-  metricTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14, marginLeft: 4 },
-  metricValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
-  metricLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
   urgencyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   urgencyDot: { width: 8, height: 8, borderRadius: 4 },
   urgencyText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginRight: 8 },

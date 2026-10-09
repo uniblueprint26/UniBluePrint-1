@@ -5,6 +5,7 @@ import { TrendingUp, Eye, Tag } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
+import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -87,18 +88,10 @@ export default function PartnerPortalScreen({ navigation }) {
               <TrendingUp size={14} color={colors.navy} />
               <Text style={styles.sectionEyebrow}>THIS PERIOD</Text>
             </View>
-            <View style={styles.metricRow}>
-              <View style={styles.metricTile}>
-                <Eye size={14} color={colors.muted} />
-                <Text style={styles.metricValue}>{stats.views ?? 0}</Text>
-                <Text style={styles.metricLabel}>Deal Views</Text>
-              </View>
-              <View style={[styles.metricTile, styles.metricTileBorder]}>
-                <Tag size={14} color={colors.muted} />
-                <Text style={styles.metricValue}>{stats.claims ?? 0}</Text>
-                <Text style={styles.metricLabel}>Deal Claims</Text>
-              </View>
-            </View>
+            <StatTileRow>
+              <StatTile icon={Eye} iconBg="#EFF6FF" iconColor={colors.navy} value={stats.views ?? 0} label="Deal Views" border />
+              <StatTile icon={Tag} iconBg="#FEF9C3" iconColor={colors.goldDeep} value={stats.claims ?? 0} label="Deal Claims" />
+            </StatTileRow>
 
             <Card style={styles.engagedCard}>
               <Text style={styles.engagedValue}>{stats.unique_engaged_users ?? 0}</Text>
@@ -125,12 +118,6 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
   sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
-
-  metricRow: { flexDirection: 'row', backgroundColor: colors.white, borderRadius: radius.card, padding: 16, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)' },
-  metricTile: { flex: 1, gap: 4 },
-  metricTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14, marginLeft: 4 },
-  metricValue: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy },
-  metricLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
 
   engagedCard: { alignItems: 'center', marginTop: 12, paddingVertical: 20 },
   engagedValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.navy },

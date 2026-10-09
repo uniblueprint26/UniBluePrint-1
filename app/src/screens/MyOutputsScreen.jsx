@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { CheckCircle, FileText } from 'lucide-react-native'
+import { CheckCircle, FileText, Inbox, Clock } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
+import StatTile, { StatTileRow } from '../components/ui/StatTile'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
@@ -92,6 +93,8 @@ export default function MyOutputsScreen({ navigation }) {
   }
 
   const deliveredCount = rows.filter(r => r.stage === 'delivered').length
+  const queuedCount = rows.filter(r => ['submitted', 'in_queue', 'assigned'].includes(r.stage)).length
+  const inReviewCount = rows.filter(r => r.stage === 'in_review').length
 
   return (
     <View style={styles.screen}>
@@ -133,11 +136,21 @@ export default function MyOutputsScreen({ navigation }) {
             </TouchableOpacity>
           </Card>
         ) : (
-          <Card style={{ padding: 0 }}>
-            {rows.map((row, i) => (
-              <OutputRow key={row.id} row={row} isLast={i === rows.length - 1} />
-            ))}
-          </Card>
+          <>
+            {/* MyOutputs is the one screen most students will treat as their
+                own dashboard — give it the same stat-tile authority the
+                portal dashboards have, not just a flat list. */}
+            <StatTileRow style={{ marginBottom: spacing.md }}>
+              <StatTile icon={Inbox} iconBg="#EFF6FF" iconColor={colors.navy} value={queuedCount} label="Queued" border />
+              <StatTile icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep} value={inReviewCount} label="In Review" border />
+              <StatTile icon={CheckCircle} iconBg="#F0FDF4" iconColor={colors.success} value={deliveredCount} label="Delivered" />
+            </StatTileRow>
+            <Card style={{ padding: 0 }}>
+              {rows.map((row, i) => (
+                <OutputRow key={row.id} row={row} isLast={i === rows.length - 1} />
+              ))}
+            </Card>
+          </>
         )}
       </ScrollView>
     </View>

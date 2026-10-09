@@ -10,6 +10,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import { FieldLabel, FormTextInput, FormTextArea } from '../../components/forms/FormControls'
+import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 
 // Evidence Bank — real STAR stories (Situation/Task/Action/Result) a student
 // builds up once and reuses across services. Application Form Assistance
@@ -444,29 +445,20 @@ export default function EvidenceBankScreen({ navigation }) {
         </View>
 
         {/* Stats row */}
-        <View style={styles.statsRow}>
-          <View style={[styles.statItem, styles.statBorder]}>
-            <View style={[styles.statIconWrap, { backgroundColor: '#EFF6FF' }]}>
-              <BookOpen size={13} color={colors.navy} strokeWidth={2} />
-            </View>
-            <Text style={styles.statValue}>{loading ? '–' : storiesCount}</Text>
-            <Text style={styles.statLabel}>Evidence{'\n'}Stories</Text>
-          </View>
-          <View style={[styles.statItem, styles.statBorder]}>
-            <View style={[styles.statIconWrap, { backgroundColor: '#FEF9C3' }]}>
-              <FileText size={13} color={colors.goldDeep} strokeWidth={2} />
-            </View>
-            <Text style={styles.statValue}>{statCounts.applications === null ? '–' : statCounts.applications}</Text>
-            <Text style={styles.statLabel}>Applications</Text>
-          </View>
-          <View style={styles.statItem}>
-            <View style={[styles.statIconWrap, { backgroundColor: '#F0FDF4' }]}>
-              <MessageSquare size={13} color={colors.success} strokeWidth={2} />
-            </View>
-            <Text style={styles.statValue}>{statCounts.interviews === null ? '–' : statCounts.interviews}</Text>
-            <Text style={styles.statLabel}>Interviews</Text>
-          </View>
-        </View>
+        <StatTileRow style={{ marginTop: spacing.md }}>
+          <StatTile
+            icon={BookOpen} iconBg="#EFF6FF" iconColor={colors.navy}
+            value={loading ? '–' : storiesCount} label={'Evidence\nStories'} border
+          />
+          <StatTile
+            icon={FileText} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+            value={statCounts.applications === null ? '–' : statCounts.applications} label="Applications" border
+          />
+          <StatTile
+            icon={MessageSquare} iconBg="#F0FDF4" iconColor={colors.success}
+            value={statCounts.interviews === null ? '–' : statCounts.interviews} label="Interviews"
+          />
+        </StatTileRow>
 
         {/* Category prompts */}
         <Text style={styles.sectionLabel}>Start with a category</Text>
@@ -559,17 +551,6 @@ const styles = StyleSheet.create({
     padding: 16, borderLeftWidth: 4, borderLeftColor: colors.gold,
   },
   bannerText: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.cream, lineHeight: 20 },
-
-  statsRow: {
-    flexDirection: 'row', backgroundColor: colors.white,
-    marginTop: spacing.md, borderRadius: radius.card,
-    borderWidth: 1, borderColor: colors.border, ...shadows.card,
-  },
-  statItem: { flex: 1, alignItems: 'center', paddingVertical: 16, paddingHorizontal: 4 },
-  statBorder: { borderRightWidth: 1, borderRightColor: colors.border },
-  statIconWrap: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  statValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, lineHeight: 26 },
-  statLabel: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 3, textAlign: 'center', lineHeight: 13 },
 
   sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: spacing.lg, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },
 

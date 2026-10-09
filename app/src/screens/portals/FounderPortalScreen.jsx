@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput,
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
-  Sparkles, Plus, Trash2,
+  Sparkles, Plus, Trash2, Clock, CheckCircle2,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import ImageUploader from '../../components/ui/ImageUploader'
+import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
@@ -159,16 +160,6 @@ const pm = StyleSheet.create({
   retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
   retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
 })
-
-// ── Metric tile ──────────────────────────────────────────────────────────────
-function MetricTile({ label, value, border }) {
-  return (
-    <View style={[styles.metricTile, border && styles.metricTileBorder]}>
-      <Text style={styles.metricValue}>{value != null ? formatNumber(value) : '—'}</Text>
-      <Text style={styles.metricLabel}>{label}</Text>
-    </View>
-  )
-}
 
 export default function FounderPortalScreen({ navigation }) {
   const insets = useSafeAreaInsets()
@@ -323,10 +314,16 @@ export default function FounderPortalScreen({ navigation }) {
           <Users size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>PLATFORM</Text>
         </View>
-        <View style={styles.metricRow}>
-          <MetricTile label="Total Users" value={userCount} />
-          <MetricTile label="Active Pro Members" value={proCount} border />
-        </View>
+        <StatTileRow>
+          <StatTile
+            icon={Users} iconBg="#EFF6FF" iconColor={colors.navy}
+            value={userCount != null ? formatNumber(userCount) : '—'} label="Total Users" border
+          />
+          <StatTile
+            icon={Sparkles} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+            value={proCount != null ? formatNumber(proCount) : '—'} label="Active Pro Members"
+          />
+        </StatTileRow>
         <View style={styles.pillWrap}>
           {Object.entries(roleCounts).map(([role, count]) => (
             <View key={role} style={styles.rolePill}>
@@ -344,9 +341,18 @@ export default function FounderPortalScreen({ navigation }) {
         </View>
         <Card style={styles.queueCard}>
           <View style={styles.queueRow}>
-            <MetricTile label="Queued" value={queue?.queued} />
-            <MetricTile label="In Progress" value={queue?.in_progress} border />
-            <MetricTile label="Completed Today" value={queue?.completed_today} border />
+            <StatTile
+              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.navy}
+              value={queue?.queued != null ? formatNumber(queue.queued) : '—'} label="Queued" border
+            />
+            <StatTile
+              icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+              value={queue?.in_progress != null ? formatNumber(queue.in_progress) : '—'} label="In Progress" border
+            />
+            <StatTile
+              icon={CheckCircle2} iconBg="#F0FDF4" iconColor={colors.success}
+              value={queue?.completed_today != null ? formatNumber(queue.completed_today) : '—'} label="Completed Today"
+            />
           </View>
           <View style={styles.urgencyRow}>
             <View style={[styles.urgencyDot, { backgroundColor: '#DC2626' }]} />
@@ -541,12 +547,6 @@ const styles = StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
   sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
   sectionCaption: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: -4, marginBottom: 10, lineHeight: 17 },
-
-  metricRow: { flexDirection: 'row', backgroundColor: colors.white, borderRadius: radius.card, padding: 16, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card },
-  metricTile: { flex: 1 },
-  metricTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14, marginLeft: 4 },
-  metricValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
-  metricLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   rolePill: { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
