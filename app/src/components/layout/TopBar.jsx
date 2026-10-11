@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Bell, User, ChevronLeft } from 'lucide-react-native'
 import { colors, fonts } from '../../constants/theme'
 import UBPLogo from '../ui/UBPLogo'
+import { HeaderIconButton } from '../ui/ScreenHeader'
 import { goToHome } from '../../navigation/helpers'
 
 // Shared utility header used by screens pushed from Home (Lifestyle,
@@ -23,42 +24,40 @@ export default function TopBar({ navigation, showBack = false, notificationCount
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <View style={styles.left}>
         {showBack && (
-          <TouchableOpacity
+          <HeaderIconButton
+            icon={ChevronLeft}
             onPress={() => navigation?.goBack()}
+            color={colors.cream}
+            size={20}
             style={styles.backBtn}
-            activeOpacity={0.7}
-            accessibilityRole="button"
             accessibilityLabel="Go back"
-          >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-          </TouchableOpacity>
+          />
         )}
         <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
       </View>
       <View style={styles.right}>
-        <TouchableOpacity
-          onPress={handleBellPress}
-          style={styles.iconButton}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Notifications"
-        >
-          <Bell size={20} color={colors.cream} />
+        <View style={styles.bellWrap}>
+          <HeaderIconButton
+            icon={Bell}
+            onPress={handleBellPress}
+            color={colors.cream}
+            size={20}
+            accessibilityLabel="Notifications"
+          />
           {notificationCount > 0 && (
-            <View style={styles.badge}>
+            <View style={styles.badge} pointerEvents="none">
               <Text style={styles.badgeText}>{notificationCount > 9 ? '9+' : notificationCount}</Text>
             </View>
           )}
-        </TouchableOpacity>
-        <TouchableOpacity
+        </View>
+        <HeaderIconButton
+          icon={User}
           onPress={handleProfilePress}
+          color={colors.navy}
+          size={17}
           style={styles.avatarBtn}
-          activeOpacity={0.7}
-          accessibilityRole="button"
           accessibilityLabel="Profile"
-        >
-          <User size={17} color={colors.navy} />
-        </TouchableOpacity>
+        />
       </View>
     </View>
   )
@@ -74,17 +73,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   left: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  backBtn: {
-    width: 28, height: 28, marginLeft: -6,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  // HeaderIconButton is a real 44×44pt target; pull it back in by the same
+  // amount ScreenHeader's own back button does so it doesn't visually eat
+  // into the header's padding.
+  backBtn: { marginLeft: -12 },
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconButton: {
-    position: 'relative', width: 40, height: 40,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  bellWrap: { position: 'relative' },
   badge: {
-    position: 'absolute', top: 8, right: 8,
+    position: 'absolute', top: 6, right: 6,
     backgroundColor: '#F59E0B', borderRadius: 9999,
     minWidth: 16, height: 16,
     alignItems: 'center', justifyContent: 'center',
@@ -93,9 +89,8 @@ const styles = StyleSheet.create({
   },
   badgeText: { fontFamily: fonts.sansBold, fontSize: 9, color: colors.white },
   avatarBtn: {
-    width: 36, height: 36, borderRadius: 18,
+    borderRadius: 22,
     backgroundColor: 'rgba(245,240,232,0.15)',
-    alignItems: 'center', justifyContent: 'center',
     borderWidth: 1.5, borderColor: 'rgba(245,240,232,0.25)',
   },
 })

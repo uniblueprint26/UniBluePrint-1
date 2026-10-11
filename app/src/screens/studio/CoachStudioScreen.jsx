@@ -18,12 +18,20 @@ import { supabase } from '../../lib/supabase'
 // still no messaging/goals-worksheet/milestone schema anywhere, so Client
 // Activity has no live data to read; it shows the same honest "Coming soon"
 // treatment already used below for Earnings rather than inventing a feed.
-const DEMO_SPECIALISMS = ['Career Strategy', 'Interview Coaching', 'Postgraduate Planning', 'Confidence Building']
-// ^ Still a static placeholder — coach_profiles only has a single
-// `specialisation` text field today, not the tag list this UI implies. Left
-// as-is (a bio detail, not a fabricated stat/count/activity claim); a real
-// fix needs a schema change to a proper tags column plus a coach-facing
-// editor, out of scope for this pass.
+//
+// Specialisms are read from the coach's own coach_profiles.specialisation —
+// the only specialism field the schema has today (a single free-text value,
+// same column homeActivityFeed.js reads for the "New X coach available"
+// feed item). A coach sometimes lists more than one, comma- or slash-
+// separated, so that's split into individual pills rather than shown as one
+// run-on string.
+function parseSpecialisms(raw) {
+  if (!raw) return []
+  return raw
+    .split(/[,/]/)
+    .map(s => s.trim())
+    .filter(Boolean)
+}
 
 // ── Edit My Profile ──────────────────────────────────────────────────────────
 // Self-serve bio/photo editing for a coach whose coach_profiles row has
@@ -145,6 +153,7 @@ function useCoachBookings(userId) {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [bookings, setBookings] = useState([])
+  const [specialisation, setSpecialisation] = useState(null)
 
   useEffect(() => {
     if (!userId) return
@@ -153,11 +162,12 @@ function useCoachBookings(userId) {
     async function load() {
       const { data: profile, error: profileError } = await supabase
         .from('coach_profiles')
-        .select('coach_slug')
+        .select('coach_slug, specialisation')
         .eq('user_id', userId)
         .maybeSingle()
 
       if (cancelled) return
+      setSpecialisation(profile?.specialisation || null)
       if (profileError || !profile?.coach_slug) {
         setLoadError(!!profileError)
         setBookings([])
@@ -190,13 +200,14 @@ function useCoachBookings(userId) {
     return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()
   }).length
 
-  return { loading, loadError, upcoming, activeClientCount, monthlyBookings }
+  return { loading, loadError, upcoming, activeClientCount, monthlyBookings, specialisation }
 }
 
 export default function CoachStudioScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { setPortalMode, user } = useAuth()
-  const { loading: bookingsLoading, loadError: bookingsError, upcoming, activeClientCount, monthlyBookings } = useCoachBookings(user?.id)
+  const { loading: bookingsLoading, loadError: bookingsError, upcoming, activeClientCount, monthlyBookings, specialisation } = useCoachBookings(user?.id)
+  const specialisms = parseSpecialisms(specialisation)
 
   function backToMyBlueprint() {
     setPortalMode('personal')
@@ -311,13 +322,19 @@ export default function CoachStudioScreen({ navigation }) {
           <Users size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>YOUR SPECIALISMS</Text>
         </View>
-        <View style={styles.pillWrap}>
-          {DEMO_SPECIALISMS.map(label => (
-            <View key={label} style={styles.specialismPill}>
-              <Text style={styles.specialismPillText}>{label}</Text>
-            </View>
-          ))}
-        </View>
+        {specialisms.length === 0 ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>No specialism on file yet. Operations can add one to your coach profile.</Text>
+          </Card>
+        ) : (
+          <View style={styles.pillWrap}>
+            {specialisms.map(label => (
+              <View key={label} style={styles.specialismPill}>
+                <Text style={styles.specialismPillText}>{label}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Edit My Profile — self-serve bio + photo */}
         <EditProfileSection userId={user?.id} />

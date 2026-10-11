@@ -8,7 +8,7 @@
  * conventions (hero block, Card, filter bar, upvote pill) are lifted
  * straight from BoardDetailScreen for visual consistency.
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet,
   ActivityIndicator, Modal, KeyboardAvoidingView, Platform, Alert,
@@ -40,6 +40,7 @@ export default function ModuleQAScreen({ navigation, route }) {
   const { user } = useAuth()
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
   const openAsk = route?.params?.openAsk
+  const openQuestionId = route?.params?.openQuestionId
 
   const [questions, setQuestions] = useState([])
   const [answerCounts, setAnswerCounts] = useState({})
@@ -79,6 +80,21 @@ export default function ModuleQAScreen({ navigation, route }) {
     if (openAsk) setAskOpen(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Deep-link from a notification straight into one question's answer
+  // thread, once the questions list has loaded. Guarded with a ref so it
+  // only fires once — `questions` gets a new row prepended on every post,
+  // which would otherwise reopen the thread.
+  const openedQuestionFromNotif = useRef(false)
+  useEffect(() => {
+    if (openedQuestionFromNotif.current || !openQuestionId || questions.length === 0) return
+    const q = questions.find(q => q.id === openQuestionId)
+    if (q) {
+      openedQuestionFromNotif.current = true
+      openThread(q)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openQuestionId, questions])
 
   const filtered = questions.filter(q => {
     if (!search.trim()) return true

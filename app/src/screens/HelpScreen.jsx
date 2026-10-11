@@ -1,4 +1,5 @@
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native'
+import { useState } from 'react'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, MessageCircle, FileText, Shield, ChevronRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
@@ -41,10 +42,10 @@ const TOPICS = [
 
 export default function HelpScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-
-  function openTopic(item) {
-    Alert.alert(item.label, item.detail, [{ text: 'Got it', style: 'default' }])
-  }
+  // Inline accordion, same expand-to-read-more pattern as FAQsScreen, rather
+  // than a system Alert.alert popup — keyed by "section-index" since item
+  // labels aren't unique across topic sections.
+  const [openKey, setOpenKey] = useState(null)
 
   return (
     <ScrollView
@@ -90,17 +91,27 @@ export default function HelpScreen({ navigation }) {
               <Text style={styles.topicTitle}>{title}</Text>
             </View>
             <Card style={styles.topicCard}>
-              {items.map((item, i) => (
-                <TouchableOpacity
-                  key={i}
-                  style={[styles.topicRow, i < items.length - 1 && styles.topicRowBorder]}
-                  activeOpacity={0.7}
-                  onPress={() => openTopic(item)}
-                >
-                  <Text style={styles.topicItem}>{item.label}</Text>
-                  <ChevronRight size={14} color={colors.light} />
-                </TouchableOpacity>
-              ))}
+              {items.map((item, i) => {
+                const key = `${title}-${i}`
+                const isOpen = openKey === key
+                return (
+                  <View key={key} style={[styles.topicRow, i < items.length - 1 && styles.topicRowBorder]}>
+                    <TouchableOpacity
+                      style={styles.topicRowTop}
+                      activeOpacity={0.7}
+                      onPress={() => setOpenKey(isOpen ? null : key)}
+                    >
+                      <Text style={styles.topicItem}>{item.label}</Text>
+                      <ChevronRight
+                        size={14}
+                        color={colors.light}
+                        style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }], flexShrink: 0 }}
+                      />
+                    </TouchableOpacity>
+                    {isOpen && <Text style={styles.topicDetail}>{item.detail}</Text>}
+                  </View>
+                )
+              })}
             </Card>
           </View>
         ))}
@@ -158,12 +169,11 @@ const styles = StyleSheet.create({
   topicTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.navy },
 
   topicCard: { padding: 0 },
-  topicRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingVertical: 14,
-  },
+  topicRow: { paddingHorizontal: 16, paddingVertical: 14 },
   topicRowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
+  topicRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   topicItem: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, flex: 1, marginRight: 8 },
+  topicDetail: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 10 },
 
   footerCard: {
     backgroundColor: colors.navy, padding: 20, marginTop: spacing.xl,
