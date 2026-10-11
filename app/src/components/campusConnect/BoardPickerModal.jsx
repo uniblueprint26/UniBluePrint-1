@@ -35,7 +35,9 @@ export default function BoardPickerModal({ visible, onClose, onPick }) {
                   accessibilityRole="button"
                   accessibilityLabel={`Post to ${board.title}`}
                 >
-                  <Text style={s.tileIcon}>{board.icon}</Text>
+                  {board.Icon
+                    ? <board.Icon size={24} color={colors.navy} strokeWidth={1.8} />
+                    : <Text style={s.tileIcon}>{board.icon}</Text>}
                   <Text style={s.tileTitle}>{board.title}</Text>
                 </TouchableOpacity>
               ))}

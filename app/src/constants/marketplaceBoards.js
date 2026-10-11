@@ -12,6 +12,9 @@
  * confirmed decision for this board (see BoardDetailScreen's renderMarketplaceCard).
  */
 
+import { Sparkles, ShoppingBag } from 'lucide-react-native'
+import { colors } from './theme'
+
 export const FIELD_TYPES = {
   TEXT: 'text',
   TEXTAREA: 'textarea',
@@ -37,7 +40,7 @@ export const MARKETPLACE_BOARDS = [
   {
     key: 'skills',
     title: 'Skills Marketplace',
-    icon: '🎯',
+    Icon: Sparkles,
     color: '#F5F3FF',
     table: 'marketplace_skills',
     special: 'marketplace',
@@ -63,8 +66,8 @@ export const MARKETPLACE_BOARDS = [
   {
     key: 'buysell',
     title: 'Buy & Sell',
-    icon: '🛍️',
-    color: '#FEF3C7',
+    Icon: ShoppingBag,
+    color: colors.warningBg,
     table: 'marketplace_listings',
     special: 'marketplace',
     tagline: 'Buy and sell items with other students across Ireland.',

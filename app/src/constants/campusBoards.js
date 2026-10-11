@@ -16,6 +16,12 @@
  * post form and the shared campus gate before posting.
  */
 
+import {
+  Home, Car, PartyPopper, BookOpen, Search, MessageCircle, Handshake,
+  Lightbulb, Puzzle, Link2, Star, MessageSquare, Megaphone, Briefcase,
+} from 'lucide-react-native'
+import { colors } from './theme'
+
 export const FIELD_TYPES = {
   TEXT: 'text',
   TEXTAREA: 'textarea',
@@ -51,7 +57,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'accommodation',
     title: 'Accommodation',
-    icon: '🏠',
+    Icon: Home,
     color: '#EFF6FF',
     table: 'accommodation_posts',
     special: 'accommodation',
@@ -77,8 +83,8 @@ export const CAMPUS_BOARDS = [
   {
     key: 'carpool',
     title: 'Carpooling',
-    icon: '🚗',
-    color: '#F0FDF4',
+    Icon: Car,
+    color: colors.successBg,
     table: 'carpool_routes',
     special: 'carpool',
     tagline: 'Match with people on your route and split the cost of your commute.',
@@ -111,7 +117,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'events',
     title: 'Campus Events',
-    icon: '🎉',
+    Icon: PartyPopper,
     color: '#FDF4FF',
     table: 'campus_events',
     tagline: 'Society nights, careers fairs, open days, and student-run events.',
@@ -136,7 +142,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'study-groups',
     title: 'Study Groups',
-    icon: '📚',
+    Icon: BookOpen,
     color: '#F0F9FF',
     table: 'study_groups',
     tagline: 'Find or form a study group by module, level, or subject.',
@@ -160,7 +166,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'lost-found',
     title: 'Lost and Found',
-    icon: '🔍',
+    Icon: Search,
     color: '#FFF7ED',
     table: 'lost_found_posts',
     tagline: 'Report a lost item, or hand something found back to its owner.',
@@ -182,7 +188,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'conversations',
     title: 'Campus Conversation Boards',
-    icon: '💬',
+    Icon: MessageCircle,
     color: '#FDF4FF',
     table: 'campus_conversations',
     tagline: 'Open discussion, whatever your campus wants to talk about.',
@@ -200,8 +206,8 @@ export const CAMPUS_BOARDS = [
   {
     key: 'clubs',
     title: 'Join Clubs and Societies',
-    icon: '🤝',
-    color: '#F0FDF4',
+    Icon: Handshake,
+    color: colors.successBg,
     table: 'clubs_societies',
     special: 'clubs',
     tagline: 'Find and join clubs and societies at your campus.',
@@ -221,7 +227,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'projects',
     title: 'Project Collaboration',
-    icon: '💡',
+    Icon: Lightbulb,
     color: '#FDF4FF',
     table: 'project_collaborations',
     special: 'projects',
@@ -246,8 +252,8 @@ export const CAMPUS_BOARDS = [
   {
     key: 'problems',
     title: 'Problems and Solutions',
-    icon: '🧩',
-    color: '#FEF9C3',
+    Icon: Puzzle,
+    color: colors.warningBg,
     table: 'problems_posts',
     special: 'problems',
     tagline: 'Ask for help, and share solutions with your campus community.',
@@ -266,7 +272,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'subscriptions',
     title: 'Shared Subscriptions',
-    icon: '🔗',
+    Icon: Link2,
     color: '#F0F9FF',
     table: 'shared_subscriptions',
     tagline: 'Split the cost of streaming, software, and other subscriptions.',
@@ -286,8 +292,8 @@ export const CAMPUS_BOARDS = [
   {
     key: 'reviews',
     title: 'College Reviews',
-    icon: '⭐',
-    color: '#F0FDF4',
+    Icon: Star,
+    color: colors.successBg,
     table: 'college_reviews',
     special: 'reviews',
     tagline: 'Honest reviews of courses, modules, and college life.',
@@ -307,7 +313,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'suggestions',
     title: 'Campus Suggestions',
-    icon: '💭',
+    Icon: MessageSquare,
     color: '#FDF4FF',
     table: 'campus_suggestions',
     special: 'suggestions',
@@ -328,7 +334,7 @@ export const CAMPUS_BOARDS = [
   {
     key: 'ads',
     title: 'Student Ads',
-    icon: '📢',
+    Icon: Megaphone,
     color: '#F5F0E8',
     table: 'student_ads',
     special: 'ads',
@@ -351,8 +357,8 @@ export const CAMPUS_BOARDS = [
   {
     key: 'opportunities',
     title: 'Opportunities',
-    icon: '💼',
-    color: '#FEF9C3',
+    Icon: Briefcase,
+    color: colors.warningBg,
     table: 'opportunities',
     tagline: 'Internships, part-time jobs, volunteering, and more.',
     postCta: 'Post an Opportunity',

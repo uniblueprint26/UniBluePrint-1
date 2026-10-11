@@ -14,7 +14,11 @@
  * from Campus Connect's renderer against the *same* `college_reviews` table
  * — see the note on the `course-reviews` entry below for why).
  */
+import {
+  GraduationCap, FileText, BookMarked, Users, Lightbulb, Briefcase, Star,
+} from 'lucide-react-native'
 import { FIELD_TYPES } from './campusBoards'
+import { colors } from './theme'
 
 const T = FIELD_TYPES
 
@@ -28,7 +32,7 @@ export const COURSE_BOARDS = [
   {
     key: 'course-boards',
     title: 'Course Boards',
-    icon: '🎓',
+    Icon: GraduationCap,
     color: '#EFF6FF',
     table: 'course_boards_posts',
     tagline: 'Discussion boards for your course, programme, or workplace — open to everyone on it, anywhere in Ireland.',
@@ -48,8 +52,8 @@ export const COURSE_BOARDS = [
   {
     key: 'notes',
     title: 'Shared Notes',
-    icon: '📝',
-    color: '#F0FDF4',
+    Icon: FileText,
+    color: colors.successBg,
     table: 'shared_notes',
     special: 'notes',
     captureInstitution: true,
@@ -72,7 +76,7 @@ export const COURSE_BOARDS = [
   {
     key: 'papers',
     title: 'Past Papers',
-    icon: '📄',
+    Icon: BookMarked,
     color: '#FFF7ED',
     table: 'past_papers',
     special: 'papers',
@@ -96,7 +100,7 @@ export const COURSE_BOARDS = [
   {
     key: 'study-groups',
     title: 'Study Groups',
-    icon: '📚',
+    Icon: Users,
     color: '#F0F9FF',
     table: 'course_connect_study_groups',
     tagline: 'Find or form a study group by module — open across every Irish college.',
@@ -122,7 +126,7 @@ export const COURSE_BOARDS = [
   {
     key: 'projects',
     title: 'Cross-Ireland Project Collaboration',
-    icon: '💡',
+    Icon: Lightbulb,
     color: '#FDF4FF',
     table: 'cross_ireland_projects',
     special: 'projects',
@@ -147,8 +151,8 @@ export const COURSE_BOARDS = [
   {
     key: 'industry',
     title: 'Industry Discussions',
-    icon: '💼',
-    color: '#FEF9C3',
+    Icon: Briefcase,
+    color: colors.warningBg,
     table: 'industry_discussions',
     tagline: 'Careers, internships, and industry news, by sector — for students, apprentices, and workers alike, talk to people already in the field.',
     postCta: 'Start a Discussion',
@@ -174,8 +178,8 @@ export const COURSE_BOARDS = [
     // left unchanged (posted from inside a campus, so it doesn't ask).
     key: 'course-reviews',
     title: 'Public College Reviews',
-    icon: '⭐',
-    color: '#F0FDF4',
+    Icon: Star,
+    color: colors.successBg,
     table: 'college_reviews',
     special: 'reviews',
     tagline: 'Honest reviews of Irish colleges — overall rating, category breakdown, and written reviews.',

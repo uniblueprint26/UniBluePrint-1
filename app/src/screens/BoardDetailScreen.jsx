@@ -1,6 +1,9 @@
 /**
  * BoardDetailScreen — the shared browse + post screen for every Campus
- * Connect board. Route params: { boardKey, openPostForm? }.
+ * Connect board. Route params: { boardKey, openPostForm?, openProblemId? }.
+ * `openProblemId` (problems board only) opens that problem's solutions
+ * thread straight away — used when a notification deep-links to a specific
+ * problem_solution instead of just the board.
  *
  * The generic path (fields/filters/card rendering driven entirely by
  * `constants/campusBoards.js`) covers most boards unmodified. A handful of
@@ -25,7 +28,7 @@
  * campus before posting" gate (Course Connect boards are cross-Ireland and
  * never require a campus on file).
  */
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet,
   ActivityIndicator, Alert, Modal, Image, Linking, KeyboardAvoidingView, Platform,
@@ -88,7 +91,7 @@ function Stars({ value, size = 12 }) {
 }
 
 export default function BoardDetailScreen({ navigation, route }) {
-  const { boardKey, openPostForm, registry = 'campus' } = route.params ?? {}
+  const { boardKey, openPostForm, openProblemId, registry = 'campus' } = route.params ?? {}
   const board = registry === 'course' ? getCourseBoard(boardKey)
     : registry === 'marketplace' ? getMarketplaceBoard(boardKey)
     : getBoard(boardKey)
@@ -193,6 +196,21 @@ export default function BoardDetailScreen({ navigation, route }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Deep-link from a notification straight into one problem's solutions
+  // thread, once its row has loaded. Guarded with a ref so it only fires
+  // once — `rows` is replaced (not just appended to) on every load/realtime
+  // refresh and would otherwise reopen the thread each time.
+  const openedProblemFromNotif = useRef(false)
+  useEffect(() => {
+    if (openedProblemFromNotif.current || !openProblemId || board?.key !== 'problems' || rows.length === 0) return
+    const problem = rows.find(r => r.id === openProblemId)
+    if (problem) {
+      openedProblemFromNotif.current = true
+      openProblem(problem)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openProblemId, board?.key, rows])
 
   if (!board) {
     return (
@@ -921,7 +939,9 @@ export default function BoardDetailScreen({ navigation, route }) {
           variant="navy"
           onBack={() => navigation.goBack()}
           backLabel={backLabel}
-          icon={<Text style={styles.heroIcon}>{board.icon}</Text>}
+          icon={board.Icon
+            ? <board.Icon size={28} color={colors.cream} strokeWidth={1.8} />
+            : <Text style={styles.heroIcon}>{board.icon}</Text>}
           title={board.title}
           subtitle={board.tagline}
           style={styles.heroBlock}

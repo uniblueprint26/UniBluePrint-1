@@ -56,7 +56,7 @@ function buildBoardTiles(boardsData) {
       key: b.key,
       title: b.title,
       label: b.title.toUpperCase(),
-      emoji: b.icon,
+      Icon: b.Icon,
       color: b.color,
       headline: BOARD_HEADLINES[b.key] || b.title,
       sub: b.tagline,
@@ -97,7 +97,9 @@ function BoardTileGrid({ tiles, onPress }) {
           accessibilityRole="button"
           accessibilityLabel={`Open ${t.title}`}
         >
-          <Text style={styles.tileEmoji}>{t.emoji}</Text>
+          {t.Icon
+            ? <t.Icon size={24} color={colors.navy} strokeWidth={1.8} />
+            : <Text style={styles.tileEmoji}>{t.emoji}</Text>}
           <Text style={styles.tileLabel} numberOfLines={2}>{t.title}</Text>
         </TouchableOpacity>
       ))}
