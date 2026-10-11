@@ -178,11 +178,11 @@ export function YesNoToggle({ value, onChange, yesLabel = 'Yes', noLabel = 'No' 
 }
 
 const s = StyleSheet.create({
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   hint: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   input: {
     height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.border,
-    paddingHorizontal: 14, fontFamily: fonts.sans, fontSize: 15, color: colors.navy,
+    paddingHorizontal: 14, fontFamily: fonts.sans, fontSize: 16, color: colors.navy,
     backgroundColor: colors.white,
   },
   textArea: { paddingVertical: 12, lineHeight: 21 },

@@ -20,21 +20,21 @@ import { supabase } from '../lib/supabase'
 // category introduced by the portals/operations schema.
 
 const TYPE_CONFIG = {
-  welcome:            { Icon: Star,          color: '#15803D', bg: '#F0FDF4' },
-  document:           { Icon: FileText,      color: '#1d4ed8', bg: '#EFF6FF' },
-  session:            { Icon: Calendar,      color: '#15803D', bg: '#F0FDF4' },
-  update:             { Icon: Star,          color: '#B45309', bg: '#FEF3C7' },
-  announcement:       { Icon: Megaphone,     color: '#7C3AED', bg: '#F5F3FF' },
-  checkin_reminder:   { Icon: Clock,         color: '#1d4ed8', bg: '#EFF6FF' },
-  ghost_handler:      { Icon: AlertTriangle, color: '#B45309', bg: '#FEF3C7' },
-  sunday_flock:       { Icon: Sun,           color: '#B45309', bg: '#FEF3C7' },
-  ticket_reassigned:  { Icon: Repeat,        color: '#7C3AED', bg: '#F5F3FF' },
-  subscription:       { Icon: CreditCard,    color: '#15803D', bg: '#F0FDF4' },
-  wallet:             { Icon: Archive,       color: '#B45309', bg: '#FEF3C7' },
-  foundation_blueprint: { Icon: FileText,    color: '#1d4ed8', bg: '#EFF6FF' },
-  coach_booking:      { Icon: UserCheck,     color: '#15803D', bg: '#F0FDF4' },
-  chat_message:       { Icon: MessageCircle, color: '#1d4ed8', bg: '#EFF6FF' },
-  board_reply:        { Icon: MessagesSquare, color: '#7C3AED', bg: '#F5F3FF' },
+  welcome:            { Icon: Star,          color: '#15803D', bg: colors.successBg },
+  document:           { Icon: FileText,      color: '#1d4ed8', bg: colors.infoBg },
+  session:            { Icon: Calendar,      color: '#15803D', bg: colors.successBg },
+  update:             { Icon: Star,          color: colors.warning, bg: colors.warningBg },
+  announcement:       { Icon: Megaphone,     color: colors.newBadge, bg: '#F5F3FF' },
+  checkin_reminder:   { Icon: Clock,         color: '#1d4ed8', bg: colors.infoBg },
+  ghost_handler:      { Icon: AlertTriangle, color: colors.warning, bg: colors.warningBg },
+  sunday_flock:       { Icon: Sun,           color: colors.warning, bg: colors.warningBg },
+  ticket_reassigned:  { Icon: Repeat,        color: colors.newBadge, bg: '#F5F3FF' },
+  subscription:       { Icon: CreditCard,    color: '#15803D', bg: colors.successBg },
+  wallet:             { Icon: Archive,       color: colors.warning, bg: colors.warningBg },
+  foundation_blueprint: { Icon: FileText,    color: '#1d4ed8', bg: colors.infoBg },
+  coach_booking:      { Icon: UserCheck,     color: '#15803D', bg: colors.successBg },
+  chat_message:       { Icon: MessageCircle, color: '#1d4ed8', bg: colors.infoBg },
+  board_reply:        { Icon: MessagesSquare, color: colors.newBadge, bg: '#F5F3FF' },
 }
 
 // ── Deep-link routing ────────────────────────────────────────────────────────

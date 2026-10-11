@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platfor
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, X } from 'lucide-react-native'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
+import Button from '../ui/Button'
 
 // One-question-at-a-time flow, matching the pattern Tayyab's session is building on
 // the website side for the same intake (CV Optimisation first, reference pattern for
@@ -65,7 +66,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
   return (
     <KeyboardAvoidingView
       style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
@@ -119,18 +120,13 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
             <Text style={styles.skipBtnText}>Skip</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
+        <Button
+          label={isLast ? submitLabel : 'Continue'}
           onPress={goNext}
-          activeOpacity={0.85}
-          disabled={submitting}
-          style={[styles.nextBtn, submitting && { opacity: 0.7 }]}
-          accessibilityRole="button"
-          accessibilityState={{ disabled: submitting, busy: submitting }}
-        >
-          <Text style={styles.nextBtnText}>
-            {submitting ? 'Submitting…' : isLast ? submitLabel : 'Continue'}
-          </Text>
-        </TouchableOpacity>
+          variant="primary"
+          loading={submitting}
+          style={styles.nextBtn}
+        />
       </View>
     </KeyboardAvoidingView>
   )
@@ -172,9 +168,5 @@ const styles = StyleSheet.create({
   },
   skipBtn: { paddingVertical: 14, paddingHorizontal: 4 },
   skipBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
-  nextBtn: {
-    flex: 1, height: 52, borderRadius: radius.button, backgroundColor: colors.navy,
-    alignItems: 'center', justifyContent: 'center', ...shadows.card,
-  },
-  nextBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  nextBtn: { flex: 1, ...shadows.card },
 })

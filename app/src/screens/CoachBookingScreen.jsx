@@ -6,6 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { User, CalendarDays, Clock, CheckCircle2 } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
+import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -100,15 +101,13 @@ export default function CoachBookingScreen({ route, navigation }) {
           </View>
           <Text style={styles.confirmTitle}>Booking request sent</Text>
           <Text style={styles.confirmBody}>
-            You've requested {selectedTime} on {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })} with {coach.name}. They'll confirm directly, and you'll get a notification either way.
+            You've requested {selectedTime} on {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })} with {coach.name}. They'll confirm directly, and you'll see their reply in your Notifications either way.
           </Text>
-          <TouchableOpacity
-            style={styles.confirmBtn}
-            activeOpacity={0.85}
+          <Button
+            label={`Back to ${coach.name}'s Profile`}
             onPress={() => navigation.navigate('CoachProfile', { coach })}
-          >
-            <Text style={styles.confirmBtnText}>Back to {coach.name}'s Profile</Text>
-          </TouchableOpacity>
+            variant="primary"
+          />
         </View>
       </View>
     )
@@ -335,6 +334,4 @@ const styles = StyleSheet.create({
   },
   confirmTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center', marginBottom: 10 },
   confirmBody: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 21, marginBottom: 28 },
-  confirmBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, paddingHorizontal: 24 },
-  confirmBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 })

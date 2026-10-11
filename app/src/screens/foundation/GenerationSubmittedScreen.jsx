@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CheckCircle2, UserCheck } from 'lucide-react-native'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import BlueprintGrid from '../../components/ui/BlueprintGrid'
+import Button from '../../components/ui/Button'
 
 // Generic confirmation screen for every Foundation Blueprint generator service —
 // built once here rather than duplicated per service, since the message is the
@@ -88,15 +89,22 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.subBody}>
-          You'll get a notification the moment it's ready. No need to keep this screen open.
+          You'll see it in My Outputs and in your Notifications as soon as it's ready. No need to keep this screen open.
         </Text>
 
-        <TouchableOpacity
+        <Button
+          label="Back to Foundation Blueprint"
+          onPress={() => navigation.navigate('Foundation')}
+          variant="primary"
           style={styles.primaryBtn}
+        />
+
+        <TouchableOpacity
+          style={styles.secondaryBtn}
           activeOpacity={0.85}
-          onPress={() => navigation.popToTop()}
+          onPress={() => navigation.navigate('MyOutputs')}
         >
-          <Text style={styles.primaryBtnText}>Back to Foundation Blueprint</Text>
+          <Text style={styles.secondaryBtnText}>Go to My Outputs</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -127,9 +135,8 @@ const styles = StyleSheet.create({
   reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
 
   subBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 14, lineHeight: 19 },
-  primaryBtn: {
-    marginTop: spacing.xl, height: 52, paddingHorizontal: 32, borderRadius: radius.button,
-    backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center', ...shadows.card,
-  },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  primaryBtn: { marginTop: spacing.xl, ...shadows.card },
+
+  secondaryBtn: { alignItems: 'center', marginTop: spacing.lg },
+  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
 })

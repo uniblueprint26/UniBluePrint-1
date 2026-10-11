@@ -494,8 +494,8 @@ export default function CourseConnectScreen({ navigation }) {
             specific — see the PATH_CONTENT comment above for why every other
             userType sees three unsourced, pathway-neutral stats instead.
 
-            TODO (permanent): Confirm exact CAO course count at cao.ie before publishing.
-            TODO (permanent): Confirm HE enrolment figure at hea.ie before publishing.
+            Decided 11 Oct 2026: rounded down to safe, defensible lower-bound
+            figures instead of chasing exact verification before launch —
             "All 32" refers to counties, CourseConnect covers the full island.
           */}
           <View style={styles.heroStats}>
@@ -506,7 +506,7 @@ export default function CourseConnectScreen({ navigation }) {
             <View style={styles.heroStatDivider} />
             {isStudent ? (
               <View style={styles.heroStatItem}>
-                <Text style={styles.heroStatNumber}>1,300+</Text>
+                <Text style={styles.heroStatNumber}>1,000+</Text>
                 <Text style={styles.heroStatLabel}>CAO Courses{'\n'}Covered</Text>
               </View>
             ) : (
@@ -518,7 +518,7 @@ export default function CourseConnectScreen({ navigation }) {
             <View style={styles.heroStatDivider} />
             {isStudent ? (
               <View style={styles.heroStatItem}>
-                <Text style={styles.heroStatNumber}>240k+</Text>
+                <Text style={styles.heroStatNumber}>200k+</Text>
                 <Text style={styles.heroStatLabel}>Young People{'\n'}in Irish HE</Text>
               </View>
             ) : (

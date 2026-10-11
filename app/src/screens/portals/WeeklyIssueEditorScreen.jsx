@@ -292,7 +292,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
       ) : (
         <KeyboardAvoidingView
           style={s.scrollView}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
         <ScrollView style={s.scrollView} contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 60 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 

@@ -10,6 +10,11 @@ export const colors = {
   gold: '#C9A24B',
   goldDeep: '#A5813B',
   goldLight: '#E4C77E',
+  warning: '#B45309',
+  warningBg: '#FEF3C7',
+  infoBg: 'rgba(30,58,95,0.06)',
+  successBg: '#F0FDF4',
+  newBadge: '#7C3AED',
 }
 
 export const fonts = {

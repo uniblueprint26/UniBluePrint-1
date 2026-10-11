@@ -195,14 +195,13 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
             />
 
             {/* Save */}
-            <TouchableOpacity
-              style={[ep.saveBtn, saving && { opacity: 0.6 }]}
+            <Button
+              label={saving ? 'Saving…' : 'Save Changes'}
               onPress={handleSave}
-              disabled={saving}
-              activeOpacity={0.8}
-            >
-              <Text style={ep.saveBtnText}>{saving ? 'Saving…' : 'Save Changes'}</Text>
-            </TouchableOpacity>
+              variant="primary"
+              loading={saving}
+              style={ep.saveBtn}
+            />
 
             <Text style={ep.note}>
               University, course, and apprenticeship details are set during onboarding and cannot be changed here yet.
@@ -246,11 +245,7 @@ const ep = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 12,
     fontFamily: fonts.sans, fontSize: 15, color: colors.navy,
   },
-  saveBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
-    paddingVertical: 15, alignItems: 'center', marginTop: 32,
-  },
-  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  saveBtn: { marginTop: 32 },
   note: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.light,
     textAlign: 'center', marginTop: 16, lineHeight: 18,
@@ -333,14 +328,13 @@ function AccountTypeModal({ visible, onClose }) {
             })}
           </View>
 
-          <TouchableOpacity
-            style={[ep.saveBtn, saving && { opacity: 0.6 }]}
+          <Button
+            label={saving ? 'Saving…' : 'Save Changes'}
             onPress={handleSave}
-            disabled={saving}
-            activeOpacity={0.8}
-          >
-            <Text style={ep.saveBtnText}>{saving ? 'Saving…' : 'Save Changes'}</Text>
-          </TouchableOpacity>
+            variant="primary"
+            loading={saving}
+            style={ep.saveBtn}
+          />
 
           <Text style={ep.note}>
             This changes which income categories Budgeting shows you going forward. Your existing entries stay as they are.
@@ -456,14 +450,13 @@ function HandlerRatingPrompt({ userId }) {
         numberOfLines={2}
         textAlignVertical="top"
       />
-      <TouchableOpacity
-        style={[rp.submitBtn, (saving || !stars) && { opacity: 0.5 }]}
-        activeOpacity={0.85}
+      <Button
+        label={saving ? 'Saving…' : 'Submit Rating'}
         onPress={submit}
-        disabled={saving || !stars}
-      >
-        <Text style={rp.submitBtnText}>{saving ? 'Saving…' : 'Submit Rating'}</Text>
-      </TouchableOpacity>
+        variant="primary"
+        loading={saving}
+        disabled={!stars}
+      />
     </View>
   )
 }
@@ -488,8 +481,6 @@ const rp = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
     marginBottom: 12,
   },
-  submitBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 13, alignItems: 'center' },
-  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 })
 
 

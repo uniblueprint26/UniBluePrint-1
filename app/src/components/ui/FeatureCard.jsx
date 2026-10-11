@@ -28,7 +28,7 @@ export default function FeatureCard({ feature, dark = false, onPress }) {
   const ctaTx     = dark ? colors.navy               : colors.cream
   const pillBg    = dark ? 'rgba(245,240,232,0.12)'  : 'rgba(30,58,95,0.08)'
   const pillTx    = dark ? 'rgba(245,240,232,0.6)'   : colors.muted
-  const newBg     = dark ? '#A78BFA'                 : '#7C3AED'
+  const newBg     = colors.newBadge
   const borderClr = dark ? 'rgba(245,240,232,0.1)'  : 'transparent'
 
   return (

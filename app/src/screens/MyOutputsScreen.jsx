@@ -7,6 +7,7 @@ import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import StatTile, { StatTileRow } from '../components/ui/StatTile'
 import UBPLogo from '../components/ui/UBPLogo'
+import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
@@ -133,13 +134,12 @@ export default function MyOutputsScreen({ navigation }) {
             <Text style={styles.emptySub}>
               Order a CV, cover letter, or any other Foundation Blueprint service and it'll be tracked here from submission to delivery.
             </Text>
-            <TouchableOpacity
-              style={styles.emptyBtn}
-              activeOpacity={0.85}
+            <Button
+              label="Go to Foundation Blueprint"
               onPress={() => navigation.navigate('Foundation')}
-            >
-              <Text style={styles.emptyBtnText}>Go to Foundation Blueprint</Text>
-            </TouchableOpacity>
+              variant="primary"
+              style={styles.emptyBtn}
+            />
           </Card>
         ) : (
           <>
@@ -178,8 +178,7 @@ const styles = StyleSheet.create({
   emptyCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },
   emptyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginTop: 6 },
   emptySub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, paddingHorizontal: 12 },
-  emptyBtn: { marginTop: 10, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 20, paddingVertical: 12, ...shadows.card },
-  emptyBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  emptyBtn: { marginTop: 10, ...shadows.card },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
   rowDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },

@@ -12,6 +12,7 @@ import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import { FieldLabel, FormTextInput, FormTextArea } from '../../components/forms/FormControls'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import EmptyState from '../../components/ui/EmptyState'
+import Button from '../../components/ui/Button'
 
 // Evidence Bank — real STAR stories (Situation/Task/Action/Result) a student
 // builds up once and reuses across services. Application Form Assistance
@@ -298,7 +299,7 @@ export default function EvidenceBankScreen({ navigation }) {
     const step = ADD_STEPS[addStep]
     const progress = (addStep + 1) / ADD_STEPS.length
     return (
-      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={[styles.flowHeader, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity
             onPress={addStepBack}
@@ -349,7 +350,7 @@ export default function EvidenceBankScreen({ navigation }) {
   // ── Story detail / edit ──────────────────────────────────────────────────
   if (mode === 'detail' && selectedStory && detailDraft) {
     return (
-      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity onPress={closeDetail} activeOpacity={0.7} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Back">
             <ChevronLeft size={20} color={colors.navy} />
@@ -401,16 +402,13 @@ export default function EvidenceBankScreen({ navigation }) {
               <TouchableOpacity onPress={closeDetail} activeOpacity={0.7} style={styles.cancelBtn} accessibilityRole="button">
                 <Text style={styles.cancelBtnText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              <Button
+                label={detailSaving ? 'Saving…' : 'Save changes'}
                 onPress={saveDetail}
-                activeOpacity={0.85}
-                disabled={detailSaving}
-                style={[styles.saveBtn, detailSaving && { opacity: 0.7 }]}
-                accessibilityRole="button"
-                accessibilityState={{ disabled: detailSaving, busy: detailSaving }}
-              >
-                <Text style={styles.saveBtnText}>{detailSaving ? 'Saving…' : 'Save changes'}</Text>
-              </TouchableOpacity>
+                variant="primary"
+                loading={detailSaving}
+                style={styles.saveBtn}
+              />
             </View>
           </View>
         </ScrollView>
@@ -584,8 +582,7 @@ const styles = StyleSheet.create({
   formActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
   cancelBtn: { flex: 1, height: 48, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: colors.border },
   cancelBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.muted },
-  saveBtn: { flex: 2, height: 48, borderRadius: radius.button, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
-  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  saveBtn: { flex: 2 },
 
   errorBox: { marginTop: spacing.md, backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button, padding: 12 },
   errorText: { fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
