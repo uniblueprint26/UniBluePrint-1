@@ -9,6 +9,7 @@ import { Search, Plus } from 'lucide-react-native'
 import SectionHeader from '../components/ui/SectionHeader'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
+import Button from '../components/ui/Button'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -299,14 +300,13 @@ export default function CampusConnectScreen({ navigation }) {
             <Text style={styles.emptyBoardsText}>No boards match “{search}”.</Text>
           )}
 
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            activeOpacity={0.8}
+          <Button
+            label="Post to Campus Board"
+            icon={Plus}
             onPress={() => setPickerOpen(true)}
-          >
-            <Plus size={16} color={colors.cream} />
-            <Text style={styles.primaryBtnText}>Post to Campus Board</Text>
-          </TouchableOpacity>
+            variant="primary"
+            style={styles.primaryBtn}
+          />
 
         </View>
       </ScrollView>
@@ -372,6 +372,5 @@ const styles = StyleSheet.create({
   tileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 15 },
 
   // CTA
-  primaryBtn:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: 8, height: 54, marginTop: spacing.lg },
-  primaryBtnText:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  primaryBtn:    { marginTop: spacing.lg },
 })

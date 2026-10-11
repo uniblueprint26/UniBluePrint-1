@@ -5,6 +5,7 @@ import { Search, X, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import MockContentBanner from '../components/ui/MockContentBanner'
+import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
@@ -212,17 +213,16 @@ function StudentCard({ student, searchQuery }) {
         })}
       </View>
 
-      <TouchableOpacity
-        style={styles.connectBtn}
-        activeOpacity={0.8}
+      <Button
+        label="View Profile"
         onPress={() => Alert.alert(
           student.name,
           `Full profiles and direct connections are coming soon. You will be able to connect with ${student.name} through the app.`,
           [{ text: 'Got it' }]
         )}
-      >
-        <Text style={styles.connectBtnText}>View Profile</Text>
-      </TouchableOpacity>
+        variant="primary"
+        style={styles.connectBtn}
+      />
     </Card>
   )
 }
@@ -473,9 +473,4 @@ const styles = StyleSheet.create({
   tagText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
   tagTextMatched: { color: colors.cream },
 
-  connectBtn: {
-    backgroundColor: colors.navy, borderRadius: 8,
-    paddingVertical: 10, alignItems: 'center',
-  },
-  connectBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 })

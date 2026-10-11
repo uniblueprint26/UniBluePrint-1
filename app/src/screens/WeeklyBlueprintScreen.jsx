@@ -836,10 +836,10 @@ export default function WeeklyBlueprintScreen({ navigation }) {
           onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.getParent()?.navigate('AdBoard', { screen: 'AdBoardMain' }))}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel="Back to Ad Board"
+          accessibilityLabel="Go back"
         >
           <ChevronLeft size={19} color={colors.cream} strokeWidth={2} />
-          <Text style={styles.backBtnText}>Ad Board</Text>
+          <Text style={styles.backBtnText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.topBarPageNum}>{pageIndex + 1} / {PAGES.length}</Text>
         <TouchableOpacity

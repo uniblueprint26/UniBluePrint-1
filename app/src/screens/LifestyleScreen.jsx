@@ -2,9 +2,10 @@ import { useEffect, useRef } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, ShoppingBag, Map as MapIcon, Heart, PiggyBank, Phone,
+  ShoppingBag, Map as MapIcon, Heart, PiggyBank, Phone,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
+import ScreenHeader from '../components/ui/ScreenHeader'
 import FeatureCard from '../components/ui/FeatureCard'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
@@ -86,28 +87,16 @@ export default function LifestyleScreen({ navigation, route }) {
         showsVerticalScrollIndicator={false}
       >
         {/* ── Integrated header + hero (single navy block) ── */}
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Home</Text>
-            </TouchableOpacity>
-            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
-            <View style={{ width: 70 }} />
-          </View>
-
-          <Text style={styles.heroEyebrow}>LIFESTYLE</Text>
-          <Text style={styles.heroTitle}>Lifestyle Blueprint</Text>
-          <Text style={styles.heroSub}>
-            Partner deals, wellbeing support, and money tools, built around what life actually costs.
-          </Text>
-        </View>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          eyebrow="LIFESTYLE"
+          title="Lifestyle Blueprint"
+          subtitle="Partner deals, wellbeing support, and money tools, built around what life actually costs."
+          style={styles.heroBlock}
+          titleStyle={styles.heroTitle}
+        />
 
         <View style={styles.content}>
 
@@ -154,21 +143,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  navRow: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', marginBottom: spacing.lg,
-  },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingVertical: 6, paddingRight: 10,
-  },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
-  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 6, marginBottom: 10 },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on every platform.

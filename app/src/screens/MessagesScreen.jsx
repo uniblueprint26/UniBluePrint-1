@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { MessageSquare, Users, ChevronRight, Pencil, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { formatNumber } from '../utils/formatNumber'
 import { goToHome, openMenu } from '../navigation/helpers'
@@ -117,15 +118,13 @@ function EmptyState({ onDirectoryPress, onConnectPress }) {
       <Text style={styles.emptySub}>
         Start by joining a campus board, a carpool route, or connecting with another young person via the Directory.
       </Text>
-      <TouchableOpacity
-        style={styles.emptyPrimaryBtn}
+      <Button
+        label="Browse the Directory"
+        icon={Users}
         onPress={onDirectoryPress}
-        activeOpacity={0.8}
-      >
-        <Users size={16} color={colors.cream} strokeWidth={1.8} />
-        <Text style={styles.emptyPrimaryBtnText}>Browse the Directory</Text>
-        <ChevronRight size={14} color={colors.cream} />
-      </TouchableOpacity>
+        variant="primary"
+        style={styles.emptyPrimaryBtn}
+      />
       <TouchableOpacity
         style={styles.emptySecondaryBtn}
         onPress={onConnectPress}
@@ -413,13 +412,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 14, color: colors.muted,
     lineHeight: 22, textAlign: 'center', marginBottom: 32,
   },
-  emptyPrimaryBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button,
-    paddingHorizontal: 22, paddingVertical: 14,
-    marginBottom: 12, width: '100%', justifyContent: 'center',
-  },
-  emptyPrimaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  emptyPrimaryBtn: { marginBottom: 12, width: '100%' },
   emptySecondaryBtn:   { paddingVertical: 12 },
   emptySecondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
 })

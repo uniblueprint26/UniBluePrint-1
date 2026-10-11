@@ -454,7 +454,7 @@ export default function CoachProfileScreen({ route, navigation }) {
             activeOpacity={0.7}
           >
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Coaches</Text>
+            <Text style={styles.backBtnText}>Back</Text>
           </TouchableOpacity>
 
           {/* Frosted glass avatar — double-ring treatment, real photo when available */}

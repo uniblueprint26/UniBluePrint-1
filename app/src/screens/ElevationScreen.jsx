@@ -10,6 +10,7 @@ import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
+import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
@@ -674,13 +675,12 @@ export default function ElevationScreen({ navigation }) {
             )}
           </View>
 
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            activeOpacity={0.8}
+          <Button
+            label="Book a Coach"
             onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent("I'd like to be matched with a coach"))}
-          >
-            <Text style={styles.primaryBtnText}>Book a Coach</Text>
-          </TouchableOpacity>
+            variant="primary"
+            style={styles.primaryBtn}
+          />
 
         </View>
       </ScrollView>
@@ -793,6 +793,5 @@ const styles = StyleSheet.create({
   shellBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted },
   shellMessage:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 12, fontStyle: 'italic' },
 
-  primaryBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 54, alignItems: 'center', justifyContent: 'center', marginTop: spacing.lg },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  primaryBtn:     { marginTop: spacing.lg },
 })

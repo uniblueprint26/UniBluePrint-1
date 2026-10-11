@@ -17,6 +17,7 @@ import FeatureCard from '../components/ui/FeatureCard'
 import MockContentBanner from '../components/ui/MockContentBanner'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
+import Button from '../components/ui/Button'
 import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
 import InterestsModal from '../components/profile/InterestsModal'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
@@ -703,14 +704,13 @@ export default function CourseConnectScreen({ navigation }) {
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            activeOpacity={0.8}
+          <Button
+            label="Post to a Course Connect Board"
+            icon={Plus}
             onPress={() => setPickerOpen(true)}
-          >
-            <Plus size={16} color={colors.cream} />
-            <Text style={styles.primaryBtnText}>Post to a Course Connect Board</Text>
-          </TouchableOpacity>
+            variant="primary"
+            style={styles.primaryBtn}
+          />
 
         </View>
       </ScrollView>
@@ -867,8 +867,7 @@ const styles = StyleSheet.create({
   discussionUni:      { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, opacity: 0.6 },
 
   // CTAs
-  primaryBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: 8, height: 54, marginTop: spacing.lg },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  primaryBtn:     { marginTop: spacing.lg },
   secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.white, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 })
