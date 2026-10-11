@@ -80,7 +80,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
         <Text style={styles.title}>Submitted for review</Text>
         <Text style={styles.body}>
           Your {serviceTitle || 'request'} has been generated and is now with a trained Campus Handler for review —{' '}
-          {isPremium ? 'delivered same day (priority queue).' : 'delivered within 48 hours.'}
+          {isPremium ? 'delivered within 24 hours (priority queue).' : 'delivered within 48 hours.'}
         </Text>
 
         <View style={styles.reviewBadge}>

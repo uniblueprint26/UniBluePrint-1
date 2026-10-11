@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { CheckCircle, FileText, Inbox, Clock, UserCheck } from 'lucide-react-native'
+import { CheckCircle, FileText, Inbox, Clock, UserCheck, ChevronRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import StatTile, { StatTileRow } from '../components/ui/StatTile'
@@ -14,9 +14,11 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
 // "My Outputs" — a student's own submission history and completed
-// documents. There's no in-app document viewer/download yet (delivery is a
-// notification + off-app handoff, see GenerationSubmittedScreen), so this is
-// a status tracker: what you've submitted, where it is, and what's ready.
+// documents. A delivered row opens OutputDetailScreen for the generated
+// text + a native share sheet (see VIEWABLE_DOCUMENT_TABLES below) — no
+// PDF/rich formatting, that's a separate, deliberately out-of-scope piece
+// of work. Everything else stays a status tracker: what you've submitted
+// and where it is in the queue.
 
 const STAGE_LABEL = {
   submitted:  'Submitted',
@@ -38,11 +40,26 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-function OutputRow({ row, isLast }) {
+// Document tables that actually hold a generate-* function's output (every
+// Foundation Blueprint service except Job Search Support, which is an
+// advisory session — its deliverable column is student_strategy, not
+// generated). Kept here as the one place OutputDetailScreen's navigation
+// param needs to agree with, rather than trusting an arbitrary string.
+const VIEWABLE_DOCUMENT_TABLES = new Set([
+  'cv_documents', 'cover_letters', 'application_forms', 'interview_prep_packs',
+  'linkedin_documents', 'personal_statements', 'portfolio_plans', 'job_search_sessions',
+])
+
+function OutputRow({ row, isLast, onPress }) {
   const stageColor = STAGE_COLOR[row.stage] || STAGE_COLOR.submitted
   const delivered = row.stage === 'delivered'
+  const canOpen = delivered && VIEWABLE_DOCUMENT_TABLES.has(row.document_table)
+  const Wrapper = canOpen ? TouchableOpacity : View
   return (
-    <View style={[styles.row, !isLast && styles.rowDivider]}>
+    <Wrapper
+      style={[styles.row, !isLast && styles.rowDivider]}
+      {...(canOpen ? { onPress, activeOpacity: 0.7, accessibilityRole: 'button', accessibilityLabel: `Open ${row.services?.name || 'your document'}` } : {})}
+    >
       <View style={[styles.rowIcon, { backgroundColor: delivered ? '#F0FDF4' : '#EFF6FF' }]}>
         {delivered
           ? <CheckCircle size={16} color="#15803D" strokeWidth={1.8} />
@@ -61,10 +78,13 @@ function OutputRow({ row, isLast }) {
           </View>
         )}
       </View>
-      <View style={[styles.stagePill, { backgroundColor: stageColor.bg }]}>
-        <Text style={[styles.stagePillText, { color: stageColor.fg }]}>{STAGE_LABEL[row.stage] || row.stage}</Text>
+      <View style={styles.rowTrailing}>
+        <View style={[styles.stagePill, { backgroundColor: stageColor.bg }]}>
+          <Text style={[styles.stagePillText, { color: stageColor.fg }]}>{STAGE_LABEL[row.stage] || row.stage}</Text>
+        </View>
+        {canOpen && <ChevronRight size={16} color={colors.light} strokeWidth={2} />}
       </View>
-    </View>
+    </Wrapper>
   )
 }
 
@@ -80,7 +100,7 @@ export default function MyOutputsScreen({ navigation }) {
     try {
       const { data, error } = await supabase
         .from('submissions')
-        .select('id, stage, tier, submitted_at, delivered_at, services(name)')
+        .select('id, stage, tier, submitted_at, delivered_at, document_table, document_id, services(name)')
         .eq('user_id', user.id)
         .order('submitted_at', { ascending: false })
       if (!error && data) setRows(data)
@@ -153,7 +173,17 @@ export default function MyOutputsScreen({ navigation }) {
             </StatTileRow>
             <Card style={{ padding: 0 }}>
               {rows.map((row, i) => (
-                <OutputRow key={row.id} row={row} isLast={i === rows.length - 1} />
+                <OutputRow
+                  key={row.id}
+                  row={row}
+                  isLast={i === rows.length - 1}
+                  onPress={() => navigation.navigate('OutputDetail', {
+                    documentTable: row.document_table,
+                    documentId: row.document_id,
+                    serviceName: row.services?.name || 'Your document',
+                    deliveredAt: row.delivered_at,
+                  })}
+                />
               ))}
             </Card>
           </>
@@ -187,6 +217,7 @@ const styles = StyleSheet.create({
   rowMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
   reviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.navy },
+  rowTrailing: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 },
   stagePill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
 })

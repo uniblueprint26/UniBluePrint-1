@@ -1,9 +1,14 @@
-import { useState } from 'react'
-import { View } from 'react-native'
+import { useState, useEffect } from 'react'
+import { View, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { X, BookOpen } from 'lucide-react-native'
+import { colors, spacing } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
+import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import RepeatingList from '../../components/forms/RepeatingList'
+import EmptyState from '../../components/ui/EmptyState'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 
 // Application Form Assistance intake — same CV Optimisation pattern (QuestionFlow +
@@ -21,7 +26,7 @@ const EMPTY_QUESTION = { question_text: '' }
 
 const TIERS = [
   { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, same-day delivery', accent: true },
+  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -93,7 +98,36 @@ const STEPS = [
 
 export default function ApplicationFormBuilderScreen({ navigation }) {
   const { user } = useAuth()
+  const insets = useSafeAreaInsets()
   const [values, setValues] = useState(DEFAULT_VALUES)
+  const { clearDraft } = useDraftAutosave(user ? `foundation_draft:application_form:${user.id}` : null, values, setValues)
+
+  // generate-application-answers hard-requires at least one Evidence Bank
+  // story to draft from ("Add at least one story..." 422 if the bank is
+  // empty) — checked up front, before the 5-step question flow even starts,
+  // so a student never answers the whole form only to be told this after
+  // they submit.
+  const [evidenceCheck, setEvidenceCheck] = useState('loading') // 'loading' | 'ok' | 'empty'
+
+  useEffect(() => {
+    let active = true
+    async function checkEvidenceBank() {
+      if (!user) { if (active) setEvidenceCheck('ok'); return } // handleComplete's own sign-in guard covers this case
+      const { count, error } = await supabase
+        .from('evidence_bank_stories')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      if (!active) return
+      if (error) {
+        console.error('[ApplicationFormBuilder] could not check evidence bank', error)
+        setEvidenceCheck('ok') // fail open on a transient read error rather than blocking the flow
+        return
+      }
+      setEvidenceCheck((count ?? 0) > 0 ? 'ok' : 'empty')
+    }
+    checkEvidenceBank()
+    return () => { active = false }
+  }, [user])
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))
@@ -121,7 +155,10 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       })
       .select()
       .single()
-    if (insertErr || !doc) throw new Error(insertErr?.message || 'Could not save your answers. Please try again.')
+    if (insertErr || !doc) {
+      console.error('[ApplicationFormBuilder] could not create application_forms row', insertErr)
+      throw new Error('We couldn’t save your answers. Please check your connection and try again.')
+    }
 
     // 2. Run the generator against it — entirely server-side (see
     // generate-application-answers Edge Function). Nothing about the actual
@@ -130,7 +167,8 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       body: { form_id: doc.id },
     })
     if (genErr || genData?.error) {
-      throw new Error(genData?.error || genErr?.message || 'Generation failed. Please try again — you won’t be charged twice for this.')
+      console.error('[ApplicationFormBuilder] generate-application-answers failed', genErr, genData)
+      throw new Error(genData?.error || 'We couldn’t generate your answers. Please try again in a moment.')
     }
 
     // 3. Queue it for Campus Handler review — this creates the submissions row
@@ -142,9 +180,46 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       p_notes: null,
       p_tier: v.tier,
     })
-    if (submitErr) throw new Error(submitErr.message || 'Could not submit for review. Please try again.')
+    if (submitErr) {
+      console.error('[ApplicationFormBuilder] submit_document_for_review failed', submitErr)
+      throw new Error('Your answers were generated, but we couldn’t submit them for review. Please try again.')
+    }
 
+    await clearDraft()
     navigation.replace('GenerationSubmitted', { serviceTitle: 'Application Form Assistance', tier: v.tier })
+  }
+
+  if (evidenceCheck === 'loading') {
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator color={colors.navy} />
+      </View>
+    )
+  }
+
+  if (evidenceCheck === 'empty') {
+    return (
+      <View style={[styles.gateScreen, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
+        <View style={styles.gateHeader}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+            style={styles.gateHeaderBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+          >
+            <X size={20} color={colors.navy} />
+          </TouchableOpacity>
+        </View>
+        <EmptyState
+          icon={BookOpen}
+          title="Add a story first"
+          subtitle="Application Form Assistance drafts your answers from your Evidence Bank. Add at least one story there, then come back to start this form."
+          ctaLabel="Go to Evidence Bank"
+          onCtaPress={() => navigation.navigate('EvidenceBank')}
+        />
+      </View>
+    )
   }
 
   return (
@@ -154,7 +229,15 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       onChange={onChange}
       onComplete={handleComplete}
       onExit={() => navigation.goBack()}
+      navigation={navigation}
       submitLabel="Submit for review"
     />
   )
 }
+
+const styles = StyleSheet.create({
+  loadingScreen: { flex: 1, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center' },
+  gateScreen: { flex: 1, backgroundColor: colors.cream },
+  gateHeader: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
+  gateHeaderBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+})
