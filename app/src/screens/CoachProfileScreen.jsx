@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking,
-  Image, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
+  Image, Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
@@ -14,6 +14,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
+import Button from '../components/ui/Button'
 
 // ── Photo gallery ────────────────────────────────────────────────────────────
 //
@@ -171,20 +172,13 @@ function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
                 textAlignVertical="top"
               />
               {!!errorMsg && <Text style={m.error}>{errorMsg}</Text>}
-              <TouchableOpacity
-                style={[m.sendBtn, sending && { opacity: 0.7 }]}
-                activeOpacity={0.85}
+              <Button
+                label="Send Enquiry"
+                icon={Send}
                 onPress={submit}
-                disabled={sending}
-              >
-                {sending
-                  ? <ActivityIndicator size="small" color={colors.cream} />
-                  : <>
-                      <Send size={14} color={colors.cream} strokeWidth={2} />
-                      <Text style={m.sendBtnText}>Send Enquiry</Text>
-                    </>
-                }
-              </TouchableOpacity>
+                variant="primary"
+                loading={sending}
+              />
             </>
           )}
         </View>
@@ -292,17 +286,13 @@ function RateCoachModal({ visible, onClose, coach, userId, onRated }) {
                 textAlignVertical="top"
               />
               {!!errorMsg && <Text style={m.error}>{errorMsg}</Text>}
-              <TouchableOpacity
-                style={[m.sendBtn, (sending || !stars) && { opacity: 0.5 }]}
-                activeOpacity={0.85}
+              <Button
+                label="Submit Rating"
                 onPress={submit}
-                disabled={sending || !stars}
-              >
-                {sending
-                  ? <ActivityIndicator size="small" color={colors.cream} />
-                  : <Text style={m.sendBtnText}>Submit Rating</Text>
-                }
-              </TouchableOpacity>
+                variant="primary"
+                loading={sending}
+                disabled={!stars}
+              />
             </>
           )}
         </View>
@@ -329,11 +319,6 @@ const m = StyleSheet.create({
     marginBottom: 12,
   },
   error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
-  sendBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14,
-  },
-  sendBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
   sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
   doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
@@ -741,14 +726,13 @@ export default function CoachProfileScreen({ route, navigation }) {
         {/* ── CTA ── */}
         {!coach.shell && (
           <View style={{ gap: 10 }}>
-            <TouchableOpacity
-              style={styles.ctaBtn}
-              activeOpacity={0.8}
+            <Button
+              label="Book a Coach"
+              icon={CalendarClock}
               onPress={() => navigation.navigate('CoachBooking', { coach })}
-            >
-              <CalendarClock size={16} color={colors.cream} strokeWidth={2} />
-              <Text style={styles.ctaBtnText}>Book a Coach</Text>
-            </TouchableOpacity>
+              variant="primary"
+              style={styles.ctaBtn}
+            />
             <TouchableOpacity
               style={styles.ctaSecondaryBtn}
               activeOpacity={0.75}
@@ -996,12 +980,7 @@ const styles = StyleSheet.create({
   contactHandle:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 
   // CTA
-  ctaBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, height: 54,
-    marginHorizontal: spacing.md,
-  },
-  ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  ctaBtn: { marginHorizontal: spacing.md },
   ctaSecondaryBtn: {
     height: 48, borderRadius: radius.button, marginHorizontal: spacing.md,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
