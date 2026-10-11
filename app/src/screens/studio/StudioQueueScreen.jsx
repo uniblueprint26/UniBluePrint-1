@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native'
+import { useCallback } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 import {
   ChevronRight, Inbox, Power, Clock,
 } from 'lucide-react-native'
@@ -9,35 +10,9 @@ import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
-
-// DEMO DATA — replace with a live Supabase query filtered by
-// assigned_handler_id once the ticket queue schema exists.
-const DEMO_TICKETS = [
-  {
-    id: 't1', studentFirstName: 'Aoife', serviceType: 'CV Optimisation',
-    tier: 'Pro', deadline: 'Today, 6:00pm', urgency: 'red',
-  },
-  {
-    id: 't2', studentFirstName: 'Conor', serviceType: 'Cover Letter Assistance',
-    tier: 'Standard', deadline: 'Today, 8:00pm', urgency: 'red',
-  },
-  {
-    id: 't3', studentFirstName: 'Niamh', serviceType: 'Interview Prep',
-    tier: 'Pro', deadline: 'Tomorrow, 10:00am', urgency: 'amber',
-  },
-  {
-    id: 't4', studentFirstName: 'Darragh', serviceType: 'LinkedIn Optimisation',
-    tier: 'Standard', deadline: 'Tomorrow, 4:00pm', urgency: 'amber',
-  },
-  {
-    id: 't5', studentFirstName: 'Saoirse', serviceType: 'CV Optimisation',
-    tier: 'Standard', deadline: 'Thursday, 5:00pm', urgency: 'green',
-  },
-  {
-    id: 't6', studentFirstName: 'Eoin', serviceType: 'Cover Letter Assistance',
-    tier: 'Pro', deadline: 'Friday, 12:00pm', urgency: 'green',
-  },
-]
+import { useAuth } from '../../context/AuthContext'
+import { useHandlerShift } from '../../hooks/useHandlerShift'
+import { useHandlerTickets, ticketUrgency, getTicketDisplayName } from '../../hooks/useHandlerTickets'
 
 // Urgency dot colours. Note: per the assignment algorithm rules, a Standard
 // ticket that reaches "red" urgency is elevated to the same visual urgency
@@ -47,6 +22,20 @@ const URGENCY_COLOR = {
   green: '#16A34A',
   amber: '#F59E0B',
   red: '#DC2626',
+}
+
+// "Today, 6:00pm" / "Tomorrow, 8:00pm" / "Thu, 12 Mar, 5:00pm" — matches the
+// original demo copy's style while working off a real turnaround_deadline.
+function formatDeadline(iso) {
+  if (!iso) return 'No deadline set'
+  const d = new Date(iso)
+  const now = new Date()
+  const startOfDay = date => new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const dayDiff = Math.round((startOfDay(d) - startOfDay(now)) / 86400000)
+  const time = d.toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit' }).replace(' ', '').toLowerCase()
+  if (dayDiff === 0) return `Today, ${time}`
+  if (dayDiff === 1) return `Tomorrow, ${time}`
+  return `${d.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' })}, ${time}`
 }
 
 function StatusChip({ online }) {
@@ -61,30 +50,35 @@ function StatusChip({ online }) {
 }
 
 function TicketCard({ ticket }) {
-  const isPro = ticket.tier === 'Pro'
+  const tierLabel = ticket.tier === 'premium' ? 'Pro' : 'Standard'
+  const isPro = tierLabel === 'Pro'
+  const serviceType = ticket.services?.name || 'Service'
+  const deadlineText = formatDeadline(ticket.turnaround_deadline)
+  const urgency = ticketUrgency(ticket.turnaround_deadline, ticket.tier)
+  const displayName = getTicketDisplayName(ticket)
   return (
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={() => Alert.alert(
-        `${ticket.studentFirstName}: ${ticket.serviceType}`,
-        `${ticket.tier} · Due ${ticket.deadline}\n\nFull ticket detail view is coming soon.`,
+        `${displayName}: ${serviceType}`,
+        `${tierLabel} · Due ${deadlineText}\n\nFull ticket detail view is coming soon.`,
       )}
     >
       <Card style={styles.ticketCard}>
-        <View style={[styles.urgencyDot, { backgroundColor: URGENCY_COLOR[ticket.urgency] }]} />
+        <View style={[styles.urgencyDot, { backgroundColor: URGENCY_COLOR[urgency] }]} />
         <View style={{ flex: 1 }}>
           <View style={styles.ticketTopRow}>
-            <Text style={styles.ticketName}>{ticket.studentFirstName}</Text>
+            <Text style={styles.ticketName}>{displayName}</Text>
             <View style={[styles.tierBadge, isPro && styles.tierBadgePro]}>
               <Text style={[styles.tierBadgeText, isPro && styles.tierBadgeTextPro]}>
-                {ticket.tier}
+                {tierLabel}
               </Text>
             </View>
           </View>
-          <Text style={styles.ticketService}>{ticket.serviceType}</Text>
+          <Text style={styles.ticketService}>{serviceType}</Text>
           <View style={styles.ticketMetaRow}>
             <Clock size={11} color={colors.muted} />
-            <Text style={styles.ticketDeadline}>{ticket.deadline}</Text>
+            <Text style={styles.ticketDeadline}>{deadlineText}</Text>
           </View>
         </View>
         <ChevronRight size={16} color={colors.light} />
@@ -95,9 +89,27 @@ function TicketCard({ ticket }) {
 
 export default function StudioQueueScreen({ navigation }) {
   const insets = useSafeAreaInsets()
-  const [online, setOnline] = useState(true)
+  const { user } = useAuth()
+  const { clockedIn, busy, clockIn, clockOut, reload: reloadShift } = useHandlerShift(user?.id)
+  const { loading, loadError, tickets, reload: reloadTickets } = useHandlerTickets(user?.id)
 
-  const tickets = DEMO_TICKETS
+  useFocusEffect(useCallback(() => { reloadShift(); reloadTickets() }, [reloadShift, reloadTickets]))
+
+  async function handleClockToggle() {
+    if (clockedIn && tickets.length > 0) {
+      Alert.alert(
+        'Clock Out',
+        `You have ${tickets.length} active ticket${tickets.length !== 1 ? 's' : ''}. Are you sure you want to clock out?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Clock Out', style: 'destructive', onPress: () => clockOut() },
+        ],
+      )
+      return
+    }
+    const { error } = clockedIn ? await clockOut() : await clockIn()
+    if (error) Alert.alert('Something went wrong', 'Could not update your clock-in status. Please try again.')
+  }
 
   return (
     <View style={styles.screen}>
@@ -109,14 +121,15 @@ export default function StudioQueueScreen({ navigation }) {
         titleStyle={styles.headerTitle}
       >
         <View style={styles.headerRow}>
-          <StatusChip online={online} />
+          <StatusChip online={clockedIn} />
           <TouchableOpacity
-            style={styles.clockBtn}
+            style={[styles.clockBtn, busy && { opacity: 0.7 }]}
             activeOpacity={0.8}
-            onPress={() => setOnline(v => !v)}
+            onPress={handleClockToggle}
+            disabled={busy}
           >
             <Power size={13} color={colors.navy} strokeWidth={2} />
-            <Text style={styles.clockBtnText}>{online ? 'Clock Out' : 'Clock In'}</Text>
+            <Text style={styles.clockBtnText}>{clockedIn ? 'Clock Out' : 'Clock In'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -128,21 +141,33 @@ export default function StudioQueueScreen({ navigation }) {
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.countText}>
-          {tickets.length} ticket{tickets.length !== 1 ? 's' : ''} assigned to you
-        </Text>
-
-        {tickets.length === 0 ? (
+        {loading ? (
           <View style={styles.emptyState}>
-            <Inbox size={28} color={colors.light} strokeWidth={1.5} />
-            <Text style={styles.emptyText}>No tickets in your queue right now.</Text>
+            <ActivityIndicator size="small" color={colors.navy} />
+          </View>
+        ) : loadError ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>Couldn't load your queue right now. Pull to refresh or check back shortly.</Text>
           </View>
         ) : (
-          <View style={{ gap: 10, marginTop: 10 }}>
-            {tickets.map(ticket => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
-          </View>
+          <>
+            <Text style={styles.countText}>
+              {tickets.length} ticket{tickets.length !== 1 ? 's' : ''} assigned to you
+            </Text>
+
+            {tickets.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Inbox size={28} color={colors.light} strokeWidth={1.5} />
+                <Text style={styles.emptyText}>No tickets in your queue right now.</Text>
+              </View>
+            ) : (
+              <View style={{ gap: 10, marginTop: 10 }}>
+                {tickets.map(ticket => (
+                  <TicketCard key={ticket.id} ticket={ticket} />
+                ))}
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </View>

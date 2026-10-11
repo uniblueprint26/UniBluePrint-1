@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Linking } from 'react-native'
+import { useState, useEffect, useCallback } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Linking, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 import {
   ChevronLeft, ChevronRight, Minus, Plus, Sunrise, AlertTriangle, Phone,
 } from 'lucide-react-native'
@@ -8,6 +9,10 @@ import {
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
+import { useHandlerShift } from '../../hooks/useHandlerShift'
+import { useHandlerTickets } from '../../hooks/useHandlerTickets'
 
 // Set true locally to preview the Ghost Handler welfare-check state.
 // This stays off by default, it's a conditional state driven by missed
@@ -18,6 +23,9 @@ const DEMO_SHOW_GHOST_WARNING = false
 // Platform is closed Sunday, so the weekly template only covers Monday to
 // Saturday.
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+// public.handler_availability.weekday: 1=Mon .. 6=Sat (platform closed Sunday).
+const WEEKDAY_NUMBER = { Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6 }
 
 // 30-minute increments from 7am through 9pm.
 function buildTimeSlots() {
@@ -36,6 +44,21 @@ const TIME_SLOTS = buildTimeSlots()
 
 function makeDefaultDayState() {
   return { available: false, startIdx: 4, finishIdx: 22, maxTickets: 3 } // 9:00 AM – 5:00 PM
+}
+
+// TIME_SLOTS[idx] is always exactly 7:00 AM + idx*30min (see buildTimeSlots
+// above), so the mapping to/from a Postgres `time` value is just arithmetic
+// — no need to search the array.
+function idxToTimeSql(idx) {
+  const totalMinutes = idx * 30
+  const hour = 7 + Math.floor(totalMinutes / 60)
+  const minute = totalMinutes % 60
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`
+}
+function timeSqlToIdx(timeStr) {
+  const [h, m] = String(timeStr).split(':').map(Number)
+  const idx = Math.round(((h - 7) * 60 + m) / 30)
+  return Math.min(TIME_SLOTS.length - 1, Math.max(0, idx))
 }
 
 function TimeStepper({ label, valueIdx, onChange }) {
@@ -135,36 +158,118 @@ function DayRow({ day, state, onChange }) {
   )
 }
 
-export default function AvailabilityScreen({ navigation }) {
-  const insets = useSafeAreaInsets()
-
+// Loads this Handler's handler_availability rows into the weekTemplate/
+// rotaOptIn shape the UI below works with, and exposes the write paths
+// (upsert on availability change, update on rota opt-in) used by the
+// handlers below. A day's "available" state is not itself a column — a
+// handler_availability row existing for that weekday IS "available"; there
+// is nothing to flip for an absent day beyond creating or deleting the row.
+function useHandlerAvailability(userId) {
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [weekTemplate, setWeekTemplate] = useState(() =>
     Object.fromEntries(DAYS.map(d => [d, makeDefaultDayState()])))
-
   const [rotaOptIn, setRotaOptIn] = useState(false)
-  const [clockedIn, setClockedIn] = useState(false)
 
-  // Demo count of currently-active tickets, used only for the clock-out
-  // confirmation copy below.
-  const activeTicketCount = 2
+  const load = useCallback(async () => {
+    if (!userId) { setLoading(false); return }
+    setLoadError(false)
+    try {
+      const { data, error } = await supabase
+        .from('handler_availability')
+        .select('weekday, start_time, finish_time, max_tickets, rota_opt_in')
+        .eq('handler_id', userId)
+      if (error) throw error
 
-  function updateDay(day, next) {
-    setWeekTemplate(prev => ({ ...prev, [day]: next }))
+      const byWeekday = Object.fromEntries((data || []).map(row => [row.weekday, row]))
+      setWeekTemplate(Object.fromEntries(DAYS.map(day => {
+        const row = byWeekday[WEEKDAY_NUMBER[day]]
+        if (!row) return [day, makeDefaultDayState()]
+        return [day, {
+          available: true,
+          startIdx: timeSqlToIdx(row.start_time),
+          finishIdx: timeSqlToIdx(row.finish_time),
+          maxTickets: row.max_tickets,
+        }]
+      })))
+      setRotaOptIn(!!byWeekday[WEEKDAY_NUMBER.Monday]?.rota_opt_in)
+    } catch {
+      setLoadError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [userId])
+
+  useEffect(() => { load() }, [load])
+
+  // Persists one day's row. `rotaOptIn` is only meaningful on Monday's row
+  // (sunday_queue_cap() only reads weekday = 1) — every other day writes
+  // rota_opt_in = false, matching the column's default.
+  async function saveDay(day, state, currentRotaOptIn) {
+    if (!userId) return { error: new Error('Not signed in') }
+    if (!state.available) {
+      return supabase.from('handler_availability').delete()
+        .eq('handler_id', userId).eq('weekday', WEEKDAY_NUMBER[day])
+    }
+    return supabase.from('handler_availability').upsert({
+      handler_id: userId,
+      weekday: WEEKDAY_NUMBER[day],
+      start_time: idxToTimeSql(state.startIdx),
+      finish_time: idxToTimeSql(state.finishIdx),
+      max_tickets: state.maxTickets,
+      rota_opt_in: day === 'Monday' ? currentRotaOptIn : false,
+    }, { onConflict: 'handler_id,weekday' })
   }
 
-  function handleClockToggle() {
+  async function updateDay(day, next) {
+    setWeekTemplate(prev => ({ ...prev, [day]: next }))
+    if (day === 'Monday' && !next.available && rotaOptIn) setRotaOptIn(false)
+    const { error } = await saveDay(day, next, day === 'Monday' && !next.available ? false : rotaOptIn)
+    if (error) Alert.alert('Couldn’t save', 'That change couldn’t be saved. Pull to refresh and try again.')
+  }
+
+  async function updateRotaOptIn(next) {
+    if (next && !weekTemplate.Monday.available) {
+      Alert.alert('Set Monday availability first', 'Turn on availability for Monday before opting into the Monday rota.')
+      return
+    }
+    setRotaOptIn(next)
+    const { error } = await saveDay('Monday', weekTemplate.Monday, next)
+    if (error) { setRotaOptIn(!next); Alert.alert('Couldn’t save', 'That change couldn’t be saved. Pull to refresh and try again.') }
+  }
+
+  return { loading, loadError, weekTemplate, rotaOptIn, updateDay, updateRotaOptIn, reload: load }
+}
+
+export default function AvailabilityScreen({ navigation }) {
+  const insets = useSafeAreaInsets()
+  const { user } = useAuth()
+
+  const {
+    loading, loadError, weekTemplate, rotaOptIn, updateDay, updateRotaOptIn, reload: reloadAvailability,
+  } = useHandlerAvailability(user?.id)
+  const { clockedIn, busy, clockIn, clockOut, reload: reloadShift } = useHandlerShift(user?.id)
+  const { tickets, reload: reloadTickets } = useHandlerTickets(user?.id)
+  const activeTicketCount = tickets.length
+
+  useFocusEffect(useCallback(() => {
+    reloadAvailability(); reloadShift(); reloadTickets()
+  }, [reloadAvailability, reloadShift, reloadTickets]))
+
+  async function handleClockToggle() {
     if (clockedIn && activeTicketCount > 0) {
       Alert.alert(
         'Clock Out',
-        `You have ${activeTicketCount} active tickets. Clocking out will return these to the queue. Are you sure?`,
+        `You have ${activeTicketCount} active ticket${activeTicketCount !== 1 ? 's' : ''}. They'll stay assigned to you until you clock back in. Are you sure you want to clock out?`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Clock Out', style: 'destructive', onPress: () => setClockedIn(false) },
+          { text: 'Clock Out', style: 'destructive', onPress: () => clockOut() },
         ],
       )
       return
     }
-    setClockedIn(v => !v)
+    const { error } = clockedIn ? await clockOut() : await clockIn()
+    if (error) Alert.alert('Something went wrong', 'Could not update your clock-in status. Please try again.')
   }
 
   return (
@@ -184,6 +289,20 @@ export default function AvailabilityScreen({ navigation }) {
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
+
+        {loading && (
+          <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
+            <ActivityIndicator size="small" color={colors.navy} />
+          </Card>
+        )}
+
+        {!loading && loadError && (
+          <Card>
+            <Text style={styles.editUnlinkedText}>
+              Couldn't load your availability right now. Pull to refresh or check back shortly.
+            </Text>
+          </Card>
+        )}
 
         {/* Ghost Handler welfare-check indicator, conditional, hidden by default */}
         {DEMO_SHOW_GHOST_WARNING && (
@@ -217,9 +336,10 @@ export default function AvailabilityScreen({ navigation }) {
         <Text style={styles.sectionEyebrow}>CLOCK IN / CLOCK OUT</Text>
         <Card style={styles.clockCard}>
           <TouchableOpacity
-            style={[styles.clockBtn, clockedIn ? styles.clockBtnOn : styles.clockBtnOff]}
+            style={[styles.clockBtn, clockedIn ? styles.clockBtnOn : styles.clockBtnOff, busy && { opacity: 0.7 }]}
             activeOpacity={0.85}
             onPress={handleClockToggle}
+            disabled={busy}
             accessibilityRole="button"
             accessibilityState={{ selected: clockedIn }}
           >
@@ -252,7 +372,7 @@ export default function AvailabilityScreen({ navigation }) {
             <TouchableOpacity
               style={[styles.toggle, rotaOptIn && styles.toggleOn]}
               activeOpacity={0.8}
-              onPress={() => setRotaOptIn(v => !v)}
+              onPress={() => updateRotaOptIn(!rotaOptIn)}
               accessibilityRole="button"
               accessibilityLabel={rotaOptIn ? 'Opt out of Monday rota' : 'Opt in to Monday rota'}
               accessibilityState={{ selected: rotaOptIn }}
@@ -316,6 +436,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', marginBottom: 8, marginTop: spacing.lg,
   },
   sectionCaption: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: -4, marginBottom: 4, lineHeight: 17 },
+  editUnlinkedText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
 
   // Ghost handler
   ghostCard: {
