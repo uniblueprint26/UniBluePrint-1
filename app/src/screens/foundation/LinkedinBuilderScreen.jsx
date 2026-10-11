@@ -3,6 +3,7 @@ import { fonts, colors } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useState } from 'react'
+import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, TagInput, YesNoToggle } from '../../components/forms/FormControls'
 
@@ -22,7 +23,7 @@ const TONES = [
 ]
 const TIERS = [
   { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, same-day delivery', accent: true },
+  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -130,6 +131,7 @@ const STEPS = [
 export default function LinkedinBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
+  const { clearDraft } = useDraftAutosave(user ? `foundation_draft:linkedin:${user.id}` : null, values, setValues)
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))
@@ -160,7 +162,10 @@ export default function LinkedinBuilderScreen({ navigation }) {
       })
       .select()
       .single()
-    if (insertErr || !doc) throw new Error(insertErr?.message || 'Could not save your answers. Please try again.')
+    if (insertErr || !doc) {
+      console.error('[LinkedinBuilder] could not create linkedin_documents row', insertErr)
+      throw new Error('We couldn’t save your answers. Please check your connection and try again.')
+    }
 
     // 2. Run the generator against it — entirely server-side (see generate-linkedin
     // Edge Function). Nothing about the actual generation happens on this device.
@@ -168,7 +173,8 @@ export default function LinkedinBuilderScreen({ navigation }) {
       body: { document_id: doc.id },
     })
     if (genErr || genData?.error) {
-      throw new Error(genData?.error || genErr?.message || 'Generation failed. Please try again — you won’t be charged twice for this.')
+      console.error('[LinkedinBuilder] generate-linkedin failed', genErr, genData)
+      throw new Error(genData?.error || 'We couldn’t generate your LinkedIn profile. Please try again in a moment.')
     }
 
     // 3. Queue it for Campus Handler review.
@@ -179,8 +185,12 @@ export default function LinkedinBuilderScreen({ navigation }) {
       p_notes: null,
       p_tier: v.tier,
     })
-    if (submitErr) throw new Error(submitErr.message || 'Could not submit for review. Please try again.')
+    if (submitErr) {
+      console.error('[LinkedinBuilder] submit_document_for_review failed', submitErr)
+      throw new Error('Your LinkedIn profile was generated, but we couldn’t submit it for review. Please try again.')
+    }
 
+    await clearDraft()
     navigation.replace('GenerationSubmitted', { serviceTitle: 'LinkedIn Optimisation', tier: v.tier })
   }
 
@@ -191,6 +201,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
       onChange={onChange}
       onComplete={handleComplete}
       onExit={() => navigation.goBack()}
+      navigation={navigation}
       submitLabel="Submit for review"
     />
   )

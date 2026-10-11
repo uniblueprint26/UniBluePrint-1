@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
+import { useRef, useState } from 'react'
+import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, StyleSheet, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { usePreventRemove } from '@react-navigation/native'
 import { ChevronLeft, X } from 'lucide-react-native'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import Button from '../ui/Button'
@@ -22,15 +23,50 @@ import Button from '../ui/Button'
 // (e.g. a "your details" step setting full_name/email/phone/location together).
 // Steps that only ever touch their own `key` can ignore it and just use the
 // second argument.
-export default function QuestionFlow({ steps, values, onChange, onComplete, onExit, submitLabel = 'Submit' }) {
+//
+// `navigation` (optional) is the owning screen's navigation object. When
+// given, a swipe-down/hardware-back once the student has moved past the
+// first question is intercepted with a discard-confirmation Alert, same
+// pattern as WeeklyIssueEditorScreen's usePreventRemove — losing up to 15
+// steps of answers to an accidental gesture otherwise had no warning at all.
+export default function QuestionFlow({ steps, values, onChange, onComplete, onExit, navigation, submitLabel = 'Submit' }) {
   const insets = useSafeAreaInsets()
   const [index, setIndex] = useState(0)
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
   const step = steps[index]
   const isLast = index === steps.length - 1
   const progress = (index + 1) / steps.length
+
+  // Past the first question, assume there's something worth not losing —
+  // deliberately simple (no deep-diffing every field's shape across all 8
+  // builders) rather than a precise "did anything actually change" check.
+  const hasProgress = index > 0
+
+  usePreventRemove(!!navigation && hasProgress, ({ data }) => {
+    Alert.alert(
+      'Discard this request?',
+      'You’ll lose your answers so far if you leave now.',
+      [
+        { text: 'Keep going', style: 'cancel' },
+        { text: 'Discard', style: 'destructive', onPress: () => navigation.dispatch(data.action) },
+      ],
+    )
+  })
+
+  function confirmDiscardThenExit() {
+    if (!hasProgress) { onExit?.(); return }
+    Alert.alert(
+      'Discard this request?',
+      'You’ll lose your answers so far if you leave now.',
+      [
+        { text: 'Keep going', style: 'cancel' },
+        { text: 'Discard', style: 'destructive', onPress: () => onExit?.() },
+      ],
+    )
+  }
 
   function goNext() {
     const currentValue = values[step.key]
@@ -48,18 +84,29 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
 
   function goBack() {
     setError(null)
-    if (index === 0) { onExit?.(); return }
+    if (index === 0) { confirmDiscardThenExit(); return }
     setIndex(i => i - 1)
   }
 
   async function handleSubmit() {
+    // Belt-and-braces double-submit guard: Button/TouchableOpacity already
+    // disables itself while `submitting` is true, but that's a state update
+    // (a render away) — this ref blocks a second tap/invoke synchronously,
+    // so a double-tap or an impatient retry-while-still-loading can't fire
+    // the insert → generate → review-queue sequence twice.
+    if (submittingRef.current) return
+    submittingRef.current = true
     setSubmitting(true)
     setError(null)
     try {
       await onComplete(values)
+      // On success the caller navigates away (replace), so no need to reset
+      // submittingRef — this instance is done either way.
     } catch (err) {
+      console.error('[QuestionFlow] submit failed', err)
       setError(err?.message || 'Something went wrong. Please try again.')
       setSubmitting(false)
+      submittingRef.current = false
     }
   }
 

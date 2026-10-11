@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View } from 'react-native'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
+import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 
@@ -23,7 +24,7 @@ const INTERVIEW_TYPES = [
 ]
 const TIERS = [
   { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, same-day delivery', accent: true },
+  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -84,6 +85,7 @@ const STEPS = [
 export default function InterviewPrepBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
+  const { clearDraft } = useDraftAutosave(user ? `foundation_draft:interview_prep:${user.id}` : null, values, setValues)
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))
@@ -110,7 +112,10 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
       })
       .select()
       .single()
-    if (insertErr || !doc) throw new Error(insertErr?.message || 'Could not save your answers. Please try again.')
+    if (insertErr || !doc) {
+      console.error('[InterviewPrepBuilder] could not create interview_prep_packs row', insertErr)
+      throw new Error('We couldn’t save your answers. Please check your connection and try again.')
+    }
 
     // 2. Run the generator against it — entirely server-side (see
     // generate-interview-prep Edge Function). Nothing about the actual
@@ -119,20 +124,29 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
       body: { pack_id: doc.id },
     })
     if (genErr || genData?.error) {
-      throw new Error(genData?.error || genErr?.message || 'Generation failed. Please try again — you won’t be charged twice for this.')
+      console.error('[InterviewPrepBuilder] generate-interview-prep failed', genErr, genData)
+      throw new Error(genData?.error || 'We couldn’t generate your interview prep pack. Please try again in a moment.')
     }
 
     // 3. Queue it for Campus Handler review — this creates the submissions row
-    // the student and Operations actually track from here.
+    // the student and Operations actually track from here. Service names must
+    // match the `services` table exactly or service_id ends up null — the
+    // seeded rows are "Interview Preparation — Standard Pack" / "... Premium
+    // Pack" (the "Pack" suffix was missing here, verified against the live
+    // ozpeofkvnpikhopkgcxc project's services table).
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'interview_prep_packs',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Interview Preparation — Premium' : 'Interview Preparation — Standard',
+      p_service_name: v.tier === 'premium' ? 'Interview Preparation — Premium Pack' : 'Interview Preparation — Standard Pack',
       p_notes: null,
       p_tier: v.tier,
     })
-    if (submitErr) throw new Error(submitErr.message || 'Could not submit for review. Please try again.')
+    if (submitErr) {
+      console.error('[InterviewPrepBuilder] submit_document_for_review failed', submitErr)
+      throw new Error('Your interview prep pack was generated, but we couldn’t submit it for review. Please try again.')
+    }
 
+    await clearDraft()
     navigation.replace('GenerationSubmitted', { serviceTitle: 'Interview Preparation', tier: v.tier })
   }
 
@@ -143,6 +157,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
       onChange={onChange}
       onComplete={handleComplete}
       onExit={() => navigation.goBack()}
+      navigation={navigation}
       submitLabel="Submit for review"
     />
   )
