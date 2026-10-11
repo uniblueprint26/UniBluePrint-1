@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert,
-  ActivityIndicator,
+  ActivityIndicator, Modal,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
@@ -15,6 +15,10 @@ import { goToHome, openMenu } from '../navigation/helpers'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import {
+  startDirectChat, fetchRoomContextId,
+  fetchDirectMessageContacts, fetchChatRoomPeerNames,
+} from '../lib/directMessaging'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -149,6 +153,12 @@ export default function MessagesScreen({ navigation }) {
   const [rooms,   setRooms]   = useState([])
   const [loading, setLoading] = useState(true)
 
+  // "New message" composer — see openCompose()/handlePickContact() below.
+  const [composeVisible,  setComposeVisible]  = useState(false)
+  const [contacts,        setContacts]        = useState([])
+  const [contactsLoading, setContactsLoading] = useState(false)
+  const [startingId,      setStartingId]      = useState(null)
+
   // Reload the room list every time this screen comes into focus
   useFocusEffect(useCallback(() => {
     loadRooms()
@@ -197,17 +207,31 @@ export default function MessagesScreen({ navigation }) {
         ).length
       }
 
-      // Step 4: assemble and sort rooms
+      // Step 4: resolve the correct display name for 'direct' rooms. A direct
+      // room's own `chat_rooms.name` is a single shared value set by
+      // whichever side created it (via start_direct_chat's room_name arg),
+      // so on its own it is only ever right for one of the two people in
+      // it — the other side needs their OWN peer's name, which chat_rooms
+      // itself can't tell us. See directMessaging.js's header comment for
+      // why this needs a security-definer RPC rather than a plain select.
+      const directRoomIds = participantRows
+        .filter(p => p.chat_rooms?.context_type === 'direct')
+        .map(p => p.room_id)
+      const { peersByRoom } = await fetchChatRoomPeerNames(directRoomIds)
+
+      // Step 5: assemble and sort rooms
       const roomList = participantRows
         .map(p => {
           const room   = p.chat_rooms
           if (!room) return null
           const lastMsg = lastMsgMap[p.room_id]
+          const peer    = room.context_type === 'direct' ? peersByRoom[p.room_id] : null
           return {
             id:             p.room_id,
-            name:           room.name || 'Chat Room',
+            name:           peer?.peer_display_name || room.name || 'Chat Room',
             contextType:    room.context_type,
             contextId:      room.context_id,
+            otherUserId:    peer?.peer_user_id || null,
             lastMessage:    lastMsg?.content     ?? null,
             lastAuthor:     lastMsg?.author_name ?? null,
             lastMessageAt:  lastMsg?.created_at  ?? room.created_at,
@@ -231,12 +255,63 @@ export default function MessagesScreen({ navigation }) {
       contextId:   room.contextId,
       roomName:    room.name,
       subtitle:    null,
+      // For a direct room, re-pass the resolved peer so useChat's
+      // otherParticipantId upsert still has them even if, for some reason,
+      // they were never successfully joined on an earlier attempt.
+      posterId:    room.contextType === 'direct' ? room.otherUserId : null,
+      posterName:  room.contextType === 'direct' ? room.name        : null,
     })
   }
 
   function goToDirectory()  { navigation.getParent()?.navigate('Directory') }
   // Used to land on Home instead of Campus Connect.
   function goToConnect()    { navigation.getParent()?.navigate('Home', { screen: 'CampusConnect' }) }
+
+  // ── "New message" composer ──────────────────────────────────────────────
+  // There's no general "search any platform user" picker to launch here yet
+  // — Directory still renders a static mock roster with no real user ids,
+  // and `profiles` stays locked to own-row-only read access (a wider
+  // directory/profile-search feature is a bigger product & privacy decision,
+  // not made here). So this surfaces real people the user can already see
+  // evidence of a connection with: anyone who shares an existing chat room
+  // with them, via get_direct_message_contacts() — see directMessaging.js.
+  async function openCompose() {
+    setComposeVisible(true)
+    setContactsLoading(true)
+    const { contacts: rows } = await fetchDirectMessageContacts()
+    setContacts(rows)
+    setContactsLoading(false)
+  }
+
+  async function handlePickContact(contact) {
+    if (startingId) return
+    setStartingId(contact.peer_user_id)
+    try {
+      const { roomId, blocked, error } = await startDirectChat(contact.peer_user_id, contact.peer_display_name)
+      if (blocked) {
+        Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
+        return
+      }
+      if (error || !roomId) throw error || new Error('No room id returned')
+
+      const { contextId } = await fetchRoomContextId(roomId)
+      if (!contextId) throw new Error('Could not resolve the new conversation.')
+
+      setComposeVisible(false)
+      navigation.navigate('ChatRoom', {
+        contextType: 'direct',
+        contextId,
+        roomName:    contact.peer_display_name || 'Chat',
+        subtitle:    null,
+        posterId:    contact.peer_user_id,
+        posterName:  contact.peer_display_name,
+      })
+    } catch {
+      Alert.alert('Something went wrong', 'Could not start the conversation. Please try again.')
+    } finally {
+      setStartingId(null)
+    }
+  }
 
   const hasRooms = rooms.length > 0
   const unreadTotal = rooms.reduce((n, r) => n + r.unreadCount, 0)
@@ -260,13 +335,9 @@ export default function MessagesScreen({ navigation }) {
         <TouchableOpacity
           style={styles.composeBtn}
           activeOpacity={0.8}
-          onPress={() => Alert.alert(
-            'Start a Conversation',
-            'Open a campus board, a carpool route, or a course discussion to start a group chat. One-to-one direct messages are coming soon.',
-            [{ text: 'OK' }]
-          )}
+          onPress={openCompose}
           accessibilityRole="button"
-          accessibilityLabel="Start a conversation"
+          accessibilityLabel="Start a new conversation"
         >
           <Pencil size={16} color={colors.cream} strokeWidth={1.8} />
         </TouchableOpacity>
@@ -313,6 +384,70 @@ export default function MessagesScreen({ navigation }) {
           />
         )}
       </ScrollView>
+
+      {/* ── "New message" composer ── */}
+      <Modal
+        visible={composeVisible}
+        animationType="slide"
+        presentationStyle="formSheet"
+        onRequestClose={() => setComposeVisible(false)}
+      >
+        <View style={[styles.composeSheet, { paddingBottom: insets.bottom + 24 }]}>
+          <View style={styles.composeHandle} />
+          <Text style={styles.composeTitle}>New Message</Text>
+          <Text style={styles.composeSub}>
+            Start a direct conversation with someone you already share a chat with.
+          </Text>
+
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+            {contactsLoading ? (
+              <View style={styles.loadingWrap}>
+                <ActivityIndicator color={colors.navy} size="small" />
+              </View>
+            ) : contacts.length > 0 ? (
+              contacts.map((contact) => {
+                const name    = contact.peer_display_name || 'Member'
+                const busy    = startingId === contact.peer_user_id
+                const initBg  = roomAvatarColor('direct')
+                return (
+                  <TouchableOpacity
+                    key={contact.peer_user_id}
+                    style={styles.contactRow}
+                    activeOpacity={0.72}
+                    disabled={!!startingId}
+                    onPress={() => handlePickContact(contact)}
+                  >
+                    <View style={[styles.contactAvatar, { backgroundColor: initBg }]}>
+                      <Text style={styles.contactAvatarText}>{roomInitials(name)}</Text>
+                    </View>
+                    <Text style={styles.contactName} numberOfLines={1}>{name}</Text>
+                    {busy
+                      ? <ActivityIndicator size="small" color={colors.navy} />
+                      : <ChevronRight size={14} color={colors.light} />
+                    }
+                  </TouchableOpacity>
+                )
+              })
+            ) : (
+              <View style={styles.composeEmptyWrap}>
+                <Text style={styles.composeEmptyTitle}>No one to message yet</Text>
+                <Text style={styles.composeEmptySub}>
+                  You'll be able to start a direct message here with anyone you've shared a
+                  campus board, carpool, or course chat with.
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+
+          <TouchableOpacity
+            style={styles.composeCancelBtn}
+            onPress={() => setComposeVisible(false)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.composeCancelText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -415,4 +550,48 @@ const styles = StyleSheet.create({
   emptyPrimaryBtn: { marginBottom: 12, width: '100%' },
   emptySecondaryBtn:   { paddingVertical: 12 },
   emptySecondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
+
+  // "New message" composer sheet
+  composeSheet: {
+    flex: 1, backgroundColor: colors.white,
+    paddingHorizontal: spacing.md, paddingTop: 16,
+  },
+  composeHandle: {
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: 'rgba(30,58,95,0.14)',
+    alignSelf: 'center', marginBottom: 20,
+  },
+  composeTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginBottom: 6 },
+  composeSub: {
+    fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
+    lineHeight: 19, marginBottom: 16,
+  },
+
+  contactRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.07)',
+  },
+  contactAvatar: {
+    width: 40, height: 40, borderRadius: 20,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  contactAvatarText: { fontFamily: fonts.serif, fontSize: 14, color: colors.cream },
+  contactName: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+
+  composeEmptyWrap: { alignItems: 'center', paddingTop: 40, paddingHorizontal: 12 },
+  composeEmptyTitle: {
+    fontFamily: fonts.serif, fontSize: 18, color: colors.navy,
+    marginBottom: 10, textAlign: 'center',
+  },
+  composeEmptySub: {
+    fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
+    lineHeight: 20, textAlign: 'center',
+  },
+
+  composeCancelBtn: {
+    marginTop: 12, marginBottom: 12, alignItems: 'center', paddingVertical: 14,
+    backgroundColor: colors.cream, borderRadius: radius.button,
+  },
+  composeCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
 })
