@@ -162,9 +162,21 @@ export default function HomeScreen({ navigation }) {
   const [spotlightSlides, setSpotlightSlides] = useState([])
   useEffect(() => {
     let cancelled = false
-    fetchSpotlightSlides().then(slides => { if (!cancelled) setSpotlightSlides(slides) })
+    fetchSpotlightSlides().then(slides => {
+      if (cancelled) return
+      // Elevation ("Find a Coach" slides) is Pro-only (see ElevationScreen's
+      // own gating comment and docs/business/subscription-pricing-model.md)
+      // — a Free user still sees the coach teaser card (the slide itself is
+      // curated content, not a purchase), but never a real price pulled
+      // from Elevation, and the tap still lands on CoachProfileScreen's own
+      // Pro gate either way (defense in depth, not the only enforcement).
+      const filtered = isPro ? slides : slides.map(s => (
+        s.kicker === 'Find a Coach' ? { ...s, priceLabel: null } : s
+      ))
+      setSpotlightSlides(filtered)
+    })
     return () => { cancelled = true }
-  }, [])
+  }, [isPro])
 
   function handleSpotlightPress(slide) {
     if (!slide?.nav?.screen) return
