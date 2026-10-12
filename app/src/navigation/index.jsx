@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext'
 import { usePushRegistration } from '../hooks/usePushRegistration'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
+import TabCoachMark from '../components/onboarding/TabCoachMark'
 
 // Main screens
 import HomeScreen          from '../screens/HomeScreen'
@@ -279,6 +280,17 @@ function MainTabsInner() {
   )
 }
 
+// Task #84: a founder audit found the tab bar's own mix (Home, Ad Board,
+// Messages, Directory, Profile) is the right one and should stay as-is, but
+// flagged that "Foundation Blueprint" and "Elevation Blueprint" — both
+// reached from the Home tab, via its Quick Access tiles or the hamburger
+// drawer — don't self-explain to a first-time user. Rather than restructure
+// or relabel anything, the fix is this one-time coach mark pointing at the
+// Home tab. Persisted the same way BlueprintTourScreen persists "tour seen"
+// — a per-user AsyncStorage flag — so it survives app restarts and never
+// repeats once dismissed.
+const COACH_MARK_SEEN_KEY_PREFIX = 'btb_tab_coachmark_seen_'
+
 // ── App Shell — Drawer wraps the bottom-tab app ─────────────────────────────────
 // A real drawer navigator, separate from (and layered above) the existing
 // bottom tabs — opened via the hamburger icon on each of the 5 root tab
@@ -293,19 +305,53 @@ function AppShell() {
   // launch-time prompt. See usePushRegistration/pushNotifications.js.
   usePushRegistration()
 
+  const { user } = useAuth()
+  const [showCoachMark, setShowCoachMark] = useState(false)
+
+  // Same "only once AppShell has actually mounted" reasoning as the push
+  // prompt above: AppShell only ever renders once someone is past the
+  // first-launch tour (new users land here the instant the tour's
+  // "Start exploring" finishes; existing users land here on their next
+  // normal app open). A short delay before showing keeps this from ever
+  // overlapping the tour's own finish transition or the splash→app swap —
+  // it appears a beat after the Home tab is already settled on screen,
+  // never alongside it.
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    let timer
+    AsyncStorage.getItem(`${COACH_MARK_SEEN_KEY_PREFIX}${user.id}`)
+      .then(seen => {
+        if (cancelled || seen) return
+        timer = setTimeout(() => { if (!cancelled) setShowCoachMark(true) }, 700)
+      })
+      .catch(() => {}) // fail closed — never show over a storage read error
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [user?.id])
+
+  function dismissCoachMark() {
+    setShowCoachMark(false)
+    if (user?.id) {
+      AsyncStorage.setItem(`${COACH_MARK_SEEN_KEY_PREFIX}${user.id}`, '1').catch(() => {})
+    }
+  }
+
   return (
-    <Drawer.Navigator
-      screenOptions={{
-        headerShown: false,
-        drawerType: 'front',
-        overlayColor: 'rgba(15,23,32,0.5)',
-        drawerStyle: { width: 280 },
-        swipeEdgeWidth: 40,
-      }}
-      drawerContent={props => <SidebarDrawer {...props} />}
-    >
-      <Drawer.Screen name="MainTabs" component={MainTabs} />
-    </Drawer.Navigator>
+    <View style={{ flex: 1 }}>
+      <Drawer.Navigator
+        screenOptions={{
+          headerShown: false,
+          drawerType: 'front',
+          overlayColor: 'rgba(15,23,32,0.5)',
+          drawerStyle: { width: 280 },
+          swipeEdgeWidth: 40,
+        }}
+        drawerContent={props => <SidebarDrawer {...props} />}
+      >
+        <Drawer.Screen name="MainTabs" component={MainTabs} />
+      </Drawer.Navigator>
+      {showCoachMark && <TabCoachMark onDismiss={dismissCoachMark} />}
+    </View>
   )
 }
 
