@@ -8,6 +8,20 @@
 // 'live'  → full card with expand/pricing, shown on the map as a gold pin
 // 'shell' → confirmed partner, "coming soon" grid card, shown on the map as a
 //           grey sketch pin when it has a county on file
+//
+// GDPR fix (task #94, same pattern as ElevationScreen.jsx's COACHES array /
+// coach_contact_details): this file used to hardcode every partner's real
+// email, phone, and Instagram/TikTok handle directly in `contact` objects
+// below, shipped straight into the JS bundle on every build. That data now
+// lives in the backend-only lifestyle_partner_contact_details table (see
+// supabase/migrations/20261012181500_lifestyle_partner_contact_details.sql),
+// reachable only via the get_lifestyle_partner_contact() RPC — not read
+// from here any more. `hasContact: true` below is just a non-sensitive
+// flag ("this partner has something on file worth fetching") so the UI can
+// decide whether to show a "Get in touch" section at all without needing
+// the real values; PartnerCards.jsx's PartnerDetailSheet/PartnerExpandCard
+// fetch the actual contact info with hooks/usePartnerContact.js, keyed by
+// each partner's `id` here (== that table's partner_slug).
 
 // Cosmetic-only display transform for a "coming soon" partner's name — every
 // non-space character becomes '?', so "Whip Wizardz" reads "???? ???????":
@@ -41,7 +55,7 @@ export const PARTNERS = [
       { label: 'Deposit (all bookings)',           price: '€20 required' },
     ],
     howToStart: 'Fill out the free client consultation form in bio, then DM "READY" on Instagram or WhatsApp.',
-    contact: { instagram: 'milanpir_fitness', phone: '0857633757', email: 'milanpirfitness@gmail.com' },
+    hasContact: true,
   },
   {
     id: 'energie',
@@ -63,7 +77,6 @@ export const PARTNERS = [
       { label: 'Standard Joining Fee', price: '€30' },
     ],
     howToStart: 'Set up in-person at your nearest Energie Fitness location. Open Mon–Fri 6am–10pm, Sat–Sun 9am–5pm.',
-    contact: null,
   },
   {
     id: 'jmc',
@@ -83,7 +96,6 @@ export const PARTNERS = [
       { label: 'Analytics Breakdown',     price: '€100' },
     ],
     howToStart: 'Book via the Elevation Blueprint section of the app.',
-    contact: null,
   },
 
   // ── Live: Photography & Services ────────────────────────────────────────
@@ -103,8 +115,8 @@ export const PARTNERS = [
       { label: 'Monthly Subscription', price: '€55/month' },
       { label: '1-1 Shoot Session',    price: '€90' },
     ],
-    howToStart: 'WhatsApp +353 85 7272 875 or DM @Nyz3ditz on Instagram to book.',
-    contact: { instagram: 'Nyz3ditz', phone: '+353857272875' },
+    howToStart: 'WhatsApp or DM on Instagram to book — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'whipwizardz',
@@ -121,7 +133,6 @@ export const PARTNERS = [
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Whip Wizardz covers vehicle sales, sourcing, inspections, repairs, bodywork, detailing, import services, and consignment.',
     services: ['Vehicle Sales & Sourcing', 'Inspections', 'Repairs & Bodywork', 'Detailing', 'Import & Consignment'],
     howToStart: 'Book via WhatsApp, phone, or social media for your appointment.',
-    contact: null,
   },
 
   // ── Live: Beauty ────────────────────────────────────────────────────────
@@ -149,8 +160,8 @@ export const PARTNERS = [
       { label: 'Nail Art (per nail)',       price: '€3.50+' },
       { label: 'Nail Art (full set add-on)', price: '€10+' },
     ],
-    howToStart: 'Show your valid student ID when booking. DM @theenailnurse__ on Instagram.',
-    contact: { instagram: 'theenailnurse__' },
+    howToStart: 'Show your valid student ID when booking. DM on Instagram — see Get in Touch below.',
+    hasContact: true,
   },
 
   // ── Live: Services ───────────────────────────────────────────────────────
@@ -169,7 +180,7 @@ export const PARTNERS = [
     description: 'LEVA Impact is a freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, from content creation and UGC coordination to AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
     services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
     howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
-    contact: { instagram: 'leva.impact', tiktok: 'leva.media', phone: '0899662635', email: 'levaalex13@gmail.com', website: 'https://alexleva.myportfolio.com/home-page' },
+    hasContact: true,
     crossLink: { label: "Also a UniBlueprint Uni Coach, see Alex's Digital Marketing profile", coachId: 10 },
   },
   {
@@ -186,8 +197,8 @@ export const PARTNERS = [
     status: 'live',
     description: 'Henry Sisters Co is a creative content studio based in County Mayo, specialising in photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. Whether you need content for your brand, business, or event, they bring a creative eye and a professional finish.',
     services: ['Photography', 'Videography', 'Social Media Content', 'Instagram Reels', 'Event Content', 'UGC Content', 'Drone Footage', 'Promotional Content'],
-    howToStart: 'Enquire via Instagram DM @henrysistersco or email henrysistersco@gmail.com. Pricing on request.',
-    contact: { instagram: 'henrysistersco', email: 'henrysistersco@gmail.com' },
+    howToStart: 'Enquire via Instagram DM or email — see Get in Touch below. Pricing on request.',
+    hasContact: true,
   },
   {
     id: 'camila',
@@ -212,8 +223,8 @@ export const PARTNERS = [
       { label: 'Online Coach',        price: '€320/month' },
     ],
     pricingNote: 'Online coaching includes a PARQ video call, WhatsApp support, food plan, workout plan, and supplement suggestions.',
-    howToStart: 'DM @camilaaruk.coach on Instagram or email camila.coachfitness@gmail.com.',
-    contact: { instagram: 'camilaaruk.coach', email: 'camila.coachfitness@gmail.com', phone: '0838602227' },
+    howToStart: 'DM on Instagram or email — see Get in Touch below.',
+    hasContact: true,
     crossLink: { label: "Also a UniBlueprint Uni Coach, see Camila's Elevation Blueprint profile", coachId: 17 },
   },
   {
@@ -244,8 +255,8 @@ export const PARTNERS = [
       { label: 'pupil.longsleeve',         price: '€60.00', soldOut: true },
       { label: 'ryukpolo',                 price: '€50.00', soldOut: true },
     ],
-    howToStart: 'DM @saiemsent on Instagram or visit saiemsent.ie.',
-    contact: { instagram: 'saiemsent', tiktok: 'saiemsent', website: 'https://saiemsent.ie' },
+    howToStart: 'DM on Instagram or visit saiemsent.ie.',
+    hasContact: true,
   },
   {
     id: 'elect',
@@ -266,8 +277,8 @@ export const PARTNERS = [
     deal: '10% off with code ELECTXUNIBLUEPRINT',
     status: 'live',
     description: 'Irish Christian streetwear brand built around faith, purpose, and individuality — modern, high-quality clothing inspired by Scripture and Christian values. Every piece has a meaning behind it, drawing on themes of identity, strength, purpose, and walking with God.',
-    howToStart: 'DM @elect_co on Instagram or email electgodschosen@gmail.com.',
-    contact: { instagram: 'elect_co', tiktok: 'elect_co', email: 'electgodschosen@gmail.com' },
+    howToStart: 'DM on Instagram or email — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'eabakeditt',
@@ -293,8 +304,8 @@ export const PARTNERS = [
       { label: 'Cookie Pouch',         price: '€2' },
     ],
     pricingNote: 'Flavours and add-ons (toppers, customised toppers) priced separately — ask for the full list.',
-    howToStart: 'DM @eabakeditt on Instagram or TikTok @eabakedittt.',
-    contact: { instagram: 'eabakeditt', tiktok: 'eabakedittt', phone: '0899485617', email: 'lizawakz@yahoo.com' },
+    howToStart: 'DM on Instagram or TikTok — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'ilashedbydiya',
@@ -316,8 +327,8 @@ export const PARTNERS = [
       { label: 'Infills',    price: '€15' },
       { label: 'Removals',   price: '€10' },
     ],
-    howToStart: 'DM @ilashedbydiya on Instagram, TikTok, or Facebook.',
-    contact: { instagram: 'ilashedbydiya', tiktok: 'ilashedbydiya', email: 'ilashedbydiya@gmail.com', phone: '0899428910' },
+    howToStart: 'DM on Instagram, TikTok, or Facebook — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'roomy',
@@ -335,8 +346,8 @@ export const PARTNERS = [
       { label: 'Property Listings', price: 'Free' },
       { label: 'Priority Request',  price: '€5' },
     ],
-    howToStart: 'Visit roomy.ie or DM @Roomy.ie on Instagram.',
-    contact: { instagram: 'Roomy.ie', phone: '+353899809654', email: 'admin@roomy.ie', website: 'https://roomy.ie' },
+    howToStart: 'Visit roomy.ie or DM on Instagram — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'royaltyproductions',
@@ -361,8 +372,8 @@ export const PARTNERS = [
       { label: 'Personal Branding / Content (1hr)',  price: '€120' },
     ],
     pricingNote: 'Larger events, commercial work, or custom requirements priced on enquiry.',
-    howToStart: 'DM @royalty.productions1 on Instagram, email, or phone.',
-    contact: { instagram: 'royalty.productions1', email: 'chidoziemenyoazu1@gmail.com', phone: '085 185 2451' },
+    howToStart: 'DM on Instagram, email, or phone — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'veeslash',
@@ -384,8 +395,8 @@ export const PARTNERS = [
       { label: 'Deposit',      price: '€15.70' },
     ],
     pricingNote: 'Last-minute cancellation fee: €10.',
-    howToStart: 'Email vickylukau123@gmail.com or call to book.',
-    contact: { email: 'vickylukau123@gmail.com', phone: '+3530852758798' },
+    howToStart: 'Email or call to book — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'cutbyire',
@@ -408,8 +419,8 @@ export const PARTNERS = [
       { label: 'Scissor Cut (no fade)',        price: '€15 · 30 min' },
       { label: 'Home Service',                 price: 'From €35 · 40 min' },
     ],
-    howToStart: 'DM @cutbyire on Instagram to book.',
-    contact: { instagram: 'cutbyire' },
+    howToStart: 'DM on Instagram to book — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'poiemadexigns',
@@ -424,8 +435,8 @@ export const PARTNERS = [
     description: 'Creative web design and branding studio helping businesses, organisations, and entrepreneurs build strong, professional digital identities. Worked with small businesses, community organisations, churches, and entrepreneurs on everything from website design and redesigns to logos and complete brand identities.',
     services: ['Website Design & Development', 'Website Redesigns', 'E-commerce Design', 'UI/UX Design', 'Logo Design', 'Brand Identity & Visual Branding', 'Brand Style Guides', 'Website Maintenance'],
     pricingNote: 'Pricing upon enquiry — each project is quoted based on scope, requirements, and needs.',
-    howToStart: 'Book a call at calendly.com/oedesignns or DM @poiema_dexigns on Instagram.',
-    contact: { instagram: 'poiema_dexigns', email: 'oedesignns@gmail.com', phone: '+353834801235', website: 'https://www.olaoluwaesho.com/' },
+    howToStart: 'Book a call at calendly.com/oedesignns or DM on Instagram — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'kelan',
@@ -439,8 +450,8 @@ export const PARTNERS = [
     status: 'live',
     description: 'Long-time photography and videography enthusiast with experience in events, filming, and promotional content creation — including work with Machenry and the Dogroses folk band, and promotional content for Cadell Bar in Galway City.',
     pricingNote: 'Pricing upon enquiry.',
-    howToStart: 'DM @made_by_kelan on Instagram.',
-    contact: { instagram: 'made_by_kelan', email: 'kelanhenry1@gmail.com', phone: '0830416835' },
+    howToStart: 'DM on Instagram — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'claras',
@@ -460,8 +471,8 @@ export const PARTNERS = [
       { label: 'BIAB',           price: '€30' },
       { label: 'Shellac',        price: '€25' },
     ],
-    howToStart: 'DM @claras_beauty_room on Instagram to book.',
-    contact: { instagram: 'claras_beauty_room' },
+    howToStart: 'DM on Instagram to book — see Get in Touch below.',
+    hasContact: true,
   },
   {
     id: 'lashessteph',
@@ -481,8 +492,8 @@ export const PARTNERS = [
       { label: 'Russians',     price: '€50' },
       { label: 'Mega Volumes', price: '€60' },
     ],
-    howToStart: 'DM @lashedbystephhx on Instagram to book.',
-    contact: { instagram: 'lashedbystephhx' },
+    howToStart: 'DM on Instagram to book — see Get in Touch below.',
+    hasContact: true,
   },
 
   // ── Live: Photography, Printing & Creative ──────────────────────────────
@@ -501,7 +512,7 @@ export const PARTNERS = [
     pricingNote: 'Pricing and full services list available on the studio website.',
     hours: 'Mon–Fri 10am–7pm · Sat 11am–6pm · Closed Sundays',
     howToStart: 'Book through the main website, or contact by phone or email.',
-    contact: { instagram: 'coded69studios', phone: '0897011898', email: 'info@coded69studios.com', website: 'https://www.coded69studios.com' },
+    hasContact: true,
   },
 
   // ── Live: Fashion ────────────────────────────────────────────────────────
@@ -523,8 +534,8 @@ export const PARTNERS = [
     tagline: 'Personalised embroidered clothing, Co. Mayo.',
     status: 'live',
     description: 'Personalised clothing business based in Co. Mayo, focused mainly on embroidery. Has worked with a number of businesses around Mayo, including McHughs, Angels Garage, and Apache Pizza, along with many other small businesses. Bring a logo or design and have it embroidered onto a shirt or hoodie.',
-    howToStart: 'DM @zvision.apparel on Instagram or email zvisionapparel@gmail.com.',
-    contact: { instagram: 'zvision.apparel', email: 'zvisionapparel@gmail.com', phone: '+353877021874' },
+    howToStart: 'DM on Instagram or email — see Get in Touch below.',
+    hasContact: true,
   },
 
   // ── Live: Fashion & Sports Photography ──────────────────────────────────
@@ -555,7 +566,6 @@ export const PARTNERS = [
     status: 'live',
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
     howToStart: 'Contact details to be confirmed with the partner before launch.',
-    contact: null,
   },
   {
     id: 'dylanpower',
@@ -571,7 +581,6 @@ export const PARTNERS = [
     logo: null, // upload via partner-logos bucket when available
     description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
     howToStart: 'Contact details to be confirmed with the partner before launch.',
-    contact: null,
   },
 
   // ── Live: Sept 2026 Partner Additions ───────────────────────────────────
@@ -584,7 +593,6 @@ export const PARTNERS = [
     filterKey: 'fashion',
     category: 'Fashion/Clothing',
     status: 'live',
-    contact: null,
   },
   {
     id: 'njoy',
@@ -599,7 +607,6 @@ export const PARTNERS = [
     filterKey: 'food',
     category: 'Food & Drink',
     status: 'live',
-    contact: null,
   },
   // No photos supplied yet for these two — logo/hero/gallery left unset
   // rather than invented; text-only cards until real assets/details land.
@@ -611,7 +618,6 @@ export const PARTNERS = [
     filterKey: 'food',
     category: 'Food & Drink',
     status: 'live',
-    contact: null,
   },
   {
     id: 'styledbybene',
@@ -621,7 +627,6 @@ export const PARTNERS = [
     filterKey: 'services',
     category: 'Services · Creative Director',
     status: 'live',
-    contact: null,
   },
 
   // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
