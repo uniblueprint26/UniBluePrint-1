@@ -262,13 +262,14 @@ const ACADEMIC_TOOLS = [
 ]
 
 // ─── Popular Notes ────────────────────────────────────────────────────────────
-
-const RECENT_NOTES = [
-  { module: 'MG4021', title: 'Consumer Behaviour, Week 7 Summary', university: 'UL', views: 142, saved: 38 },
-  { module: 'CS2001', title: 'Data Structures, Linked Lists & Trees', university: 'UCD', views: 98, saved: 22 },
-  { module: 'LA1102', title: 'Contract Law, Offer & Acceptance Notes', university: 'TCD', views: 203, saved: 61 },
-  { module: 'AC3010', title: 'Financial Accounting, Ratio Analysis', university: 'UCC', views: 87, saved: 19 },
-]
+// Was a hardcoded RECENT_NOTES array (4 fake notes with made-up view/save
+// counts) shown under a "these are examples" MockContentBanner. Replaced
+// with get_popular_notes() (20261012163000_popular_notes_rpc.sql) — the
+// real top shared_notes rows ranked by genuine download_count, the same
+// counter BoardDetailScreen.jsx/ResourceFinderScreen.jsx already bump on
+// every real download. See loadPopularNotes() in the screen component
+// below. POPULAR_NOTES_LIMIT caps how many rows the widget asks for.
+const POPULAR_NOTES_LIMIT = 4
 
 // ─── Popular Right Now ────────────────────────────────────────────────────────
 // Replaces the old "Journey Match" stage-grouped mock profile grid entirely.
@@ -428,6 +429,24 @@ export default function CourseConnectScreen({ navigation }) {
       if (cancelled) return
       setPopularCourses(groupPopularCourses(data || []))
       setPopularLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  // ── Real popularity signal #3: "Popular Notes" ───────────────────────────
+  // Replaces the old hardcoded RECENT_NOTES array — see get_popular_notes()
+  // (20261012163000_popular_notes_rpc.sql) for how real shared_notes rows
+  // become this ranking (ordered by genuine download_count).
+  const [popularNotes, setPopularNotes] = useState([])
+  const [popularNotesLoading, setPopularNotesLoading] = useState(true)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      setPopularNotesLoading(true)
+      const { data } = await supabase.rpc('get_popular_notes', { limit_count: POPULAR_NOTES_LIMIT })
+      if (cancelled) return
+      setPopularNotes(data || [])
+      setPopularNotesLoading(false)
     })()
     return () => { cancelled = true }
   }, [])
@@ -592,32 +611,43 @@ export default function CourseConnectScreen({ navigation }) {
             </View>
 
             <Text style={[styles.academicSubLabel, { marginTop: spacing.xl }]}>POPULAR NOTES</Text>
-            <Text style={styles.academicSubSub}>Surfaced from students on similar courses. Shown as examples until your course community grows.</Text>
-            <MockContentBanner
-              title="Example notes, shown until your course goes live"
-              subtitle="These notes are illustrative. Notes relevant to your module and institution will surface here once students start sharing."
-              style={{ marginTop: spacing.md }}
-            />
-            <View style={{ gap: 10, marginTop: spacing.sm }}>
-              {RECENT_NOTES.map((note, i) => (
-                <Card key={i} style={styles.noteCard}>
-                  <View style={styles.noteModuleBadge}>
-                    <Text style={styles.noteModuleText}>{note.module}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.noteTitle}>{note.title}</Text>
-                    <View style={styles.noteMeta}>
-                      <Text style={styles.noteMetaText}>{note.university}</Text>
-                      <Text style={styles.noteMetaText}>·</Text>
-                      <Text style={styles.noteMetaText}>{note.views} views</Text>
-                      <Text style={styles.noteMetaText}>·</Text>
-                      <Text style={styles.noteMetaText}>{note.saved} saves</Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={14} color={colors.light} style={{ alignSelf: 'center' }} />
-                </Card>
-              ))}
-            </View>
+            <Text style={styles.academicSubSub}>
+              Real notes shared by students, ranked by how many times they've actually been downloaded.
+            </Text>
+            {popularNotesLoading ? (
+              <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+            ) : popularNotes.length === 0 ? (
+              <Text style={styles.popularEmptyText}>
+                No notes shared yet — be the first to upload one in Notes Exchange.
+              </Text>
+            ) : (
+              <View style={{ gap: 10, marginTop: spacing.sm }}>
+                {popularNotes.map(note => (
+                  <TouchableOpacity
+                    key={note.id}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('ResourceFinder')}
+                  >
+                    <Card style={styles.noteCard}>
+                      <View style={styles.noteModuleBadge}>
+                        <Text style={styles.noteModuleText}>{note.subject}</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.noteTitle}>{note.title}</Text>
+                        <View style={styles.noteMeta}>
+                          <Text style={styles.noteMetaText}>{note.institution || note.course}</Text>
+                          <Text style={styles.noteMetaText}>·</Text>
+                          <Text style={styles.noteMetaText}>
+                            {note.download_count || 0} download{(note.download_count || 0) !== 1 ? 's' : ''}
+                          </Text>
+                        </View>
+                      </View>
+                      <ChevronRight size={14} color={colors.light} style={{ alignSelf: 'center' }} />
+                    </Card>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
           </View>
 
