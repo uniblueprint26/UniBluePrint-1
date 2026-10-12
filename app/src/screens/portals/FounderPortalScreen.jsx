@@ -10,6 +10,7 @@ import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import ImageUploader from '../../components/ui/ImageUploader'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
+import PartnerTieringAdmin from '../../components/portals/PartnerTieringAdmin'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
@@ -459,6 +460,10 @@ export default function FounderPortalScreen({ navigation }) {
               <Text style={styles.photoPillText}>{p.brand}</Text>
             </TouchableOpacity>
           ))}
+        </View>
+
+        <View style={{ marginTop: spacing.xl }}>
+          <PartnerTieringAdmin />
         </View>
 
       </ScrollView>

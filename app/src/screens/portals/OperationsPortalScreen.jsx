@@ -6,6 +6,7 @@ import { Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw, Clock, CheckCir
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import StatTile from '../../components/ui/StatTile'
+import PartnerTieringAdmin from '../../components/portals/PartnerTieringAdmin'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
@@ -202,6 +203,10 @@ export default function OperationsPortalScreen({ navigation }) {
             </View>
           ))}
         </Card>
+
+        <View style={{ marginTop: spacing.xl }}>
+          <PartnerTieringAdmin />
+        </View>
       </ScrollView>
 
       {/* Mark-done note — records what was actually done for the GDPR paper trail,

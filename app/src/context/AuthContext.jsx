@@ -215,6 +215,13 @@ export function AuthProvider({ children }) {
   const isFounder = hasRole('founder')
   const isOperations = hasRole('operations')
   const isBusiness = hasRole('business')
+  // No dedicated Finance portal/route exists yet (PORTAL_ROLES above has no
+  // 'finance' entry) — this flag exists purely so screens Finance *can*
+  // already reach (Founder/Operations today) can client-side-gate the
+  // negotiated-rate tooling that's finance/founder-only on the backend
+  // (record_negotiated_rate / get_negotiation_history). See
+  // partner-tiering-framework.md open item #3 on negotiation authority.
+  const isFinance = hasRole('finance')
   const isStudioEligible = isHandler || isCoach
   // Any of the five internal-team roles that get a second, professional-side
   // interface in addition to their personal "My Blueprint" experience.
@@ -245,7 +252,7 @@ export function AuthProvider({ children }) {
       user, loading, roles, hasRole, portalRole,
       subscription, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
       signIn, signUp, signOut, resetPassword, resendVerification,
-      isHandler, isCoach, isFounder, isOperations, isBusiness,
+      isHandler, isCoach, isFounder, isOperations, isBusiness, isFinance,
       isStudioEligible, isAnyPortalEligible, studioLabel,
       portalMode, setPortalMode,
       profile, profileLoading, userType, updateUserType,
