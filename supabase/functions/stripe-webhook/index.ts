@@ -1,4 +1,6 @@
-// Handles Stripe webhook events and keeps public.subscriptions in sync.
+// Handles Stripe webhook events and keeps public.subscriptions (Pro
+// subscriptions) AND public.foundation_payments (Foundation Blueprint
+// one-time document charges, task #95) in sync.
 //
 // Deploy: supabase functions deploy stripe-webhook --no-verify-jwt
 // (--no-verify-jwt because Stripe calls this directly, not through a
@@ -12,8 +14,13 @@
 //
 // Register in the Stripe dashboard pointing at:
 //   https://<project-ref>.supabase.co/functions/v1/stripe-webhook
-// subscribed to: checkout.session.completed, customer.subscription.updated,
-// customer.subscription.deleted, invoice.payment_failed
+// subscribed to: checkout.session.completed, checkout.session.expired,
+// customer.subscription.updated, customer.subscription.deleted,
+// invoice.payment_failed
+// (checkout.session.expired is new as of task #95 — needed so an
+// abandoned Foundation checkout doesn't leave its foundation_payments row
+// stuck on 'pending' forever. This needs an actual Stripe dashboard
+// config change outside this codebase — see task #95's report.)
 //
 // Writes to public.subscriptions (tier/status/current_period_end/
 // stripe_customer_id/stripe_subscription_id), not profiles — that's the
@@ -21,6 +28,14 @@
 // AuthContext.jsx derives isPro). An earlier version of this file's TODO
 // comments referenced a nonexistent profiles.is_pro column; same bug class
 // already found and fixed on the website's SubscriptionManagementPage.
+//
+// checkout.session.completed now covers two distinct kinds of session —
+// session.mode distinguishes them, same way Stripe itself does:
+//   'subscription' -> Pro/Premium (create-checkout-session), unchanged.
+//   'payment'      -> a single Foundation Blueprint document
+//                      (create-foundation-checkout-session, task #95).
+// They're never confused with each other because a Checkout Session's
+// mode is fixed at creation and Stripe reports it back verbatim.
 
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -43,6 +58,38 @@ async function upsertSubscription(userId: string, tier: string, stripeCustomerId
   }, { onConflict: 'user_id' })
 }
 
+// Task #95 — marks a Foundation one-time payment paid once Stripe actually
+// confirms the charge. This is the only thing that can ever flip a
+// foundation_payments row to 'paid' (RLS gives `authenticated` no
+// insert/update on that table at all), which is what makes
+// submit_document_for_review()'s payment check real rather than
+// cosmetic. Matched by the row's own id (set in checkout session
+// metadata at creation, create-foundation-checkout-session/index.ts),
+// not by stripe_checkout_session_id — the id is already known and unique,
+// so there's no ambiguity to resolve.
+async function markFoundationPaymentPaid(paymentId: string, paymentIntentId: string | null) {
+  const { error } = await supabase
+    .from('foundation_payments')
+    .update({
+      status: 'paid',
+      stripe_payment_intent_id: paymentIntentId,
+      paid_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', paymentId)
+    .eq('status', 'pending') // don't resurrect a row already marked failed/canceled
+  if (error) console.error('[stripe-webhook] could not mark foundation_payments paid', paymentId, error)
+}
+
+async function markFoundationPaymentFailed(paymentId: string) {
+  const { error } = await supabase
+    .from('foundation_payments')
+    .update({ status: 'failed', updated_at: new Date().toISOString() })
+    .eq('id', paymentId)
+    .eq('status', 'pending')
+  if (error) console.error('[stripe-webhook] could not mark foundation_payments failed', paymentId, error)
+}
+
 Deno.serve(async req => {
   const signature = req.headers.get('stripe-signature')
   const body = await req.text()
@@ -59,6 +106,20 @@ Deno.serve(async req => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
+
+        if (session.mode === 'payment') {
+          // Foundation Blueprint one-time document charge (task #95).
+          const paymentId = session.metadata?.foundation_payment_id
+          if (!paymentId) {
+            console.error('checkout.session.completed (payment mode) missing foundation_payment_id metadata', session.id)
+            break
+          }
+          const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null
+          await markFoundationPaymentPaid(paymentId, paymentIntentId)
+          break
+        }
+
+        // Pro/Premium subscription (create-checkout-session) — unchanged.
         const userId = session.client_reference_id || session.metadata?.user_id
         const tier = session.metadata?.tier
         if (!userId || !tier) {
@@ -72,6 +133,20 @@ Deno.serve(async req => {
           session.customer as string, subscriptionId,
           stripeSub.current_period_end,
         )
+        break
+      }
+
+      case 'checkout.session.expired': {
+        // Only meaningful for Foundation's one-time payment sessions — a
+        // Pro/Premium subscription checkout has nothing in `subscriptions`
+        // to roll back if it's abandoned (no row was ever created for it
+        // until completion). Needs this event added to the Stripe
+        // dashboard's webhook subscription list; see this file's header.
+        const session = event.data.object as Stripe.Checkout.Session
+        if (session.mode === 'payment') {
+          const paymentId = session.metadata?.foundation_payment_id
+          if (paymentId) await markFoundationPaymentFailed(paymentId)
+        }
         break
       }
 
