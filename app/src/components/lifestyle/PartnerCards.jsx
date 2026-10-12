@@ -16,11 +16,13 @@ import {
   Dumbbell, Sparkles, ShoppingBag, UtensilsCrossed, Wrench,
 } from 'lucide-react-native'
 import VerifiedBadge from '../ui/VerifiedBadge'
+import ProUpgradeGate from '../ui/ProUpgradeGate'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { COACHES } from '../../screens/ElevationScreen'
 import { useAuth } from '../../context/AuthContext'
 import { logPartnerEvent } from '../../lib/partnerEvents'
 import { supabase } from '../../lib/supabase'
+import { usePartnerContact } from '../../hooks/usePartnerContact'
 
 // Real verification, not a blanket claim — see VerifiedBadge's own header
 // comment. partners.verified (migration 20260926091500_verified_field.sql,
@@ -328,12 +330,20 @@ export function CategoryAccordion({ filterKey, items, expanded, onToggle, onPres
 // every partner listing in the app already ends at. ─────────────────────────
 export function PartnerExpandCard({ partner, visible, onClose, onViewFull }) {
   const insets = useSafeAreaInsets()
+  // Fetches the real handle from the backend (see hooks/usePartnerContact.js)
+  // instead of reading it out of the static partner object — only while
+  // this quick-peek card is actually open, and only for a partner that has
+  // something on file (`hasContact`, a non-sensitive flag — see
+  // data/lifestylePartners.js's own header comment). A Pro-gated partner
+  // just shows no social row here rather than an upsell card — "View full
+  // listing" below is where that real prompt lives.
+  const { contact } = usePartnerContact(partner?.id, { enabled: visible && !!partner?.hasContact })
   if (!partner) return null
 
-  const social = partner.contact?.instagram
-    ? { type: 'instagram', handle: partner.contact.instagram }
-    : partner.contact?.tiktok
-      ? { type: 'tiktok', handle: partner.contact.tiktok }
+  const social = contact?.instagramHandle
+    ? { type: 'instagram', handle: contact.instagramHandle }
+    : contact?.tiktokHandle
+      ? { type: 'tiktok', handle: contact.tiktokHandle }
       : null
 
   return (
@@ -451,6 +461,16 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
   }, [visible, partner?.id, user?.id])
 
   const verified = useVerifiedPartner(partner?.id)
+  // Real contact info (email/phone/Instagram/TikTok/website) is fetched
+  // from the backend only while this sheet is open, never read off the
+  // static partner object — see data/lifestylePartners.js's header comment
+  // and hooks/usePartnerContact.js. `requiresPro` comes back true instead
+  // of an error when the backend withheld it pending an active Pro
+  // subscription (get_lifestyle_partner_contact() in
+  // supabase/migrations/20261012181500_lifestyle_partner_contact_details.sql),
+  // in which case we show the shared ProUpgradeGate card instead of the
+  // contact chips below.
+  const { contact, requiresPro } = usePartnerContact(partner?.id, { enabled: visible && !!partner?.hasContact })
   if (!partner) return null
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
 
@@ -588,22 +608,31 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
                 <Text style={styles.hoursText}>{partner.hours}</Text>
               )}
 
-              {partner.contact && (
+              {partner.hasContact && requiresPro && (
+                <ProUpgradeGate
+                  variant="inline"
+                  title="Contact details are a Pro feature"
+                  message={`Pro unlocks the contact details needed to claim ${partner.brand}'s deal. Mental Health & Wellbeing partners stay free for everyone.`}
+                  style={{ marginTop: 16, marginHorizontal: 0 }}
+                />
+              )}
+
+              {contact && (
                 <View style={styles.contactRow}>
-                  {partner.contact.instagram && (
-                    <ContactChip type="instagram" value={partner.contact.instagram} partner={partner} />
+                  {contact.instagramHandle && (
+                    <ContactChip type="instagram" value={contact.instagramHandle} partner={partner} />
                   )}
-                  {partner.contact.tiktok && (
-                    <ContactChip type="tiktok" value={partner.contact.tiktok} partner={partner} />
+                  {contact.tiktokHandle && (
+                    <ContactChip type="tiktok" value={contact.tiktokHandle} partner={partner} />
                   )}
-                  {partner.contact.phone && (
-                    <ContactChip type="phone" value={partner.contact.phone} partner={partner} />
+                  {contact.phone && (
+                    <ContactChip type="phone" value={contact.phone} partner={partner} />
                   )}
-                  {partner.contact.email && (
-                    <ContactChip type="email" value={partner.contact.email} partner={partner} />
+                  {contact.email && (
+                    <ContactChip type="email" value={contact.email} partner={partner} />
                   )}
-                  {partner.contact.website && (
-                    <ContactChip type="website" value={partner.contact.website} partner={partner} />
+                  {contact.websiteUrl && (
+                    <ContactChip type="website" value={contact.websiteUrl} partner={partner} />
                   )}
                 </View>
               )}
