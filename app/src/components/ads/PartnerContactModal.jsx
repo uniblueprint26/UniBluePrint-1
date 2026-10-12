@@ -8,21 +8,34 @@
  * next to the rest of the app. This is the same information (brand, what
  * they offer, how to reach them), in a centered, dismissible, on-brand card.
  *
+ * GDPR fix (task #94): this used to read `ad.contact` straight off the
+ * static CURATED_ADS array. Real contact info now lives in the
+ * backend-only lifestyle_partner_contact_details table; this fetches it
+ * live via hooks/usePartnerContact.js, keyed by `ad.partnerSlug`, only
+ * while the modal is actually open. That fetch also carries the Lifestyle
+ * Blueprint claim gate (get_lifestyle_partner_contact() in
+ * supabase/migrations/20261012181500_lifestyle_partner_contact_details.sql):
+ * a Free-tier user looking at a non-Mental-Health partner gets
+ * requiresPro back instead of the real contact info, shown here as the
+ * shared ProUpgradeGate card.
+ *
  * Used for every CURATED_ADS partner uniformly, including ones that
- * genuinely have no contact info on file yet (contact: null — real data,
- * not a bug): those get a clear "coming soon" state plus a fallback to
- * message the UniBlueprint team, rather than an empty or missing card.
+ * genuinely have no contact info on file yet (hasContact: false — real
+ * data, not a bug): those get a clear "coming soon" state plus a fallback
+ * to message the UniBlueprint team, rather than an empty or missing card.
  */
 import { Modal, Pressable, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { X, MessageCircle, AtSign, Globe, Mail, Clock, Megaphone, ChevronRight } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 import { CATEGORY } from '../../data/adBoardAds'
+import { usePartnerContact } from '../../hooks/usePartnerContact'
+import ProUpgradeGate from '../ui/ProUpgradeGate'
 
 const NAVY = colors.navy
 
-// One row per contact channel this partner has on file. Order mirrors
-// getAdPressHandler's own priority (WhatsApp, Instagram, website, email) so
-// the card and the old alert agree on what leads.
+// One row per contact channel this partner has on file, built from the
+// fetched { email, phone, instagramHandle, tiktokHandle, websiteUrl } shape
+// usePartnerContact returns (see that hook) — never from a local object.
 function buildContactMethods(contact) {
   if (!contact) return []
   const methods = []
@@ -35,22 +48,31 @@ function buildContactMethods(contact) {
       onPress: () => Linking.openURL(`https://wa.me/${contact.phone.replace(/[^\d]/g, '')}`),
     })
   }
-  if (contact.instagram) {
+  if (contact.instagramHandle) {
     methods.push({
       key: 'instagram',
       Icon: AtSign,
       label: 'Instagram',
-      value: `@${contact.instagram}`,
-      onPress: () => Linking.openURL(`https://instagram.com/${contact.instagram}`),
+      value: `@${contact.instagramHandle}`,
+      onPress: () => Linking.openURL(`https://instagram.com/${contact.instagramHandle}`),
     })
   }
-  if (contact.website) {
+  if (contact.tiktokHandle) {
+    methods.push({
+      key: 'tiktok',
+      Icon: AtSign,
+      label: 'TikTok',
+      value: `@${contact.tiktokHandle}`,
+      onPress: () => Linking.openURL(`https://www.tiktok.com/@${contact.tiktokHandle}`),
+    })
+  }
+  if (contact.websiteUrl) {
     methods.push({
       key: 'website',
       Icon: Globe,
       label: 'Website',
-      value: contact.website.replace(/^https?:\/\//, ''),
-      onPress: () => Linking.openURL(contact.website),
+      value: contact.websiteUrl.replace(/^https?:\/\//, ''),
+      onPress: () => Linking.openURL(contact.websiteUrl),
     })
   }
   if (contact.email) {
@@ -66,11 +88,12 @@ function buildContactMethods(contact) {
 }
 
 export default function PartnerContactModal({ ad, visible, onClose }) {
+  const { contact: fetchedContact, requiresPro } = usePartnerContact(ad?.partnerSlug, { enabled: visible && !!ad?.hasContact })
   if (!ad) return null
 
   const name = ad.brand || ad.title
   const cat = ad.category ? CATEGORY[ad.category] : null
-  const methods = buildContactMethods(ad.contact)
+  const methods = buildContactMethods(fetchedContact)
   const hasContact = methods.length > 0
 
   const messageTeam = () => {
@@ -111,7 +134,14 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
             <Text style={styles.description}>{ad.description}</Text>
           )}
 
-          {hasContact ? (
+          {requiresPro ? (
+            <ProUpgradeGate
+              variant="inline"
+              title="Contact details are a Pro feature"
+              message={`Pro unlocks the contact details needed to get in touch with ${name}. Mental Health & Wellbeing partners stay free for everyone.`}
+              style={{ marginTop: 16, marginHorizontal: 0 }}
+            />
+          ) : hasContact ? (
             <View style={styles.contactSection}>
               <Text style={styles.sectionLabel}>GET IN TOUCH</Text>
               <View style={styles.methodList}>

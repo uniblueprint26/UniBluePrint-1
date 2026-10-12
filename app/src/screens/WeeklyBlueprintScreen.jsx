@@ -12,6 +12,7 @@ import {
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import PostAdModal from '../components/ads/PostAdModal'
+import PartnerContactModal from '../components/ads/PartnerContactModal'
 import { supabase } from '../lib/supabase'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { openMenu } from '../navigation/helpers'
@@ -21,7 +22,7 @@ import { WEBSITE_LINKS } from '../constants/site'
 import { COACHES } from './ElevationScreen'
 import { PARTNERS } from '../data/lifestylePartners'
 import { POSTS as BLOG_POSTS, calcReadTime, formatDate } from '../data/blogPosts'
-import { CATEGORY, CURATED_ADS, getAdPressHandler } from '../data/adBoardAds'
+import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
 // A fixed 26-page structure (see the spec Desmond sent — same page order
@@ -84,6 +85,11 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
   const { issue, content, deals, coaches, foundationTopics, lifestylePartners, marketplaceAds, curatedAds, liveBoardAds } = data
   const issueLabel = issue ? `ISSUE ${issue.issue_number}` : 'THIS WEEK'
   const theme = issue?.theme
+  // Ad Board page only: same branded contact card as AdBoardScreen.jsx,
+  // reading real contact info from the backend (see PartnerContactModal /
+  // hooks/usePartnerContact.js) instead of the old Alert.alert() fallback
+  // that used to read ad.contact straight off CURATED_ADS.
+  const [contactAd, setContactAd] = useState(null)
 
   switch (page.type) {
 
@@ -587,7 +593,19 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
             ) : [...curatedAds, ...liveBoardAds].map(ad => {
               const cat = ad.category ? CATEGORY[ad.category] : null
               return (
-                <TouchableOpacity key={ad.id} style={styles.adBoardRow} activeOpacity={0.8} onPress={getAdPressHandler(ad)}>
+                <TouchableOpacity
+                  key={ad.id}
+                  style={styles.adBoardRow}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    // A live ad's own booking link opens directly; every
+                    // curated partner opens the branded contact card
+                    // instead, same as AdBoardScreen.jsx.
+                    const url = ad.link || ad.target_url
+                    if (url) return Linking.openURL(url)
+                    setContactAd(ad)
+                  }}
+                >
                   <View style={[styles.adBoardIcon, { backgroundColor: cat?.bg || '#F5F0E8' }]}>
                     {cat ? <cat.Icon size={16} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={16} color={colors.navy} strokeWidth={1.8} />}
                   </View>
@@ -604,6 +622,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
             <Plus size={14} color={colors.navy} strokeWidth={2.5} />
             <Text style={styles.secondaryCtaText}>Advertise With Us</Text>
           </TouchableOpacity>
+          <PartnerContactModal ad={contactAd} visible={!!contactAd} onClose={() => setContactAd(null)} />
         </View>
       )
 
