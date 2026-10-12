@@ -90,6 +90,12 @@
           "backgroundColor": "#1E3A5F",
           "resizeMode": "contain"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#1E3A5F"
+        }
       ]
     ]
   }

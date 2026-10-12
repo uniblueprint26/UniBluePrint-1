@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native'
+import {
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Image,
+  Modal, TextInput, KeyboardAvoidingView, Platform,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronRight, MapPin, User,
+  ChevronRight, MapPin, User, Send, X,
   LayoutGrid, Dumbbell, GraduationCap, TrendingUp, Megaphone,
 } from 'lucide-react-native'
 
@@ -14,6 +17,7 @@ import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 // Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
@@ -50,6 +54,18 @@ export function coachSlug(id) {
   return `coach-${id}`
 }
 
+// GDPR fix: coaches' personal contact details (email, phone, Instagram/
+// TikTok handles, Linktree links) used to be hardcoded in this static array,
+// which meant a coach's deletion/correction request could only be actioned
+// by shipping a new app-store release. Those fields now live in
+// coach_contact_details (see migration 20261012120000_coach_contact_details),
+// scoped so only the coach themself and Operations/Founder can read or write
+// them — a public app user never had a real need to see raw contact details
+// directly, since every "get in touch with a coach" path already goes
+// through coach_enquiries ("Send a Quick Message" on the profile page, and
+// "Find me a coach" below). Direct contact-detail display was removed
+// rather than rebuilt against the new table for that reason.
+
 export const COACHES = [
   // ── Academic ──
   {
@@ -83,7 +99,6 @@ export const COACHES = [
       { label: 'Monthly Subscription', price: '€55/month' },
       { label: '1-1 Shoot Session', price: '€90' },
     ],
-    contact: { instagram: 'Nyz3ditz', phone: '+353857272875' },
   },
 
   // ── Trading ──
@@ -104,7 +119,6 @@ export const COACHES = [
         body: 'Trading involves significant risk. Coaching is educational and does not guarantee trading profits or results.',
       },
     ],
-    contact: { phone: '+353838393794' },
     // Also linked from the Investment page in the Budgeting tool.
   },
 
@@ -136,7 +150,6 @@ export const COACHES = [
         body: 'All forms of trading involve risk. Past performance does not guarantee future results, and no specific return or income is guaranteed. The Low-Risk Copier, despite its lower-risk approach, can still result in losses. The 10X Challenge involves substantially higher risk and can result in the loss of the entire starting capital. Mentorship and educational services provide knowledge and guidance but cannot guarantee trading success. IB and white-label opportunities do not guarantee income or commissions. Only commit capital you can afford to lose.',
       },
     ],
-    contact: { instagram: 'rellzdinero8', tiktok: 'rellzdinero' },
     // Also linked from the Investment page in the Budgeting tool (the Low-Risk Copier specifically).
   },
 
@@ -158,7 +171,6 @@ export const COACHES = [
       },
     ],
     bookingNote: 'Reach out via Instagram to book — availability is flexible week to week rather than a fixed recurring slot.',
-    contact: { instagram: 'iamzayade', tiktok: 'iamzayade' },
     // Also linked from the Investment page in the Budgeting tool.
   },
 
@@ -187,7 +199,6 @@ export const COACHES = [
       { label: 'Online Coach', price: '€320/month' },
     ],
     package: ['Video call for PARQ', 'WhatsApp support', 'Food plan', 'Workout plan (app)', 'Schedule routine (app)', 'Supplement suggestions'],
-    contact: { instagram: 'camilaaruk.coach', email: 'camila.coachfitness@gmail.com', phone: '0838602227' },
     crossLink: {
       label: "Also a Lifestyle Blueprint partner, see Camila's Lifestyle listing",
       screen: 'Lifestyle',
@@ -206,7 +217,6 @@ export const COACHES = [
       '24/7 WhatsApp availability',
       'Weekly progress check-in calls',
     ],
-    contact: { instagram: 'emtolic', email: 'etcoaching06@gmail.com', linktree: 'https://linktr.ee/EmanuelPT' },
     pricingNote: 'Pricing discussed during consultation calls and texts.',
   },
 
@@ -216,7 +226,6 @@ export const COACHES = [
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
     bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process — online physique development coaching built around you.",
-    contact: { instagram: 'tdarcycoaching', tiktok: 'darcy.lifts', linktree: 'https://linktr.ee/tadghdarcy123' },
     // Studio photoshoot set (Sept 2026 asset round). heroImage is the
     // designated Spotlight/card image; gallery is the full supplied set for
     // the profile's sliding photo gallery — see CoachProfileScreen.
@@ -264,7 +273,6 @@ export const COACHES = [
       '24/7 WhatsApp support',
       'Frequent check-ins',
     ],
-    contact: { instagram: 'milanpir_fitness', phone: '0857633757', email: 'milanpirfitness@gmail.com' },
     pricingNote: 'Available in 8, 10, or 12-week blocks. Payable in 2 instalments or in full.',
   },
 
@@ -328,7 +336,6 @@ export const COACHES = [
     location: 'County Sligo, Available Nationwide', from: 'Available on request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
     bio: "I'm a qualified Personal Trainer with over a decade of experience, passionate about helping people balance school, work, fitness, sport, and social life. I'm also a League of Ireland player, and I'm available for both online and local in-person coaching in County Sligo.",
-    contact: { instagram: 'JayRfitness6', tiktok: 'JayRfitness6' },
   },
 
   // ── Yoga ──
@@ -352,7 +359,6 @@ export const COACHES = [
       },
     ],
     bookingNote: 'Book online at bookwhen.com/thebraveflowyoga.',
-    contact: { instagram: 'aoife_thebraveflow', linktree: 'https://linktr.ee/thebraveflowaoife' },
   },
 
   {
@@ -368,7 +374,6 @@ export const COACHES = [
       },
     ],
     bookingNote: 'Enquire directly via Instagram DM to book.',
-    contact: { instagram: 'luana.ciweck' },
   },
 ]
 
@@ -515,6 +520,130 @@ function CoachCard({ coach, navigation }) {
   )
 }
 
+// ─── "Find me a coach" enquiry modal ───────────────────────────────────────────
+// Replaces the old mailto: to a personal-style Gmail address — that bypassed
+// coach_enquiries (the real queue Operations/Founder already work from for
+// every per-coach "Send a Quick Message" on the profile page) and had no
+// record a student ever sent it. Writes the same real row instead, under a
+// fixed general-enquiry coach_slug since no specific coach is picked yet.
+const GENERAL_ENQUIRY_SLUG = 'general-enquiry'
+const GENERAL_ENQUIRY_NAME = 'Find Me A Coach (general enquiry)'
+
+function FindCoachModal({ visible, onClose, userId }) {
+  const [message, setMessage]   = useState('')
+  const [sending, setSending]   = useState(false)
+  const [sent, setSent]         = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
+
+  async function submit() {
+    if (!userId) {
+      setErrorMsg('Please sign in to send a booking enquiry.')
+      return
+    }
+    setSending(true)
+    setErrorMsg(null)
+    try {
+      const { error } = await supabase.from('coach_enquiries').insert({
+        user_id: userId,
+        coach_slug: GENERAL_ENQUIRY_SLUG,
+        coach_name: GENERAL_ENQUIRY_NAME,
+        message: message.trim() || null,
+      })
+      if (error) throw error
+      setSent(true)
+    } catch {
+      setErrorMsg('Could not send your enquiry. Please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  function handleClose() {
+    setMessage('')
+    setSent(false)
+    setErrorMsg(null)
+    onClose()
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={fm.backdrop}>
+        <View style={fm.sheet}>
+          <View style={fm.headerRow}>
+            <Text style={fm.title}>{sent ? 'Request sent' : 'Find Me A Coach'}</Text>
+            <TouchableOpacity
+              onPress={handleClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+
+          {sent ? (
+            <View style={{ paddingVertical: 20 }}>
+              <Text style={fm.sentText}>
+                Your request has gone straight to the UniBlueprint team. They'll match you with a coach and follow up directly.
+              </Text>
+              <TouchableOpacity style={fm.doneBtn} activeOpacity={0.85} onPress={handleClose}>
+                <Text style={fm.doneBtnText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={fm.sub}>
+                Tell us what you're looking for — subject, sport, trading, or marketing coaching — and we'll match you with the right coach.
+              </Text>
+              <TextInput
+                style={fm.input}
+                placeholder="e.g. Looking for a Leaving Cert Maths grind, twice a week..."
+                placeholderTextColor={colors.light}
+                value={message}
+                onChangeText={setMessage}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              {!!errorMsg && <Text style={fm.error}>{errorMsg}</Text>}
+              <Button
+                label="Send Request"
+                icon={Send}
+                onPress={submit}
+                variant="primary"
+                loading={sending}
+              />
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+const fm = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+  sheet: {
+    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: spacing.lg, paddingBottom: 34,
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
+  input: {
+    backgroundColor: colors.cream, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 14, minHeight: 100,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    marginBottom: 12,
+  },
+  error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
+  sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
+  doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+})
+
 // ─── Group header ─────────────────────────────────────────────────────────────
 
 function GroupHeader({ label, count, first }) {
@@ -532,7 +661,9 @@ function GroupHeader({ label, count, first }) {
 
 export default function ElevationScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
   const [active, setActive] = useState('All')
+  const [findCoachOpen, setFindCoachOpen] = useState(false)
 
   // Real verification, not a blanket claim: coach_profiles.verified is the
   // only source of truth (see VerifiedBadge's own header comment and
@@ -677,13 +808,19 @@ export default function ElevationScreen({ navigation }) {
 
           <Button
             label="Book a Coach"
-            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent("I'd like to be matched with a coach"))}
+            onPress={() => setFindCoachOpen(true)}
             variant="primary"
             style={styles.primaryBtn}
           />
 
         </View>
       </ScrollView>
+
+      <FindCoachModal
+        visible={findCoachOpen}
+        onClose={() => setFindCoachOpen(false)}
+        userId={user?.id}
+      />
     </View>
   )
 }
