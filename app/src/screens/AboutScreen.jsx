@@ -14,7 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
 
@@ -72,9 +73,10 @@ const TIMELINE = [
 
 export default function AboutScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { colors } = useTheme()
   return (
     <ScrollView
-      style={styles.screen}
+      style={[styles.screen, { backgroundColor: colors.background }]}
       contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
       showsVerticalScrollIndicator={false}
     >
@@ -91,82 +93,82 @@ export default function AboutScreen({ navigation }) {
 
       <View style={styles.body}>
         {/* Founder's note */}
-        <Text style={styles.sectionEyebrow}>BEHIND THE BLUEPRINT</Text>
-        <Text style={styles.sectionTitle}>A note from the founder</Text>
-        <Text style={styles.para}>
+        <Text style={[styles.sectionEyebrow, { color: colors.textTertiary }]}>BEHIND THE BLUEPRINT</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>A note from the founder</Text>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           On February 28th, 2026, I flew to Belfast International for a friend's birthday. Little did I know the Blueprint was about to be born.
         </Text>
-        <Text style={styles.para}>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           At the birthday dinner, a conversation about college life sparked the idea, and in that moment the foundation for this brand was created and set in motion. I flew home with a head full of plans and got to work.
         </Text>
-        <Text style={styles.para}>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           What followed was weeks of brainstorming, long phone calls, voice messages, recruiting, the pieces forming one by one. By April the app had its first look. By May we were visiting campuses, ATU Galway, UCD, Maynooth, and back to Ballyhaunis Community School where it all began. September 2026 is launch.
         </Text>
-        <Text style={styles.para}>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           Every step of it is documented. 43 posts and counting on the VSCO, Behind the Blueprint. From the pilot to launch day.
         </Text>
 
-        <Card style={styles.quoteCard}>
-          <View style={styles.quoteBar} />
-          <Text style={styles.quoteText}>
+        <Card style={[styles.quoteCard, { backgroundColor: colors.chromeBg }]}>
+          <View style={[styles.quoteBar, { backgroundColor: colors.chromeFg }]} />
+          <Text style={[styles.quoteText, { color: colors.chromeFg }]}>
             "Young people in Ireland were navigating some of the biggest decisions of their lives with almost no structured support. We decided to change that."
           </Text>
           <Text style={styles.quoteByline}>DESMOND, FOUNDER</Text>
         </Card>
 
         <TouchableOpacity activeOpacity={0.7} onPress={() => Linking.openURL('https://vsco.co/uniblueprint')} style={styles.vscoLink}>
-          <Text style={styles.vscoLinkText}>Follow the journey on VSCO</Text>
-          <ArrowRight size={13} color={colors.muted} />
+          <Text style={[styles.vscoLinkText, { color: colors.textSecondary }]}>Follow the journey on VSCO</Text>
+          <ArrowRight size={13} color={colors.textSecondary} />
         </TouchableOpacity>
 
         {/* Timeline */}
-        <Text style={[styles.sectionEyebrow, { marginTop: spacing.xl }]}>BEHIND THE BLUEPRINT</Text>
-        <Text style={styles.sectionTitle}>From idea to launch, documented.</Text>
-        <Text style={styles.para}>43 posts. 5 months. Every step of building UniBlueprint, in public.</Text>
+        <Text style={[styles.sectionEyebrow, { color: colors.textTertiary, marginTop: spacing.xl }]}>BEHIND THE BLUEPRINT</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>From idea to launch, documented.</Text>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>43 posts. 5 months. Every step of building UniBlueprint, in public.</Text>
         <View style={styles.timeline}>
           {TIMELINE.map((t, i) => (
             <View key={i} style={styles.timelineRow}>
               <View style={styles.timelineMarkerCol}>
-                <View style={styles.timelineDot} />
-                {i < TIMELINE.length - 1 && <View style={styles.timelineLine} />}
+                <View style={[styles.timelineDot, { backgroundColor: colors.gold }]} />
+                {i < TIMELINE.length - 1 && <View style={[styles.timelineLine, { backgroundColor: colors.border }]} />}
               </View>
               <View style={styles.timelineContent}>
-                <Text style={styles.timelineDate}>{t.date}{t.label ? ` · Behind the Blueprint ${t.label.replace('#', '')}` : ''}</Text>
-                <Text style={styles.timelineTitle}>{t.title}</Text>
+                <Text style={[styles.timelineDate, { color: colors.textTertiary }]}>{t.date}{t.label ? ` · Behind the Blueprint ${t.label.replace('#', '')}` : ''}</Text>
+                <Text style={[styles.timelineTitle, { color: colors.textPrimary }]}>{t.title}</Text>
               </View>
             </View>
           ))}
         </View>
 
         {/* Mission */}
-        <Text style={[styles.sectionEyebrow, { marginTop: spacing.xl }]}>OUR MISSION</Text>
-        <Text style={styles.sectionTitle}>The structure behind your success, for every young person in Ireland.</Text>
-        <Text style={styles.para}>
+        <Text style={[styles.sectionEyebrow, { color: colors.textTertiary, marginTop: spacing.xl }]}>OUR MISSION</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>The structure behind your success, for every young person in Ireland.</Text>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           UniBlueprint exists because young people in Ireland have always deserved proper, structured support, across every pathway, not just university. Whether you are doing your Leaving Cert, heading into college, taking an apprenticeship, or already in work and looking for what comes next, the platform is built around you.
         </Text>
-        <Text style={styles.para}>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           We built it honestly. From a small town in Mayo, with a team assembled over voice messages and late-night calls. Real people reviewing every submission. Real coaches delivering every session. A free tier that actually gives you something. And every step of it documented so you can see exactly how it was built.
         </Text>
 
         {/* What makes us different */}
-        <Text style={[styles.sectionEyebrow, { marginTop: spacing.xl }]}>WHAT MAKES US DIFFERENT</Text>
-        <Text style={styles.sectionTitle}>Built differently, on purpose.</Text>
+        <Text style={[styles.sectionEyebrow, { color: colors.textTertiary, marginTop: spacing.xl }]}>WHAT MAKES US DIFFERENT</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Built differently, on purpose.</Text>
         <View style={{ gap: 12, marginTop: spacing.md }}>
           {DIFFERENTIATORS.map(d => (
             <Card key={d.title} style={styles.diffCard}>
-              <View style={styles.diffIconWrap}>
-                <d.Icon size={20} color={colors.navy} strokeWidth={1.7} />
+              <View style={[styles.diffIconWrap, { backgroundColor: colors.surfaceAlt }]}>
+                <d.Icon size={20} color={colors.textPrimary} strokeWidth={1.7} />
               </View>
-              <Text style={styles.diffTitle}>{d.title}</Text>
-              <Text style={styles.diffDesc}>{d.desc}</Text>
+              <Text style={[styles.diffTitle, { color: colors.textPrimary }]}>{d.title}</Text>
+              <Text style={[styles.diffDesc, { color: colors.textSecondary }]}>{d.desc}</Text>
             </Card>
           ))}
         </View>
 
         {/* Team */}
-        <Text style={[styles.sectionEyebrow, { marginTop: spacing.xl }]}>THE TEAM</Text>
-        <Text style={styles.sectionTitle}>The people behind the Blueprint.</Text>
-        <Text style={styles.para}>
+        <Text style={[styles.sectionEyebrow, { color: colors.textTertiary, marginTop: spacing.xl }]}>THE TEAM</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>The people behind the Blueprint.</Text>
+        <Text style={[styles.para, { color: colors.textSecondary }]}>
           Every one of these people is still a student, or barely out of being one. That's not a gap we're working around, it's the whole point. This is built by the people who will actually use it, who get exactly what's missing because they're living it themselves. The structure behind our success is each other.
         </Text>
         <View style={{ gap: 10, marginTop: spacing.md }}>
@@ -176,92 +178,92 @@ export default function AboutScreen({ navigation }) {
                 <Text style={styles.avatarText}>{initialsOf(t.name)}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.teamName}>{t.name}</Text>
-                <Text style={styles.teamRole}>{t.role.toUpperCase()}</Text>
-                <Text style={styles.teamNickname}>{t.nickname}</Text>
-                <Text style={styles.teamDesc}>{t.desc}</Text>
+                <Text style={[styles.teamName, { color: colors.textPrimary }]}>{t.name}</Text>
+                <Text style={[styles.teamRole, { color: colors.goldDeep }]}>{t.role.toUpperCase()}</Text>
+                <Text style={[styles.teamNickname, { color: colors.textTertiary }]}>{t.nickname}</Text>
+                <Text style={[styles.teamDesc, { color: colors.textSecondary }]}>{t.desc}</Text>
               </View>
             </Card>
           ))}
         </View>
 
-        <Card style={styles.joinCard}>
-          <Text style={styles.joinTitle}>Want to be part of the team building this?</Text>
+        <Card style={[styles.joinCard, { backgroundColor: colors.chromeBg }]}>
+          <Text style={[styles.joinTitle, { color: colors.chromeFg }]}>Want to be part of the team building this?</Text>
           <Text style={styles.joinBody}>
             We are building the founding team across every function, tech, marketing, outreach, finance, legal, and partnerships. If you care about what we are building, we want to hear from you.
           </Text>
-          <TouchableOpacity style={styles.joinBtn} activeOpacity={0.85} onPress={() => Linking.openURL(`${WEBSITE_LINKS.contact}`)}>
+          <TouchableOpacity style={[styles.joinBtn, { backgroundColor: colors.chromeFg }]} activeOpacity={0.85} onPress={() => Linking.openURL(`${WEBSITE_LINKS.contact}`)}>
             <Text style={styles.joinBtnText}>Join the Team</Text>
           </TouchableOpacity>
         </Card>
 
         {/* Launch CTA */}
-        <View style={styles.launchCta}>
-          <Text style={styles.launchTitle}>Launched September 2026.</Text>
+        <View style={[styles.launchCta, { backgroundColor: colors.chromeBg }]}>
+          <Text style={[styles.launchTitle, { color: colors.chromeFg }]}>Launched September 2026.</Text>
           <Text style={styles.launchSub}>Across Irish universities and colleges during freshers week.</Text>
         </View>
 
-        <Text style={styles.legalText}>{LEGAL_ENTITY_LINE}</Text>
+        <Text style={[styles.legalText, { color: colors.textTertiary }]}>{LEGAL_ENTITY_LINE}</Text>
       </View>
     </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1 },
   scroll: {},
 
-  hero: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.xl },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, lineHeight: 35 },
+  hero: { paddingHorizontal: spacing.md, paddingBottom: spacing.xl },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, marginTop: 6, lineHeight: 35 },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
 
-  sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.light, letterSpacing: 1, textTransform: 'uppercase' },
-  sectionTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 8, marginBottom: spacing.sm, lineHeight: 28 },
-  para: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, lineHeight: 22, marginBottom: 10 },
+  sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' },
+  sectionTitle: { fontFamily: fonts.serif, fontSize: 22, marginTop: 8, marginBottom: spacing.sm, lineHeight: 28 },
+  para: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 22, marginBottom: 10 },
 
-  quoteCard: { backgroundColor: colors.navy, padding: 20, marginTop: spacing.sm, position: 'relative', overflow: 'hidden' },
-  quoteBar: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, backgroundColor: colors.cream },
-  quoteText: { fontFamily: fonts.serifItalic, fontSize: 17, color: colors.cream, lineHeight: 25, marginLeft: 4 },
+  quoteCard: { padding: 20, marginTop: spacing.sm, position: 'relative', overflow: 'hidden' },
+  quoteBar: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 4 },
+  quoteText: { fontFamily: fonts.serifItalic, fontSize: 17, lineHeight: 25, marginLeft: 4 },
   quoteByline: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 0.6, marginTop: 14, marginLeft: 4 },
 
   vscoLink: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14 },
-  vscoLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
+  vscoLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13 },
 
   // Timeline (text-only — no photo elements, per phase brief)
   timeline: { marginTop: spacing.md },
   timelineRow: { flexDirection: 'row', gap: 12 },
   timelineMarkerCol: { alignItems: 'center', width: 12 },
-  timelineDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.gold, marginTop: 4 },
-  timelineLine: { width: 2, flex: 1, backgroundColor: 'rgba(30,58,95,0.12)', marginTop: 2, minHeight: 26 },
+  timelineDot: { width: 9, height: 9, borderRadius: 4.5, marginTop: 4 },
+  timelineLine: { width: 2, flex: 1, marginTop: 2, minHeight: 26 },
   timelineContent: { flex: 1, paddingBottom: 16 },
-  timelineDate: { fontFamily: fonts.sans, fontSize: 11, color: colors.light },
-  timelineTitle: { fontFamily: fonts.serifItalic, fontSize: 15, color: colors.navy, marginTop: 2 },
+  timelineDate: { fontFamily: fonts.sans, fontSize: 11 },
+  timelineTitle: { fontFamily: fonts.serifItalic, fontSize: 15, marginTop: 2 },
 
   diffCard: { padding: 18 },
-  diffIconWrap: { width: 44, height: 44, borderRadius: 11, backgroundColor: 'rgba(30,58,95,0.07)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  diffTitle: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, marginBottom: 6 },
-  diffDesc: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
+  diffIconWrap: { width: 44, height: 44, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  diffTitle: { fontFamily: fonts.serif, fontSize: 16, marginBottom: 6 },
+  diffDesc: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19 },
 
   teamCard: { flexDirection: 'row', gap: 14, padding: 16 },
   avatar: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  avatarText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.white },
-  teamName: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy },
-  teamRole: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.goldDeep, letterSpacing: 0.5, marginTop: 2 },
-  teamNickname: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light, fontStyle: 'italic', marginTop: 2, marginBottom: 6 },
-  teamDesc: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 18 },
+  avatarText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: '#FFFFFF' },
+  teamName: { fontFamily: fonts.serif, fontSize: 16 },
+  teamRole: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, letterSpacing: 0.5, marginTop: 2 },
+  teamNickname: { fontFamily: fonts.sans, fontSize: 11.5, fontStyle: 'italic', marginTop: 2, marginBottom: 6 },
+  teamDesc: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 18 },
 
-  joinCard: { backgroundColor: colors.navy, padding: 22, marginTop: spacing.lg, alignItems: 'center' },
-  joinTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.cream, textAlign: 'center', lineHeight: 25 },
+  joinCard: { padding: 22, marginTop: spacing.lg, alignItems: 'center' },
+  joinTitle: { fontFamily: fonts.serif, fontSize: 19, textAlign: 'center', lineHeight: 25 },
   joinBody: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.65)', textAlign: 'center', marginTop: 10, lineHeight: 19 },
-  joinBtn: { backgroundColor: colors.cream, borderRadius: radius.button, paddingHorizontal: 24, paddingVertical: 12, marginTop: 16 },
-  joinBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy },
+  joinBtn: { borderRadius: radius.button, paddingHorizontal: 24, paddingVertical: 12, marginTop: 16 },
+  joinBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: '#1E3A5F' },
 
-  launchCta: { backgroundColor: colors.navy, borderRadius: radius.card, padding: 26, marginTop: spacing.xl, alignItems: 'center' },
-  launchTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream, textAlign: 'center' },
+  launchCta: { borderRadius: radius.card, padding: 26, marginTop: spacing.xl, alignItems: 'center' },
+  launchTitle: { fontFamily: fonts.serif, fontSize: 22, textAlign: 'center' },
   launchSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.6)', marginTop: 8, textAlign: 'center' },
   legalText: {
-    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    fontFamily: fonts.sans, fontSize: 11,
     textAlign: 'center', marginTop: spacing.lg, lineHeight: 16, paddingHorizontal: spacing.md,
   },
 })
