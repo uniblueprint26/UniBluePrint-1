@@ -34,12 +34,12 @@ const FAQS = [
   },
   {
     q: 'How do I cancel or get a refund?',
-    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at uniblueprintoperations@gmail.com and we will work with you to resolve it.',
+    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at support@uniblueprint.ie and we will work with you to resolve it.',
     link: { label: 'Read our refund policy', url: WEBSITE_LINKS.refundPolicy },
   },
   {
     q: 'Can I become a Campus Handler or Coach?',
-    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at uniblueprintoperations@gmail.com.',
+    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at support@uniblueprint.ie.',
   },
   {
     q: 'Which universities does UniBlueprint cover?',
@@ -108,9 +108,9 @@ export default function FAQsScreen({ navigation }) {
             We're happy to help. Reach out at{' '}
             <Text
               style={styles.contactEmail}
-              onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com')}
+              onPress={() => Linking.openURL('mailto:support@uniblueprint.ie')}
             >
-              uniblueprintoperations@gmail.com
+              support@uniblueprint.ie
             </Text>
           </Text>
         </Card>

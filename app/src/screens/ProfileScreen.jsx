@@ -905,7 +905,7 @@ export default function ProfileScreen({ navigation }) {
         screen: 'Elevation',
       })
     } else if (link.action === 'become_coach') {
-      Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=Become a Coach Application')
+      Linking.openURL('mailto:support@uniblueprint.ie?subject=Become a Coach Application')
     }
   }
 

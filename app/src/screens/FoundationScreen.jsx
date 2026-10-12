@@ -347,7 +347,7 @@ export default function FoundationScreen({ navigation }) {
                                 navigation.navigate(builderScreen)
                                 return
                               }
-                              Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
+                              Linking.openURL(`mailto:orders@uniblueprint.ie?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
                             }}
                           >
                             <Text style={styles.orderBtnText}>Order {title} →</Text>
@@ -397,7 +397,7 @@ export default function FoundationScreen({ navigation }) {
           <TouchableOpacity
             style={styles.secondaryBtn}
             activeOpacity={0.8}
-            onPress={() => Linking.openURL('mailto:uniblueprintoperations@gmail.com?subject=' + encodeURIComponent('Foundation Blueprint request'))}
+            onPress={() => Linking.openURL('mailto:support@uniblueprint.ie?subject=' + encodeURIComponent('Foundation Blueprint request'))}
           >
             <Text style={styles.secondaryBtnText}>Something else in mind? Get in touch</Text>
           </TouchableOpacity>
