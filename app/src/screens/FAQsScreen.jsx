@@ -14,7 +14,7 @@ const FAQS = [
   },
   {
     q: 'How do Foundation Blueprint services work?',
-    a: 'You submit your details and any existing documents through the app. Your submission is AI-assisted, and every output is always reviewed by a trained Campus Handler before it comes back to you within 48 hours (Standard) or the same day (Premium).',
+    a: 'You submit your details and any existing documents through the app. Your submission is AI-assisted, and every output is always reviewed by a trained Campus Handler before it comes back to you within 48 hours (Standard) or within 24 hours (Premium).',
   },
   {
     q: 'What is a Campus Handler?',

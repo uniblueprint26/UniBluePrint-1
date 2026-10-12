@@ -126,6 +126,7 @@ async function board(row, kind) {
     subtitle: row.caption || b.tagline,
     body,
     tint: b.color,
+    Icon: b.Icon,
     emoji: b.icon,
     ctaLabel: row.cta_label || 'Open board',
     nav: {

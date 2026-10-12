@@ -45,8 +45,12 @@ function shade(hex, percent) {
 
 // Big hero visual up top — a real photo (PartnerHeroImage's cream-letterbox,
 // resizeMode 'contain' frame, so it's never cropped) when the slide has one,
-// or a large emoji/initials treatment on a tinted panel of the same aspect
-// ratio when it doesn't, so every slide holds the same overall height.
+// or a large icon/emoji/initials treatment on a tinted panel of the same
+// aspect ratio when it doesn't, so every slide holds the same overall
+// height. Icon (a lucide-react-native component, e.g. from CAMPUS_BOARDS /
+// COURSE_BOARDS) takes priority, then emoji/icon (a string), then the
+// title-initial as the last resort — same dual-support pattern as
+// FeatureCard.jsx.
 function SlideHero({ slide }) {
   if (slide.photoUrl) {
     // photoUrl is either a remote URL string (a founder-uploaded photo/logo)
@@ -61,10 +65,13 @@ function SlideHero({ slide }) {
     )
   }
   const tint = slide.initBg ? shade(slide.initBg, -20) : shade(colors.navy, -6)
+  const emoji = slide.emoji || slide.icon
   return (
     <View style={[styles.heroFallback, { backgroundColor: tint }]}>
-      {slide.emoji ? (
-        <Text style={styles.heroFallbackEmoji}>{slide.emoji}</Text>
+      {slide.Icon ? (
+        <slide.Icon size={44} color="rgba(245,240,232,0.85)" strokeWidth={1.6} />
+      ) : emoji ? (
+        <Text style={styles.heroFallbackEmoji}>{emoji}</Text>
       ) : (
         <Text style={styles.heroFallbackInitials}>{slide.initials || slide.title?.[0] || '★'}</Text>
       )}

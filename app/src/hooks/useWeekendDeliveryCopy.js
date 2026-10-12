@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 /**
  * From 11pm Saturday to 8am Monday (Irish time), Premium service pages must
- * show Monday delivery instead of same-day delivery, since the Blueprint
+ * show Monday delivery instead of 24-hour delivery, since the Blueprint
  * Team does not process Sunday. Reverts automatically at 8am Monday.
  *
  * Computed against Europe/Dublin, not device-local time, since a Handler or
@@ -40,6 +40,6 @@ export function useWeekendDeliveryCopy() {
     isWeekendWindow,
     premiumDeliveryLabel: isWeekendWindow
       ? 'Premium, priority delivery. Submitted tonight, delivered by end of day Monday.'
-      : 'Premium, priority delivery. Same-day.',
+      : 'Premium, priority delivery. Delivered within 24 hours.',
   }
 }

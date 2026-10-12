@@ -7,7 +7,7 @@ import { SITE_URL } from '../constants/site'
 
 const AuthContext = createContext({})
 
-const PORTAL_ROLES = ['handler', 'coach', 'business', 'operations', 'founder', 'admin']
+const PORTAL_ROLES = ['handler', 'coach', 'business', 'operations', 'founder', 'finance', 'admin']
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -215,22 +215,23 @@ export function AuthProvider({ children }) {
   const isFounder = hasRole('founder')
   const isOperations = hasRole('operations')
   const isBusiness = hasRole('business')
-  // No dedicated Finance portal/route exists yet (PORTAL_ROLES above has no
-  // 'finance' entry) — this flag exists purely so screens Finance *can*
-  // already reach (Founder/Operations today) can client-side-gate the
+  // Finance now has its own portal/route (FinancePortalScreen, PORTAL_ROLES
+  // above includes 'finance') — this flag also still gates the
   // negotiated-rate tooling that's finance/founder-only on the backend
-  // (record_negotiated_rate / get_negotiation_history). See
+  // (record_negotiated_rate / get_negotiation_history), on the screens
+  // Finance reaches (Founder/Operations/Finance). See
   // partner-tiering-framework.md open item #3 on negotiation authority.
   const isFinance = hasRole('finance')
   const isStudioEligible = isHandler || isCoach
-  // Any of the five internal-team roles that get a second, professional-side
+  // Any of the six internal-team roles that get a second, professional-side
   // interface in addition to their personal "My Blueprint" experience.
-  const isAnyPortalEligible = isHandler || isCoach || isFounder || isOperations || isBusiness
+  const isAnyPortalEligible = isHandler || isCoach || isFounder || isOperations || isBusiness || isFinance
   const studioLabel = isHandler ? 'The Blueprint Studio'
     : isCoach ? 'The Elevation Studio'
     : isFounder ? 'Founder Dashboard'
     : isOperations ? 'Operations Dashboard'
     : isBusiness ? 'Partner Portal'
+    : isFinance ? 'Finance Dashboard'
     : 'The Studio'
   const portalRole = roles.find(r => PORTAL_ROLES.includes(r)) || null
 

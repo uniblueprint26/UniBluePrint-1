@@ -113,7 +113,7 @@ export default function HomeScreen({ navigation }) {
   const { width: windowWidth } = useWindowDimensions()
   const showSidebar = Platform.OS === 'web' && windowWidth >= 900
   const {
-    user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness,
+    user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness, isFinance,
     studioLabel, isComplimentaryPro, isPro, subscription, portalMode, setPortalMode,
   } = useAuth()
 
@@ -144,6 +144,7 @@ export default function HomeScreen({ navigation }) {
         : isFounder ? 'FounderPortal'
         : isOperations ? 'OperationsPortal'
         : isBusiness ? 'PartnerPortalApp'
+        : isFinance ? 'FinancePortal'
         : 'CoachStudio'
       // popTo, not navigate: React Navigation v7's navigate() pushes a new
       // instance even if the landing screen is already in the stack (e.g.

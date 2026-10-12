@@ -131,20 +131,23 @@ export default function ChatRoomScreen({ navigation, route }) {
     if (!roomId) return
 
     // posterId is already known for most contexts this screen is opened
-    // from (ad/carpool enquiries, direct chats); fall back to querying the
-    // room's other participant for contexts where it wasn't passed.
+    // from (ad/carpool enquiries, direct chats); fall back to resolving the
+    // room's other participant for contexts where it wasn't passed. A plain
+    // chat_participants select can't do this — its RLS is strictly
+    // own-row-only, so querying for "the other" row always returns nothing.
+    // get_chat_room_peer_names() is the security-definer RPC that already
+    // solves this for direct rooms (20261011224102_direct_messaging.sql);
+    // it has no context_type filter, so it resolves the peer for any room
+    // type the caller is already a participant in.
     let otherId = posterId
     let otherName = posterName
     if (!otherId) {
       const { data } = await supabase
-        .from('chat_participants')
-        .select('user_id, display_name')
-        .eq('room_id', roomId)
-        .neq('user_id', userId)
+        .rpc('get_chat_room_peer_names', { p_room_ids: [roomId] })
         .limit(1)
         .maybeSingle()
-      otherId = data?.user_id
-      otherName = data?.display_name
+      otherId = data?.peer_user_id
+      otherName = data?.peer_display_name
     }
     if (!otherId) {
       Alert.alert('Could not block', 'Could not find the other person in this chat. Please try again.')

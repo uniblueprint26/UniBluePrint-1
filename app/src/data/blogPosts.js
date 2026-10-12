@@ -129,7 +129,7 @@ export const POSTS = [
       { type: 'heading', text: 'What Campus Handlers do' },
       { type: 'paragraph', text: 'Campus Handlers are enrolled at Irish universities and colleges, they have been trained and onboarded by the UniBlueprint team. They review every Foundation Blueprint submission against a quality checklist before it is delivered. They are not AI tools. They are people who understand the Irish context, the courses you are applying for, and the employers you are targeting.' },
       { type: 'heading', text: 'Standard and Premium' },
-      { type: 'paragraph', text: 'Foundation Blueprint services come in two tiers. Standard includes delivery within 48 hours and one revision request. Premium includes same-day delivery (subject to Handler availability), two revision requests, and priority queue. Both tiers are open to every user at the listed service prices — Pro subscribers get a discount and priority queue on top. Through the launch trial (26 November 2026), all services are 50% off.' },
+      { type: 'paragraph', text: 'Foundation Blueprint services come in two tiers. Standard includes delivery within 48 hours and one revision request. Premium includes delivery within 24 hours (subject to Handler availability), two revision requests, and priority queue. Both tiers are open to every user at the listed service prices — Pro subscribers get a discount and priority queue on top. Through the launch trial (26 November 2026), all services are 50% off.' },
       { type: 'heading', text: 'How to submit a request' },
       { type: 'list', items: [
         'Log in to your UniBlueprint account and navigate to Foundation Blueprint',

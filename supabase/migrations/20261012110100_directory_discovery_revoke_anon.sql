@@ -1,0 +1,15 @@
+-- get_directory_profiles() (20261012110000_directory_discovery.sql) was
+-- found, on the advisor scan run right after creation, to still carry an
+-- EXECUTE grant for the `anon` role — matching an existing gap already
+-- present on get_popular_interests() and get_direct_message_contacts()
+-- (Supabase's project-level default privileges grant EXECUTE on new public
+-- functions directly to anon/authenticated, which "revoke ... from public"
+-- does not undo, since that grant isn't inherited via the PUBLIC
+-- pseudo-role). Same defense-in-depth fix as 20261011224227_direct_messaging_revoke_anon.sql
+-- applied to the direct-messaging RPCs: in practice an anon call already
+-- returns zero rows (every comparison against auth.uid() evaluates to NULL
+-- for a signed-out caller, and NULL fails every WHERE condition here), but
+-- an unauthenticated Directory-profile-data endpoint should not be
+-- reachable to begin with — not relying on the query logic as the only
+-- backstop.
+revoke execute on function public.get_directory_profiles() from anon;
