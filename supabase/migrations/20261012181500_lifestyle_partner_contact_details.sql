@@ -21,6 +21,12 @@
 -- RPC below instead of querying this table directly — that RPC is also
 -- where the Lifestyle Blueprint browse/claim split (part 2 of this
 -- migration) is actually enforced.
+--
+-- Applied directly to the project in smaller statements under this same
+-- logical change (table + RLS, touch trigger, partners/contact-details
+-- seed, the deals policy update, the RPC itself) — this file is the
+-- consolidated record of that change for the repo, same as
+-- coach_contact_details's own header note.
 
 create table if not exists public.lifestyle_partner_contact_details (
   partner_slug      text primary key references public.partners(partner_slug) on delete cascade,
@@ -151,12 +157,15 @@ on conflict (partner_slug) do update set
 -- actually reading the partner's contact info needed to redeem it still
 -- requires Pro (or a Mental Health partner, or Founder/Operations, or the
 -- partner's own linked business account).
-drop policy if exists "deals_mental_health_always_free" on public.deals;
-drop policy if exists "deals_pro_only_non_mental_health" on public.deals;
-
-create policy "deals_active_visible_to_all" on public.deals
-  for select to authenticated
-  using (active = true);
+--
+-- Applied live as ALTER POLICY rather than DROP + CREATE (both policies
+-- keep their original names/intent as "which deals a free vs. Pro session
+-- can read", now both resolving to the same simple condition) — DROP
+-- POLICY was consistently timing out against this project when this
+-- migration was applied, same as the DROP FUNCTION timeout noted in
+-- 20261012170000_pro_access_gating.sql's own header comment.
+alter policy "deals_mental_health_always_free" on public.deals using (active = true);
+alter policy "deals_pro_only_non_mental_health" on public.deals using (active = true);
 
 -- ── get_lifestyle_partner_contact(): the one real read path for this
 -- table, and the actual enforcement point for the browse/claim split above.
