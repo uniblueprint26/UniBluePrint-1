@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { UserCheck } from 'lucide-react-native'
 import ScreenHeader from './ScreenHeader'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { FOUNDATION_WEBSITE_LINKS } from '../../constants/site'
 
 // iOS only (App Store 3.1.1, D1 — the same decision PricingScreen already
 // applies to the Pro/Premium subscription): every Foundation Blueprint
@@ -25,6 +26,15 @@ export const IS_IOS = Platform.OS === 'ios'
 
 export default function FoundationIOSNotice({ navigation, serviceTitle }) {
   const insets = useSafeAreaInsets()
+  // Plain display text, not a link — the exact page this service lives on
+  // (src/pages/foundation/*Page.jsx on the website), stripped of its
+  // protocol the same way PricingScreen's footnote shows "uniblueprint.ie"
+  // rather than a full https:// URL. Still deliberately non-tappable; see
+  // the header comment on why this stays text-only rather than
+  // Linking.openURL.
+  const websiteUrl = FOUNDATION_WEBSITE_LINKS[serviceTitle]
+  const websiteDisplay = websiteUrl ? websiteUrl.replace(/^https?:\/\//, '') : 'uniblueprint.ie'
+
   return (
     <View style={styles.screen}>
       <ScreenHeader
@@ -44,7 +54,7 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
           <Text style={styles.badgeText}>Reviewed by a real Campus Handler, never AI-only</Text>
         </View>
         <Text style={styles.sub}>
-          Visit uniblueprint.ie on your phone or computer to order {serviceTitle} and track it from there.
+          Visit {websiteDisplay} on your phone or computer to order {serviceTitle} and track it from there.
         </Text>
       </View>
     </View>

@@ -17,6 +17,7 @@ import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
 import { normalizeInterestLabel } from '../../hooks/useInterests'
+import { STATUS_OPTIONS } from '../../constants/directory'
 import { WEBSITE_LINKS } from '../../constants/site'
 import { TERMS_VERSION, PRIVACY_VERSION, MIN_SIGNUP_AGE } from '../../constants/legal'
 import { USER_TYPES, mapSituationToUserType } from '../../constants/userTypes'
@@ -75,23 +76,26 @@ const SITUATIONS = [
   },
 ]
 
-// ── Status options for step 3 availability selector ──────────────────────────
+// Step 3 availability selector uses the shared STATUS_OPTIONS (see
+// constants/directory.js) — the same "what are you open to" concept the
+// Directory Profile settings screen edits later, backed by profiles.statuses.
 
-const STATUS_OPTIONS = [
+// ── Visibility options for step 3 (Directory discoverability) ───────────────
+// Decided once at sign-up, same pattern as mainstream social apps' public/
+// private account toggle — not a separate per-field consent flow. Backed by
+// profiles.discoverable (see 20261012110000_directory_discovery.sql), which
+// defaults to true (public) at the database level too. Changeable later
+// from Profile > Directory Profile.
+const VISIBILITY_OPTIONS = [
   {
-    key:   'open',
-    label: 'Open to Connect',
-    sub:   'Happy to connect with others across the platform.',
+    key:   'public',
+    label: 'Public — visible in Directory search',
+    sub:   'Other UniBlueprint students can find and message you.',
   },
   {
-    key:   'study',
-    label: 'Looking for a Study Group',
-    sub:   'Searching for others on the same module or course.',
-  },
-  {
-    key:   'mentor',
-    label: 'Happy to Mentor Others',
-    sub:   'Willing to share advice or experience with others.',
+    key:   'private',
+    label: 'Private — hidden from Directory search',
+    sub:   "You won't appear in anyone's Directory search or results.",
   },
 ]
 
@@ -197,6 +201,15 @@ export default function SignUpScreen({ navigation }) {
   const [customInterests, setCustomInterests]     = useState([])
   const [customInterestText, setCustomInterestText] = useState('')
   const [selectedStatuses, setSelectedStatuses]   = useState(new Set())
+
+  // Directory visibility — the public/private toggle (profiles.discoverable).
+  // Defaults to public: the founder asked for "the same pattern as other
+  // social media", and mainstream social apps default new accounts to
+  // public. Flagged here, not silently assumed: for a student audience this
+  // is a real safety tradeoff, not a cosmetic default — see this screen's
+  // own visibility step copy, which states plainly what public means and
+  // that it can be changed later in Profile settings.
+  const [discoverable, setDiscoverable] = useState(true)
 
   // Meta
   const [loading, setLoading] = useState(false)
@@ -370,14 +383,30 @@ export default function SignUpScreen({ navigation }) {
           ])
         } catch { /* best effort, account creation already succeeded */ }
 
-        // Write the chosen account type and interests onto the profile the
-        // handle_new_user trigger just created. Best effort — user_type
-        // already defaults to 'student' and interests defaults to '{}', so
-        // a failure here just leaves those defaults in place.
+        // Write the chosen account type, interests, Directory visibility,
+        // "looking for" statuses, and course/year/institution onto the
+        // profile the handle_new_user trigger just created. Best effort —
+        // user_type/interests/discoverable/statuses already have sane
+        // database defaults ('student', '{}', true, '{}'), so a failure
+        // here just leaves those defaults in place; course/year_of_study/
+        // institution simply stay null, same as any other best-effort
+        // field here.
+        //
+        // course/year_of_study/institution previously lived ONLY in
+        // user_metadata (the `metadata` object above) — nowhere on
+        // `profiles`, so Directory discovery (Task #12) had no queryable
+        // column to match or score on. This is that column, written here
+        // the same way user_type/interests already are.
+        const institutionName = selectedInstitution?.name || (institutionQuery.trim() || null)
         try {
           await supabase.from('profiles').update({
             user_type: userType,
+            discoverable,
             ...(interestLabels.length ? { interests: interestLabels } : {}),
+            ...(selectedStatuses.size ? { statuses: [...selectedStatuses] } : {}),
+            ...(course.trim() ? { course: course.trim() } : {}),
+            ...(yearOfStudy.trim() ? { year_of_study: yearOfStudy.trim() } : {}),
+            ...(institutionName ? { institution: institutionName } : {}),
           }).eq('id', newUserId)
         } catch { /* best effort */ }
       }

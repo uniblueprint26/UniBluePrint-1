@@ -4,6 +4,9 @@ import { supabase } from '../lib/supabase'
 import { DEFAULT_USER_TYPE, isValidUserType } from '../constants/userTypes'
 import { MAX_INTERESTS, MAX_CUSTOM_INTEREST_LENGTH } from '../data/interests'
 import { SITE_URL } from '../constants/site'
+import {
+  STATUS_OPTIONS, SOCIAL_LINK_FIELDS, MAX_BIO_LENGTH, MAX_SOCIAL_LINK_LENGTH,
+} from '../constants/directory'
 
 const AuthContext = createContext({})
 
@@ -45,7 +48,10 @@ export function AuthProvider({ children }) {
     setProfileLoading(true)
     const { data } = await supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, user_type, interests, date_of_birth')
+      .select(`
+        id, full_name, avatar_url, user_type, interests, date_of_birth,
+        discoverable, course, year_of_study, institution, statuses, bio, social_links
+      `)
       .eq('id', userId)
       .maybeSingle()
     setProfile(data || null)
@@ -202,6 +208,62 @@ export function AuthProvider({ children }) {
     return { error }
   }, [user?.id])
 
+  // Writes the Directory-discovery self-service fields in one call: the
+  // public/private toggle (discoverable), the free-text bio, the "what are
+  // you open to" statuses (see constants/directory.js' STATUS_OPTIONS —
+  // the same concept SignUpScreen.jsx collects at sign-up), and the fixed
+  // set of self-reported social links. This is the write boundary the
+  // Directory Profile settings modal (ProfileScreen.jsx) uses — validated
+  // here, not just in the UI, so a bad payload can't reach the database
+  // however it got constructed. Each field is optional in `fields`; only
+  // the keys actually passed are validated and written.
+  const updateDirectoryProfile = useCallback(async fields => {
+    if (!user?.id) return { error: new Error('Not signed in') }
+    const updates = {}
+
+    if ('discoverable' in fields) {
+      updates.discoverable = !!fields.discoverable
+    }
+    if ('bio' in fields) {
+      updates.bio = String(fields.bio || '').trim().slice(0, MAX_BIO_LENGTH) || null
+    }
+    if ('statuses' in fields) {
+      if (!Array.isArray(fields.statuses)) return { error: new Error('Invalid statuses') }
+      const validKeys = new Set(STATUS_OPTIONS.map(s => s.key))
+      updates.statuses = [...new Set(fields.statuses.filter(k => validKeys.has(k)))]
+    }
+    if ('socialLinks' in fields) {
+      if (fields.socialLinks !== null && typeof fields.socialLinks !== 'object') {
+        return { error: new Error('Invalid social links') }
+      }
+      const allowedKeys = new Set(SOCIAL_LINK_FIELDS.map(f => f.key))
+      const cleaned = {}
+      for (const [key, value] of Object.entries(fields.socialLinks || {})) {
+        if (!allowedKeys.has(key)) continue
+        const trimmed = String(value || '').trim().slice(0, MAX_SOCIAL_LINK_LENGTH)
+        if (trimmed) cleaned[key] = trimmed
+      }
+      updates.social_links = cleaned
+    }
+
+    if (Object.keys(updates).length === 0) return { error: null }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id)
+    if (!error) {
+      setProfile(prev => ({
+        ...(prev || { id: user.id }),
+        ...('discoverable' in updates ? { discoverable: updates.discoverable } : {}),
+        ...('bio' in updates ? { bio: updates.bio } : {}),
+        ...('statuses' in updates ? { statuses: updates.statuses } : {}),
+        ...('social_links' in updates ? { social_links: updates.social_links } : {}),
+      }))
+    }
+    return { error }
+  }, [user?.id])
+
   function hasRole(role) {
     return roles.includes(role)
   }
@@ -256,6 +318,16 @@ export function AuthProvider({ children }) {
   // treated as any particular age.
   const dateOfBirth = profile?.date_of_birth ?? null
 
+  // Directory-discovery fields — see updateDirectoryProfile() above for the
+  // write side. discoverable defaults to true (matches the column's own
+  // database default) so a profile row that hasn't loaded yet, or predates
+  // this feature, reads as "public" rather than silently hiding someone who
+  // never made an explicit choice.
+  const discoverable = profile?.discoverable ?? true
+  const bio = profile?.bio ?? null
+  const statuses = Array.isArray(profile?.statuses) ? profile.statuses : []
+  const socialLinks = (profile?.social_links && typeof profile.social_links === 'object') ? profile.social_links : {}
+
   return (
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
@@ -267,6 +339,7 @@ export function AuthProvider({ children }) {
       profile, profileLoading, userType, updateUserType,
       interests, updateInterests,
       dateOfBirth,
+      discoverable, bio, statuses, socialLinks, updateDirectoryProfile,
       refreshProfile: () => loadProfile(user?.id),
     }}>
       {children}
