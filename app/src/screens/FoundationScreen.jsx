@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
   Compass, GraduationCap, Map, Wrench, Package,
-  ChevronRight, ExternalLink, Sparkles, UserCheck, Zap,
+  ChevronRight, ExternalLink, Sparkles, UserCheck, Zap, Target,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -249,6 +249,26 @@ export default function FoundationScreen({ navigation }) {
             <ChevronRight size={20} color={colors.navy} />
           </TouchableOpacity>
 
+          {/* Entry point for Career Readiness — the gamified, all-8-builders
+              progress view (rings + XP). Surfaced here, right beside the
+              Evidence Bank entry, since this is the one screen every
+              Foundation Blueprint builder feeds into. */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('CareerReadiness')}
+            style={styles.readinessBanner}
+            accessibilityRole="button"
+          >
+            <View style={styles.readinessIconWrap}>
+              <Target size={18} color={colors.cream} strokeWidth={2} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.readinessTitle}>Career Readiness</Text>
+              <Text style={styles.readinessSubtitle}>See your progress across all 8 builders as rings and XP — start one, finish one, watch it fill in.</Text>
+            </View>
+            <ChevronRight size={20} color={colors.cream} />
+          </TouchableOpacity>
+
           <Text style={styles.servicesSubHeader}>Career Services</Text>
           <View style={{ gap: 16 }}>
             {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, priceStd, pricePrem, color }) => (
@@ -444,6 +464,17 @@ const styles = StyleSheet.create({
   },
   evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
+
+  readinessBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.navy, borderRadius: radius.card, padding: 16, marginTop: 12,
+  },
+  readinessIconWrap: {
+    width: 36, height: 36, borderRadius: radius.circle, backgroundColor: 'rgba(245,240,232,0.14)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  readinessTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  readinessSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.7)', marginTop: 3, lineHeight: 17 },
 
   // Service cards
   serviceCard:       { padding: 18 },
