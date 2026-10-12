@@ -10,6 +10,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import RepeatingList from '../../components/forms/RepeatingList'
 import EmptyState from '../../components/ui/EmptyState'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
+import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 
 // Application Form Assistance intake — same CV Optimisation pattern (QuestionFlow +
 // an application_forms-shaped table + submit_document_for_review + a generate-*
@@ -128,6 +129,10 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     checkEvidenceBank()
     return () => { active = false }
   }, [user])
+
+  if (IS_IOS) {
+    return <FoundationIOSNotice navigation={navigation} serviceTitle="Application Form Assistance" />
+  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))

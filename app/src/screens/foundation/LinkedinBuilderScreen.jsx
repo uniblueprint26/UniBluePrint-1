@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, TagInput, YesNoToggle } from '../../components/forms/FormControls'
+import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 
 // LinkedIn Optimisation intake — second Foundation Blueprint service on the
 // CV Optimisation pattern (QuestionFlow + a *_documents-shaped table +
@@ -132,6 +133,10 @@ export default function LinkedinBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:linkedin:${user.id}` : null, values, setValues)
+
+  if (IS_IOS) {
+    return <FoundationIOSNotice navigation={navigation} serviceTitle="LinkedIn Optimisation" />
+  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))

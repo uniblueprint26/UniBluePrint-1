@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
+import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 
 // Job Search Support intake — the most complex Foundation Blueprint service,
 // on the same CV Optimisation pattern (QuestionFlow + a *_sessions-shaped
@@ -170,6 +171,10 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:job_search_support:${user.id}` : null, values, setValues)
+
+  if (IS_IOS) {
+    return <FoundationIOSNotice navigation={navigation} serviceTitle="Job Search Support" />
+  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))

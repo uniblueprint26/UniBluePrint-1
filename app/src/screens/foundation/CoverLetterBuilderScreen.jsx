@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
+import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 
 // Cover Letter Assistance intake — same skeleton as CvBuilderScreen /
 // LinkedinBuilderScreen (QuestionFlow + a cover_letters-shaped table +
@@ -130,6 +131,10 @@ export default function CoverLetterBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cover_letter:${user.id}` : null, values, setValues)
+
+  if (IS_IOS) {
+    return <FoundationIOSNotice navigation={navigation} serviceTitle="Cover Letter Assistance" />
+  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))

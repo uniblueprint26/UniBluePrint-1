@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import {
   ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star,
-  CalendarClock, Lock,
+  CalendarClock, Lock, ExternalLink,
 } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
@@ -15,6 +15,18 @@ import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
+import { coachBookingUrl } from '../constants/site'
+
+// iOS: coaching sessions are a real-world service (App Store 3.1.3(e),
+// "goods and services outside the app"), not digital content — so "Book a
+// Coach" sends iOS users to the website's booking page (Linking.openURL)
+// instead of the in-app CoachBookingScreen flow. This is the opposite call
+// to Foundation Blueprint's (FoundationScreen.jsx/the builder screens,
+// which hide their purchase path entirely on iOS) because that's digital
+// content under 3.1.1 — same underlying rule, two different outcomes.
+// Android keeps the existing in-app flow unchanged; there's no Apple
+// constraint driving this on Android, and nothing about it is broken.
+const IS_IOS = Platform.OS === 'ios'
 
 // ── Photo gallery ────────────────────────────────────────────────────────────
 //
@@ -727,9 +739,15 @@ export default function CoachProfileScreen({ route, navigation }) {
         {!coach.shell && (
           <View style={{ gap: 10 }}>
             <Button
-              label="Book a Coach"
-              icon={CalendarClock}
-              onPress={() => navigation.navigate('CoachBooking', { coach })}
+              label={IS_IOS ? 'Book a Coach on uniblueprint.ie' : 'Book a Coach'}
+              icon={IS_IOS ? ExternalLink : CalendarClock}
+              onPress={() => {
+                if (IS_IOS) {
+                  Linking.openURL(coachBookingUrl(coach))
+                  return
+                }
+                navigation.navigate('CoachBooking', { coach })
+              }}
               variant="primary"
               style={styles.ctaBtn}
             />

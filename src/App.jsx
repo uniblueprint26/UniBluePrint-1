@@ -13,6 +13,7 @@ const BehindTheBlueprintPage = lazy(() => import('./pages/BehindTheBlueprintPage
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'))
 const FoundationBlueprintPage = lazy(() => import('./pages/FoundationBlueprintPage'))
 const ElevationBlueprintPage = lazy(() => import('./pages/ElevationBlueprintPage'))
+const ElevationCoachBookingPage = lazy(() => import('./pages/ElevationCoachBookingPage'))
 const LifestyleBlueprintPage = lazy(() => import('./pages/LifestyleBlueprintPage'))
 const CampusConnectPage = lazy(() => import('./pages/CampusConnectPage'))
 const CourseConnectPage = lazy(() => import('./pages/CourseConnectPage'))
@@ -85,6 +86,14 @@ function AppRoutes() {
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/foundation-blueprint" element={<FoundationBlueprintPage />} />
         <Route path="/elevation-blueprint" element={<ElevationBlueprintPage />} />
+        {/* Not wrapped in ProtectedRoute — the page itself shows a sign-in
+            prompt that keeps the coach/booking query params (coach, name,
+            category) intact across that detour, rather than losing them to
+            ProtectedRoute's redirect. This is what the app's "Book a Coach"
+            button deep-links iOS users to instead of its in-app
+            CoachBookingScreen flow — see constants/site.js's
+            coachBookingUrl() on the app side. */}
+        <Route path="/elevation/book-coach" element={<ElevationCoachBookingPage />} />
         <Route path="/lifestyle-blueprint" element={<LifestyleBlueprintPage />} />
         <Route path="/campus-connect" element={<CampusConnectPage />} />
         <Route path="/course-connect" element={<CourseConnectPage />} />

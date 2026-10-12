@@ -26,3 +26,21 @@ export const PRIVACY_VERSION = '2026-09'
 // paragraph of both of those pages if the entity details ever change.
 export const LEGAL_ENTITY_LINE =
   'UniBlueprint Limited is registered in Ireland, company number 826545. Registered office: Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland.'
+
+// ── Age gating ───────────────────────────────────────────────────────────────
+// Two distinct thresholds, deliberately not the same check:
+//
+// MIN_SIGNUP_AGE (16) — Ireland's digital age of consent (GDPR Act 2018,
+// s.31). SignUpScreen collects date of birth at step 1 and blocks sign-up
+// entirely for anyone under this age — not a warning, the account is never
+// created. Enforced again at the database level (see the
+// profiles_date_of_birth_age_gate migration) so it can't be bypassed by
+// calling the API directly.
+//
+// MIN_INVESTMENT_AGE (18) — a separate, higher bar for the Budgeting
+// screen's Investment tab specifically, since it promotes real trading
+// education, a copier product, and named trading coaches: general app
+// access only requires MIN_SIGNUP_AGE, but that tab requires full legal
+// adulthood in Ireland. See hooks/useInvestmentAccess.js.
+export const MIN_SIGNUP_AGE     = 16
+export const MIN_INVESTMENT_AGE = 18

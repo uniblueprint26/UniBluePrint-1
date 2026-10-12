@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
+import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 
 // Personal Statement intake — Foundation Blueprint service on the CV Optimisation
 // pattern (QuestionFlow + a personal_statements-shaped table +
@@ -110,6 +111,10 @@ export default function PersonalStatementBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:personal_statement:${user.id}` : null, values, setValues)
+
+  if (IS_IOS) {
+    return <FoundationIOSNotice navigation={navigation} serviceTitle="Personal Statement" />
+  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))

@@ -18,8 +18,9 @@ import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
 import { normalizeInterestLabel } from '../../hooks/useInterests'
 import { WEBSITE_LINKS } from '../../constants/site'
-import { TERMS_VERSION, PRIVACY_VERSION } from '../../constants/legal'
+import { TERMS_VERSION, PRIVACY_VERSION, MIN_SIGNUP_AGE } from '../../constants/legal'
 import { USER_TYPES, mapSituationToUserType } from '../../constants/userTypes'
+import { isAtLeastAge } from '../../utils/age'
 
 // ── Situations ────────────────────────────────────────────────────────────────
 
@@ -148,6 +149,15 @@ export default function SignUpScreen({ navigation }) {
   const [showPw, setShowPw]               = useState(false)
   const [showConfirmPw, setShowConfirmPw] = useState(false)
 
+  // Date of birth — three plain numeric fields rather than a native wheel
+  // picker, matching how this app already collects a date elsewhere (a
+  // typed value, validated client-side; see AddGoalSheet's deadline field
+  // and SUSIEstimator) rather than introducing a new date-picker dependency
+  // for the one screen that needs it.
+  const [dobDay, setDobDay]     = useState('')
+  const [dobMonth, setDobMonth] = useState('')
+  const [dobYear, setDobYear]   = useState('')
+
   // Step 2
   const [situation, setSituation] = useState('')
 
@@ -206,6 +216,20 @@ export default function SignUpScreen({ navigation }) {
 
   // ── Validation ──────────────────────────────────────────────────────────────
 
+  // Turns the three typed day/month/year fields into a real Date, or null if
+  // what's there doesn't form a valid calendar date (including a rollover
+  // like "31 February" — the Date constructor would otherwise silently
+  // advance that into March).
+  function parseDob() {
+    const day   = parseInt(dobDay, 10)
+    const month = parseInt(dobMonth, 10)
+    const year  = parseInt(dobYear, 10)
+    if (!day || !month || !year || dobYear.length !== 4) return null
+    const date = new Date(year, month - 1, day)
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null
+    return date
+  }
+
   function validateStep1() {
     if (!name.trim())                          return 'Full name is required.'
     if (!email)                                return 'Email address is required.'
@@ -213,8 +237,21 @@ export default function SignUpScreen({ navigation }) {
     if (!password)                             return 'Password is required.'
     if (password.length < 8)                   return 'Password must be at least 8 characters.'
     if (password !== confirmPassword)          return 'Passwords do not match.'
+    if (!dobDay.trim() || !dobMonth.trim() || !dobYear.trim())
+                                                return 'Date of birth is required.'
+    const dob = parseDob()
+    if (!dob || dob > new Date())              return 'Enter a valid date of birth.'
+    if (!isAtLeastAge(dob, MIN_SIGNUP_AGE))
+      return `UniBlueprint is only able to offer accounts to people aged ${MIN_SIGNUP_AGE} and over, in line with Ireland's digital age of consent. We'd love to have you back once you turn ${MIN_SIGNUP_AGE}.`
     if (!agreedToTerms)                        return 'Please agree to the Terms of Service and Privacy Policy to continue.'
     return null
+  }
+
+  // "YYYY-MM-DD" — same plain ISO format CoachBookingScreen's isoDate()
+  // builds from a Date, used here so date_of_birth lands on the profile in
+  // the format Postgres's `date` type and the handle_new_user() cast expect.
+  function isoDob(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   }
 
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -276,7 +313,8 @@ export default function SignUpScreen({ navigation }) {
     setLoading(true)
     setError('')
     try {
-      const metadata = { full_name: name.trim(), situation }
+      const dob = parseDob()
+      const metadata = { full_name: name.trim(), situation, date_of_birth: dob ? isoDob(dob) : null }
 
       if (situation === 'in_college' && selectedInstitution) {
         metadata.institution       = selectedInstitution.name
@@ -489,6 +527,54 @@ export default function SignUpScreen({ navigation }) {
                     {showConfirmPw ? <EyeOff size={16} color={colors.muted} /> : <Eye size={16} color={colors.muted} />}
                   </TouchableOpacity>
                 </View>
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>Date of Birth</Text>
+                <View style={styles.dobRow}>
+                  <View style={[styles.inputWrap, styles.dobInputWrap, { flex: 1 }]}>
+                    <TextInput
+                      style={[styles.input, styles.dobInput]}
+                      placeholder="DD"
+                      placeholderTextColor={colors.light}
+                      value={dobDay}
+                      onChangeText={t => setDobDay(t.replace(/[^0-9]/g, '').slice(0, 2))}
+                      keyboardType="number-pad"
+                      maxLength={2}
+                      textAlign="center"
+                      accessibilityLabel="Day of birth"
+                    />
+                  </View>
+                  <View style={[styles.inputWrap, styles.dobInputWrap, { flex: 1 }]}>
+                    <TextInput
+                      style={[styles.input, styles.dobInput]}
+                      placeholder="MM"
+                      placeholderTextColor={colors.light}
+                      value={dobMonth}
+                      onChangeText={t => setDobMonth(t.replace(/[^0-9]/g, '').slice(0, 2))}
+                      keyboardType="number-pad"
+                      maxLength={2}
+                      textAlign="center"
+                      accessibilityLabel="Month of birth"
+                    />
+                  </View>
+                  <View style={[styles.inputWrap, styles.dobInputWrap, { flex: 1.4 }]}>
+                    <TextInput
+                      style={[styles.input, styles.dobInput]}
+                      placeholder="YYYY"
+                      placeholderTextColor={colors.light}
+                      value={dobYear}
+                      onChangeText={t => setDobYear(t.replace(/[^0-9]/g, '').slice(0, 4))}
+                      keyboardType="number-pad"
+                      maxLength={4}
+                      textAlign="center"
+                      accessibilityLabel="Year of birth"
+                    />
+                  </View>
+                </View>
+                <Text style={styles.dobHint}>
+                  You need to be {MIN_SIGNUP_AGE} or older to join UniBlueprint. This is kept private and never shown on your profile.
+                </Text>
               </View>
 
               <TouchableOpacity
@@ -1149,6 +1235,13 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.navy, paddingVertical: 14 },
+
+  // Date of birth — three plain numeric fields (see the field's own comment
+  // above for why not a native picker)
+  dobRow:       { flexDirection: 'row', gap: 10 },
+  dobInputWrap: { justifyContent: 'center', paddingHorizontal: 0 },
+  dobInput:     { flex: 1, fontSize: 16, fontFamily: fonts.sansSemiBold, paddingVertical: 14 },
+  dobHint:      { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 8, lineHeight: 17 },
 
   shortBadge: {
     backgroundColor: colors.navy, borderRadius: 6,

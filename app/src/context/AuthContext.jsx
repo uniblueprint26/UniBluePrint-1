@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
     setProfileLoading(true)
     const { data } = await supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, user_type, interests')
+      .select('id, full_name, avatar_url, user_type, interests, date_of_birth')
       .eq('id', userId)
       .maybeSingle()
     setProfile(data || null)
@@ -248,6 +248,14 @@ export function AuthProvider({ children }) {
   // Empty means the person hasn't set any yet.
   const interests = Array.isArray(profile?.interests) ? profile.interests : []
 
+  // Date of birth, collected at sign-up (SignUpScreen) and enforced 16+ at
+  // the database level (profiles_date_of_birth_age_gate migration). null
+  // for any existing user created before this field existed, or anyone
+  // who hasn't supplied one yet — prefer useInvestmentAccess() over reading
+  // this directly, so "unknown" always fails closed rather than being
+  // treated as any particular age.
+  const dateOfBirth = profile?.date_of_birth ?? null
+
   return (
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
@@ -258,6 +266,7 @@ export function AuthProvider({ children }) {
       portalMode, setPortalMode,
       profile, profileLoading, userType, updateUserType,
       interests, updateInterests,
+      dateOfBirth,
       refreshProfile: () => loadProfile(user?.id),
     }}>
       {children}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
@@ -13,6 +13,16 @@ import { useWeekendDeliveryCopy } from '../hooks/useWeekendDeliveryCopy'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
+
+// iOS: Foundation Blueprint services are pay-per-service digital documents
+// (a CV, a cover letter, etc.) — App Store 3.1.1 — so no price, "Order"
+// button or in-app submit path renders here on iOS, same decision and same
+// conservative no-tappable-link pattern as PricingScreen's Pro/Premium
+// gating (Platform.OS === 'ios'). Android and web are unchanged. Elevation
+// Blueprint (ElevationScreen.jsx) is different: coaching sessions are a
+// real-world service, exempt under 3.1.3(e), so that one links out instead
+// of hiding — see CoachProfileScreen.jsx and constants/site.js.
+const IS_IOS = Platform.OS === 'ios'
 
 // ─── Career services ──────────────────────────────────────────────────────────
 // Exported (same pattern as ElevationScreen's COACHES) so other real-data
@@ -264,50 +274,66 @@ export default function FoundationScreen({ navigation }) {
                   {selected === title && (
                     <View style={styles.serviceExpanded}>
                       <Text style={styles.serviceDesc}>{description}</Text>
-                      <View style={styles.pricingRow}>
-                        <View style={styles.priceBox}>
-                          <Text style={styles.priceBoxLabel}>Standard</Text>
-                          <Text style={styles.priceTrial}>{priceStd}</Text>
-                          <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
-                        </View>
-                        <View style={[styles.priceBox, styles.priceBoxPremium]}>
-                          <Text style={[styles.priceBoxLabel, { color: colors.cream }]}>Premium</Text>
-                          <Text style={[styles.priceTrial, { color: colors.cream }]}>{pricePrem}</Text>
-                          <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
-                            {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
-                          </Text>
-                        </View>
-                      </View>
-                      <TouchableOpacity
-                        style={styles.orderBtn}
-                        activeOpacity={0.8}
-                        onPress={() => {
-                          // All 8 Foundation Blueprint services now have a real
-                          // in-app intake, on the CV Optimisation reference
-                          // pattern (QuestionFlow + Edge Function + Campus
-                          // Handler review). Mailto is kept only as a fallback
-                          // for any future service added before its builder
-                          // screen exists.
-                          const BUILDER_SCREEN_BY_TITLE = {
-                            'CV Optimisation': 'CvBuilder',
-                            'LinkedIn Optimisation': 'LinkedinBuilder',
-                            'Cover Letter Assistance': 'CoverLetterBuilder',
-                            'Application Form Assistance': 'ApplicationFormBuilder',
-                            'Interview Preparation': 'InterviewPrepBuilder',
-                            'Personal Statement': 'PersonalStatementBuilder',
-                            'Portfolio Building': 'PortfolioPlanBuilder',
-                            'Job Search Support': 'JobSearchSupportBuilder',
-                          }
-                          const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
-                          if (builderScreen) {
-                            navigation.navigate(builderScreen)
-                            return
-                          }
-                          Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
-                        }}
-                      >
-                        <Text style={styles.orderBtnText}>Order {title} →</Text>
-                      </TouchableOpacity>
+                      {IS_IOS ? (
+                        // No price, no "Order" CTA, no in-app submit path —
+                        // just a neutral pointer to the website, same as
+                        // PricingScreen's iosManageNote. Not a tappable
+                        // Linking.openURL either, deliberately: this is a
+                        // paid digital document, so we stay on the
+                        // conservative side of 3.1.1/3.1.3 rather than
+                        // offer anything that reads as an external purchase
+                        // link from inside the purchase flow itself.
+                        <Text style={styles.iosOrderNote}>
+                          {title} is ordered and paid for on uniblueprint.ie, not in the app.
+                        </Text>
+                      ) : (
+                        <>
+                          <View style={styles.pricingRow}>
+                            <View style={styles.priceBox}>
+                              <Text style={styles.priceBoxLabel}>Standard</Text>
+                              <Text style={styles.priceTrial}>{priceStd}</Text>
+                              <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
+                            </View>
+                            <View style={[styles.priceBox, styles.priceBoxPremium]}>
+                              <Text style={[styles.priceBoxLabel, { color: colors.cream }]}>Premium</Text>
+                              <Text style={[styles.priceTrial, { color: colors.cream }]}>{pricePrem}</Text>
+                              <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
+                                {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
+                              </Text>
+                            </View>
+                          </View>
+                          <TouchableOpacity
+                            style={styles.orderBtn}
+                            activeOpacity={0.8}
+                            onPress={() => {
+                              // All 8 Foundation Blueprint services now have a real
+                              // in-app intake, on the CV Optimisation reference
+                              // pattern (QuestionFlow + Edge Function + Campus
+                              // Handler review). Mailto is kept only as a fallback
+                              // for any future service added before its builder
+                              // screen exists.
+                              const BUILDER_SCREEN_BY_TITLE = {
+                                'CV Optimisation': 'CvBuilder',
+                                'LinkedIn Optimisation': 'LinkedinBuilder',
+                                'Cover Letter Assistance': 'CoverLetterBuilder',
+                                'Application Form Assistance': 'ApplicationFormBuilder',
+                                'Interview Preparation': 'InterviewPrepBuilder',
+                                'Personal Statement': 'PersonalStatementBuilder',
+                                'Portfolio Building': 'PortfolioPlanBuilder',
+                                'Job Search Support': 'JobSearchSupportBuilder',
+                              }
+                              const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
+                              if (builderScreen) {
+                                navigation.navigate(builderScreen)
+                                return
+                              }
+                              Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
+                            }}
+                          >
+                            <Text style={styles.orderBtnText}>Order {title} →</Text>
+                          </TouchableOpacity>
+                        </>
+                      )}
                     </View>
                   )}
                 </Card>
@@ -431,6 +457,9 @@ const styles = StyleSheet.create({
   serviceTagline:    { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.6, marginTop: 2, lineHeight: 17 },
   serviceExpanded:   { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   serviceDesc:       { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 14 },
+  // iOS-only neutral status copy in place of price + Order CTA — same
+  // non-tappable styling family as PricingScreen's iosManageNote.
+  iosOrderNote:      { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, textAlign: 'center', paddingVertical: 4 },
 
   pricingRow:      { flexDirection: 'row', gap: 10 },
   priceBox:        { flex: 1, backgroundColor: colors.cream, borderRadius: radius.button, padding: 14, alignItems: 'center' },

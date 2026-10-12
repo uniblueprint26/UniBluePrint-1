@@ -20,15 +20,17 @@ import {
   ChevronDown, ChevronUp, ChevronRight, ExternalLink,
   CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap, BadgeEuro,
   X, PiggyBank, Plane, Heart, ShoppingBag, Home as HomeIcon, Laptop, ShieldCheck,
-  ShieldAlert, Scale, Clock as ClockIcon,
+  ShieldAlert, Scale, Clock as ClockIcon, Lock,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
+import EmptyState from '../components/ui/EmptyState'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { formatNumber } from '../utils/formatNumber'
 import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
+import { useInvestmentAccess } from '../hooks/useInvestmentAccess'
 import { supabase } from '../lib/supabase'
 import { COACHES } from './ElevationScreen'
 
@@ -1168,6 +1170,34 @@ function SUSITab() {
 // bio/services/pricing/risk-disclosure content itself lives once, on their
 // Elevation profiles, this tab links out to it rather than duplicating it.
 function InvestmentTab({ navigation }) {
+  const { canAccess, hasDateOfBirth, minAge, loading } = useInvestmentAccess()
+
+  // Fail closed: while the profile is still loading, or for anyone under
+  // minAge (18) — including every account with no date_of_birth on file at
+  // all, which is every user created before this field existed. Nobody
+  // sees the trading/investment content below on an assumed age.
+  if (loading) return null
+  if (!canAccess) {
+    return (
+      <EmptyState
+        icon={Lock}
+        title="Investing content is for adults."
+        subtitle={
+          hasDateOfBirth
+            ? `This tab covers trading and investing education, including a real copier product and trading coaches, so we only show it to people aged ${minAge} and over. It'll unlock automatically once you turn ${minAge}.`
+            : `This tab covers trading and investing education, including a real copier product and trading coaches, so we only show it to people aged ${minAge} and over. We don't have a date of birth on file for your account yet, so it stays hidden until we do.`
+        }
+      />
+    )
+  }
+
+  return <InvestmentTabContent navigation={navigation} />
+}
+
+// The actual Investment tab content, split out from the age gate above so
+// the gate itself stays simple to read and nothing below it ever renders
+// for someone who hasn't cleared it.
+function InvestmentTabContent({ navigation }) {
   const zainab  = COACHES.find(c => c.id === 16)
   const dg      = COACHES.find(c => c.name === 'DG Trading')
   const dinero  = COACHES.find(c => c.name === 'Dinero Trading Group')
