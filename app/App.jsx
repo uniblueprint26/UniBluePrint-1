@@ -14,11 +14,11 @@ import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { AuthProvider } from './src/context/AuthContext'
+import { ThemeProvider, useTheme } from './src/context/ThemeContext'
 import RootNavigator from './src/navigation'
 import { linking } from './src/navigation/linking'
 import LoadingScreen from './src/components/ui/LoadingScreen'
 import ErrorBoundary from './src/components/ErrorBoundary'
-import { colors } from './src/constants/theme'
 
 // Keep the native splash (a plain image, no custom fonts involved) on
 // screen until the brand fonts have actually finished loading — without
@@ -132,17 +132,36 @@ export default function App() {
     // isn't reliably attached to the view tree, especially on Android.
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ErrorBoundary>
-          {resetKey => (
-            <AuthProvider key={resetKey}>
-              <StatusBar style="light" backgroundColor={colors.navy} />
-              <NavigationContainer linking={linking} fallback={null}>
-                <RootNavigator />
-              </NavigationContainer>
-            </AuthProvider>
-          )}
-        </ErrorBoundary>
+        {/* Outside ErrorBoundary's reset key — the person's System/Light/Dark
+            choice should survive an auth error being reset, same as it
+            survives any other in-app navigation. */}
+        <ThemeProvider>
+          <ErrorBoundary>
+            {resetKey => (
+              <AuthProvider key={resetKey}>
+                <AppChrome />
+              </AuthProvider>
+            )}
+          </ErrorBoundary>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  )
+}
+
+// Reads the resolved theme to pick the status bar's icon style and background
+// — needs to be a child of ThemeProvider (useTheme()) rather than inline in
+// App(), which renders above that provider.
+function AppChrome() {
+  const { colors } = useTheme()
+  return (
+    <>
+      {/* chromeBg is a dark navy (light mode) / near-black (dark mode) in
+          both palettes, so light status bar icons are correct either way. */}
+      <StatusBar style="light" backgroundColor={colors.chromeBg} />
+      <NavigationContainer linking={linking} fallback={null}>
+        <RootNavigator />
+      </NavigationContainer>
+    </>
   )
 }
