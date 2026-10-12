@@ -2,11 +2,12 @@ import { View, Text } from 'react-native'
 import { fonts, colors } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, TagInput, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
+import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
 
 // LinkedIn Optimisation intake — second Foundation Blueprint service on the
 // CV Optimisation pattern (QuestionFlow + a *_documents-shaped table +
@@ -133,6 +134,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:linkedin:${user.id}` : null, values, setValues)
+  const checkoutRef = useRef(null)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="LinkedIn Optimisation" />
@@ -172,7 +174,11 @@ export default function LinkedinBuilderScreen({ navigation }) {
       throw new Error('We couldn’t save your answers. Please check your connection and try again.')
     }
 
-    // 2. Run the generator against it — entirely server-side (see generate-linkedin
+    // 2. Real payment (task #95) — blocks until Stripe confirms the charge
+    // for this document+tier; throws on cancel/failure.
+    await checkoutRef.current.start({ documentTable: 'linkedin_documents', documentId: doc.id, tier: v.tier })
+
+    // 3. Run the generator against it — entirely server-side (see generate-linkedin
     // Edge Function). Nothing about the actual generation happens on this device.
     const { data: genData, error: genErr } = await supabase.functions.invoke('generate-linkedin', {
       body: { document_id: doc.id },
@@ -182,7 +188,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
       throw new Error(genData?.error || 'We couldn’t generate your LinkedIn profile. Please try again in a moment.')
     }
 
-    // 3. Queue it for Campus Handler review.
+    // 4. Queue it for Campus Handler review.
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'linkedin_documents',
       p_document_id: doc.id,
@@ -200,14 +206,17 @@ export default function LinkedinBuilderScreen({ navigation }) {
   }
 
   return (
-    <QuestionFlow
-      steps={STEPS}
-      values={values}
-      onChange={onChange}
-      onComplete={handleComplete}
-      onExit={() => navigation.goBack()}
-      navigation={navigation}
-      submitLabel="Submit for review"
-    />
+    <>
+      <QuestionFlow
+        steps={STEPS}
+        values={values}
+        onChange={onChange}
+        onComplete={handleComplete}
+        onExit={() => navigation.goBack()}
+        navigation={navigation}
+        submitLabel="Submit for review"
+      />
+      <FoundationCheckoutModal ref={checkoutRef} />
+    </>
   )
 }
