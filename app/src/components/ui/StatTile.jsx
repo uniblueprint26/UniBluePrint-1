@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // The one shared "stat tile" design, promoted from EvidenceBankScreen's
 // icon-chip tiles (the most visually complete of the three different stat-tile
@@ -8,32 +9,48 @@ import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
 // portal dashboards, MyOutputsScreen's status counts, etc.
 
 export function StatTileRow({ children, style }) {
-  return <View style={[styles.row, style]}>{children}</View>
+  const { colors, isDark } = useTheme()
+  return (
+    <View
+      style={[
+        styles.row,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          ...(isDark ? null : shadows.card),
+        },
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  )
 }
 
-export default function StatTile({ icon: Icon, iconBg, iconColor = colors.navy, value, label, border = false }) {
+export default function StatTile({ icon: Icon, iconBg, iconColor, value, label, border = false }) {
+  const { colors } = useTheme()
+  const resolvedIconColor = iconColor || colors.textPrimary
   return (
-    <View style={[styles.item, border && styles.itemBorder]}>
+    <View style={[styles.item, border && { borderRightWidth: 1, borderRightColor: colors.border }]}>
       {!!Icon && (
         <View style={[styles.iconWrap, { backgroundColor: iconBg }]}>
-          <Icon size={14} color={iconColor} strokeWidth={2} />
+          <Icon size={14} color={resolvedIconColor} strokeWidth={2} />
         </View>
       )}
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, { color: colors.textPrimary }]}>{value}</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: 'row', backgroundColor: colors.white,
+    flexDirection: 'row',
     borderRadius: radius.card,
-    borderWidth: 1, borderColor: colors.border, ...shadows.card,
+    borderWidth: 1,
   },
   item: { flex: 1, alignItems: 'center', paddingVertical: 16, paddingHorizontal: 4 },
-  itemBorder: { borderRightWidth: 1, borderRightColor: colors.border },
   iconWrap: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  value: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, lineHeight: 26 },
-  label: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 3, textAlign: 'center', lineHeight: 13 },
+  value: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 26 },
+  label: { fontFamily: fonts.sans, fontSize: 10, marginTop: 3, textAlign: 'center', lineHeight: 13 },
 })

@@ -5,7 +5,8 @@ import {
   FileText, TrendingUp, Heart, Building2, Globe, Compass, Calculator, Megaphone,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
-import { colors, fonts } from '../constants/theme'
+import { fonts } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 
 // The drawer's 8 destinations, in the exact order specified. Everything
 // except Ad Board is a screen pushed inside HomeStack, so getting there
@@ -60,6 +61,7 @@ function getActiveRouteName(state) {
 }
 
 function DrawerRow({ item, isActive, onPress }) {
+  const { colors } = useTheme()
   const highlight = useRef(new Animated.Value(isActive ? 1 : 0)).current
 
   useEffect(() => {
@@ -75,11 +77,14 @@ function DrawerRow({ item, isActive, onPress }) {
       <Animated.View style={[styles.rowHighlight, { opacity: highlight }]} />
       <item.Icon
         size={19}
-        color={isActive ? colors.cream : 'rgba(245,240,232,0.6)'}
+        color={isActive ? colors.chromeFg : 'rgba(245,240,232,0.6)'}
         strokeWidth={isActive ? 2.1 : 1.7}
         style={styles.rowIcon}
       />
-      <Text style={[styles.rowLabel, isActive && styles.rowLabelActive]} numberOfLines={1}>
+      <Text
+        style={[styles.rowLabel, isActive && { color: colors.chromeFg, fontFamily: fonts.sansSemiBold }]}
+        numberOfLines={1}
+      >
         {item.label}
       </Text>
     </TouchableOpacity>
@@ -91,6 +96,7 @@ function DrawerRow({ item, isActive, onPress }) {
 // to find what's really on screen so the correct row highlights.
 export default function SidebarDrawer({ state, navigation }) {
   const insets = useSafeAreaInsets()
+  const { colors } = useTheme()
   const mainTabsRoute = state.routes.find(r => r.name === 'MainTabs')
   const activeRouteName = getActiveRouteName(mainTabsRoute?.state)
   const activeKey = ROUTE_TO_KEY[activeRouteName] ?? null
@@ -101,9 +107,9 @@ export default function SidebarDrawer({ state, navigation }) {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+    <View style={[styles.container, { backgroundColor: colors.chromeBg, paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
       <View style={styles.logoWrap}>
-        <UBPLogo height={30} color={colors.cream} />
+        <UBPLogo height={30} color={colors.chromeFg} />
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.rows}>
@@ -121,7 +127,7 @@ export default function SidebarDrawer({ state, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.navy, paddingHorizontal: 14 },
+  container: { flex: 1, paddingHorizontal: 14 },
   logoWrap: { paddingHorizontal: 6, marginBottom: 24 },
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the logo on native.
@@ -142,5 +148,4 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sansMedium, fontSize: 14.5,
     color: 'rgba(245,240,232,0.75)', flexShrink: 1,
   },
-  rowLabelActive: { color: colors.cream, fontFamily: fonts.sansSemiBold },
 })

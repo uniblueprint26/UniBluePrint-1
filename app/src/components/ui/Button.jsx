@@ -1,5 +1,6 @@
 import { TouchableOpacity, Text, View, StyleSheet, ActivityIndicator } from 'react-native'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 const VARIANT_STYLE = {
   primary: 'primary',
@@ -8,8 +9,28 @@ const VARIANT_STYLE = {
 }
 
 export default function Button({ label, onPress, variant = 'primary', loading = false, disabled = false, icon: Icon, style }) {
+  const { colors, isDark } = useTheme()
   const v = VARIANT_STYLE[variant] || 'primary'
-  const labelColor = v === 'secondary' ? colors.navy : v === 'destructive' ? colors.destructive : colors.cream
+  const labelColor = v === 'secondary' ? colors.textPrimary : v === 'destructive' ? colors.destructive : colors.accentFg
+
+  const variantStyle = {
+    primary: { backgroundColor: colors.accentBg },
+    secondary: {
+      backgroundColor: colors.surface,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+    },
+    // A soft red tint + outline, not a solid fill — matches the destructive
+    // treatment already established elsewhere (ProfileScreen's sign-out row,
+    // EvidenceBankScreen's error/retry styling) and reads right for both a
+    // routine action (Sign Out) and a serious one (Delete Account) without
+    // the latter needing an even heavier, one-off style of its own.
+    destructive: {
+      backgroundColor: isDark ? 'rgba(248,113,113,0.12)' : 'rgba(220,38,38,0.08)',
+      borderWidth: 1.5,
+      borderColor: isDark ? 'rgba(248,113,113,0.4)' : 'rgba(220,38,38,0.35)',
+    },
+  }[v]
 
   return (
     <TouchableOpacity
@@ -20,7 +41,7 @@ export default function Button({ label, onPress, variant = 'primary', loading = 
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={[
         styles.base,
-        styles[v],
+        variantStyle,
         (disabled || loading) && styles.disabled,
         style,
       ]}
@@ -30,7 +51,7 @@ export default function Button({ label, onPress, variant = 'primary', loading = 
       ) : (
         <View style={styles.content}>
           {!!Icon && <Icon size={16} color={labelColor} strokeWidth={2} />}
-          <Text style={[styles.label, styles[`label${v[0].toUpperCase()}${v.slice(1)}`]]}>
+          <Text style={[styles.label, { color: labelColor }]}>
             {label}
           </Text>
         </View>
@@ -47,24 +68,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
   },
-  primary: {
-    backgroundColor: colors.navy,
-  },
-  secondary: {
-    backgroundColor: colors.white,
-    borderWidth: 1.5,
-    borderColor: 'rgba(30,58,95,0.15)',
-  },
-  // A soft red tint + outline, not a solid fill — matches the destructive
-  // treatment already established elsewhere (ProfileScreen's sign-out row,
-  // EvidenceBankScreen's error/retry styling) and reads right for both a
-  // routine action (Sign Out) and a serious one (Delete Account) without
-  // the latter needing an even heavier, one-off style of its own.
-  destructive: {
-    backgroundColor: 'rgba(220,38,38,0.08)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(220,38,38,0.35)',
-  },
   disabled: {
     opacity: 0.5,
   },
@@ -76,14 +79,5 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: fonts.sansSemiBold,
     fontSize: 15,
-  },
-  labelPrimary: {
-    color: colors.cream,
-  },
-  labelSecondary: {
-    color: colors.navy,
-  },
-  labelDestructive: {
-    color: colors.destructive,
   },
 })

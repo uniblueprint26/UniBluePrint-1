@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Bell, User, ChevronLeft } from 'lucide-react-native'
-import { colors, fonts } from '../../constants/theme'
+import { fonts } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../ui/UBPLogo'
 import { HeaderIconButton } from '../ui/ScreenHeader'
 import { goToHome } from '../../navigation/helpers'
@@ -12,6 +13,7 @@ import { goToHome } from '../../navigation/helpers'
 // pass `navigation` alongside it so it has something to call goBack() on.
 export default function TopBar({ navigation, showBack = false, notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
+  const { colors } = useTheme()
 
   // Both icons used to render with no handler at all when the caller (e.g.
   // BudgetingScreen) passed neither prop — dead taps. Default to sensible
@@ -21,31 +23,31 @@ export default function TopBar({ navigation, showBack = false, notificationCount
   const handleProfilePress = onProfilePress || (() => navigation?.getParent()?.navigate('Profile'))
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
+    <View style={[styles.container, { backgroundColor: colors.chromeBg, paddingTop: insets.top + 12 }]}>
       <View style={styles.left}>
         {showBack && (
           <HeaderIconButton
             icon={ChevronLeft}
             onPress={() => navigation?.goBack()}
-            color={colors.cream}
+            color={colors.chromeFg}
             size={20}
             style={styles.backBtn}
             accessibilityLabel="Go back"
           />
         )}
-        <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+        <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
       </View>
       <View style={styles.right}>
         <View style={styles.bellWrap}>
           <HeaderIconButton
             icon={Bell}
             onPress={handleBellPress}
-            color={colors.cream}
+            color={colors.chromeFg}
             size={20}
             accessibilityLabel="Notifications"
           />
           {notificationCount > 0 && (
-            <View style={styles.badge} pointerEvents="none">
+            <View style={[styles.badge, { borderColor: colors.chromeBg }]} pointerEvents="none">
               <Text style={styles.badgeText}>{notificationCount > 9 ? '9+' : notificationCount}</Text>
             </View>
           )}
@@ -53,9 +55,9 @@ export default function TopBar({ navigation, showBack = false, notificationCount
         <HeaderIconButton
           icon={User}
           onPress={handleProfilePress}
-          color={colors.navy}
+          color={colors.textPrimary}
           size={17}
-          style={styles.avatarBtn}
+          style={[styles.avatarBtn, { backgroundColor: colors.surface }]}
           accessibilityLabel="Profile"
         />
       </View>
@@ -65,7 +67,6 @@ export default function TopBar({ navigation, showBack = false, notificationCount
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.navy,
     paddingHorizontal: 20,
     paddingBottom: 16,
     flexDirection: 'row',
@@ -85,12 +86,11 @@ const styles = StyleSheet.create({
     minWidth: 16, height: 16,
     alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 3,
-    borderWidth: 1.5, borderColor: colors.navy,
+    borderWidth: 1.5,
   },
-  badgeText: { fontFamily: fonts.sansBold, fontSize: 9, color: colors.white },
+  badgeText: { fontFamily: fonts.sansBold, fontSize: 9, color: '#FFFFFF' },
   avatarBtn: {
     borderRadius: 22,
-    backgroundColor: 'rgba(245,240,232,0.15)',
     borderWidth: 1.5, borderColor: 'rgba(245,240,232,0.25)',
   },
 })

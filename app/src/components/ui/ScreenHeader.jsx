@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, ArrowLeftRight } from 'lucide-react-native'
-import { colors, fonts, spacing } from '../../constants/theme'
+import { fonts, spacing } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import BlueprintGrid from './BlueprintGrid'
 
 // The subtle "Blueprint" dot-grid motif (see BlueprintGrid.jsx), applied to
@@ -34,6 +35,11 @@ const HEADER_DOT_COLOR = 'rgba(245,240,232,0.07)'
 // `eyebrow`, `title` and `subtitle` render underneath either row. `children`
 // renders after the subtitle, inside the same header block, for screens that
 // need extra content in the hero (an avatar, a stat row, a search field).
+//
+// `variant="navy"` (the default) is the always-dark header bar — it keeps
+// reading as "the dark brand bar" in both light and dark mode (chromeBg),
+// just as TopBar/SidebarDrawer do. `variant="cream"` is the page-background
+// variant, which does flip with the theme (background/textPrimary).
 export default function ScreenHeader({
   variant = 'navy',
   eyebrow,
@@ -54,10 +60,12 @@ export default function ScreenHeader({
   topInset = true,
 }) {
   const insets = useSafeAreaInsets()
+  const { colors } = useTheme()
   const topPad = topInset ? insets.top : 0
   const dark = variant === 'navy'
-  const fg = dark ? colors.cream : colors.navy
-  const fgMuted = dark ? 'rgba(245,240,232,0.6)' : colors.muted
+  const headerBg = dark ? colors.chromeBg : colors.background
+  const fg = dark ? colors.chromeFg : colors.textPrimary
+  const fgMuted = dark ? 'rgba(245,240,232,0.6)' : colors.textSecondary
 
   // Compact mode: a single slim bar (back chevron, a centred title/subtitle,
   // an optional right icon) — the shape ChatRoom, BoardDetail and
@@ -67,7 +75,7 @@ export default function ScreenHeader({
       <View
         style={[
           styles.compactHeader,
-          { backgroundColor: dark ? colors.navy : colors.cream, paddingTop: topPad + 8 },
+          { backgroundColor: headerBg, paddingTop: topPad + 8 },
           style,
         ]}
       >
@@ -96,7 +104,7 @@ export default function ScreenHeader({
     <View
       style={[
         styles.header,
-        { backgroundColor: dark ? colors.navy : colors.cream, paddingTop: topPad + 12 },
+        { backgroundColor: headerBg, paddingTop: topPad + 12 },
         !bottomInset && { paddingBottom: 0 },
         style,
       ]}
@@ -164,6 +172,7 @@ export default function ScreenHeader({
 // the app shares one real tap target instead of each screen picking its own
 // 28–36pt box.
 export function HeaderIconButton({ icon: Icon, onPress, color, size = 20, badge, accessibilityLabel, style }) {
+  const { colors } = useTheme()
   return (
     <TouchableOpacity
       style={[styles.iconBtn, style]}
@@ -173,8 +182,8 @@ export function HeaderIconButton({ icon: Icon, onPress, color, size = 20, badge,
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
     >
-      <Icon size={size} color={color || colors.navy} />
-      {!!badge && <View style={styles.iconBadge} />}
+      <Icon size={size} color={color || colors.textPrimary} />
+      {!!badge && <View style={[styles.iconBadge, { backgroundColor: colors.destructive }]} />}
     </TouchableOpacity>
   )
 }
@@ -218,6 +227,5 @@ const styles = StyleSheet.create({
   },
   iconBadge: {
     position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4,
-    backgroundColor: colors.destructive,
   },
 })

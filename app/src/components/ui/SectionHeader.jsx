@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native'
-import { colors, fonts, spacing } from '../../constants/theme'
+import { fonts, spacing } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 export default function SectionHeader({ eyebrow, title, style }) {
+  const { colors } = useTheme()
   return (
     <View style={[styles.wrap, style]}>
-      {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
-      <Text style={styles.title}>{title}</Text>
+      {eyebrow ? <Text style={[styles.eyebrow, { color: colors.textSecondary }]}>{eyebrow}</Text> : null}
+      <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
     </View>
   )
 }
@@ -15,7 +17,6 @@ const styles = StyleSheet.create({
   eyebrow: {
     fontFamily: fonts.sansSemiBold,
     fontSize: 11,
-    color: colors.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 4,
@@ -23,6 +24,5 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.serif,
     fontSize: 24,
-    color: colors.navy,
   },
 })
