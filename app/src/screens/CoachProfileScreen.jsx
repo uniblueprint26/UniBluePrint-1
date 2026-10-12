@@ -15,7 +15,9 @@ import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
+import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { coachBookingUrl } from '../constants/site'
+import { useProAccess } from '../hooks/useProAccess'
 
 // iOS: coaching sessions are a real-world service (App Store 3.1.3(e),
 // "goods and services outside the app"), not digital content — so "Book a
@@ -353,6 +355,13 @@ export default function CoachProfileScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const { coach: baseCoach } = route.params
+  // Elevation is a Pro-only surface (see ElevationScreen.jsx's own comment
+  // and docs/business/subscription-pricing-model.md) — gated again here,
+  // not just on the ElevationScreen directory, because this screen is also
+  // reachable directly (Home Spotlight carousel, the Budgeting Investment
+  // tab's trading-coach links, the Weekly Blueprint coach spotlight page),
+  // bypassing that directory entirely.
+  const { canAccess: hasProAccess, loading: proLoading } = useProAccess()
 
   // Live self-edited bio/photo, if this coach has a linked coach_profiles
   // row with a coach_slug matching this listing. Falls back to the static
@@ -429,6 +438,30 @@ export default function CoachProfileScreen({ route, navigation }) {
     if (coach.contact.phone)     return openLink('phone',     coach.contact.phone)
     if (coach.contact.instagram) return openLink('instagram', coach.contact.instagram)
     if (coach.contact.linktree)  return openLink('linktree',  coach.contact.linktree)
+  }
+
+  // Fails closed while subscription status is still resolving — render
+  // nothing rather than flash the paywall at a real Pro user mid-fetch.
+  if (proLoading) return null
+
+  if (!hasProAccess) {
+    return (
+      <View style={styles.screen}>
+        <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
+            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <Text style={styles.backBtnText}>Back</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerName}>{coach.name}</Text>
+          <Text style={styles.headerTitle}>{coach.category}</Text>
+        </View>
+        <ProUpgradeGate
+          variant="screen"
+          title="Elevation Blueprint is a Pro feature"
+          message={`Pro unlocks full access to Elevation coaching, including ${coach.name}'s profile, pricing, and booking requests.`}
+        />
+      </View>
+    )
   }
 
   return (

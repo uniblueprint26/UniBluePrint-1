@@ -14,10 +14,12 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
+import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { goToHome } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useProAccess } from '../hooks/useProAccess'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 // Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
@@ -662,6 +664,11 @@ function GroupHeader({ label, count, first }) {
 export default function ElevationScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  // Elevation Blueprint ("full access to all six services") is a Pro-only
+  // surface per docs/business/subscription-pricing-model.md §1.1/§1.2 —
+  // unlike Lifestyle Blueprint, free tier gets no browse-only allowance
+  // here. See hooks/useProAccess.js (task #56/D2: "Gate it behind isPro").
+  const { canAccess: hasProAccess, loading: proLoading } = useProAccess()
   const [active, setActive] = useState('All')
   const [findCoachOpen, setFindCoachOpen] = useState(false)
 
@@ -744,6 +751,18 @@ export default function ElevationScreen({ navigation }) {
 
         <View style={styles.content}>
 
+          {/* Pro gate — fails closed while subscription status is still
+              resolving (renders nothing rather than flashing the paywall
+              at a real Pro user mid-fetch), then shows the upgrade card
+              in place of the coach directory for anyone who isn't Pro. */}
+          {proLoading ? null : !hasProAccess ? (
+            <ProUpgradeGate
+              variant="screen"
+              title="Elevation Blueprint is a Pro feature"
+              message="Coaching across fitness, academic grinds, trading, and marketing is part of Pro. Upgrade to browse coaches and send booking requests."
+            />
+          ) : (
+          <>
           {/* Browse by service — a single row of filter pills. With the
               Round 2 category merge (Fitness+Sports+Yoga, Creative into
               Marketing) there are only 4 real categories left; a compact
@@ -812,15 +831,19 @@ export default function ElevationScreen({ navigation }) {
             variant="primary"
             style={styles.primaryBtn}
           />
+          </>
+          )}
 
         </View>
       </ScrollView>
 
-      <FindCoachModal
-        visible={findCoachOpen}
-        onClose={() => setFindCoachOpen(false)}
-        userId={user?.id}
-      />
+      {hasProAccess && (
+        <FindCoachModal
+          visible={findCoachOpen}
+          onClose={() => setFindCoachOpen(false)}
+          userId={user?.id}
+        />
+      )}
     </View>
   )
 }

@@ -7,9 +7,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { User, CalendarDays, Clock, CheckCircle2 } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import Button from '../components/ui/Button'
+import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useProAccess } from '../hooks/useProAccess'
 import { coachSlug } from './ElevationScreen'
 
 // ── Book a Coach ─────────────────────────────────────────────────────────────
@@ -48,6 +50,11 @@ export default function CoachBookingScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const { coach } = route.params
+  // Defense in depth — CoachProfileScreen already gates the "Book a Coach"
+  // CTA that leads here, but this screen is reachable by direct navigation
+  // too, so it enforces the same Elevation-is-Pro-only rule itself rather
+  // than trusting the caller.
+  const { canAccess: hasProAccess, loading: proLoading } = useProAccess()
 
   const days = useMemo(() => buildUpcomingDays(10), [])
   const [selectedDay, setSelectedDay] = useState(null)
@@ -58,6 +65,29 @@ export default function CoachBookingScreen({ route, navigation }) {
   const [errorMsg, setErrorMsg] = useState(null)
 
   const ready = !!(selectedDay && selectedTime)
+
+  if (proLoading) return null
+
+  if (!hasProAccess) {
+    return (
+      <View style={styles.screen}>
+        <ScreenHeader
+          variant="navy"
+          onBack={() => navigation.goBack()}
+          eyebrow="BOOK A COACH"
+          title={coach.name}
+          subtitle={coach.category}
+          style={styles.header}
+          titleStyle={styles.headerTitle}
+        />
+        <ProUpgradeGate
+          variant="screen"
+          title="Elevation Blueprint is a Pro feature"
+          message={`Booking requests to ${coach.name} are part of Pro. Upgrade to send one.`}
+        />
+      </View>
+    )
+  }
 
   async function confirm() {
     if (!user?.id) {
