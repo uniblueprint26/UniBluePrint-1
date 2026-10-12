@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
+import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
 
 // Portfolio Building intake — simplest of the Foundation Blueprint services,
 // on the CV Optimisation pattern (QuestionFlow + a portfolio_plans-shaped
@@ -82,6 +83,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:portfolio_plan:${user.id}` : null, values, setValues)
+  const checkoutRef = useRef(null)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Portfolio Building" />
@@ -116,7 +118,11 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
       throw new Error('We couldn’t save your answers. Please check your connection and try again.')
     }
 
-    // 2. Run the generator against it — entirely server-side (see
+    // 2. Real payment (task #95) — blocks until Stripe confirms the charge
+    // for this document+tier; throws on cancel/failure.
+    await checkoutRef.current.start({ documentTable: 'portfolio_plans', documentId: doc.id, tier: v.tier })
+
+    // 3. Run the generator against it — entirely server-side (see
     // generate-portfolio-plan Edge Function). Nothing about the actual
     // generation happens on this device.
     const { data: genData, error: genErr } = await supabase.functions.invoke('generate-portfolio-plan', {
@@ -127,7 +133,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
       throw new Error(genData?.error || 'We couldn’t put together your portfolio plan. Please try again in a moment.')
     }
 
-    // 3. Queue it for Campus Handler review — this creates the submissions row
+    // 4. Queue it for Campus Handler review — this creates the submissions row
     // the student and Operations actually track from here.
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'portfolio_plans',
@@ -146,14 +152,17 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
   }
 
   return (
-    <QuestionFlow
-      steps={STEPS}
-      values={values}
-      onChange={onChange}
-      onComplete={handleComplete}
-      onExit={() => navigation.goBack()}
-      navigation={navigation}
-      submitLabel="Submit for review"
-    />
+    <>
+      <QuestionFlow
+        steps={STEPS}
+        values={values}
+        onChange={onChange}
+        onComplete={handleComplete}
+        onExit={() => navigation.goBack()}
+        navigation={navigation}
+        submitLabel="Submit for review"
+      />
+      <FoundationCheckoutModal ref={checkoutRef} />
+    </>
   )
 }
