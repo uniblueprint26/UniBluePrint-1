@@ -17,6 +17,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [roles, setRoles] = useState([])
   const [subscription, setSubscription] = useState(null)
+  // Separate from `loading` (session resolution only) — tracks whether the
+  // subscriptions-table fetch itself has completed, so Pro-gated UI (see
+  // hooks/useProAccess.js) can tell "we don't know yet" from "confirmed
+  // free tier" and never flash a paywall at a real Pro user during the one
+  // extra round trip this fetch takes after sign-in. Starts true (unknown)
+  // and only ever flips to false once a fetch has actually resolved —
+  // mirrors the website's rolesLoaded (src/context/AuthContext.jsx).
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true)
   const [portalMode, setPortalMode] = useState('personal') // 'personal' | 'studio', dual-portal switcher state
   const [profile, setProfile] = useState(null)
   const [profileLoading, setProfileLoading] = useState(true)
@@ -26,14 +34,21 @@ export function AuthProvider({ children }) {
     if (!userId) {
       setRoles([])
       setSubscription(null)
+      setSubscriptionLoading(false)
       return
     }
-    const [{ data: roleRows }, { data: subRow }] = await Promise.all([
+    const [{ data: roleRows, error: rolesError }, { data: subRow, error: subError }] = await Promise.all([
       supabase.from('user_roles').select('role').eq('user_id', userId),
       supabase.from('subscriptions').select('*').eq('user_id', userId).maybeSingle(),
     ])
-    setRoles((roleRows || []).map(r => r.role))
-    setSubscription(subRow || null)
+    // On a transient failure, keep whatever was already loaded rather than
+    // overwriting good data with null/[] — matches the website's same
+    // fail-safe (src/context/AuthContext.jsx) — but subscriptionLoading
+    // still clears either way, since useProAccess must fail closed on a
+    // genuine query error rather than spin forever.
+    if (!rolesError) setRoles((roleRows || []).map(r => r.role))
+    if (!subError) setSubscription(subRow || null)
+    setSubscriptionLoading(false)
   }
 
   // Loads the profiles row backing useUserType() and any other profile-wide
@@ -91,6 +106,7 @@ export function AuthProvider({ children }) {
         watchSubscriptionChanges(session.user.id)
       } else {
         setProfileLoading(false)
+        setSubscriptionLoading(false)
       }
     })
 
@@ -103,6 +119,7 @@ export function AuthProvider({ children }) {
       } else {
         setRoles([])
         setSubscription(null)
+        setSubscriptionLoading(false)
         setPortalMode('personal')
         setProfile(null)
         setProfileLoading(false)
@@ -331,7 +348,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
-      subscription, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
+      subscription, subscriptionLoading, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
       signIn, signUp, signOut, resetPassword, resendVerification,
       isHandler, isCoach, isFounder, isOperations, isBusiness, isFinance,
       isStudioEligible, isAnyPortalEligible, studioLabel,
