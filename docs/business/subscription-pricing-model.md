@@ -2,6 +2,10 @@
 
 **Confidential — internal reference.** Supersedes any prior assumptions about what Pro unlocks (task #56/D2 in the engineering task tracker). The September 2026 trial-month section below is historical/out of date — ignore it for any future implementation work. Last updated 12 Oct 2026 from the founder's canonical pricing doc.
 
+## Note — coach/partner commission split
+
+The Stripe Connect split referenced in the old task #40 is superseded by the full Partner Tiering Framework (Access/Plus/Signature, Option A/B) — see `docs/business/partner-tiering-framework.md`. That framework covers both Elevation coaches and Lifestyle Blueprint business partners under one system.
+
 ## 1.8 iOS payment approach (task #56/D1) — decided 12 Oct 2026
 
 Foundation and Elevation are treated differently, based on how strong the "real-world service" exemption argument actually is for each:
