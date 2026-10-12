@@ -11,6 +11,7 @@ import LoadingScreen from '../components/ui/LoadingScreen'
 import SidebarDrawer from './SidebarDrawer'
 
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { usePushRegistration } from '../hooks/usePushRegistration'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
@@ -236,20 +237,21 @@ function MainTabsInner() {
   // bar exactly tall enough for its content plus whatever inset the device
   // actually reports.
   const insets = useSafeAreaInsets()
+  const { colors: themeColors } = useTheme()
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.white,
-          borderTopColor: 'rgba(30,58,95,0.08)',
+          backgroundColor: themeColors.surface,
+          borderTopColor: themeColors.border,
           borderTopWidth: 1,
           height: 56 + insets.bottom,
           paddingBottom: insets.bottom + (Platform.OS === 'ios' ? 8 : 12),
           paddingTop: 10,
         },
-        tabBarActiveTintColor:   colors.navy,
-        tabBarInactiveTintColor: colors.light,
+        tabBarActiveTintColor:   themeColors.accentBg,
+        tabBarInactiveTintColor: themeColors.textTertiary,
         tabBarLabelStyle: { fontFamily: fonts.sansMedium, fontSize: 11, marginTop: 2 },
       }}
     >
