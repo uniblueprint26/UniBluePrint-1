@@ -15,7 +15,12 @@ import {
 export default function SignInPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state?.from?.pathname || '/'
+  // Preserve the full path, including query string (e.g. the coach/booking
+  // context on /elevation/book-coach), not just pathname — ProtectedRoute
+  // hands this whole location object through, and every existing redirect
+  // target has no search string, so adding it here changes nothing for them.
+  const fromLocation = location.state?.from
+  const from = fromLocation ? `${fromLocation.pathname}${fromLocation.search || ''}` : '/'
   const successMessage = location.state?.message
 
   const [form, setForm] = useState({ email: '', password: '' })
