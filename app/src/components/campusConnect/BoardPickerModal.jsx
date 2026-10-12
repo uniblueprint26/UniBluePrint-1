@@ -13,7 +13,7 @@ import { CAMPUS_BOARDS } from '../../constants/campusBoards'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 
 export default function BoardPickerModal({ visible, onClose, onPick }) {
-  const tiles = CAMPUS_BOARDS
+  const tiles = CAMPUS_BOARDS.filter(b => !b.coming)
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.backdrop}>

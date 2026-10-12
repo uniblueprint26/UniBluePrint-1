@@ -62,6 +62,7 @@ function buildBoardTiles(boardsData) {
       sub: b.tagline,
       count: 'Live at launch',
       preview: sample && sample.length ? sample : undefined,
+      coming: b.coming,
     }
   })
 }
@@ -91,16 +92,22 @@ function BoardTileGrid({ tiles, onPress }) {
       {containerWidth > 0 && tiles.map(t => (
         <TouchableOpacity
           key={t.key}
-          style={[styles.tile, { width: tileSize, height: tileSize, backgroundColor: t.color }]}
-          activeOpacity={0.82}
-          onPress={() => onPress(t.key)}
+          style={[styles.tile, { width: tileSize, height: tileSize, backgroundColor: t.color }, t.coming && styles.tileComing]}
+          activeOpacity={t.coming ? 1 : 0.82}
+          onPress={() => !t.coming && onPress(t.key)}
+          disabled={t.coming}
           accessibilityRole="button"
-          accessibilityLabel={`Open ${t.title}`}
+          accessibilityLabel={t.coming ? `${t.title} — coming soon` : `Open ${t.title}`}
         >
           {t.Icon
             ? <t.Icon size={24} color={colors.navy} strokeWidth={1.8} />
             : <Text style={styles.tileEmoji}>{t.emoji}</Text>}
           <Text style={styles.tileLabel} numberOfLines={2}>{t.title}</Text>
+          {t.coming && (
+            <View style={styles.tileComingPill}>
+              <Text style={styles.tileComingText}>Coming Soon</Text>
+            </View>
+          )}
         </TouchableOpacity>
       ))}
     </View>
@@ -372,6 +379,9 @@ const styles = StyleSheet.create({
   },
   tileEmoji: { fontSize: 24 },
   tileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 15 },
+  tileComing: { opacity: 0.6 },
+  tileComingPill: { marginTop: 4, borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(30,58,95,0.08)' },
+  tileComingText: { fontFamily: fonts.sansMedium, fontSize: 8.5, color: colors.muted },
 
   // CTA
   primaryBtn:    { marginTop: spacing.lg },

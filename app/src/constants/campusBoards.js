@@ -19,6 +19,7 @@
 import {
   Home, Car, PartyPopper, BookOpen, Search, MessageCircle, Handshake,
   Lightbulb, Puzzle, Link2, Star, MessageSquare, Megaphone, Briefcase,
+  Plane, Globe2,
 } from 'lucide-react-native'
 import { colors } from './theme'
 
@@ -375,6 +376,28 @@ export const CAMPUS_BOARDS = [
     ],
     cardTitle: p => p.title,
     cardMeta: p => [p.opportunity_type, p.organisation, p.deadline ? `Deadline ${p.deadline}` : null].filter(Boolean),
+  },
+  // Not live yet — `coming: true` marks a board as "Coming Soon" with no
+  // attached date (intentional: it should read as "something's coming",
+  // not a promised deadline). No `table`/`fields`/`filters` because there's
+  // nothing to post or browse yet. The Campus Connect board grid and the
+  // "Post to Board" picker both key off this flag to disable the tile
+  // instead of navigating into BoardDetailScreen.
+  {
+    key: 'erasmus',
+    title: 'Erasmus',
+    Icon: Plane,
+    color: colors.infoBg,
+    tagline: 'Study abroad and exchange — swap notes with other Erasmus students and find your community before and during your semester away.',
+    coming: true,
+  },
+  {
+    key: 'international-students',
+    title: 'Life as an International Student',
+    Icon: Globe2,
+    color: colors.infoBg,
+    tagline: 'For international students navigating college life in Ireland — settling in, visas, culture, and finding your people.',
+    coming: true,
   },
 ]
 
