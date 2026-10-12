@@ -46,6 +46,7 @@ const HelpPage = lazy(() => import('./pages/HelpPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'))
 const SubscriptionSuccessPage = lazy(() => import('./pages/SubscriptionSuccessPage'))
+const FoundationPaymentSuccessPage = lazy(() => import('./pages/FoundationPaymentSuccessPage'))
 const SubscriptionManagementPage = lazy(() => import('./pages/SubscriptionManagementPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('./pages/ServerErrorPage'))
@@ -256,6 +257,10 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        {/* Not ProtectedRoute — see FoundationPaymentSuccessPage.jsx's own
+            comment on why (task #95: always reached from an app-opened
+            external browser tab, not a logged-in website session). */}
+        <Route path="/foundation/payment-success" element={<FoundationPaymentSuccessPage />} />
         <Route
           path="/subscription-management"
           element={
