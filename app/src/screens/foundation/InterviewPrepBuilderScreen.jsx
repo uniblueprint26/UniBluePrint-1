@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { View } from 'react-native'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -6,6 +6,7 @@ import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
+import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
 
 // Interview Preparation intake — on the CV Optimisation pattern (QuestionFlow +
 // an interview_prep_packs-shaped table + submit_document_for_review + a
@@ -87,6 +88,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:interview_prep:${user.id}` : null, values, setValues)
+  const checkoutRef = useRef(null)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Interview Preparation" />
@@ -122,7 +124,11 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
       throw new Error('We couldn’t save your answers. Please check your connection and try again.')
     }
 
-    // 2. Run the generator against it — entirely server-side (see
+    // 2. Real payment (task #95) — blocks until Stripe confirms the charge
+    // for this document+tier; throws on cancel/failure.
+    await checkoutRef.current.start({ documentTable: 'interview_prep_packs', documentId: doc.id, tier: v.tier })
+
+    // 3. Run the generator against it — entirely server-side (see
     // generate-interview-prep Edge Function). Nothing about the actual
     // generation happens on this device.
     const { data: genData, error: genErr } = await supabase.functions.invoke('generate-interview-prep', {
@@ -133,7 +139,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
       throw new Error(genData?.error || 'We couldn’t generate your interview prep pack. Please try again in a moment.')
     }
 
-    // 3. Queue it for Campus Handler review — this creates the submissions row
+    // 4. Queue it for Campus Handler review — this creates the submissions row
     // the student and Operations actually track from here. Service names must
     // match the `services` table exactly or service_id ends up null — the
     // seeded rows are "Interview Preparation — Standard Pack" / "... Premium
@@ -156,14 +162,17 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
   }
 
   return (
-    <QuestionFlow
-      steps={STEPS}
-      values={values}
-      onChange={onChange}
-      onComplete={handleComplete}
-      onExit={() => navigation.goBack()}
-      navigation={navigation}
-      submitLabel="Submit for review"
-    />
+    <>
+      <QuestionFlow
+        steps={STEPS}
+        values={values}
+        onChange={onChange}
+        onComplete={handleComplete}
+        onExit={() => navigation.goBack()}
+        navigation={navigation}
+        submitLabel="Submit for review"
+      />
+      <FoundationCheckoutModal ref={checkoutRef} />
+    </>
   )
 }

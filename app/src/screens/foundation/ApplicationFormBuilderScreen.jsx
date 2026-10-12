@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { View, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, BookOpen } from 'lucide-react-native'
@@ -11,6 +11,7 @@ import RepeatingList from '../../components/forms/RepeatingList'
 import EmptyState from '../../components/ui/EmptyState'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
+import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
 
 // Application Form Assistance intake — same CV Optimisation pattern (QuestionFlow +
 // an application_forms-shaped table + submit_document_for_review + a generate-*
@@ -102,6 +103,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:application_form:${user.id}` : null, values, setValues)
+  const checkoutRef = useRef(null)
 
   // generate-application-answers hard-requires at least one Evidence Bank
   // story to draft from ("Add at least one story..." 422 if the bank is
@@ -165,7 +167,11 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       throw new Error('We couldn’t save your answers. Please check your connection and try again.')
     }
 
-    // 2. Run the generator against it — entirely server-side (see
+    // 2. Real payment (task #95) — blocks until Stripe confirms the charge
+    // for this document+tier; throws on cancel/failure.
+    await checkoutRef.current.start({ documentTable: 'application_forms', documentId: doc.id, tier: v.tier })
+
+    // 3. Run the generator against it — entirely server-side (see
     // generate-application-answers Edge Function). Nothing about the actual
     // generation happens on this device.
     const { data: genData, error: genErr } = await supabase.functions.invoke('generate-application-answers', {
@@ -176,7 +182,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       throw new Error(genData?.error || 'We couldn’t generate your answers. Please try again in a moment.')
     }
 
-    // 3. Queue it for Campus Handler review — this creates the submissions row
+    // 4. Queue it for Campus Handler review — this creates the submissions row
     // the student and Operations actually track from here.
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'application_forms',
@@ -228,15 +234,18 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   }
 
   return (
-    <QuestionFlow
-      steps={STEPS}
-      values={values}
-      onChange={onChange}
-      onComplete={handleComplete}
-      onExit={() => navigation.goBack()}
-      navigation={navigation}
-      submitLabel="Submit for review"
-    />
+    <>
+      <QuestionFlow
+        steps={STEPS}
+        values={values}
+        onChange={onChange}
+        onComplete={handleComplete}
+        onExit={() => navigation.goBack()}
+        navigation={navigation}
+        submitLabel="Submit for review"
+      />
+      <FoundationCheckoutModal ref={checkoutRef} />
+    </>
   )
 }
 
