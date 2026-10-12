@@ -37,6 +37,27 @@ export const STATUS_OPTIONS = [
 
 export const STATUS_LABEL_BY_KEY = Object.fromEntries(STATUS_OPTIONS.map(s => [s.key, s.label]))
 
+/**
+ * Directory visibility (public/private) options — shared by SignUpScreen.jsx
+ * (decided once at sign-up) and the Directory Profile settings modal in
+ * ProfileScreen.jsx (changeable later), so both present the exact same two
+ * choices and copy rather than keeping two arrays in sync by hand. Backed by
+ * profiles.discoverable (see the 20261012110000_directory_discovery
+ * migration), which defaults to true (public) at the database level too.
+ */
+export const VISIBILITY_OPTIONS = [
+  {
+    key:   'public',
+    label: 'Public — visible in Directory search',
+    sub:   'Other UniBlueprint students can find and message you.',
+  },
+  {
+    key:   'private',
+    label: 'Private — hidden from Directory search',
+    sub:   "You won't appear in anyone's Directory search or results.",
+  },
+]
+
 export const SOCIAL_LINK_FIELDS = [
   { key: 'instagram', label: 'Instagram', placeholder: '@handle or full link' },
   { key: 'linkedin',  label: 'LinkedIn',  placeholder: 'Profile link' },

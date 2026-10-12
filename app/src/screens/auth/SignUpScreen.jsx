@@ -17,7 +17,7 @@ import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
 import { INTERESTS, MAX_INTERESTS } from '../../data/interests'
 import { normalizeInterestLabel } from '../../hooks/useInterests'
-import { STATUS_OPTIONS } from '../../constants/directory'
+import { STATUS_OPTIONS, VISIBILITY_OPTIONS } from '../../constants/directory'
 import { WEBSITE_LINKS } from '../../constants/site'
 import { TERMS_VERSION, PRIVACY_VERSION, MIN_SIGNUP_AGE } from '../../constants/legal'
 import { USER_TYPES, mapSituationToUserType } from '../../constants/userTypes'
@@ -85,19 +85,8 @@ const SITUATIONS = [
 // private account toggle — not a separate per-field consent flow. Backed by
 // profiles.discoverable (see 20261012110000_directory_discovery.sql), which
 // defaults to true (public) at the database level too. Changeable later
-// from Profile > Directory Profile.
-const VISIBILITY_OPTIONS = [
-  {
-    key:   'public',
-    label: 'Public — visible in Directory search',
-    sub:   'Other UniBlueprint students can find and message you.',
-  },
-  {
-    key:   'private',
-    label: 'Private — hidden from Directory search',
-    sub:   "You won't appear in anyone's Directory search or results.",
-  },
-]
+// from Profile > Directory Profile (see constants/directory.js'
+// VISIBILITY_OPTIONS, shared with that settings screen).
 
 // ── Step progress dots ────────────────────────────────────────────────────────
 
@@ -1085,6 +1074,38 @@ export default function SignUpScreen({ navigation }) {
                           {t.label}
                         </Text>
                         <Text style={styles.statusOptionSub}>{t.sub}</Text>
+                      </View>
+                      <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
+                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+
+              {/* ── Shared: Directory visibility ────────────────────────────── */}
+              <View style={styles.sectionDivider} />
+              <Text style={styles.sectionLabel}>Directory visibility</Text>
+              <Text style={styles.sectionSub}>
+                Choose who can find you in the Directory. You can change this later from Profile.
+              </Text>
+              <View style={{ gap: 8 }}>
+                {VISIBILITY_OPTIONS.map(opt => {
+                  const isSelected = discoverable === (opt.key === 'public')
+                  return (
+                    <TouchableOpacity
+                      key={opt.key}
+                      style={[styles.statusOption, isSelected && styles.statusOptionActive]}
+                      onPress={() => setDiscoverable(opt.key === 'public')}
+                      activeOpacity={0.8}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: isSelected }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.statusOptionLabel, isSelected && styles.statusOptionLabelActive]}>
+                          {opt.label}
+                        </Text>
+                        <Text style={styles.statusOptionSub}>{opt.sub}</Text>
                       </View>
                       <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
                         {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}

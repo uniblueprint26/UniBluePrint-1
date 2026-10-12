@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
-  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart,
+  Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart, Eye,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -17,7 +17,11 @@ import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
 import { useInterests } from '../hooks/useInterests'
+import { useDirectoryProfile } from '../hooks/useDirectoryProfile'
 import InterestsModal from '../components/profile/InterestsModal'
+import {
+  STATUS_OPTIONS, SOCIAL_LINK_FIELDS, VISIBILITY_OPTIONS, MAX_BIO_LENGTH,
+} from '../constants/directory'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
@@ -75,7 +79,8 @@ const EXPLORE_LINKS = [
 const ACCOUNT_LINKS = [
   { Icon: Briefcase, label: 'Account Type',    sub: null,                                action: 'accountType' },
   { Icon: Heart,     label: 'Interests',       sub: null,                                action: 'interests' },
-  { Icon: Bell,     label: 'Notifications',   sub: 'Manage your alerts and reminders',  action: 'notifications' },
+  { Icon: Eye,      label: 'Directory Profile', sub: null,                              action: 'directoryProfile' },
+  { Icon: Bell,     label: 'Notifications',   sub: 'Push alerts and in-app reminders',  action: 'notifications' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
@@ -365,6 +370,195 @@ const at = StyleSheet.create({
 })
 
 
+// ── Directory Profile Modal ──────────────────────────────────────────────────
+// Lets the user change everything Directory discovery shows and scores
+// about them after sign-up: the public/private toggle (profiles.discoverable
+// — same VISIBILITY_OPTIONS SignUpScreen.jsx offers at sign-up), the "what
+// are you open to" statuses, the free-text bio, and social/contact links.
+// All reads/writes go through useDirectoryProfile() (AuthContext), the same
+// single place SignUpScreen's own writes funnel through, so neither screen
+// can drift out of sync with the other.
+function DirectoryProfileModal({ visible, onClose }) {
+  const { discoverable, bio, statuses, socialLinks, save } = useDirectoryProfile()
+
+  const [localDiscoverable, setLocalDiscoverable] = useState(discoverable)
+  const [localBio,          setLocalBio]           = useState(bio || '')
+  const [localStatuses,     setLocalStatuses]       = useState(new Set(statuses))
+  const [localLinks,        setLocalLinks]          = useState(socialLinks || {})
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState('')
+
+  // Re-sync local form state to the latest saved values each time the modal opens
+  useEffect(() => {
+    if (visible) {
+      setLocalDiscoverable(discoverable)
+      setLocalBio(bio || '')
+      setLocalStatuses(new Set(statuses))
+      setLocalLinks(socialLinks || {})
+      setError('')
+    }
+  }, [visible, discoverable, bio, statuses, socialLinks])
+
+  function toggleStatus(key) {
+    setLocalStatuses(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  async function handleSave() {
+    if (saving) return
+    setSaving(true)
+    setError('')
+    const { error: err } = await save({
+      discoverable: localDiscoverable,
+      bio: localBio,
+      statuses: [...localStatuses],
+      socialLinks: localLinks,
+    })
+    setSaving(false)
+    if (err) { setError('Could not save your changes. Please try again.'); return }
+    onClose()
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={ep.container}>
+          <View style={ep.header}>
+            <View style={{ flex: 1 }}>
+              <Text style={ep.headerTitle}>Directory Profile</Text>
+              <Text style={ep.headerSub}>Control how other students find and see you</Text>
+            </View>
+            <TouchableOpacity
+              style={ep.closeBtn}
+              onPress={onClose}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
+              <X size={15} color={colors.navy} strokeWidth={2.5} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={ep.scrollView} contentContainerStyle={ep.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            {!!error && <Text style={{ fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, marginBottom: 12 }}>{error}</Text>}
+
+            <Text style={ep.fieldLabel}>Visibility</Text>
+            <View style={{ gap: 10 }}>
+              {VISIBILITY_OPTIONS.map(opt => {
+                const isSelected = localDiscoverable === (opt.key === 'public')
+                return (
+                  <TouchableOpacity
+                    key={opt.key}
+                    style={[at.option, isSelected && at.optionActive]}
+                    onPress={() => setLocalDiscoverable(opt.key === 'public')}
+                    activeOpacity={0.8}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={[at.optionLabel, isSelected && at.optionLabelActive]}>{opt.label}</Text>
+                      <Text style={at.optionSub}>{opt.sub}</Text>
+                    </View>
+                    <View style={[at.radio, isSelected && at.radioActive]}>
+                      {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                    </View>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            <Text style={[ep.fieldLabel, { marginTop: 28 }]}>Bio</Text>
+            <TextInput
+              style={[ep.input, { minHeight: 80, textAlignVertical: 'top' }]}
+              value={localBio}
+              onChangeText={t => setLocalBio(t.slice(0, MAX_BIO_LENGTH))}
+              placeholder="A short line about yourself, shown on your Directory card"
+              placeholderTextColor={colors.light}
+              multiline
+              maxLength={MAX_BIO_LENGTH}
+            />
+            <Text style={dp.charCount}>{localBio.length}/{MAX_BIO_LENGTH}</Text>
+
+            <Text style={[ep.fieldLabel, { marginTop: 20 }]}>What are you open to?</Text>
+            <View style={{ gap: 8 }}>
+              {STATUS_OPTIONS.map(opt => {
+                const isSelected = localStatuses.has(opt.key)
+                return (
+                  <TouchableOpacity
+                    key={opt.key}
+                    style={[at.option, isSelected && at.optionActive]}
+                    onPress={() => toggleStatus(opt.key)}
+                    activeOpacity={0.8}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: isSelected }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={[at.optionLabel, isSelected && at.optionLabelActive]}>{opt.label}</Text>
+                      <Text style={at.optionSub}>{opt.sub}</Text>
+                    </View>
+                    <View style={[at.radio, isSelected && at.radioActive]}>
+                      {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                    </View>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            <Text style={[ep.fieldLabel, { marginTop: 20 }]}>Social & contact links</Text>
+            {SOCIAL_LINK_FIELDS.map(f => (
+              <View key={f.key} style={{ marginBottom: 12 }}>
+                <Text style={dp.linkLabel}>{f.label}</Text>
+                <TextInput
+                  style={ep.input}
+                  value={localLinks[f.key] || ''}
+                  onChangeText={t => setLocalLinks(prev => ({ ...prev, [f.key]: t }))}
+                  placeholder={f.placeholder}
+                  placeholderTextColor={colors.light}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+            ))}
+
+            <Button
+              label={saving ? 'Saving…' : 'Save Changes'}
+              onPress={handleSave}
+              variant="primary"
+              loading={saving}
+              style={ep.saveBtn}
+            />
+
+            <Text style={ep.note}>
+              Private profiles never appear in anyone's Directory search or results — enforced on our servers,
+              not just hidden in the app.
+            </Text>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+const dp = StyleSheet.create({
+  charCount: {
+    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    textAlign: 'right', marginTop: 4,
+  },
+  linkLabel: {
+    fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted, marginBottom: 6,
+  },
+})
+
+
 // ── Handler Rating Prompt ────────────────────────────────────────────────────
 // Shows once a Foundation submission is delivered and hasn't been rated yet.
 // One rating per submission (handler_ratings has a unique constraint on
@@ -491,12 +685,14 @@ export default function ProfileScreen({ navigation }) {
   const { user, signOut, isPro, isComplimentaryPro, subscription } = useAuth()
   const { label: userTypeLabel } = useUserType()
   const { interests } = useInterests()
+  const { discoverable } = useDirectoryProfile()
   const [interestsVisible, setInterestsVisible] = useState(false)
   const [signingOut,   setSigningOut]   = useState(false)
   const [stats,        setStats]        = useState({ cvs: 0, sessions: 0, notes: 0 })
   const [profileAvatar, setProfileAvatar] = useState(null)  // loaded from profiles table
   const [editVisible,  setEditVisible]  = useState(false)
   const [accountTypeVisible, setAccountTypeVisible] = useState(false)
+  const [directoryProfileVisible, setDirectoryProfileVisible] = useState(false)
 
   const displayName      = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const institution      = user?.user_metadata?.institution || user?.user_metadata?.university || ''
@@ -734,6 +930,7 @@ export default function ProfileScreen({ navigation }) {
                 onPress={() => {
                   if (action === 'accountType') setAccountTypeVisible(true)
                   else if (action === 'interests') setInterestsVisible(true)
+                  else if (action === 'directoryProfile') setDirectoryProfileVisible(true)
                   // NotificationsScreen lives in the Home stack, not this
                   // Profile stack, so it needs a cross-stack navigate — this
                   // row used to be a dead tap (screen: null).
@@ -749,6 +946,7 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={styles.settingsSub} numberOfLines={1}>
                     {action === 'accountType' ? userTypeLabel
                       : action === 'interests' ? (interests.length ? interests.join(', ') : 'Not set — tap to choose')
+                      : action === 'directoryProfile' ? (discoverable ? 'Public — visible in Directory search' : 'Private — hidden from Directory search')
                       : sub}
                   </Text>
                 </View>
@@ -797,6 +995,12 @@ export default function ProfileScreen({ navigation }) {
       <InterestsModal
         visible={interestsVisible}
         onClose={() => setInterestsVisible(false)}
+      />
+
+      {/* Directory Profile modal — visibility, bio, statuses, social links */}
+      <DirectoryProfileModal
+        visible={directoryProfileVisible}
+        onClose={() => setDirectoryProfileVisible(false)}
       />
     </View>
   )

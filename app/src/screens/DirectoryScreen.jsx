@@ -1,120 +1,65 @@
 import { useEffect, useMemo, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, X, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
-import MockContentBanner from '../components/ui/MockContentBanner'
 import Button from '../components/ui/Button'
 import { colors, fonts, spacing, radius } from '../constants/theme'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
 import { INTERESTS } from '../data/interests'
+import { useAuth } from '../context/AuthContext'
+import { useInterests } from '../hooks/useInterests'
+import { STATUS_LABEL_BY_KEY } from '../constants/directory'
+import { rankDirectoryCandidates } from '../lib/directoryRanking'
+import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
 
-// ── Mock student data ─────────────────────────────────────────────────────────
-// `statuses` is a multi-value array — matches what is now collected at sign-up.
-// `tags` are interest labels from interests.js — the primary search AND filter
-// target (see FILTER PILLS below). Replace with a live Supabase query when
-// user profiles themselves are wired to the DB — a separate, bigger call than
-// Task #12: it needs its own RLS/visibility decision (today `profiles` only
-// allows a user to read their own row; there's no "listed in Directory" or
-// real connect-status column yet). This mock roster already uses the same
-// interests.js vocabulary as real profiles, so the tag-based filter pills
-// below work correctly against it either way.
-
-const STUDENTS = [
-  {
-    initials: 'AB', avatarBg: '#1E3A5F',
-    name: 'Abdullah', course: 'Business and Management', uni: 'ATU Galway',
-    statuses: ['open'],
-    tags: ['Entrepreneurship', 'Marketing', 'Finance'],
-  },
-  {
-    initials: 'EM', avatarBg: '#0369A1',
-    name: 'Eman', course: 'Civil Engineering', uni: 'UCD',
-    statuses: ['study'],
-    tags: ['Civil Engineering', 'Structural Engineering', 'Construction'],
-  },
-  {
-    initials: 'EP', avatarBg: '#B45309',
-    name: 'Emily', course: 'Accounting and Finance', uni: 'DCU',
-    statuses: ['open', 'mentor'],
-    tags: ['Accounting', 'Finance', 'Economics'],
-  },
-  {
-    initials: 'SO', avatarBg: '#7C3AED',
-    name: 'Siofra', course: 'History and Politics', uni: 'UCC',
-    statuses: ['mentor'],
-    tags: ['Politics', 'Writing', 'Law'],
-  },
-  {
-    initials: 'CL', avatarBg: '#0F766E',
-    name: 'Ciarán', course: 'Computer Science', uni: 'UL',
-    statuses: ['study'],
-    tags: ['Software Dev', 'Web Development', 'AI & Machine Learning'],
-  },
-  {
-    initials: 'NM', avatarBg: '#15803D',
-    name: 'Nicole', course: 'Nursing', uni: 'Maynooth University',
-    statuses: ['open'],
-    tags: ['Nursing', 'Mental Health', 'Physiology'],
-  },
-  {
-    initials: 'SB', avatarBg: '#9D174D',
-    name: 'Sienna', course: 'Nursing', uni: 'SETU Waterford',
-    statuses: ['study'],
-    tags: ['Nursing', 'Physiology', 'Healthcare'],
-  },
-  {
-    initials: 'BA', avatarBg: '#1E3A5F',
-    name: 'Basmali', course: 'Computing', uni: 'MTU Cork',
-    statuses: ['open'],
-    tags: ['Cloud & Infra', 'Networking (IT)', 'Cybersecurity'],
-  },
-  {
-    initials: 'EH', avatarBg: '#C2410C',
-    name: 'Ethan', course: 'Sports Science', uni: 'TU Dublin',
-    statuses: ['mentor'],
-    tags: ['Sports Science', 'Fitness', 'Coaching'],
-  },
-  {
-    initials: 'FO', avatarBg: '#0369A1',
-    name: 'Fola', course: 'Marketing and Digital Media', uni: 'DCU',
-    statuses: ['open', 'study'],
-    tags: ['Marketing', 'UX & Design', 'Entrepreneurship'],
-  },
-  {
-    initials: 'RK', avatarBg: '#15803D',
-    name: 'Róisín', course: 'Psychology', uni: 'UCD',
-    statuses: ['study'],
-    tags: ['Psychology', 'Mental Health', 'Social Work'],
-  },
-  {
-    initials: 'JS', avatarBg: '#7C3AED',
-    name: 'James', course: 'Electrical Engineering', uni: 'TU Dublin',
-    statuses: ['open'],
-    tags: ['Electrical Engineering', 'Electrical', 'Software Dev'],
-  },
-  {
-    initials: 'AO', avatarBg: '#B45309',
-    name: 'Aoife', course: 'Law', uni: 'TCD',
-    statuses: ['mentor'],
-    tags: ['Law', 'Politics', 'Sociology'],
-  },
-  {
-    initials: 'KN', avatarBg: '#C2410C',
-    name: 'Kofi', course: 'Data Science and Analytics', uni: 'UCC',
-    statuses: ['open', 'study'],
-    tags: ['Data Science', 'AI & Machine Learning', 'Economics'],
-  },
-]
+// ── Real Directory candidate feed ────────────────────────────────────────────
+// Replaces the fully-fabricated STUDENTS array this screen used to render.
+// Candidates come from get_directory_profiles() (see the
+// 20261012110000_directory_discovery migration) — a security-definer RPC
+// that is the ONLY path to another user's Directory data. It already
+// enforces, at the database level, every privacy rule this screen must
+// respect: only discoverable = true profiles, never the caller themselves,
+// and never anyone in a mutual block relationship with the caller (either
+// direction). This screen does not — and cannot — loosen any of that; it
+// only ranks and displays whatever rows the function hands back.
+async function fetchDirectoryCandidates() {
+  const { data, error } = await supabase.rpc('get_directory_profiles')
+  return { candidates: data || [], error }
+}
 
 // ── Status config ─────────────────────────────────────────────────────────────
+// Keyed by the same STATUS_OPTIONS keys collected at sign-up and editable
+// later from Profile > Directory Profile (see constants/directory.js).
 
 const STATUS_STYLES = {
-  open:   { color: '#166534', bg: 'rgba(22,101,52,0.08)',   border: 'rgba(22,101,52,0.14)',   label: 'Open to Connect' },
-  study:  { color: '#1d4ed8', bg: 'rgba(29,78,216,0.07)',   border: 'rgba(29,78,216,0.14)',   label: 'Looking for Study Group' },
-  mentor: { color: '#6d28d9', bg: 'rgba(109,40,217,0.07)', border: 'rgba(109,40,217,0.14)',  label: 'Happy to Mentor' },
+  open:   { color: '#166534', bg: 'rgba(22,101,52,0.08)',   border: 'rgba(22,101,52,0.14)' },
+  study:  { color: '#1d4ed8', bg: 'rgba(29,78,216,0.07)',   border: 'rgba(29,78,216,0.14)' },
+  mentor: { color: '#6d28d9', bg: 'rgba(109,40,217,0.07)', border: 'rgba(109,40,217,0.14)' },
+}
+
+// ── Avatar colour ─────────────────────────────────────────────────────────────
+// Real profiles have no per-user colour the way the old mock roster did —
+// derive a stable one from the person's id so the same person always gets
+// the same colour across renders/sessions, without needing a stored field.
+const AVATAR_COLORS = [
+  '#1E3A5F', '#0369A1', '#B45309', '#7C3AED', '#0F766E',
+  '#15803D', '#9D174D', '#C2410C',
+]
+
+function avatarColorFor(id) {
+  const str = String(id || '')
+  let hash = 0
+  for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length]
+}
+
+function initialsFor(name) {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  return parts.slice(0, 2).map(w => w[0]).join('').toUpperCase()
 }
 
 // ── Dynamic tag filter pills (Task #12) ────────────────────────────────────
@@ -150,17 +95,15 @@ function mergePopularityRows(rows) {
     .map(([label]) => label)
 }
 
-// Cold-start fallback ONLY — used while real `profiles.interests` usage is
-// still zero across the whole user base (a brand new product has no
-// popularity signal yet, same situation Course Connect's own tool-ranking
-// falls back to a fixed order for when its activity counts are 0). Derived
-// from the tags actually present on this screen's own listed people, not a
-// separate hardcoded vocabulary, and stops being used the instant real
-// get_popular_interests() usage exists.
-function topTagsFromRoster(students, limit) {
+// Cold-start fallback ONLY — used while get_popular_interests() usage is
+// still zero across the whole user base. Derived from the tags actually
+// present on the real candidates this screen just fetched, not a separate
+// hardcoded vocabulary, and stops being used the instant real popularity
+// usage exists.
+function topTagsFromCandidates(candidates, limit) {
   const counts = new Map()
-  for (const s of students) {
-    for (const tag of s.tags) counts.set(tag, (counts.get(tag) || 0) + 1)
+  for (const c of candidates) {
+    for (const tag of (c.interests || [])) counts.set(tag, (counts.get(tag) || 0) + 1)
   }
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
@@ -170,57 +113,68 @@ function topTagsFromRoster(students, limit) {
 
 // ── StudentCard ───────────────────────────────────────────────────────────────
 
-function StudentCard({ student, searchQuery }) {
+function StudentCard({ student, searchQuery, onConnect, connecting }) {
   const q = searchQuery.trim().toLowerCase()
+  const tags = student.interests || []
+  const statuses = student.statuses || []
 
   return (
     <Card style={styles.studentCard}>
       <View style={styles.cardHead}>
-        <View style={[styles.avatar, { backgroundColor: student.avatarBg }]}>
-          <Text style={styles.avatarText}>{student.initials}</Text>
+        <View style={[styles.avatar, { backgroundColor: avatarColorFor(student.id) }]}>
+          <Text style={styles.avatarText}>{initialsFor(student.full_name)}</Text>
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.cardName}>{student.name}</Text>
-          <Text style={styles.cardCourse} numberOfLines={1}>{student.course}</Text>
-          <Text style={styles.cardUni} numberOfLines={1}>{student.uni}</Text>
+          <Text style={styles.cardName}>{student.full_name || 'UniBlueprint Student'}</Text>
+          {!!student.course && <Text style={styles.cardCourse} numberOfLines={1}>{student.course}</Text>}
+          {!!student.institution && <Text style={styles.cardUni} numberOfLines={1}>{student.institution}</Text>}
         </View>
       </View>
 
+      {!!student.bio && <Text style={styles.cardBio}>{student.bio}</Text>}
+
       {/* Status badges — show all statuses the user is available for */}
-      <View style={styles.statusRow}>
-        {student.statuses.map(s => {
-          const st = STATUS_STYLES[s]
-          return (
-            <View
-              key={s}
-              style={[styles.statusBadge, { backgroundColor: st.bg, borderColor: st.border }]}
-            >
-              <Text style={[styles.statusText, { color: st.color }]}>{st.label}</Text>
-            </View>
-          )
-        })}
-      </View>
+      {statuses.length > 0 && (
+        <View style={styles.statusRow}>
+          {statuses.map(s => {
+            const st = STATUS_STYLES[s]
+            if (!st) return null
+            return (
+              <View key={s} style={[styles.statusBadge, { backgroundColor: st.bg, borderColor: st.border }]}>
+                <Text style={[styles.statusText, { color: st.color }]}>{STATUS_LABEL_BY_KEY[s] || s}</Text>
+              </View>
+            )
+          })}
+        </View>
+      )}
 
       {/* Interest tags — highlighted when matched by search */}
-      <View style={styles.tagRow}>
-        {student.tags.map(tag => {
-          const matched = q && tag.toLowerCase().includes(q)
-          return (
-            <View key={tag} style={[styles.tag, matched && styles.tagMatched]}>
-              <Text style={[styles.tagText, matched && styles.tagTextMatched]}>{tag}</Text>
-            </View>
-          )
-        })}
-      </View>
+      {tags.length > 0 && (
+        <View style={styles.tagRow}>
+          {tags.map(tag => {
+            const matched = q && tag.toLowerCase().includes(q)
+            return (
+              <View key={tag} style={[styles.tag, matched && styles.tagMatched]}>
+                <Text style={[styles.tagText, matched && styles.tagTextMatched]}>{tag}</Text>
+              </View>
+            )
+          })}
+        </View>
+      )}
+
+      {/* Match reasons — a short, human-readable breakdown of why this
+          candidate was ranked where it was (see lib/directoryRanking.js).
+          Keeps the relevance ranking auditable rather than an opaque order. */}
+      {student._matchReasons?.length > 0 && (
+        <Text style={styles.matchReasons}>{student._matchReasons.join(' · ')}</Text>
+      )}
 
       <Button
-        label="View Profile"
-        onPress={() => Alert.alert(
-          student.name,
-          `Full profiles and direct connections are coming soon. You will be able to connect with ${student.name} through the app.`,
-          [{ text: 'Got it' }]
-        )}
+        label={connecting ? 'Connecting…' : 'Connect'}
+        onPress={() => onConnect(student)}
         variant="primary"
+        loading={connecting}
+        disabled={connecting}
         style={styles.connectBtn}
       />
     </Card>
@@ -231,12 +185,34 @@ function StudentCard({ student, searchQuery }) {
 
 export default function DirectoryScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const { profile } = useAuth()
+  const { interests: viewerInterests } = useInterests()
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
+  const [connectingId, setConnectingId] = useState(null)
+
+  // Real candidate feed — see fetchDirectoryCandidates() above.
+  const [candidates, setCandidates] = useState([])
+  const [candidatesLoading, setCandidatesLoading] = useState(true)
+  const [candidatesError, setCandidatesError] = useState(false)
 
   // Real, dynamic tag popularity — see the block above FILTERS constants.
   const [popularTags, setPopularTags] = useState([])
   const [tagsLoading, setTagsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      setCandidatesLoading(true)
+      setCandidatesError(false)
+      const { candidates: rows, error } = await fetchDirectoryCandidates()
+      if (cancelled) return
+      if (error) setCandidatesError(true)
+      setCandidates(rows)
+      setCandidatesLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -246,8 +222,8 @@ export default function DirectoryScreen({ navigation }) {
         if (error) throw error
         if (!cancelled) setPopularTags(mergePopularityRows(data || []))
       } catch {
-        // Network/RPC failure — fall through to the roster-derived fallback below
-        // rather than showing broken/empty pills.
+        // Network/RPC failure — fall through to the candidate-derived fallback
+        // below rather than showing broken/empty pills.
         if (!cancelled) setPopularTags([])
       } finally {
         if (!cancelled) setTagsLoading(false)
@@ -256,37 +232,89 @@ export default function DirectoryScreen({ navigation }) {
     return () => { cancelled = true }
   }, [])
 
-  const fallbackTags = useMemo(() => topTagsFromRoster(STUDENTS, POPULAR_TAG_LIMIT), [])
+  const fallbackTags = useMemo(
+    () => topTagsFromCandidates(candidates, POPULAR_TAG_LIMIT),
+    [candidates]
+  )
 
   // While the real query is in flight, show only "All" — never a flash of
   // empty or fake-looking pills. Once it resolves: real popular tags if any
-  // exist, otherwise the roster-derived cold-start fallback.
+  // exist, otherwise the candidate-derived cold-start fallback.
   const tagFilters = tagsLoading ? [] : (popularTags.length > 0 ? popularTags : fallbackTags)
   const FILTERS = useMemo(
     () => [{ key: 'All', label: 'All' }, ...tagFilters.map(t => ({ key: t, label: t }))],
     [tagFilters]
   )
 
+  // Viewer's own profile fields — read via the normal own-row profiles
+  // policy (AuthContext.profile / useInterests), never the Directory RPC.
+  // Used ONLY to score relevance client-side; the privacy boundary is
+  // get_directory_profiles() on the server, not this.
+  const viewer = useMemo(() => ({
+    interests:     viewerInterests,
+    course:        profile?.course || '',
+    year_of_study: profile?.year_of_study || '',
+    institution:   profile?.institution || '',
+  }), [viewerInterests, profile?.course, profile?.year_of_study, profile?.institution])
+
+  const ranked = useMemo(
+    () => rankDirectoryCandidates(viewer, candidates),
+    [viewer, candidates]
+  )
+
   const q = search.trim().toLowerCase()
 
-  const filtered = STUDENTS.filter(s => {
-    // Filter pill: check if the student has the selected interest tag
+  const filtered = ranked.filter(s => {
+    const tags = s.interests || []
+    // Filter pill: check if the candidate has the selected interest tag
     // (case-insensitive — custom-typed interests can differ in casing from
     // the predefined vocabulary).
     const matchFilter =
       filter === 'All' ||
-      s.tags.some(tag => tag.toLowerCase() === filter.toLowerCase())
+      tags.some(tag => tag.toLowerCase() === filter.toLowerCase())
 
-    // Search: match name, course, university, OR any interest tag
+    // Search: match name, course, institution, OR any interest tag
     const matchSearch =
       !q ||
-      s.name.toLowerCase().includes(q) ||
-      s.course.toLowerCase().includes(q) ||
-      s.uni.toLowerCase().includes(q) ||
-      s.tags.some(tag => tag.toLowerCase().includes(q))
+      String(s.full_name || '').toLowerCase().includes(q) ||
+      String(s.course || '').toLowerCase().includes(q) ||
+      String(s.institution || '').toLowerCase().includes(q) ||
+      tags.some(tag => tag.toLowerCase().includes(q))
 
     return matchFilter && matchSearch
   })
+
+  async function handleConnect(student) {
+    if (connectingId) return
+    setConnectingId(student.id)
+    try {
+      const { roomId, blocked, error } = await startDirectChat(student.id, student.full_name)
+      if (blocked) {
+        Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
+        return
+      }
+      if (error || !roomId) throw error || new Error('No room id returned')
+
+      const { contextId } = await fetchRoomContextId(roomId)
+      if (!contextId) throw new Error('Could not resolve the new conversation.')
+
+      navigation.getParent()?.navigate('Messages', {
+        screen: 'ChatRoom',
+        params: {
+          contextType: 'direct',
+          contextId,
+          roomName:    student.full_name || 'Chat',
+          subtitle:    null,
+          posterId:    student.id,
+          posterName:  student.full_name,
+        },
+      })
+    } catch {
+      Alert.alert('Something went wrong', 'Could not start the conversation. Please try again.')
+    } finally {
+      setConnectingId(null)
+    }
+  }
 
   return (
     <View style={styles.screen}>
@@ -308,10 +336,6 @@ export default function DirectoryScreen({ navigation }) {
         <Text style={styles.screenSub}>
           Search by name, course, or any interest area
         </Text>
-        <MockContentBanner
-          title="Example profiles, shown until the Directory goes live"
-          subtitle="These are illustrative, not real students. Real profiles and direct connections will appear here once the Directory launches."
-        />
       </View>
 
       {/* Search bar */}
@@ -368,24 +392,46 @@ export default function DirectoryScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Result count + search context */}
-        <View style={styles.resultMeta}>
-          <Text style={styles.resultCount}>
-            {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
-            {q ? ` matching "${search}"` : ''}
-          </Text>
-          {filtered.length === 0 && (
+        {candidatesLoading ? (
+          <View style={styles.loadingWrap}>
+            <ActivityIndicator color={colors.navy} />
+          </View>
+        ) : candidatesError ? (
+          <View style={styles.resultMeta}>
             <Text style={styles.noResultSub}>
-              {q
-                ? 'No one matches that search yet. More people join every week.'
-                : 'No one has that interest set yet. More people join every week.'}
+              Could not load the Directory right now. Please try again shortly.
             </Text>
-          )}
-        </View>
+          </View>
+        ) : (
+          <>
+            {/* Result count + search context */}
+            <View style={styles.resultMeta}>
+              <Text style={styles.resultCount}>
+                {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
+                {q ? ` matching "${search}"` : ''}
+              </Text>
+              {filtered.length === 0 && (
+                <Text style={styles.noResultSub}>
+                  {candidates.length === 0
+                    ? 'No one is discoverable in the Directory yet. More people join every week.'
+                    : q
+                      ? 'No one matches that search yet. More people join every week.'
+                      : 'No one has that interest set yet. More people join every week.'}
+                </Text>
+              )}
+            </View>
 
-        {filtered.map((s, i) => (
-          <StudentCard key={i} student={s} searchQuery={search} />
-        ))}
+            {filtered.map(s => (
+              <StudentCard
+                key={s.id}
+                student={s}
+                searchQuery={search}
+                onConnect={handleConnect}
+                connecting={connectingId === s.id}
+              />
+            ))}
+          </>
+        )}
       </ScrollView>
     </View>
   )
@@ -434,6 +480,8 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: 4 },
 
+  loadingWrap: { paddingVertical: 48, alignItems: 'center' },
+
   resultMeta: { marginBottom: 12 },
   resultCount: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
   noResultSub: {
@@ -451,6 +499,7 @@ const styles = StyleSheet.create({
   cardName:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
   cardCourse: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   cardUni:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 1 },
+  cardBio:    { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 18, marginBottom: 12 },
 
   // Status badges (row, multi-value)
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
@@ -461,7 +510,7 @@ const styles = StyleSheet.create({
   statusText: { fontFamily: fonts.sansMedium, fontSize: 12 },
 
   // Interest tags
-  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 14 },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
   tag: {
     backgroundColor: colors.cream, borderRadius: 20,
     paddingHorizontal: 10, paddingVertical: 4,
@@ -473,4 +522,10 @@ const styles = StyleSheet.create({
   tagText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
   tagTextMatched: { color: colors.cream },
 
+  matchReasons: {
+    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    marginBottom: 12,
+  },
+
+  connectBtn: { marginTop: 2 },
 })
