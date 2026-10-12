@@ -89,7 +89,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.subBody}>
-          You'll see it in My Outputs and in your Notifications as soon as it's ready. No need to keep this screen open.
+          We'll let you know the moment it's ready — a push notification plus an update in My Outputs and your Notifications. No need to keep this screen open.
         </Text>
 
         <Button

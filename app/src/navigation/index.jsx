@@ -11,6 +11,7 @@ import LoadingScreen from '../components/ui/LoadingScreen'
 import SidebarDrawer from './SidebarDrawer'
 
 import { useAuth } from '../context/AuthContext'
+import { usePushRegistration } from '../hooks/usePushRegistration'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
 
@@ -285,6 +286,13 @@ function MainTabsInner() {
 // straight to a Home-stack screen or the Ad Board tab; the bottom tabs are
 // still there underneath for the 5 primary sections.
 function AppShell() {
+  // Push permission is asked for here, not on cold launch or from the auth
+  // screens — this only ever renders once someone is signed in and past the
+  // first-launch tour, i.e. the first point where asking actually has
+  // context ("notify me about my Blueprint") rather than being a blind
+  // launch-time prompt. See usePushRegistration/pushNotifications.js.
+  usePushRegistration()
+
   return (
     <Drawer.Navigator
       screenOptions={{

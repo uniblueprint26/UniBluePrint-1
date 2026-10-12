@@ -101,7 +101,7 @@ export default function CoachBookingScreen({ route, navigation }) {
           </View>
           <Text style={styles.confirmTitle}>Booking request sent</Text>
           <Text style={styles.confirmBody}>
-            You've requested {selectedTime} on {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })} with {coach.name}. They'll confirm directly, and you'll see their reply in your Notifications either way.
+            You've requested {selectedTime} on {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })} with {coach.name}. They'll confirm directly, and we'll notify you the moment they reply — a push notification plus an update in your Notifications either way.
           </Text>
           <Button
             label={`Back to ${coach.name}'s Profile`}
