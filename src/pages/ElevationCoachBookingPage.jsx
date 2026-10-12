@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams, useLocation, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { CalendarDays, Clock, CheckCircle2 } from 'lucide-react'
+import { CalendarDays, Clock, CheckCircle2, Crown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { FormCard, FormTextarea, ErrorBanner, parseDbError } from '../components/ui/Form'
+import CheckoutButton from '../components/pricing/CheckoutButton'
 
 // ─── Elevation Blueprint — coach booking (website) ───────────────────────────
 //
@@ -33,6 +34,12 @@ import { FormCard, FormTextarea, ErrorBanner, parseDbError } from '../components
 // coach-payment model decided first (fixed pricing per coach? a platform
 // fee? which coaches even take card payment?) — see the audit's D6 — so
 // it isn't guessed at here.
+//
+// Pro-gated (task #56/D2, "Gate it behind isPro"): Elevation Blueprint is
+// Pro-only per docs/business/subscription-pricing-model.md §1.1/§1.2 — a
+// signed-in Free user gets an upgrade prompt here instead of the booking
+// form, mirroring the app's same rule (app/src/screens/CoachBookingScreen.jsx
+// / CoachProfileScreen.jsx, via hooks/useProAccess.js).
 
 const TIME_SLOTS = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM']
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -98,9 +105,23 @@ function SignInPrompt({ coachName }) {
   )
 }
 
+function UpgradePrompt({ coachName }) {
+  return (
+    <FormCard title="Elevation Blueprint is a Pro feature">
+      <div style={{ textAlign: 'center', padding: '4px 0 8px' }}>
+        <Crown size={40} color="#C9A24B" style={{ margin: '0 auto 16px', display: 'block' }} />
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', lineHeight: 1.6, marginBottom: '24px' }}>
+          Pro unlocks full access to Elevation coaching, including sending booking requests to {coachName}.
+        </p>
+        <CheckoutButton tier="pro_monthly" label="Upgrade to Pro" />
+      </div>
+    </FormCard>
+  )
+}
+
 export default function ElevationCoachBookingPage() {
   const [searchParams] = useSearchParams()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, isPro, rolesLoaded } = useAuth()
 
   const coachSlugParam = searchParams.get('coach') || ''
   const coachName = searchParams.get('name') || 'this coach'
@@ -118,7 +139,7 @@ export default function ElevationCoachBookingPage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!ready || !user || sending) return
+    if (!ready || !user || !isPro || sending) return
     setSending(true)
     setError(null)
     const { error: dbError } = await supabase.from('coach_bookings').insert({
@@ -166,12 +187,14 @@ export default function ElevationCoachBookingPage() {
       </section>
 
       <section style={{ background: '#F5F0E8', padding: '40px 24px 80px' }}>
-        {authLoading ? (
+        {authLoading || (!!user && !rolesLoaded) ? (
           <div style={{ textAlign: 'center', padding: '40px', fontFamily: "'DM Sans', sans-serif", color: '#6B7280' }}>
             Loading…
           </div>
         ) : !user ? (
           <SignInPrompt coachName={coachName} />
+        ) : !isPro ? (
+          <UpgradePrompt coachName={coachName} />
         ) : sent ? (
           <FormCard>
             <div role="status" aria-live="polite" style={{ textAlign: 'center', padding: '24px 0' }}>
