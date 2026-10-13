@@ -68,6 +68,7 @@ import CompassScreen        from '../screens/CompassScreen'
 
 // Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches)
 import StudioQueueScreen    from '../screens/studio/StudioQueueScreen'
+import TicketDetailScreen   from '../screens/studio/TicketDetailScreen'
 import PromptLibraryScreen  from '../screens/studio/PromptLibraryScreen'
 import AvailabilityScreen   from '../screens/studio/AvailabilityScreen'
 import SpecialismScreen     from '../screens/studio/SpecialismScreen'
@@ -145,6 +146,7 @@ function HomeStack() {
 
       {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
       <Stack.Screen name="StudioQueue"      component={StudioQueueScreen}   />
+      <Stack.Screen name="TicketDetail"     component={TicketDetailScreen}  />
       <Stack.Screen name="PromptLibrary"    component={PromptLibraryScreen} />
       <Stack.Screen name="Availability"     component={AvailabilityScreen}  />
       <Stack.Screen name="Specialism"       component={SpecialismScreen}    />

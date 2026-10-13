@@ -52,7 +52,7 @@ function StatusChip({ online }) {
   )
 }
 
-function TicketCard({ ticket }) {
+function TicketCard({ ticket, navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const tierLabel = ticket.tier === 'premium' ? 'Pro' : 'Standard'
@@ -64,10 +64,7 @@ function TicketCard({ ticket }) {
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() => Alert.alert(
-        `${displayName}: ${serviceType}`,
-        `${tierLabel} · Due ${deadlineText}\n\nFull ticket detail view is coming soon.`,
-      )}
+      onPress={() => navigation.navigate('TicketDetail', { ticketId: ticket.id })}
     >
       <Card style={styles.ticketCard}>
         <View style={[styles.urgencyDot, { backgroundColor: URGENCY_COLOR[urgency] }]} />
@@ -170,7 +167,7 @@ export default function StudioQueueScreen({ navigation }) {
             ) : (
               <View style={{ gap: 10, marginTop: 10 }}>
                 {tickets.map(ticket => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
+                  <TicketCard key={ticket.id} ticket={ticket} navigation={navigation} />
                 ))}
               </View>
             )}

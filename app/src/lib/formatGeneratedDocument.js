@@ -123,7 +123,15 @@ function renderSection(key, value, forHandler) {
  */
 export function formatDocumentContent(content, opts = {}) {
   const forHandler = !!opts.forHandler
-  if (!content || typeof content !== 'object' || Array.isArray(content)) return ''
+  if (isEmpty(content)) return ''
+
+  // A top-level array (e.g. application_forms.questions — a plain list of
+  // Q&A pairs, not a keyed object of named sections) or a bare scalar has no
+  // section headings to render — fall back to the same generic value
+  // renderer every section body already uses.
+  if (Array.isArray(content) || typeof content !== 'object') {
+    return renderValue(content, 0, forHandler)
+  }
 
   const orderHint = Array.isArray(content.section_order) ? content.section_order : null
   const keys = Object.keys(content).filter(k => !isDropped(k, forHandler))
