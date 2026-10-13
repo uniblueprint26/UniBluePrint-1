@@ -43,6 +43,7 @@ const TOPICS = [
 
 export default function HelpScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   // Inline accordion, same expand-to-read-more pattern as FAQsScreen, rather
   // than a system Alert.alert popup — keyed by "section-index" since item
@@ -137,7 +138,8 @@ export default function HelpScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: {},
 
@@ -183,4 +185,5 @@ const styles = StyleSheet.create({
   footerTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
   footerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.75)', marginTop: 8, lineHeight: 21 },
   footerLink: { fontFamily: fonts.sansSemiBold, color: colors.cream },
-})
+  })
+}

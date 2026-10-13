@@ -101,6 +101,7 @@ const STEPS = [
 
 export default function ApplicationFormBuilderScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
   const [values, setValues] = useState(DEFAULT_VALUES)
@@ -251,9 +252,11 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   loadingScreen: { flex: 1, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center' },
   gateScreen: { flex: 1, backgroundColor: colors.cream },
   gateHeader: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
   gateHeaderBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-})
+  })
+}

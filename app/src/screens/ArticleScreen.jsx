@@ -13,6 +13,8 @@ import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { getPost, calcReadTime, formatDate } from '../data/blogPosts'
 
 function Section({ section, index }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   if (section.type === 'heading') {
     return <Text style={styles.heading}>{section.text}</Text>
   }
@@ -33,6 +35,7 @@ function Section({ section, index }) {
 
 export default function ArticleScreen({ navigation, route }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   // Cream screen throughout — the global light icons are invisible here
   // without this (L3).
   useLightBackgroundStatusBar()
@@ -81,7 +84,8 @@ export default function ArticleScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   navRow: { paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 4 },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 8 },
@@ -104,4 +108,5 @@ const styles = StyleSheet.create({
   listRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   listDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.gold, marginTop: 8, flexShrink: 0 },
   listText: { fontFamily: fonts.sans, fontSize: 14.5, color: colors.muted, lineHeight: 22, flex: 1 },
-})
+  })
+}

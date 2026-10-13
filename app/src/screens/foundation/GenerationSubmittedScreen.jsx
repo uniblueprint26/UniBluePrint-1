@@ -24,6 +24,7 @@ const LOADING_DURATION = 1100
 
 export default function GenerationSubmittedScreen({ navigation, route }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { serviceTitle, tier } = route.params || {}
   const isPremium = tier === 'premium'
@@ -113,7 +114,8 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream, paddingHorizontal: spacing.lg, alignItems: 'center' },
   iconWrap: { marginBottom: spacing.lg, minHeight: 56, justifyContent: 'center', alignItems: 'center' },
 
@@ -141,4 +143,5 @@ const styles = StyleSheet.create({
 
   secondaryBtn: { alignItems: 'center', marginTop: spacing.lg },
   secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
-})
+  })
+}

@@ -53,6 +53,7 @@ const VIEWABLE_DOCUMENT_TABLES = new Set([
 
 function OutputRow({ row, isLast, onPress }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const stageColor = STAGE_COLOR[row.stage] || STAGE_COLOR.submitted
   const delivered = row.stage === 'delivered'
   const canOpen = delivered && VIEWABLE_DOCUMENT_TABLES.has(row.document_table)
@@ -92,6 +93,7 @@ function OutputRow({ row, isLast, onPress }) {
 
 export default function MyOutputsScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const [rows, setRows] = useState([])
@@ -196,7 +198,8 @@ export default function MyOutputsScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
@@ -223,4 +226,5 @@ const styles = StyleSheet.create({
   rowTrailing: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 },
   stagePill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
-})
+  })
+}

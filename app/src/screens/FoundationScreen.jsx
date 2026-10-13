@@ -143,6 +143,7 @@ const TRUST_POINTS = [
 
 export default function FoundationScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const [selected, setSelected] = useState(null)
   // From 11pm Saturday to 8am Monday the team is closed for the weekend, so
@@ -412,7 +413,8 @@ export default function FoundationScreen({ navigation }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   // Integrated header + hero
@@ -529,4 +531,5 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)', marginTop: spacing.lg,
   },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-})
+  })
+}

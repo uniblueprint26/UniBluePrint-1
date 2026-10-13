@@ -28,6 +28,7 @@ function formatDate(dateStr) {
 
 export default function ResourceFinderScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
@@ -137,7 +138,8 @@ export default function ResourceFinderScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
@@ -165,4 +167,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 10, marginTop: 12,
   },
   downloadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
-})
+  })
+}

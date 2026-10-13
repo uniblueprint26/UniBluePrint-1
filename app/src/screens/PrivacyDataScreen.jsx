@@ -24,6 +24,7 @@ import { LEGAL_ENTITY_LINE } from '../constants/legal'
 // the Edge Function writes to gdpr_deletion_log instead, which survives.
 export default function PrivacyDataScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
 
@@ -210,7 +211,8 @@ export default function PrivacyDataScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
@@ -264,4 +266,5 @@ const styles = StyleSheet.create({
   statusChipDone: { backgroundColor: '#F0FDF4' },
   statusChipText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, textTransform: 'capitalize' },
   statusChipTextDone: { color: '#15803D' },
-})
+  })
+}

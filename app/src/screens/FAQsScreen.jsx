@@ -50,6 +50,7 @@ const FAQS = [
 
 export default function FAQsScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const [open, setOpen] = useState(null)
   const insets = useSafeAreaInsets()
 
@@ -121,7 +122,8 @@ export default function FAQsScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: {},
 
@@ -147,4 +149,5 @@ const styles = StyleSheet.create({
   contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
   contactSub: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.7)', marginTop: 6, lineHeight: 21 },
   contactEmail: { fontFamily: fonts.sansSemiBold, color: colors.cream, textDecorationLine: 'underline' },
-})
+  })
+}

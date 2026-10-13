@@ -40,6 +40,7 @@ function formatDate(dateStr) {
 
 export default function OutputDetailScreen({ navigation, route }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const { documentTable, documentId, serviceName, deliveredAt } = route.params || {}
   const contentColumn = CONTENT_COLUMN[documentTable]
 
@@ -150,7 +151,8 @@ export default function OutputDetailScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
@@ -172,4 +174,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: colors.border,
   },
   shareBtn: { width: '100%' },
-})
+  })
+}

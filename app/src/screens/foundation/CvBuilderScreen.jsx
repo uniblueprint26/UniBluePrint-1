@@ -78,7 +78,8 @@ const DEFAULT_VALUES = {
   tier: 'standard',
 }
 
-const STEPS = [
+function getSteps(colors) {
+  return [
   {
     key: '_personal',
     title: 'A little about you',
@@ -263,10 +264,12 @@ const STEPS = [
     render: (value, onChange) => <ChoiceGrid options={TIERS} value={value} onChange={onChange} />,
     validate: value => (value ? null : 'Please choose a tier.'),
   },
-]
+  ]
+}
 
 export default function CvBuilderScreen({ navigation }) {
   const { colors } = useTheme()
+  const STEPS = getSteps(colors)
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cv:${user.id}` : null, values, setValues)

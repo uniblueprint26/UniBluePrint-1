@@ -66,6 +66,8 @@ function deriveTitle(situation) {
  *  pill grid, for the "Where?" step: Work / College / Leadership / Project /
  *  Challenge / Achievement, single-select. */
 function RadioOptions({ options, value, onChange }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   return (
     <View style={{ gap: 10 }}>
       {options.map(opt => {
@@ -142,6 +144,7 @@ const ADD_STEPS = [
 
 export default function EvidenceBankScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
 
@@ -535,7 +538,8 @@ export default function EvidenceBankScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -623,4 +627,5 @@ const styles = StyleSheet.create({
   },
   nextBtn: { flex: 1, height: 52, borderRadius: radius.button, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center', ...shadows.card },
   nextBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
-})
+  })
+}

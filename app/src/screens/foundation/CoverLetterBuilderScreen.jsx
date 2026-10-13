@@ -45,7 +45,8 @@ const DEFAULT_VALUES = {
   tier: 'standard',
 }
 
-const STEPS = [
+function getSteps(colors) {
+  return [
   {
     key: '_targeting',
     title: 'What role are you applying for?',
@@ -127,10 +128,12 @@ const STEPS = [
     render: (value, onChange) => <ChoiceGrid options={TIERS} value={value} onChange={onChange} />,
     validate: value => (value ? null : 'Please choose a tier.'),
   },
-]
+  ]
+}
 
 export default function CoverLetterBuilderScreen({ navigation }) {
   const { colors } = useTheme()
+  const STEPS = getSteps(colors)
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cover_letter:${user.id}` : null, values, setValues)

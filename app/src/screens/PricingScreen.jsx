@@ -60,6 +60,7 @@ const PRO_FEATURES = [
 
 function FeatureRow({ text, dim }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   return (
     <View style={styles.featureRow}>
       <Check size={15} color={dim ? 'rgba(245,240,232,0.55)' : colors.success} style={{ marginTop: 2, flexShrink: 0 }} />
@@ -70,6 +71,7 @@ function FeatureRow({ text, dim }) {
 
 function CurrentPlanPill({ light }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   return (
     <View style={[styles.currentPill, light && { backgroundColor: 'rgba(245,240,232,0.15)' }]}>
       <CheckCircle size={14} color={light ? colors.cream : colors.navy} />
@@ -80,6 +82,7 @@ function CurrentPlanPill({ light }) {
 
 export default function PricingScreen({ navigation }) {
   const { colors } = useTheme()
+  const styles = getStyles(colors)
   // Cream hero under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -237,7 +240,8 @@ export default function PricingScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
@@ -300,4 +304,5 @@ const styles = StyleSheet.create({
   dotActive: { backgroundColor: colors.navy, width: 20 },
 
   footNote: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light, textAlign: 'center', marginTop: spacing.lg, marginHorizontal: spacing.lg, lineHeight: 17 },
-})
+  })
+}
