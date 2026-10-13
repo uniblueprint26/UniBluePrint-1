@@ -9,7 +9,8 @@ import {
   FileText, Compass, Building2, Heart, Globe, CheckCircle,
   Calculator, Megaphone, Users, MessageSquare, CalendarClock, Send, Star, User,
 } from 'lucide-react-native'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 
 // ── Static, representative content only ─────────────────────────────────────
@@ -32,7 +33,8 @@ const SAMPLE_TILES = [
   { Icon: MessageSquare, label: 'Campus Board',     sub: 'See what campus is talking about' },
 ]
 
-const STEPS = [
+function __gs_STEPS(colors) {
+  return [
   {
     key: 'welcome', accent: colors.navy, Icon: null,
     title: 'Welcome to UniBlueprint', tagline: null,
@@ -164,7 +166,8 @@ const STEPS = [
     body: 'That’s the whole map. Everything you just saw is real and ready for you — this tour just used sample content so nothing depended on your account yet. Come back to this any time from Profile, then How UniBlueprint Works.',
     mock: null,
   },
-]
+  ]
+}
 
 export const TOUR_SEEN_KEY_PREFIX = 'btb_tour_seen_'
 
@@ -174,6 +177,8 @@ export const TOUR_SEEN_KEY_PREFIX = 'btb_tour_seen_'
 // real account or backend state.
 
 function QuickAccessMock({ tiles }) {
+  const { colors } = useTheme()
+  const mock = __gs_mock(colors)
   return (
     <View style={mock.quickAccessGrid}>
       {tiles.map(t => (
@@ -190,6 +195,8 @@ function QuickAccessMock({ tiles }) {
 }
 
 function CardsMock({ items, accent }) {
+  const { colors } = useTheme()
+  const mock = __gs_mock(colors)
   return (
     <View style={mock.cardList}>
       {items.map(it => (
@@ -211,6 +218,8 @@ function CardsMock({ items, accent }) {
 }
 
 function ProfileMock({ name, category, price, bio, ctaPrimary, ctaSecondary, accent }) {
+  const { colors } = useTheme()
+  const mock = __gs_mock(colors)
   return (
     <View style={mock.profileCard}>
       <View style={mock.profileTopRow}>
@@ -244,6 +253,8 @@ function ProfileMock({ name, category, price, bio, ctaPrimary, ctaSecondary, acc
 }
 
 function BudgetMock({ tabs, label, value, progress, accent }) {
+  const { colors } = useTheme()
+  const mock = __gs_mock(colors)
   return (
     <View>
       <View style={mock.tabRow}>
@@ -283,6 +294,10 @@ function MockPanel({ mock: spec, accent }) {
 // the person reaches the end (or backs out via the header, same as any
 // other pushed screen).
 export default function BlueprintTourScreen({ mode = 'first-launch', onFinish }) {
+  const { colors } = useTheme()
+  const mock = __gs_mock(colors)
+  const styles = __gs_styles(colors)
+  const STEPS = __gs_STEPS(colors)
   const insets = useSafeAreaInsets()
   const { width } = useWindowDimensions()
   const { user } = useAuth()
@@ -417,7 +432,8 @@ export default function BlueprintTourScreen({ mode = 'first-launch', onFinish })
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.white },
 
   liveArea: { flex: 1, backgroundColor: colors.cream, overflow: 'hidden' },
@@ -475,10 +491,12 @@ const styles = StyleSheet.create({
     paddingVertical: 15, alignItems: 'center',
   },
   ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
-})
+  })
+}
 
 // ── Mockup panel styles ──────────────────────────────────────────────────────
-const mock = StyleSheet.create({
+function __gs_mock(colors) {
+  return StyleSheet.create({
   quickAccessGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   quickAccessTile: {
     width: '47%', backgroundColor: colors.white, borderRadius: radius.card,
@@ -538,4 +556,5 @@ const mock = StyleSheet.create({
   statValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginBottom: 10 },
   progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.cream, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
-})
+  })
+}

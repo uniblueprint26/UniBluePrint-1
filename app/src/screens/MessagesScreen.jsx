@@ -9,7 +9,8 @@ import { MessageSquare, Users, ChevronRight, Pencil, Menu } from 'lucide-react-n
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { formatNumber } from '../utils/formatNumber'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
@@ -40,7 +41,7 @@ function roomInitials(name) {
   return (words[0][0] + words[1][0]).toUpperCase()
 }
 
-function roomAvatarColor(contextType) {
+function roomAvatarColor(contextType, colors) {
   switch (contextType) {
     case 'board':   return '#7C3AED'
     case 'carpool': return '#15803D'
@@ -53,7 +54,9 @@ function roomAvatarColor(contextType) {
 // ── Conversation row ──────────────────────────────────────────────────────────
 
 function ConversationRow({ room, isLast, onPress }) {
-  const initBg   = roomAvatarColor(room.contextType)
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const initBg   = roomAvatarColor(room.contextType, colors)
   const initials = roomInitials(room.name)
   const unread   = room.unreadCount > 0
 
@@ -113,6 +116,8 @@ function ConversationRow({ room, isLast, onPress }) {
 // ── Empty state ───────────────────────────────────────────────────────────────
 
 function EmptyState({ onDirectoryPress, onConnectPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={styles.emptyWrap}>
       <View style={styles.emptyIconBox}>
@@ -143,6 +148,8 @@ function EmptyState({ onDirectoryPress, onConnectPress }) {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
 export default function MessagesScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream strip under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -408,7 +415,7 @@ export default function MessagesScreen({ navigation }) {
               contacts.map((contact) => {
                 const name    = contact.peer_display_name || 'Member'
                 const busy    = startingId === contact.peer_user_id
-                const initBg  = roomAvatarColor('direct')
+                const initBg  = roomAvatarColor('direct', colors)
                 return (
                   <TouchableOpacity
                     key={contact.peer_user_id}
@@ -454,7 +461,8 @@ export default function MessagesScreen({ navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   topBar: {
@@ -594,4 +602,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cream, borderRadius: radius.button,
   },
   composeCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-})
+  })
+}

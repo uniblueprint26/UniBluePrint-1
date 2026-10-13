@@ -5,7 +5,8 @@ import { Search, X, Menu } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
 import { INTERESTS } from '../data/interests'
@@ -114,6 +115,8 @@ function topTagsFromCandidates(candidates, limit) {
 // ── StudentCard ───────────────────────────────────────────────────────────────
 
 function StudentCard({ student, searchQuery, onConnect, connecting }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const q = searchQuery.trim().toLowerCase()
   const tags = student.interests || []
   const statuses = student.statuses || []
@@ -184,6 +187,8 @@ function StudentCard({ student, searchQuery, onConnect, connecting }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 
 export default function DirectoryScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { profile } = useAuth()
   const { interests: viewerInterests } = useInterests()
@@ -439,7 +444,8 @@ export default function DirectoryScreen({ navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   topBar: {
@@ -528,4 +534,5 @@ const styles = StyleSheet.create({
   },
 
   connectBtn: { marginTop: 2 },
-})
+  })
+}

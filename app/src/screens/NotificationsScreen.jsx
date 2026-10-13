@@ -9,7 +9,8 @@ import {
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
@@ -20,7 +21,8 @@ import { goToRelatedEntity } from '../lib/notificationRouting'
 // backward compatibility with existing rows; everything else maps to a
 // category introduced by the portals/operations schema.
 
-const TYPE_CONFIG = {
+function getTypeConfig(colors) {
+  return {
   welcome:            { Icon: Star,          color: '#15803D', bg: colors.successBg },
   document:           { Icon: FileText,      color: '#1d4ed8', bg: colors.infoBg },
   session:            { Icon: Calendar,      color: '#15803D', bg: colors.successBg },
@@ -37,6 +39,7 @@ const TYPE_CONFIG = {
   chat_message:       { Icon: MessageCircle, color: '#1d4ed8', bg: colors.infoBg },
   board_reply:        { Icon: MessagesSquare, color: colors.newBadge, bg: '#F5F3FF' },
   coach_enquiry:      { Icon: Mail,          color: '#1d4ed8', bg: colors.infoBg },
+  }
 }
 
 function timeAgo(dateStr) {
@@ -51,6 +54,9 @@ function timeAgo(dateStr) {
 // ── Notification row ─────────────────────────────────────────────────────────
 
 function NotifRow({ notif, isLast, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const TYPE_CONFIG = getTypeConfig(colors)
   const cfg = TYPE_CONFIG[notif.category] || TYPE_CONFIG.update
   return (
     <TouchableOpacity
@@ -78,6 +84,8 @@ function NotifRow({ notif, isLast, onPress }) {
 // ── Empty state ───────────────────────────────────────────────────────────────
 
 function EmptyState() {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={styles.emptyWrap}>
       <View style={styles.emptyIconBox}>
@@ -94,6 +102,8 @@ function EmptyState() {
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function NotificationsScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const [notifications, setNotifications] = useState([])
@@ -200,7 +210,8 @@ export default function NotificationsScreen({ navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   topTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
@@ -251,4 +262,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 14, color: colors.muted,
     lineHeight: 22, textAlign: 'center',
   },
-})
+  })
+}

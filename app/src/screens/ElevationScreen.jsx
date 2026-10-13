@@ -15,7 +15,8 @@ import UBPLogo from '../components/ui/UBPLogo'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -391,6 +392,8 @@ const GROUPS = [
 // ─── Coach Card ───────────────────────────────────────────────────────────────
 
 function CoachCard({ coach, navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   function handlePress() {
     navigation.navigate('CoachProfile', { coach })
   }
@@ -532,6 +535,8 @@ const GENERAL_ENQUIRY_SLUG = 'general-enquiry'
 const GENERAL_ENQUIRY_NAME = 'Find Me A Coach (general enquiry)'
 
 function FindCoachModal({ visible, onClose, userId }) {
+  const { colors } = useTheme()
+  const fm = __gs_fm(colors)
   const [message, setMessage]   = useState('')
   const [sending, setSending]   = useState(false)
   const [sent, setSent]         = useState(false)
@@ -624,7 +629,8 @@ function FindCoachModal({ visible, onClose, userId }) {
   )
 }
 
-const fm = StyleSheet.create({
+function __gs_fm(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -644,11 +650,14 @@ const fm = StyleSheet.create({
   sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
   doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}
 
 // ─── Group header ─────────────────────────────────────────────────────────────
 
 function GroupHeader({ label, count, first }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={[styles.groupHeader, first && { marginTop: 8 }]}>
       <Text style={styles.groupLabel}>{label}</Text>
@@ -662,6 +671,8 @@ function GroupHeader({ label, count, first }) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ElevationScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   // Elevation Blueprint ("full access to all six services") is a Pro-only
@@ -850,7 +861,8 @@ export default function ElevationScreen({ navigation }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   // Integrated header + hero
@@ -954,4 +966,5 @@ const styles = StyleSheet.create({
   shellMessage:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 12, fontStyle: 'italic' },
 
   primaryBtn:     { marginTop: spacing.lg },
-})
+  })
+}

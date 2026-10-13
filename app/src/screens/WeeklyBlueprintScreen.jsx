@@ -14,7 +14,8 @@ import UBPLogo from '../components/ui/UBPLogo'
 import PostAdModal from '../components/ads/PostAdModal'
 import PartnerContactModal from '../components/ads/PartnerContactModal'
 import { supabase } from '../lib/supabase'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { openMenu } from '../navigation/helpers'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
@@ -66,12 +67,13 @@ const FOUNDATION_TOPICS = [
   },
 ]
 
-const NAVY = colors.navy
 const { width: SCREEN_W } = Dimensions.get('window')
 
 // ── Small shared bits ───────────────────────────────────────────────────────
 
 function EmptyNote({ children }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return <Text style={styles.emptyNote}>{children}</Text>
 }
 
@@ -82,6 +84,8 @@ function parsePipe(line) {
 // ── Page content ──────────────────────────────────────────────────────────
 
 function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const { issue, content, deals, coaches, foundationTopics, lifestylePartners, marketplaceAds, curatedAds, liveBoardAds } = data
   const issueLabel = issue ? `ISSUE ${issue.issue_number}` : 'THIS WEEK'
   const theme = issue?.theme
@@ -95,7 +99,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 
     case 'cover':
       return (
-        <LinearGradient colors={[shade(NAVY, -12), NAVY, shade(NAVY, 10)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.coverPage]}>
+        <LinearGradient colors={[shade(colors.navy, -12), colors.navy, shade(colors.navy, 10)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.coverPage]}>
           <View style={styles.coverBadge}><Text style={styles.coverBadgeText}>{issueLabel}</Text></View>
           <View style={{ flex: 1 }} />
           <UBPLogo height={30} color={colors.cream} />
@@ -160,7 +164,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 
     case 'deal-room':
       return (
-        <LinearGradient colors={[shade(NAVY, -10), NAVY, shade(NAVY, 12)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.postPage]}>
+        <LinearGradient colors={[shade(colors.navy, -10), colors.navy, shade(colors.navy, 12)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.postPage]}>
           <View style={{ flex: 1 }} />
           <Crown size={34} color="#F5BA0B" strokeWidth={1.5} />
           <Text style={styles.postPageTitle}>The Deal Room</Text>
@@ -630,7 +634,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
     case 'blueprint-feature': {
       const bf = content.blueprint_feature || {}
       return (
-        <LinearGradient colors={[shade(NAVY, -10), NAVY, shade(NAVY, 12)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.postPage]}>
+        <LinearGradient colors={[shade(colors.navy, -10), colors.navy, shade(colors.navy, 12)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.postPage]}>
           <View style={{ flex: 1 }} />
           <Award size={32} color={colors.cream} strokeWidth={1.5} />
           {!bf.title ? (
@@ -663,7 +667,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 
     case 'closing':
       return (
-        <LinearGradient colors={[shade(NAVY, 10), NAVY, shade(NAVY, -12)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.coverPage]}>
+        <LinearGradient colors={[shade(colors.navy, 10), colors.navy, shade(colors.navy, -12)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.coverPage]}>
           <View style={{ flex: 1 }} />
           <UBPLogo height={26} color={colors.cream} />
           <Text style={styles.closingBig}>That's a wrap.</Text>
@@ -682,6 +686,8 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 // ── Page wrapper — swipe/turn animation (unchanged) ──────────────────────────
 
 function MagazinePage({ page, index, scrollX, navigation, onJump, onOpenPost, data, isPro }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const inputRange = [(index - 1) * SCREEN_W, index * SCREEN_W, (index + 1) * SCREEN_W]
   const rotateY = scrollX.interpolate({ inputRange, outputRange: ['6deg', '0deg', '-6deg'], extrapolate: 'clamp' })
   const scale   = scrollX.interpolate({ inputRange, outputRange: [0.95, 1, 0.95], extrapolate: 'clamp' })
@@ -749,6 +755,8 @@ const PAGES = buildPages()
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
 export default function WeeklyBlueprintScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream strip under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -948,11 +956,12 @@ export default function WeeklyBlueprintScreen({ navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   topBar: {
-    backgroundColor: NAVY, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
+    backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
   },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, flexShrink: 0 },
@@ -960,16 +969,16 @@ const styles = StyleSheet.create({
   topBarPageNum: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.5)', fontVariant: ['tabular-nums'] },
   menuBtn: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: NAVY },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
 
   page: { width: SCREEN_W, flex: 1 },
   pageInner: { flex: 1, backgroundColor: colors.cream, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xl },
   pageKicker: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 1, textTransform: 'uppercase' },
   pageKickerLight: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.6)', letterSpacing: 1, textTransform: 'uppercase', marginTop: 14 },
-  pageHeading: { fontFamily: fonts.serif, fontSize: 25, color: NAVY, marginTop: 8, lineHeight: 32 },
+  pageHeading: { fontFamily: fonts.serif, fontSize: 25, color: colors.navy, marginTop: 8, lineHeight: 32 },
   bodyText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 12, lineHeight: 22 },
   emptyNote: { fontFamily: fonts.sans, fontSize: 13, color: colors.light, fontStyle: 'italic', marginTop: 14 },
-  needHelpLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: NAVY, marginBottom: 10 },
+  needHelpLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 10 },
 
   // Cover / closing
   coverPage: { alignItems: 'flex-start' },
@@ -986,36 +995,36 @@ const styles = StyleSheet.create({
   // TOC
   tocRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)' },
   tocIconBox: { width: 30, height: 30, borderRadius: 8, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  tocLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: NAVY, flex: 1 },
+  tocLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, flex: 1 },
   tocPageNum: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, fontVariant: ['tabular-nums'] },
   tocHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 18, lineHeight: 17, fontStyle: 'italic' },
 
   // Deals
   dealRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  dealTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: NAVY, marginTop: 2 },
+  dealTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.navy, marginTop: 2 },
   dealDesc: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 3, lineHeight: 17 },
   dealPercentBadge: { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
-  dealPercentText: { fontFamily: fonts.sansBold, fontSize: 13, color: NAVY },
+  dealPercentText: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.navy },
 
   // Coach spotlight
   coachAvatarRing: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', marginTop: 14 },
-  coachName: { fontFamily: fonts.serif, fontSize: 22, color: NAVY, marginTop: 12 },
+  coachName: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 12 },
   coachTitle: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 2 },
-  coachExpertise: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: NAVY, marginTop: 8 },
+  coachExpertise: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, marginTop: 8 },
   coachBio: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 21 },
 
   // CTA pill (reused across many pages)
   adRightCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: NAVY, borderRadius: radius.button, paddingVertical: 13, marginTop: 4,
+    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 13, marginTop: 4,
   },
   adRightCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.cream },
   secondaryCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)', borderRadius: radius.button, paddingVertical: 12, marginTop: 12,
   },
-  secondaryCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: NAVY },
+  secondaryCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
 
   // Events
   eventHighlightCard: {
@@ -1027,24 +1036,24 @@ const styles = StyleSheet.create({
   eventHighlightSub: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.75)', marginTop: 4 },
   eventRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   eventInstitution: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: '#B45309', textTransform: 'uppercase', letterSpacing: 0.5 },
-  eventTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: NAVY, marginTop: 3 },
+  eventTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginTop: 3 },
   eventMetaRow: { flexDirection: 'row', gap: 6, marginTop: 3 },
   eventMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
-  cityLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: NAVY, marginBottom: 4 },
+  cityLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 4 },
   cityEvent: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginBottom: 3, lineHeight: 18 },
 
   // Student spotlight
   storyCard: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  storyName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: NAVY },
+  storyName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   storyHeadline: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 2 },
   storyTeaser: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 4, lineHeight: 17 },
-  storyQuote: { fontFamily: fonts.serif, fontSize: 20, color: NAVY, marginTop: 20, lineHeight: 28, fontStyle: 'italic' },
+  storyQuote: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, marginTop: 20, lineHeight: 28, fontStyle: 'italic' },
   storyByline: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted, marginTop: 10 },
 
   // Quotes (coach board)
   quoteCard: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   quoteRole: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted, letterSpacing: 0.6 },
-  quoteText: { fontFamily: fonts.serif, fontSize: 16, color: NAVY, marginTop: 4, lineHeight: 22 },
+  quoteText: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, marginTop: 4, lineHeight: 22 },
   quoteName: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 4 },
 
   // Ad Board list
@@ -1053,28 +1062,29 @@ const styles = StyleSheet.create({
 
   // Blog
   blogCard: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  categoryPill: { alignSelf: 'flex-start', backgroundColor: NAVY, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
+  categoryPill: { alignSelf: 'flex-start', backgroundColor: colors.navy, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
   categoryPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.cream, letterSpacing: 0.3 },
-  blogTitle: { fontFamily: fonts.serif, fontSize: 16, color: NAVY, marginTop: 8, lineHeight: 21 },
+  blogTitle: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, marginTop: 8, lineHeight: 21 },
   blogMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
   blogMetaText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light },
   metaDivider: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: colors.light },
 
   // Bullets (UBP board / week ahead)
-  bulletDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: NAVY, marginTop: 7, flexShrink: 0 },
+  bulletDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.navy, marginTop: 7, flexShrink: 0 },
   bulletText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, flex: 1, lineHeight: 21 },
   sectionDivider: { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: 24 },
 
   // Post/upsell gradient pages
-  postPage: { backgroundColor: NAVY, alignItems: 'center' },
+  postPage: { backgroundColor: colors.navy, alignItems: 'center' },
   postPageTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginTop: 10, textAlign: 'center', lineHeight: 30 },
   postPageBody: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.75)', textAlign: 'center', lineHeight: 20, maxWidth: '90%' },
   postPageCta: { backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13, marginTop: 18 },
-  postPageCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: NAVY },
+  postPageCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
 
   // Pager controls
   pagerControls: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.md, paddingTop: 12, backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   pagerBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   pagerTrack: { flex: 1, height: 4, borderRadius: 2, backgroundColor: 'rgba(30,58,95,0.1)', overflow: 'hidden' },
-  pagerFill: { height: 4, borderRadius: 2, backgroundColor: NAVY },
-})
+  pagerFill: { height: 4, borderRadius: 2, backgroundColor: colors.navy },
+  })
+}

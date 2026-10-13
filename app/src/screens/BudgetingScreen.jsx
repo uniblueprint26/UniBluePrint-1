@@ -26,7 +26,8 @@ import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import EmptyState from '../components/ui/EmptyState'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { formatNumber } from '../utils/formatNumber'
 import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
@@ -236,6 +237,8 @@ const INVEST_TERMS = [
 ]
 
 function SchemeCard({ item }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <Card style={styles.schemeCard}>
       <Text style={styles.schemeName}>{item.name}</Text>
@@ -265,6 +268,8 @@ const APPLICATION_STEPS = [
 
 // ─── Line Item (editable row for income / expense entries) ───────────────────
 function LineItem({ item, onChangeAmount, onRemove, tint }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={styles.lineItem}>
       <View style={[styles.lineItemDot, { backgroundColor: tint }]} />
@@ -299,6 +304,8 @@ function LineItem({ item, onChangeAmount, onRemove, tint }) {
 // celebration state (green card, CheckCircle, "Goal reached") once the
 // target is met. ─────────────────────────────────────────────────────────
 function GoalCard({ goal, onAddPress, onRemove }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const target  = parseFloat(goal.target_amount)  || 0
   const current = parseFloat(goal.current_amount) || 0
   const pct     = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0
@@ -357,6 +364,9 @@ function GoalCard({ goal, onAddPress, onRemove }) {
 // server-side and, from the caller's point of view, moves that amount out
 // of "available balance" (see BudgetTab's balance calc). ──────────────────
 function AddToGoalSheet({ visible, goal, onClose, onAdded }) {
+  const { colors } = useTheme()
+  const sheet = __gs_sheet(colors)
+  const styles = __gs_styles(colors)
   const [amount, setAmount] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError]   = useState('')
@@ -414,6 +424,9 @@ function AddToGoalSheet({ visible, goal, onClose, onAdded }) {
 
 // ─── Add Goal — name, target amount, optional deadline, icon selection ────
 function AddGoalSheet({ visible, onClose, onCreate }) {
+  const { colors } = useTheme()
+  const sheet = __gs_sheet(colors)
+  const styles = __gs_styles(colors)
   const [name,     setName]     = useState('')
   const [target,   setTarget]   = useState('')
   const [deadline, setDeadline] = useState('')
@@ -501,6 +514,8 @@ function AddGoalSheet({ visible, onClose, onCreate }) {
 
 // ─── SUSI Term (expandable) ───────────────────────────────────────────────────
 function SUSITerm({ item }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [open, setOpen] = useState(false)
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={() => setOpen(v => !v)}>
@@ -519,6 +534,8 @@ function SUSITerm({ item }) {
 
 // ─── SUSI Estimator ───────────────────────────────────────────────────────────
 function SUSIEstimator() {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [income,     setIncome]     = useState('')
   const [dependants, setDependants] = useState('1')
   const [adjacent,   setAdjacent]   = useState(false)
@@ -668,6 +685,8 @@ const DEFAULT_GOAL_SEEDS = [
 ]
 
 function BudgetTab({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const { user } = useAuth()
   const { userType, loading: userTypeLoading, label: userTypeLabel } = useUserType()
   const [loaded, setLoaded]   = useState(false)
@@ -1040,6 +1059,8 @@ function BudgetTab({ navigation }) {
 
 // ─── SUSI Tab ─────────────────────────────────────────────────────────────────
 function SUSITab() {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [checkedSteps, setCheckedSteps] = useState([])
 
   function toggleStep(i) {
@@ -1198,6 +1219,8 @@ function InvestmentTab({ navigation }) {
 // the gate itself stays simple to read and nothing below it ever renders
 // for someone who hasn't cleared it.
 function InvestmentTabContent({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const zainab  = COACHES.find(c => c.id === 16)
   const dg      = COACHES.find(c => c.name === 'DG Trading')
   const dinero  = COACHES.find(c => c.name === 'Dinero Trading Group')
@@ -1316,6 +1339,8 @@ function InvestmentTabContent({ navigation }) {
 // for") before the tap-through to their full Elevation profile, so the
 // distinction is visible without leaving the Budgeting tool.
 function CoachOptionCard({ opt, navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <TouchableOpacity
       activeOpacity={opt.coach ? 0.8 : 1}
@@ -1346,6 +1371,8 @@ function CoachOptionCard({ opt, navigation }) {
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function BudgetingScreen({ navigation, route }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [tab, setTab] = useState(route?.params?.tab || 'budget')
 
   return (
@@ -1417,7 +1444,8 @@ export default function BudgetingScreen({ navigation, route }) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: { paddingBottom: 56 },
 
@@ -1722,10 +1750,12 @@ const styles = StyleSheet.create({
   schemeDesc:     { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
   schemeLinkRow:  { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 12 },
   schemeLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
-})
+  })
+}
 
 // ─── Bottom sheet styles (Add to Goal / Add Goal) ──────────────────────────
-const sheet = StyleSheet.create({
+function __gs_sheet(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -1758,4 +1788,5 @@ const sheet = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 15, marginTop: 22,
   },
   submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
-})
+  })
+}

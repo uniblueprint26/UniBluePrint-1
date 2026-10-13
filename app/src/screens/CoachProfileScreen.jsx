@@ -9,7 +9,8 @@ import {
   ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star,
   CalendarClock, Lock, ExternalLink,
 } from 'lucide-react-native'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
@@ -39,6 +40,8 @@ const IS_IOS = Platform.OS === 'ios'
 // on a fixed aspect-ratio box (not 'cover') so these real portrait studio
 // photos are never cropped to fill the slot.
 function PhotoGallery({ photos }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [width, setWidth] = useState(0)
   const [index, setIndex] = useState(0)
 
@@ -105,6 +108,8 @@ function openLink(type, value) {
 // coaches in this listing are not yet registered platform users.
 
 function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
+  const { colors } = useTheme()
+  const m = __gs_m(colors)
   const [message, setMessage]   = useState('')
   const [sending, setSending]   = useState(false)
   const [sent, setSent]         = useState(false)
@@ -207,6 +212,8 @@ function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
 // coach. onRated tells the parent screen so it can swap the button for a
 // "you rated this coach" state without a re-fetch.
 function RateCoachModal({ visible, onClose, coach, userId, onRated }) {
+  const { colors } = useTheme()
+  const m = __gs_m(colors)
   const [stars, setStars]       = useState(0)
   const [comment, setComment]   = useState('')
   const [sending, setSending]   = useState(false)
@@ -315,7 +322,8 @@ function RateCoachModal({ visible, onClose, coach, userId, onRated }) {
   )
 }
 
-const m = StyleSheet.create({
+function __gs_m(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -336,7 +344,8 @@ const m = StyleSheet.create({
   sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
   doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}
 
 // ── Phase 14 investigation: "View Profile shows nothing" ──────────────────
 // Re-verified end to end (Playwright against Expo web, every entry point
@@ -352,6 +361,8 @@ const m = StyleSheet.create({
 // as empty or broken. Kept as-is rather than rebuilt; see ElevationScreen's
 // COACHES for the underlying data every field below reads from.
 export default function CoachProfileScreen({ route, navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const { coach: baseCoach } = route.params
@@ -844,7 +855,8 @@ export default function CoachProfileScreen({ route, navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on native — without
@@ -1050,4 +1062,5 @@ const styles = StyleSheet.create({
   },
   rateLockedText: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', flexShrink: 1 },
   avatarImg: { width: 86, height: 86, borderRadius: 43 },
-})
+  })
+}

@@ -25,7 +25,8 @@ import {
 } from 'lucide-react-native'
 
 import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { supabase } from '../lib/supabase'
@@ -49,6 +50,8 @@ function formatChatTime(dateStr) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ChatRoomScreen({ navigation, route }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const { contextType, contextId, roomName, subtitle, posterId, posterName } = route.params ?? {}
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -349,7 +352,8 @@ export default function ChatRoomScreen({ navigation, route }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
 
@@ -441,4 +445,5 @@ const s = StyleSheet.create({
     backgroundColor: colors.cream, borderRadius: radius.button,
   },
   moreCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-})
+  })
+}

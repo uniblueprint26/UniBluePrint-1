@@ -20,7 +20,8 @@ import DestinationPickerModal from '../components/home/DestinationPickerModal'
 import SpotlightCarousel from '../components/home/SpotlightCarousel'
 import CondensedDashboard from '../components/home/CondensedDashboard'
 import SidebarRail from '../components/home/SidebarRail'
-import { colors, fonts } from '../constants/theme'
+import { fonts } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -101,6 +102,8 @@ function timeAgo(dateStr) {
 // ── Home Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   // The full-navigation sidebar rail below is a desktop-web-only
   // convenience (a wide browser window has the horizontal room for a
@@ -589,7 +592,8 @@ export default function HomeScreen({ navigation }) {
 
 // ── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen:  { flex: 1, backgroundColor: colors.navy },
   layout:  { flex: 1, flexDirection: 'row' },
 
@@ -715,4 +719,5 @@ const styles = StyleSheet.create({
   feedTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 2 },
   emptyFeed: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 24, gap: 10 },
   emptyFeedText: { fontFamily: fonts.sans, fontSize: 14, color: '#9CA3AF', textAlign: 'center', lineHeight: 20 },
-})
+  })
+}

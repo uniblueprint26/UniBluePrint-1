@@ -10,7 +10,8 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -64,8 +65,9 @@ const STAGE_LABEL = {
 // green ('#15803D', already used there for "Delivered") are used instead.
 // Every ring is also always paired with a text label, never color alone.
 const DELIVERED_COLOR = '#15803D'
-const IN_PROGRESS_COLOR = colors.goldDeep
-const NOT_STARTED_COLOR = colors.border
+function getStatusColors(colors) {
+  return { inProgress: colors.goldDeep, notStarted: colors.border }
+}
 
 const XP_PER_STATUS = { not_started: 0, in_progress: 40, delivered: 100 }
 const MAX_XP = BUILDERS.length * XP_PER_STATUS.delivered // 800
@@ -128,6 +130,9 @@ function ProgressRing({ size, strokeWidth, progress, color, trackColor, children
 }
 
 export default function CareerReadinessScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const { inProgress: IN_PROGRESS_COLOR, notStarted: NOT_STARTED_COLOR } = getStatusColors(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const [rows, setRows] = useState([])
@@ -350,7 +355,8 @@ export default function CareerReadinessScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
@@ -401,4 +407,5 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: colors.border,
   },
   emptyNudgeText: { flex: 1, fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 17 },
-})
+  })
+}

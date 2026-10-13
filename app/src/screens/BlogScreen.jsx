@@ -9,11 +9,14 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, ChevronRight, Clock } from 'lucide-react-native'
 import Card from '../components/ui/Card'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { POSTS, calcReadTime, formatDate } from '../data/blogPosts'
 
 export default function BlogScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream hero under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -68,7 +71,8 @@ export default function BlogScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md, paddingTop: 8 },
@@ -85,4 +89,5 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 },
   metaText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light },
   metaDivider: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: colors.light },
-})
+  })
+}

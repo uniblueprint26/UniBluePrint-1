@@ -8,7 +8,8 @@ import { User, CalendarDays, Clock, CheckCircle2 } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
@@ -47,6 +48,8 @@ function isoDate(d) {
 }
 
 export default function CoachBookingScreen({ route, navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const { coach } = route.params
@@ -279,7 +282,8 @@ export default function CoachBookingScreen({ route, navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   header: {
@@ -364,4 +368,5 @@ const styles = StyleSheet.create({
   },
   confirmTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center', marginBottom: 10 },
   confirmBody: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 21, marginBottom: 28 },
-})
+  })
+}

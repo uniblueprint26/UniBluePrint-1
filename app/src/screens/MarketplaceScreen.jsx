@@ -12,13 +12,16 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronLeft, ChevronRight, Sparkles, ShoppingBag } from 'lucide-react-native'
 import Card from '../components/ui/Card'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { MARKETPLACE_BOARDS } from '../constants/marketplaceBoards'
 
 const ICONS = { skills: Sparkles, buysell: ShoppingBag }
 
 export default function MarketplaceScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream hero under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -65,7 +68,8 @@ export default function MarketplaceScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md, paddingTop: 8 },
@@ -78,4 +82,5 @@ const styles = StyleSheet.create({
   modeIconWrap: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   modeTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
   modeSub: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 4, lineHeight: 18 },
-})
+  })
+}

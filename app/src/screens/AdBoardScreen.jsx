@@ -21,7 +21,8 @@ import Card from '../components/ui/Card'
 import PostAdModal from '../components/ads/PostAdModal'
 import PartnerContactModal from '../components/ads/PartnerContactModal'
 import { supabase } from '../lib/supabase'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome, openMenu } from '../navigation/helpers'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
@@ -32,7 +33,6 @@ import { POSTS as BLOG_POSTS } from '../data/blogPosts'
 // (BoardDetailScreen), reused here rather than reinvented.
 const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
-const NAVY = colors.navy
 
 // A representative slice of the magazine's real, fixed 13-section table of
 // contents (see WeeklyBlueprintScreen's own TOC entries) — enough to read as
@@ -55,6 +55,8 @@ function shade(hex, percent) {
 }
 
 export default function AdBoardScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream hero under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -131,7 +133,7 @@ export default function AdBoardScreen({ navigation }) {
         <TouchableOpacity activeOpacity={0.92} onPress={() => navigation.navigate('WeeklyBlueprint')}>
           <Card style={styles.magazineCard}>
             <LinearGradient
-              colors={[shade(NAVY, -12), NAVY, shade(NAVY, 10)]}
+              colors={[shade(colors.navy, -12), colors.navy, shade(colors.navy, 10)]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.magazineBanner}
             >
@@ -150,7 +152,7 @@ export default function AdBoardScreen({ navigation }) {
               <View style={styles.teaserRow}>
                 {TEASER_SECTIONS.map(s => (
                   <View key={s.label} style={styles.teaserChip}>
-                    <s.Icon size={12} color={NAVY} strokeWidth={2} />
+                    <s.Icon size={12} color={colors.navy} strokeWidth={2} />
                     <Text style={styles.teaserChipText}>{s.label}</Text>
                   </View>
                 ))}
@@ -172,7 +174,7 @@ export default function AdBoardScreen({ navigation }) {
           <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => navigation.navigate('Blog')}>
             <Card style={styles.entryCard}>
               <View style={[styles.entryIconWrap, { backgroundColor: '#F5F0E8' }]}>
-                <BookOpen size={20} color={NAVY} strokeWidth={1.8} />
+                <BookOpen size={20} color={colors.navy} strokeWidth={1.8} />
               </View>
               <Text style={styles.entryTitle}>Blog</Text>
               <Text style={styles.entrySub}>Real Irish education news and guides</Text>
@@ -225,7 +227,7 @@ export default function AdBoardScreen({ navigation }) {
                 }}
               >
                 <View style={[styles.adIcon, { backgroundColor: cat?.bg || '#F5F0E8' }]}>
-                  {cat ? <cat.Icon size={16} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={16} color={NAVY} strokeWidth={1.8} />}
+                  {cat ? <cat.Icon size={16} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={16} color={colors.navy} strokeWidth={1.8} />}
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.adBrand}>{ad.brand || ad.title}</Text>
@@ -262,16 +264,17 @@ export default function AdBoardScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   topBar: {
-    backgroundColor: NAVY, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
+    backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
   },
   menuBtn: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: NAVY },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
 
   // Magazine card — full-width gradient banner on top (readable at any
   // width, unlike the old 92px cover column it replaced) with a real
@@ -294,10 +297,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
     paddingHorizontal: 9, paddingVertical: 6,
   },
-  teaserChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: NAVY },
+  teaserChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
 
   magazineFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginTop: 14 },
-  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: NAVY, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10 },
+  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10 },
   magazineCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.cream },
   magazineFooterNote: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, fontStyle: 'italic' },
 
@@ -305,25 +308,26 @@ const styles = StyleSheet.create({
   entryRow: { flexDirection: 'row', gap: 12, marginBottom: spacing.lg },
   entryCard: { padding: 16 },
   entryIconWrap: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  entryTitle: { fontFamily: fonts.serif, fontSize: 16, color: NAVY, marginTop: 10 },
+  entryTitle: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, marginTop: 10 },
   entrySub: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16, minHeight: 32 },
   entryFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   entryFooterText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.light },
 
   sectionKicker: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 1, textTransform: 'uppercase' },
-  sectionHeading: { fontFamily: fonts.serif, fontSize: 22, color: NAVY, marginTop: 6 },
+  sectionHeading: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 6 },
   sectionSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
 
   emptyNote: { fontFamily: fonts.sans, fontSize: 13, color: colors.light, fontStyle: 'italic', padding: 14 },
   adRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   adIcon: { width: 36, height: 36, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   adBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: NAVY, marginTop: 2 },
+  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.navy, marginTop: 2 },
   adReportBtn: { padding: 4, marginRight: 2 },
 
   advertiseCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
-    backgroundColor: NAVY, borderRadius: radius.button, paddingVertical: 14, marginTop: 16,
+    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginTop: 16,
   },
   advertiseCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}
