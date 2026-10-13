@@ -82,7 +82,7 @@ export default function TermsPage() {
               <p style={P}>You are responsible for maintaining the security and confidentiality of your account credentials, including your password. You must not share your credentials with any other person. You are solely liable for all activity that occurs under your Account.</p>
               <p style={P}>
                 If you become aware of any unauthorised use of your Account, you must notify us immediately at{' '}
-                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>.
+                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.
                 {' '}UniBlueprint will not be liable for any loss arising from unauthorised use of your Account where you have failed to maintain the security of your credentials.
               </p>
             </Section>
@@ -193,7 +193,7 @@ export default function TermsPage() {
             <Section title="19. Contact Us">
               <p style={P}>
                 If you have any questions about these Terms, please contact us at{' '}
-                <a href="mailto:uniblueprintoperations@gmail.com" style={{ color: '#1E3A5F', fontWeight: '500' }}>uniblueprintoperations@gmail.com</a>
+                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>
                 {' '}or via the{' '}
                 <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>.
               </p>

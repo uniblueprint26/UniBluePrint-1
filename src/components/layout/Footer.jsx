@@ -241,7 +241,7 @@ export default function Footer() {
 
             <div className="footer-legal-right">
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-                uniblueprintoperations@gmail.com
+                support@uniblueprint.ie
               </span>
             </div>
           </div>

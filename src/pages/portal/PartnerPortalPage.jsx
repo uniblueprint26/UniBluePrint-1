@@ -278,7 +278,7 @@ export default function PartnerPortalPage() {
           <ShieldCheck size={22} color={MUTED} style={{ marginBottom: '10px' }} />
           <p style={{ fontFamily: SERIF, fontSize: '20px', color: NAVY, marginBottom: '8px' }}>Not linked to a partner yet</p>
           <p style={{ fontFamily: SANS, fontSize: '13px', color: GREY, lineHeight: 1.65, maxWidth: '440px', margin: '0 auto' }}>
-            Your account isn't linked to a partner listing yet, so there's nothing to show here. Contact your Partnership Contact or uniblueprintoperations@gmail.com to get set up.
+            Your account isn't linked to a partner listing yet, so there's nothing to show here. Contact your Partnership Contact or support@uniblueprint.ie to get set up.
           </p>
         </Card>
       </PageShell>
@@ -496,7 +496,7 @@ export default function PartnerPortalPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '32px', textAlign: 'center' }}>
         <Mail size={12} color={MUTED} />
         <p style={{ fontFamily: SANS, fontSize: '12px', color: MUTED }}>
-          Questions about your listing or performance? Contact your Partnership Contact or uniblueprintoperations@gmail.com.
+          Questions about your listing or performance? Contact your Partnership Contact or support@uniblueprint.ie.
         </p>
       </div>
     </PageShell>
