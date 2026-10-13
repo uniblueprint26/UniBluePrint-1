@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChevronRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { WEBSITE_LINKS } from '../constants/site'
 
 const FAQS = [
@@ -48,6 +49,7 @@ const FAQS = [
 ]
 
 export default function FAQsScreen({ navigation }) {
+  const { colors } = useTheme()
   const [open, setOpen] = useState(null)
   const insets = useSafeAreaInsets()
 

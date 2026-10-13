@@ -26,7 +26,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Linki
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check, CheckCircle } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { WEBSITE_LINKS } from '../constants/site'
@@ -58,6 +59,7 @@ const PRO_FEATURES = [
 ]
 
 function FeatureRow({ text, dim }) {
+  const { colors } = useTheme()
   return (
     <View style={styles.featureRow}>
       <Check size={15} color={dim ? 'rgba(245,240,232,0.55)' : colors.success} style={{ marginTop: 2, flexShrink: 0 }} />
@@ -67,6 +69,7 @@ function FeatureRow({ text, dim }) {
 }
 
 function CurrentPlanPill({ light }) {
+  const { colors } = useTheme()
   return (
     <View style={[styles.currentPill, light && { backgroundColor: 'rgba(245,240,232,0.15)' }]}>
       <CheckCircle size={14} color={light ? colors.cream : colors.navy} />
@@ -76,6 +79,7 @@ function CurrentPlanPill({ light }) {
 }
 
 export default function PricingScreen({ navigation }) {
+  const { colors } = useTheme()
   // Cream hero under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()

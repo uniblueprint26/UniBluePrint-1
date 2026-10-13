@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, MessageCircle, FileText, Shield, ChevronRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 
 const TOPICS = [
   {
@@ -41,6 +42,7 @@ const TOPICS = [
 ]
 
 export default function HelpScreen({ navigation }) {
+  const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   // Inline accordion, same expand-to-read-more pattern as FAQsScreen, rather
   // than a system Alert.alert popup — keyed by "section-index" since item

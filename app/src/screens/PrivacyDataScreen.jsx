@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Download, Trash2, ExternalLink, Clock } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
@@ -22,6 +23,7 @@ import { LEGAL_ENTITY_LINE } from '../constants/legal'
 // since that row would itself be cascade-deleted along with the account —
 // the Edge Function writes to gdpr_deletion_log instead, which survives.
 export default function PrivacyDataScreen({ navigation }) {
+  const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
 

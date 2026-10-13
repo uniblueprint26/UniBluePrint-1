@@ -8,7 +8,8 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import StatTile, { StatTileRow } from '../components/ui/StatTile'
 import UBPLogo from '../components/ui/UBPLogo'
 import Button from '../components/ui/Button'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -51,6 +52,7 @@ const VIEWABLE_DOCUMENT_TABLES = new Set([
 ])
 
 function OutputRow({ row, isLast, onPress }) {
+  const { colors } = useTheme()
   const stageColor = STAGE_COLOR[row.stage] || STAGE_COLOR.submitted
   const delivered = row.stage === 'delivered'
   const canOpen = delivered && VIEWABLE_DOCUMENT_TABLES.has(row.document_table)
@@ -89,6 +91,7 @@ function OutputRow({ row, isLast, onPress }) {
 }
 
 export default function MyOutputsScreen({ navigation }) {
+  const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const [rows, setRows] = useState([])

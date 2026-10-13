@@ -4,7 +4,8 @@ import { Share2, AlertCircle } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
-import { colors, fonts, spacing } from '../constants/theme'
+import { fonts, spacing } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { formatGeneratedDocument } from '../lib/formatGeneratedDocument'
 
@@ -38,6 +39,7 @@ function formatDate(dateStr) {
 }
 
 export default function OutputDetailScreen({ navigation, route }) {
+  const { colors } = useTheme()
   const { documentTable, documentId, serviceName, deliveredAt } = route.params || {}
   const contentColumn = CONTENT_COLUMN[documentTable]
 

@@ -13,7 +13,8 @@ import { Search, Download, FileText, Image as ImageIcon } from 'lucide-react-nat
 import ScreenHeader from '../components/ui/ScreenHeader'
 
 import Card from '../components/ui/Card'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { fileTypeLabel } from './BoardDetailScreen'
 
@@ -26,6 +27,7 @@ function formatDate(dateStr) {
 }
 
 export default function ResourceFinderScreen({ navigation }) {
+  const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
