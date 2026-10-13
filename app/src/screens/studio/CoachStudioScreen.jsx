@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, ChevronRight, UserCog, Save,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -15,10 +15,36 @@ import { supabase } from '../../lib/supabase'
 
 // Upcoming Sessions and the header stats now read live coach_bookings rows
 // (20260907120000) via the coach's own matching_coach_reads_own_coach_bookings
-// policy — no more fabricated names/counts shown to a real coach. There is
-// still no messaging/goals-worksheet/milestone schema anywhere, so Client
-// Activity has no live data to read; it shows the same honest "Coming soon"
-// treatment already used below for Earnings rather than inventing a feed.
+// policy — no more fabricated names/counts shown to a real coach.
+//
+// Client Activity and Earnings were re-investigated once payments went live
+// (#95/#56) to see whether either stub could honestly show a real number
+// now. Neither can, so both still show an honest "not built yet" state
+// rather than a fabricated one:
+//
+//  - Client Activity: chat_rooms/chat_participants/direct_messages
+//    (20260805000000, 20261011224102) support generic 1:1 messaging, but no
+//    chat room is ever created from a coach_bookings row and there is no
+//    goals/milestone table anywhere — a coach-student conversation existing
+//    in the DB would be indistinguishable from any other direct message, so
+//    there is no "client activity for this coach" feed to query.
+//
+//  - Earnings: coach_bookings (20260907120000) has no price/amount column —
+//    a confirmed booking alone says nothing about what it was worth.
+//    partner_tier_assignments / partner_negotiation_log
+//    (20261012100000_partner_tiering_framework) DO support a per-coach
+//    negotiated commission %, but it is empty, decision-pending
+//    infrastructure today: tier/payment_option default null, and even a
+//    populated negotiated_commission_pct would be a percentage of a coach
+//    revenue stream that does not exist — Elevation/coaching access is
+//    bundled into the flat Pro subscription (create-checkout-session has no
+//    per-coach line item at all), so there is no base amount to apply a
+//    rate to. Multiplying anything together here would be a fabricated
+//    number wearing real-looking decimal places. "Sessions Delivered"
+//    stays the headline stat because it IS real; "This Period" earnings
+//    says plainly that revenue-share isn't set up instead of showing a
+//    dead-end "Coming soon" button that pre-payments copy made okay but
+//    now reads as broken.
 //
 // Specialisms are read from the coach's own coach_profiles.specialisation —
 // the only specialism field the schema has today (a single free-text value,
@@ -285,18 +311,27 @@ export default function CoachStudioScreen({ navigation }) {
           </View>
         )}
 
-        {/* Client activity — no messaging/goals/milestone schema exists yet
-            to populate a real feed, so this is an honest placeholder rather
-            than fabricated activity (same treatment as Earnings below). */}
+        {/* Client activity — no chat room is ever created from a booking and
+            there is no goals/milestone table anywhere, so there is nothing
+            real to show that is actually scoped to a coaching relationship.
+            Honest placeholder rather than fabricated activity. */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <MessageSquare size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>CLIENT ACTIVITY</Text>
         </View>
         <Card>
-          <Text style={styles.editUnlinkedText}>Coming soon — client messages and milestones will show up here.</Text>
+          <Text style={styles.editUnlinkedText}>
+            Not built yet — there's no messaging or milestone tracking tied to your coaching clients today.
+          </Text>
         </Card>
 
-        {/* Earnings */}
+        {/* Earnings — Sessions Delivered is real (same monthlyBookings as the
+            header stat). "This Period" earnings cannot honestly be a number:
+            bookings carry no price, and Elevation access is bundled into the
+            flat Pro subscription with no per-coach revenue-share decided or
+            populated yet (partner_tier_assignments / partner_negotiation_log
+            are empty infrastructure for every real coach today). So this
+            says that plainly instead of showing a dead-end button. */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <TrendingUp size={14} color={colors.navy} />
           <Text style={styles.sectionEyebrow}>EARNINGS</Text>
@@ -304,22 +339,18 @@ export default function CoachStudioScreen({ navigation }) {
         <Card style={styles.earningsCard}>
           <View style={styles.earningsRow}>
             <View style={styles.earningsTile}>
-              <Text style={styles.earningsTileLabel}>This Period</Text>
-              <Text style={[styles.earningsTileValue, { fontSize: 15 }]}>Coming soon</Text>
-            </View>
-            <View style={[styles.earningsTile, styles.earningsTileBorder]}>
               <Text style={styles.earningsTileLabel}>Sessions Delivered</Text>
               <Text style={styles.earningsTileValue}>{monthlyBookings}</Text>
             </View>
+            <View style={[styles.earningsTile, styles.earningsTileBorder]}>
+              <Text style={styles.earningsTileLabel}>This Period</Text>
+              <Text style={[styles.earningsTileValue, { fontSize: 15 }]}>Not tracked yet</Text>
+            </View>
           </View>
-          <TouchableOpacity
-            style={styles.earningsCta}
-            activeOpacity={0.8}
-            onPress={() => Alert.alert('Coming soon', 'Full earnings breakdowns arrive once payments are live.')}
-          >
-            <Text style={styles.earningsCtaText}>View Full Earnings Breakdown</Text>
-            <ChevronRight size={14} color={colors.cream} />
-          </TouchableOpacity>
+          <Text style={styles.earningsNote}>
+            Elevation coaching is included in Pro membership today — there's no revenue-share or per-coach
+            payout set up yet. We'll let you know here once that's decided.
+          </Text>
         </Card>
 
         {/* Specialisms */}
@@ -392,17 +423,15 @@ function __gs_styles(colors) {
   activityTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
 
   earningsCard: {},
-  earningsRow: { flexDirection: 'row', marginBottom: 16 },
+  earningsRow: { flexDirection: 'row', marginBottom: 14 },
   earningsTile: { flex: 1 },
   earningsTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14 },
   earningsTileLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
   earningsTileValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
-  earningsCta: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.button,
-    paddingVertical: 13,
+  earningsNote: {
+    fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18,
+    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', paddingTop: 12,
   },
-  earningsCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   specialismPill: {
