@@ -13,6 +13,7 @@ import SidebarDrawer from './SidebarDrawer'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { usePushRegistration } from '../hooks/usePushRegistration'
+import { useNotificationDeepLinking } from '../hooks/useNotificationDeepLinking'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
 import TabCoachMark from '../components/onboarding/TabCoachMark'
@@ -308,6 +309,7 @@ function AppShell() {
   // context ("notify me about my Blueprint") rather than being a blind
   // launch-time prompt. See usePushRegistration/pushNotifications.js.
   usePushRegistration()
+  useNotificationDeepLinking()
 
   const { user } = useAuth()
   const [showCoachMark, setShowCoachMark] = useState(false)

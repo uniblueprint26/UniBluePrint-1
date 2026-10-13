@@ -17,6 +17,7 @@ import { AuthProvider } from './src/context/AuthContext'
 import { ThemeProvider, useTheme } from './src/context/ThemeContext'
 import RootNavigator from './src/navigation'
 import { linking } from './src/navigation/linking'
+import { navigationRef } from './src/navigation/navigationRef'
 import LoadingScreen from './src/components/ui/LoadingScreen'
 import ErrorBoundary from './src/components/ErrorBoundary'
 
@@ -159,7 +160,7 @@ function AppChrome() {
       {/* chromeBg is a dark navy (light mode) / near-black (dark mode) in
           both palettes, so light status bar icons are correct either way. */}
       <StatusBar style="light" backgroundColor={colors.chromeBg} />
-      <NavigationContainer linking={linking} fallback={null}>
+      <NavigationContainer ref={navigationRef} linking={linking} fallback={null}>
         <RootNavigator />
       </NavigationContainer>
     </>
