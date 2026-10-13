@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { View, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, BookOpen } from 'lucide-react-native'
-import { colors, spacing } from '../../constants/theme'
+import { spacing } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
@@ -99,6 +100,7 @@ const STEPS = [
 ]
 
 export default function ApplicationFormBuilderScreen({ navigation }) {
+  const { colors } = useTheme()
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
   const [values, setValues] = useState(DEFAULT_VALUES)

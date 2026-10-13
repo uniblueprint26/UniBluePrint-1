@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { View, Text } from 'react-native'
-import { fonts, colors } from '../../constants/theme'
+import { fonts } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
@@ -265,6 +266,7 @@ const STEPS = [
 ]
 
 export default function CvBuilderScreen({ navigation }) {
+  const { colors } = useTheme()
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cv:${user.id}` : null, values, setValues)

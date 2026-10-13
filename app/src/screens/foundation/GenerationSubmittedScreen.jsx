@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CheckCircle2, UserCheck } from 'lucide-react-native'
-import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
+import { fonts, radius, spacing, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import BlueprintGrid from '../../components/ui/BlueprintGrid'
 import Button from '../../components/ui/Button'
 
@@ -22,6 +23,7 @@ import Button from '../../components/ui/Button'
 const LOADING_DURATION = 1100
 
 export default function GenerationSubmittedScreen({ navigation, route }) {
+  const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   const { serviceTitle, tier } = route.params || {}
   const isPremium = tier === 'premium'

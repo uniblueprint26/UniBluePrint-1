@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native'
-import { fonts, colors } from '../../constants/theme'
+import { fonts } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useState, useRef } from 'react'
@@ -131,6 +132,7 @@ const STEPS = [
 ]
 
 export default function LinkedinBuilderScreen({ navigation }) {
+  const { colors } = useTheme()
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:linkedin:${user.id}` : null, values, setValues)

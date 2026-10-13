@@ -8,7 +8,8 @@ import {
 } from 'lucide-react-native'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
+import { fonts, radius, spacing, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { FieldLabel, FormTextInput, FormTextArea } from '../../components/forms/FormControls'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import EmptyState from '../../components/ui/EmptyState'
@@ -140,6 +141,7 @@ const ADD_STEPS = [
 ]
 
 export default function EvidenceBankScreen({ navigation }) {
+  const { colors } = useTheme()
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
 

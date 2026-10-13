@@ -11,7 +11,8 @@ import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import { useWeekendDeliveryCopy } from '../hooks/useWeekendDeliveryCopy'
 import UBPLogo from '../components/ui/UBPLogo'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
@@ -141,6 +142,7 @@ const TRUST_POINTS = [
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function FoundationScreen({ navigation }) {
+  const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   const [selected, setSelected] = useState(null)
   // From 11pm Saturday to 8am Monday the team is closed for the weekend, so
