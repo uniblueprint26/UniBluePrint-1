@@ -23,7 +23,8 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { formatNumber } from '../utils/formatNumber'
 import { useAuth } from '../context/AuthContext'
@@ -41,6 +42,8 @@ const SHORTCUTS = [
 ]
 
 export default function LifestyleBudgetingPreviewScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -245,7 +248,8 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: {
@@ -320,4 +324,5 @@ const styles = StyleSheet.create({
   tipCard: { marginTop: spacing.md, backgroundColor: colors.navy, padding: 18 },
   tipEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', letterSpacing: 1 },
   tipText: { fontFamily: fonts.sans, fontSize: 14, color: colors.cream, lineHeight: 21, marginTop: 8 },
-})
+  })
+}

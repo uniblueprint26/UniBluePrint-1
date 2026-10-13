@@ -44,7 +44,8 @@ import SectionHeader from '../components/ui/SectionHeader'
 import {
   CATEGORY_META, PartnerDetailSheet, PartnerExpandCard,
 } from '../components/lifestyle/PartnerCards'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { PARTNERS } from '../data/lifestylePartners'
 
@@ -91,6 +92,8 @@ const CATEGORY_ICON_FALLBACK = { fitness: ShoppingBag, beauty: Sparkles, fashion
 // category's accent colour, the category icon, and the partner's
 // monogram — never a fake stock photo standing in. ─────────────────────────
 function ProductPlaceholder({ partner, hero }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
   const Icon = CATEGORY_META[partner.filterKey]?.Icon || CATEGORY_ICON_FALLBACK[partner.filterKey] || ShoppingBag
 
@@ -144,6 +147,8 @@ function ProductPlaceholder({ partner, hero }) {
 // (tracked by the FlatList's own viewability callback below, not a
 // per-tile scroll listener), then stays put. ───────────────────────────────
 function DealTile({ item, revealed, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const opacity = useRef(new Animated.Value(0)).current
   const scale = useRef(new Animated.Value(0.92)).current
   const played = useRef(false)
@@ -176,6 +181,8 @@ function DealTile({ item, revealed, onPress }) {
 }
 
 export default function LifestyleFeaturedDealsScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const [detailPartnerId, setDetailPartnerId] = useState(null)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
@@ -306,7 +313,8 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   list:   { flex: 1 },
 
@@ -399,4 +407,5 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white,
   },
   exploreMoreText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-})
+  })
+}

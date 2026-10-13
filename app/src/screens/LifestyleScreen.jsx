@@ -7,7 +7,8 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import FeatureCard from '../components/ui/FeatureCard'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
 
@@ -58,6 +59,8 @@ const FEATURES = [
 ]
 
 export default function LifestyleScreen({ navigation, route }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
 
   // A highlight arriving from a deep link (e.g. Elevation Blueprint's
@@ -134,7 +137,8 @@ export default function LifestyleScreen({ navigation, route }) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   // Integrated header + hero
@@ -164,4 +168,5 @@ const styles = StyleSheet.create({
   crisisTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.white },
   crisisSub:   { fontFamily: fonts.sans, fontSize: 11.5, color: 'rgba(255,255,255,0.85)', marginTop: 1 },
   crisisLink:  { fontFamily: fonts.sansBold, fontSize: 11.5, color: colors.white, textDecorationLine: 'underline' },
-})
+  })
+}

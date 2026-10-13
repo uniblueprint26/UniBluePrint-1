@@ -18,7 +18,8 @@ import { Plus, MessageSquare, ThumbsUp, X, Search, Send, Check, Flag } from 'luc
 import ScreenHeader from '../components/ui/ScreenHeader'
 
 import Card from '../components/ui/Card'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -36,6 +37,9 @@ function timeAgo(dateStr) {
 }
 
 export default function ModuleQAScreen({ navigation, route }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const f = __gs_f(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
@@ -361,7 +365,8 @@ export default function ModuleQAScreen({ navigation, route }) {
   )
 }
 
-const f = StyleSheet.create({
+function __gs_f(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -382,9 +387,11 @@ const f = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginTop: 20,
   },
   submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
@@ -431,4 +438,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 13, color: colors.navy, maxHeight: 90,
   },
   solutionSendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
-})
+  })
+}

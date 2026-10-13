@@ -20,7 +20,8 @@ import UBPLogo from '../components/ui/UBPLogo'
 import Button from '../components/ui/Button'
 import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
 import InterestsModal from '../components/profile/InterestsModal'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useUserType } from '../hooks/useUserType'
 import { useInterests } from '../hooks/useInterests'
@@ -301,6 +302,8 @@ const POPULAR_TILE_COLUMNS = 2
 const POPULAR_TILE_GAP = 10
 
 function PopularCourseGrid({ items, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [containerWidth, setContainerWidth] = useState(0)
   const tileWidth = containerWidth > 0
     ? (containerWidth - POPULAR_TILE_GAP * (POPULAR_TILE_COLUMNS - 1)) / POPULAR_TILE_COLUMNS
@@ -374,6 +377,8 @@ const CROSS_IRELAND_FEATURES = [
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function CourseConnectScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [interestsModalOpen, setInterestsModalOpen] = useState(false)
@@ -765,7 +770,8 @@ export default function CourseConnectScreen({ navigation }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   // Hero (includes stats)
@@ -900,4 +906,5 @@ const styles = StyleSheet.create({
   primaryBtn:     { marginTop: spacing.lg },
   secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.white, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-})
+  })
+}

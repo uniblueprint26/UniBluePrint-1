@@ -26,7 +26,8 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 
@@ -56,6 +57,8 @@ const WELLBEING_RESOURCES = [
 ]
 
 function SupportLineRow({ line, accent, last }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <TouchableOpacity
       activeOpacity={line.link ? 0.75 : 1}
@@ -82,6 +85,8 @@ function SupportLineRow({ line, accent, last }) {
 // Category tile — a real grid cell (icon, accent wash, name, count), not a
 // list row: tapping opens CategorySheet below with the full list.
 function CategoryTile({ category, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const meta = CAT_META[category.key] || { Icon: Heart, accent: colors.navy }
   return (
     <TouchableOpacity style={styles.catTile} activeOpacity={0.85} onPress={onPress}>
@@ -99,6 +104,8 @@ function CategoryTile({ category, onPress }) {
 // bottom safe-area padding fix, so a long category list never sits flush
 // against — or under — a device's home indicator / gesture bar.
 function CategorySheet({ category, visible, onClose }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   if (!category) return null
   const meta = CAT_META[category.key] || { Icon: Heart, accent: colors.navy }
@@ -137,6 +144,8 @@ function CategorySheet({ category, visible, onClose }) {
 }
 
 export default function LifestyleWellbeingScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const [openCategoryKey, setOpenCategoryKey] = useState(null)
   const openCategory = OTHER_CATEGORIES.find(c => c.key === openCategoryKey) || null
@@ -221,7 +230,8 @@ export default function LifestyleWellbeingScreen({ navigation }) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   heroBlock: {
@@ -305,4 +315,5 @@ const styles = StyleSheet.create({
   readTitle: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy, lineHeight: 17 },
   readMetaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   readMeta: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.muted, flexShrink: 1 },
-})
+  })
+}

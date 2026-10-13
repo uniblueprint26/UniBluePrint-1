@@ -47,7 +47,8 @@ import CampusGateModal from '../components/campusConnect/CampusGateModal'
 import { getBoard, formatCarpoolDays, readBoardRows } from '../constants/campusBoards'
 import { getCourseBoard } from '../constants/courseConnectBoards'
 import { getMarketplaceBoard } from '../constants/marketplaceBoards'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -81,6 +82,7 @@ export function fileTypeLabel(item) {
 }
 
 function Stars({ value, size = 12 }) {
+  const { colors } = useTheme()
   return (
     <View style={{ flexDirection: 'row', gap: 1 }}>
       {[1, 2, 3, 4, 5].map(n => (
@@ -91,6 +93,8 @@ function Stars({ value, size = 12 }) {
 }
 
 export default function BoardDetailScreen({ navigation, route }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const { boardKey, openPostForm, openProblemId, registry = 'campus' } = route.params ?? {}
   const board = registry === 'course' ? getCourseBoard(boardKey)
     : registry === 'marketplace' ? getMarketplaceBoard(boardKey)
@@ -1133,7 +1137,8 @@ export default function BoardDetailScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   notFound: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, padding: spacing.md },
 
@@ -1248,4 +1253,5 @@ const styles = StyleSheet.create({
   termsBody: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 21 },
   termsAcceptBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
   termsAcceptBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}

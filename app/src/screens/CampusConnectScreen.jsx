@@ -12,7 +12,8 @@ import UBPLogo from '../components/ui/UBPLogo'
 import Button from '../components/ui/Button'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 
@@ -79,6 +80,8 @@ const TILE_COLUMNS = 3
 const TILE_GAP = 10
 
 function BoardTileGrid({ tiles, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [containerWidth, setContainerWidth] = useState(0)
   const tileSize = containerWidth > 0
     ? (containerWidth - TILE_GAP * (TILE_COLUMNS - 1)) / TILE_COLUMNS
@@ -218,6 +221,8 @@ const BOARDS_DATA = [
 ]
 
 export default function CampusConnectScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const institutionShort = user?.user_metadata?.institution_short
@@ -334,7 +339,8 @@ export default function CampusConnectScreen({ navigation }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   // Hero
@@ -385,4 +391,5 @@ const styles = StyleSheet.create({
 
   // CTA
   primaryBtn:    { marginTop: spacing.lg },
-})
+  })
+}

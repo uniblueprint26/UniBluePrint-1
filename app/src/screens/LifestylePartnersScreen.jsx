@@ -30,13 +30,16 @@ import {
   FILTERS, ComingSoonGridCard, CategoryAccordion, PartnerExpandCard, PartnerDetailSheet,
   styles as partnerStyles,
 } from '../components/lifestyle/PartnerCards'
-import { colors, fonts, spacing, radius } from '../constants/theme'
+import { fonts, spacing, radius } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { PARTNERS } from '../data/lifestylePartners'
 
 const CATEGORY_KEYS = FILTERS.filter(f => f.key !== 'all').map(f => f.key)
 
 export default function LifestylePartnersScreen({ navigation, route }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
@@ -181,7 +184,8 @@ export default function LifestylePartnersScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on every platform —
@@ -219,4 +223,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
     marginTop: -6, marginBottom: 14,
   },
-})
+  })
+}

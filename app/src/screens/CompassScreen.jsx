@@ -22,7 +22,8 @@ import {
 
 import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo    from '../components/ui/UBPLogo'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 
 // iOS: no purchase CTAs or prices for the CourseCompass bundles (App Store
@@ -214,6 +215,8 @@ const FREE_TOOLS = [
 // ─── Tool card ────────────────────────────────────────────────────────────────
 
 function ToolCard({ tool }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   function open() { Linking.openURL(tool.url) }
 
   return (
@@ -245,6 +248,8 @@ function ToolCard({ tool }) {
 // ─── Free tool row ──────────────────────────────────────────────────────────
 
 function FreeToolRow({ tool }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   function open() { Linking.openURL(tool.url) }
 
   return (
@@ -269,6 +274,8 @@ function FreeToolRow({ tool }) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function CompassScreen({ navigation }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const insets = useSafeAreaInsets()
 
   return (
@@ -418,7 +425,8 @@ export default function CompassScreen({ navigation }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   // Hero
@@ -601,4 +609,5 @@ const s = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 11, color: colors.light,
     lineHeight: 17, textAlign: 'center',
   },
-})
+  })
+}
