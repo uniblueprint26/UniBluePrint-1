@@ -5,11 +5,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, CheckCircle, AlertCircle, ChevronLeft } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../../hooks/useStatusBarStyle'
 import UBPLogo from '../../components/ui/UBPLogo'
 
 export default function VerifyEmailScreen({ route, navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream strip under the status bar — the global light icons are invisible
   // here without this (L3).
   useLightBackgroundStatusBar()
@@ -102,7 +105,8 @@ export default function VerifyEmailScreen({ route, navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: { flexGrow: 1 },
 
@@ -167,4 +171,5 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm, alignSelf: 'stretch',
   },
   signInBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
-})
+  })
+}

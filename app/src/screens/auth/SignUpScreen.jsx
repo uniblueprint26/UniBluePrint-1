@@ -11,7 +11,8 @@ import {
 } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../../components/ui/UBPLogo'
 import { searchInstitutions } from '../../data/institutions'
 import { searchTrades, searchProviders } from '../../data/apprenticeships'
@@ -91,6 +92,8 @@ const SITUATIONS = [
 // ── Step progress dots ────────────────────────────────────────────────────────
 
 function StepDots({ current, total }) {
+  const { colors } = useTheme()
+  const dot = __gs_dot(colors)
   return (
     <View style={dot.row}>
       {Array.from({ length: total }).map((_, i) => (
@@ -103,16 +106,20 @@ function StepDots({ current, total }) {
   )
 }
 
-const dot = StyleSheet.create({
+function __gs_dot(colors) {
+  return StyleSheet.create({
   row:      { flexDirection: 'row', gap: 6, alignSelf: 'center', marginBottom: spacing.xl },
   pip:      { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(30,58,95,0.18)' },
   pipActive:{ width: 20, backgroundColor: colors.navy },
   pipDone:  { backgroundColor: 'rgba(30,58,95,0.45)' },
-})
+  })
+}
 
 // ── Field wrapper ─────────────────────────────────────────────────────────────
 
 function Field({ label, icon: Icon, children }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -127,6 +134,8 @@ function Field({ label, icon: Icon, children }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 
 export default function SignUpScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { signUp } = useAuth()
   const scrollRef = useRef(null)
@@ -1236,7 +1245,8 @@ export default function SignUpScreen({ navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: { flexGrow: 1 },
 
@@ -1444,4 +1454,5 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   statusCheckActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-})
+  })
+}

@@ -6,10 +6,13 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, Lock, Eye, EyeOff, AlertCircle, ChevronLeft } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../../components/ui/UBPLogo'
 
 export default function SignInScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -154,7 +157,8 @@ export default function SignInScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scroll: { flexGrow: 1 },
 
@@ -224,4 +228,5 @@ const styles = StyleSheet.create({
   // `marginTop: 24`, misaligning it next to the logo.
   textBackBtn: { alignItems: 'center', marginTop: spacing.lg },
   textBackBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
-})
+  })
+}

@@ -5,7 +5,8 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FileText, Target, Users, Heart, Calculator } from 'lucide-react-native'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../../hooks/useStatusBarStyle'
 import UBPLogo from '../../components/ui/UBPLogo'
 
@@ -50,6 +51,8 @@ const SLIDES = [
 ]
 
 export default function WelcomeScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   // Cream screen — the global light icons are invisible here without this
   // (L3).
   useLightBackgroundStatusBar()
@@ -127,7 +130,8 @@ export default function WelcomeScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   logoHeader: {
@@ -182,4 +186,5 @@ const styles = StyleSheet.create({
     height: 54, alignItems: 'center', justifyContent: 'center',
   },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-})
+  })
+}
