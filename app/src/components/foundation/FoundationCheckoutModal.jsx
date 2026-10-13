@@ -1,7 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Pressable, ActivityIndicator, Linking } from 'react-native'
 import { CreditCard, AlertCircle } from 'lucide-react-native'
-import { colors, fonts, radius, spacing } from '../../constants/theme'
+import { fonts, radius, spacing } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 
 // The real payment step for Foundation Blueprint (task #95), reused by all
@@ -37,6 +38,8 @@ function formatEuro(cents) {
 }
 
 const FoundationCheckoutModal = forwardRef(function FoundationCheckoutModal(_props, ref) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   const [state, setState] = useState({ visible: false, phase: 'idle', error: null, amountCents: null })
   const resolverRef = useRef(null)
   const pollTimerRef = useRef(null)
@@ -200,7 +203,8 @@ const FoundationCheckoutModal = forwardRef(function FoundationCheckoutModal(_pro
 
 export default FoundationCheckoutModal
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -240,4 +244,5 @@ const styles = StyleSheet.create({
   retryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.navy },
   cancelBtn: { marginTop: 14, paddingVertical: 4 },
   cancelBtnText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.muted },
-})
+  })
+}

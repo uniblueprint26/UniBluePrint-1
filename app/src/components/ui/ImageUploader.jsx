@@ -26,7 +26,8 @@ import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
 import { Camera, Upload, X, RefreshCw } from 'lucide-react-native'
 import { supabase } from '../../lib/supabase'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ export default function ImageUploader({
   label       = 'Photo',
   size        = 80,
 }) {
+  const { colors } = useTheme()
+  const s = getStyles(colors)
   const [localUri,  setLocalUri]  = useState(null)   // picked, awaiting user confirmation
   const [uploading, setUploading] = useState(false)
   const [errorMsg,  setErrorMsg]  = useState(null)
@@ -267,7 +270,8 @@ export default function ImageUploader({
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const s = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   root:  { alignItems: 'center', gap: 12 },
   label: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
@@ -314,4 +318,5 @@ const s = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 8,
   },
   changeBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-})
+  })
+}

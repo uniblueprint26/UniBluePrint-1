@@ -14,13 +14,15 @@ import {
 import { X, Plus, Star, Check } from 'lucide-react-native'
 import ImageUploader from '../ui/ImageUploader'
 import FileUploader from '../ui/FileUploader'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 function StarPicker({ value, onChange }) {
+  const { colors } = useTheme()
   return (
     <View style={{ flexDirection: 'row', gap: 6 }}>
       {[1, 2, 3, 4, 5].map(n => (
@@ -33,6 +35,8 @@ function StarPicker({ value, onChange }) {
 }
 
 function TagsInput({ value, onChange, placeholder }) {
+  const { colors } = useTheme()
+  const f = getStyles(colors)
   const [draft, setDraft] = useState('')
   function add() {
     const v = draft.trim()
@@ -71,6 +75,8 @@ function TagsInput({ value, onChange, placeholder }) {
 }
 
 function SelectPicker({ options, value, onChange }) {
+  const { colors } = useTheme()
+  const f = getStyles(colors)
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {options.map(opt => {
@@ -94,6 +100,8 @@ function SelectPicker({ options, value, onChange }) {
 // than replacing a single value — used by Carpool's "Days" field (a
 // text[] column) and any future multi-choice field.
 function MultiSelectPicker({ options, value, onChange }) {
+  const { colors } = useTheme()
+  const f = getStyles(colors)
   function toggle(opt) {
     onChange(value.includes(opt) ? value.filter(v => v !== opt) : [...value, opt])
   }
@@ -117,6 +125,8 @@ function MultiSelectPicker({ options, value, onChange }) {
 }
 
 function TogglePicker({ value, onChange, onLabel, offLabel }) {
+  const { colors } = useTheme()
+  const f = getStyles(colors)
   return (
     <TouchableOpacity style={f.toggleRow} onPress={() => onChange(!value)} activeOpacity={0.8}>
       <View style={[f.toggleTrack, value && f.toggleTrackOn]}>
@@ -131,6 +141,8 @@ export default function PostFormModal({
   visible, onClose, board, fields, tableOverride, titleOverride,
   extraValues, onPosted, userIdField = 'user_id', includePosterName = true,
 }) {
+  const { colors } = useTheme()
+  const f = getStyles(colors)
   const { user } = useAuth()
   const activeFields = fields || board?.fields || []
   const table = tableOverride || board?.table
@@ -344,7 +356,8 @@ export default function PostFormModal({
   )
 }
 
-const f = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -385,4 +398,5 @@ const f = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginTop: 20,
   },
   submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}

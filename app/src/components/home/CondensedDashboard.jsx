@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native'
 import { Bell, FileText, Users, Award } from 'lucide-react-native'
-import { colors, fonts, radius, shadows } from '../../constants/theme'
+import { fonts, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 
 // ─── Quick Access → condensed dashboard summary ────────────────────────────
@@ -37,6 +38,8 @@ const STAGE_LABEL = {
 const FALLBACK_PANEL_HEIGHT = 220
 
 function StatRow({ Icon, label, value, onPress }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   return (
     <TouchableOpacity
       style={styles.row}
@@ -59,6 +62,8 @@ function StatRow({ Icon, label, value, onPress }) {
 export default function CondensedDashboard({
   expanded, userId, unreadCount, isComplimentaryPro, isPro, subscriptionTier, navigation,
 }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   const [loading, setLoading] = useState(true)
   const [loaded, setLoaded] = useState(false)
   const [activeCount, setActiveCount] = useState(0)
@@ -171,7 +176,8 @@ export default function CondensedDashboard({
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   wrap: { overflow: 'hidden' },
   panel: {
     backgroundColor: colors.white, borderRadius: radius.card,
@@ -190,4 +196,5 @@ const styles = StyleSheet.create({
   },
   rowLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
   rowValue: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.navy, marginTop: 1 },
-})
+  })
+}

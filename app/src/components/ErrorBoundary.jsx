@@ -1,7 +1,32 @@
 import { Component } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { AlertTriangle } from 'lucide-react-native'
-import { colors, fonts, radius, spacing } from '../constants/theme'
+import { fonts, radius, spacing } from '../constants/theme'
+import { useTheme } from '../context/ThemeContext'
+
+// Plain function component so the fallback UI can use the useTheme() hook —
+// ErrorBoundary itself has to stay a class (getDerivedStateFromError/
+// componentDidCatch have no hook equivalent), and hooks can't be called
+// directly inside a class's own render().
+function ErrorFallback({ onReload }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
+  return (
+    <View style={styles.screen}>
+      <View style={styles.iconWrap}>
+        <AlertTriangle size={28} color={colors.cream} strokeWidth={2} />
+      </View>
+      <Text style={styles.title}>Something went wrong</Text>
+      <Text style={styles.body}>
+        UniBlueprint ran into a problem and couldn't show this screen. Reloading usually
+        fixes it — your data is safe.
+      </Text>
+      <TouchableOpacity style={styles.reloadBtn} activeOpacity={0.85} onPress={onReload}>
+        <Text style={styles.reloadBtnText}>Reload</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
 
 /**
  * Top-level error boundary — there was previously none anywhere in the app,
@@ -43,27 +68,14 @@ export default class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <View style={styles.screen}>
-          <View style={styles.iconWrap}>
-            <AlertTriangle size={28} color={colors.cream} strokeWidth={2} />
-          </View>
-          <Text style={styles.title}>Something went wrong</Text>
-          <Text style={styles.body}>
-            UniBlueprint ran into a problem and couldn't show this screen. Reloading usually
-            fixes it — your data is safe.
-          </Text>
-          <TouchableOpacity style={styles.reloadBtn} activeOpacity={0.85} onPress={this.handleReload}>
-            <Text style={styles.reloadBtnText}>Reload</Text>
-          </TouchableOpacity>
-        </View>
-      )
+      return <ErrorFallback onReload={this.handleReload} />
     }
     return this.props.children(this.state.resetKey)
   }
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.navy,
@@ -94,4 +106,5 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
   },
   reloadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-})
+  })
+}

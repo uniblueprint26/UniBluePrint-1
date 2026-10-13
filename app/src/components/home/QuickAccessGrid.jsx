@@ -7,7 +7,8 @@ import Animated, {
   withSpring, withTiming, withRepeat, withSequence, withDelay,
   runOnJS,
 } from 'react-native-reanimated'
-import { colors, fonts, radius, shadows } from '../../constants/theme'
+import { fonts, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // ─── Layout constants ───────────────────────────────────────────────────────
 const COLUMNS     = 2
@@ -55,6 +56,8 @@ function QuickAccessCard({
   item, index, cardWidth, itemCount, editing, isDragging,
   onNavigate, onRemove, onLongPressToggle, onDragStart, onDragMove, onDragEnd,
 }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   const home = slotPosition(index, cardWidth)
 
   const translateX = useSharedValue(home.x)
@@ -223,6 +226,8 @@ function QuickAccessCard({
 export default function QuickAccessGrid({
   items, editing, onNavigate, onReorder, onRemove, onAddPress, onLongPressToggle,
 }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   const [containerWidth, setContainerWidth] = useState(0)
   const [order, setOrder] = useState(items.map(i => i.key))
   const [draggingIndex, setDraggingIndex] = useState(null)
@@ -313,7 +318,8 @@ export default function QuickAccessGrid({
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   slot: { position: 'absolute' },
   card: {
     flex: 1, borderRadius: radius.card, padding: 13,
@@ -342,4 +348,5 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: colors.cream,
     ...shadows.card,
   },
-})
+  })
+}

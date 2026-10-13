@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Linking, Platform } from 'react-native'
 import { Crown } from 'lucide-react-native'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { WEBSITE_LINKS } from '../../constants/site'
 import Button from './Button'
 
@@ -33,6 +34,8 @@ export default function ProUpgradeGate({
   variant = 'inline',
   style,
 }) {
+  const { colors } = useTheme()
+  const styles = getStyles(colors)
   return (
     <View style={[styles.card, variant === 'screen' && styles.cardScreen, style]}>
       <View style={styles.iconBox}>
@@ -54,7 +57,8 @@ export default function ProUpgradeGate({
   )
 }
 
-const styles = StyleSheet.create({
+function getStyles(colors) {
+  return StyleSheet.create({
   card: {
     alignItems: 'center',
     backgroundColor: colors.white,
@@ -91,4 +95,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 12.5, color: colors.light,
     textAlign: 'center',
   },
-})
+  })
+}
