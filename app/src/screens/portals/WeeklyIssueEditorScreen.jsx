@@ -5,7 +5,8 @@ import { usePreventRemove } from '@react-navigation/native'
 import { ChevronLeft, Plus, Save, CheckCircle2, Newspaper } from 'lucide-react-native'
 import Card from '../../components/ui/Card'
 import EmptyState from '../../components/ui/EmptyState'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
@@ -84,6 +85,8 @@ const PAGE_FIELDS = {
 }
 
 function ContentField({ field, value, onChange }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   if (field.type === 'lines') {
     return (
       <>
@@ -118,6 +121,8 @@ function ContentField({ field, value, onChange }) {
 }
 
 export default function WeeklyIssueEditorScreen({ navigation }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -350,7 +355,8 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
@@ -392,4 +398,5 @@ const s = StyleSheet.create({
     backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 11, marginTop: 14,
   },
   saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
-})
+  })
+}

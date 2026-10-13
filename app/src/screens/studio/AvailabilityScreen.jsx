@@ -8,7 +8,8 @@ import {
 
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { useHandlerShift } from '../../hooks/useHandlerShift'
@@ -62,6 +63,8 @@ function timeSqlToIdx(timeStr) {
 }
 
 function TimeStepper({ label, valueIdx, onChange }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   function step(dir) {
     const next = Math.min(TIME_SLOTS.length - 1, Math.max(0, valueIdx + dir))
     onChange(next)
@@ -95,6 +98,8 @@ function TimeStepper({ label, valueIdx, onChange }) {
 }
 
 function DayRow({ day, state, onChange }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   function update(patch) { onChange({ ...state, ...patch }) }
 
   return (
@@ -242,6 +247,8 @@ function useHandlerAvailability(userId) {
 }
 
 export default function AvailabilityScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -411,7 +418,8 @@ export default function AvailabilityScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -532,4 +540,5 @@ const styles = StyleSheet.create({
   },
   stepperBtn: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
   stepperValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, minWidth: 14, textAlign: 'center' },
-})
+  })
+}

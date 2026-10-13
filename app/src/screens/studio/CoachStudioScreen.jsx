@@ -8,7 +8,8 @@ import {
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import ImageUploader from '../../components/ui/ImageUploader'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
@@ -41,6 +42,8 @@ function parseSpecialisms(raw) {
 // broken form. Every save is picked up by a database trigger that notifies
 // Operations/Founder, so self-edit is never silent.
 function EditProfileSection({ userId }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [loading, setLoading]     = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [profile, setProfile]   = useState(null) // { coach_slug, bio, photo_url } or null if unlinked
@@ -204,6 +207,8 @@ function useCoachBookings(userId) {
 }
 
 export default function CoachStudioScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { setPortalMode, user } = useAuth()
   const { loading: bookingsLoading, loadError: bookingsError, upcoming, activeClientCount, monthlyBookings, specialisation } = useCoachBookings(user?.id)
@@ -344,7 +349,8 @@ export default function CoachStudioScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -429,4 +435,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 12, color: '#15803D',
     textAlign: 'center', marginTop: 10,
   },
-})
+  })
+}

@@ -6,7 +6,8 @@ import * as Clipboard from 'expo-clipboard'
 
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 
 // Prompts are read live from public.prompt_library (joined to services for
@@ -15,6 +16,8 @@ import { supabase } from '../../lib/supabase'
 // content change. Operations/Founder can add more via that table directly.
 
 function PromptCard({ item }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [copied, setCopied] = useState(false)
 
   async function handleCopy() {
@@ -41,6 +44,8 @@ function PromptCard({ item }) {
 }
 
 export default function PromptLibraryScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const [query, setQuery]     = useState('')
   const [prompts, setPrompts] = useState([])
@@ -134,7 +139,8 @@ export default function PromptLibraryScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -179,4 +185,5 @@ const styles = StyleSheet.create({
   copyIconWrapDone: { backgroundColor: '#F0FDF4' },
 
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 40 },
-})
+  })
+}

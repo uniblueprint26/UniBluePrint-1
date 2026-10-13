@@ -8,7 +8,8 @@ import ScreenHeader from '../../components/ui/ScreenHeader'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import PartnerTierBadge from '../../components/ui/PartnerTierBadge'
 import FoundingPartnerBadge from '../../components/ui/FoundingPartnerBadge'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
@@ -22,6 +23,8 @@ const PAYMENT_OPTION_LABEL = {
 }
 
 export default function PartnerPortalScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { setPortalMode, user } = useAuth()
 
@@ -203,7 +206,8 @@ export default function PartnerPortalScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
@@ -247,4 +251,5 @@ const styles = StyleSheet.create({
   errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
   retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
   retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
-})
+  })
+}

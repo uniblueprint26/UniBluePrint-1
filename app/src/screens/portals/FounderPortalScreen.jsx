@@ -11,7 +11,8 @@ import ScreenHeader from '../../components/ui/ScreenHeader'
 import ImageUploader from '../../components/ui/ImageUploader'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import PartnerTieringAdmin from '../../components/portals/PartnerTieringAdmin'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -65,6 +66,8 @@ function nameForFeatured(row) {
 // record. See migration 20260811090000 for why coach_profiles.user_id is
 // nullable: most coaches/partners are not registered platform accounts.
 function PhotoPickerModal({ visible, onClose, entity }) {
+  const { colors } = useTheme()
+  const pm = __gs_pm(colors)
   const [currentUrl, setCurrentUrl] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -147,7 +150,8 @@ function PhotoPickerModal({ visible, onClose, entity }) {
   )
 }
 
-const pm = StyleSheet.create({
+function __gs_pm(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
   sheet: { backgroundColor: colors.white, borderRadius: radius.card, padding: spacing.lg, width: '100%', maxWidth: 360 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
@@ -160,9 +164,13 @@ const pm = StyleSheet.create({
   errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
   retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
   retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
-})
+  })
+}
 
 export default function FounderPortalScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const pm = __gs_pm(colors)
   const insets = useSafeAreaInsets()
   const { setPortalMode } = useAuth()
 
@@ -540,7 +548,8 @@ export default function FounderPortalScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -610,4 +619,5 @@ const styles = StyleSheet.create({
   errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
   retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
   retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
-})
+  })
+}

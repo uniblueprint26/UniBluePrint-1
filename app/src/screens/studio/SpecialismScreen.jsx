@@ -6,7 +6,8 @@ import { Info, Star } from 'lucide-react-native'
 import Card from '../../components/ui/Card'
 import StudioTabBar from '../../components/ui/StudioTabBar'
 import EmptyState from '../../components/ui/EmptyState'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 
@@ -23,6 +24,8 @@ const CONFIDENCE_STYLE = {
 }
 
 function ConfidenceChip({ level }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const style = CONFIDENCE_STYLE[level] || CONFIDENCE_STYLE.Developing
   return (
     <View style={[styles.chip, { backgroundColor: style.bg }]}>
@@ -32,6 +35,8 @@ function ConfidenceChip({ level }) {
 }
 
 function SpecialismCard({ item }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const trainingReplaced = item.ticketsCompleted >= 10
   return (
     <Card style={styles.specCard}>
@@ -64,6 +69,8 @@ function SpecialismCard({ item }) {
 }
 
 export default function SpecialismScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const [specialisms, setSpecialisms] = useState([])
@@ -142,7 +149,8 @@ export default function SpecialismScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -191,4 +199,5 @@ const styles = StyleSheet.create({
     marginTop: 12, paddingTop: 12,
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
   },
-})
+  })
+}

@@ -9,7 +9,8 @@ import {
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import StudioTabBar from '../../components/ui/StudioTabBar'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { useHandlerShift } from '../../hooks/useHandlerShift'
 import { useHandlerTickets, ticketUrgency, getTicketDisplayName } from '../../hooks/useHandlerTickets'
@@ -39,6 +40,8 @@ function formatDeadline(iso) {
 }
 
 function StatusChip({ online }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={[styles.statusChip, online ? styles.statusChipOn : styles.statusChipOff]}>
       <View style={[styles.statusDot, { backgroundColor: online ? '#16A34A' : colors.light }]} />
@@ -50,6 +53,8 @@ function StatusChip({ online }) {
 }
 
 function TicketCard({ ticket }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const tierLabel = ticket.tier === 'premium' ? 'Pro' : 'Standard'
   const isPro = tierLabel === 'Pro'
   const serviceType = ticket.services?.name || 'Service'
@@ -88,6 +93,8 @@ function TicketCard({ ticket }) {
 }
 
 export default function StudioQueueScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const { clockedIn, busy, clockIn, clockOut, reload: reloadShift } = useHandlerShift(user?.id)
@@ -174,7 +181,8 @@ export default function StudioQueueScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
 
@@ -236,4 +244,5 @@ const styles = StyleSheet.create({
     paddingVertical: 60, gap: 12,
   },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center' },
-})
+  })
+}

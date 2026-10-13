@@ -9,7 +9,8 @@ import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import PartnerTieringAdmin from '../../components/portals/PartnerTieringAdmin'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { formatNumber } from '../../utils/formatNumber'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -23,6 +24,8 @@ function formatCents(cents) {
 }
 
 export default function FinancePortalScreen({ navigation }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { setPortalMode } = useAuth()
 
@@ -186,7 +189,8 @@ export default function FinancePortalScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   scrollView: { flex: 1 },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
@@ -216,4 +220,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)',
   },
   retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
-})
+  })
+}
