@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native'
 import { Award } from 'lucide-react-native'
-import { fonts, radius, colors } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // "Founding Partner" pill — timing-only badge, entirely decoupled from tier
 // and payment option (docs/business/partner-tiering-framework.md: "join
@@ -11,6 +12,8 @@ import { fonts, radius, colors } from '../../constants/theme'
 // — never a hardcoded true.
 
 export default function FoundingPartnerBadge({ founding = false, compact = false, style }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   if (!founding) return null
   return (
     <View style={[styles.badge, compact && styles.badgeCompact, style]}>
@@ -20,7 +23,8 @@ export default function FoundingPartnerBadge({ founding = false, compact = false
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -45,4 +49,5 @@ const styles = StyleSheet.create({
   textCompact: {
     fontSize: 10,
   },
-})
+  })
+}

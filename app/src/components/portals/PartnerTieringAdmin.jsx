@@ -10,7 +10,8 @@ import {
 import Card from '../ui/Card'
 import PartnerTierBadge from '../ui/PartnerTierBadge'
 import FoundingPartnerBadge from '../ui/FoundingPartnerBadge'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
@@ -49,6 +50,8 @@ function sameEntity(a, b) {
 }
 
 export default function PartnerTieringAdmin() {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const { isFinance, isFounder } = useAuth()
   // Anyone holding finance or founder — the backend's is_finance_or_founder()
   // check, mirrored client-side (see header comment).
@@ -186,6 +189,8 @@ export default function PartnerTieringAdmin() {
 
 // ── Manage one entity's tier / payment option / founding badge ────────────
 function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onViewHistory }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [savingTier, setSavingTier] = useState(false)
   const [savingPayment, setSavingPayment] = useState(false)
   const [savingBadge, setSavingBadge] = useState(false)
@@ -456,6 +461,8 @@ function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onVie
 // ── Negotiation history — finance/founder only (also enforced server-side
 // by get_negotiation_history itself, which returns nothing to anyone else) ──
 function NegotiationHistoryModal({ entity, onClose }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -529,7 +536,8 @@ function NegotiationHistoryModal({ entity, onClose }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
   sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
   sectionCaption: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginBottom: 10, lineHeight: 17 },
@@ -614,4 +622,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.infoBg, borderRadius: radius.button, padding: 12,
   },
   financeOnlyText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
-})
+  })
+}

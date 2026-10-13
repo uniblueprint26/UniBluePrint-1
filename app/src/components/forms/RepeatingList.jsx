@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Plus, Trash2 } from 'lucide-react-native'
 import Card from '../ui/Card'
-import { colors, fonts, radius, spacing } from '../../constants/theme'
+import { fonts, radius, spacing } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // A list of repeatable entry cards — education history, work experience, etc.
 // `renderEntry(entry, onChangeEntry)` renders one entry's fields; `emptyEntry` is
@@ -9,6 +10,8 @@ import { colors, fonts, radius, spacing } from '../../constants/theme'
 // list reads as broken, not "add your first one").
 
 export default function RepeatingList({ entries, onChange, renderEntry, emptyEntry, addLabel }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const list = entries && entries.length > 0 ? entries : [emptyEntry]
 
   function updateEntry(i, next) {
@@ -50,7 +53,8 @@ export default function RepeatingList({ entries, onChange, renderEntry, emptyEnt
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   entryCard: { padding: 16, gap: 12 },
   removeBtn: { position: 'absolute', top: 10, right: 10, padding: 4, zIndex: 1 },
   addBtn: {
@@ -59,4 +63,5 @@ const s = StyleSheet.create({
     borderStyle: 'dashed',
   },
   addBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-})
+  })
+}

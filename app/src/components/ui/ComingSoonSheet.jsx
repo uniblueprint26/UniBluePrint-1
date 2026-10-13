@@ -1,6 +1,7 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native'
 import { X } from 'lucide-react-native'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // Shared "Coming Soon" bottom sheet — opened both from a Lifestyle Blueprint
 // coming-soon grid card and from tapping a greyed-out pin on the partner map.
@@ -8,6 +9,8 @@ import { colors, fonts, radius } from '../../constants/theme'
 // card/pin (name, county, category) — it's the partner's specific deal
 // (pricing, how-to-start) that's still pending, not their identity.
 export default function ComingSoonSheet({ visible, onClose }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
@@ -33,7 +36,8 @@ export default function ComingSoonSheet({ visible, onClose }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -67,4 +71,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28, paddingVertical: 12,
   },
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
-})
+  })
+}

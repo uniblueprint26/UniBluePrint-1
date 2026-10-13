@@ -10,9 +10,12 @@
 import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { X } from 'lucide-react-native'
 import { CAMPUS_BOARDS } from '../../constants/campusBoards'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 export default function BoardPickerModal({ visible, onClose, onPick }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const tiles = CAMPUS_BOARDS.filter(b => !b.coming)
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -49,7 +52,8 @@ export default function BoardPickerModal({ visible, onClose, onPick }) {
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -64,4 +68,5 @@ const s = StyleSheet.create({
   },
   tileIcon: { fontSize: 24 },
   tileTitle: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.navy, textAlign: 'center', lineHeight: 15 },
-})
+  })
+}

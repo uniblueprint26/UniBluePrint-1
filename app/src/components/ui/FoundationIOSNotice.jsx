@@ -2,7 +2,8 @@ import { View, Text, StyleSheet, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { UserCheck } from 'lucide-react-native'
 import ScreenHeader from './ScreenHeader'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { FOUNDATION_WEBSITE_LINKS } from '../../constants/site'
 
 // iOS only (App Store 3.1.1, D1 — the same decision PricingScreen already
@@ -25,6 +26,8 @@ import { FOUNDATION_WEBSITE_LINKS } from '../../constants/site'
 export const IS_IOS = Platform.OS === 'ios'
 
 export default function FoundationIOSNotice({ navigation, serviceTitle }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   // Plain display text, not a link — the exact page this service lives on
   // (src/pages/foundation/*Page.jsx on the website), stripped of its
@@ -61,7 +64,8 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   headerTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream },
@@ -78,4 +82,5 @@ const styles = StyleSheet.create({
   badgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
 
   sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 16, lineHeight: 19 },
-})
+  })
+}

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { View, Image, Animated, Easing, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { colors, radius } from '../../constants/theme'
+import { radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 /**
  * LoadingScreen — the app's single loading/splash surface.
@@ -24,6 +25,8 @@ const SWEEP_DURATION = 1500
 const SWEEP_PAUSE = 950
 
 export default function LoadingScreen() {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const sweep = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -83,7 +86,8 @@ export default function LoadingScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.navy,
@@ -110,4 +114,5 @@ const styles = StyleSheet.create({
     bottom: -MARK_SIZE * 0.7,
     width: SWEEP_WIDTH,
   },
-})
+  })
+}

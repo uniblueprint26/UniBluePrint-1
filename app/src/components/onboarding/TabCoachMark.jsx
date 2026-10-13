@@ -21,7 +21,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useWindowDimensions } from 'react-native'
 import { Platform } from 'react-native'
 import { FileText, TrendingUp, X } from 'lucide-react-native'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // Must track MainTabsInner's own tabBarStyle.height in navigation/index.jsx —
 // duplicated here (rather than imported) because that value lives inside a
@@ -30,6 +31,8 @@ const TAB_BAR_BASE_HEIGHT = 56
 const ROOT_TAB_COUNT = 5
 
 export default function TabCoachMark({ onDismiss }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { width } = useWindowDimensions()
   const fade = useRef(new Animated.Value(0)).current
@@ -99,7 +102,8 @@ export default function TabCoachMark({ onDismiss }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -185,4 +189,5 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '45deg' }],
     ...(Platform.OS === 'web' ? { boxShadow: '2px 2px 4px rgba(15,23,32,0.08)' } : null),
   },
-})
+  })
+}

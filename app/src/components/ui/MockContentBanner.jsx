@@ -1,8 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native'
 import { Sparkles } from 'lucide-react-native'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 export default function MockContentBanner({ title = 'Coming Soon', subtitle }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={styles.banner}>
       <Sparkles size={15} color={colors.navy} />
@@ -14,7 +17,8 @@ export default function MockContentBanner({ title = 'Coming Soon', subtitle }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   banner: {
     backgroundColor: '#EEF2FF',
     borderRadius: 10,
@@ -28,4 +32,5 @@ const styles = StyleSheet.create({
   },
   title: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
   subtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
-})
+  })
+}

@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { ArrowLeftRight } from 'lucide-react-native'
-import { colors, fonts } from '../../constants/theme'
+import { fonts } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 
 // The four Handler-side Studio screens, in the order they appear here.
@@ -29,6 +30,8 @@ const TABS = [
  * requires scrolling to find.
  */
 export default function StudioTabBar({ navigation, active }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const { setPortalMode } = useAuth()
 
   function backToMyBlueprint() {
@@ -69,7 +72,8 @@ export default function StudioTabBar({ navigation, active }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   wrap: {
     flexDirection: 'row', alignItems: 'center',
     marginTop: 14, marginHorizontal: -16, paddingHorizontal: 16, paddingBottom: 14,
@@ -91,4 +95,5 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   backLinkText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
-})
+  })
+}

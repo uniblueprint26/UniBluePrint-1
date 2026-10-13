@@ -18,9 +18,12 @@ import { Modal, View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet 
 import { X, Check, Plus } from 'lucide-react-native'
 import { useInterests, normalizeInterestLabel } from '../../hooks/useInterests'
 import { CATEGORY_LABELS } from '../../data/interests'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 export default function InterestsModal({ visible, onClose }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const { interests, predefined, max, setInterests } = useInterests()
   const [selected, setSelected] = useState([])
   const [customText, setCustomText] = useState('')
@@ -187,7 +190,8 @@ export default function InterestsModal({ visible, onClose }) {
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -239,4 +243,5 @@ const s = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', marginTop: 16,
   },
   saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
-})
+  })
+}

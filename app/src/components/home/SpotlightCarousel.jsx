@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { ChevronRight } from 'lucide-react-native'
-import { colors, fonts, radius, shadows } from '../../constants/theme'
+import { fonts, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { PartnerHeroImage } from '../lifestyle/PartnerCards'
 
 // ─── Home dashboard "Trending Right Now" carousel ─────────────────────────
@@ -52,6 +53,8 @@ function shade(hex, percent) {
 // title-initial as the last resort — same dual-support pattern as
 // FeatureCard.jsx.
 function SlideHero({ slide }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   if (slide.photoUrl) {
     // photoUrl is either a remote URL string (a founder-uploaded photo/logo)
     // or a local require()'d image module (a bundled coach/partner hero
@@ -80,6 +83,8 @@ function SlideHero({ slide }) {
 }
 
 function Slide({ slide, width, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <TouchableOpacity
       activeOpacity={0.92}
@@ -119,6 +124,8 @@ function Slide({ slide, width, onPress }) {
 }
 
 export default function SpotlightCarousel({ slides, onSlidePress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [containerWidth, setContainerWidth] = useState(0)
   const [activeIndex, setActiveIndex] = useState(0)
   const scrollRef = useRef(null)
@@ -200,7 +207,8 @@ export default function SpotlightCarousel({ slides, onSlidePress }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   scroller: { borderRadius: radius.card + 4, overflow: 'hidden' },
   slideOuter: { ...shadows.elevated },
   // Outer card clips both the hero photo (top) and the caption panel
@@ -257,4 +265,5 @@ const styles = StyleSheet.create({
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 12 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(30,58,95,0.18)' },
   dotActive: { backgroundColor: colors.gold, width: 16 },
-})
+  })
+}

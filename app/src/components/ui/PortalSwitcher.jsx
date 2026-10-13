@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // Reusable "My Blueprint" / Studio segmented toggle.
 // Shown in the top navigation bar for Handlers and Coaches, who each have
@@ -14,6 +15,8 @@ import { colors, fonts, radius } from '../../constants/theme'
 //                 or "The Elevation Studio"
 
 export default function PortalSwitcher({ active, onSwitch, studioLabel = 'The Studio' }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   return (
     <View style={styles.track}>
       <TouchableOpacity
@@ -44,7 +47,8 @@ export default function PortalSwitcher({ active, onSwitch, studioLabel = 'The St
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   track: {
     flexDirection: 'row',
     backgroundColor: colors.navy,
@@ -71,4 +75,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sansSemiBold,
     color: colors.navy,
   },
-})
+  })
+}

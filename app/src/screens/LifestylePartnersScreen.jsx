@@ -28,7 +28,7 @@ import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import PartnerMap from '../components/ui/PartnerMap'
 import {
   FILTERS, ComingSoonGridCard, CategoryAccordion, PartnerExpandCard, PartnerDetailSheet,
-  styles as partnerStyles,
+  getPartnerStyles,
 } from '../components/lifestyle/PartnerCards'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -40,6 +40,7 @@ const CATEGORY_KEYS = FILTERS.filter(f => f.key !== 'all').map(f => f.key)
 export default function LifestylePartnersScreen({ navigation, route }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
+  const partnerStyles = getPartnerStyles(colors)
   const insets = useSafeAreaInsets()
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [expandPartnerId, setExpandPartnerId] = useState(null)

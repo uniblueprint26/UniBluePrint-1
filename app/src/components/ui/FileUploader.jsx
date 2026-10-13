@@ -18,7 +18,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import * as DocumentPicker from 'expo-document-picker'
 import { FileText, Image as ImageIcon, Upload, X, CheckCircle2 } from 'lucide-react-native'
 import { supabase } from '../../lib/supabase'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 const MAX_BYTES = 15 * 1024 * 1024 // 15 MB — notes/papers are often scanned PDFs
 
@@ -31,6 +32,8 @@ function extFromNameOrType(name, mimeType) {
 }
 
 export default function FileUploader({ bucket, storagePath, onUpload, label = 'File' }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const [picked, setPicked] = useState(null) // { uri, name, mimeType, size }
   const [uploading, setUploading] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
@@ -137,7 +140,8 @@ export default function FileUploader({ bucket, storagePath, onUpload, label = 'F
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   root: { gap: 8 },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
   pickBtn: {
@@ -159,4 +163,5 @@ const s = StyleSheet.create({
   doneText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
   changeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
   errorText: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive },
-})
+  })
+}

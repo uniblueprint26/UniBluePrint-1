@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { View, Text, StyleSheet, Animated, TextInput, TouchableOpacity, ScrollView, Keyboard, PanResponder, Platform } from 'react-native'
 import Svg, { Path, Circle, Ellipse, G, Defs, RadialGradient, Stop, Text as SvgText, Line, Rect } from 'react-native-svg'
 import { Lock, Search, X, Plus, Minus, RotateCcw } from 'lucide-react-native'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../../data/lifestylePartners'
 import ComingSoonSheet from './ComingSoonSheet'
 
@@ -288,6 +289,8 @@ function SignalRing({ x, y, color, maxR = 24, duration = 1900 }) {
 }
 
 export default function PartnerMap({ onViewListing }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [active, setActive] = useState(null)
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [ping, setPing] = useState(null)
@@ -755,7 +758,8 @@ export default function PartnerMap({ onViewListing }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   wrap: { alignItems: 'center', gap: spacing.sm },
   stageWrap: { width: '100%' },
   // overflow: hidden clips a pinched-in map to its own rounded footprint
@@ -847,4 +851,5 @@ const styles = StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   legendDot: { width: 9, height: 9, borderRadius: 4.5 },
   legendText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)' },
-})
+  })
+}

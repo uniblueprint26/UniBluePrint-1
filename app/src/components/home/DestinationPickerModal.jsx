@@ -1,6 +1,7 @@
 import { View, Text, Modal, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { X } from 'lucide-react-native'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // Add-a-shortcut picker — shown from the Quick Access "+" slot while editing.
 // Lists every destination not already on the board; tapping one adds it and
@@ -14,6 +15,8 @@ import { colors, fonts, radius } from '../../constants/theme'
 // exists to make that framing explicit rather than let the two features
 // read as duplicates.
 export default function DestinationPickerModal({ visible, options, slotsLeft, onPick, onClose }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.backdrop}>
@@ -61,7 +64,8 @@ export default function DestinationPickerModal({ visible, options, slotsLeft, on
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', alignItems: 'center', justifyContent: 'center', padding: 20 },
   sheet: { backgroundColor: colors.white, borderRadius: radius.card, padding: 20, width: '100%', maxWidth: 380 },
   header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14, gap: 12 },
@@ -75,4 +79,5 @@ const s = StyleSheet.create({
   rowIcon: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   rowLabel: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', paddingVertical: 20 },
-})
+  })
+}

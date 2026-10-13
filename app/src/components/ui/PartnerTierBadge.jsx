@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native'
-import { fonts, radius, colors } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // Access / Plus / Signature tier pill — see
 // docs/business/partner-tiering-framework.md and migration
@@ -14,13 +15,17 @@ import { fonts, radius, colors } from '../../constants/theme'
 // logic and no thresholds; the tier value itself is always a human judgment
 // call stored verbatim from the database, never computed here.
 const TIER_LABEL = { access: 'Access', plus: 'Plus', signature: 'Signature' }
-const TIER_STYLE = {
-  access:    { bg: 'rgba(30,58,95,0.08)',   fg: colors.navy },
-  plus:      { bg: '#FEF9C3',               fg: colors.goldDeep },
-  signature: { bg: 'rgba(124,58,237,0.1)',  fg: colors.newBadge },
+function getTierStyle(colors) {
+  return {
+    access:    { bg: 'rgba(30,58,95,0.08)',   fg: colors.navy },
+    plus:      { bg: '#FEF9C3',               fg: colors.goldDeep },
+    signature: { bg: 'rgba(124,58,237,0.1)',  fg: colors.newBadge },
+  }
 }
 
 export default function PartnerTierBadge({ tier, compact = false, style }) {
+  const { colors } = useTheme()
+  const TIER_STYLE = getTierStyle(colors)
   const label = TIER_LABEL[tier]
   if (!label) return null
   const tone = TIER_STYLE[tier]

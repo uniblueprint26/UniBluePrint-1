@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
 import { Plus, X } from 'lucide-react-native'
-import { colors, fonts, radius, spacing } from '../../constants/theme'
+import { fonts, radius, spacing } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // Shared, minimal form primitives for native question flows (CV Optimisation and,
 // following the same pattern, the other 7 Foundation Blueprint services). The app
@@ -12,6 +13,8 @@ import { colors, fonts, radius, spacing } from '../../constants/theme'
 // DOM.
 
 export function FieldLabel({ children, hint, required }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   return (
     <View style={{ marginBottom: 8 }}>
       <Text style={s.label}>
@@ -24,6 +27,8 @@ export function FieldLabel({ children, hint, required }) {
 }
 
 export function FormTextInput({ value, onChangeText, placeholder, maxLength, keyboardType, autoCapitalize }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   return (
     <TextInput
       style={s.input}
@@ -39,6 +44,8 @@ export function FormTextInput({ value, onChangeText, placeholder, maxLength, key
 }
 
 export function FormTextArea({ value, onChangeText, placeholder, maxLength, minHeight = 120 }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   return (
     <TextInput
       style={[s.input, s.textArea, { minHeight }]}
@@ -63,6 +70,8 @@ export function FormTextArea({ value, onChangeText, placeholder, maxLength, minH
 // the app (tone, length, opportunity type, etc.) is unaffected since none of
 // those options set `accent`.
 export function ChoiceGrid({ options, value, onChange, multiple = false }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   return (
     <View style={s.choiceGrid}>
       {options.map(opt => {
@@ -103,6 +112,8 @@ export function ChoiceGrid({ options, value, onChange, multiple = false }) {
 /** Free-text tag input — type a value, hit the + button (or return) to add it as a
  *  chip, tap a chip's × to remove. Used for skills (technical/soft/languages/tools). */
 export function TagInput({ values = [], onChange, placeholder }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const [draft, setDraft] = useState('')
   function commit() {
     const t = draft.trim()
@@ -153,6 +164,8 @@ export function TagInput({ values = [], onChange, placeholder }) {
 
 /** Yes/no toggle rendered as two pills — used for has_no_experience etc. */
 export function YesNoToggle({ value, onChange, yesLabel = 'Yes', noLabel = 'No' }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   return (
     <View style={s.choiceGrid}>
       <TouchableOpacity
@@ -177,7 +190,8 @@ export function YesNoToggle({ value, onChange, yesLabel = 'Yes', noLabel = 'No' 
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   label: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   hint: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   input: {
@@ -214,4 +228,5 @@ const s = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 7,
   },
   chipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
-})
+  })
+}

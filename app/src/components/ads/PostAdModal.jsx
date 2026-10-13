@@ -12,17 +12,23 @@ import {
 import { X, Globe, Building2, ShoppingBag } from 'lucide-react-native'
 import ImageUploader from '../ui/ImageUploader'
 import { supabase } from '../../lib/supabase'
-import { colors, fonts, radius } from '../../constants/theme'
+import { fonts, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 
-const BOARDS = [
+function __gs_BOARDS(colors) {
+  return [
   { key: 'cross-ireland', label: 'Cross-Ireland',  Icon: Globe,       color: colors.navy },
   { key: 'campus',        label: 'Campus Connect',  Icon: Building2,   color: '#B45309'   },
   { key: 'course',        label: 'Course Connect',  Icon: Globe,       color: '#0369A1'   },
   { key: 'marketplace',   label: 'Marketplace',     Icon: ShoppingBag, color: '#6D28D9'   },
-]
+  ]
+}
 
 export default function PostAdModal({ visible, onClose }) {
+  const { colors } = useTheme()
+  const m = __gs_m(colors)
+  const BOARDS = __gs_BOARDS(colors)
   const { user }                        = useAuth()
   const [title,       setTitle]         = useState('')
   const [description, setDescription]   = useState('')
@@ -154,7 +160,8 @@ export default function PostAdModal({ visible, onClose }) {
   )
 }
 
-const m = StyleSheet.create({
+function __gs_m(colors) {
+  return StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.cream },
   header: { backgroundColor: colors.navy, paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   headerTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
@@ -177,4 +184,5 @@ const m = StyleSheet.create({
   submitBtnDisabled: { opacity: 0.35 },
   submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
   submitNote: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, textAlign: 'center', marginTop: 14, lineHeight: 18 },
-})
+  })
+}

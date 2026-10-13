@@ -15,10 +15,13 @@ import {
 } from 'react-native'
 import { X, Search, MapPin } from 'lucide-react-native'
 import { searchInstitutions } from '../../data/institutions'
-import { colors, fonts, spacing, radius } from '../../constants/theme'
+import { fonts, spacing, radius } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 
 export default function CampusGateModal({ visible, onClose, onSelected }) {
+  const { colors } = useTheme()
+  const s = __gs_s(colors)
   const [query, setQuery] = useState('')
   const [saving, setSaving] = useState(false)
   const results = query.trim() ? searchInstitutions(query).slice(0, 8) : []
@@ -87,7 +90,8 @@ export default function CampusGateModal({ visible, onClose, onSelected }) {
   )
 }
 
-const s = StyleSheet.create({
+function __gs_s(colors) {
+  return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
@@ -110,4 +114,5 @@ const s = StyleSheet.create({
   rowName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   rowMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
   empty: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.md, textAlign: 'center' },
-})
+  })
+}

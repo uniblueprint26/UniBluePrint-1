@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AlertTriangle } from 'lucide-react-native'
-import { colors, fonts } from '../../constants/theme'
+import { fonts } from '../../constants/theme'
 import { useAuth } from '../../context/AuthContext'
 
 // Neutral copy — this used to reference a "free trial ends September 30th"

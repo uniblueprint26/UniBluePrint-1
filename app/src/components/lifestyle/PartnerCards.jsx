@@ -17,7 +17,8 @@ import {
 } from 'lucide-react-native'
 import VerifiedBadge from '../ui/VerifiedBadge'
 import ProUpgradeGate from '../ui/ProUpgradeGate'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { COACHES } from '../../screens/ElevationScreen'
 import { useAuth } from '../../context/AuthContext'
 import { logPartnerEvent } from '../../lib/partnerEvents'
@@ -91,6 +92,8 @@ export const CATEGORY_META = {
 // New partners are added with logo: null and updated via the admin-only
 // partner-logos Storage bucket. No logo assets should be committed to the repo.
 export function PartnerLogo({ partner, size = 44 }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   const bg       = partner.initBg
   const label    = partner.initials
   const fontSize = label.length > 2 ? 10 : 13
@@ -126,6 +129,8 @@ export function PartnerLogo({ partner, size = 44 }) {
 // source follows the same shape as PartnerLogo's `partner.logo`: a string
 // (remote Storage URL) or a number (static require() result).
 export function PartnerHeroImage({ source, aspectRatio = 4 / 3, style, imageStyle }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   if (!source) return null
   const resolved = typeof source === 'string' ? { uri: source } : source
   return (
@@ -140,6 +145,8 @@ export function PartnerHeroImage({ source, aspectRatio = 4 / 3, style, imageStyl
 // the app has (no in-app checkout — see PartnerDetailSheet/LifestyleFeaturedDealsScreen
 // notes), so this is where a 'partner_deal_claimed' activity event is logged.
 function ContactChip({ type, value, partner }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   const { user } = useAuth()
   const handlers = {
     instagram: () => Linking.openURL(`https://instagram.com/${value}`),
@@ -181,6 +188,8 @@ function ContactChip({ type, value, partner }) {
 // colour matching that category's filter pill, so a long list of live
 // partners reads as curated sections rather than one flat pile.
 export function CategorySectionHeader({ filterKey }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   const meta = CATEGORY_META[filterKey]
   if (!meta) return null
   return (
@@ -201,6 +210,8 @@ export function CategorySectionHeader({ filterKey }) {
 // brand name is shown; only the deal itself stays pending. Tapping still
 // opens the same "Coming Soon" sheet as a map pin. ─────────────────────────
 export function ComingSoonGridCard({ partner, onPress }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   return (
     <TouchableOpacity style={styles.soonCard} activeOpacity={0.8} onPress={onPress}>
       <View style={styles.soonIconWrap}>
@@ -223,6 +234,8 @@ export function ComingSoonGridCard({ partner, onPress }) {
 // tidy — tapping opens the full listing in PartnerDetailSheet below rather
 // than expanding in place, which would break the grid's rhythm. ─────────────
 export function PartnerGridCard({ partner, onPress, highlighted }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
   const verified = useVerifiedPartner(partner.id)
 
@@ -258,6 +271,8 @@ export function PartnerGridCard({ partner, onPress, highlighted }) {
 // below, one row per partner, tapping it opens PartnerExpandCard (the same
 // click-to-expand card used by The Collection). ─────────────────────────────
 export function PartnerListRow({ partner, onPress, highlighted }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   return (
     <TouchableOpacity
       style={[styles.listRow, highlighted && styles.listRowHighlighted]}
@@ -284,6 +299,8 @@ export function PartnerListRow({ partner, onPress, highlighted }) {
 // Categories with no live partners render nothing, same defensive pattern
 // FEATURED_DEALS uses elsewhere in Lifestyle. ────────────────────────────────
 export function CategoryAccordion({ filterKey, items, expanded, onToggle, onPressPartner, highlightId }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   const meta = CATEGORY_META[filterKey]
   if (!meta || items.length === 0) return null
   return (
@@ -329,6 +346,8 @@ export function CategoryAccordion({ filterKey, items, expanded, onToggle, onPres
 // PartnerDetailSheet for pricing/services/contact — the same one destination
 // every partner listing in the app already ends at. ─────────────────────────
 export function PartnerExpandCard({ partner, visible, onClose, onViewFull }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   const insets = useSafeAreaInsets()
   // Fetches the real handle from the backend (see hooks/usePartnerContact.js)
   // instead of reading it out of the static partner object — only while
@@ -413,6 +432,8 @@ export function PartnerExpandCard({ partner, visible, onClose, onViewFull }) {
 // presentation moved from an in-place accordion to a bottom sheet, so the
 // grid above it can stay a real grid. ───────────────────────────────────────
 export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
   // Bottom safe-area inset (home indicator on iOS, gesture bar on Android) —
   // this sheet is anchored flush to the bottom of the screen (backdrop is
   // justifyContent: 'flex-end'), and previously had no bottom padding of
@@ -663,7 +684,8 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
 
 // ─── Styles shared by every piece above, plus the grid/filter layout markup
 // both LifestyleScreen and LifestylePartnersScreen render directly. ─────────
-export const styles = StyleSheet.create({
+export function getPartnerStyles(colors) {
+  return StyleSheet.create({
   // Filter pills
   filterScroll:  { marginHorizontal: -spacing.md, marginBottom: spacing.md },
   filterContent: { paddingHorizontal: spacing.md, gap: 8, flexDirection: 'row' },
@@ -963,4 +985,5 @@ export const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#DDD6FE', marginTop: 16,
   },
   crossLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#6D28D9', lineHeight: 19, flex: 1 },
-})
+  })
+}

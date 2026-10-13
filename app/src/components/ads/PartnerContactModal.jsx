@@ -26,12 +26,12 @@
  */
 import { Modal, Pressable, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { X, MessageCircle, AtSign, Globe, Mail, Clock, Megaphone, ChevronRight } from 'lucide-react-native'
-import { colors, fonts, spacing, radius, shadows } from '../../constants/theme'
+import { fonts, spacing, radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import { CATEGORY } from '../../data/adBoardAds'
 import { usePartnerContact } from '../../hooks/usePartnerContact'
 import ProUpgradeGate from '../ui/ProUpgradeGate'
 
-const NAVY = colors.navy
 
 // One row per contact channel this partner has on file, built from the
 // fetched { email, phone, instagramHandle, tiktokHandle, websiteUrl } shape
@@ -88,6 +88,8 @@ function buildContactMethods(contact) {
 }
 
 export default function PartnerContactModal({ ad, visible, onClose }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const { contact: fetchedContact, requiresPro } = usePartnerContact(ad?.partnerSlug, { enabled: visible && !!ad?.hasContact })
   if (!ad) return null
 
@@ -118,7 +120,7 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
 
           <View style={styles.headerRow}>
             <View style={[styles.logo, { backgroundColor: cat?.bg || colors.cream }]}>
-              {cat ? <cat.Icon size={24} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={24} color={NAVY} strokeWidth={1.8} />}
+              {cat ? <cat.Icon size={24} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={24} color={colors.navy} strokeWidth={1.8} />}
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.brand} numberOfLines={2}>{name}</Text>
@@ -153,7 +155,7 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
                     onPress={m.onPress}
                   >
                     <View style={styles.methodIconWrap}>
-                      <m.Icon size={15} color={NAVY} strokeWidth={1.8} />
+                      <m.Icon size={15} color={colors.navy} strokeWidth={1.8} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.methodLabel}>{m.label}</Text>
@@ -185,7 +187,8 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(30,58,95,0.55)',
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
 
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 30 },
   logo: { width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  brand: { fontFamily: fonts.serif, fontSize: 20, color: NAVY, lineHeight: 24 },
+  brand: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, lineHeight: 24 },
   title: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
   rule: { width: 34, height: 2, backgroundColor: colors.gold, borderRadius: 1, marginTop: 16, marginBottom: 14 },
@@ -230,19 +233,20 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
   },
   methodLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
-  methodValue: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: NAVY, marginTop: 1 },
+  methodValue: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.navy, marginTop: 1 },
 
   emptyState: { marginTop: 18, alignItems: 'center', paddingVertical: 6 },
   emptyIconWrap: {
     width: 44, height: 44, borderRadius: 22,
     backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
   },
-  emptyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: NAVY, marginTop: 10 },
+  emptyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, marginTop: 10 },
   emptyBody: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, textAlign: 'center', marginTop: 6, lineHeight: 17, paddingHorizontal: 6 },
   teamBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
-    backgroundColor: NAVY, borderRadius: radius.button,
+    backgroundColor: colors.navy, borderRadius: radius.button,
     paddingHorizontal: 16, paddingVertical: 11, marginTop: 16, alignSelf: 'stretch',
   },
   teamBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.cream },
-})
+  })
+}

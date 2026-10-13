@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platfor
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { usePreventRemove } from '@react-navigation/native'
 import { ChevronLeft, X } from 'lucide-react-native'
-import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
+import { fonts, radius, spacing, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 import Button from '../ui/Button'
 
 // One-question-at-a-time flow, matching the pattern Tayyab's session is building on
@@ -30,6 +31,8 @@ import Button from '../ui/Button'
 // pattern as WeeklyIssueEditorScreen's usePreventRemove — losing up to 15
 // steps of answers to an accidental gesture otherwise had no warning at all.
 export default function QuestionFlow({ steps, values, onChange, onComplete, onExit, navigation, submitLabel = 'Submit' }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const [index, setIndex] = useState(0)
   const [error, setError] = useState(null)
@@ -179,7 +182,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
 
   header: {
@@ -216,4 +220,5 @@ const styles = StyleSheet.create({
   skipBtn: { paddingVertical: 14, paddingHorizontal: 4 },
   skipBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
   nextBtn: { flex: 1, ...shadows.card },
-})
+  })
+}

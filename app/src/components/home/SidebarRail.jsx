@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { View, TouchableOpacity, ScrollView, Animated, StyleSheet } from 'react-native'
 import { ChevronLeft, ChevronRight } from 'lucide-react-native'
 import UBPLogo from '../ui/UBPLogo'
-import { colors, radius, shadows } from '../../constants/theme'
+import { radius, shadows } from '../../constants/theme'
+import { useTheme } from '../../context/ThemeContext'
 
 // ── SidebarRail — the old narrow, icon-only nav rail, desktop/web only ─────
 //
@@ -29,6 +30,8 @@ const ICON_SIZE   = 19
 const CIRCLE_SIZE = 42
 
 export default function SidebarRail({ items, activeKey, onNavigate }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
   const [collapsed, setCollapsed] = useState(false)
   const widthAnim   = useRef(new Animated.Value(EXPANDED_WIDTH)).current
   const contentFade = useRef(new Animated.Value(1)).current
@@ -102,7 +105,8 @@ export default function SidebarRail({ items, activeKey, onNavigate }) {
   )
 }
 
-const styles = StyleSheet.create({
+function __gs_styles(colors) {
+  return StyleSheet.create({
   rail: {
     backgroundColor: colors.navy,
     borderRightWidth: 1,
@@ -145,4 +149,5 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     ...shadows.elevated,
   },
-})
+  })
+}
