@@ -518,7 +518,7 @@ function CoachCard({ coach, navigation }) {
           </View>
           <View style={styles.profileBtn}>
             <Text style={styles.profileBtnText}>View Profile</Text>
-            <ChevronRight size={13} color={colors.cream} strokeWidth={2.5} />
+            <ChevronRight size={13} color={colors.accentFg} strokeWidth={2.5} />
           </View>
         </View>
       </Card>
@@ -638,19 +638,19 @@ function __gs_fm(colors) {
     padding: spacing.lg, paddingBottom: 34,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
   input: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     padding: 14, minHeight: 100,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
     marginBottom: 12,
   },
   error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
-  sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
-  doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
-  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, lineHeight: 21, marginBottom: 20 },
+  doneBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }
 
@@ -754,7 +754,7 @@ export default function ElevationScreen({ navigation }) {
           variant="navy"
           onBack={safeGoBack}
           backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="ELEVATION BLUEPRINT"
           title="Our Coaches"
           subtitle="Verified coaches across fitness, academic grinds, trading, and marketing. Every coach is reviewed before joining the platform."
@@ -796,7 +796,7 @@ export default function ElevationScreen({ navigation }) {
                 activeOpacity={0.85}
                 onPress={() => setActive(filter)}
               >
-                <Icon size={15} color={active === filter ? colors.cream : colors.navy} strokeWidth={2} />
+                <Icon size={15} color={active === filter ? colors.accentFg : colors.textPrimary} strokeWidth={2} />
                 <Text style={[styles.filterPillLabel, active === filter && styles.filterPillLabelActive]}>{label}</Text>
               </TouchableOpacity>
             ))}
@@ -865,15 +865,15 @@ export default function ElevationScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   // Integrated header + hero
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 6, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 6, marginBottom: 10 },
 
   // Filter pills — single horizontal row, replacing the old 2-column tile
   // grid now that only 4 real categories remain post-merge (see FILTERS).
@@ -889,9 +889,9 @@ function __gs_styles(colors) {
     paddingVertical: 10, paddingHorizontal: 15,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },
-  filterPillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  filterPillLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  filterPillLabelActive: { color: colors.cream },
+  filterPillActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  filterPillLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+  filterPillLabelActive: { color: colors.accentFg },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed navy header on every platform — without
@@ -903,8 +903,8 @@ function __gs_styles(colors) {
 
   resultsCount: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginBottom: 4 },
 
-  academicBanner:     { backgroundColor: 'rgba(30,58,95,0.05)', borderRadius: radius.card, padding: 14, marginTop: 14, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)', borderLeftWidth: 3, borderLeftColor: colors.navy },
-  academicBannerTitle:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginBottom: 6 },
+  academicBanner:     { backgroundColor: 'rgba(30,58,95,0.05)', borderRadius: radius.card, padding: 14, marginTop: 14, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)', borderLeftWidth: 3, borderLeftColor: colors.accentBg },
+  academicBannerTitle:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginBottom: 6 },
   academicBannerSub:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
 
   // Group headers
@@ -913,11 +913,11 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.05)',
     borderRadius: 10,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    borderLeftWidth: 3, borderLeftColor: colors.navy,
+    borderLeftWidth: 3, borderLeftColor: colors.accentBg,
     paddingHorizontal: 16, paddingVertical: 12,
     marginBottom: 12, marginTop: spacing.xl,
   },
-  groupLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  groupLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   groupCountBadge: { backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
   groupCountText:  { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
 
@@ -925,26 +925,26 @@ function __gs_styles(colors) {
   coachCard:       { padding: 18, marginBottom: 0 },
   coachTop:        { flexDirection: 'row', alignItems: 'flex-start' },
   coachAvatarWrap: { position: 'relative' },
-  coachAvatar:     { width: 52, height: 52, borderRadius: radius.circle, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)' },
+  coachAvatar:     { width: 52, height: 52, borderRadius: radius.circle, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)' },
   // Portrait-ratio (not square/circle) so a real headshot's natural framing
   // — closer to 3:4/4:5 than 1:1 — never gets cropped to fit a round slot.
-  coachAvatarPhotoFrame: { width: 52, height: 68, borderRadius: 12, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)', overflow: 'hidden' },
+  coachAvatarPhotoFrame: { width: 52, height: 68, borderRadius: 12, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)', overflow: 'hidden' },
   coachAvatarPhoto: { width: '100%', height: '100%' },
   coachOnlineDot:  { position: 'absolute', bottom: 1, right: 1, width: 12, height: 12, borderRadius: 6, backgroundColor: '#16A34A', borderWidth: 2, borderColor: colors.white },
 
-  coachName:     { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  coachName:     { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   coachTitle:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, lineHeight: 16, marginTop: 2 },
-  coachCategory: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.65, marginTop: 2 },
+  coachCategory: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, opacity: 0.65, marginTop: 2 },
   coachLocation: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  coachTagline:  { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, marginTop: 10, fontStyle: 'italic' },
+  coachTagline:  { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, marginTop: 10, fontStyle: 'italic' },
   coachBio:      { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 10 },
 
   mentorPill:     { backgroundColor: '#F0FDF4', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 2, marginTop: 5, alignSelf: 'flex-start' },
   mentorPillText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#15803D', letterSpacing: 0.3, textTransform: 'uppercase' },
 
   servicePills:   { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
-  servicePill:    { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
-  servicePillText:{ fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
+  servicePill:    { backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
+  servicePillText:{ fontFamily: fonts.sans, fontSize: 11, color: colors.textPrimary },
 
   // Footer — row with the price on the left and the View Profile button on
   // the right. footerPrice takes flex:1 with a right margin so its text
@@ -956,10 +956,10 @@ function __gs_styles(colors) {
   coachFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   footerPrice: { flex: 1, marginRight: 12 },
   fromLabel:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  fromPrice:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 1, flexShrink: 1 },
-  profileBtn:        { flexShrink: 0, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
-  profileBtnText:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
-  profileBtnMuted:   { flexShrink: 0, backgroundColor: colors.cream, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
+  fromPrice:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginTop: 1, flexShrink: 1 },
+  profileBtn:        { flexShrink: 0, backgroundColor: colors.accentBg, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  profileBtnText:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
+  profileBtnMuted:   { flexShrink: 0, backgroundColor: colors.surfaceAlt, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
   profileBtnMutedText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
 
   // Shell card
