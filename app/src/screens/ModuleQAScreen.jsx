@@ -219,12 +219,12 @@ export default function ModuleQAScreen({ navigation, route }) {
           </View>
 
           <TouchableOpacity style={styles.postBtn} activeOpacity={0.85} onPress={() => setAskOpen(true)}>
-            <Plus size={15} color={colors.cream} />
+            <Plus size={15} color={colors.accentFg} />
             <Text style={styles.postBtnText}>Ask a Question</Text>
           </TouchableOpacity>
 
           {loading ? (
-            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.xl }} />
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filtered.length === 0 ? (
             <Text style={styles.emptyText}>No questions yet — be the first to ask.</Text>
           ) : (
@@ -289,7 +289,7 @@ export default function ModuleQAScreen({ navigation, route }) {
               />
               {!!askError && <Text style={f.error}>{askError}</Text>}
               <TouchableOpacity style={[f.submitBtn, askSaving && { opacity: 0.7 }]} activeOpacity={0.85} onPress={submitQuestion} disabled={askSaving}>
-                {askSaving ? <ActivityIndicator color={colors.cream} /> : <Check size={15} color={colors.cream} strokeWidth={2.4} />}
+                {askSaving ? <ActivityIndicator color={colors.accentFg} /> : <Check size={15} color={colors.accentFg} strokeWidth={2.4} />}
                 <Text style={f.submitBtnText}>{askSaving ? 'Posting…' : 'Post Question'}</Text>
               </TouchableOpacity>
             </ScrollView>
@@ -316,7 +316,7 @@ export default function ModuleQAScreen({ navigation, route }) {
                 <View style={styles.metaPill}><Text style={styles.metaPillText}>{selected.course}</Text></View>
                 <View style={styles.metaPill}><Text style={styles.metaPillText}>{selected.module}</Text></View>
               </View>
-              <Text style={[styles.cardBody, { fontSize: 15, marginTop: 8, color: colors.navy }]}>{selected.question_text}</Text>
+              <Text style={[styles.cardBody, { fontSize: 15, marginTop: 8, color: colors.textPrimary }]}>{selected.question_text}</Text>
               <Text style={styles.posterLine}>{selected.poster_name || 'A student'} · {timeAgo(selected.created_at)}</Text>
 
               <Text style={styles.solutionsHeading}>{answers.length} answer{answers.length !== 1 ? 's' : ''}</Text>
@@ -327,8 +327,8 @@ export default function ModuleQAScreen({ navigation, route }) {
                   return (
                     <Card key={a.id} style={[styles.card, { flexDirection: 'row', gap: 12, padding: 14 }]}>
                       <TouchableOpacity style={[styles.voteCol, voted && styles.voteColActive]} activeOpacity={0.8} onPress={() => toggleVote(a)}>
-                        <ThumbsUp size={14} color={voted ? colors.cream : colors.navy} fill={voted ? colors.cream : 'transparent'} />
-                        <Text style={[styles.voteCount, voted && { color: colors.cream }]}>{voteCounts[a.id] || 0}</Text>
+                        <ThumbsUp size={14} color={voted ? colors.accentFg : colors.textPrimary} fill={voted ? colors.accentFg : 'transparent'} />
+                        <Text style={[styles.voteCount, voted && { color: colors.accentFg }]}>{voteCounts[a.id] || 0}</Text>
                       </TouchableOpacity>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.cardBody}>{a.body}</Text>
@@ -358,7 +358,7 @@ export default function ModuleQAScreen({ navigation, route }) {
               multiline
             />
             <TouchableOpacity style={styles.solutionSendBtn} activeOpacity={0.8} onPress={postAnswer} disabled={answerSaving}>
-              <Send size={16} color={colors.cream} />
+              <Send size={16} color={colors.accentFg} />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -375,28 +375,28 @@ function __gs_f(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary, flex: 1, marginRight: 12 },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 },
   input: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     paddingHorizontal: 14, paddingVertical: 12,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   error: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive, marginTop: 14 },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginTop: 20,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, marginTop: 20,
   },
-  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
+  screen: { flex: 1, backgroundColor: colors.background },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, lineHeight: 32 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
 
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
@@ -405,40 +405,40 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: colors.surface, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginBottom: spacing.sm, ...shadows.card,
   },
-  filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
+  filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary },
 
   postBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, height: 50, marginBottom: spacing.sm,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, height: 50, marginBottom: spacing.sm,
   },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
 
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.lg, textAlign: 'center' },
 
   card: { padding: 16 },
   cardBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 6 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' },
-  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
-  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
+  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
+  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
   posterLine: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 10 },
-  viewSolutionsText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  viewSolutionsText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
   iconBtn: { padding: 4 },
 
-  voteCol: { width: 46, borderRadius: radius.card, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, gap: 3 },
-  voteColActive: { backgroundColor: colors.navy },
-  voteCount: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  voteCol: { width: 46, borderRadius: radius.card, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, gap: 3 },
+  voteColActive: { backgroundColor: colors.accentBg },
+  voteCount: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   threadHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)' },
-  threadHeaderTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  solutionsHeading: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 20, marginBottom: 10 },
+  threadHeaderTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+  solutionsHeading: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: 20, marginBottom: 10 },
   solutionInputRow: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8, padding: spacing.md,
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', backgroundColor: colors.surface,
   },
   solutionInput: {
-    flex: 1, backgroundColor: colors.cream, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10,
-    fontFamily: fonts.sans, fontSize: 13, color: colors.navy, maxHeight: 90,
+    flex: 1, backgroundColor: colors.surfaceAlt, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, maxHeight: 90,
   },
-  solutionSendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
+  solutionSendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center' },
   })
 }

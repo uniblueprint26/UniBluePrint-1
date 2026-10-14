@@ -97,7 +97,7 @@ export default function ResourceFinderScreen({ navigation }) {
           </View>
 
           {loading ? (
-            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.xl }} />
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filtered.length === 0 ? (
             <Text style={styles.emptyText}>
               {items.length === 0 ? 'No resources uploaded yet — check back once students start sharing.' : 'No resources match that search.'}
@@ -111,7 +111,7 @@ export default function ResourceFinderScreen({ navigation }) {
                     <View style={styles.metaRow}>
                       <View style={styles.metaPill}><Text style={styles.metaPillText}>{item._label}</Text></View>
                       <View style={styles.metaPill}>
-                        {isPdf ? <FileText size={11} color={colors.navy} /> : <ImageIcon size={11} color={colors.navy} />}
+                        {isPdf ? <FileText size={11} color={colors.textPrimary} /> : <ImageIcon size={11} color={colors.textPrimary} />}
                         <Text style={styles.metaPillText}> {fileTypeLabel(item)}</Text>
                       </View>
                       {!!item.institution && <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.institution}</Text></View>}
@@ -126,7 +126,7 @@ export default function ResourceFinderScreen({ navigation }) {
                       Uploaded {formatDate(item.created_at)} · {item.download_count || 0} download{(item.download_count || 0) !== 1 ? 's' : ''}
                     </Text>
                     <TouchableOpacity style={styles.downloadBtn} activeOpacity={0.85} disabled={busyId === item.id} onPress={() => download(item)}>
-                      <Download size={13} color={colors.cream} strokeWidth={2} />
+                      <Download size={13} color={colors.accentFg} strokeWidth={2} />
                       <Text style={styles.downloadBtnText}>Download</Text>
                     </TouchableOpacity>
                   </Card>
@@ -142,9 +142,9 @@ export default function ResourceFinderScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
+  screen: { flex: 1, backgroundColor: colors.background },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, lineHeight: 32 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
 
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
@@ -153,21 +153,21 @@ function getStyles(colors) {
     backgroundColor: colors.surface, borderRadius: radius.card,
     paddingHorizontal: 14, height: 48, ...shadows.card,
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
 
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.lg, textAlign: 'center' },
 
   card: { padding: 16 },
-  cardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, lineHeight: 21, marginTop: 8 },
+  cardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, lineHeight: 21, marginTop: 8 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' },
-  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
-  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
+  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
+  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
   posterLine: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 10 },
 
   downloadBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 10, marginTop: 12,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 10, marginTop: 12,
   },
-  downloadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  downloadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
   })
 }
