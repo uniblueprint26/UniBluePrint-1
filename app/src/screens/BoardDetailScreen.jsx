@@ -506,7 +506,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         {extra}
         {!own && (
           <TouchableOpacity style={styles.msgBtn} activeOpacity={0.8} onPress={() => openChat(item, board.cardTitle ? (board.cardTitle(item) || board.title) : board.title, board.title)}>
-            <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
+            <MessageSquare size={12} color={colors.textPrimary} strokeWidth={2} />
             <Text style={styles.msgBtnText}>Message</Text>
           </TouchableOpacity>
         )}
@@ -517,7 +517,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         )}
         {own && (
           <TouchableOpacity style={styles.msgBtn} activeOpacity={0.8} onPress={() => confirmRemove(item)}>
-            <Trash2 size={12} color={colors.navy} strokeWidth={2} />
+            <Trash2 size={12} color={colors.textPrimary} strokeWidth={2} />
             <Text style={styles.msgBtnText}>Remove</Text>
           </TouchableOpacity>
         )}
@@ -554,7 +554,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         <Text style={styles.cardTitle}>{club.name}</Text>
         <View style={styles.metaRow}>
           <View style={styles.metaPill}><Text style={styles.metaPillText}>{club.category}</Text></View>
-          <View style={styles.metaPill}><Users size={11} color={colors.navy} /><Text style={styles.metaPillText}> {clubCounts[club.id] || 0} member{(clubCounts[club.id] || 0) !== 1 ? 's' : ''}</Text></View>
+          <View style={styles.metaPill}><Users size={11} color={colors.textPrimary} /><Text style={styles.metaPillText}> {clubCounts[club.id] || 0} member{(clubCounts[club.id] || 0) !== 1 ? 's' : ''}</Text></View>
         </View>
         <Text style={styles.cardBody} numberOfLines={4}>{club.description}</Text>
         {!!club.contact && <Text style={styles.posterLine}>Contact: {club.contact}</Text>}
@@ -625,7 +625,7 @@ export default function BoardDetailScreen({ navigation, route }) {
           <Text style={styles.routeFrom}>{route.from_location}</Text>
         </View>
         <View style={[styles.routeRow, { marginTop: 6 }]}>
-          <MapPin size={10} color={colors.navy} />
+          <MapPin size={10} color={colors.textPrimary} />
           <Text style={styles.routeTo}>{route.to_location}</Text>
         </View>
         <View style={styles.metaRow}>
@@ -644,7 +644,7 @@ export default function BoardDetailScreen({ navigation, route }) {
           </View>
           {own ? (
             <TouchableOpacity style={styles.msgBtn} activeOpacity={0.8} onPress={() => confirmRemove(route)}>
-              <Trash2 size={12} color={colors.navy} strokeWidth={2} />
+              <Trash2 size={12} color={colors.textPrimary} strokeWidth={2} />
               <Text style={styles.msgBtnText}>Remove</Text>
             </TouchableOpacity>
           ) : (
@@ -661,7 +661,7 @@ export default function BoardDetailScreen({ navigation, route }) {
                   posterName: route.poster_name || null,
                 })}
               >
-                <MessageSquare size={12} color={colors.navy} strokeWidth={2} />
+                <MessageSquare size={12} color={colors.textPrimary} strokeWidth={2} />
                 <Text style={styles.msgBtnText}>Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => report(route, 'carpool_route')} accessibilityRole="button" accessibilityLabel="Report route">
@@ -707,8 +707,8 @@ export default function BoardDetailScreen({ navigation, route }) {
     return (
       <Card key={item.id} style={[styles.card, { flexDirection: 'row', gap: 12 }]}>
         <TouchableOpacity style={[styles.voteCol, voted && styles.voteColActive]} activeOpacity={0.8} onPress={() => toggleSuggestionVote(item)}>
-          <ThumbsUp size={16} color={voted ? colors.cream : colors.navy} fill={voted ? colors.cream : 'transparent'} />
-          <Text style={[styles.voteCount, voted && { color: colors.cream }]}>{item._upvotes}</Text>
+          <ThumbsUp size={16} color={voted ? colors.accentFg : colors.textPrimary} fill={voted ? colors.accentFg : 'transparent'} />
+          <Text style={[styles.voteCount, voted && { color: colors.accentFg }]}>{item._upvotes}</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.cardTitle}>{item.title}</Text>
@@ -765,7 +765,7 @@ export default function BoardDetailScreen({ navigation, route }) {
       <Card key={item.id} style={[styles.card, sold && { opacity: 0.6 }]}>
         <View style={styles.metaRow}>
           <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.ad_type}</Text></View>
-          {sold && <View style={[styles.metaPill, { backgroundColor: colors.navy }]}><Text style={[styles.metaPillText, { color: colors.cream }]}>SOLD</Text></View>}
+          {sold && <View style={[styles.metaPill, { backgroundColor: colors.accentBg }]}><Text style={[styles.metaPillText, { color: colors.accentFg }]}>SOLD</Text></View>}
         </View>
         <Text style={styles.cardTitle}>{item.title}</Text>
         {item.price != null && <Text style={styles.priceText}>€{item.price}</Text>}
@@ -779,7 +779,7 @@ export default function BoardDetailScreen({ navigation, route }) {
             disabled={adBusyId === item.id}
             onPress={() => setAdStatus(item, sold ? 'active' : 'sold')}
           >
-            {sold ? <RotateCcw size={12} color={colors.navy} strokeWidth={2} /> : <CheckCircle2 size={12} color={colors.navy} strokeWidth={2} />}
+            {sold ? <RotateCcw size={12} color={colors.textPrimary} strokeWidth={2} /> : <CheckCircle2 size={12} color={colors.textPrimary} strokeWidth={2} />}
             <Text style={styles.msgBtnText}>{sold ? 'Mark active' : 'Mark sold'}</Text>
           </TouchableOpacity>
         ))}
@@ -799,7 +799,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         <View style={styles.metaRow}>
           <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.listing_type}</Text></View>
           <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.category}</Text></View>
-          {sold && <View style={[styles.metaPill, { backgroundColor: colors.navy }]}><Text style={[styles.metaPillText, { color: colors.cream }]}>{soldStatus.toUpperCase()}</Text></View>}
+          {sold && <View style={[styles.metaPill, { backgroundColor: colors.accentBg }]}><Text style={[styles.metaPillText, { color: colors.accentFg }]}>{soldStatus.toUpperCase()}</Text></View>}
         </View>
         <Text style={styles.cardTitle}>{item.title}</Text>
         {item.price != null && <Text style={styles.priceText}>€{item.price}</Text>}
@@ -816,7 +816,7 @@ export default function BoardDetailScreen({ navigation, route }) {
             disabled={adBusyId === item.id}
             onPress={() => setAdStatus(item, sold ? 'active' : soldStatus)}
           >
-            {sold ? <RotateCcw size={12} color={colors.navy} strokeWidth={2} /> : <CheckCircle2 size={12} color={colors.navy} strokeWidth={2} />}
+            {sold ? <RotateCcw size={12} color={colors.textPrimary} strokeWidth={2} /> : <CheckCircle2 size={12} color={colors.textPrimary} strokeWidth={2} />}
             <Text style={styles.msgBtnText}>{sold ? (board.activeLabel || 'Mark active') : (board.soldLabel || 'Mark sold')}</Text>
           </TouchableOpacity>
         ))}
@@ -832,7 +832,7 @@ export default function BoardDetailScreen({ navigation, route }) {
       <Card key={item.id} style={styles.card}>
         <View style={styles.metaRow}>
           <View style={styles.metaPill}>
-            {isPdf ? <FileText size={11} color={colors.navy} /> : <ImageIcon size={11} color={colors.navy} />}
+            {isPdf ? <FileText size={11} color={colors.textPrimary} /> : <ImageIcon size={11} color={colors.textPrimary} />}
             <Text style={styles.metaPillText}> {fileTypeLabel(item)}</Text>
           </View>
           {!!item.institution && <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.institution}</Text></View>}
@@ -847,7 +847,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.joinBtn} activeOpacity={0.85} disabled={downloadBusyId === item.id} onPress={() => downloadFile(item)}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-              <Download size={13} color={colors.cream} strokeWidth={2} />
+              <Download size={13} color={colors.accentFg} strokeWidth={2} />
               <Text style={styles.joinBtnText}>Download</Text>
             </View>
           </TouchableOpacity>
@@ -855,7 +855,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         <View style={styles.actionsRow}>
           {own ? (
             <TouchableOpacity style={styles.msgBtn} activeOpacity={0.8} onPress={() => confirmRemove(item)}>
-              <Trash2 size={12} color={colors.navy} strokeWidth={2} />
+              <Trash2 size={12} color={colors.textPrimary} strokeWidth={2} />
               <Text style={styles.msgBtnText}>Remove</Text>
             </TouchableOpacity>
           ) : (
@@ -930,7 +930,7 @@ export default function BoardDetailScreen({ navigation, route }) {
               </View>
               <TouchableOpacity style={styles.roomyBtn} activeOpacity={0.85} onPress={() => Linking.openURL('https://www.roomy.ie')}>
                 <Text style={styles.roomyBtnText}>View on Roomy.ie</Text>
-                <ExternalLink size={12} color={colors.navy} strokeWidth={2.2} />
+                <ExternalLink size={12} color={colors.textPrimary} strokeWidth={2.2} />
               </TouchableOpacity>
             </View>
           ))}
@@ -951,7 +951,7 @@ export default function BoardDetailScreen({ navigation, route }) {
           onBack={safeGoBack}
           backLabel={backLabel}
           icon={board.Icon
-            ? <board.Icon size={28} color={colors.cream} strokeWidth={1.8} />
+            ? <board.Icon size={28} color={colors.chromeFg} strokeWidth={1.8} />
             : <Text style={styles.heroIcon}>{board.icon}</Text>}
           title={board.title}
           subtitle={board.tagline}
@@ -973,14 +973,14 @@ export default function BoardDetailScreen({ navigation, route }) {
           {renderFilterBar()}
 
           <TouchableOpacity style={styles.postBtn} activeOpacity={0.85} onPress={handlePostPress}>
-            <Plus size={15} color={colors.cream} />
+            <Plus size={15} color={colors.accentFg} />
             <Text style={styles.postBtnText}>{board.postCta}</Text>
           </TouchableOpacity>
 
           {board.special === 'reviews' && renderReviewsAggregate()}
 
           {loading ? (
-            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.xl }} />
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filteredRows.length === 0 ? (
             <Text style={styles.emptyText}>Nothing here yet — be the first to post.</Text>
           ) : (
@@ -1104,8 +1104,8 @@ export default function BoardDetailScreen({ navigation, route }) {
                   return (
                     <Card key={sol.id} style={[styles.card, { flexDirection: 'row', gap: 12, padding: 14 }]}>
                       <TouchableOpacity style={[styles.voteCol, voted && styles.voteColActive]} activeOpacity={0.8} onPress={() => toggleSolutionVote(sol)}>
-                        <ThumbsUp size={14} color={voted ? colors.cream : colors.navy} fill={voted ? colors.cream : 'transparent'} />
-                        <Text style={[styles.voteCount, voted && { color: colors.cream }]}>{solutionVoteCounts[sol.id] || 0}</Text>
+                        <ThumbsUp size={14} color={voted ? colors.accentFg : colors.textPrimary} fill={voted ? colors.accentFg : 'transparent'} />
+                        <Text style={[styles.voteCount, voted && { color: colors.accentFg }]}>{solutionVoteCounts[sol.id] || 0}</Text>
                       </TouchableOpacity>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.cardBody}>{sol.body}</Text>
@@ -1135,7 +1135,7 @@ export default function BoardDetailScreen({ navigation, route }) {
               multiline
             />
             <TouchableOpacity style={styles.solutionSendBtn} activeOpacity={0.8} onPress={postSolution} disabled={solutionSaving}>
-              <Send size={16} color={colors.cream} />
+              <Send size={16} color={colors.accentFg} />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -1146,95 +1146,95 @@ export default function BoardDetailScreen({ navigation, route }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   notFound: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, padding: spacing.md },
 
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   heroIcon: { fontSize: 30, marginBottom: 4 },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 32 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, lineHeight: 32 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
 
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
 
   postBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, height: 50, marginBottom: spacing.sm,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, height: 50, marginBottom: spacing.sm,
   },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
 
   filterBar: { marginBottom: spacing.sm },
   filterSearch: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: colors.surface, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginBottom: 8, ...shadows.card,
   },
-  filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
+  filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary },
   filterChip: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
-  filterChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  filterChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
-  filterChipTextActive: { color: colors.cream },
+  filterChipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  filterChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
+  filterChipTextActive: { color: colors.accentFg },
 
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.lg, textAlign: 'center' },
 
   card: { padding: 16 },
-  cardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, lineHeight: 21 },
+  cardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, lineHeight: 21 },
   cardBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 6 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' },
-  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
-  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
-  cardPhoto: { width: '100%', height: 160, borderRadius: radius.card, marginTop: 10, backgroundColor: colors.cream },
+  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
+  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
+  cardPhoto: { width: '100%', height: 160, borderRadius: radius.card, marginTop: 10, backgroundColor: colors.surfaceAlt },
   posterLine: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 10 },
-  priceText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 4 },
+  priceText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginTop: 4 },
 
   actionsRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
   msgBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 6 },
-  msgBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  msgBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
   iconBtn: { padding: 4 },
 
-  joinBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 10, alignItems: 'center', marginTop: 12 },
-  joinBtnActive: { backgroundColor: colors.cream, borderWidth: 1, borderColor: 'rgba(30,58,95,0.2)' },
-  joinBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
-  joinBtnTextActive: { color: colors.navy },
+  joinBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 10, alignItems: 'center', marginTop: 12 },
+  joinBtnActive: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: 'rgba(30,58,95,0.2)' },
+  joinBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
+  joinBtnTextActive: { color: colors.textPrimary },
 
-  viewSolutionsText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, marginLeft: 'auto' },
+  viewSolutionsText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary, marginLeft: 'auto' },
 
-  voteCol: { width: 46, borderRadius: radius.card, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, gap: 3 },
-  voteColActive: { backgroundColor: colors.navy },
-  voteCount: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  voteCol: { width: 46, borderRadius: radius.card, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, gap: 3 },
+  voteColActive: { backgroundColor: colors.accentBg },
+  voteCount: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   ratingGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 },
   ratingGridItem: { width: '46%' },
   ratingGridLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 3 },
-  ratingGridValue: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
-  aggregateTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  ratingGridValue: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
+  aggregateTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   roomyPanel: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card },
   roomyLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.goldDeep, letterSpacing: 0.8 },
   roomySub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 6, lineHeight: 18 },
-  roomyCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.cream, borderRadius: radius.card, padding: 12 },
-  roomyCardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  roomyCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surfaceAlt, borderRadius: radius.card, padding: 12 },
+  roomyCardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   roomyCardSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, lineHeight: 15 },
   roomyBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.surface, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)' },
-  roomyBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
+  roomyBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textPrimary },
 
   exampleBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.55)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
   exampleSheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 22, alignItems: 'center', maxWidth: 340 },
-  exampleTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginTop: 10, textAlign: 'center' },
+  exampleTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, marginTop: 10, textAlign: 'center' },
   exampleBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 8, lineHeight: 19, textAlign: 'center' },
-  exampleBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 24, paddingVertical: 11, marginTop: 16 },
-  exampleBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  exampleBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingHorizontal: 24, paddingVertical: 11, marginTop: 16 },
+  exampleBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
 
   threadHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)' },
-  threadHeaderTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  solutionsHeading: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 20, marginBottom: 10 },
+  threadHeaderTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+  solutionsHeading: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: 20, marginBottom: 10 },
   solutionInputRow: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8, padding: spacing.md,
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', backgroundColor: colors.surface,
   },
   solutionInput: {
-    flex: 1, backgroundColor: colors.cream, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10,
-    fontFamily: fonts.sans, fontSize: 13, color: colors.navy, maxHeight: 90,
+    flex: 1, backgroundColor: colors.surfaceAlt, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, maxHeight: 90,
   },
-  solutionSendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
+  solutionSendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center' },
 
   // Carpool
   safetyBanner: {
@@ -1244,11 +1244,11 @@ function __gs_styles(colors) {
   },
   safetyBannerText: { fontFamily: fonts.sans, fontSize: 12, color: '#92400E', flex: 1, lineHeight: 18 },
   routeRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  routeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.navy },
-  routeFrom: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  routeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.textPrimary },
+  routeFrom: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   routeTo: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
-  seatBadge: { backgroundColor: colors.cream, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 6 },
-  seatBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  seatBadge: { backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 6 },
+  seatBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   termsBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   termsSheet: {
@@ -1256,9 +1256,9 @@ function __gs_styles(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '85%',
   },
   termsHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },
-  termsTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  termsTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
   termsBody: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.muted, lineHeight: 21 },
-  termsAcceptBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
-  termsAcceptBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  termsAcceptBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
+  termsAcceptBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }
