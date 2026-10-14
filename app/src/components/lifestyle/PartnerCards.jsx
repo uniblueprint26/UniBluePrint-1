@@ -692,7 +692,7 @@ export function getPartnerStyles(colors) {
   filterPill: {
     paddingHorizontal: 14, paddingVertical: 7,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -723,7 +723,7 @@ export function getPartnerStyles(colors) {
   },
   gridCard: {
     width: '48%',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     overflow: 'hidden',
     paddingHorizontal: 12, paddingBottom: 12,
@@ -824,7 +824,7 @@ export function getPartnerStyles(colors) {
   // Partner List Row — Explore's collapsible category → list → card pattern
   listRow: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.white, borderRadius: radius.button,
+    backgroundColor: colors.surface, borderRadius: radius.button,
     paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8,
     borderWidth: 1, borderColor: colors.border,
   },
@@ -841,7 +841,7 @@ export function getPartnerStyles(colors) {
   accordionSection: { marginBottom: 10 },
   accordionHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.white, borderRadius: radius.button,
+    backgroundColor: colors.surface, borderRadius: radius.button,
     borderWidth: 1, borderColor: colors.border,
     paddingHorizontal: 12, paddingVertical: 12, marginBottom: 8,
   },
@@ -855,7 +855,7 @@ export function getPartnerStyles(colors) {
   // Partner Expand Card — click-to-expand quick peek (photo + brand + social),
   // same modal scaffold as the Partner Detail Sheet below, lighter content.
   expandSheet: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.card + 4,
     borderTopRightRadius: radius.card + 4,
     paddingHorizontal: 18,
@@ -886,7 +886,7 @@ export function getPartnerStyles(colors) {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
   },
   detailSheet: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.card + 4,
     borderTopRightRadius: radius.card + 4,
     paddingHorizontal: 18,

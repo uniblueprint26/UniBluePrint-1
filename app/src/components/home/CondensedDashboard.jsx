@@ -180,7 +180,7 @@ function getStyles(colors) {
   return StyleSheet.create({
   wrap: { overflow: 'hidden' },
   panel: {
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
     paddingVertical: 4, marginBottom: 14,
     ...shadows.card,
