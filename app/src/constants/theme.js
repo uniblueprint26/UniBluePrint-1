@@ -60,11 +60,11 @@ export const darkColors = {
   navy: '#1E3A5F',
   cream: '#F5F0E8',
   white: '#FFFFFF',
-  muted: '#9BA8B8',
-  light: '#7C8A9A',
+  muted: '#B6C3D3',
+  light: '#8FA0B5',
   border: 'rgba(245,240,232,0.14)',
   success: '#4ADE80',
-  destructive: '#F87171',
+  destructive: '#FCA5A5',
   gold: '#C9A24B',
   goldDeep: '#A5813B',
   goldLight: '#E4C77E',
@@ -74,16 +74,32 @@ export const darkColors = {
   successBg: 'rgba(74,222,128,0.12)',
   newBadge: '#A78BFA',
 
-  background: '#0B1623',   // near-black, navy-tinted page background
-  surface: '#132330',      // elevated card/sheet surface
-  surfaceAlt: '#17293A',
-  chromeBg: '#0B1623',     // chrome bars blend into the dark background
+  // Founder decision (2026-10-14): direct swap of the brand's own navy/
+  // cream, not a separate muted near-black palette — background IS the
+  // brand navy swatch, text IS the brand cream swatch. surface/chromeBg
+  // share one lighter navy step so cards and "always navy" chrome (TopBar,
+  // drawer) read as one consistent elevated tone against the deeper navy
+  // page; surfaceAlt mirrors light mode's own convention of equalling the
+  // page background rather than introducing a third tone. accentBg flips
+  // to the brand gold (navy page, steel-navy accent disappeared into it;
+  // gold is the one color that doesn't) with navy accentFg text, matching
+  // how gold is already used for "premium" moments everywhere else in the
+  // app. textSecondary/textTertiary/muted/light/destructive were nudged
+  // lighter than a literal cream-at-opacity would give, specifically to
+  // keep clearing WCAG AA 4.5:1 against this lighter navy (a near-black
+  // background forgives more than the actual brand navy does) — verified
+  // with a relative-luminance contrast check, not eyeballed; see the
+  // founder-approved preview at claude.ai/artifact/KYtzjKVrcyCap74hzCTUME.
+  background: '#1E3A5F',
+  surface: '#2B4A74',
+  surfaceAlt: '#1E3A5F',
+  chromeBg: '#2B4A74',
   chromeFg: '#F5F0E8',
-  accentBg: '#406A90',     // lightened steel-navy so primary actions still read against a near-black page
-  accentFg: '#F5F0E8',
+  accentBg: '#C9A24B',
+  accentFg: '#1E3A5F',
   textPrimary: '#F5F0E8',
-  textSecondary: '#9BA8B8',
-  textTertiary: '#7C8A9A',
+  textSecondary: '#B6C3D3',
+  textTertiary: '#8FA0B5',
   divider: 'rgba(245,240,232,0.14)',
   overlay: 'rgba(0,0,0,0.65)',
 }
