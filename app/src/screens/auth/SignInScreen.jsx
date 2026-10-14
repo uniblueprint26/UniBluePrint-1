@@ -58,9 +58,9 @@ export default function SignInScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
           </TouchableOpacity>
-          <UBPLogo height={33} color={colors.cream} />
+          <UBPLogo height={33} color={colors.chromeFg} />
         </View>
 
         <View style={styles.body}>
@@ -161,11 +161,11 @@ export default function SignInScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: { flexGrow: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: 32,
     flexDirection: 'row',
@@ -181,7 +181,7 @@ function __gs_styles(colors) {
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
 
-  title: { fontFamily: fonts.serif, fontSize: 34, color: colors.navy },
+  title: { fontFamily: fonts.serif, fontSize: 34, color: colors.textPrimary },
   sub: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, marginTop: 6, lineHeight: 22 },
 
   errorBanner: {
@@ -193,9 +193,9 @@ function __gs_styles(colors) {
   errorText: { fontFamily: fonts.sans, fontSize: 13, color: '#DC2626', flex: 1, lineHeight: 19 },
 
   field: { marginTop: spacing.lg },
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 8 },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 8 },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  forgotLink: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  forgotLink: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
 
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
@@ -204,25 +204,25 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
     ...shadows.card,
   },
-  input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.navy },
+  input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary },
 
   primaryBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 54, alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.xl,
   },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.accentFg },
 
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: spacing.lg },
   dividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(30,58,95,0.1)' },
   dividerText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
 
   secondaryBtn: {
-    borderWidth: 1.5, borderColor: colors.navy, borderRadius: radius.button,
+    borderWidth: 1.5, borderColor: colors.accentBg, borderRadius: radius.button,
     height: 52, alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.sm,
   },
-  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
 
   // L12: this used to be a second `backBtn`/`backBtnText` key in the same
   // StyleSheet as the round header chevron above, silently overriding it —

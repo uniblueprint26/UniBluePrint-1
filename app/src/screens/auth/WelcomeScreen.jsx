@@ -75,7 +75,7 @@ export default function WelcomeScreen({ navigation }) {
 
       {/* Logo header */}
       <View style={styles.logoHeader}>
-        <UBPLogo height={44} color={colors.navy} variant="wordmark" />
+        <UBPLogo height={44} color={colors.textPrimary} variant="wordmark" />
       </View>
 
       {/* Slides */}
@@ -90,7 +90,7 @@ export default function WelcomeScreen({ navigation }) {
         {SLIDES.map(({ icon: Icon, color, eyebrow, title, sub }, i) => (
           <View key={i} style={[styles.slide, { width }]}>
             <View style={[styles.iconWrap, { backgroundColor: color }]}>
-              <Icon size={40} color={colors.navy} />
+              <Icon size={40} color={colors.textPrimary} />
             </View>
             <Text style={styles.slideEyebrow}>{eyebrow}</Text>
             <Text style={styles.slideTitle}>{title}</Text>
@@ -132,7 +132,7 @@ export default function WelcomeScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   logoHeader: {
     flexDirection: 'row',
@@ -159,7 +159,7 @@ function __gs_styles(colors) {
   },
   slideTitle: {
     fontFamily: fonts.serif, fontSize: 38,
-    color: colors.navy, lineHeight: 46,
+    color: colors.textPrimary, lineHeight: 46,
     marginBottom: 16,
   },
   slideSub: {
@@ -172,19 +172,19 @@ function __gs_styles(colors) {
     gap: 8, paddingVertical: 20,
   },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(30,58,95,0.2)' },
-  dotActive: { width: 24, backgroundColor: colors.navy },
+  dotActive: { width: 24, backgroundColor: colors.accentBg },
 
   actions: { paddingHorizontal: spacing.md, gap: 12 },
 
   primaryBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 54, alignItems: 'center', justifyContent: 'center',
   },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.accentFg },
 
   secondaryBtn: {
     height: 54, alignItems: 'center', justifyContent: 'center',
   },
-  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   })
 }

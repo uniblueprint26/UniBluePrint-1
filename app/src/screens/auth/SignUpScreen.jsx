@@ -111,7 +111,7 @@ function __gs_dot(colors) {
   return StyleSheet.create({
   row:      { flexDirection: 'row', gap: 6, alignSelf: 'center', marginBottom: spacing.xl },
   pip:      { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(30,58,95,0.18)' },
-  pipActive:{ width: 20, backgroundColor: colors.navy },
+  pipActive:{ width: 20, backgroundColor: colors.accentBg },
   pipDone:  { backgroundColor: 'rgba(30,58,95,0.45)' },
   })
 }
@@ -462,9 +462,9 @@ export default function SignUpScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
           </TouchableOpacity>
-          <UBPLogo height={33} color={colors.cream} />
+          <UBPLogo height={33} color={colors.chromeFg} />
         </View>
 
         <View style={styles.body}>
@@ -612,7 +612,7 @@ export default function SignUpScreen({ navigation }) {
                 onPress={() => setAgreedToTerms(v => !v)}
               >
                 <View style={[styles.termsCheckbox, agreedToTerms && styles.termsCheckboxOn]}>
-                  {agreedToTerms && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                  {agreedToTerms && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
                 </View>
                 <Text style={styles.terms}>
                   I agree to the{' '}
@@ -672,7 +672,7 @@ export default function SignUpScreen({ navigation }) {
                         </Text>
                       </View>
                       <View style={[styles.situationRadio, isSelected && styles.situationRadioActive]}>
-                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                        {isSelected && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
                       </View>
                     </TouchableOpacity>
                   )
@@ -764,7 +764,7 @@ export default function SignUpScreen({ navigation }) {
                               {inst.city ? <Text style={styles.instItemCity}>{inst.city}</Text> : null}
                             </View>
                             {selectedInstitution?.id === inst.id && (
-                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                              <Check size={13} color={colors.textPrimary} strokeWidth={2.5} />
                             )}
                           </TouchableOpacity>
                         ))}
@@ -862,7 +862,7 @@ export default function SignUpScreen({ navigation }) {
                               {inst.city ? <Text style={styles.instItemCity}>{inst.city}</Text> : null}
                             </View>
                             {selectedInstitution?.id === inst.id && (
-                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                              <Check size={13} color={colors.textPrimary} strokeWidth={2.5} />
                             )}
                           </TouchableOpacity>
                         ))}
@@ -968,7 +968,7 @@ export default function SignUpScreen({ navigation }) {
                             </View>
                             <Text style={[styles.instItemName, { flex: 1 }]} numberOfLines={1}>{t.name}</Text>
                             {selectedTrade?.id === t.id && (
-                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                              <Check size={13} color={colors.textPrimary} strokeWidth={2.5} />
                             )}
                           </TouchableOpacity>
                         ))}
@@ -1038,7 +1038,7 @@ export default function SignUpScreen({ navigation }) {
                               {p.city ? <Text style={styles.instItemCity}>{p.city}</Text> : null}
                             </View>
                             {selectedProvider?.id === p.id && (
-                              <Check size={13} color={colors.navy} strokeWidth={2.5} />
+                              <Check size={13} color={colors.textPrimary} strokeWidth={2.5} />
                             )}
                           </TouchableOpacity>
                         ))}
@@ -1087,7 +1087,7 @@ export default function SignUpScreen({ navigation }) {
                         <Text style={styles.statusOptionSub}>{t.sub}</Text>
                       </View>
                       <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
-                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                        {isSelected && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
                       </View>
                     </TouchableOpacity>
                   )
@@ -1119,7 +1119,7 @@ export default function SignUpScreen({ navigation }) {
                         <Text style={styles.statusOptionSub}>{opt.sub}</Text>
                       </View>
                       <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
-                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                        {isSelected && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
                       </View>
                     </TouchableOpacity>
                   )
@@ -1218,7 +1218,7 @@ export default function SignUpScreen({ navigation }) {
                         <Text style={styles.statusOptionSub}>{opt.sub}</Text>
                       </View>
                       <View style={[styles.statusCheck, isSelected && styles.statusCheckActive]}>
-                        {isSelected && <Check size={12} color={colors.cream} strokeWidth={3} />}
+                        {isSelected && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
                       </View>
                     </TouchableOpacity>
                   )
@@ -1249,11 +1249,11 @@ export default function SignUpScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: { flexGrow: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: 28,
     flexDirection: 'row',
@@ -1266,12 +1266,12 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(245,240,232,0.16)',
     alignItems: 'center', justifyContent: 'center',
   },
-  logo: { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
+  logo: { fontFamily: fonts.serif, fontSize: 20, color: colors.chromeFg },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
 
   stepLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
-  title:     { fontFamily: fonts.serif, fontSize: 30, color: colors.navy, lineHeight: 36 },
+  title:     { fontFamily: fonts.serif, fontSize: 30, color: colors.textPrimary, lineHeight: 36 },
   sub:       { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, marginTop: 6, lineHeight: 22 },
 
   errorBanner: {
@@ -1283,7 +1283,7 @@ function __gs_styles(colors) {
   errorText: { fontFamily: fonts.sans, fontSize: 13, color: '#DC2626', flex: 1, lineHeight: 19 },
 
   field: { marginTop: spacing.lg },
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 8 },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 8 },
 
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
@@ -1296,7 +1296,7 @@ function __gs_styles(colors) {
     borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
     borderBottomColor: 'transparent',
   },
-  input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.navy, paddingVertical: 14 },
+  input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, paddingVertical: 14 },
 
   // Date of birth — three plain numeric fields (see the field's own comment
   // above for why not a native picker)
@@ -1306,10 +1306,10 @@ function __gs_styles(colors) {
   dobHint:      { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 8, lineHeight: 17 },
 
   shortBadge: {
-    backgroundColor: colors.navy, borderRadius: 6,
+    backgroundColor: colors.accentBg, borderRadius: 6,
     paddingHorizontal: 8, paddingVertical: 4, marginLeft: 6,
   },
-  shortBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.cream },
+  shortBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.accentFg },
 
   // Institution dropdown
   instDropdown: {
@@ -1328,12 +1328,12 @@ function __gs_styles(colors) {
   instItemSelected: { backgroundColor: 'rgba(30,58,95,0.04)' },
   instItemShort: {
     flexShrink: 0, minWidth: 48, maxWidth: 120,
-    backgroundColor: colors.cream, borderRadius: 6,
+    backgroundColor: colors.background, borderRadius: 6,
     paddingHorizontal: 8, paddingVertical: 4,
     alignItems: 'center',
   },
-  instItemShortText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
-  instItemName: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+  instItemShortText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textPrimary },
+  instItemName: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
   instItemCity: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
 
   instHint: {
@@ -1351,7 +1351,7 @@ function __gs_styles(colors) {
     padding: 14, marginTop: spacing.md,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.10)',
   },
-  infoText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+  infoText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
 
   // Situation selector
   situationList: { gap: 10, marginTop: spacing.lg },
@@ -1363,11 +1363,11 @@ function __gs_styles(colors) {
     ...shadows.card,
   },
   situationCardActive: {
-    borderColor: colors.navy,
+    borderColor: colors.accentBg,
     backgroundColor: 'rgba(30,58,95,0.04)',
   },
-  situationLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginBottom: 2 },
-  situationLabelActive: { color: colors.navy },
+  situationLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginBottom: 2 },
+  situationLabelActive: { color: colors.textPrimary },
   situationSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
   situationSubActive: { color: colors.muted },
   situationRadio: {
@@ -1375,7 +1375,7 @@ function __gs_styles(colors) {
     borderWidth: 2, borderColor: 'rgba(30,58,95,0.20)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  situationRadioActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  situationRadioActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
 
   termsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: spacing.lg },
   termsCheckbox: {
@@ -1383,19 +1383,19 @@ function __gs_styles(colors) {
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.25)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  termsCheckboxOn: { backgroundColor: colors.navy, borderColor: colors.navy },
+  termsCheckboxOn: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   terms: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
-  termsLink: { fontFamily: fonts.sansMedium, color: colors.navy, textDecorationLine: 'underline' },
+  termsLink: { fontFamily: fonts.sansMedium, color: colors.textPrimary, textDecorationLine: 'underline' },
 
   primaryBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 54, alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.lg,
   },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.accentFg },
 
   secondaryBtn: { alignItems: 'center', marginTop: spacing.lg },
-  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
 
   skipBtn: { alignItems: 'center', marginTop: spacing.md },
   skipBtnText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted },
@@ -1404,11 +1404,11 @@ function __gs_styles(colors) {
   tradeCategoryBadge: { flexShrink: 0, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, alignItems: 'center', minWidth: 52 },
   tradeCraft:         { backgroundColor: '#EFF6FF' },
   tradeConsortium:    { backgroundColor: '#F0FDF4' },
-  tradeCategoryText:  { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy },
+  tradeCategoryText:  { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textPrimary },
 
   // Step 3 shared sections
   sectionDivider:  { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: spacing.xl },
-  sectionLabel:    { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginBottom: 4 },
+  sectionLabel:    { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginBottom: 4 },
   sectionSub:      { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: spacing.md },
 
   // Interest chips
@@ -1419,10 +1419,10 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
   },
-  chipActive:      { backgroundColor: colors.navy, borderColor: colors.navy },
+  chipActive:      { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   chipDisabled:    { opacity: 0.35 },
-  chipText:        { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  chipTextActive:  { color: colors.cream },
+  chipText:        { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
+  chipTextActive:  { color: colors.accentFg },
 
   // Add-your-own custom interest
   customInterestRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 12 },
@@ -1430,13 +1430,13 @@ function __gs_styles(colors) {
     flex: 1, backgroundColor: colors.surface, borderRadius: 20,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
     paddingHorizontal: 14, paddingVertical: 10,
-    fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary,
   },
   customInterestAddBtn: {
-    backgroundColor: colors.navy, borderRadius: 20,
+    backgroundColor: colors.accentBg, borderRadius: 20,
     paddingHorizontal: 16, paddingVertical: 10,
   },
-  customInterestAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  customInterestAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
 
   // Availability (status) multi-select
   statusOption: {
@@ -1446,15 +1446,15 @@ function __gs_styles(colors) {
     paddingHorizontal: 16, paddingVertical: 14,
     ...shadows.card,
   },
-  statusOptionActive:       { borderColor: colors.navy, backgroundColor: 'rgba(30,58,95,0.04)' },
-  statusOptionLabel:        { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 2 },
-  statusOptionLabelActive:  { color: colors.navy },
+  statusOptionActive:       { borderColor: colors.accentBg, backgroundColor: 'rgba(30,58,95,0.04)' },
+  statusOptionLabel:        { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginBottom: 2 },
+  statusOptionLabelActive:  { color: colors.textPrimary },
   statusOptionSub:          { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
   statusCheck: {
     width: 22, height: 22, borderRadius: 4,
     borderWidth: 2, borderColor: 'rgba(30,58,95,0.20)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  statusCheckActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  statusCheckActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   })
 }

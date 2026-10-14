@@ -53,14 +53,14 @@ export default function VerifyEmailScreen({ route, navigation }) {
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+          <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
         </TouchableOpacity>
-        <UBPLogo height={33} color={colors.cream} />
+        <UBPLogo height={33} color={colors.chromeFg} />
       </View>
 
       <View style={styles.body}>
         <View style={styles.iconWrap}>
-          <Mail size={40} color={colors.navy} />
+          <Mail size={40} color={colors.textPrimary} />
         </View>
 
         <Text style={styles.title}>Check your inbox.</Text>
@@ -109,11 +109,11 @@ export default function VerifyEmailScreen({ route, navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: { flexGrow: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingTop: 20,
     paddingBottom: 32,
@@ -137,12 +137,12 @@ function __gs_styles(colors) {
     marginBottom: spacing.lg,
   },
 
-  title: { fontFamily: fonts.serif, fontSize: 34, color: colors.navy, textAlign: 'center' },
+  title: { fontFamily: fonts.serif, fontSize: 34, color: colors.textPrimary, textAlign: 'center' },
   sub: {
     fontFamily: fonts.sans, fontSize: 15, color: colors.muted,
     marginTop: 10, lineHeight: 24, textAlign: 'center',
   },
-  emailText: { fontFamily: fonts.sansSemiBold, color: colors.navy },
+  emailText: { fontFamily: fonts.sansSemiBold, color: colors.textPrimary },
 
   errorBanner: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
@@ -161,17 +161,17 @@ function __gs_styles(colors) {
   successText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#16A34A', flex: 1 },
 
   resendBtn: {
-    borderWidth: 1.5, borderColor: colors.navy, borderRadius: radius.button,
+    borderWidth: 1.5, borderColor: colors.accentBg, borderRadius: radius.button,
     height: 52, alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.xl, alignSelf: 'stretch',
   },
-  resendBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  resendBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
 
   signInBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 54, alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.sm, alignSelf: 'stretch',
   },
-  signInBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  signInBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   })
 }

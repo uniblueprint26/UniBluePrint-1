@@ -55,9 +55,9 @@ export default function ForgotPasswordScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
           </TouchableOpacity>
-          <UBPLogo height={33} color={colors.cream} />
+          <UBPLogo height={33} color={colors.chromeFg} />
         </View>
 
         <View style={styles.body}>
@@ -128,11 +128,11 @@ export default function ForgotPasswordScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: { flexGrow: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: 32,
     flexDirection: 'row',
@@ -147,7 +147,7 @@ function __gs_styles(colors) {
   },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
-  title: { fontFamily: fonts.serif, fontSize: 34, color: colors.navy },
+  title: { fontFamily: fonts.serif, fontSize: 34, color: colors.textPrimary },
   sub: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted, marginTop: 6, lineHeight: 22 },
 
   errorBanner: {
@@ -168,7 +168,7 @@ function __gs_styles(colors) {
   successSub: { fontFamily: fonts.sans, fontSize: 13, color: '#166534', lineHeight: 19 },
 
   field: { marginTop: spacing.lg },
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 8 },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 8 },
 
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
@@ -177,14 +177,14 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
     ...shadows.card,
   },
-  input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.navy },
+  input: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary },
 
   primaryBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 54, alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.xl,
   },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.accentFg },
 
   // L12: this used to be a second `backBtn`/`backBtnText` key in the same
   // StyleSheet as the round header chevron above, silently overriding it —
