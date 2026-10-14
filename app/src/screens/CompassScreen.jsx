@@ -238,9 +238,9 @@ function ToolCard({ tool }) {
 
       {/* CTA */}
       <TouchableOpacity style={s.toolCta} onPress={open} activeOpacity={0.8}>
-        <ExternalLink size={13} color={colors.cream} strokeWidth={2} />
+        <ExternalLink size={13} color={colors.accentFg} strokeWidth={2} />
         <Text style={s.toolCtaText}>Open on CourseCompass</Text>
-        <ChevronRight size={13} color={colors.cream} />
+        <ChevronRight size={13} color={colors.accentFg} />
       </TouchableOpacity>
     </View>
   )
@@ -256,7 +256,7 @@ function FreeToolRow({ tool }) {
   return (
     <TouchableOpacity style={s.freeRow} onPress={open} activeOpacity={0.75}>
       <View style={s.freeIconBox}>
-        <tool.Icon size={18} color={colors.navy} strokeWidth={1.8} />
+        <tool.Icon size={18} color={colors.textPrimary} strokeWidth={1.8} />
       </View>
       <View style={{ flex: 1 }}>
         <View style={s.freeTopLine}>
@@ -314,7 +314,7 @@ export default function CompassScreen({ navigation }) {
           variant="navy"
           onBack={safeGoBack}
           backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="COURSE COMPASS"
           title="Find Your Ideal Path"
           subtitle="AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points."
@@ -352,7 +352,7 @@ export default function CompassScreen({ navigation }) {
                   >
                     <View style={s.bundleTop}>
                       <View style={s.bundleIconBox}>
-                        <Star size={18} color={colors.navy} strokeWidth={2} />
+                        <Star size={18} color={colors.textPrimary} strokeWidth={2} />
                       </View>
                       <View style={s.bundlePricePill}>
                         <Text style={s.bundlePriceText}>{bundle.price}</Text>
@@ -364,7 +364,7 @@ export default function CompassScreen({ navigation }) {
 
                     <View style={s.bundleCta}>
                       <Text style={s.bundleCtaText}>Get the Bundle</Text>
-                      <ChevronRight size={14} color={colors.navy} />
+                      <ChevronRight size={14} color={colors.accentFg} />
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -376,7 +376,7 @@ export default function CompassScreen({ navigation }) {
                 onPress={() => Linking.openURL('https://coursecompass.ie/sample-results/overview')}
               >
                 <Text style={s.sampleLinkText}>See a real sample result before you buy</Text>
-                <ChevronRight size={13} color={colors.navy} />
+                <ChevronRight size={13} color={colors.textPrimary} />
               </TouchableOpacity>
             </>
           )}
@@ -429,16 +429,16 @@ export default function CompassScreen({ navigation }) {
 
 function __gs_s(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   // Hero
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
   heroTitle: {
-    fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginTop: 6, marginBottom: 10,
+    fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, lineHeight: 38, marginTop: 6, marginBottom: 10,
   },
 
   // Attribution
@@ -467,11 +467,11 @@ function __gs_s(colors) {
   scroll: {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
-  // Bundle card (cream bg, navy accent, inverted from the tool cards)
+  // Bundle card (page-bg, accent border, inverted from the tool cards)
   bundleCard: {
-    backgroundColor: colors.cream,
+    backgroundColor: colors.background,
     borderRadius: radius.card,
-    borderWidth: 2, borderColor: colors.navy,
+    borderWidth: 2, borderColor: colors.accentBg,
     padding: 18,
     marginBottom: spacing.xl,
     ...shadows.card,
@@ -484,12 +484,12 @@ function __gs_s(colors) {
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)',
   },
   bundlePricePill: {
-    backgroundColor: colors.navy, borderRadius: radius.pill,
+    backgroundColor: colors.accentBg, borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 5,
   },
-  bundlePriceText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  bundlePriceText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
   bundleName: {
-    fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginBottom: 8,
+    fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginBottom: 8,
   },
   bundleIncludes: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18, marginBottom: 16,
@@ -497,10 +497,10 @@ function __gs_s(colors) {
   bundleCta: {
     flexDirection: 'row', alignItems: 'center',
     alignSelf: 'flex-start', gap: 4,
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingHorizontal: 16, paddingVertical: 10,
   },
-  bundleCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  bundleCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
 
   // Sample-result link, sits between the bundle cards and the tools list
   sampleLink: {
@@ -508,7 +508,7 @@ function __gs_s(colors) {
     paddingVertical: 10, marginBottom: spacing.md,
   },
   sampleLinkText: {
-    fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy,
+    fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary,
     textDecorationLine: 'underline',
   },
 
@@ -518,7 +518,7 @@ function __gs_s(colors) {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4,
   },
-  toolsTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy },
+  toolsTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary },
   freeIntro: {
     fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
     lineHeight: 19, marginTop: 6,
@@ -537,14 +537,14 @@ function __gs_s(colors) {
   },
   freeIconBox: {
     width: 36, height: 36, borderRadius: radius.circle,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
   },
   freeTopLine: {
     flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8,
   },
   freeLabel: {
-    fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy,
+    fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary,
   },
   freePill: {
     backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.pill,
@@ -583,7 +583,7 @@ function __gs_s(colors) {
     color: colors.muted, letterSpacing: 0.8,
   },
   toolHeadline: {
-    fontFamily: fonts.serif, fontSize: 18, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary,
     lineHeight: 24, marginBottom: 6,
   },
   toolSub: {
@@ -594,12 +594,12 @@ function __gs_s(colors) {
   // the CTA styling used on Foundation's service cards.
   toolCta: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingHorizontal: 14, height: 38,
     alignSelf: 'flex-end',
     ...shadows.card,
   },
-  toolCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream, letterSpacing: 0.2 },
+  toolCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg, letterSpacing: 0.2 },
 
   // Footer note
   footerNote: {
