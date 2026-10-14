@@ -10,6 +10,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { fonts, radius, spacing, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 import { FieldLabel, FormTextInput, FormTextArea } from '../../components/forms/FormControls'
 import StatTile, { StatTileRow } from '../../components/ui/StatTile'
 import EmptyState from '../../components/ui/EmptyState'
@@ -147,6 +148,7 @@ export default function EvidenceBankScreen({ navigation }) {
   const styles = getStyles(colors)
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
 
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -427,7 +429,7 @@ export default function EvidenceBankScreen({ navigation }) {
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={safeGoBack}
           activeOpacity={0.7}
           style={styles.headerBtn}
           accessibilityRole="button"

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, BookOpen } from 'lucide-react-native'
 import { spacing } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
@@ -104,6 +105,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   const styles = getStyles(colors)
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:application_form:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
@@ -216,7 +218,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
       <View style={[styles.gateScreen, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
         <View style={styles.gateHeader}>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={safeGoBack}
             activeOpacity={0.7}
             style={styles.gateHeaderBtn}
             accessibilityRole="button"
@@ -243,7 +245,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
-        onExit={() => navigation.goBack()}
+        onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
       />

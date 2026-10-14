@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useState, useRef } from 'react'
@@ -140,6 +141,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:linkedin:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const safeGoBack = useSafeGoBack(navigation)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="LinkedIn Optimisation" />
@@ -217,7 +219,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
-        onExit={() => navigation.goBack()}
+        onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
       />

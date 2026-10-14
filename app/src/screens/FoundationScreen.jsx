@@ -14,6 +14,7 @@ import UBPLogo from '../components/ui/UBPLogo'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
 // (a CV, a cover letter, etc.) — App Store 3.1.1 — so no price, "Order"
@@ -150,6 +151,7 @@ export default function FoundationScreen({ navigation }) {
   // Premium's turnaround copy switches to Monday delivery and reverts
   // automatically once the window ends.
   const { isWeekendWindow } = useWeekendDeliveryCopy()
+  const safeGoBack = useSafeGoBack(navigation)
 
   return (
     <View style={styles.screen}>
@@ -182,7 +184,7 @@ export default function FoundationScreen({ navigation }) {
         {/* ── Integrated header + hero (single navy block) ── */}
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Home"
           logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
           eyebrow="FOUNDATION BLUEPRINT"

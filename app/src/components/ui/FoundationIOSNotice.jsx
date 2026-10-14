@@ -5,6 +5,7 @@ import ScreenHeader from './ScreenHeader'
 import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { FOUNDATION_WEBSITE_LINKS } from '../../constants/site'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // iOS only (App Store 3.1.1, D1 — the same decision PricingScreen already
 // applies to the Pro/Premium subscription): every Foundation Blueprint
@@ -29,6 +30,7 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   // Plain display text, not a link — the exact page this service lives on
   // (src/pages/foundation/*Page.jsx on the website), stripped of its
   // protocol the same way PricingScreen's footnote shows "uniblueprint.ie"
@@ -42,7 +44,7 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         eyebrow="FOUNDATION BLUEPRINT"
         title={serviceTitle}
         style={styles.header}

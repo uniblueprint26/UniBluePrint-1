@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { View, Text } from 'react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
@@ -274,6 +275,7 @@ export default function CvBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cv:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const safeGoBack = useSafeGoBack(navigation)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="CV Optimisation" />
@@ -379,7 +381,7 @@ export default function CvBuilderScreen({ navigation }) {
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
-        onExit={() => navigation.goBack()}
+        onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
       />

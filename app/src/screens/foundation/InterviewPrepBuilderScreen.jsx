@@ -7,6 +7,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Interview Preparation intake — on the CV Optimisation pattern (QuestionFlow +
 // an interview_prep_packs-shaped table + submit_document_for_review + a
@@ -89,6 +90,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:interview_prep:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const safeGoBack = useSafeGoBack(navigation)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Interview Preparation" />
@@ -168,7 +170,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
-        onExit={() => navigation.goBack()}
+        onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
       />

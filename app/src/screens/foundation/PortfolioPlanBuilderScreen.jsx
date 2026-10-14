@@ -6,6 +6,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Portfolio Building intake — simplest of the Foundation Blueprint services,
 // on the CV Optimisation pattern (QuestionFlow + a portfolio_plans-shaped
@@ -84,6 +85,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:portfolio_plan:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const safeGoBack = useSafeGoBack(navigation)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Portfolio Building" />
@@ -158,7 +160,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
-        onExit={() => navigation.goBack()}
+        onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
       />

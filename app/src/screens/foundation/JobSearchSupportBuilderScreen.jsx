@@ -6,6 +6,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Job Search Support intake — the most complex Foundation Blueprint service,
 // on the same CV Optimisation pattern (QuestionFlow + a *_sessions-shaped
@@ -173,6 +174,7 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:job_search_support:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const safeGoBack = useSafeGoBack(navigation)
 
   if (IS_IOS) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Job Search Support" />
@@ -257,7 +259,7 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
-        onExit={() => navigation.goBack()}
+        onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
       />
