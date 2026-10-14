@@ -137,11 +137,11 @@ export default function PrivacyDataScreen({ navigation }) {
           onPress={() => Linking.openURL(WEBSITE_LINKS.privacy)}
         >
           <Text style={styles.policyLinkText}>Read the full Privacy Policy</Text>
-          <ExternalLink size={14} color={colors.navy} strokeWidth={2} />
+          <ExternalLink size={14} color={colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>
 
         <Card style={styles.actionCard}>
-          <View style={styles.actionIconWrap}><Download size={16} color={colors.navy} /></View>
+          <View style={styles.actionIconWrap}><Download size={16} color={colors.textPrimary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.actionTitle}>Get a copy of your data</Text>
             <Text style={styles.actionSub}>Export everything UniBlueprint holds about you, right away.</Text>
@@ -153,7 +153,7 @@ export default function PrivacyDataScreen({ navigation }) {
             disabled={!!submitting}
           >
             {submitting === 'export'
-              ? <ActivityIndicator size="small" color={colors.cream} />
+              ? <ActivityIndicator size="small" color={colors.accentFg} />
               : <Text style={styles.actionBtnText}>Export</Text>}
           </TouchableOpacity>
         </Card>
@@ -180,7 +180,7 @@ export default function PrivacyDataScreen({ navigation }) {
 
         <Text style={styles.sectionEyebrow}>YOUR REQUESTS</Text>
         {loading ? (
-          <ActivityIndicator size="small" color={colors.navy} />
+          <ActivityIndicator size="small" color={colors.textPrimary} />
         ) : loadError ? (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{loadError}</Text>
@@ -215,10 +215,10 @@ export default function PrivacyDataScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
@@ -227,19 +227,19 @@ function getStyles(colors) {
     paddingVertical: 12, marginBottom: spacing.lg,
     borderRadius: radius.button, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
   },
-  policyLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  policyLinkText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
 
   actionCard: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   actionIconWrap: {
     width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(30,58,95,0.06)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  actionTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 2 },
+  actionTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginBottom: 2 },
   actionSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 16 },
   // radius.button, not radius.pill — this was the one pill-shaped button
   // sitting alone among the rest of the app's square-cornered convention.
-  actionBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 9, minWidth: 78, alignItems: 'center' },
-  actionBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
+  actionBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 9, minWidth: 78, alignItems: 'center' },
+  actionBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.accentFg },
   actionBtnDanger: { backgroundColor: 'rgba(220,38,38,0.08)' },
   actionBtnDangerText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: '#DC2626' },
 
@@ -262,7 +262,7 @@ function getStyles(colors) {
 
   reqRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  reqTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  reqTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   reqSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
   statusChip: { backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
   statusChipDone: { backgroundColor: '#F0FDF4' },

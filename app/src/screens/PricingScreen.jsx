@@ -75,8 +75,8 @@ function CurrentPlanPill({ light }) {
   const styles = getStyles(colors)
   return (
     <View style={[styles.currentPill, light && { backgroundColor: 'rgba(245,240,232,0.15)' }]}>
-      <CheckCircle size={14} color={light ? colors.cream : colors.navy} />
-      <Text style={[styles.currentPillText, light && { color: colors.cream }]}>Your Current Plan</Text>
+      <CheckCircle size={14} color={light ? colors.chromeFg : colors.textPrimary} />
+      <Text style={[styles.currentPillText, light && { color: colors.chromeFg }]}>Your Current Plan</Text>
     </View>
   )
 }
@@ -244,10 +244,10 @@ export default function PricingScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, lineHeight: 34 },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginTop: 6, lineHeight: 34 },
 
   card: {
     backgroundColor: colors.surface, borderRadius: radius.card,
@@ -255,8 +255,8 @@ function getStyles(colors) {
     padding: 22, ...shadows.card,
   },
   cardGoldBorder: { borderColor: colors.gold },
-  cardNavy: { backgroundColor: colors.navy, borderColor: colors.navy },
-  cardHighlightNavy: { borderColor: colors.navy, borderWidth: 3 },
+  cardNavy: { backgroundColor: colors.chromeBg, borderColor: colors.chromeBg },
+  cardHighlightNavy: { borderColor: colors.accentBg, borderWidth: 3 },
   cardHighlightGold: { borderColor: colors.gold, borderWidth: 3 },
 
   badge: {
@@ -266,44 +266,44 @@ function getStyles(colors) {
   badgeText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.white },
   badgeLight: {
     position: 'absolute', top: -12, alignSelf: 'center',
-    backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 5,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 5,
   },
-  badgeLightText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
+  badgeLightText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textPrimary },
 
-  planName: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 6 },
-  planNameLight: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream, marginTop: 6 },
+  planName: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginTop: 6 },
+  planNameLight: { fontFamily: fonts.serif, fontSize: 22, color: colors.chromeFg, marginTop: 6 },
 
   priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 5, marginTop: 14 },
-  priceBig: { fontFamily: fonts.sansBold, fontSize: 36, color: colors.navy },
-  priceBigLight: { fontFamily: fonts.sansBold, fontSize: 36, color: colors.cream },
+  priceBig: { fontFamily: fonts.sansBold, fontSize: 36, color: colors.textPrimary },
+  priceBigLight: { fontFamily: fonts.sansBold, fontSize: 36, color: colors.chromeFg },
   priceSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
   priceSubLight: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.6)' },
   priceNote: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light, marginTop: 4 },
   priceNoteLight: { fontFamily: fonts.sans, fontSize: 11.5, color: 'rgba(245,240,232,0.55)', marginTop: 4 },
 
   featureRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  featureText: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.navy, flex: 1, lineHeight: 19 },
+  featureText: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.textPrimary, flex: 1, lineHeight: 19 },
 
-  ctaBtn: { backgroundColor: colors.navy, borderRadius: radius.button, height: 48, alignItems: 'center', justifyContent: 'center', marginTop: 22 },
-  ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.cream },
-  ctaBtnLight: { backgroundColor: colors.cream, borderRadius: radius.button, height: 48, alignItems: 'center', justifyContent: 'center', marginTop: 22 },
-  ctaBtnLightText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.navy },
+  ctaBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, height: 48, alignItems: 'center', justifyContent: 'center', marginTop: 22 },
+  ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.accentFg },
+  ctaBtnLight: { backgroundColor: colors.surfaceAlt, borderRadius: radius.button, height: 48, alignItems: 'center', justifyContent: 'center', marginTop: 22 },
+  ctaBtnLightText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary },
 
-  includedNote: { marginTop: 22, paddingVertical: 13, alignItems: 'center', borderRadius: radius.button, backgroundColor: colors.cream },
+  includedNote: { marginTop: 22, paddingVertical: 13, alignItems: 'center', borderRadius: radius.button, backgroundColor: colors.surfaceAlt },
   includedNoteText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted },
 
   currentPill: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     marginTop: 22, paddingVertical: 13, borderRadius: radius.button, backgroundColor: 'rgba(30,58,95,0.08)',
   },
-  currentPillText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  currentPillText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   iosManageNote: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, textAlign: 'center', marginTop: 22 },
   iosManageNoteLight: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: 'rgba(245,240,232,0.7)', textAlign: 'center', marginTop: 22 },
 
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 7, marginTop: spacing.lg },
   dot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: 'rgba(30,58,95,0.2)' },
-  dotActive: { backgroundColor: colors.navy, width: 20 },
+  dotActive: { backgroundColor: colors.accentBg, width: 20 },
 
   footNote: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light, textAlign: 'center', marginTop: spacing.lg, marginHorizontal: spacing.lg, lineHeight: 17 },
   })

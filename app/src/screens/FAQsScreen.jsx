@@ -126,30 +126,30 @@ export default function FAQsScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: {},
 
   hero: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 4 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 4 },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
   faqCard: { padding: 16 },
-  faqCardOpen: { borderWidth: 1.5, borderColor: colors.navy },
+  faqCardOpen: { borderWidth: 1.5, borderColor: colors.accentBg },
   faqTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
-  faqQ: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1, lineHeight: 20 },
+  faqQ: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, flex: 1, lineHeight: 20 },
   faqA: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 12 },
-  faqLink: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 10, textDecorationLine: 'underline' },
+  faqLink: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: 10, textDecorationLine: 'underline' },
 
   contactCard: {
-    backgroundColor: colors.navy, padding: 18, marginTop: spacing.xl,
+    backgroundColor: colors.accentBg, padding: 18, marginTop: spacing.xl,
   },
-  contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.accentFg },
   contactSub: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.7)', marginTop: 6, lineHeight: 21 },
-  contactEmail: { fontFamily: fonts.sansSemiBold, color: colors.cream, textDecorationLine: 'underline' },
+  contactEmail: { fontFamily: fonts.sansSemiBold, color: colors.accentFg, textDecorationLine: 'underline' },
   })
 }

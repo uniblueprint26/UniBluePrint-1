@@ -72,7 +72,7 @@ export default function HelpScreen({ navigation }) {
 
         {/* Contact card */}
         <Card style={styles.contactCard}>
-          <Mail size={20} color={colors.navy} />
+          <Mail size={20} color={colors.textPrimary} />
           <View style={{ flex: 1 }}>
             <Text style={styles.contactTitle}>Email us directly</Text>
             <Text style={styles.contactSub}>We aim to respond within 24 hours on business days.</Text>
@@ -91,7 +91,7 @@ export default function HelpScreen({ navigation }) {
           <View key={title} style={styles.topicSection}>
             <View style={styles.topicHeader}>
               <View style={styles.topicIcon}>
-                <Icon size={18} color={colors.navy} />
+                <Icon size={18} color={colors.textPrimary} />
               </View>
               <Text style={styles.topicTitle}>{title}</Text>
             </View>
@@ -142,28 +142,28 @@ export default function HelpScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: {},
 
   hero: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 4 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 4 },
 
   body: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
   contactCard: {
     flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16,
   },
-  contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  contactTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   contactSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   contactBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingHorizontal: 16, paddingVertical: 8,
   },
-  contactBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  contactBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
 
   topicSection: { marginTop: spacing.xl },
   topicHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.sm },
@@ -172,20 +172,20 @@ function getStyles(colors) {
     backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
-  topicTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.navy },
+  topicTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.textPrimary },
 
   topicCard: { padding: 0 },
   topicRow: { paddingHorizontal: 16, paddingVertical: 14 },
   topicRowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   topicRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  topicItem: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, flex: 1, marginRight: 8 },
+  topicItem: { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, flex: 1, marginRight: 8 },
   topicDetail: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 10 },
 
   footerCard: {
-    backgroundColor: colors.navy, padding: 20, marginTop: spacing.xl,
+    backgroundColor: colors.accentBg, padding: 20, marginTop: spacing.xl,
   },
-  footerTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.cream },
+  footerTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.accentFg },
   footerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.75)', marginTop: 8, lineHeight: 21 },
-  footerLink: { fontFamily: fonts.sansSemiBold, color: colors.cream },
+  footerLink: { fontFamily: fonts.sansSemiBold, color: colors.accentFg },
   })
 }
