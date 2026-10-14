@@ -544,7 +544,7 @@ function __gs_styles(colors) {
 
   searchRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.pill,
+    backgroundColor: colors.surface, borderRadius: radius.pill,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
     paddingHorizontal: 12, paddingVertical: 9, marginBottom: 10,
   },
@@ -571,7 +571,7 @@ function __gs_styles(colors) {
 
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   modalSheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34, maxHeight: '88%',
   },
   modalHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 },

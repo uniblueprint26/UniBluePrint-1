@@ -113,7 +113,7 @@ function __gs_styles(colors) {
     maxWidth: 300,
   },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     padding: spacing.md,
     paddingTop: spacing.md + 2,
@@ -185,7 +185,7 @@ function __gs_styles(colors) {
     bottom: -7,
     width: 14,
     height: 14,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     transform: [{ rotate: '45deg' }],
     ...(Platform.OS === 'web' ? { boxShadow: '2px 2px 4px rgba(15,23,32,0.08)' } : null),
   },

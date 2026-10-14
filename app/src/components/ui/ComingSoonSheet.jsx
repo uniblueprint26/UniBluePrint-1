@@ -44,7 +44,7 @@ function __gs_styles(colors) {
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.card + 4,
     borderTopRightRadius: radius.card + 4,
     paddingHorizontal: 24,

@@ -77,7 +77,7 @@ function __gs_styles(colors) {
 
   badge: {
     flexDirection: 'row', alignItems: 'center', gap: 7,
-    backgroundColor: colors.white, borderRadius: radius.pill,
+    backgroundColor: colors.surface, borderRadius: radius.pill,
     paddingHorizontal: 14, paddingVertical: 8, marginTop: 18,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },

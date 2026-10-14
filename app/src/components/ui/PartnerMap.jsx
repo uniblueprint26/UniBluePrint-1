@@ -792,7 +792,7 @@ function __gs_styles(colors) {
     borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9,
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.cream, padding: 0 },
-  searchResults: { marginTop: 6, backgroundColor: colors.white, borderRadius: 10, overflow: 'hidden' },
+  searchResults: { marginTop: 6, backgroundColor: colors.surface, borderRadius: 10, overflow: 'hidden' },
   searchEmpty: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, textAlign: 'center', padding: 14 },
   searchResultRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
@@ -809,7 +809,7 @@ function __gs_styles(colors) {
 
   card: {
     width: '100%',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     padding: 16,
     minHeight: 84,

@@ -197,14 +197,14 @@ function __gs_s(colors) {
   input: {
     height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.border,
     paddingHorizontal: 14, fontFamily: fonts.sans, fontSize: 16, color: colors.navy,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   textArea: { paddingVertical: 12, lineHeight: 21 },
 
   choiceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   choicePill: {
     paddingHorizontal: 16, paddingVertical: 10, borderRadius: radius.pill,
-    borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.white,
+    borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.surface,
   },
   choicePillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
   choicePillAccent: { borderColor: colors.gold, borderWidth: 1.5 },

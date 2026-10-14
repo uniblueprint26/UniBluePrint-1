@@ -61,7 +61,7 @@ function getStyles(colors) {
   return StyleSheet.create({
   card: {
     alignItems: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
