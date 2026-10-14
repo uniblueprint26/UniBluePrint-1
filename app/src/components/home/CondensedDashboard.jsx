@@ -49,7 +49,7 @@ function StatRow({ Icon, label, value, onPress }) {
       accessibilityRole={onPress ? 'button' : undefined}
     >
       <View style={styles.rowIconWrap}>
-        <Icon size={14} color={colors.navy} strokeWidth={1.8} />
+        <Icon size={14} color={colors.textPrimary} strokeWidth={1.8} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.rowLabel}>{label}</Text>
@@ -195,6 +195,6 @@ function getStyles(colors) {
     alignItems: 'center', justifyContent: 'center',
   },
   rowLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
-  rowValue: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.navy, marginTop: 1 },
+  rowValue: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textPrimary, marginTop: 1 },
   })
 }

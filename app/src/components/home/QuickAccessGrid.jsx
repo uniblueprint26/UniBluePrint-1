@@ -194,7 +194,7 @@ function QuickAccessCard({
           accessibilityLabel={item.homeLabel || item.label}
         >
           <View style={styles.iconWrap}>
-            <Icon size={17} color={colors.navy} strokeWidth={1.8} />
+            <Icon size={17} color={colors.textPrimary} strokeWidth={1.8} />
           </View>
           <Text style={styles.label} numberOfLines={2}>{item.homeLabel || item.label}</Text>
           <Text style={styles.sub} numberOfLines={2}>{item.homeSub || item.sub}</Text>
@@ -309,7 +309,7 @@ export default function QuickAccessGrid({
             accessibilityRole="button"
             accessibilityLabel="Add a Quick Access shortcut"
           >
-            <Plus size={20} color={colors.navy} strokeWidth={2} />
+            <Plus size={20} color={colors.textPrimary} strokeWidth={2} />
             <Text style={styles.addLabel}>Add shortcut</Text>
           </Pressable>
         </View>
@@ -331,14 +331,14 @@ function getStyles(colors) {
     alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: 'rgba(30,58,95,0.03)',
   },
-  addLabel: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  addLabel: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
   iconWrap: {
     width: 34, height: 34, borderRadius: 8,
     backgroundColor: 'rgba(255,255,255,0.75)',
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 10,
   },
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 16, marginBottom: 4 },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary, lineHeight: 16, marginBottom: 4 },
   sub:   { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, lineHeight: 14 },
   removeBadge: {
     position: 'absolute', top: -7, right: -7,

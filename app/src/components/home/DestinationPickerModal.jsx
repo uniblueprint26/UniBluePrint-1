@@ -49,7 +49,7 @@ export default function DestinationPickerModal({ visible, options, slotsLeft, on
                 activeOpacity={0.75}
               >
                 <View style={[s.rowIcon, { backgroundColor: item.bg }]}>
-                  <item.Icon size={16} color={colors.navy} strokeWidth={1.8} />
+                  <item.Icon size={16} color={colors.textPrimary} strokeWidth={1.8} />
                 </View>
                 <Text style={s.rowLabel}>{item.label}</Text>
               </TouchableOpacity>
@@ -69,7 +69,7 @@ function __gs_s(colors) {
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', alignItems: 'center', justifyContent: 'center', padding: 20 },
   sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 20, width: '100%', maxWidth: 380 },
   header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14, gap: 12 },
-  title: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
+  title: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary },
   sub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
@@ -77,7 +77,7 @@ function __gs_s(colors) {
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)',
   },
   rowIcon: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  rowLabel: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+  rowLabel: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', paddingVertical: 20 },
   })
 }

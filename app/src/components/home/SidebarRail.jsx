@@ -56,7 +56,7 @@ export default function SidebarRail({ items, activeKey, onNavigate }) {
     <Animated.View style={[styles.rail, { width: widthAnim }]}>
       <Animated.View style={[styles.body, { opacity: contentFade }]} pointerEvents={collapsed ? 'none' : 'auto'}>
         <View style={styles.logoWrap}>
-          <UBPLogo height={26} color={colors.cream} onPress={() => onNavigate({ action: 'home' })} />
+          <UBPLogo height={26} color={colors.chromeFg} onPress={() => onNavigate({ action: 'home' })} />
         </View>
 
         <ScrollView
@@ -108,7 +108,7 @@ export default function SidebarRail({ items, activeKey, onNavigate }) {
 function __gs_styles(colors) {
   return StyleSheet.create({
   rail: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     borderRightWidth: 1,
     borderRightColor: 'rgba(245,240,232,0.09)',
     zIndex: 20,
@@ -145,7 +145,7 @@ function __gs_styles(colors) {
     width: 26, height: 28,
     borderRadius: radius.circle,
     backgroundColor: colors.goldLight,
-    borderWidth: 1.5, borderColor: colors.cream,
+    borderWidth: 1.5, borderColor: colors.chromeFg,
     alignItems: 'center', justifyContent: 'center',
     ...shadows.elevated,
   },

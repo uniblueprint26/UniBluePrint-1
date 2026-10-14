@@ -394,7 +394,7 @@ export default function HomeScreen({ navigation }) {
                 accessibilityRole="button"
                 accessibilityLabel="Open menu"
               >
-                <Menu size={19} color={colors.navy} strokeWidth={1.8} />
+                <Menu size={19} color={colors.textPrimary} strokeWidth={1.8} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.bellBtn}
@@ -403,7 +403,7 @@ export default function HomeScreen({ navigation }) {
                 accessibilityRole="button"
                 accessibilityLabel={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
               >
-                <Bell size={19} color={colors.navy} strokeWidth={1.8} />
+                <Bell size={19} color={colors.textPrimary} strokeWidth={1.8} />
                 {unreadCount > 0 && (
                   <View style={styles.badge}>
                     <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
@@ -417,7 +417,7 @@ export default function HomeScreen({ navigation }) {
                 accessibilityRole="button"
                 accessibilityLabel="Open profile"
               >
-                <User size={16} color={colors.navy} strokeWidth={1.8} />
+                <User size={16} color={colors.textPrimary} strokeWidth={1.8} />
               </TouchableOpacity>
             </View>
           </View>
@@ -495,8 +495,8 @@ export default function HomeScreen({ navigation }) {
                       {dashboardExpanded ? 'Hide overview' : 'Overview'}
                     </Text>
                     {dashboardExpanded
-                      ? <ChevronUp size={13} color={colors.navy} strokeWidth={2} />
-                      : <ChevronDown size={13} color={colors.navy} strokeWidth={2} />}
+                      ? <ChevronUp size={13} color={colors.textPrimary} strokeWidth={2} />
+                      : <ChevronDown size={13} color={colors.textPrimary} strokeWidth={2} />}
                   </TouchableOpacity>
                 )}
               </View>
@@ -594,11 +594,11 @@ export default function HomeScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen:  { flex: 1, backgroundColor: colors.navy },
+  screen:  { flex: 1, backgroundColor: colors.chromeBg },
   layout:  { flex: 1, flexDirection: 'row' },
 
   // Main
-  main: { flex: 1, backgroundColor: colors.cream },
+  main: { flex: 1, backgroundColor: colors.background },
   // The header block below is a normal in-flow sibling ABOVE the
   // ScrollView, not an absolutely-positioned overlay — so on a correctly
   // measured screen it never needs to fight the ScrollView for space.
@@ -617,7 +617,7 @@ function __gs_styles(colors) {
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
     zIndex: 10, elevation: 10,
   },
-  topTitle:    { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, lineHeight: 27 },
+  topTitle:    { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, lineHeight: 27 },
   topGreeting: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, marginTop: 3 },
 
   portalSwitchRow: {
@@ -641,7 +641,7 @@ function __gs_styles(colors) {
   badgeText: { fontFamily: fonts.sansBold, fontSize: 8, color: '#fff' },
   avatarBtn: {
     width: 30, height: 30, borderRadius: 15,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.background,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
     alignItems: 'center', justifyContent: 'center',
   },
@@ -689,12 +689,12 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: 14,
     paddingHorizontal: 12, paddingVertical: 6,
   },
-  overviewToggleText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.navy },
+  overviewToggleText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.textPrimary },
   doneBtn: {
-    backgroundColor: colors.navy, borderRadius: 14,
+    backgroundColor: colors.accentBg, borderRadius: 14,
     paddingHorizontal: 14, paddingVertical: 6,
   },
-  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.cream },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.accentFg },
   livePulse: {
     width: 7, height: 7, borderRadius: 3.5,
     backgroundColor: '#16A34A',
@@ -705,7 +705,7 @@ function __gs_styles(colors) {
   // centerpiece heading, paired with a gold pulse dot in the same spot
   // Live Activity uses its green one, just recoloured to match the brand
   // gold accent instead of "live data" green.
-  trendingTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
+  trendingTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
   trendingPulse: {
     width: 7, height: 7, borderRadius: 3.5,
     backgroundColor: colors.gold,
@@ -715,7 +715,7 @@ function __gs_styles(colors) {
   feedRow:  { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
   divider:  { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   feedDot:  { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  feedText: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 17, flex: 1 },
+  feedText: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, lineHeight: 17, flex: 1 },
   feedTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 2 },
   emptyFeed: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 24, gap: 10 },
   emptyFeedText: { fontFamily: fonts.sans, fontSize: 14, color: '#9CA3AF', textAlign: 'center', lineHeight: 20 },
