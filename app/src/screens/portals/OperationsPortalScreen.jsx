@@ -303,7 +303,7 @@ function __gs_styles(colors) {
 
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   modalSheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34,
   },
   modalHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 },

@@ -567,13 +567,13 @@ function getStyles(colors) {
 
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   categoryTile: {
-    width: '31%', minWidth: 96, aspectRatio: 1.05, backgroundColor: colors.white,
+    width: '31%', minWidth: 96, aspectRatio: 1.05, backgroundColor: colors.surface,
     borderRadius: radius.card, borderWidth: 1, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6,
   },
   categoryTileText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.navy, textAlign: 'center', letterSpacing: 0.3 },
 
-  storyCard: { backgroundColor: colors.white, borderRadius: radius.card, padding: 16, ...shadows.card },
+  storyCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, ...shadows.card },
   storyCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   storyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 10 },
   storyPreview: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 6, lineHeight: 18 },
@@ -599,7 +599,7 @@ function getStyles(colors) {
   radioRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.button,
-    paddingVertical: 12, paddingHorizontal: 14, backgroundColor: colors.white,
+    paddingVertical: 12, paddingHorizontal: 14, backgroundColor: colors.surface,
   },
   radioRowActive: { borderColor: colors.navy, backgroundColor: 'rgba(30,58,95,0.04)' },
   radioCircle: {

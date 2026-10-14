@@ -459,7 +459,7 @@ function __gs_styles(colors) {
   ghostText: { fontFamily: fonts.sans, fontSize: 13, color: '#92400E', lineHeight: 19, marginBottom: 10 },
   ghostBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    alignSelf: 'flex-start', backgroundColor: colors.white,
+    alignSelf: 'flex-start', backgroundColor: colors.surface,
     borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },

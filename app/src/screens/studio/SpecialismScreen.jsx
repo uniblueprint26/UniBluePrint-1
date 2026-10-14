@@ -175,7 +175,7 @@ function __gs_styles(colors) {
   },
   infoIconWrap: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   infoText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 18 },

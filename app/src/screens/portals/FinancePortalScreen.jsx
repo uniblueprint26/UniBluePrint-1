@@ -202,7 +202,7 @@ function __gs_styles(colors) {
   sectionCaption: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: -4, marginBottom: 10, lineHeight: 17 },
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  statPill: { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
+  statPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
   statPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
 
   summaryCard: {},

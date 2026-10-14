@@ -153,7 +153,7 @@ function PhotoPickerModal({ visible, onClose, entity }) {
 function __gs_pm(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
-  sheet: { backgroundColor: colors.white, borderRadius: radius.card, padding: spacing.lg, width: '100%', maxWidth: 360 },
+  sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: spacing.lg, width: '100%', maxWidth: 360 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
   title: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17, marginBottom: 16 },
@@ -563,7 +563,7 @@ function __gs_styles(colors) {
   sectionCaption: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: -4, marginBottom: 10, lineHeight: 17 },
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  rolePill: { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
+  rolePill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
   rolePillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, textTransform: 'capitalize' },
   emptyText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic' },
 
@@ -582,7 +582,7 @@ function __gs_styles(colors) {
   weeklyLinkSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
 
   photoGroupLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, marginTop: 14, marginBottom: 2 },
-  photoPill: { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
+  photoPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
   photoPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
 
   featuredRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8, padding: 14 },

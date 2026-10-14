@@ -465,7 +465,7 @@ function getStyles(colors) {
 
   evidenceBankBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: radius.card, padding: 16, marginTop: spacing.sm,
+    backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, marginTop: spacing.sm,
     borderWidth: 1, borderColor: colors.border,
   },
   evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
@@ -518,7 +518,7 @@ function getStyles(colors) {
   ccCardDesc:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 16 },
   ccToolGrid:   { gap: 10, marginBottom: 16 },
   ccTool:       { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.cream, borderRadius: radius.button, padding: 12 },
-  ccToolIcon:   { width: 32, height: 32, borderRadius: 8, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+  ccToolIcon:   { width: 32, height: 32, borderRadius: 8, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   ccToolName:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
   ccToolDesc:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
   ccVisitBtn:   { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
@@ -529,7 +529,7 @@ function getStyles(colors) {
   // page's primary action.
   secondaryBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.button, height: 50,
+    backgroundColor: colors.surface, borderRadius: radius.button, height: 50,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)', marginTop: spacing.lg,
   },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },

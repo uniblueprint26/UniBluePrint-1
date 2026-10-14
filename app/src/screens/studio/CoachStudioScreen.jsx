@@ -435,7 +435,7 @@ function __gs_styles(colors) {
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   specialismPill: {
-    backgroundColor: colors.white, borderRadius: radius.pill,
+    backgroundColor: colors.surface, borderRadius: radius.pill,
     paddingHorizontal: 13, paddingVertical: 8,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     ...shadows.card,
