@@ -331,20 +331,20 @@ function __gs_m(colors) {
     padding: spacing.lg, paddingBottom: 34,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
   starRow: { flexDirection: 'row', gap: 10, justifyContent: 'center', marginBottom: 18 },
   input: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     padding: 14, minHeight: 100,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
     marginBottom: 12,
   },
   error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
-  sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 21, marginBottom: 20 },
-  doneBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
-  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  sentText: { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, lineHeight: 21, marginBottom: 20 },
+  doneBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }
 
@@ -462,7 +462,7 @@ export default function CoachProfileScreen({ route, navigation }) {
       <View style={styles.screen}>
         <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
           <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
             <Text style={styles.backBtnText}>Back</Text>
           </TouchableOpacity>
           <Text style={styles.headerName}>{coach.name}</Text>
@@ -511,7 +511,7 @@ export default function CoachProfileScreen({ route, navigation }) {
             onPress={safeGoBack}
             activeOpacity={0.7}
           >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
             <Text style={styles.backBtnText}>Back</Text>
           </TouchableOpacity>
 
@@ -699,7 +699,7 @@ export default function CoachProfileScreen({ route, navigation }) {
                   onPress={() => openLink('instagram', coach.contact.instagram)}
                   activeOpacity={0.75}
                 >
-                  <View style={styles.contactIcon}><AtSign size={16} color={colors.navy} strokeWidth={1.8} /></View>
+                  <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.contactPlatform}>Instagram</Text>
                     <Text style={styles.contactHandle}>@{coach.contact.instagram}</Text>
@@ -713,7 +713,7 @@ export default function CoachProfileScreen({ route, navigation }) {
                   onPress={() => openLink('tiktok', coach.contact.tiktok)}
                   activeOpacity={0.75}
                 >
-                  <View style={styles.contactIcon}><AtSign size={16} color={colors.navy} strokeWidth={1.8} /></View>
+                  <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.contactPlatform}>TikTok</Text>
                     <Text style={styles.contactHandle}>@{coach.contact.tiktok}</Text>
@@ -727,7 +727,7 @@ export default function CoachProfileScreen({ route, navigation }) {
                   onPress={() => openLink('email', coach.contact.email)}
                   activeOpacity={0.75}
                 >
-                  <View style={styles.contactIcon}><Mail size={16} color={colors.navy} strokeWidth={1.8} /></View>
+                  <View style={styles.contactIcon}><Mail size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.contactPlatform}>Email</Text>
                     <Text style={styles.contactHandle} numberOfLines={1}>{coach.contact.email}</Text>
@@ -741,7 +741,7 @@ export default function CoachProfileScreen({ route, navigation }) {
                   onPress={() => openLink('phone', coach.contact.phone)}
                   activeOpacity={0.75}
                 >
-                  <View style={styles.contactIcon}><Phone size={16} color={colors.navy} strokeWidth={1.8} /></View>
+                  <View style={styles.contactIcon}><Phone size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.contactPlatform}>Phone / WhatsApp</Text>
                     <Text style={styles.contactHandle}>{coach.contact.phone}</Text>
@@ -755,7 +755,7 @@ export default function CoachProfileScreen({ route, navigation }) {
                   onPress={() => openLink('linktree', coach.contact.linktree)}
                   activeOpacity={0.75}
                 >
-                  <View style={styles.contactIcon}><Link2 size={16} color={colors.navy} strokeWidth={1.8} /></View>
+                  <View style={styles.contactIcon}><Link2 size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.contactPlatform}>Linktree</Text>
                     <Text style={styles.contactHandle}>View all links</Text>
@@ -859,7 +859,7 @@ export default function CoachProfileScreen({ route, navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on native — without
   // it RN can size the ScrollView to its own content instead of the
@@ -870,7 +870,7 @@ function __gs_styles(colors) {
 
   // Header
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: 36,
     alignItems: 'center',
@@ -879,7 +879,7 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     alignSelf: 'flex-start', marginBottom: 24,
   },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
 
   // Double-ring frosted glass avatar — outer ring picked up in brand gold
   // (rather than plain cream) for a warmer, more premium feel befitting a
@@ -902,7 +902,7 @@ function __gs_styles(colors) {
     alignItems: 'center', justifyContent: 'center',
     overflow: 'hidden',
   },
-  headerName:  { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, textAlign: 'center', lineHeight: 32, marginTop: 16 },
+  headerName:  { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, textAlign: 'center', lineHeight: 32, marginTop: 16 },
   headerTitle: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.72)', textAlign: 'center', lineHeight: 19, marginTop: 4 },
 
   // maxWidth + centered wrapping text: a longer enquiry-style price string
@@ -916,14 +916,14 @@ function __gs_styles(colors) {
     alignSelf: 'center',
     alignItems: 'center',
     maxWidth: '78%',
-    backgroundColor: colors.navy,
+    backgroundColor: colors.accentBg,
     borderRadius: radius.pill,
     borderWidth: 1, borderColor: 'rgba(201,162,75,0.5)',
     paddingHorizontal: 18, paddingVertical: 9,
     marginBottom: 10,
   },
   priceChipLabel: { fontFamily: fonts.sans, fontSize: 10, color: 'rgba(245,240,232,0.6)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 1 },
-  priceChipText:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream, textAlign: 'center' },
+  priceChipText:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg, textAlign: 'center' },
 
   // Identity
   identityBlock: {
@@ -931,12 +931,12 @@ function __gs_styles(colors) {
     paddingTop: spacing.xl, paddingBottom: spacing.lg,
     alignItems: 'center',
   },
-  coachName:     { fontFamily: fonts.serif, fontSize: 30, color: colors.navy, textAlign: 'center', lineHeight: 36, marginBottom: 6 },
+  coachName:     { fontFamily: fonts.serif, fontSize: 30, color: colors.textPrimary, textAlign: 'center', lineHeight: 36, marginBottom: 6 },
   coachTitle:    { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, marginBottom: 4 },
   // Category as a soft pill rather than plain text — small hierarchy lift
   // consistent with the badge/tagline treatment elsewhere on the page.
   categoryPill:     { backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5, marginBottom: 8 },
-  categoryPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.75 },
+  categoryPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, opacity: 0.75 },
   locationRow:   { flexDirection: 'row', alignItems: 'center', gap: 4 },
   locationText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
 
@@ -955,7 +955,7 @@ function __gs_styles(colors) {
     padding: 18, alignItems: 'center',
   },
   taglineText: {
-    fontFamily: fonts.serif, fontSize: 17, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary,
     textAlign: 'center', lineHeight: 26, fontStyle: 'italic',
   },
 
@@ -973,7 +973,7 @@ function __gs_styles(colors) {
     color: colors.muted, textTransform: 'uppercase',
     letterSpacing: 0.8, marginBottom: 12,
   },
-  bioText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 23 },
+  bioText: { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, lineHeight: 23 },
 
   // Photo gallery — a fixed 4:5 aspect-ratio frame (close to the natural
   // ratio of the supplied studio portraits) with resizeMode 'contain', so
@@ -982,10 +982,10 @@ function __gs_styles(colors) {
   // cropping the subject.
   galleryScroller: {
     borderRadius: radius.card, overflow: 'hidden',
-    backgroundColor: colors.cream, ...shadows.card,
+    backgroundColor: colors.surfaceAlt, ...shadows.card,
   },
   galleryFrame: {
-    aspectRatio: 4 / 5, backgroundColor: colors.cream,
+    aspectRatio: 4 / 5, backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center',
   },
   galleryImage: { width: '100%', height: '100%' },
@@ -999,18 +999,18 @@ function __gs_styles(colors) {
     borderLeftWidth: 3, borderLeftColor: colors.gold,
     borderRadius: 6, padding: 18, ...shadows.card,
   },
-  quoteText: { fontFamily: fonts.serif, fontSize: 15, color: colors.navy, lineHeight: 24, fontStyle: 'italic' },
+  quoteText: { fontFamily: fonts.serif, fontSize: 15, color: colors.textPrimary, lineHeight: 24, fontStyle: 'italic' },
 
   // Services
   servicePills:    { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   servicePill:     { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.10)', ...shadows.card },
-  servicePillText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  servicePillText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
 
   // Pricing
   pricelistCard:    { backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadows.card },
   pricelistRow:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16 },
   pricelistDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  pricelistLabel:   { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, flex: 1, marginRight: 12 },
+  pricelistLabel:   { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, flex: 1, marginRight: 12 },
   pricelistPrice:   { fontFamily: fonts.serif, fontSize: 18, color: colors.goldDeep },
 
   // Notes
@@ -1040,9 +1040,9 @@ function __gs_styles(colors) {
     paddingHorizontal: 16, paddingVertical: 14,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)',
   },
-  contactIcon:     { width: 38, height: 38, borderRadius: 9, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  contactIcon:     { width: 38, height: 38, borderRadius: 9, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   contactPlatform: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 2 },
-  contactHandle:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  contactHandle:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
 
   // CTA
   ctaBtn: { marginHorizontal: spacing.md },
@@ -1051,13 +1051,13 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
     alignItems: 'center', justifyContent: 'center',
   },
-  ctaSecondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  ctaSecondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
   ratedBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     height: 48, borderRadius: radius.button, marginHorizontal: spacing.md,
     backgroundColor: 'rgba(245,158,11,0.08)',
   },
-  ratedBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  ratedBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
   rateLockedRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     marginHorizontal: spacing.md, paddingVertical: 6,
