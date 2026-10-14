@@ -264,7 +264,7 @@ export default function CampusConnectScreen({ navigation }) {
           variant="navy"
           onBack={safeGoBack}
           backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="CAMPUS CONNECT"
           title={institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
           subtitle="From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place."
@@ -343,19 +343,19 @@ export default function CampusConnectScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   // Hero
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginTop: 6, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, lineHeight: 38, marginTop: 6, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
   heroStats:       { flexDirection: 'row', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.12)' },
   heroStatItem:    { flex: 1, alignItems: 'flex-start' },
-  heroStatNumber:  { fontFamily: fonts.serif, fontSize: 22, color: colors.cream, lineHeight: 26 },
+  heroStatNumber:  { fontFamily: fonts.serif, fontSize: 22, color: colors.chromeFg, lineHeight: 26 },
   heroStatLabel:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.5)', marginTop: 3, lineHeight: 15 },
   heroStatDivider: { width: 1, backgroundColor: 'rgba(245,240,232,0.12)', marginHorizontal: 16, alignSelf: 'stretch' },
 
@@ -373,7 +373,7 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface, borderRadius: 8,
     paddingHorizontal: 14, height: 48, ...shadows.card,
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
   boardsIntro: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 6, marginBottom: 12, lineHeight: 18 },
   emptyBoardsText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', paddingVertical: spacing.md },
 

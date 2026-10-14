@@ -504,7 +504,7 @@ export default function CourseConnectScreen({ navigation }) {
           variant="navy"
           onBack={safeGoBack}
           backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="COURSE CONNECT"
           title="Course Connect"
           subtitle="Not sorted by course, trade, or path. Connected by what you're actually into, and what's busiest here right now, whatever route got you here."
@@ -564,7 +564,7 @@ export default function CourseConnectScreen({ navigation }) {
               here too since this is where the matching it powers happens. ── */}
           <TouchableOpacity style={styles.interestsBanner} activeOpacity={0.85} onPress={() => setInterestsModalOpen(true)}>
             <View style={styles.interestsBannerIcon}>
-              <Heart size={15} color={colors.cream} strokeWidth={2} />
+              <Heart size={15} color={colors.accentFg} strokeWidth={2} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.interestsBannerLabel}>
@@ -622,7 +622,7 @@ export default function CourseConnectScreen({ navigation }) {
               Real notes shared by students, ranked by how many times they've actually been downloaded.
             </Text>
             {popularNotesLoading ? (
-              <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+              <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.md }} />
             ) : popularNotes.length === 0 ? (
               <Text style={styles.popularEmptyText}>
                 No notes shared yet — be the first to upload one in Notes Exchange.
@@ -672,7 +672,7 @@ export default function CourseConnectScreen({ navigation }) {
           </Text>
 
           {popularLoading ? (
-            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.lg }} />
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.lg }} />
           ) : popularCourses.length === 0 ? (
             <Text style={styles.popularEmptyText}>
               Nothing posted yet — be the first to start a Course Board thread for your course, trade, or workplace.
@@ -774,15 +774,15 @@ export default function CourseConnectScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   // Hero (includes stats)
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginTop: 6, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, lineHeight: 38, marginTop: 6, marginBottom: 10 },
   heroTagline: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.gold, lineHeight: 20, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22, marginBottom: spacing.lg },
 
@@ -794,7 +794,7 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(245,240,232,0.12)',
   },
   heroStatItem:   { flex: 1, alignItems: 'center' },
-  heroStatNumber: { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
+  heroStatNumber: { fontFamily: fonts.serif, fontSize: 20, color: colors.chromeFg },
   heroStatLabel:  { fontFamily: fonts.sans, fontSize: 10, color: 'rgba(245,240,232,0.65)', marginTop: 3, textAlign: 'center', lineHeight: 14 },
   heroStatDivider:{ width: 1, height: 36, backgroundColor: 'rgba(245,240,232,0.15)' },
 
@@ -811,7 +811,7 @@ function __gs_styles(colors) {
   // Interests banner — primary framing now, so it's the bolder (navy) card
   interestsBanner: {
     flexDirection: 'row', gap: 12, alignItems: 'flex-start',
-    backgroundColor: colors.navy, borderRadius: radius.card,
+    backgroundColor: colors.accentBg, borderRadius: radius.card,
     padding: 14, marginTop: spacing.lg,
     ...shadows.card,
   },
@@ -820,14 +820,14 @@ function __gs_styles(colors) {
     alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
   },
   interestsBannerLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
-  interestsBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.cream, lineHeight: 19, marginTop: 4 },
+  interestsBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.accentFg, lineHeight: 19, marginTop: 4 },
   interestsBannerChange:{ fontFamily: fonts.sansMedium, fontSize: 11.5, color: 'rgba(245,240,232,0.65)', marginTop: 6 },
 
   // "Viewing as" note — deliberately a single quiet line, not a competing
   // banner (see the comment where it's rendered for why).
   viewingAsRow: { marginTop: spacing.sm, paddingHorizontal: 2 },
   viewingAsText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, lineHeight: 16 },
-  viewingAsLink: { fontFamily: fonts.sansMedium, color: colors.navy, textDecorationLine: 'underline' },
+  viewingAsLink: { fontFamily: fonts.sansMedium, color: colors.textPrimary, textDecorationLine: 'underline' },
 
   // Academic Support section (white breakout)
   academicSection: {
@@ -844,17 +844,17 @@ function __gs_styles(colors) {
     fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
     letterSpacing: 1.2, marginBottom: 6,
   },
-  academicTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy, lineHeight: 33 },
+  academicTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.textPrimary, lineHeight: 33 },
   academicSub:   { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 8, lineHeight: 21 },
   academicSubLabel: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy,
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textPrimary,
     opacity: 0.55, letterSpacing: 0.8,
   },
   academicSubSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
   // Cross-Ireland section (navy breakout)
   crossIrelandSection: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     marginHorizontal: -spacing.md,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xl,
@@ -865,14 +865,14 @@ function __gs_styles(colors) {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
   },
-  crossIrelandTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, lineHeight: 33 },
+  crossIrelandTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, lineHeight: 33 },
   crossIrelandSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.65)', marginTop: 8, lineHeight: 21 },
 
   // Notes
   noteCard:        { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
-  noteModuleBadge: { backgroundColor: colors.navy, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 5, flexShrink: 0 },
-  noteModuleText:  { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.cream },
-  noteTitle:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, lineHeight: 18 },
+  noteModuleBadge: { backgroundColor: colors.accentBg, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 5, flexShrink: 0 },
+  noteModuleText:  { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.accentFg },
+  noteTitle:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, lineHeight: 18 },
   noteMeta:        { flexDirection: 'row', gap: 5, marginTop: 3 },
   noteMetaText:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
 
@@ -893,20 +893,20 @@ function __gs_styles(colors) {
   },
   popularTileTop:   { flexDirection: 'row', alignItems: 'center', gap: 6 },
   popularTileCount: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.goldDeep },
-  popularTileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 10, lineHeight: 18 },
+  popularTileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: 10, lineHeight: 18 },
 
   // Discussions
   discussionCard:     { padding: 14 },
   discussionTop:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   discussionTime:     { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  discussionQuestion: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, lineHeight: 19 },
+  discussionQuestion: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
   discussionMeta:     { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
   discussionReplies:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, flex: 1 },
-  discussionUni:      { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy, opacity: 0.6 },
+  discussionUni:      { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textPrimary, opacity: 0.6 },
 
   // CTAs
   primaryBtn:     { marginTop: spacing.lg },
   secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
-  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   })
 }
