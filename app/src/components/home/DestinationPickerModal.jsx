@@ -67,7 +67,7 @@ export default function DestinationPickerModal({ visible, options, slotsLeft, on
 function __gs_s(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', alignItems: 'center', justifyContent: 'center', padding: 20 },
-  sheet: { backgroundColor: colors.white, borderRadius: radius.card, padding: 20, width: '100%', maxWidth: 380 },
+  sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 20, width: '100%', maxWidth: 380 },
   header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14, gap: 12 },
   title: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
   sub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },

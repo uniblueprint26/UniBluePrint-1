@@ -199,7 +199,7 @@ function __gs_styles(colors) {
   card: {
     width: '100%',
     maxWidth: 380,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     padding: 20,
     ...shadows.elevated,
@@ -229,7 +229,7 @@ function __gs_styles(colors) {
   },
   methodIconWrap: {
     width: 30, height: 30, borderRadius: 9,
-    backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
   },
   methodLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },

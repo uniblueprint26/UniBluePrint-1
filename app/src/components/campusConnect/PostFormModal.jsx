@@ -360,7 +360,7 @@ function getStyles(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
@@ -374,7 +374,7 @@ function getStyles(colors) {
   },
   chip: {
     borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8,
-    borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.15)', backgroundColor: colors.white,
+    borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.15)', backgroundColor: colors.surface,
   },
   chipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
   chipText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },

@@ -211,7 +211,7 @@ function getStyles(colors) {
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.card + 4,
     borderTopRightRadius: radius.card + 4,
     paddingHorizontal: spacing.lg,
