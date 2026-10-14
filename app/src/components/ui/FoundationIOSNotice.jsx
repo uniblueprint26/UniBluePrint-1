@@ -55,7 +55,7 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
           {serviceTitle} is ordered and paid for on uniblueprint.ie, not in the app.
         </Text>
         <View style={styles.badge}>
-          <UserCheck size={14} color={colors.navy} strokeWidth={2} />
+          <UserCheck size={14} color={colors.textPrimary} strokeWidth={2} />
           <Text style={styles.badgeText}>Reviewed by a real Campus Handler, never AI-only</Text>
         </View>
         <Text style={styles.sub}>
@@ -68,12 +68,12 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg },
 
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl },
-  message: { fontFamily: fonts.sans, fontSize: 15, color: colors.navy, textAlign: 'center', lineHeight: 22 },
+  message: { fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, textAlign: 'center', lineHeight: 22 },
 
   badge: {
     flexDirection: 'row', alignItems: 'center', gap: 7,
@@ -81,7 +81,7 @@ function __gs_styles(colors) {
     paddingHorizontal: 14, paddingVertical: 8, marginTop: 18,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
-  badgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  badgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
 
   sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 16, lineHeight: 19 },
   })

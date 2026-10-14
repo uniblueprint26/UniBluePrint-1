@@ -153,7 +153,7 @@ const FoundationCheckoutModal = forwardRef(function FoundationCheckoutModal(_pro
           {(phase === 'creating' || phase === 'awaiting_payment') && (
             <>
               <View style={styles.iconBox}>
-                <CreditCard size={28} color={colors.navy} strokeWidth={1.5} />
+                <CreditCard size={28} color={colors.textPrimary} strokeWidth={1.5} />
               </View>
               <Text style={styles.title}>
                 {phase === 'creating' ? 'Preparing checkout…' : 'Waiting for payment'}
@@ -163,7 +163,7 @@ const FoundationCheckoutModal = forwardRef(function FoundationCheckoutModal(_pro
                   ? 'One moment.'
                   : `Complete your ${amountCents != null ? formatEuro(amountCents) + ' ' : ''}payment in the browser tab that just opened, then come back here.`}
               </Text>
-              <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 18 }} />
+              <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 18 }} />
               {phase === 'awaiting_payment' && (
                 <>
                   <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={checkOnce}>
@@ -230,18 +230,18 @@ function getStyles(colors) {
     marginBottom: 14,
   },
   iconBoxError: { backgroundColor: 'rgba(220,38,38,0.08)' },
-  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, textAlign: 'center' },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, textAlign: 'center' },
   body: {
     fontFamily: fonts.sans, fontSize: 14, color: colors.muted,
     textAlign: 'center', marginTop: 10, lineHeight: 20, maxWidth: 300,
   },
   primaryBtn: {
-    marginTop: 22, backgroundColor: colors.navy, borderRadius: radius.button,
+    marginTop: 22, backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingHorizontal: 28, paddingVertical: 13, width: '100%', alignItems: 'center',
   },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.cream },
+  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.accentFg },
   retryBtn: { marginTop: 12, paddingVertical: 4 },
-  retryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.navy },
+  retryBtnText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textPrimary },
   cancelBtn: { marginTop: 14, paddingVertical: 4 },
   cancelBtnText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.muted },
   })
