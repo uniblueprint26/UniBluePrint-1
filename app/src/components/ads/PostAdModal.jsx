@@ -93,7 +93,7 @@ export default function PostAdModal({ visible, onClose }) {
               accessibilityRole="button"
               accessibilityLabel="Close"
             >
-              <X size={15} color={colors.navy} strokeWidth={2.5} />
+              <X size={15} color={colors.chromeBg} strokeWidth={2.5} />
             </TouchableOpacity>
           </View>
 
@@ -133,7 +133,7 @@ export default function PostAdModal({ visible, onClose }) {
                       <b.Icon size={15} color={active ? colors.cream : colors.muted} strokeWidth={1.8} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={[m.boardLabel, active && { color: colors.navy }]}>{b.label}</Text>
+                      <Text style={[m.boardLabel, active && { color: colors.textPrimary }]}>{b.label}</Text>
                       <Text style={m.boardSub}>
                         {b.key === 'cross-ireland' ? 'Visible to all users across Ireland'
                           : b.key === 'campus' ? 'Visible on the Campus Connect board'
@@ -141,7 +141,7 @@ export default function PostAdModal({ visible, onClose }) {
                           : 'Visible on the Marketplace page of the Weekly Blueprint'}
                       </Text>
                     </View>
-                    <View style={[m.checkCircle, active && { backgroundColor: colors.navy, borderColor: colors.navy }]}>
+                    <View style={[m.checkCircle, active && { backgroundColor: colors.accentBg, borderColor: colors.accentBg }]}>
                       {active && <View style={m.checkInner} />}
                     </View>
                   </TouchableOpacity>
@@ -162,14 +162,14 @@ export default function PostAdModal({ visible, onClose }) {
 
 function __gs_m(colors) {
   return StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.cream },
-  header: { backgroundColor: colors.navy, paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  container: { flex: 1, backgroundColor: colors.background },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.chromeFg },
   headerSub: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.55)', marginTop: 4 },
-  closeBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 },
+  closeBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.chromeFg, alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 },
   scroll: { padding: 20, paddingBottom: 60 },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 8 },
-  input: { backgroundColor: colors.surface, borderRadius: radius.button, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)', paddingHorizontal: 14, paddingVertical: 12, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  input: { backgroundColor: colors.surface, borderRadius: radius.button, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)', paddingHorizontal: 14, paddingVertical: 12, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
   textArea: { height: 110, paddingTop: 12 },
   charCount: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'right', marginTop: 5 },
   boardHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 12 },
@@ -179,10 +179,10 @@ function __gs_m(colors) {
   boardLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.muted, marginBottom: 2 },
   boardSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, lineHeight: 17 },
   checkCircle: { width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.2)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  checkInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.cream },
-  submitBtn: { marginTop: 28, backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 15, alignItems: 'center' },
+  checkInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accentFg },
+  submitBtn: { marginTop: 28, backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 15, alignItems: 'center' },
   submitBtnDisabled: { opacity: 0.35 },
-  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   submitNote: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, textAlign: 'center', marginTop: 14, lineHeight: 18 },
   })
 }

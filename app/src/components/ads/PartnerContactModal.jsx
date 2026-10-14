@@ -155,7 +155,7 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
                     onPress={m.onPress}
                   >
                     <View style={styles.methodIconWrap}>
-                      <m.Icon size={15} color={colors.navy} strokeWidth={1.8} />
+                      <m.Icon size={15} color={colors.textPrimary} strokeWidth={1.8} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.methodLabel}>{m.label}</Text>
@@ -176,7 +176,7 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
                 {name} hasn't added a direct contact yet. Message the UniBlueprint team and we'll connect you.
               </Text>
               <TouchableOpacity style={styles.teamBtn} activeOpacity={0.85} onPress={messageTeam}>
-                <Mail size={14} color={colors.cream} strokeWidth={2} />
+                <Mail size={14} color={colors.accentFg} strokeWidth={2} />
                 <Text style={styles.teamBtnText}>Message the UniBlueprint team</Text>
               </TouchableOpacity>
             </View>
@@ -207,24 +207,24 @@ function __gs_styles(colors) {
   closeBtn: {
     position: 'absolute', top: 14, right: 14, zIndex: 1,
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center',
   },
 
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 30 },
   logo: { width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  brand: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, lineHeight: 24 },
+  brand: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, lineHeight: 24 },
   title: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
   rule: { width: 34, height: 2, backgroundColor: colors.gold, borderRadius: 1, marginTop: 16, marginBottom: 14 },
 
-  description: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 19 },
+  description: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
 
   contactSection: { marginTop: 18 },
   sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8 },
   methodList: { marginTop: 10, gap: 8 },
   methodRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.cream, borderRadius: radius.button,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.button,
     paddingHorizontal: 12, paddingVertical: 10,
   },
   methodIconWrap: {
@@ -233,20 +233,20 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
   },
   methodLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
-  methodValue: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.navy, marginTop: 1 },
+  methodValue: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textPrimary, marginTop: 1 },
 
   emptyState: { marginTop: 18, alignItems: 'center', paddingVertical: 6 },
   emptyIconWrap: {
     width: 44, height: 44, borderRadius: 22,
-    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center',
   },
-  emptyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, marginTop: 10 },
+  emptyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary, marginTop: 10 },
   emptyBody: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, textAlign: 'center', marginTop: 6, lineHeight: 17, paddingHorizontal: 6 },
   teamBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingHorizontal: 16, paddingVertical: 11, marginTop: 16, alignSelf: 'stretch',
   },
-  teamBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.cream },
+  teamBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.accentFg },
   })
 }
