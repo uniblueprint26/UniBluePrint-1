@@ -251,7 +251,7 @@ function __gs_styles(colors) {
   },
   emptyIconBox: {
     width: 76, height: 76, borderRadius: 20,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 24,
     ...shadows.card,

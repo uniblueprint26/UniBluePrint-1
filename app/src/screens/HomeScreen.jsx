@@ -613,7 +613,7 @@ function __gs_styles(colors) {
   mainTopBar: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 14, paddingVertical: 14,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
     zIndex: 10, elevation: 10,
   },
@@ -622,7 +622,7 @@ function __gs_styles(colors) {
 
   portalSwitchRow: {
     paddingHorizontal: 14, paddingVertical: 10,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
     alignItems: 'flex-start',
     zIndex: 9, elevation: 9,

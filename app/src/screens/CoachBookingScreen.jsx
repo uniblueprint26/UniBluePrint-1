@@ -300,7 +300,7 @@ function __gs_styles(colors) {
 
   coachRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: radius.card, padding: 14,
+    backgroundColor: colors.surface, borderRadius: radius.card, padding: 14,
     marginBottom: spacing.xl, ...shadows.card,
   },
   coachAvatar: {
@@ -316,7 +316,7 @@ function __gs_styles(colors) {
   dayRow: { gap: 8, paddingRight: spacing.md },
   dayChip: {
     width: 58, alignItems: 'center', paddingVertical: 10,
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },
   dayChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
@@ -330,7 +330,7 @@ function __gs_styles(colors) {
   timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   timeChip: {
     paddingHorizontal: 16, paddingVertical: 11,
-    backgroundColor: colors.white, borderRadius: radius.pill,
+    backgroundColor: colors.surface, borderRadius: radius.pill,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },
   timeChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
@@ -338,7 +338,7 @@ function __gs_styles(colors) {
   timeChipTextActive: { color: colors.cream },
 
   input: {
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     padding: 14, minHeight: 90, marginTop: 4,
     fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
@@ -365,7 +365,7 @@ function __gs_styles(colors) {
   // Confirmation state
   confirmWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl },
   confirmIconWrap: {
-    width: 88, height: 88, borderRadius: 44, backgroundColor: colors.white,
+    width: 88, height: 88, borderRadius: 44, backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', marginBottom: 20, ...shadows.elevated,
   },
   confirmTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center', marginBottom: 10 },

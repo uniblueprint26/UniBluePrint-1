@@ -169,7 +169,7 @@ function getStyles(colors) {
   topicHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.sm },
   topicIcon: {
     width: 36, height: 36, borderRadius: 8,
-    backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
   topicTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.navy },

@@ -327,7 +327,7 @@ function __gs_m(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
@@ -948,7 +948,7 @@ function __gs_styles(colors) {
   // warmer, more premium editorial feel.
   taglineBlock: {
     marginHorizontal: spacing.md, marginBottom: spacing.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 10,
     borderLeftWidth: 3, borderLeftColor: colors.gold,
     ...shadows.card,
@@ -961,7 +961,7 @@ function __gs_styles(colors) {
 
   // Shell
   shellBlock: {
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     padding: 24, alignItems: 'center', ...shadows.card,
   },
   shellText: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 22 },
@@ -995,7 +995,7 @@ function __gs_styles(colors) {
 
   // Quote
   quoteBlock: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderLeftWidth: 3, borderLeftColor: colors.gold,
     borderRadius: 6, padding: 18, ...shadows.card,
   },
@@ -1003,11 +1003,11 @@ function __gs_styles(colors) {
 
   // Services
   servicePills:    { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  servicePill:     { backgroundColor: colors.white, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.10)', ...shadows.card },
+  servicePill:     { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.10)', ...shadows.card },
   servicePillText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
 
   // Pricing
-  pricelistCard:    { backgroundColor: colors.white, borderRadius: radius.card, overflow: 'hidden', ...shadows.card },
+  pricelistCard:    { backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadows.card },
   pricelistRow:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16 },
   pricelistDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   pricelistLabel:   { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, flex: 1, marginRight: 12 },
@@ -1034,7 +1034,7 @@ function __gs_styles(colors) {
   packageText: { fontFamily: fonts.sans, fontSize: 14, color: '#166534', lineHeight: 21, flex: 1 },
 
   // Contact
-  contactList: { backgroundColor: colors.white, borderRadius: radius.card, overflow: 'hidden', ...shadows.card },
+  contactList: { backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadows.card },
   contactRow: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     paddingHorizontal: 16, paddingVertical: 14,

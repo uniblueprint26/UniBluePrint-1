@@ -367,7 +367,7 @@ function __gs_s(colors) {
   errorText:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 20 },
   emptyIconBox: {
     width: 64, height: 64, borderRadius: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center',
     ...shadows.card,
   },
@@ -386,7 +386,7 @@ function __gs_s(colors) {
 
   bubble:      { borderRadius: 14, paddingHorizontal: 13, paddingVertical: 9, maxWidth: '100%' },
   bubbleOwn:   { backgroundColor: colors.navy, borderBottomRightRadius: 4 },
-  bubbleOther: { backgroundColor: colors.white, borderBottomLeftRadius: 4, ...shadows.card },
+  bubbleOther: { backgroundColor: colors.surface, borderBottomLeftRadius: 4, ...shadows.card },
 
   bubbleText:      { fontFamily: fonts.sans, fontSize: 14, lineHeight: 20 },
   bubbleTextOwn:   { color: colors.cream },
@@ -398,7 +398,7 @@ function __gs_s(colors) {
   // Input bar
   inputBar: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 10,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
     paddingTop: 10,
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
@@ -424,7 +424,7 @@ function __gs_s(colors) {
 
   // More / block-report sheet
   moreSheet: {
-    flex: 1, backgroundColor: colors.white,
+    flex: 1, backgroundColor: colors.surface,
     paddingHorizontal: spacing.md, paddingTop: 16, paddingBottom: 32,
   },
   moreHandle: {

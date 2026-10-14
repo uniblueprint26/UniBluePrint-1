@@ -479,7 +479,7 @@ function __gs_s(colors) {
   bundleTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
   bundleIconBox: {
     width: 40, height: 40, borderRadius: radius.circle,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)',
   },
@@ -526,7 +526,7 @@ function __gs_s(colors) {
 
   // Free tools list card
   freeCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     ...shadows.card,
     overflow: 'hidden',
@@ -563,7 +563,7 @@ function __gs_s(colors) {
 
   // Individual tool card
   toolCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.card,
     padding: 18,
     ...shadows.card,

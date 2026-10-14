@@ -543,7 +543,7 @@ function __gs_styles(colors) {
   emptyWrap: { alignItems: 'center', paddingHorizontal: 32, paddingTop: 48 },
   emptyIconBox: {
     width: 76, height: 76, borderRadius: 20,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 24, ...shadows.card,
   },
@@ -561,7 +561,7 @@ function __gs_styles(colors) {
 
   // "New message" composer sheet
   composeSheet: {
-    flex: 1, backgroundColor: colors.white,
+    flex: 1, backgroundColor: colors.surface,
     paddingHorizontal: spacing.md, paddingTop: 16,
   },
   composeHandle: {
