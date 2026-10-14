@@ -30,6 +30,7 @@ import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { WEBSITE_LINKS } from '../constants/site'
 
 const { width: SCREEN_W } = Dimensions.get('window')
@@ -87,6 +88,7 @@ export default function PricingScreen({ navigation }) {
   // here without this (L3).
   useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const { subscription } = useAuth()
   const scrollRef = useRef(null)
   const scrollX = useRef(new Animated.Value(0)).current
@@ -109,7 +111,7 @@ export default function PricingScreen({ navigation }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         eyebrow="TRANSPARENT PRICING"
         title="Simple. Honest. No surprises."
         subtitle={IS_IOS ? 'Free to join. See what each plan includes below.' : "Free to join. Upgrade only when you're ready."}

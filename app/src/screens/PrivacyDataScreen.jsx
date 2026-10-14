@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // Export and deletion are both immediate and self-service (GDPR Art. 17/20,
 // and Apple Guideline 5.1.1(v) requires the deletion half specifically):
@@ -26,6 +27,7 @@ export default function PrivacyDataScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const { user, signOut } = useAuth()
 
   const [requests, setRequests] = useState([])
@@ -120,7 +122,7 @@ export default function PrivacyDataScreen({ navigation }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         title="Privacy and Data"
         subtitle="Your rights over your personal data under GDPR."
         style={styles.header}

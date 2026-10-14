@@ -6,6 +6,7 @@ import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 const TOPICS = [
   {
@@ -45,6 +46,7 @@ export default function HelpScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   // Inline accordion, same expand-to-read-more pattern as FAQsScreen, rather
   // than a system Alert.alert popup — keyed by "section-index" since item
   // labels aren't unique across topic sections.
@@ -58,7 +60,7 @@ export default function HelpScreen({ navigation }) {
     >
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         eyebrow="SUPPORT"
         title="Help and Support"
         subtitle="Everything you need to get the most out of UniBlueprint."

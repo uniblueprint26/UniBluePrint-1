@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { usePushRegistration } from '../hooks/usePushRegistration'
 import { useNotificationDeepLinking } from '../hooks/useNotificationDeepLinking'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
 import TabCoachMark from '../components/onboarding/TabCoachMark'
@@ -203,9 +204,10 @@ function ProfileStack() {
       <Stack.Screen name="Help"         component={HelpScreen}        />
       <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
       <Stack.Screen name="BlueprintTour" options={{ gestureEnabled: false }}>
-        {({ navigation }) => (
-          <BlueprintTourScreen mode="replay" onFinish={() => navigation.goBack()} />
-        )}
+        {({ navigation }) => {
+          const safeGoBack = useSafeGoBack(navigation)
+          return <BlueprintTourScreen mode="replay" onFinish={safeGoBack} />
+        }}
       </Stack.Screen>
     </Stack.Navigator>
   )

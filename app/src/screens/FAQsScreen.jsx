@@ -7,6 +7,7 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { WEBSITE_LINKS } from '../constants/site'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 const FAQS = [
   {
@@ -53,6 +54,7 @@ export default function FAQsScreen({ navigation }) {
   const styles = getStyles(colors)
   const [open, setOpen] = useState(null)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
 
   return (
     <ScrollView
@@ -62,7 +64,7 @@ export default function FAQsScreen({ navigation }) {
     >
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         eyebrow="SUPPORT"
         title="FAQs"
         subtitle="Common questions about UniBlueprint, answered."

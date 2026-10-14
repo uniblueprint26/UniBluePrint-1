@@ -13,6 +13,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -74,6 +75,7 @@ const TIMELINE = [
 export default function AboutScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { colors } = useTheme()
+  const safeGoBack = useSafeGoBack(navigation)
   return (
     <ScrollView
       style={[styles.screen, { backgroundColor: colors.background }]}
@@ -83,7 +85,7 @@ export default function AboutScreen({ navigation }) {
       {/* Hero */}
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         eyebrow="OUR STORY"
         title="Built from a birthday dinner in Belfast."
         subtitle="An 18-year-old founder from Ballyhaunis, County Mayo. A conversation at a Belfast birthday dinner that changed everything. This is how UniBlueprint started."
