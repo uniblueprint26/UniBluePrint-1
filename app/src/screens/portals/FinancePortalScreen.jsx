@@ -102,7 +102,7 @@ export default function FinancePortalScreen({ navigation }) {
         {/* Revenue — modelled off list price, not a reconciled Stripe figure;
             see migration 20260829140000 for why. */}
         <View style={styles.sectionRow}>
-          <TrendingUp size={14} color={colors.navy} />
+          <TrendingUp size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>SUBSCRIPTION REVENUE</Text>
         </View>
         <Text style={styles.sectionCaption}>
@@ -137,7 +137,7 @@ export default function FinancePortalScreen({ navigation }) {
 
         {/* Handler commissions */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <HandCoins size={14} color={colors.navy} />
+          <HandCoins size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>HANDLER COMMISSIONS</Text>
         </View>
         <Card style={styles.summaryCard}>
@@ -163,7 +163,7 @@ export default function FinancePortalScreen({ navigation }) {
 
         {/* Lifestyle partner payouts */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <Percent size={14} color={colors.navy} />
+          <Percent size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>PARTNER PAYOUTS</Text>
         </View>
         <Card style={styles.summaryCard}>
@@ -191,10 +191,10 @@ export default function FinancePortalScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
@@ -203,7 +203,7 @@ function __gs_styles(colors) {
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   statPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
-  statPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  statPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
 
   summaryCard: {},
   summaryRow: { flexDirection: 'row', marginBottom: 2 },

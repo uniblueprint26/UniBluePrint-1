@@ -259,7 +259,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
           onPress={() => activeIssue ? closeIssue() : safeGoBack()}
           activeOpacity={0.7}
         >
-          <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+          <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
           <Text style={s.backBtnText}>{activeIssue ? 'All Issues' : 'Founder Dashboard'}</Text>
         </TouchableOpacity>
         <Text style={s.headerTitle}>{activeIssue ? `Issue ${activeIssue.issue_number}` : 'The Weekly Blueprint'}</Text>
@@ -271,11 +271,11 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
+        <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 40 }} />
       ) : !activeIssue ? (
         <ScrollView style={s.scrollView} contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
           <TouchableOpacity style={s.newIssueBtn} activeOpacity={0.85} onPress={createIssue}>
-            <Plus size={16} color={colors.cream} strokeWidth={2.5} />
+            <Plus size={16} color={colors.accentFg} strokeWidth={2.5} />
             <Text style={s.newIssueBtnText}>New Issue</Text>
           </TouchableOpacity>
           {issues.length === 0 ? (
@@ -320,7 +320,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
               <Switch
                 value={activeIssue.published}
                 onValueChange={requestSetPublished}
-                trackColor={{ false: 'rgba(30,58,95,0.15)', true: colors.navy }}
+                trackColor={{ false: 'rgba(30,58,95,0.15)', true: colors.accentBg }}
               />
             </View>
           </Card>
@@ -344,8 +344,8 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
                 disabled={saving === pageKey}
               >
                 {savedFlash === pageKey
-                  ? <><CheckCircle2 size={14} color={colors.cream} /><Text style={s.saveBtnText}>Saved</Text></>
-                  : <><Save size={14} color={colors.cream} /><Text style={s.saveBtnText}>{saving === pageKey ? 'Saving…' : 'Save'}</Text></>
+                  ? <><CheckCircle2 size={14} color={colors.accentFg} /><Text style={s.saveBtnText}>Saved</Text></>
+                  : <><Save size={14} color={colors.accentFg} /><Text style={s.saveBtnText}>{saving === pageKey ? 'Saving…' : 'Save'}</Text></>
                 }
               </TouchableOpacity>
             </Card>
@@ -359,46 +359,46 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
 
 function __gs_s(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 20 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginBottom: 6 },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg, marginBottom: 6 },
   headerSub: { fontFamily: fonts.sans, fontSize: 12.5, color: 'rgba(245,240,232,0.65)', lineHeight: 18 },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
   newIssueBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginBottom: 16,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, marginBottom: 16,
   },
-  newIssueBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  newIssueBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
 
   issueCard: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
-  issueTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  issueTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   issueSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   statusBadge: { backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   statusBadgeLive: { backgroundColor: '#F0FDF4' },
   statusBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted },
   statusBadgeTextLive: { color: '#15803D' },
 
-  pageLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  pageLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   fieldLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 6 },
   fieldHint: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginBottom: 8, lineHeight: 15 },
   input: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     paddingHorizontal: 14, paddingVertical: 12,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   textArea: { minHeight: 72 },
   publishRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 18, paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
 
   saveBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 11, marginTop: 14,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 11, marginTop: 14,
   },
-  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
   })
 }

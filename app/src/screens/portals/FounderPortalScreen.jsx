@@ -126,7 +126,7 @@ function PhotoPickerModal({ visible, onClose, entity }) {
             Replacing this photo updates it live for every user. No re-upload elsewhere needed.
           </Text>
           {loading ? (
-            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 16 }} />
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 16 }} />
           ) : loadError ? (
             <View style={pm.errorBox}>
               <Text style={pm.errorText}>{loadError}</Text>
@@ -155,7 +155,7 @@ function __gs_pm(colors) {
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
   sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: spacing.lg, width: '100%', maxWidth: 360 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  title: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17, marginBottom: 16 },
   errorBox: {
     backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
@@ -320,12 +320,12 @@ export default function FounderPortalScreen({ navigation }) {
         )}
 
         <View style={styles.sectionRow}>
-          <Users size={14} color={colors.navy} />
+          <Users size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>PLATFORM</Text>
         </View>
         <StatTileRow>
           <StatTile
-            icon={Users} iconBg="#EFF6FF" iconColor={colors.navy}
+            icon={Users} iconBg="#EFF6FF" iconColor={colors.textPrimary}
             value={userCount != null ? formatNumber(userCount) : '—'} label="Total Users" border
           />
           <StatTile
@@ -345,13 +345,13 @@ export default function FounderPortalScreen({ navigation }) {
         </View>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <Inbox size={14} color={colors.navy} />
+          <Inbox size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>REQUEST QUEUE</Text>
         </View>
         <Card style={styles.queueCard}>
           <View style={styles.queueRow}>
             <StatTile
-              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.navy}
+              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary}
               value={queue?.queued != null ? formatNumber(queue.queued) : '—'} label="Queued" border
             />
             <StatTile
@@ -374,7 +374,7 @@ export default function FounderPortalScreen({ navigation }) {
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <ShieldAlert size={14} color={colors.navy} />
+          <ShieldAlert size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>COMPLIANCE</Text>
         </View>
         <Card style={styles.complianceCard}>
@@ -383,7 +383,7 @@ export default function FounderPortalScreen({ navigation }) {
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <Newspaper size={14} color={colors.navy} />
+          <Newspaper size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>THE WEEKLY BLUEPRINT</Text>
         </View>
         <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('WeeklyIssueEditor')}>
@@ -397,7 +397,7 @@ export default function FounderPortalScreen({ navigation }) {
         </TouchableOpacity>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <Sparkles size={14} color={colors.navy} />
+          <Sparkles size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>HOME SPOTLIGHT CAROUSEL</Text>
         </View>
         <Text style={styles.sectionCaption}>
@@ -429,12 +429,12 @@ export default function FounderPortalScreen({ navigation }) {
         ))}
 
         <TouchableOpacity style={styles.addFeaturedBtn} activeOpacity={0.8} onPress={openAdd}>
-          <Plus size={15} color={colors.navy} strokeWidth={2.2} />
+          <Plus size={15} color={colors.textPrimary} strokeWidth={2.2} />
           <Text style={styles.addFeaturedBtnText}>Add to Spotlight</Text>
         </TouchableOpacity>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <ImageIcon size={14} color={colors.navy} />
+          <ImageIcon size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>MANAGE PHOTOS</Text>
         </View>
         <Text style={styles.sectionCaption}>
@@ -550,11 +550,11 @@ export default function FounderPortalScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
@@ -564,7 +564,7 @@ function __gs_styles(colors) {
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   rolePill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
-  rolePillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, textTransform: 'capitalize' },
+  rolePillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, textTransform: 'capitalize' },
   emptyText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic' },
 
   queueCard: {},
@@ -574,20 +574,20 @@ function __gs_styles(colors) {
   urgencyText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginRight: 8 },
 
   complianceCard: { alignItems: 'center', paddingVertical: 20 },
-  complianceValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.navy },
+  complianceValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.textPrimary },
   complianceLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 4 },
 
   weeklyLinkCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  weeklyLinkTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  weeklyLinkTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   weeklyLinkSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
 
-  photoGroupLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, marginTop: 14, marginBottom: 2 },
+  photoGroupLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary, marginTop: 14, marginBottom: 2 },
   photoPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
-  photoPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  photoPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
 
   featuredRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8, padding: 14 },
   featuredType: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  featuredName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, marginTop: 2 },
+  featuredName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary, marginTop: 2 },
   featuredCaption: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2, fontStyle: 'italic' },
   featuredRemoveBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(220,38,38,0.08)' },
 
@@ -597,20 +597,20 @@ function __gs_styles(colors) {
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.18)', borderStyle: 'dashed',
     backgroundColor: 'rgba(30,58,95,0.03)',
   },
-  addFeaturedBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  addFeaturedBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   addLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 14, marginBottom: 6 },
-  typePill: { backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)', maxWidth: 220 },
-  typePillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  typePillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
-  typePillTextActive: { color: colors.cream },
+  typePill: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)', maxWidth: 220 },
+  typePillActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  typePillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
+  typePillTextActive: { color: colors.accentFg },
   captionInput: {
-    fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)', borderRadius: radius.button,
     paddingHorizontal: 12, paddingVertical: 10,
   },
-  confirmAddBtn: { backgroundColor: colors.navy, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: 18, marginBottom: 4 },
-  confirmAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.cream },
+  confirmAddBtn: { backgroundColor: colors.accentBg, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center', marginTop: 18, marginBottom: 4 },
+  confirmAddBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.accentFg },
 
   errorBox: {
     marginBottom: spacing.md, backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,

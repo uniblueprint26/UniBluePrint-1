@@ -120,13 +120,13 @@ export default function OperationsPortalScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.sectionRow}>
-          <Inbox size={14} color={colors.navy} />
+          <Inbox size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>REQUEST QUEUE</Text>
         </View>
         <Card style={styles.queueCard}>
           <View style={styles.queueRow}>
             <StatTile
-              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.navy}
+              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary}
               value={queue?.queued != null ? formatNumber(queue.queued) : '—'} label="Queued" border
             />
             <StatTile
@@ -149,13 +149,13 @@ export default function OperationsPortalScreen({ navigation }) {
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <ShieldAlert size={14} color={colors.navy} />
+          <ShieldAlert size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>GDPR REQUESTS AWAITING ACTION</Text>
         </View>
         <Card style={{ padding: 0 }}>
           {gdprLoading ? (
             <View style={styles.gdprStateRow}>
-              <ActivityIndicator size="small" color={colors.navy} />
+              <ActivityIndicator size="small" color={colors.textPrimary} />
               <Text style={styles.gdprStateText}>Loading GDPR requests…</Text>
             </View>
           ) : gdprError ? (
@@ -164,7 +164,7 @@ export default function OperationsPortalScreen({ navigation }) {
                 <Text style={styles.gdprErrorText}>Couldn't load GDPR requests. This may be hiding a real backlog — please retry.</Text>
               </View>
               <TouchableOpacity style={styles.retryBtn} activeOpacity={0.8} onPress={loadGdpr}>
-                <RotateCcw size={13} color={colors.navy} strokeWidth={2} />
+                <RotateCcw size={13} color={colors.textPrimary} strokeWidth={2} />
                 <Text style={styles.retryBtnText}>Retry</Text>
               </TouchableOpacity>
             </View>
@@ -184,7 +184,7 @@ export default function OperationsPortalScreen({ navigation }) {
                   </Text>
                 </View>
                 <TouchableOpacity style={styles.markDoneBtn} activeOpacity={0.8} onPress={() => openMarkDone(r)}>
-                  <Check size={13} color={colors.navy} />
+                  <Check size={13} color={colors.textPrimary} />
                   <Text style={styles.markDoneBtnText}>Mark Done</Text>
                 </TouchableOpacity>
               </View>
@@ -193,7 +193,7 @@ export default function OperationsPortalScreen({ navigation }) {
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <MessageSquare size={14} color={colors.navy} />
+          <MessageSquare size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>RECENT COACH ENQUIRIES</Text>
         </View>
         <Card style={{ padding: 0 }}>
@@ -262,10 +262,10 @@ export default function OperationsPortalScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
@@ -286,9 +286,9 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 7,
   },
-  markDoneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
+  markDoneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textPrimary },
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  listRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, textTransform: 'capitalize' },
+  listRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, textTransform: 'capitalize' },
   listRowSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, textTransform: 'capitalize' },
   emptyRow: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic', padding: 14 },
   gdprStateRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
@@ -299,7 +299,7 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 7,
   },
-  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
+  retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textPrimary },
 
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   modalSheet: {
@@ -307,16 +307,16 @@ function __gs_styles(colors) {
     padding: spacing.lg, paddingBottom: 34,
   },
   modalHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 },
-  modalTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  modalTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
   modalSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
   modalInput: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     padding: 14, minHeight: 84,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
     marginBottom: 14,
   },
-  modalSaveBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
-  modalSaveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  modalSaveBtn: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, alignItems: 'center' },
+  modalSaveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }

@@ -109,7 +109,7 @@ export default function PartnerPortalScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
-          <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 40 }} />
         ) : loadError ? (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{loadError}</Text>
@@ -128,11 +128,11 @@ export default function PartnerPortalScreen({ navigation }) {
         ) : (
           <>
             <View style={styles.sectionRow}>
-              <TrendingUp size={14} color={colors.navy} />
+              <TrendingUp size={14} color={colors.textPrimary} />
               <Text style={styles.sectionEyebrow}>THIS PERIOD</Text>
             </View>
             <StatTileRow>
-              <StatTile icon={Eye} iconBg="#EFF6FF" iconColor={colors.navy} value={stats.views ?? 0} label="Deal Views" border />
+              <StatTile icon={Eye} iconBg="#EFF6FF" iconColor={colors.textPrimary} value={stats.views ?? 0} label="Deal Views" border />
               <StatTile icon={Tag} iconBg="#FEF9C3" iconColor={colors.goldDeep} value={stats.claims ?? 0} label="Deal Claims" />
             </StatTileRow>
 
@@ -142,11 +142,11 @@ export default function PartnerPortalScreen({ navigation }) {
             </Card>
 
             <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-              <Award size={14} color={colors.navy} />
+              <Award size={14} color={colors.textPrimary} />
               <Text style={styles.sectionEyebrow}>YOUR TIER & TERMS</Text>
             </View>
             {tierLoading ? (
-              <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 8 }} />
+              <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 8 }} />
             ) : tierError ? (
               <View style={styles.errorBox}>
                 <Text style={styles.errorText}>{tierError}</Text>
@@ -208,17 +208,17 @@ export default function PartnerPortalScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
-  header: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream },
+  header: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
   sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
 
   engagedCard: { alignItems: 'center', marginTop: 12, paddingVertical: 20 },
-  engagedValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.navy },
+  engagedValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.textPrimary },
   engagedLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 4, textAlign: 'center' },
 
   footnote: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 14, lineHeight: 16, fontStyle: 'italic' },
@@ -231,14 +231,14 @@ function __gs_styles(colors) {
     marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
   },
   tierRowLabel: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted },
-  tierRowValue: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
+  tierRowValue: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary },
   negotiatedBox: {
     marginTop: 12, padding: 12, borderRadius: radius.button,
     backgroundColor: '#FFFBEB',
   },
   negotiatedHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   negotiatedRate: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldDeep },
-  negotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
+  negotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
   negotiatedEffective: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 6 },
 
   unlinkedCard: { marginTop: 10 },

@@ -103,7 +103,7 @@ export default function PartnerTieringAdmin() {
   return (
     <View>
       <View style={styles.sectionRow}>
-        <Layers size={14} color={colors.navy} />
+        <Layers size={14} color={colors.textPrimary} />
         <Text style={styles.sectionEyebrow}>PARTNER TIERING</Text>
       </View>
       <Text style={styles.sectionCaption}>
@@ -126,7 +126,7 @@ export default function PartnerTieringAdmin() {
       <Card style={{ padding: 0 }}>
         {loading ? (
           <View style={styles.stateRow}>
-            <ActivityIndicator size="small" color={colors.navy} />
+            <ActivityIndicator size="small" color={colors.textPrimary} />
             <Text style={styles.stateText}>Loading roster…</Text>
           </View>
         ) : loadError ? (
@@ -336,7 +336,7 @@ function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onVie
                   <Text style={styles.pillClearText}>Clear</Text>
                 </TouchableOpacity>
               )}
-              {savingTier && <ActivityIndicator size="small" color={colors.navy} />}
+              {savingTier && <ActivityIndicator size="small" color={colors.textPrimary} />}
             </View>
 
             <Text style={styles.fieldLabel}>Payment option</Text>
@@ -362,7 +362,7 @@ function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onVie
                   <Text style={styles.pillClearText}>Clear</Text>
                 </TouchableOpacity>
               )}
-              {savingPayment && <ActivityIndicator size="small" color={colors.navy} />}
+              {savingPayment && <ActivityIndicator size="small" color={colors.textPrimary} />}
             </View>
 
             <Text style={styles.fieldLabel}>Founding Partner Badge</Text>
@@ -376,7 +376,7 @@ function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onVie
               onPress={toggleBadge}
             >
               {savingBadge ? (
-                <ActivityIndicator size="small" color={colors.navy} />
+                <ActivityIndicator size="small" color={colors.textPrimary} />
               ) : (
                 <Text style={[styles.pillText, entity.founding_badge && styles.pillTextActive]}>
                   {entity.founding_badge ? 'Granted — tap to revoke' : 'Not granted — tap to grant'}
@@ -439,7 +439,7 @@ function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onVie
                   activeOpacity={0.75}
                   onPress={() => onViewHistory(entity)}
                 >
-                  <History size={14} color={colors.navy} />
+                  <History size={14} color={colors.textPrimary} />
                   <Text style={styles.historyLinkText}>View full negotiation history</Text>
                 </TouchableOpacity>
               </>
@@ -506,7 +506,7 @@ function NegotiationHistoryModal({ entity, onClose }) {
           </View>
 
           {loading ? (
-            <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 16 }} />
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 16 }} />
           ) : loadError ? (
             <Text style={styles.rateErrorText}>{loadError}</Text>
           ) : rows.length === 0 ? (
@@ -548,7 +548,7 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
     paddingHorizontal: 12, paddingVertical: 9, marginBottom: 10,
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary },
 
   stateRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, justifyContent: 'space-between' },
   stateText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
@@ -559,12 +559,12 @@ function __gs_styles(colors) {
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   divider: { borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.06)' },
-  rowName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy },
+  rowName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
   rowSub: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 1, textTransform: 'capitalize' },
   rowBadges: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 6 },
   rowUnset: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, fontStyle: 'italic' },
   rowPaymentPill: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.navy,
+    fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.textPrimary,
     backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
     paddingHorizontal: 8, paddingVertical: 3,
   },
@@ -575,44 +575,44 @@ function __gs_styles(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '88%',
   },
   modalHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 },
-  modalTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
+  modalTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
   modalSubEntity: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2 },
 
   fieldLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 14, marginBottom: 6 },
   fieldHint: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, lineHeight: 16, marginBottom: 8 },
 
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
-  pill: { backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
-  pillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  pillText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },
-  pillTextActive: { color: colors.cream },
+  pill: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
+  pillActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  pillText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textPrimary },
+  pillTextActive: { color: colors.accentFg },
   pillClear: { paddingHorizontal: 10, paddingVertical: 8 },
   pillClearText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted, textDecorationLine: 'underline' },
 
   currentRateBox: { backgroundColor: '#FFFBEB', borderRadius: radius.button, padding: 12, marginBottom: 10 },
   currentRateHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   currentRateValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldDeep },
-  currentRateRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, fontStyle: 'italic', marginTop: 5, lineHeight: 17 },
+  currentRateRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, fontStyle: 'italic', marginTop: 5, lineHeight: 17 },
 
   rateInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
   ratePctInput: {
-    width: 90, fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    width: 90, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)', borderRadius: radius.button,
     paddingHorizontal: 12, paddingVertical: 10,
   },
   ratePctSuffix: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted },
   rationaleInput: {
-    fontFamily: fonts.sans, fontSize: 13, color: colors.navy, minHeight: 70,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, minHeight: 70,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)', borderRadius: radius.button,
     paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8,
   },
   rateErrorText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.destructive, marginBottom: 8, lineHeight: 17 },
   rateSavedText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.success, marginBottom: 8 },
-  recordBtn: { backgroundColor: colors.navy, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center' },
-  recordBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.cream },
+  recordBtn: { backgroundColor: colors.accentBg, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center' },
+  recordBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.accentFg },
 
   historyLinkRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14, paddingVertical: 8 },
-  historyLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
+  historyLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary },
   historyRow: { paddingVertical: 12 },
   historyDate: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginLeft: 'auto' },
   historyMeta: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.light, marginTop: 4, textTransform: 'capitalize' },
