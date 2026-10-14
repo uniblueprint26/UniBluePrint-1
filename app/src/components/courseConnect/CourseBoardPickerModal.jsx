@@ -61,7 +61,7 @@ function __gs_s(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '85%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 },
-  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   tile: {
     width: '31%', borderRadius: radius.card, paddingVertical: 16, paddingHorizontal: 8,

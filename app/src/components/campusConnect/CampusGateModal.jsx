@@ -69,13 +69,13 @@ export default function CampusGateModal({ visible, onClose, onSelected }) {
           </View>
           <ScrollView style={{ maxHeight: 280 }} keyboardShouldPersistTaps="handled">
             {saving ? (
-              <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+              <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.md }} />
             ) : results.length === 0 && query.trim() ? (
               <Text style={s.empty}>No matches — try a shorter search.</Text>
             ) : (
               results.map(inst => (
                 <TouchableOpacity key={inst.id} style={s.row} activeOpacity={0.7} onPress={() => choose(inst)}>
-                  <MapPin size={14} color={colors.navy} />
+                  <MapPin size={14} color={colors.textPrimary} />
                   <View style={{ flex: 1 }}>
                     <Text style={s.rowName}>{inst.name}</Text>
                     <Text style={s.rowMeta}>{inst.short} · {inst.city}</Text>
@@ -98,20 +98,20 @@ function __gs_s(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '80%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 },
-  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
   sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 16 },
   searchWrap: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     paddingHorizontal: 14, height: 46, marginBottom: 10,
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)',
   },
-  rowName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  rowName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   rowMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
   empty: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.md, textAlign: 'center' },
   })

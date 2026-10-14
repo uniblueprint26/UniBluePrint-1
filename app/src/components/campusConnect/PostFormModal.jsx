@@ -57,7 +57,7 @@ function TagsInput({ value, onChange, placeholder }) {
           returnKeyType="done"
         />
         <TouchableOpacity style={f.tagAddBtn} onPress={add} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Add skill">
-          <Plus size={16} color={colors.cream} />
+          <Plus size={16} color={colors.accentFg} />
         </TouchableOpacity>
       </View>
       {value.length > 0 && (
@@ -65,7 +65,7 @@ function TagsInput({ value, onChange, placeholder }) {
           {value.map(tag => (
             <TouchableOpacity key={tag} style={f.tagChip} onPress={() => onChange(value.filter(t => t !== tag))} activeOpacity={0.7}>
               <Text style={f.tagChipText}>{tag}</Text>
-              <X size={11} color={colors.navy} strokeWidth={2.2} />
+              <X size={11} color={colors.textPrimary} strokeWidth={2.2} />
             </TouchableOpacity>
           ))}
         </View>
@@ -346,7 +346,7 @@ export default function PostFormModal({
             {!!errorMsg && <Text style={f.error}>{errorMsg}</Text>}
 
             <TouchableOpacity style={[f.submitBtn, saving && { opacity: 0.7 }]} activeOpacity={0.85} onPress={submit} disabled={saving}>
-              {saving ? <ActivityIndicator color={colors.cream} /> : <Check size={15} color={colors.cream} strokeWidth={2.4} />}
+              {saving ? <ActivityIndicator color={colors.accentFg} /> : <Check size={15} color={colors.accentFg} strokeWidth={2.4} />}
               <Text style={f.submitBtnText}>{saving ? 'Posting…' : 'Post'}</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -364,39 +364,39 @@ function getStyles(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary, flex: 1, marginRight: 12 },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 },
   input: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     paddingHorizontal: 14, paddingVertical: 12,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   chip: {
     borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8,
     borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.15)', backgroundColor: colors.surface,
   },
-  chipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  chipText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },
-  chipTextActive: { color: colors.cream },
+  chipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  chipText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textPrimary },
+  chipTextActive: { color: colors.accentFg },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   toggleTrack: { width: 42, height: 24, borderRadius: 12, backgroundColor: 'rgba(30,58,95,0.15)', padding: 2, justifyContent: 'center' },
-  toggleTrackOn: { backgroundColor: colors.navy },
+  toggleTrackOn: { backgroundColor: colors.accentBg },
   toggleThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.white },
   toggleThumbOn: { alignSelf: 'flex-end' },
-  toggleLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  tagAddBtn: { width: 46, borderRadius: radius.card, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
+  toggleLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
+  tagAddBtn: { width: 46, borderRadius: radius.card, backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center' },
   tagChip: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: colors.cream, borderRadius: radius.badge,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.badge,
     paddingHorizontal: 9, paddingVertical: 5,
   },
-  tagChipText: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy },
+  tagChipText: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary },
   error: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive, marginTop: 14 },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginTop: 20,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, marginTop: 20,
   },
-  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }
