@@ -1165,10 +1165,10 @@ function __gs_styles(colors) {
   filterBar: { marginBottom: spacing.sm },
   filterSearch: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginBottom: 8, ...shadows.card,
+    backgroundColor: colors.surface, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginBottom: 8, ...shadows.card,
   },
   filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
-  filterChip: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
+  filterChip: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
   filterChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
   filterChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
   filterChipTextActive: { color: colors.cream },
@@ -1207,17 +1207,17 @@ function __gs_styles(colors) {
   ratingGridValue: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
   aggregateTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
 
-  roomyPanel: { backgroundColor: colors.white, borderRadius: radius.card, padding: 16, marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card },
+  roomyPanel: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card },
   roomyLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.goldDeep, letterSpacing: 0.8 },
   roomySub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 6, lineHeight: 18 },
   roomyCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.cream, borderRadius: radius.card, padding: 12 },
   roomyCardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
   roomyCardSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, lineHeight: 15 },
-  roomyBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.white, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)' },
+  roomyBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.surface, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)' },
   roomyBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
 
   exampleBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.55)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
-  exampleSheet: { backgroundColor: colors.white, borderRadius: radius.card, padding: 22, alignItems: 'center', maxWidth: 340 },
+  exampleSheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 22, alignItems: 'center', maxWidth: 340 },
   exampleTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginTop: 10, textAlign: 'center' },
   exampleBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 8, lineHeight: 19, textAlign: 'center' },
   exampleBtn: { backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 24, paddingVertical: 11, marginTop: 16 },
@@ -1228,7 +1228,7 @@ function __gs_styles(colors) {
   solutionsHeading: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 20, marginBottom: 10 },
   solutionInputRow: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8, padding: spacing.md,
-    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', backgroundColor: colors.white,
+    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', backgroundColor: colors.surface,
   },
   solutionInput: {
     flex: 1, backgroundColor: colors.cream, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10,
@@ -1252,7 +1252,7 @@ function __gs_styles(colors) {
 
   termsBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   termsSheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34, maxHeight: '85%',
   },
   termsHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },

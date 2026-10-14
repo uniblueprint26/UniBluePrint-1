@@ -464,7 +464,7 @@ function __gs_styles(colors) {
 
   searchWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     marginHorizontal: spacing.md, marginBottom: 10,
     borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
@@ -474,7 +474,7 @@ function __gs_styles(colors) {
   filterRow: { paddingHorizontal: spacing.md, paddingBottom: 14, gap: 8 },
   filterPill: {
     borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
   },
   filterPillActive: { backgroundColor: colors.navy, borderColor: colors.navy },

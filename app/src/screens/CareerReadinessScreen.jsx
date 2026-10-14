@@ -396,7 +396,7 @@ function __gs_styles(colors) {
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   builderTile: {
-    width: '47%', backgroundColor: colors.white, borderRadius: radius.card,
+    width: '47%', backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1, borderColor: colors.border, alignItems: 'center',
     paddingVertical: 16, paddingHorizontal: 8, ...shadows.card,
   },
@@ -405,7 +405,7 @@ function __gs_styles(colors) {
 
   emptyNudge: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.white, borderRadius: radius.card, padding: 14, marginTop: spacing.lg,
+    backgroundColor: colors.surface, borderRadius: radius.card, padding: 14, marginTop: spacing.lg,
     borderWidth: 1, borderColor: colors.border,
   },
   emptyNudgeText: { flex: 1, fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 17 },

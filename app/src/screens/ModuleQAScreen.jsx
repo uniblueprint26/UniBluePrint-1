@@ -371,7 +371,7 @@ function __gs_f(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
@@ -403,7 +403,7 @@ function __gs_styles(colors) {
 
   filterSearch: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginBottom: spacing.sm, ...shadows.card,
+    backgroundColor: colors.surface, borderRadius: radius.card, height: 42, paddingHorizontal: 12, marginBottom: spacing.sm, ...shadows.card,
   },
   filterSearchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
 
@@ -433,7 +433,7 @@ function __gs_styles(colors) {
   solutionsHeading: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: 20, marginBottom: 10 },
   solutionInputRow: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8, padding: spacing.md,
-    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', backgroundColor: colors.white,
+    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', backgroundColor: colors.surface,
   },
   solutionInput: {
     flex: 1, backgroundColor: colors.cream, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10,

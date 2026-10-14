@@ -634,7 +634,7 @@ function __gs_fm(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
@@ -885,7 +885,7 @@ function __gs_styles(colors) {
   filterPillRow: { flexDirection: 'row', gap: 8, paddingHorizontal: spacing.md },
   filterPill: {
     flexDirection: 'row', alignItems: 'center', gap: 7,
-    backgroundColor: colors.white, borderRadius: radius.pill,
+    backgroundColor: colors.surface, borderRadius: radius.pill,
     paddingVertical: 10, paddingHorizontal: 15,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },

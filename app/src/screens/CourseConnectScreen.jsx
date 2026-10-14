@@ -831,7 +831,7 @@ function __gs_styles(colors) {
 
   // Academic Support section (white breakout)
   academicSection: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     marginHorizontal: -spacing.md,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xl,
@@ -888,7 +888,7 @@ function __gs_styles(colors) {
   popularGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: POPULAR_TILE_GAP, marginTop: spacing.md },
   popularTile: {
     borderRadius: radius.card, padding: 14, minHeight: 92,
-    backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
     justifyContent: 'space-between', ...shadows.card,
   },
   popularTileTop:   { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -906,7 +906,7 @@ function __gs_styles(colors) {
 
   // CTAs
   primaryBtn:     { marginTop: spacing.lg },
-  secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.white, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
+  secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
   secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
   })
 }

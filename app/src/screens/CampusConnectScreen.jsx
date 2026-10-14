@@ -370,7 +370,7 @@ function __gs_styles(colors) {
   // Search
   searchWrap: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.white, borderRadius: 8,
+    backgroundColor: colors.surface, borderRadius: 8,
     paddingHorizontal: 14, height: 48, ...shadows.card,
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
