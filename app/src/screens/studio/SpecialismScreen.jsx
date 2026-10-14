@@ -119,7 +119,7 @@ export default function SpecialismScreen({ navigation }) {
       >
         <Card style={styles.infoCard}>
           <View style={styles.infoIconWrap}>
-            <Info size={15} color={colors.navy} />
+            <Info size={15} color={colors.textPrimary} />
           </View>
           <Text style={styles.infoText}>
             Your confidence level is a tiebreaker when tickets are assigned, not a hard filter.
@@ -128,7 +128,7 @@ export default function SpecialismScreen({ navigation }) {
         </Card>
 
         {loading ? (
-          <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 30 }} />
+          <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 30 }} />
         ) : loadError ? (
           <Text style={styles.emptyText}>Couldn't load your specialisms. Check your connection and try again later.</Text>
         ) : specialisms.length === 0 ? (
@@ -151,11 +151,11 @@ export default function SpecialismScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
@@ -164,7 +164,7 @@ function __gs_styles(colors) {
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
     textTransform: 'uppercase', marginBottom: 6,
   },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 8 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginBottom: 8 },
   headerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.7)', lineHeight: 19 },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
@@ -178,12 +178,12 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  infoText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 18 },
+  infoText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, lineHeight: 18 },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 30, lineHeight: 19, paddingHorizontal: 10 },
 
   specCard: {},
   specTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
-  specTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, flex: 1, marginRight: 8 },
+  specTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, flex: 1, marginRight: 8 },
 
   chip: { borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
   chipText: { fontFamily: fonts.sansSemiBold, fontSize: 11 },
@@ -191,7 +191,7 @@ function __gs_styles(colors) {
   statsRow: { flexDirection: 'row' },
   statBlock: { flex: 1, gap: 2 },
   statBlockBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14 },
-  statValue: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy },
+  statValue: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary },
   statLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
 
   specFootnote: {

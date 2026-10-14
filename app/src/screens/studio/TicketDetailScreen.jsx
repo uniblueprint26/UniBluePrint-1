@@ -303,7 +303,7 @@ export default function TicketDetailScreen({ navigation, route }) {
     return (
       <View style={styles.screen}>
         <ScreenHeader variant="navy" onBack={safeGoBack} backLabel="Queue" eyebrow="TICKET" title="Loading..." style={styles.heroBlock} titleStyle={styles.heroTitle} />
-        <ActivityIndicator color={colors.navy} style={{ marginTop: 40 }} />
+        <ActivityIndicator color={colors.textPrimary} style={{ marginTop: 40 }} />
       </View>
     )
   }
@@ -363,7 +363,7 @@ export default function TicketDetailScreen({ navigation, route }) {
           <Pill
             label={alreadyDelivered ? 'Delivered' : submission.stage === 'in_review' ? 'In Review' : 'Assigned'}
             bg={alreadyDelivered ? colors.successBg : colors.infoBg}
-            fg={alreadyDelivered ? colors.success : colors.navy}
+            fg={alreadyDelivered ? colors.success : colors.textPrimary}
           />
         </View>
 
@@ -387,7 +387,7 @@ export default function TicketDetailScreen({ navigation, route }) {
         {/* Student's submission */}
         <Text style={styles.sectionLabel}>STUDENT'S SUBMISSION</Text>
         <Card style={styles.sectionCard}>
-          {docStatus === 'loading' && <ActivityIndicator color={colors.navy} />}
+          {docStatus === 'loading' && <ActivityIndicator color={colors.textPrimary} />}
           {docStatus === 'unsupported' && (
             <View style={styles.inlineNotice}>
               <AlertCircle size={16} color={colors.muted} />
@@ -447,7 +447,7 @@ export default function TicketDetailScreen({ navigation, route }) {
             <Text style={styles.sectionLabel}>HANDLER SESSION GUIDE</Text>
             <Card style={styles.sectionCard}>
               <View style={styles.inlineNotice}>
-                <FileText size={15} color={colors.navy} />
+                <FileText size={15} color={colors.textPrimary} />
                 <Text style={styles.inlineNoticeText}>Handler-only — never shown to the student. Use this to run the advisory session.</Text>
               </View>
               <ContentBlock text={handlerGuideText} emptyLabel="No session guide on record." />
@@ -534,12 +534,12 @@ export default function TicketDetailScreen({ navigation, route }) {
 
 function __gs_styles(colors, isDark) {
   return StyleSheet.create({
-    screen: { flex: 1, backgroundColor: colors.cream },
+    screen: { flex: 1, backgroundColor: colors.background },
     scrollView: { flex: 1 },
     scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.xl },
 
-    heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-    heroTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginTop: 6 },
+    heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+    heroTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg, marginTop: 6 },
 
     statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
     urgencyRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -550,7 +550,7 @@ function __gs_styles(colors, isDark) {
       flexDirection: 'row', alignItems: 'flex-start', gap: 10,
       padding: 14, marginBottom: 14, borderWidth: 1.5,
     },
-    noticeTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 2 },
+    noticeTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 2 },
     noticeBody: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18, flex: 1 },
 
     sectionLabel: {
@@ -565,15 +565,15 @@ function __gs_styles(colors, isDark) {
     metaGrid: { marginBottom: 14, gap: 6 },
     metaRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
     metaLabel: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
-    metaValue: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, flex: 1, textAlign: 'right' },
+    metaValue: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, flex: 1, textAlign: 'right' },
 
-    bodyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+    bodyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
     emptyBlockText: { fontFamily: fonts.sans, fontSize: 13, color: colors.light, fontStyle: 'italic' },
 
     revisionRow: { paddingVertical: 10 },
     revisionRowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
     revisionDate: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, marginBottom: 2 },
-    revisionText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 19 },
+    revisionText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
 
     formErrorBox: {
       flexDirection: 'row', alignItems: 'flex-start', gap: 8,
@@ -583,7 +583,7 @@ function __gs_styles(colors, isDark) {
     formErrorText: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive, lineHeight: 18, flex: 1 },
 
     messageCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },
-    messageTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginTop: 6, textAlign: 'center' },
+    messageTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, marginTop: 6, textAlign: 'center' },
     messageSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, paddingHorizontal: 12 },
   })
 }

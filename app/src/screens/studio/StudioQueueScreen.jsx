@@ -132,7 +132,7 @@ export default function StudioQueueScreen({ navigation }) {
             onPress={handleClockToggle}
             disabled={busy}
           >
-            <Power size={13} color={colors.navy} strokeWidth={2} />
+            <Power size={13} color={colors.textPrimary} strokeWidth={2} />
             <Text style={styles.clockBtnText}>{clockedIn ? 'Clock Out' : 'Clock In'}</Text>
           </TouchableOpacity>
         </View>
@@ -147,7 +147,7 @@ export default function StudioQueueScreen({ navigation }) {
       >
         {loading ? (
           <View style={styles.emptyState}>
-            <ActivityIndicator size="small" color={colors.navy} />
+            <ActivityIndicator size="small" color={colors.textPrimary} />
           </View>
         ) : loadError ? (
           <View style={styles.emptyState}>
@@ -180,11 +180,11 @@ export default function StudioQueueScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
@@ -193,7 +193,7 @@ function __gs_styles(colors) {
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
     textTransform: 'uppercase', marginBottom: 6,
   },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, marginBottom: 14 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, marginBottom: 14 },
 
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   statusChip: {
@@ -209,10 +209,10 @@ function __gs_styles(colors) {
 
   clockBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.cream, borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.pill,
     paddingHorizontal: 14, paddingVertical: 8,
   },
-  clockBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  clockBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
   countText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
@@ -223,7 +223,7 @@ function __gs_styles(colors) {
   },
   urgencyDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   ticketTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  ticketName: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  ticketName: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   ticketService: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 2 },
   ticketMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6 },
   ticketDeadline: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted },

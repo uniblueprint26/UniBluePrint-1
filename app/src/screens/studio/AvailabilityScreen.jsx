@@ -80,7 +80,7 @@ function TimeStepper({ label, valueIdx, onChange }) {
           accessibilityRole="button"
           accessibilityLabel={`Decrease ${label} time`}
         >
-          <ChevronLeft size={14} color={colors.navy} />
+          <ChevronLeft size={14} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.timeValue}>{TIME_SLOTS[valueIdx]}</Text>
         <TouchableOpacity
@@ -90,7 +90,7 @@ function TimeStepper({ label, valueIdx, onChange }) {
           accessibilityRole="button"
           accessibilityLabel={`Increase ${label} time`}
         >
-          <ChevronRight size={14} color={colors.navy} />
+          <ChevronRight size={14} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -143,7 +143,7 @@ function DayRow({ day, state, onChange }) {
                 accessibilityRole="button"
                 accessibilityLabel="Decrease max tickets per session"
               >
-                <Minus size={13} color={colors.navy} />
+                <Minus size={13} color={colors.textPrimary} />
               </TouchableOpacity>
               <Text style={styles.stepperValue}>{state.maxTickets}</Text>
               <TouchableOpacity
@@ -153,7 +153,7 @@ function DayRow({ day, state, onChange }) {
                 accessibilityRole="button"
                 accessibilityLabel="Increase max tickets per session"
               >
-                <Plus size={13} color={colors.navy} />
+                <Plus size={13} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -299,7 +299,7 @@ export default function AvailabilityScreen({ navigation }) {
 
         {loading && (
           <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
-            <ActivityIndicator size="small" color={colors.navy} />
+            <ActivityIndicator size="small" color={colors.textPrimary} />
           </Card>
         )}
 
@@ -332,7 +332,7 @@ export default function AvailabilityScreen({ navigation }) {
                   'Email uniblueprintoperations@gmail.com directly.',
                 ))}
               >
-                <Phone size={12} color={colors.navy} />
+                <Phone size={12} color={colors.textPrimary} />
                 <Text style={styles.ghostBtnText}>Contact Operations</Text>
               </TouchableOpacity>
             </View>
@@ -367,7 +367,7 @@ export default function AvailabilityScreen({ navigation }) {
         <Card style={styles.rotaCard}>
           <View style={styles.rotaTopRow}>
             <View style={styles.rotaIconWrap}>
-              <Sunrise size={16} color={colors.navy} />
+              <Sunrise size={16} color={colors.textPrimary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.rotaTitle}>Opt in to the Monday rota</Text>
@@ -420,11 +420,11 @@ export default function AvailabilityScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
@@ -433,7 +433,7 @@ function __gs_styles(colors) {
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
     textTransform: 'uppercase', marginBottom: 6,
   },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 8 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginBottom: 8 },
   headerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.7)', lineHeight: 19 },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
@@ -463,7 +463,7 @@ function __gs_styles(colors) {
     borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
-  ghostBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  ghostBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   // Clock in/out
   clockCard: { alignItems: 'center' },
@@ -473,7 +473,7 @@ function __gs_styles(colors) {
     marginBottom: 10,
   },
   clockBtnOn: { backgroundColor: '#F0FDF4', borderWidth: 1.5, borderColor: '#86EFAC' },
-  clockBtnOff: { backgroundColor: colors.cream, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.1)' },
+  clockBtnOff: { backgroundColor: colors.surfaceAlt, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.1)' },
   clockDot: { width: 9, height: 9, borderRadius: 4.5 },
   clockBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.muted },
   clockBtnTextOn: { color: '#15803D' },
@@ -484,10 +484,10 @@ function __gs_styles(colors) {
   rotaTopRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   rotaIconWrap: {
     width: 34, height: 34, borderRadius: 8,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  rotaTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 4 },
+  rotaTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginBottom: 4 },
   rotaCopy: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
   rotaNote: {
     marginTop: 14, paddingTop: 14,
@@ -501,7 +501,7 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.15)',
     padding: 3, flexShrink: 0,
   },
-  toggleOn: { backgroundColor: colors.navy },
+  toggleOn: { backgroundColor: colors.accentBg },
   toggleKnob: {
     width: 20, height: 20, borderRadius: 10,
     backgroundColor: colors.white,
@@ -511,7 +511,7 @@ function __gs_styles(colors) {
   // Day rows
   dayCard: { padding: 16 },
   dayHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  dayName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  dayName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
 
   dayDetails: {
     marginTop: 14, paddingTop: 14,
@@ -522,23 +522,23 @@ function __gs_styles(colors) {
   timeStepperLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 6 },
   timeStepperRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: colors.cream, borderRadius: radius.button,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.button,
     paddingHorizontal: 8, paddingVertical: 8,
   },
   timeArrowBtn: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
-  timeValue: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  timeValue: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   stepperRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginTop: 14,
   },
-  stepperLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, flex: 1, marginRight: 8 },
+  stepperLabel: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, flex: 1, marginRight: 8 },
   stepperControl: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.cream, borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.pill,
     paddingHorizontal: 10, paddingVertical: 6,
   },
   stepperBtn: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
-  stepperValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, minWidth: 14, textAlign: 'center' },
+  stepperValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, minWidth: 14, textAlign: 'center' },
   })
 }

@@ -85,9 +85,9 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(245,240,232,0.1)',
     borderWidth: 1, borderColor: 'rgba(245,240,232,0.16)',
   },
-  pillActive: { backgroundColor: colors.cream, borderColor: colors.cream },
+  pillActive: { backgroundColor: colors.surfaceAlt, borderColor: colors.surfaceAlt },
   pillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.68)' },
-  pillTextActive: { color: colors.navy, fontFamily: fonts.sansSemiBold },
+  pillTextActive: { color: colors.textPrimary, fontFamily: fonts.sansSemiBold },
 
   backLink: {
     flexDirection: 'row', alignItems: 'center', gap: 5,

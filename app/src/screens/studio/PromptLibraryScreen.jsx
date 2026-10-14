@@ -117,7 +117,7 @@ export default function PromptLibraryScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         {loading ? (
-          <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 40 }} />
         ) : loadError ? (
           <Text style={styles.emptyText}>Couldn't load the prompt library. Check your connection and try again later.</Text>
         ) : groups.length === 0 ? (
@@ -141,11 +141,11 @@ export default function PromptLibraryScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
@@ -154,7 +154,7 @@ function __gs_styles(colors) {
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2,
     textTransform: 'uppercase', marginBottom: 6,
   },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 8 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginBottom: 8 },
   headerSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(245,240,232,0.7)', lineHeight: 19, marginBottom: 16 },
 
   searchBar: {
@@ -164,7 +164,7 @@ function __gs_styles(colors) {
     borderRadius: radius.button,
     paddingHorizontal: 14, paddingVertical: 11,
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.cream },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.chromeFg },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
@@ -175,11 +175,11 @@ function __gs_styles(colors) {
   },
 
   promptCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 },
-  promptTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 4 },
+  promptTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginBottom: 4 },
   promptSnippet: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
   copyIconWrap: {
     width: 32, height: 32, borderRadius: 16,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   copyIconWrapDone: { backgroundColor: '#F0FDF4' },

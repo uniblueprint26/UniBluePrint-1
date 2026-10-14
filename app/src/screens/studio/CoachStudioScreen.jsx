@@ -120,13 +120,13 @@ function EditProfileSection({ userId }) {
   return (
     <>
       <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-        <UserCog size={14} color={colors.navy} />
+        <UserCog size={14} color={colors.textPrimary} />
         <Text style={styles.sectionEyebrow}>EDIT MY PROFILE</Text>
       </View>
 
       <Card style={styles.editCard}>
         {loading ? (
-          <ActivityIndicator size="small" color={colors.navy} />
+          <ActivityIndicator size="small" color={colors.textPrimary} />
         ) : !profile ? (
           <Text style={styles.editUnlinkedText}>
             Your coach profile hasn't been linked yet. Contact Operations to get your bio and photo
@@ -160,9 +160,9 @@ function EditProfileSection({ userId }) {
               disabled={saving}
             >
               {saving
-                ? <ActivityIndicator size="small" color={colors.cream} />
+                ? <ActivityIndicator size="small" color={colors.accentFg} />
                 : <>
-                    <Save size={14} color={colors.cream} strokeWidth={2} />
+                    <Save size={14} color={colors.accentFg} strokeWidth={2} />
                     <Text style={styles.editSaveBtnText}>Save Changes</Text>
                   </>
               }
@@ -277,12 +277,12 @@ export default function CoachStudioScreen({ navigation }) {
 
         {/* Upcoming sessions */}
         <View style={styles.sectionRow}>
-          <Calendar size={14} color={colors.navy} />
+          <Calendar size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>UPCOMING SESSIONS</Text>
         </View>
         {bookingsLoading ? (
           <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
-            <ActivityIndicator size="small" color={colors.navy} />
+            <ActivityIndicator size="small" color={colors.textPrimary} />
           </Card>
         ) : bookingsError ? (
           <Card>
@@ -316,7 +316,7 @@ export default function CoachStudioScreen({ navigation }) {
             real to show that is actually scoped to a coaching relationship.
             Honest placeholder rather than fabricated activity. */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <MessageSquare size={14} color={colors.navy} />
+          <MessageSquare size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>CLIENT ACTIVITY</Text>
         </View>
         <Card>
@@ -333,7 +333,7 @@ export default function CoachStudioScreen({ navigation }) {
             are empty infrastructure for every real coach today). So this
             says that plainly instead of showing a dead-end button. */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <TrendingUp size={14} color={colors.navy} />
+          <TrendingUp size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>EARNINGS</Text>
         </View>
         <Card style={styles.earningsCard}>
@@ -355,7 +355,7 @@ export default function CoachStudioScreen({ navigation }) {
 
         {/* Specialisms */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
-          <Users size={14} color={colors.navy} />
+          <Users size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>YOUR SPECIALISMS</Text>
         </View>
         {specialisms.length === 0 ? (
@@ -382,20 +382,20 @@ export default function CoachStudioScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginBottom: 16 },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginBottom: 16 },
 
   headerStatsRow: { flexDirection: 'row' },
   headerStat: { flex: 1 },
   headerStatBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(245,240,232,0.15)', paddingLeft: 16, marginLeft: 4 },
-  headerStatValue: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream },
+  headerStatValue: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg },
   headerStatLabel: { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.6)', marginTop: 2 },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
@@ -408,17 +408,17 @@ function __gs_styles(colors) {
   },
 
   sessionCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
-  sessionClient: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  sessionClient: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   sessionType: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   sessionTimeWrap: { alignItems: 'flex-end' },
-  sessionDate: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  sessionDate: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
   sessionTimeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   sessionTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
 
   activityRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 14 },
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  activityDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.navy, marginTop: 5, flexShrink: 0 },
-  activityText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 19 },
+  activityDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.textPrimary, marginTop: 5, flexShrink: 0 },
+  activityText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
   activityName: { fontFamily: fonts.sansSemiBold },
   activityTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
 
@@ -427,7 +427,7 @@ function __gs_styles(colors) {
   earningsTile: { flex: 1 },
   earningsTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14 },
   earningsTileLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  earningsTileValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
+  earningsTileValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary },
   earningsNote: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18,
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', paddingTop: 12,
@@ -440,7 +440,7 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     ...shadows.card,
   },
-  specialismPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  specialismPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
 
   editCard: { alignItems: 'stretch' },
   editUnlinkedText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
@@ -449,17 +449,17 @@ function __gs_styles(colors) {
     textTransform: 'uppercase', letterSpacing: 0.7, marginTop: 18, marginBottom: 8,
   },
   editInput: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     padding: 14, minHeight: 110,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   editSaveBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 13,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 13,
     marginTop: 14,
   },
-  editSaveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  editSaveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
   editSavedText: {
     fontFamily: fonts.sans, fontSize: 12, color: '#15803D',
     textAlign: 'center', marginTop: 10,
