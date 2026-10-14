@@ -169,10 +169,10 @@ export default function LifestyleWellbeingScreen({ navigation }) {
               accessibilityRole="button"
               accessibilityLabel="Go back"
             >
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+              <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
               <Text style={styles.backBtnText}>Home</Text>
             </TouchableOpacity>
-            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+            <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
             <View style={{ width: 70 }} />
           </View>
 
@@ -234,10 +234,10 @@ export default function LifestyleWellbeingScreen({ navigation }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
@@ -249,12 +249,12 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingVertical: 6, paddingRight: 10,
   },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
   heroEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
   scrollView: { flex: 1 },
@@ -273,9 +273,9 @@ function __gs_styles(colors) {
   lineRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingRight: 4 },
   lineRowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.07)' },
   lineAccent: { width: 3, alignSelf: 'stretch', borderRadius: 2, marginRight: 4 },
-  lineName:   { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy },
+  lineName:   { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
   lineHours:  { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2 },
-  lineNumber: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  lineNumber: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   // Category grid — real 2-up tiles, not a list.
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
@@ -287,7 +287,7 @@ function __gs_styles(colors) {
     width: 38, height: 38, borderRadius: 12,
     alignItems: 'center', justifyContent: 'center', marginBottom: 10,
   },
-  catTileLabel: { fontFamily: fonts.serif, fontSize: 14.5, color: colors.navy, lineHeight: 18 },
+  catTileLabel: { fontFamily: fonts.serif, fontSize: 14.5, color: colors.textPrimary, lineHeight: 18 },
   catTileCount: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 4 },
 
   // Category detail sheet
@@ -301,11 +301,11 @@ function __gs_styles(colors) {
   sheetCloseBtn: {
     position: 'absolute', top: 14, right: 14, zIndex: 1,
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center',
   },
   sheetHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingRight: 34 },
   sheetHeaderIcon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  sheetTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, flex: 1 },
+  sheetTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary, flex: 1 },
 
   // Wellbeing Reads — a real 2-up grid, not a list of rows.
   readsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
@@ -314,7 +314,7 @@ function __gs_styles(colors) {
     padding: 14, ...shadows.card,
   },
   readIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  readTitle: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy, lineHeight: 17 },
+  readTitle: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary, lineHeight: 17 },
   readMetaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   readMeta: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.muted, flexShrink: 1 },
   })

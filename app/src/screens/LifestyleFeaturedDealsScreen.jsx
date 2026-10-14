@@ -241,10 +241,10 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
                   accessibilityRole="button"
                   accessibilityLabel="Go back"
                 >
-                  <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+                  <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
                   <Text style={styles.backBtnText}>Home</Text>
                 </TouchableOpacity>
-                <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+                <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
                 <View style={{ width: 70 }} />
               </View>
 
@@ -268,7 +268,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
                     <Text style={styles.heroProduct}>{HERO.productLabel}</Text>
                     <View style={styles.heroCtaRow}>
                       <Text style={styles.heroCtaText}>View the full listing</Text>
-                      <ChevronRight size={14} color={colors.navy} />
+                      <ChevronRight size={14} color={colors.textPrimary} />
                     </View>
                   </View>
                 </View>
@@ -292,7 +292,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
               onPress={() => navigation.navigate('LifestylePartners')}
             >
               <Text style={styles.exploreMoreText}>Browse every partner on Explore</Text>
-              <ChevronRight size={14} color={colors.navy} />
+              <ChevronRight size={14} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
         }
@@ -317,11 +317,11 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   list:   { flex: 1 },
 
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
@@ -333,12 +333,12 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingVertical: 6, paddingRight: 10,
   },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
   heroEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 6 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginBottom: 6 },
   heroTagline: {
     fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.gold,
     letterSpacing: 0.6, marginBottom: 10,
@@ -356,10 +356,10 @@ function __gs_styles(colors) {
     fontFamily: fonts.sansBold, fontSize: 10, color: colors.gold,
     letterSpacing: 1, marginBottom: 6,
   },
-  heroBrand:   { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
+  heroBrand:   { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary },
   heroProduct: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted, marginTop: 3 },
   heroCtaRow:  { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 12 },
-  heroCtaText: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.navy, borderBottomWidth: 1.5, borderBottomColor: colors.gold, paddingBottom: 1 },
+  heroCtaText: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.textPrimary, borderBottomWidth: 1.5, borderBottomColor: colors.gold, paddingBottom: 1 },
 
   // Grid
   columnWrapper: { gap: 10, paddingHorizontal: spacing.md },
@@ -368,7 +368,7 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
     padding: 10, ...shadows.card,
   },
-  tileBrand:    { fontFamily: fonts.serif, fontSize: 13.5, color: colors.navy },
+  tileBrand:    { fontFamily: fonts.serif, fontSize: 13.5, color: colors.textPrimary },
   tileProduct:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2, lineHeight: 14 },
   tileDeal:     { fontFamily: fonts.sansSemiBold, fontSize: 11, color: '#145A3E', marginTop: 4 },
   tileCategory: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.light, marginTop: 4 },
@@ -408,6 +408,6 @@ function __gs_styles(colors) {
     marginTop: 12, paddingVertical: 12, borderRadius: radius.button,
     borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
   },
-  exploreMoreText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  exploreMoreText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   })
 }

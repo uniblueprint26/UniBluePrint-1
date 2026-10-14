@@ -95,7 +95,7 @@ export default function LifestyleScreen({ navigation, route }) {
         <ScreenHeader
           variant="navy"
           onBack={safeGoBack}
-          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="LIFESTYLE"
           title="Lifestyle Blueprint"
           subtitle="Partner deals, wellbeing support, and money tools, built around what life actually costs."
@@ -141,15 +141,15 @@ export default function LifestyleScreen({ navigation, route }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   // Integrated header + hero
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 6, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 6, marginBottom: 10 },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on every platform.

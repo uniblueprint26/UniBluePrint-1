@@ -99,7 +99,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
   const totalGoalContributions = goals.reduce((s, g) => s + (parseFloat(g.current_amount) || 0), 0)
   const balance    = totalIncome - totalExpenses - totalGoalContributions
   const hasAnyData = totalIncome > 0 || totalExpenses > 0
-  const balanceColor = balance > 0 ? colors.success : balance < 0 ? colors.destructive : colors.navy
+  const balanceColor = balance > 0 ? colors.success : balance < 0 ? colors.destructive : colors.textPrimary
   const periodLabel = period === 'week' ? 'week' : period === 'month' ? 'month' : 'term'
   const topGoal = goals[0] || null
   const TopGoalIcon = topGoal ? (GOAL_ICONS[topGoal.icon] || Target) : Target
@@ -125,10 +125,10 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
               accessibilityRole="button"
               accessibilityLabel="Go back"
             >
-              <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+              <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
               <Text style={styles.backBtnText}>Home</Text>
             </TouchableOpacity>
-            <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+            <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
             <View style={{ width: 70 }} />
           </View>
 
@@ -145,7 +145,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
           {!loaded ? null : !hasAnyData ? (
             /* Empty state — nothing saved yet on this device */
             <Card style={styles.emptyCard}>
-              <PiggyBank size={26} color={colors.navy} strokeWidth={1.6} />
+              <PiggyBank size={26} color={colors.textPrimary} strokeWidth={1.6} />
               <Text style={styles.emptyTitle}>You haven't set up your budget yet</Text>
               <Text style={styles.emptySub}>
                 Add your income and expenses in the full Budgeting tool, then come back here for a
@@ -153,7 +153,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
               </Text>
               <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={() => openTool({ tab: 'budget' })}>
                 <Text style={styles.primaryBtnText}>Start Budgeting</Text>
-                <ArrowRight size={15} color={colors.cream} />
+                <ArrowRight size={15} color={colors.accentFg} />
               </TouchableOpacity>
             </Card>
           ) : (
@@ -184,7 +184,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
               {goalsLoaded && topGoal && (
                 <Card style={styles.goalCard}>
                   <View style={styles.goalHeaderRow}>
-                    <TopGoalIcon size={15} color={colors.navy} />
+                    <TopGoalIcon size={15} color={colors.textPrimary} />
                     <Text style={styles.goalName} numberOfLines={1}>{topGoal.name}</Text>
                     {goals.length > 1 && <Text style={styles.goalMoreTag}>+{goals.length - 1} more</Text>}
                   </View>
@@ -201,7 +201,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
 
               <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={() => openTool({ tab: 'budget' })}>
                 <Text style={styles.primaryBtnText}>Open Full Budgeting Tool</Text>
-                <ArrowRight size={15} color={colors.cream} />
+                <ArrowRight size={15} color={colors.accentFg} />
               </TouchableOpacity>
             </>
           )}
@@ -213,7 +213,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
               <TouchableOpacity key={title} activeOpacity={0.8} onPress={() => openTool(params)}>
                 <Card style={styles.shortcutCard}>
                   <View style={styles.shortcutIconWrap}>
-                    <Icon size={20} color={colors.navy} />
+                    <Icon size={20} color={colors.textPrimary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.shortcutTitle}>{title}</Text>
@@ -226,7 +226,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
             <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.getParent()?.navigate('AdBoard', { screen: 'AdBoardMain' })}>
               <Card style={styles.shortcutCard}>
                 <View style={styles.shortcutIconWrap}>
-                  <ShoppingBag size={20} color={colors.navy} />
+                  <ShoppingBag size={20} color={colors.textPrimary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.shortcutTitle}>Part-Time Work Finder</Text>
@@ -252,10 +252,10 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
@@ -267,12 +267,12 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingVertical: 6, paddingRight: 10,
   },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
   heroEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
   scrollView: { flex: 1 },
@@ -280,7 +280,7 @@ function __gs_styles(colors) {
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
   emptyCard: { alignItems: 'center', textAlign: 'center', paddingVertical: 28 },
-  emptyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginTop: 12, textAlign: 'center' },
+  emptyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary, marginTop: 12, textAlign: 'center' },
   emptySub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 6, textAlign: 'center', lineHeight: 19 },
 
   balanceCard: { borderLeftWidth: 4, alignItems: 'center', paddingVertical: 24 },
@@ -289,20 +289,20 @@ function __gs_styles(colors) {
   balanceMetaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 18, gap: 20 },
   balanceMetaItem: { alignItems: 'center' },
   balanceMetaLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  balanceMetaValue: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.navy, marginTop: 2 },
+  balanceMetaValue: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.textPrimary, marginTop: 2 },
   balanceMetaDivider: { width: 1, height: 28, backgroundColor: colors.border },
 
   goalCard: { marginTop: 12 },
   goalHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
-  goalName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1 },
+  goalName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, flex: 1 },
   goalMoreTag: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted },
-  progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.cream, overflow: 'hidden' },
-  progressFill: { height: 6, borderRadius: 3, backgroundColor: colors.navy },
+  progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
+  progressFill: { height: 6, borderRadius: 3, backgroundColor: colors.accentBg },
   goalAmounts: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 8 },
 
   primaryBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingVertical: 14, marginTop: 14,
     // alignSelf: 'stretch' — this button's other use (the "Open Full
     // Budgeting Tool" CTA) sits in a plain flex-column container so it
@@ -313,18 +313,18 @@ function __gs_styles(colors) {
     // CTA in the app (Post to Campus Board, Open Full Budgeting Tool, etc).
     alignSelf: 'stretch',
   },
-  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  primaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
 
   shortcutCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
   shortcutIconWrap: {
-    width: 44, height: 44, borderRadius: 10, backgroundColor: colors.cream,
+    width: 44, height: 44, borderRadius: 10, backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  shortcutTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  shortcutTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   shortcutSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
 
-  tipCard: { marginTop: spacing.md, backgroundColor: colors.navy, padding: 18 },
+  tipCard: { marginTop: spacing.md, backgroundColor: colors.accentBg, padding: 18 },
   tipEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', letterSpacing: 1 },
-  tipText: { fontFamily: fonts.sans, fontSize: 14, color: colors.cream, lineHeight: 21, marginTop: 8 },
+  tipText: { fontFamily: fonts.sans, fontSize: 14, color: colors.accentFg, lineHeight: 21, marginTop: 8 },
   })
 }

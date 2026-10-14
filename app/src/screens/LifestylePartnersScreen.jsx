@@ -107,10 +107,10 @@ export default function LifestylePartnersScreen({ navigation, route }) {
                 accessibilityRole="button"
                 accessibilityLabel="Go back"
               >
-                <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+                <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
                 <Text style={styles.backBtnText}>Home</Text>
               </TouchableOpacity>
-              <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+              <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
               <View style={{ width: 70 }} />
             </View>
 
@@ -189,7 +189,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on every platform —
   // same pattern as every other screen-root ScrollView in the app.
@@ -197,7 +197,7 @@ function __gs_styles(colors) {
   scroll: {},
 
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
@@ -209,17 +209,17 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingVertical: 6, paddingRight: 10,
   },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
   heroEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 11,
     color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
   section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
   mapSection: {
-    backgroundColor: colors.navy, borderRadius: radius.card,
+    backgroundColor: colors.chromeBg, borderRadius: radius.card,
     padding: spacing.md,
   },
   hint: {

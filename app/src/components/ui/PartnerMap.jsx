@@ -504,7 +504,7 @@ export default function PartnerMap({ onViewListing }) {
                   ]}>
                     <Text style={[
                       styles.searchResultTagText,
-                      r.kind === 'live' ? { color: GOLD_DEEP } : r.kind === 'incoming' ? { color: LOCKED } : { color: colors.navy },
+                      r.kind === 'live' ? { color: GOLD_DEEP } : r.kind === 'incoming' ? { color: LOCKED } : { color: colors.textPrimary },
                     ]}>
                       {r.kind === 'live' ? 'Live' : r.kind === 'incoming' ? 'Incoming' : 'County'}
                     </Text>
@@ -593,7 +593,7 @@ export default function PartnerMap({ onViewListing }) {
                 live={false}
                 x={p.pos[0]} y={p.pos[1]}
                 dimOpacity={dimFor(key)}
-                matchRing={matchedKeys.has(key) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
+                matchRing={matchedKeys.has(key) ? <SignalRing x={0} y={0} color={colors.chromeFg} maxR={16} duration={1300} /> : null}
                 onPress={() => selectComingSoon(key)}
               />
             )
@@ -609,7 +609,7 @@ export default function PartnerMap({ onViewListing }) {
                 x={p.pos[0]} y={p.pos[1]}
                 compact={compact}
                 dimOpacity={dimFor(p.key)}
-                matchRing={matchedKeys.has(p.key) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
+                matchRing={matchedKeys.has(p.key) ? <SignalRing x={0} y={0} color={colors.chromeFg} maxR={16} duration={1300} /> : null}
                 onPress={() => selectComingSoon(p.key)}
               />
             )
@@ -625,7 +625,7 @@ export default function PartnerMap({ onViewListing }) {
                 x={p.pos[0]} y={p.pos[1]}
                 compact={compact}
                 dimOpacity={dimFor(p.id)}
-                matchRing={matchedKeys.has(p.id) ? <SignalRing x={0} y={0} color={colors.cream} maxR={16} duration={1300} /> : null}
+                matchRing={matchedKeys.has(p.id) ? <SignalRing x={0} y={0} color={colors.chromeFg} maxR={16} duration={1300} /> : null}
                 ping={ping && ping.id === p.id}
                 onPress={() => select(p.id, { live: true, ...p })}
               />
@@ -666,7 +666,7 @@ export default function PartnerMap({ onViewListing }) {
             accessibilityRole="button"
             accessibilityLabel="Zoom in"
           >
-            <Plus size={15} color={colors.cream} strokeWidth={2.4} />
+            <Plus size={15} color={colors.chromeFg} strokeWidth={2.4} />
           </TouchableOpacity>
           <View style={styles.zoomPctWrap}>
             <Text style={styles.zoomPctText}>{zoomPct}%</Text>
@@ -679,7 +679,7 @@ export default function PartnerMap({ onViewListing }) {
             accessibilityRole="button"
             accessibilityLabel="Zoom out"
           >
-            <Minus size={15} color={colors.cream} strokeWidth={2.4} />
+            <Minus size={15} color={colors.chromeFg} strokeWidth={2.4} />
           </TouchableOpacity>
           {zoomPct > MIN_SCALE * 100 && (
             <TouchableOpacity
@@ -689,7 +689,7 @@ export default function PartnerMap({ onViewListing }) {
               accessibilityRole="button"
               accessibilityLabel="Reset zoom"
             >
-              <RotateCcw size={13} color={colors.cream} strokeWidth={2.4} />
+              <RotateCcw size={13} color={colors.chromeFg} strokeWidth={2.4} />
             </TouchableOpacity>
           )}
         </View>
@@ -791,7 +791,7 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(245,240,232,0.08)', borderWidth: 1, borderColor: 'rgba(245,240,232,0.18)',
     borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9,
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.cream, padding: 0 },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.chromeFg, padding: 0 },
   searchResults: { marginTop: 6, backgroundColor: colors.surface, borderRadius: 10, overflow: 'hidden' },
   searchEmpty: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, textAlign: 'center', padding: 14 },
   searchResultRow: {
@@ -799,7 +799,7 @@ function __gs_styles(colors) {
     paddingHorizontal: 14, paddingVertical: 10,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)',
   },
-  searchResultName: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  searchResultName: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   searchResultSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
   searchResultTag: { flexShrink: 0, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
   searchResultTagLive: { backgroundColor: 'rgba(201,162,75,0.18)' },
@@ -820,20 +820,20 @@ function __gs_styles(colors) {
   idleText: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, textAlign: 'center' },
 
   cardTopRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 },
-  cardName: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, flexShrink: 1 },
+  cardName: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, flexShrink: 1 },
   liveBadge: { fontFamily: fonts.sansBold, fontSize: 10, color: GOLD_DEEP, letterSpacing: 0.6 },
   incomingBadge: { fontFamily: fonts.sansBold, fontSize: 9, color: LOCKED, letterSpacing: 0.4, textAlign: 'right', flexShrink: 1 },
 
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: {
     alignSelf: 'flex-start',
-    fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy,
+    fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary,
     backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: 6, paddingHorizontal: 9, paddingVertical: 3,
   },
   dealChip: { color: GOLD_DEEP, backgroundColor: 'rgba(201,162,75,0.18)', fontFamily: fonts.sansSemiBold },
 
   viewListingLink: {
-    fontFamily: fonts.sansBold, fontSize: 12.5, color: colors.navy,
+    fontFamily: fonts.sansBold, fontSize: 12.5, color: colors.textPrimary,
     borderBottomWidth: 1.5, borderBottomColor: GOLD, alignSelf: 'flex-start', paddingBottom: 1,
   },
   cardBody: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18 },
