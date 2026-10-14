@@ -17,7 +17,7 @@ import { useTheme } from '../../context/ThemeContext'
 const TIER_LABEL = { access: 'Access', plus: 'Plus', signature: 'Signature' }
 function getTierStyle(colors) {
   return {
-    access:    { bg: 'rgba(30,58,95,0.08)',   fg: colors.navy },
+    access:    { bg: 'rgba(30,58,95,0.08)',   fg: colors.textPrimary },
     plus:      { bg: '#FEF9C3',               fg: colors.goldDeep },
     signature: { bg: 'rgba(124,58,237,0.1)',  fg: colors.newBadge },
   }

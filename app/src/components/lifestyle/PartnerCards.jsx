@@ -157,11 +157,11 @@ function ContactChip({ type, value, partner }) {
   }
   const labels  = { instagram: `@${value}`, tiktok: `@${value}`, phone: value, email: value, website: 'Portfolio' }
   const icons   = {
-    instagram: <AtSign size={12} color={colors.cream} />,
-    tiktok:    <AtSign size={12} color={colors.cream} />,
-    phone:     <Phone  size={12} color={colors.cream} />,
-    email:     <Mail   size={12} color={colors.cream} />,
-    website:   <Link2  size={12} color={colors.cream} />,
+    instagram: <AtSign size={12} color={colors.accentFg} />,
+    tiktok:    <AtSign size={12} color={colors.accentFg} />,
+    phone:     <Phone  size={12} color={colors.accentFg} />,
+    email:     <Mail   size={12} color={colors.accentFg} />,
+    website:   <Link2  size={12} color={colors.accentFg} />,
   }
   if (!handlers[type]) return null
   function onPress() {
@@ -415,7 +415,7 @@ export function PartnerExpandCard({ partner, visible, onClose, onViewFull }) {
               onPress={() => { onClose(); onViewFull(partner.id) }}
             >
               <Text style={styles.expandViewFullText}>View full listing</Text>
-              <ChevronRight size={14} color={colors.navy} />
+              <ChevronRight size={14} color={colors.textPrimary} />
             </TouchableOpacity>
           )}
         </Pressable>
@@ -697,11 +697,11 @@ export function getPartnerStyles(colors) {
     borderColor: colors.border,
   },
   filterPillActive: {
-    backgroundColor: colors.navy,
-    borderColor: colors.navy,
+    backgroundColor: colors.accentBg,
+    borderColor: colors.accentBg,
   },
   filterPillText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
-  filterPillTextActive: { color: colors.cream },
+  filterPillTextActive: { color: colors.accentFg },
 
   // Category section headers (shown in the "All" view)
   categoryHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
@@ -710,7 +710,7 @@ export function getPartnerStyles(colors) {
     alignItems: 'center', justifyContent: 'center',
   },
   categoryHeaderText: {
-    fontFamily: fonts.sansBold, fontSize: 12, color: colors.navy,
+    fontFamily: fonts.sansBold, fontSize: 12, color: colors.textPrimary,
     textTransform: 'uppercase', letterSpacing: 0.6,
   },
 
@@ -741,7 +741,7 @@ export function getPartnerStyles(colors) {
     flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6,
   },
   gridCardName: {
-    fontFamily: fonts.serif, fontSize: 15, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 15, color: colors.textPrimary,
     marginTop: 10, lineHeight: 19,
   },
   gridCardCategory: {
@@ -764,7 +764,7 @@ export function getPartnerStyles(colors) {
   // colour that reads as intentional, not empty space.
   heroFrame: {
     width: '100%',
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: radius.card,
     overflow: 'hidden',
     alignItems: 'center',
@@ -829,7 +829,7 @@ export function getPartnerStyles(colors) {
     borderWidth: 1, borderColor: colors.border,
   },
   listRowHighlighted: { borderColor: colors.gold, borderWidth: 1.5 },
-  listRowName:     { fontFamily: fonts.serif, fontSize: 14.5, color: colors.navy },
+  listRowName:     { fontFamily: fonts.serif, fontSize: 14.5, color: colors.textPrimary },
   listRowCategory: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2 },
   listRowDealPill: {
     backgroundColor: 'rgba(20,90,62,0.1)', borderRadius: radius.badge,
@@ -846,7 +846,7 @@ export function getPartnerStyles(colors) {
     paddingHorizontal: 12, paddingVertical: 12, marginBottom: 8,
   },
   accordionHeaderText: {
-    flex: 1, fontFamily: fonts.sansBold, fontSize: 13, color: colors.navy,
+    flex: 1, fontFamily: fonts.sansBold, fontSize: 13, color: colors.textPrimary,
     textTransform: 'uppercase', letterSpacing: 0.5,
   },
   accordionCount: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted },
@@ -863,11 +863,11 @@ export function getPartnerStyles(colors) {
   },
   expandHero: { marginTop: 6, marginBottom: 16 },
   expandNoPhoto: {
-    aspectRatio: 4 / 3, backgroundColor: colors.cream, borderRadius: radius.card,
+    aspectRatio: 4 / 3, backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     alignItems: 'center', justifyContent: 'center',
   },
   expandBrandName: {
-    fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center',
+    fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, textAlign: 'center',
   },
   expandSocialRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
@@ -877,9 +877,9 @@ export function getPartnerStyles(colors) {
   expandViewFullBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     marginTop: 20, paddingVertical: 12, borderRadius: radius.button,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cream,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt,
   },
-  expandViewFullText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  expandViewFullText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   // Partner Detail Sheet — full listing, opened from a grid card tap.
   detailBackdrop: {
@@ -901,13 +901,13 @@ export function getPartnerStyles(colors) {
   detailCloseBtn: {
     position: 'absolute', top: 14, right: 14, zIndex: 1,
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center',
   },
   // Detail sheet hero — inset (not edge-bled) so its own rounded corners sit
   // cleanly inside the sheet's padding, above the logo/name row.
   detailHero: { marginBottom: 14 },
   detailHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 34 },
-  detailBrandName: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy },
+  detailBrandName: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
   detailAccentLine: { height: 3, borderRadius: 2, marginTop: 14 },
   // Explicit flex:1 (not just contentContainerStyle) so this ScrollView reliably
   // clips to the sheet's maxHeight instead of growing past it — same fix as
@@ -918,7 +918,7 @@ export function getPartnerStyles(colors) {
   // Expanded detail content (inside the Partner Detail Sheet)
   expandDivider: { height: 1, backgroundColor: colors.border, marginBottom: 14, marginTop: 2 },
   expandLabel:   { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, marginBottom: 6 },
-  expandBody:    { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+  expandBody:    { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
 
   credentialsText: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.muted,
@@ -932,14 +932,14 @@ export function getPartnerStyles(colors) {
 
   servicePills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   servicePill: {
-    backgroundColor: colors.cream, borderRadius: radius.badge,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.badge,
     paddingHorizontal: 10, paddingVertical: 4,
   },
-  servicePillText: { fontFamily: fonts.sans, fontSize: 11, color: colors.navy },
+  servicePillText: { fontFamily: fonts.sans, fontSize: 11, color: colors.textPrimary },
 
   // Pricing table
   priceTable: {
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: radius.button,
     overflow: 'hidden',
   },
@@ -951,8 +951,8 @@ export function getPartnerStyles(colors) {
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(30,58,95,0.07)',
   },
-  priceRowLabel: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, flex: 1, marginRight: 8 },
-  priceRowValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  priceRowLabel: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, flex: 1, marginRight: 8 },
+  priceRowValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   priceRowLabelSoldOut: { color: colors.light, textDecorationLine: 'line-through' },
   soldOutPill: {
     backgroundColor: 'rgba(220,38,38,0.1)', borderRadius: radius.badge,
@@ -973,10 +973,10 @@ export function getPartnerStyles(colors) {
   contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 16 },
   contactChip: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: colors.navy, borderRadius: radius.pill,
+    backgroundColor: colors.accentBg, borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 7,
   },
-  contactChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.cream },
+  contactChipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.accentFg },
 
   // Cross-link (partner ↔ coach profile)
   crossLinkCard: {
