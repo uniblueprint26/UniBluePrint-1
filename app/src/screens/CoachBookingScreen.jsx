@@ -183,7 +183,7 @@ export default function CoachBookingScreen({ route, navigation }) {
 
           {/* Step 1 — date */}
           <View style={styles.stepRow}>
-            <CalendarDays size={14} color={colors.navy} />
+            <CalendarDays size={14} color={colors.textPrimary} />
             <Text style={styles.stepLabel}>1. Pick a date</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayRow}>
@@ -210,7 +210,7 @@ export default function CoachBookingScreen({ route, navigation }) {
               request the coach still has to confirm, not a live booking
               against their actual availability. */}
           <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
-            <Clock size={14} color={colors.navy} />
+            <Clock size={14} color={colors.textPrimary} />
             <Text style={styles.stepLabel}>2. Pick a preferred time</Text>
           </View>
           {!selectedDay ? (
@@ -271,7 +271,7 @@ export default function CoachBookingScreen({ route, navigation }) {
             disabled={!ready || sending}
           >
             {sending
-              ? <ActivityIndicator size="small" color={colors.cream} />
+              ? <ActivityIndicator size="small" color={colors.accentFg} />
               : <Text style={styles.confirmCtaText}>Send Booking Request</Text>
             }
           </TouchableOpacity>
@@ -286,14 +286,14 @@ export default function CoachBookingScreen({ route, navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   header: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.lg,
   },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg },
 
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
@@ -304,14 +304,14 @@ function __gs_styles(colors) {
     marginBottom: spacing.xl, ...shadows.card,
   },
   coachAvatar: {
-    width: 42, height: 42, borderRadius: 21, backgroundColor: colors.cream,
+    width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center',
   },
-  coachName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  coachName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   coachMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
 
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
-  stepLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  stepLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   dayRow: { gap: 8, paddingRight: spacing.md },
   dayChip: {
@@ -319,11 +319,11 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },
-  dayChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  dayChipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   dayChipWeekday: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.muted, textTransform: 'uppercase' },
-  dayChipDate:    { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, marginVertical: 1 },
+  dayChipDate:    { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, marginVertical: 1 },
   dayChipMonth:   { fontFamily: fonts.sans, fontSize: 10, color: colors.muted },
-  dayChipTextActive: { color: colors.cream },
+  dayChipTextActive: { color: colors.accentFg },
 
   hintText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic' },
 
@@ -333,15 +333,15 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface, borderRadius: radius.pill,
     borderWidth: 1.5, borderColor: 'transparent', ...shadows.card,
   },
-  timeChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  timeChipText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  timeChipTextActive: { color: colors.cream },
+  timeChipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  timeChipText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+  timeChipTextActive: { color: colors.accentFg },
 
   input: {
     backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     padding: 14, minHeight: 90, marginTop: 4,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
     ...shadows.card,
   },
 
@@ -350,16 +350,16 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: 'rgba(201,162,75,0.35)',
     padding: 14, marginTop: 16,
   },
-  summaryText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+  summaryText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
   summaryStrong: { fontFamily: fonts.sansSemiBold },
 
   error: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginTop: 12, textAlign: 'center' },
 
   confirmCta: {
-    backgroundColor: colors.navy, borderRadius: radius.button, height: 54,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, height: 54,
     alignItems: 'center', justifyContent: 'center', marginTop: 20,
   },
-  confirmCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  confirmCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   disclaimer: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', marginTop: 10 },
 
   // Confirmation state
@@ -368,7 +368,7 @@ function __gs_styles(colors) {
     width: 88, height: 88, borderRadius: 44, backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', marginBottom: 20, ...shadows.elevated,
   },
-  confirmTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center', marginBottom: 10 },
+  confirmTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, textAlign: 'center', marginBottom: 10 },
   confirmBody: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 21, marginBottom: 28 },
   })
 }
