@@ -132,7 +132,7 @@ function __gs_styles(colors) {
   title: {
     fontFamily: fonts.sansSemiBold,
     fontSize: 14,
-    color: colors.navy,
+    color: colors.textPrimary,
     marginBottom: spacing.sm,
     paddingRight: 20,
   },
@@ -160,7 +160,7 @@ function __gs_styles(colors) {
   },
   rowLabel: {
     fontFamily: fonts.sansSemiBold,
-    color: colors.navy,
+    color: colors.textPrimary,
   },
   footnote: {
     fontFamily: fonts.sans,
@@ -170,7 +170,7 @@ function __gs_styles(colors) {
     marginBottom: spacing.sm,
   },
   ctaBtn: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.accentBg,
     borderRadius: radius.button,
     paddingVertical: 9,
     alignItems: 'center',
@@ -178,7 +178,7 @@ function __gs_styles(colors) {
   ctaBtnText: {
     fontFamily: fonts.sansSemiBold,
     fontSize: 13,
-    color: colors.cream,
+    color: colors.accentFg,
   },
   arrow: {
     position: 'absolute',

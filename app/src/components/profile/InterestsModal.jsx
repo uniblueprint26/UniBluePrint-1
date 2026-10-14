@@ -117,7 +117,7 @@ export default function InterestsModal({ visible, onClose }) {
               {selected.map(label => (
                 <TouchableOpacity key={label} style={s.selectedPill} activeOpacity={0.8} onPress={() => toggle(label)}>
                   <Text style={s.selectedPillText}>{label}</Text>
-                  <X size={11} color={colors.cream} strokeWidth={2.5} />
+                  <X size={11} color={colors.accentFg} strokeWidth={2.5} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -143,7 +143,7 @@ export default function InterestsModal({ visible, onClose }) {
               accessibilityRole="button"
               accessibilityLabel="Add custom interest"
             >
-              <Plus size={16} color={colors.cream} strokeWidth={2.4} />
+              <Plus size={16} color={colors.accentFg} strokeWidth={2.4} />
             </TouchableOpacity>
           </View>
           {selectedCustom.length > 0 && (
@@ -166,7 +166,7 @@ export default function InterestsModal({ visible, onClose }) {
                         accessibilityRole="checkbox"
                         accessibilityState={{ checked: isSelected }}
                       >
-                        {isSelected && <Check size={11} color={colors.cream} strokeWidth={3} style={{ marginRight: 4 }} />}
+                        {isSelected && <Check size={11} color={colors.accentFg} strokeWidth={3} style={{ marginRight: 4 }} />}
                         <Text style={[s.chipText, isSelected && s.chipTextActive]}>{item.label}</Text>
                       </TouchableOpacity>
                     )
@@ -198,7 +198,7 @@ function __gs_s(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 },
-  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, marginBottom: 6 },
+  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary, marginBottom: 6 },
   subtitle: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 18 },
   error: { fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, marginBottom: 8 },
   countLine: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 0.4, marginBottom: 8 },
@@ -206,42 +206,42 @@ function __gs_s(colors) {
   selectedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
   selectedPill: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.badge,
+    backgroundColor: colors.accentBg, borderRadius: radius.badge,
     paddingHorizontal: 10, paddingVertical: 6,
   },
-  selectedPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.cream },
+  selectedPillText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.accentFg },
 
   customRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   customInput: {
-    flex: 1, backgroundColor: colors.cream, borderRadius: radius.button,
+    flex: 1, backgroundColor: colors.surfaceAlt, borderRadius: radius.button,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
     paddingHorizontal: 14, paddingVertical: 11,
-    fontFamily: fonts.sans, fontSize: 13.5, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 13.5, color: colors.textPrimary,
   },
   customAddBtn: {
-    width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy,
+    width: 42, height: 42, borderRadius: 21, backgroundColor: colors.accentBg,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   customHint: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, fontStyle: 'italic', marginTop: 6 },
 
   categoryLabel: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.navy,
+    fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.textPrimary,
     opacity: 0.55, letterSpacing: 0.8, marginBottom: 8, textTransform: 'uppercase',
   },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     flexDirection: 'row', alignItems: 'center',
     borderRadius: radius.badge, paddingHorizontal: 12, paddingVertical: 8,
-    backgroundColor: colors.cream, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
+    backgroundColor: colors.surfaceAlt, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
   },
-  chipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  chipText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },
-  chipTextActive: { color: colors.cream },
+  chipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  chipText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textPrimary },
+  chipTextActive: { color: colors.accentFg },
 
   saveBtn: {
-    backgroundColor: colors.navy, borderRadius: 8, height: 50,
+    backgroundColor: colors.accentBg, borderRadius: 8, height: 50,
     alignItems: 'center', justifyContent: 'center', marginTop: 16,
   },
-  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  saveBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   })
 }

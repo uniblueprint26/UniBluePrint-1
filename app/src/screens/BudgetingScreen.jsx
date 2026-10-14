@@ -250,7 +250,7 @@ function SchemeCard({ item }) {
         onPress={() => Linking.openURL(`https://${item.link}`)}
       >
         <Text style={styles.schemeLinkText}>{item.link}</Text>
-        <ExternalLink size={12} color={colors.navy} />
+        <ExternalLink size={12} color={colors.textPrimary} />
       </TouchableOpacity>
     </Card>
   )
@@ -317,7 +317,7 @@ function GoalCard({ goal, onAddPress, onRemove }) {
       <View style={styles.goalHeader}>
         {reached
           ? <CheckCircle size={18} color={colors.success} style={{ flexShrink: 0 }} />
-          : <GoalIcon size={16} color={colors.navy} style={{ flexShrink: 0 }} />}
+          : <GoalIcon size={16} color={colors.textPrimary} style={{ flexShrink: 0 }} />}
         <Text style={styles.goalLabel} numberOfLines={1}>{goal.name}</Text>
         {reached && (
           <View style={styles.goalDoneBadge}>
@@ -338,7 +338,7 @@ function GoalCard({ goal, onAddPress, onRemove }) {
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, {
           width: `${pct}%`,
-          backgroundColor: reached ? colors.success : colors.navy,
+          backgroundColor: reached ? colors.success : colors.accentBg,
         }]} />
       </View>
       <View style={styles.goalAmountsRow}>
@@ -352,7 +352,7 @@ function GoalCard({ goal, onAddPress, onRemove }) {
         activeOpacity={0.85}
         onPress={() => onAddPress(goal)}
       >
-        <Plus size={14} color={reached ? colors.success : colors.cream} />
+        <Plus size={14} color={reached ? colors.success : colors.accentFg} />
         <Text style={[styles.addToGoalBtnText, reached && { color: colors.success }]}>Add to {goal.name}</Text>
       </TouchableOpacity>
     </Card>
@@ -414,7 +414,7 @@ function AddToGoalSheet({ visible, goal, onClose, onAdded }) {
           <Text style={sheet.hint}>This is added to your goal and taken off your available balance above.</Text>
           {!!error && <Text style={sheet.error}>{error}</Text>}
           <TouchableOpacity style={[sheet.submitBtn, saving && { opacity: 0.7 }]} activeOpacity={0.85} onPress={submit} disabled={saving}>
-            {saving ? <ActivityIndicator color={colors.cream} /> : <Text style={sheet.submitBtnText}>Add to Goal</Text>}
+            {saving ? <ActivityIndicator color={colors.accentFg} /> : <Text style={sheet.submitBtnText}>Add to Goal</Text>}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -495,7 +495,7 @@ function AddGoalSheet({ visible, onClose, onCreate }) {
                     accessibilityLabel={`${key} icon`}
                     accessibilityState={{ selected: active }}
                   >
-                    <IconC size={18} color={active ? colors.cream : colors.navy} />
+                    <IconC size={18} color={active ? colors.accentFg : colors.textPrimary} />
                   </TouchableOpacity>
                 )
               })}
@@ -503,7 +503,7 @@ function AddGoalSheet({ visible, onClose, onCreate }) {
 
             {!!error && <Text style={sheet.error}>{error}</Text>}
             <TouchableOpacity style={[sheet.submitBtn, saving && { opacity: 0.7 }]} activeOpacity={0.85} onPress={submit} disabled={saving}>
-              {saving ? <ActivityIndicator color={colors.cream} /> : <Text style={sheet.submitBtnText}>Create Goal</Text>}
+              {saving ? <ActivityIndicator color={colors.accentFg} /> : <Text style={sheet.submitBtnText}>Create Goal</Text>}
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -523,7 +523,7 @@ function SUSITerm({ item }) {
         <View style={styles.termHeader}>
           <Text style={styles.termName}>{item.term}</Text>
           {open
-            ? <ChevronUp   size={15} color={colors.navy} />
+            ? <ChevronUp   size={15} color={colors.textPrimary} />
             : <ChevronDown size={15} color={colors.muted} />}
         </View>
         {open && <Text style={styles.termPlain}>{item.plain}</Text>}
@@ -911,7 +911,7 @@ function BudgetTab({ navigation }) {
         <View style={styles.dashDivider} />
         <View style={styles.dashItem}>
           <Text style={styles.dashLabel}>Expenses</Text>
-          <Text style={[styles.dashValue, { color: colors.navy }]}>
+          <Text style={[styles.dashValue, { color: colors.textPrimary }]}>
             €{formatNumber(totalExpenses, { decimals: 2 })}
           </Text>
           <Text style={styles.dashPeriod}>{periodLabels[period]}</Text>
@@ -959,7 +959,7 @@ function BudgetTab({ navigation }) {
             ))}
           </Card>
           <TouchableOpacity style={styles.addRowBtn} onPress={addIncome} activeOpacity={0.8}>
-            <Plus size={14} color={colors.navy} />
+            <Plus size={14} color={colors.textPrimary} />
             <Text style={styles.addRowBtnText}>Add Income Source</Text>
           </TouchableOpacity>
         </View>
@@ -969,7 +969,7 @@ function BudgetTab({ navigation }) {
       {(mode === 'both' || mode === 'spending') && (
         <View style={styles.entriesSection}>
           <View style={styles.entriesHeader}>
-            <TrendingDown size={16} color={colors.navy} />
+            <TrendingDown size={16} color={colors.textPrimary} />
             <Text style={styles.entriesTitle}>Expenses</Text>
             <Text style={styles.entriesTotalLabel}>€{formatNumber(totalExpenses, { decimals: 2 })}</Text>
           </View>
@@ -980,14 +980,14 @@ function BudgetTab({ navigation }) {
                   item={item}
                   onChangeAmount={(id, val) => updateAmount(expenses, setExpenses, id, val)}
                   onRemove={expenses.length > 1 ? removeExpense : null}
-                  tint={colors.navy}
+                  tint={colors.textPrimary}
                 />
                 {i < expenses.length - 1 && <View style={styles.lineItemDivider} />}
               </View>
             ))}
           </Card>
           <TouchableOpacity style={styles.addRowBtn} onPress={addExpense} activeOpacity={0.8}>
-            <Plus size={14} color={colors.navy} />
+            <Plus size={14} color={colors.textPrimary} />
             <Text style={styles.addRowBtnText}>Add Expense</Text>
           </TouchableOpacity>
         </View>
@@ -1021,7 +1021,7 @@ function BudgetTab({ navigation }) {
       {/* Goals */}
       <SectionHeader eyebrow="Goals" title="Track Your Progress" style={{ marginTop: spacing.xl }} />
       {!goalsLoaded ? (
-        <ActivityIndicator size="small" color={colors.navy} style={{ marginTop: spacing.md }} />
+        <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.md }} />
       ) : (
         <View style={{ gap: 12 }}>
           {goals.map(g => (
@@ -1030,7 +1030,7 @@ function BudgetTab({ navigation }) {
         </View>
       )}
       <TouchableOpacity style={styles.addRowBtn} onPress={() => setAddGoalOpen(true)} activeOpacity={0.8}>
-        <Plus size={14} color={colors.navy} />
+        <Plus size={14} color={colors.textPrimary} />
         <Text style={styles.addRowBtnText}>Add Goal</Text>
       </TouchableOpacity>
 
@@ -1086,7 +1086,7 @@ function SUSITab() {
       <TouchableOpacity activeOpacity={0.8} onPress={() => Linking.openURL('https://coursecompass.ie')}>
         <View style={styles.compassLinkRow}>
           <Text style={styles.compassLinkText}>Find more funding options on CourseCompass</Text>
-          <ChevronRight size={15} color={colors.navy} />
+          <ChevronRight size={15} color={colors.textPrimary} />
         </View>
       </TouchableOpacity>
 
@@ -1168,7 +1168,7 @@ function SUSITab() {
           <Text style={styles.susiCtaLabel}>Ready to apply?</Text>
           <Text style={styles.susiCtaTitle}>Go to susi.ie</Text>
         </View>
-        <ExternalLink size={20} color={colors.cream} />
+        <ExternalLink size={20} color={colors.accentFg} />
       </TouchableOpacity>
 
       {/* Other real Irish grants and schemes, alongside SUSI */}
@@ -1265,7 +1265,7 @@ function InvestmentTabContent({ navigation }) {
       <View style={{ gap: 12 }}>
         <Card style={styles.investFactCard}>
           <View style={styles.investFactHeader}>
-            <PiggyBank size={16} color={colors.navy} />
+            <PiggyBank size={16} color={colors.textPrimary} />
             <Text style={styles.investFactTitle}>Saving vs. Investing</Text>
           </View>
           <Text style={styles.investFactBody}>
@@ -1275,7 +1275,7 @@ function InvestmentTabContent({ navigation }) {
 
         <Card style={styles.investFactCard}>
           <View style={styles.investFactHeader}>
-            <Scale size={16} color={colors.navy} />
+            <Scale size={16} color={colors.textPrimary} />
             <Text style={styles.investFactTitle}>Risk and Reward</Text>
           </View>
           <Text style={styles.investFactBody}>
@@ -1287,7 +1287,7 @@ function InvestmentTabContent({ navigation }) {
       <SectionHeader eyebrow="The Power of Time" title="Why Starting Early Matters" style={{ marginTop: spacing.xl }} />
       <Card style={styles.investFactCard}>
         <View style={styles.investFactHeader}>
-          <ClockIcon size={16} color={colors.navy} />
+          <ClockIcon size={16} color={colors.textPrimary} />
           <Text style={styles.investFactTitle}>Compounding, and time in the market</Text>
         </View>
         <Text style={styles.investFactBody}>
@@ -1350,7 +1350,7 @@ function CoachOptionCard({ opt, navigation }) {
       <Card style={styles.investCard}>
         <View style={styles.investCardTop}>
           <View style={styles.investIconWrap}>
-            <opt.Icon size={20} color={colors.navy} />
+            <opt.Icon size={20} color={colors.textPrimary} />
           </View>
           <View style={{ flex: 1 }}>
             <View style={styles.investCardNameRow}>
@@ -1414,21 +1414,21 @@ export default function BudgetingScreen({ navigation, route }) {
             style={[styles.tabBtn, tab === 'budget' && styles.tabBtnActive]}
             onPress={() => setTab('budget')}
           >
-            <Wallet size={16} color={tab === 'budget' ? colors.white : colors.navy} />
+            <Wallet size={16} color={tab === 'budget' ? colors.white : colors.textPrimary} />
             <Text style={[styles.tabBtnText, tab === 'budget' && styles.tabBtnTextActive]} numberOfLines={2}>Budget</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'susi' && styles.tabBtnActive]}
             onPress={() => setTab('susi')}
           >
-            <Target size={16} color={tab === 'susi' ? colors.white : colors.navy} />
+            <Target size={16} color={tab === 'susi' ? colors.white : colors.textPrimary} />
             <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]} numberOfLines={2}>Grants & Schemes</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'invest' && styles.tabBtnActive]}
             onPress={() => setTab('invest')}
           >
-            <InvestIcon size={16} color={tab === 'invest' ? colors.white : colors.navy} />
+            <InvestIcon size={16} color={tab === 'invest' ? colors.white : colors.textPrimary} />
             <Text style={[styles.tabBtnText, tab === 'invest' && styles.tabBtnTextActive]} numberOfLines={2}>Investment</Text>
           </TouchableOpacity>
         </View>
@@ -1446,18 +1446,18 @@ export default function BudgetingScreen({ navigation, route }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scroll: { paddingBottom: 56 },
 
   // Hero
   hero: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl + spacing.sm,
   },
   heroEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2 },
-  heroTitle:   { fontFamily: fonts.serif, fontSize: 30, color: colors.cream, marginTop: 6, lineHeight: 38 },
+  heroTitle:   { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, marginTop: 6, lineHeight: 38 },
   heroSub:     { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', marginTop: 10, lineHeight: 22 },
 
   // Tab selector
@@ -1470,8 +1470,8 @@ function __gs_styles(colors) {
     flex: 1, flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', gap: 5, paddingVertical: 10, borderRadius: radius.button,
   },
-  tabBtnActive:     { backgroundColor: colors.navy },
-  tabBtnText:       { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy, textAlign: 'center', lineHeight: 15 },
+  tabBtnActive:     { backgroundColor: colors.accentBg },
+  tabBtnText:       { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary, textAlign: 'center', lineHeight: 15 },
   tabBtnTextActive: { color: colors.white },
 
   content: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
@@ -1484,8 +1484,8 @@ function __gs_styles(colors) {
     paddingHorizontal: 16, paddingVertical: 13,
   },
   userTypeLabel:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 2 },
-  userTypeValue:  { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.navy },
-  userTypeChange: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.65 },
+  userTypeValue:  { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary },
+  userTypeChange: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, opacity: 0.65 },
 
   // Tracking note
   trackingNote: {
@@ -1496,23 +1496,23 @@ function __gs_styles(colors) {
 
   // Investment tab
   investIntro:      { padding: 18 },
-  investIntroTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, marginBottom: 8 },
+  investIntroTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary, marginBottom: 8 },
   investIntroBody:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
 
   // Fundamentals cards (saving vs investing, risk/reward, compounding)
   investFactCard:   { padding: 18 },
   investFactHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
-  investFactTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  investFactTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   investFactBody:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
   investIllustration: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     padding: 14, marginVertical: 10,
   },
   investIllustrationLabel: {
     fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldDeep,
     letterSpacing: 0.6, marginBottom: 6,
   },
-  investIllustrationBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
+  investIllustrationBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
 
   // Bridge line between fundamentals and coaches
   investBridge: {
@@ -1526,10 +1526,10 @@ function __gs_styles(colors) {
   investCardNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   investIconWrap: {
     width: 44, height: 44, borderRadius: 10,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  investLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  investLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   investSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   investBadge: {
     backgroundColor: '#F0FDF4', borderRadius: radius.badge,
@@ -1551,7 +1551,7 @@ function __gs_styles(colors) {
   },
   investRiskHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   investRiskTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.destructive },
-  investRiskBody:   { fontFamily: fonts.sans, fontSize: 12.5, color: colors.navy, lineHeight: 19 },
+  investRiskBody:   { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textPrimary, lineHeight: 19 },
 
   // Segment / filter
   segmentRow: {
@@ -1560,11 +1560,11 @@ function __gs_styles(colors) {
     padding: 4, ...shadows.card,
   },
   segChip:         { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.button - 2 },
-  segChipActive:   { backgroundColor: colors.navy },
+  segChipActive:   { backgroundColor: colors.accentBg },
   segChipText:     { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
   segChipTextActive:{ color: colors.white },
-  modeChip:         { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.button - 2, backgroundColor: colors.cream },
-  modeChipActive:   { backgroundColor: colors.navy },
+  modeChip:         { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.button - 2, backgroundColor: colors.surfaceAlt },
+  modeChipActive:   { backgroundColor: colors.accentBg },
   modeChipText:     { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
   modeChipTextActive:{ color: colors.white },
 
@@ -1584,7 +1584,7 @@ function __gs_styles(colors) {
   emptyState: {
     alignItems: 'center', padding: 32, marginTop: spacing.md, gap: 10,
   },
-  emptyTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, textAlign: 'center', lineHeight: 27 },
+  emptyTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, textAlign: 'center', lineHeight: 27 },
   emptySub:   { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 21 },
 
   // Entries section
@@ -1592,8 +1592,8 @@ function __gs_styles(colors) {
   entriesHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: spacing.sm,
   },
-  entriesTitle:      { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, flex: 1 },
-  entriesTotalLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  entriesTitle:      { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, flex: 1 },
+  entriesTotalLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   entriesCard:       { padding: 0, overflow: 'hidden' },
 
   // Line item
@@ -1608,11 +1608,11 @@ function __gs_styles(colors) {
   // "Add to Goal"/"New Goal" sheet inputs below, which shouldn't be capped —
   // see `lineItemAmountCol`, the fixed-width column used by the actual
   // income/expense list rows.
-  lineItemLabel:   { flex: 1, minWidth: 0, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },
+  lineItemLabel:   { flex: 1, minWidth: 0, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
   lineItemInput:   { flexDirection: 'row', alignItems: 'center', gap: 2 },
   lineItemAmountCol: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 2, width: 90, flexShrink: 0 },
-  lineItemCurrency:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  lineItemAmount:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, minWidth: 0, flexShrink: 1, textAlign: 'right' },
+  lineItemCurrency:{ fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
+  lineItemAmount:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, minWidth: 0, flexShrink: 1, textAlign: 'right' },
   lineItemDivider: { height: 1, backgroundColor: colors.border, marginHorizontal: 14 },
 
   // Balance summary
@@ -1628,31 +1628,31 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingVertical: 10, paddingHorizontal: 4, marginTop: 4,
   },
-  addRowBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, opacity: 0.7 },
+  addRowBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, opacity: 0.7 },
 
   // Goal card
   goalCard:       { padding: 16 },
   goalCardReached: { backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: 'rgba(22,163,74,0.25)' },
   goalHeader:     { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  goalLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1 },
+  goalLabel:      { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, flex: 1 },
   goalDoneBadge:  { backgroundColor: colors.success, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 },
   goalDoneText:   { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.white },
-  progressTrack:  { height: 6, backgroundColor: colors.cream, borderRadius: 3, overflow: 'hidden' },
+  progressTrack:  { height: 6, backgroundColor: colors.surfaceAlt, borderRadius: 3, overflow: 'hidden' },
   progressFill:   { height: 6, borderRadius: 3 },
   goalAmountsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
   goalPct:        { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
   goalDeadline:   { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 4, fontStyle: 'italic' },
   addToGoalBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 11, marginTop: 14,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 11, marginTop: 14,
   },
   addToGoalBtnReached: { backgroundColor: 'rgba(22,163,74,0.12)' },
-  addToGoalBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  addToGoalBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
 
   // Tip card
-  tipCard:    { marginTop: spacing.lg, backgroundColor: colors.navy, padding: 18 },
+  tipCard:    { marginTop: spacing.lg, backgroundColor: colors.accentBg, padding: 18 },
   tipEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', letterSpacing: 1, marginBottom: 6 },
-  tipText:    { fontFamily: fonts.sans, fontSize: 14, color: colors.cream, lineHeight: 21 },
+  tipText:    { fontFamily: fonts.sans, fontSize: 14, color: colors.accentFg, lineHeight: 21 },
 
   // CourseCompass funding link
   compassLinkRow: {
@@ -1660,31 +1660,31 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface, borderRadius: radius.card,
     paddingHorizontal: 16, paddingVertical: 14, marginTop: spacing.sm, ...shadows.card,
   },
-  compassLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, flex: 1, marginRight: 8 },
+  compassLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary, flex: 1, marginRight: 8 },
 
   // SUSI intro
   susiIntro:      { padding: 20 },
-  susiIntroTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginBottom: 10 },
+  susiIntroTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginBottom: 10 },
   susiIntroBody:  { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, lineHeight: 22 },
 
   // SUSI grant cards
   susiGrantCard:  { padding: 18 },
-  susiGrantType:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginBottom: 8 },
+  susiGrantType:  { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginBottom: 8 },
   susiGrantDesc:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20 },
-  susiRates:      { marginTop: 14, backgroundColor: colors.cream, borderRadius: radius.button, overflow: 'hidden' },
+  susiRates:      { marginTop: 14, backgroundColor: colors.surfaceAlt, borderRadius: radius.button, overflow: 'hidden' },
   susiRateRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 14, paddingVertical: 10,
     borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.07)',
   },
-  susiRateLabel:  { fontFamily: fonts.sans, fontSize: 12, color: colors.navy },
-  susiRateValue:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  susiRateLabel:  { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary },
+  susiRateValue:  { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   susiRateNote:   { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 8, fontStyle: 'italic' },
 
   // Key term cards
   termCard:   { padding: 14 },
   termHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  termName:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, flex: 1 },
+  termName:   { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, flex: 1 },
   termPlain:  { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 10 },
 
   // SUSI estimator
@@ -1696,7 +1696,7 @@ function __gs_styles(colors) {
   },
   estimatorDisclaimerText: { fontFamily: fonts.sans, fontSize: 12, color: '#92400E', flex: 1, lineHeight: 18 },
   estimatorCard:   { padding: 18 },
-  estimatorFieldLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy, marginBottom: 10 },
+  estimatorFieldLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, marginBottom: 10 },
   estimatorInput:  {
     borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.button,
     paddingHorizontal: 14, height: 48,
@@ -1704,52 +1704,52 @@ function __gs_styles(colors) {
   depRow:      { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   depChip:     {
     paddingHorizontal: 14, paddingVertical: 9,
-    borderRadius: radius.button, backgroundColor: colors.cream,
+    borderRadius: radius.button, backgroundColor: colors.surfaceAlt,
     borderWidth: 1, borderColor: colors.border,
   },
-  depChipActive:    { backgroundColor: colors.navy, borderColor: colors.navy },
+  depChipActive:    { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   depChipText:      { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
   depChipTextActive:{ color: colors.white },
   estimateBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 50, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md,
   },
-  estimateBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  estimateBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
 
   // SUSI result
   resultCard:     { padding: 20, marginTop: spacing.md, borderLeftWidth: 4, borderLeftColor: colors.success },
   resultCardOver: { borderLeftColor: colors.muted },
   resultAmount:   { alignItems: 'flex-start', marginBottom: 12 },
   resultAmtLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  resultAmtValue: { fontFamily: fonts.serif, fontSize: 30, color: colors.navy },
+  resultAmtValue: { fontFamily: fonts.serif, fontSize: 30, color: colors.textPrimary },
   resultAmtSub:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3 },
-  resultNote:     { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy, lineHeight: 21 },
+  resultNote:     { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary, lineHeight: 21 },
   resultDisclaimer:{ fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 10, lineHeight: 16, fontStyle: 'italic' },
 
   // Application checklist
   checklistCard:      { padding: 0, overflow: 'hidden' },
   checklistRow:       { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 14 },
   checklistRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-  checklistText:      { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, flex: 1, lineHeight: 20 },
+  checklistText:      { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, flex: 1, lineHeight: 20 },
   checklistTextDone:  { color: colors.muted, textDecorationLine: 'line-through' },
 
   // SUSI CTA
   susiCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: colors.navy, borderRadius: radius.card,
+    backgroundColor: colors.accentBg, borderRadius: radius.card,
     padding: 20, marginTop: spacing.lg,
   },
   susiCtaLabel: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.6)', marginBottom: 2 },
-  susiCtaTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.cream },
+  susiCtaTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.accentFg },
 
   // Other Grants & Schemes
   schemesIntro: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 12 },
   schemeCard:     { padding: 18 },
-  schemeName:     { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginBottom: 4 },
+  schemeName:     { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, marginBottom: 4 },
   schemeForWho:   { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted, marginBottom: 10 },
   schemeDesc:     { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
   schemeLinkRow:  { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 12 },
-  schemeLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  schemeLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
   })
 }
 
@@ -1762,16 +1762,16 @@ function __gs_sheet(colors) {
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.navy, flex: 1, marginRight: 12 },
+  title: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary, flex: 1, marginRight: 12 },
   label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 },
   input: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
     paddingHorizontal: 14, paddingVertical: 12,
-    fontFamily: fonts.sans, fontSize: 14, color: colors.navy,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   amountInput: {
-    backgroundColor: colors.cream, borderRadius: radius.card,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
     paddingHorizontal: 14, height: 56,
   },
@@ -1780,13 +1780,13 @@ function __gs_sheet(colors) {
   iconRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   iconChip: {
     width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: colors.cream, borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.12)',
+    backgroundColor: colors.surfaceAlt, borderWidth: 1.3, borderColor: 'rgba(30,58,95,0.12)',
   },
-  iconChipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  iconChipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 15, marginTop: 22,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 15, marginTop: 22,
   },
-  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   })
 }
