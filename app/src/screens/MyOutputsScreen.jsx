@@ -13,6 +13,7 @@ import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // "My Outputs" — a student's own submission history and completed
 // documents. A delivered row opens OutputDetailScreen for the generated
@@ -96,6 +97,7 @@ export default function MyOutputsScreen({ navigation }) {
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -132,7 +134,7 @@ export default function MyOutputsScreen({ navigation }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         backLabel="Home"
         logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
         eyebrow="MY OUTPUTS"

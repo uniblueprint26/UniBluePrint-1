@@ -8,6 +8,7 @@ import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { formatGeneratedDocument } from '../lib/formatGeneratedDocument'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // Delivered-document viewer, opened from a delivered row in MyOutputsScreen.
 // Deliberately plain-text + share only — real PDF/rich-document formatting
@@ -43,6 +44,7 @@ export default function OutputDetailScreen({ navigation, route }) {
   const styles = getStyles(colors)
   const { documentTable, documentId, serviceName, deliveredAt } = route.params || {}
   const contentColumn = CONTENT_COLUMN[documentTable]
+  const safeGoBack = useSafeGoBack(navigation, 'MyOutputs')
 
   const [status, setStatus] = useState('loading') // 'loading' | 'ok' | 'empty' | 'error' | 'unsupported'
   const [text, setText] = useState('')
@@ -91,7 +93,7 @@ export default function OutputDetailScreen({ navigation, route }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         backLabel="My Outputs"
         eyebrow="DELIVERED"
         title={serviceName || 'Your document'}

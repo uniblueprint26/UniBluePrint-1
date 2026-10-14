@@ -14,6 +14,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // ── Notification category config ────────────────────────────────────────────
 // Keys match public.notifications.category values. 'welcome' and the four
@@ -106,6 +107,7 @@ export default function NotificationsScreen({ navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -167,7 +169,7 @@ export default function NotificationsScreen({ navigation }) {
       <ScreenHeader
         compact
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         backLabel=""
         title="Notifications"
         titleStyle={styles.topTitle}

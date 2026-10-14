@@ -14,6 +14,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
 import { coachSlug } from './ElevationScreen'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // ── Book a Coach ─────────────────────────────────────────────────────────────
 // A dedicated pick-date -> pick-time -> confirm flow, reachable from a
@@ -52,6 +53,7 @@ export default function CoachBookingScreen({ route, navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
   const { coach } = route.params
   // Defense in depth — CoachProfileScreen already gates the "Book a Coach"
   // CTA that leads here, but this screen is reachable by direct navigation
@@ -76,7 +78,7 @@ export default function CoachBookingScreen({ route, navigation }) {
       <View style={styles.screen}>
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           eyebrow="BOOK A COACH"
           title={coach.name}
           subtitle={coach.category}
@@ -123,7 +125,7 @@ export default function CoachBookingScreen({ route, navigation }) {
       <View style={styles.screen}>
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           title="Request Sent"
           style={styles.header}
           titleStyle={styles.headerTitle}
@@ -150,7 +152,7 @@ export default function CoachBookingScreen({ route, navigation }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         eyebrow="BOOK A COACH"
         title={coach.name}
         subtitle={coach.category}

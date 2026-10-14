@@ -25,6 +25,7 @@ import UBPLogo    from '../components/ui/UBPLogo'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // iOS: no purchase CTAs or prices for the CourseCompass bundles (App Store
 // 3.1.1) — the bundles section is hidden entirely for v1 (D1). Web/Android
@@ -277,6 +278,7 @@ export default function CompassScreen({ navigation }) {
   const { colors } = useTheme()
   const s = __gs_s(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
 
   return (
     <View style={s.screen}>
@@ -310,7 +312,7 @@ export default function CompassScreen({ navigation }) {
         {/* ── Integrated header + hero ── */}
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Home"
           logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
           eyebrow="COURSE COMPASS"

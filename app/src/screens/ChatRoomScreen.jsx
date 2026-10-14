@@ -27,6 +27,7 @@ import {
 import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { supabase } from '../lib/supabase'
@@ -55,6 +56,7 @@ export default function ChatRoomScreen({ navigation, route }) {
   const { contextType, contextId, roomName, subtitle, posterId, posterName } = route.params ?? {}
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
 
   const userId          = user?.id
   const userDisplayName = user?.user_metadata?.full_name
@@ -199,7 +201,7 @@ export default function ChatRoomScreen({ navigation, route }) {
       <ScreenHeader
         compact
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         title={roomName || 'Chat'}
         subtitle={subtitle}
         rightAccessory={

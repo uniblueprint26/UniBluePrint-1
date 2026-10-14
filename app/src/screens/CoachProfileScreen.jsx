@@ -19,6 +19,7 @@ import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { coachBookingUrl } from '../constants/site'
 import { useProAccess } from '../hooks/useProAccess'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // iOS: coaching sessions are a real-world service (App Store 3.1.3(e),
 // "goods and services outside the app"), not digital content — so "Book a
@@ -365,6 +366,7 @@ export default function CoachProfileScreen({ route, navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
   const { coach: baseCoach } = route.params
   // Elevation is a Pro-only surface (see ElevationScreen.jsx's own comment
   // and docs/business/subscription-pricing-model.md) — gated again here,
@@ -459,7 +461,7 @@ export default function CoachProfileScreen({ route, navigation }) {
     return (
       <View style={styles.screen}>
         <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
             <Text style={styles.backBtnText}>Back</Text>
           </TouchableOpacity>
@@ -506,7 +508,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() => navigation.goBack()}
+            onPress={safeGoBack}
             activeOpacity={0.7}
           >
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />

@@ -15,6 +15,7 @@ import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // ─── Career Readiness ───────────────────────────────────────────────────────
 // Tracks real progress across the 8 Foundation Blueprint builders (CV,
@@ -135,6 +136,7 @@ export default function CareerReadinessScreen({ navigation }) {
   const { inProgress: IN_PROGRESS_COLOR, notStarted: NOT_STARTED_COLOR } = getStatusColors(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation, 'Foundation')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -236,7 +238,7 @@ export default function CareerReadinessScreen({ navigation }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         backLabel="Foundation"
         logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
         eyebrow="CAREER READINESS"
