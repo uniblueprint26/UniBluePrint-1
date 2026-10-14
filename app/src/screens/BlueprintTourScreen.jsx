@@ -184,7 +184,7 @@ function QuickAccessMock({ tiles }) {
       {tiles.map(t => (
         <View key={t.label} style={mock.quickAccessTile}>
           <View style={mock.quickAccessIconWrap}>
-            <t.Icon size={18} color={colors.navy} strokeWidth={1.8} />
+            <t.Icon size={18} color={colors.textPrimary} strokeWidth={1.8} />
           </View>
           <Text style={mock.quickAccessLabel}>{t.label}</Text>
           <Text style={mock.quickAccessSub} numberOfLines={2}>{t.sub}</Text>
@@ -244,7 +244,7 @@ function ProfileMock({ name, category, price, bio, ctaPrimary, ctaSecondary, acc
           <Text style={mock.profileCtaPrimaryText}>{ctaPrimary}</Text>
         </View>
         <View style={mock.profileCtaSecondary}>
-          <Send size={12} color={colors.navy} strokeWidth={2} />
+          <Send size={12} color={colors.textPrimary} strokeWidth={2} />
           <Text style={mock.profileCtaSecondaryText}>{ctaSecondary}</Text>
         </View>
       </View>
@@ -436,7 +436,7 @@ function __gs_styles(colors) {
   return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
 
-  liveArea: { flex: 1, backgroundColor: colors.cream, overflow: 'hidden' },
+  liveArea: { flex: 1, backgroundColor: colors.background, overflow: 'hidden' },
   mockWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xxl },
   liveScrim: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 120 },
 
@@ -466,14 +466,14 @@ function __gs_styles(colors) {
 
   dots: { flexDirection: 'row', gap: 6, justifyContent: 'center', marginBottom: spacing.sm, flexWrap: 'wrap' },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },
-  dotActive: { width: 18, borderRadius: 3, backgroundColor: colors.navy },
+  dotActive: { width: 18, borderRadius: 3, backgroundColor: colors.accentBg },
   dotUpcoming: { opacity: 0.5 },
 
   iconWrap: {
     width: 44, height: 44, borderRadius: 13,
     alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm,
   },
-  cardTitle: { fontFamily: fonts.serif, fontSize: 23, color: colors.navy, marginBottom: 2 },
+  cardTitle: { fontFamily: fonts.serif, fontSize: 23, color: colors.textPrimary, marginBottom: 2 },
   cardTagline: { fontFamily: fonts.sansSemiBold, fontSize: 13, marginBottom: spacing.sm },
   cardBody: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, lineHeight: 21 },
 
@@ -481,16 +481,16 @@ function __gs_styles(colors) {
   chipRow: { flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 4 },
   chip: {
     borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6,
-    backgroundColor: colors.cream, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
   },
-  chipText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  chipText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   footer: { paddingTop: spacing.md },
   ctaBtn: {
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingVertical: 15, alignItems: 'center',
   },
-  ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  ctaBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   })
 }
 
@@ -503,10 +503,10 @@ function __gs_mock(colors) {
     padding: 14, ...shadows.card,
   },
   quickAccessIconWrap: {
-    width: 32, height: 32, borderRadius: 9, backgroundColor: colors.cream,
+    width: 32, height: 32, borderRadius: 9, backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center', marginBottom: 8,
   },
-  quickAccessLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginBottom: 2 },
+  quickAccessLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 2 },
   quickAccessSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, lineHeight: 15 },
 
   cardList: { gap: 10 },
@@ -516,7 +516,7 @@ function __gs_mock(colors) {
     padding: 14, ...shadows.card,
   },
   listDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  listTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy, marginBottom: 2 },
+  listTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginBottom: 2 },
   listSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17 },
   listMeta: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
   listMetaText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
@@ -525,13 +525,13 @@ function __gs_mock(colors) {
   profileTopRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
   profileAvatar: {
     width: 48, height: 48, borderRadius: 24, borderWidth: 2,
-    alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, flexShrink: 0,
+    alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt, flexShrink: 0,
   },
-  profileName: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, marginBottom: 2 },
+  profileName: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, marginBottom: 2 },
   profileMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   profileCategory: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  profilePriceChip: { backgroundColor: colors.navy, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
-  profilePriceText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.cream },
+  profilePriceChip: { backgroundColor: colors.accentBg, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  profilePriceText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.accentFg },
   profileBio: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 18 },
   profileCtaPrimary: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -543,18 +543,18 @@ function __gs_mock(colors) {
     borderRadius: radius.button, paddingVertical: 11,
     borderWidth: 1, borderColor: colors.border,
   },
-  profileCtaSecondaryText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.navy },
+  profileCtaSecondaryText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textPrimary },
 
   tabRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   tabPill: {
     borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
   },
-  tabPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.navy },
+  tabPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.textPrimary },
   statCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, ...shadows.card },
   statLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  statValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginBottom: 10 },
-  progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.cream, overflow: 'hidden' },
+  statValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary, marginBottom: 10 },
+  progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
   })
 }

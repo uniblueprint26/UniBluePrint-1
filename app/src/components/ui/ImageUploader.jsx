@@ -227,7 +227,7 @@ export default function ImageUploader({
       {localUri && !uploading && (
         <View style={s.row}>
           <TouchableOpacity style={s.uploadBtn} onPress={uploadImage} activeOpacity={0.8}>
-            <Upload size={13} color={colors.cream} strokeWidth={2} />
+            <Upload size={13} color={colors.accentFg} strokeWidth={2} />
             <Text style={s.uploadBtnText}>Upload</Text>
           </TouchableOpacity>
           <TouchableOpacity style={s.cancelBtn} onPress={cancelPick} activeOpacity={0.8}>
@@ -240,7 +240,7 @@ export default function ImageUploader({
       {/* Upload progress */}
       {uploading && (
         <View style={s.row}>
-          <ActivityIndicator size="small" color={colors.navy} />
+          <ActivityIndicator size="small" color={colors.textPrimary} />
           <Text style={s.statusText}>Uploading…</Text>
         </View>
       )}
@@ -258,7 +258,7 @@ export default function ImageUploader({
       {/* Pick / change button — shown when idle (no local pick in progress) */}
       {!localUri && !uploading && (
         <TouchableOpacity style={s.changeBtn} onPress={pickImage} activeOpacity={0.8}>
-          <RefreshCw size={12} color={colors.navy} strokeWidth={2} />
+          <RefreshCw size={12} color={colors.textPrimary} strokeWidth={2} />
           <Text style={s.changeBtnText}>
             {currentUrl || uploaded ? 'Change photo' : 'Choose photo'}
           </Text>
@@ -289,10 +289,10 @@ function getStyles(colors) {
 
   uploadBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.pill,
+    backgroundColor: colors.accentBg, borderRadius: radius.pill,
     paddingHorizontal: 18, paddingVertical: 9,
   },
-  uploadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  uploadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
 
   cancelBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
@@ -309,7 +309,7 @@ function getStyles(colors) {
     fontFamily: fonts.sans, fontSize: 13, color: '#DC2626',
     textAlign: 'center', lineHeight: 19,
   },
-  retryText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  retryText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   changeBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
@@ -317,6 +317,6 @@ function getStyles(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
     paddingHorizontal: 16, paddingVertical: 8,
   },
-  changeBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
+  changeBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
   })
 }

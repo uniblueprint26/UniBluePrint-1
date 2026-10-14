@@ -107,18 +107,18 @@ export default function FileUploader({ bucket, storagePath, onUpload, label = 'F
       ) : picked ? (
         <View style={s.pickedBox}>
           <View style={s.pickedRow}>
-            {isPdf(picked.mimeType) ? <FileText size={18} color={colors.navy} /> : <ImageIcon size={18} color={colors.navy} />}
+            {isPdf(picked.mimeType) ? <FileText size={18} color={colors.textPrimary} /> : <ImageIcon size={18} color={colors.textPrimary} />}
             <Text style={s.pickedName} numberOfLines={1}>{picked.name}</Text>
           </View>
           {uploading ? (
             <View style={s.row}>
-              <ActivityIndicator size="small" color={colors.navy} />
+              <ActivityIndicator size="small" color={colors.textPrimary} />
               <Text style={s.statusText}>Uploading…</Text>
             </View>
           ) : (
             <View style={s.row}>
               <TouchableOpacity style={s.uploadBtn} onPress={upload} activeOpacity={0.8}>
-                <Upload size={13} color={colors.cream} strokeWidth={2} />
+                <Upload size={13} color={colors.accentFg} strokeWidth={2} />
                 <Text style={s.uploadBtnText}>Upload</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.cancelBtn} onPress={cancelPick} activeOpacity={0.8}>
@@ -130,7 +130,7 @@ export default function FileUploader({ bucket, storagePath, onUpload, label = 'F
         </View>
       ) : (
         <TouchableOpacity style={s.pickBtn} onPress={pick} activeOpacity={0.8}>
-          <Upload size={14} color={colors.navy} strokeWidth={2} />
+          <Upload size={14} color={colors.textPrimary} strokeWidth={2} />
           <Text style={s.pickBtnText}>Choose PDF or image</Text>
         </TouchableOpacity>
       )}
@@ -146,22 +146,22 @@ function __gs_s(colors) {
   label: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
   pickBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.cream, borderRadius: radius.card, borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card, borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
     paddingVertical: 14,
   },
-  pickBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  pickedBox: { backgroundColor: colors.cream, borderRadius: radius.card, padding: 12, gap: 10 },
+  pickBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+  pickedBox: { backgroundColor: colors.surfaceAlt, borderRadius: radius.card, padding: 12, gap: 10 },
   pickedRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pickedName: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
+  pickedName: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  uploadBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.navy, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 9 },
-  uploadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  uploadBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.accentBg, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 9 },
+  uploadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
   cancelBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)', paddingHorizontal: 14, paddingVertical: 9 },
   cancelBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
   statusText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
-  doneRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.cream, borderRadius: radius.card, padding: 12 },
-  doneText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy },
-  changeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy },
+  doneRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surfaceAlt, borderRadius: radius.card, padding: 12 },
+  doneText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary },
+  changeText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
   errorText: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive },
   })
 }
