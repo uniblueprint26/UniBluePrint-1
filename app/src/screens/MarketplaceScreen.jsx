@@ -34,7 +34,7 @@ export default function MarketplaceScreen({ navigation }) {
       <View style={styles.heroBlock}>
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
             <Text style={styles.backBtnText}>Ad Board</Text>
           </TouchableOpacity>
         </View>
@@ -72,17 +72,17 @@ export default function MarketplaceScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  screen: { flex: 1, backgroundColor: colors.background },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md, paddingTop: 8 },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, lineHeight: 34 },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, lineHeight: 34 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 8, lineHeight: 20 },
 
   modeCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18 },
   modeIconWrap: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  modeTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
+  modeTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary },
   modeSub: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 4, lineHeight: 18 },
   })
 }

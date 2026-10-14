@@ -29,7 +29,7 @@ export default function BlogScreen({ navigation }) {
       <View style={styles.heroBlock}>
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
             <Text style={styles.backBtnText}>Ad Board</Text>
           </TouchableOpacity>
         </View>
@@ -75,18 +75,18 @@ export default function BlogScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  screen: { flex: 1, backgroundColor: colors.background },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
   navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md, paddingTop: 8 },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, lineHeight: 34 },
+  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, lineHeight: 34 },
   heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 8, lineHeight: 20 },
 
   postCard: { padding: 18 },
-  categoryPill: { alignSelf: 'flex-start', backgroundColor: colors.navy, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
-  categoryPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.cream, letterSpacing: 0.3 },
-  postTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginTop: 10, lineHeight: 23 },
+  categoryPill: { alignSelf: 'flex-start', backgroundColor: colors.accentBg, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
+  categoryPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.accentFg, letterSpacing: 0.3 },
+  postTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary, marginTop: 10, lineHeight: 23 },
   postExcerpt: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 6, lineHeight: 19 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 },
   metaText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light },
