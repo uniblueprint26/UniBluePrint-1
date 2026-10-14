@@ -324,7 +324,7 @@ export default function DirectoryScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       <View style={[styles.topBar, { paddingTop: insets.top + 14 }]}>
-        <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+        <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
         <TouchableOpacity
           onPress={() => openMenu(navigation)}
           style={styles.menuBtn}
@@ -332,7 +332,7 @@ export default function DirectoryScreen({ navigation }) {
           accessibilityRole="button"
           accessibilityLabel="Open menu"
         >
-          <Menu size={20} color={colors.cream} />
+          <Menu size={20} color={colors.chromeFg} />
         </TouchableOpacity>
       </View>
 
@@ -399,7 +399,7 @@ export default function DirectoryScreen({ navigation }) {
       >
         {candidatesLoading ? (
           <View style={styles.loadingWrap}>
-            <ActivityIndicator color={colors.navy} />
+            <ActivityIndicator color={colors.textPrimary} />
           </View>
         ) : candidatesError ? (
           <View style={styles.resultMeta}>
@@ -446,10 +446,10 @@ export default function DirectoryScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   topBar: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: 16,
     flexDirection: 'row',
@@ -459,7 +459,7 @@ function __gs_styles(colors) {
   menuBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
 
   headingWrap: { paddingHorizontal: spacing.md, paddingTop: 18, paddingBottom: 10 },
-  screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy },
+  screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.textPrimary },
   screenSub:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
 
   searchWrap: {
@@ -469,7 +469,7 @@ function __gs_styles(colors) {
     borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.navy, padding: 0 },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, padding: 0 },
 
   filterRow: { paddingHorizontal: spacing.md, paddingBottom: 14, gap: 8 },
   filterPill: {
@@ -477,9 +477,9 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
   },
-  filterPillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  filterText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  filterTextActive: { color: colors.cream },
+  filterPillActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  filterText:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
+  filterTextActive: { color: colors.accentFg },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed header on native.
@@ -502,10 +502,10 @@ function __gs_styles(colors) {
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   avatarText: { fontFamily: fonts.serif, fontSize: 18, color: '#fff' },
-  cardName:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  cardName:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   cardCourse: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   cardUni:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 1 },
-  cardBio:    { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 18, marginBottom: 12 },
+  cardBio:    { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 18, marginBottom: 12 },
 
   // Status badges (row, multi-value)
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
@@ -518,15 +518,15 @@ function __gs_styles(colors) {
   // Interest tags
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
   tag: {
-    backgroundColor: colors.cream, borderRadius: 20,
+    backgroundColor: colors.surfaceAlt, borderRadius: 20,
     paddingHorizontal: 10, paddingVertical: 4,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
   tagMatched: {
-    backgroundColor: colors.navy, borderColor: colors.navy,
+    backgroundColor: colors.accentBg, borderColor: colors.accentBg,
   },
   tagText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  tagTextMatched: { color: colors.cream },
+  tagTextMatched: { color: colors.accentFg },
 
   matchReasons: {
     fontFamily: fonts.sans, fontSize: 11, color: colors.light,

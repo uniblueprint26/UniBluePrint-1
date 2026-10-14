@@ -121,7 +121,7 @@ function EmptyState({ onDirectoryPress, onConnectPress }) {
   return (
     <View style={styles.emptyWrap}>
       <View style={styles.emptyIconBox}>
-        <MessageSquare size={34} color={colors.navy} strokeWidth={1.4} />
+        <MessageSquare size={34} color={colors.textPrimary} strokeWidth={1.4} />
       </View>
       <Text style={styles.emptyTitle}>No conversations yet</Text>
       <Text style={styles.emptySub}>
@@ -328,7 +328,7 @@ export default function MessagesScreen({ navigation }) {
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        <UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />
+        <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
         <View style={{ flex: 1 }} />
         <TouchableOpacity
           onPress={() => openMenu(navigation)}
@@ -337,7 +337,7 @@ export default function MessagesScreen({ navigation }) {
           accessibilityRole="button"
           accessibilityLabel="Open menu"
         >
-          <Menu size={20} color={colors.cream} />
+          <Menu size={20} color={colors.chromeFg} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.composeBtn}
@@ -346,7 +346,7 @@ export default function MessagesScreen({ navigation }) {
           accessibilityRole="button"
           accessibilityLabel="Start a new conversation"
         >
-          <Pencil size={16} color={colors.cream} strokeWidth={1.8} />
+          <Pencil size={16} color={colors.chromeFg} strokeWidth={1.8} />
         </TouchableOpacity>
       </View>
 
@@ -371,7 +371,7 @@ export default function MessagesScreen({ navigation }) {
       >
         {loading ? (
           <View style={styles.loadingWrap}>
-            <ActivityIndicator color={colors.navy} size="small" />
+            <ActivityIndicator color={colors.textPrimary} size="small" />
           </View>
         ) : hasRooms ? (
           <Card style={styles.convList}>
@@ -409,7 +409,7 @@ export default function MessagesScreen({ navigation }) {
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             {contactsLoading ? (
               <View style={styles.loadingWrap}>
-                <ActivityIndicator color={colors.navy} size="small" />
+                <ActivityIndicator color={colors.textPrimary} size="small" />
               </View>
             ) : contacts.length > 0 ? (
               contacts.map((contact) => {
@@ -429,7 +429,7 @@ export default function MessagesScreen({ navigation }) {
                     </View>
                     <Text style={styles.contactName} numberOfLines={1}>{name}</Text>
                     {busy
-                      ? <ActivityIndicator size="small" color={colors.navy} />
+                      ? <ActivityIndicator size="small" color={colors.textPrimary} />
                       : <ChevronRight size={14} color={colors.light} />
                     }
                   </TouchableOpacity>
@@ -463,10 +463,10 @@ export default function MessagesScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   topBar: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingTop: 14, paddingBottom: 16,
     flexDirection: 'row',
@@ -482,7 +482,7 @@ function __gs_styles(colors) {
   },
 
   headingWrap: { paddingHorizontal: spacing.md, paddingTop: 18, paddingBottom: 10 },
-  screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy },
+  screenTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.textPrimary },
   screenSub:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4 },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
@@ -519,7 +519,7 @@ function __gs_styles(colors) {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginBottom: 4,
   },
-  convName:        { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.navy, flex: 1, marginRight: 8 },
+  convName:        { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.textPrimary, flex: 1, marginRight: 8 },
   convNameUnread:  { fontFamily: fonts.sansSemiBold },
   convTime:        { fontFamily: fonts.sans, fontSize: 11, color: colors.light, flexShrink: 0 },
   convTimeUnread:  { color: colors.muted },
@@ -532,12 +532,12 @@ function __gs_styles(colors) {
   convPreviewUnread: { color: colors.muted },
 
   unreadBadge: {
-    backgroundColor: colors.navy, borderRadius: 9999,
+    backgroundColor: colors.accentBg, borderRadius: 9999,
     minWidth: 18, height: 18,
     alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 5, flexShrink: 0,
   },
-  unreadBadgeText: { fontFamily: fonts.sansBold, fontSize: 10, color: colors.cream },
+  unreadBadgeText: { fontFamily: fonts.sansBold, fontSize: 10, color: colors.accentFg },
 
   // Empty state
   emptyWrap: { alignItems: 'center', paddingHorizontal: 32, paddingTop: 48 },
@@ -548,7 +548,7 @@ function __gs_styles(colors) {
     marginBottom: 24, ...shadows.card,
   },
   emptyTitle: {
-    fontFamily: fonts.serif, fontSize: 24, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary,
     marginBottom: 12, textAlign: 'center',
   },
   emptySub: {
@@ -569,7 +569,7 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.14)',
     alignSelf: 'center', marginBottom: 20,
   },
-  composeTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginBottom: 6 },
+  composeTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginBottom: 6 },
   composeSub: {
     fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
     lineHeight: 19, marginBottom: 16,
@@ -585,11 +585,11 @@ function __gs_styles(colors) {
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   contactAvatarText: { fontFamily: fonts.serif, fontSize: 14, color: colors.cream },
-  contactName: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+  contactName: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
 
   composeEmptyWrap: { alignItems: 'center', paddingTop: 40, paddingHorizontal: 12 },
   composeEmptyTitle: {
-    fontFamily: fonts.serif, fontSize: 18, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary,
     marginBottom: 10, textAlign: 'center',
   },
   composeEmptySub: {
@@ -599,8 +599,8 @@ function __gs_styles(colors) {
 
   composeCancelBtn: {
     marginTop: 12, marginBottom: 12, alignItems: 'center', paddingVertical: 14,
-    backgroundColor: colors.cream, borderRadius: radius.button,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.button,
   },
-  composeCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  composeCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   })
 }

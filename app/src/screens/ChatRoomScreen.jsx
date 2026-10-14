@@ -226,7 +226,7 @@ export default function ChatRoomScreen({ navigation, route }) {
 
         {isLoading && (
           <View style={s.centerState}>
-            <ActivityIndicator color={colors.navy} size="small" />
+            <ActivityIndicator color={colors.textPrimary} size="small" />
           </View>
         )}
 
@@ -239,7 +239,7 @@ export default function ChatRoomScreen({ navigation, route }) {
         {!isLoading && !error && messages.length === 0 && (
           <View style={s.centerState}>
             <View style={s.emptyIconBox}>
-              <MessageSquare size={28} color={colors.navy} strokeWidth={1.4} />
+              <MessageSquare size={28} color={colors.textPrimary} strokeWidth={1.4} />
             </View>
             <Text style={s.emptyTitle}>No messages yet</Text>
             <Text style={s.emptySub}>Be the first to say something.</Text>
@@ -294,8 +294,8 @@ export default function ChatRoomScreen({ navigation, route }) {
           accessibilityState={{ disabled: !input.trim() || sending }}
         >
           {sending
-            ? <ActivityIndicator size="small" color={colors.cream} />
-            : <Send size={16} color={input.trim() ? colors.cream : colors.light} strokeWidth={2} />
+            ? <ActivityIndicator size="small" color={colors.accentFg} />
+            : <Send size={16} color={input.trim() ? colors.accentFg : colors.light} strokeWidth={2} />
           }
         </TouchableOpacity>
       </View>
@@ -356,7 +356,7 @@ export default function ChatRoomScreen({ navigation, route }) {
 
 function __gs_s(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
 
   // Message area
@@ -371,7 +371,7 @@ function __gs_s(colors) {
     alignItems: 'center', justifyContent: 'center',
     ...shadows.card,
   },
-  emptyTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy },
+  emptyTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary },
   emptySub:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
 
   // Bubbles
@@ -385,12 +385,12 @@ function __gs_s(colors) {
   },
 
   bubble:      { borderRadius: 14, paddingHorizontal: 13, paddingVertical: 9, maxWidth: '100%' },
-  bubbleOwn:   { backgroundColor: colors.navy, borderBottomRightRadius: 4 },
+  bubbleOwn:   { backgroundColor: colors.accentBg, borderBottomRightRadius: 4 },
   bubbleOther: { backgroundColor: colors.surface, borderBottomLeftRadius: 4, ...shadows.card },
 
   bubbleText:      { fontFamily: fonts.sans, fontSize: 14, lineHeight: 20 },
-  bubbleTextOwn:   { color: colors.cream },
-  bubbleTextOther: { color: colors.navy },
+  bubbleTextOwn:   { color: colors.accentFg },
+  bubbleTextOther: { color: colors.textPrimary },
 
   bubbleTime:    { fontFamily: fonts.sans, fontSize: 10, color: colors.light, marginTop: 3, marginBottom: 10, marginLeft: 4 },
   bubbleTimeOwn: { marginLeft: 0, marginRight: 4, textAlign: 'right' },
@@ -406,8 +406,8 @@ function __gs_s(colors) {
   input: {
     flex: 1,
     fontFamily: fonts.sans, fontSize: 14,
-    color: colors.navy,
-    backgroundColor: colors.cream,
+    color: colors.textPrimary,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: radius.button,
     paddingHorizontal: 14,
     paddingTop: 10, paddingBottom: 10,
@@ -417,7 +417,7 @@ function __gs_s(colors) {
   },
   sendBtn:         {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: colors.navy,
+    backgroundColor: colors.accentBg,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   sendBtnDisabled: { backgroundColor: 'rgba(30,58,95,0.18)' },
@@ -439,13 +439,13 @@ function __gs_s(colors) {
     width: 40, height: 40, borderRadius: 10,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  moreRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  moreRowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   moreRowSub:   { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
   moreDivider:  { height: 1, backgroundColor: 'rgba(30,58,95,0.07)' },
   moreCancelBtn: {
     marginTop: 24, alignItems: 'center', paddingVertical: 14,
-    backgroundColor: colors.cream, borderRadius: radius.button,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.button,
   },
-  moreCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
+  moreCancelText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
   })
 }

@@ -90,7 +90,7 @@ function EmptyState() {
   return (
     <View style={styles.emptyWrap}>
       <View style={styles.emptyIconBox}>
-        <Bell size={34} color={colors.navy} strokeWidth={1.4} />
+        <Bell size={34} color={colors.textPrimary} strokeWidth={1.4} />
       </View>
       <Text style={styles.emptyTitle}>All caught up</Text>
       <Text style={styles.emptySub}>
@@ -176,7 +176,7 @@ export default function NotificationsScreen({ navigation }) {
         rightAccessory={hasUnread && (
           <HeaderIconButton
             icon={CheckCheck}
-            color={colors.cream}
+            color={colors.chromeFg}
             onPress={markAllRead}
             accessibilityLabel="Mark all as read"
           />
@@ -187,7 +187,7 @@ export default function NotificationsScreen({ navigation }) {
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.navy} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />}
       >
         {loading ? (
           <Text style={styles.loadingText}>Loading notifications...</Text>
@@ -214,9 +214,9 @@ export default function NotificationsScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
-  topTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.cream },
+  topTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.chromeFg },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed header on native.
@@ -236,7 +236,7 @@ function __gs_styles(colors) {
     alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
   },
   notifContent: { flex: 1 },
-  notifTitle:   { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy, lineHeight: 20 },
+  notifTitle:   { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary, lineHeight: 20 },
   notifTitleUnread: { fontFamily: fonts.sansSemiBold },
   notifBody:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 18 },
   notifTime:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 4 },
@@ -257,7 +257,7 @@ function __gs_styles(colors) {
     ...shadows.card,
   },
   emptyTitle: {
-    fontFamily: fonts.serif, fontSize: 24, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary,
     marginBottom: 12, textAlign: 'center',
   },
   emptySub: {
