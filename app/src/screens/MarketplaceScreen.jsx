@@ -16,6 +16,7 @@ import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { MARKETPLACE_BOARDS } from '../constants/marketplaceBoards'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 const ICONS = { skills: Sparkles, buysell: ShoppingBag }
 
@@ -26,12 +27,13 @@ export default function MarketplaceScreen({ navigation }) {
   // here without this (L3).
   useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.heroBlock}>
         <View style={styles.navRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
+          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
             <Text style={styles.backBtnText}>Ad Board</Text>
           </TouchableOpacity>

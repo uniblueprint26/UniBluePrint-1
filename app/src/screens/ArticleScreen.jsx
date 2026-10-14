@@ -11,6 +11,7 @@ import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { getPost, calcReadTime, formatDate } from '../data/blogPosts'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 function Section({ section, index }) {
   const { colors } = useTheme()
@@ -40,13 +41,14 @@ export default function ArticleScreen({ navigation, route }) {
   // without this (L3).
   useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation, 'Blog')
   const { slug } = route.params ?? {}
   const post = getPost(slug)
 
   if (!post) {
     return (
       <View style={[styles.screen, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.backBtnAlone} onPress={() => navigation.goBack()} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.backBtnAlone} onPress={safeGoBack} activeOpacity={0.7}>
           <ChevronLeft size={20} color={colors.navy} />
           <Text style={styles.backBtnAloneText}>Back</Text>
         </TouchableOpacity>
@@ -58,7 +60,7 @@ export default function ArticleScreen({ navigation, route }) {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.navRow}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Back to Blog">
+        <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Back to Blog">
           <ChevronLeft size={20} color={colors.navy} strokeWidth={2} />
           <Text style={styles.backBtnText}>Blog</Text>
         </TouchableOpacity>

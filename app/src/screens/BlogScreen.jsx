@@ -13,6 +13,7 @@ import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { POSTS, calcReadTime, formatDate } from '../data/blogPosts'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 export default function BlogScreen({ navigation }) {
   const { colors } = useTheme()
@@ -21,12 +22,13 @@ export default function BlogScreen({ navigation }) {
   // here without this (L3).
   useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.heroBlock}>
         <View style={styles.navRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
+          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
             <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
             <Text style={styles.backBtnText}>Ad Board</Text>
           </TouchableOpacity>
