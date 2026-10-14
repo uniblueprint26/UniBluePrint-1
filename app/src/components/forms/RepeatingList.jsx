@@ -46,7 +46,7 @@ export default function RepeatingList({ entries, onChange, renderEntry, emptyEnt
         </Card>
       ))}
       <TouchableOpacity style={s.addBtn} activeOpacity={0.8} onPress={addEntry}>
-        <Plus size={16} color={colors.navy} />
+        <Plus size={16} color={colors.textPrimary} />
         <Text style={s.addBtnText}>{addLabel}</Text>
       </TouchableOpacity>
     </View>
@@ -59,9 +59,9 @@ function __gs_s(colors) {
   removeBtn: { position: 'absolute', top: 10, right: 10, padding: 4, zIndex: 1 },
   addBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.navy,
+    height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.accentBg,
     borderStyle: 'dashed',
   },
-  addBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  addBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   })
 }

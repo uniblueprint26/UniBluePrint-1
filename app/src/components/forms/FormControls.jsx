@@ -139,7 +139,7 @@ export function TagInput({ values = [], onChange, placeholder }) {
           accessibilityRole="button"
           accessibilityLabel="Add"
         >
-          <Plus size={18} color={colors.cream} />
+          <Plus size={18} color={colors.accentFg} />
         </TouchableOpacity>
       </View>
       {values.length > 0 && (
@@ -152,7 +152,7 @@ export function TagInput({ values = [], onChange, placeholder }) {
                 accessibilityRole="button"
                 accessibilityLabel={`Remove ${v}`}
               >
-                <X size={13} color={colors.navy} />
+                <X size={13} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
           ))}
@@ -192,11 +192,11 @@ export function YesNoToggle({ value, onChange, yesLabel = 'Yes', noLabel = 'No' 
 
 function __gs_s(colors) {
   return StyleSheet.create({
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   hint: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   input: {
     height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.border,
-    paddingHorizontal: 14, fontFamily: fonts.sans, fontSize: 16, color: colors.navy,
+    paddingHorizontal: 14, fontFamily: fonts.sans, fontSize: 16, color: colors.textPrimary,
     backgroundColor: colors.surface,
   },
   textArea: { paddingVertical: 12, lineHeight: 21 },
@@ -206,10 +206,10 @@ function __gs_s(colors) {
     paddingHorizontal: 16, paddingVertical: 10, borderRadius: radius.pill,
     borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.surface,
   },
-  choicePillActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  choicePillActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   choicePillAccent: { borderColor: colors.gold, borderWidth: 1.5 },
-  choicePillText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
-  choicePillTextActive: { color: colors.cream },
+  choicePillText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
+  choicePillTextActive: { color: colors.accentFg },
   choicePillBadge: {
     position: 'absolute', top: -8, left: 12,
     backgroundColor: colors.gold, borderRadius: radius.pill,
@@ -220,13 +220,13 @@ function __gs_s(colors) {
   },
 
   tagRow: { flexDirection: 'row', gap: 8 },
-  tagAddBtn: { width: 48, height: 48, borderRadius: radius.button, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
+  tagAddBtn: { width: 48, height: 48, borderRadius: radius.button, backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center' },
   chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   chip: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.cream, borderRadius: radius.pill,
+    backgroundColor: colors.background, borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 7,
   },
-  chipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  chipText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
   })
 }

@@ -83,7 +83,7 @@ function getStyles(colors) {
     marginBottom: 18,
   },
   title: {
-    fontFamily: fonts.serif, fontSize: 21, color: colors.navy,
+    fontFamily: fonts.serif, fontSize: 21, color: colors.textPrimary,
     textAlign: 'center', marginBottom: 10,
   },
   message: {

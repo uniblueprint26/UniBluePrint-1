@@ -59,17 +59,17 @@ function __gs_styles(colors) {
   closeBtn: {
     position: 'absolute', top: 14, right: 14,
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center',
   },
-  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.navy, marginTop: 8 },
+  title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, marginTop: 8 },
   body: {
     fontFamily: fonts.sans, fontSize: 14, color: '#6B7280',
     textAlign: 'center', marginTop: 10, lineHeight: 20, maxWidth: 280,
   },
   doneBtn: {
-    marginTop: 22, backgroundColor: colors.navy, borderRadius: radius.button,
+    marginTop: 22, backgroundColor: colors.accentBg, borderRadius: radius.button,
     paddingHorizontal: 28, paddingVertical: 12,
   },
-  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }

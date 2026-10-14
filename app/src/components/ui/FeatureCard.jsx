@@ -20,14 +20,14 @@ export default function FeatureCard({ feature, dark = false, onPress }) {
   const { colors } = useTheme()
   const cardBg    = dark ? 'rgba(245,240,232,0.08)' : colors.white
   const labelClr  = dark ? 'rgba(245,240,232,0.5)'  : colors.muted
-  const titleClr  = dark ? colors.cream              : colors.navy
+  const titleClr  = dark ? colors.cream              : colors.textPrimary
   const subClr    = dark ? 'rgba(245,240,232,0.65)'  : colors.muted
-  const countClr  = dark ? 'rgba(245,240,232,0.55)'  : colors.navy
-  const previewBg = dark ? 'rgba(245,240,232,0.06)'  : colors.cream
-  const previewTx = dark ? 'rgba(245,240,232,0.85)'  : colors.navy
+  const countClr  = dark ? 'rgba(245,240,232,0.55)'  : colors.textPrimary
+  const previewBg = dark ? 'rgba(245,240,232,0.06)'  : colors.background
+  const previewTx = dark ? 'rgba(245,240,232,0.85)'  : colors.textPrimary
   const previewMt = dark ? 'rgba(245,240,232,0.45)'  : colors.muted
-  const ctaBg     = dark ? colors.cream              : colors.navy
-  const ctaTx     = dark ? colors.navy               : colors.cream
+  const ctaBg     = dark ? colors.cream              : colors.accentBg
+  const ctaTx     = dark ? colors.navy               : colors.accentFg
   const pillBg    = dark ? 'rgba(245,240,232,0.12)'  : 'rgba(30,58,95,0.08)'
   const pillTx    = dark ? 'rgba(245,240,232,0.6)'   : colors.muted
   const newBg     = colors.newBadge
@@ -39,7 +39,7 @@ export default function FeatureCard({ feature, dark = false, onPress }) {
       <View style={s.topRow}>
         <View style={[s.iconBox, { backgroundColor: feature.color }]}>
           {feature.Icon
-            ? <feature.Icon size={20} color={dark ? colors.cream : colors.navy} />
+            ? <feature.Icon size={20} color={dark ? colors.cream : colors.textPrimary} />
             : <Text style={s.emojiIcon}>{feature.emoji}</Text>}
         </View>
         <View style={{ flex: 1, marginLeft: 12 }}>

@@ -51,7 +51,7 @@ function __gs_styles(colors) {
   return StyleSheet.create({
   track: {
     flexDirection: 'row',
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     borderRadius: radius.pill,
     padding: 4,
     borderWidth: 1,
@@ -63,7 +63,7 @@ function __gs_styles(colors) {
     borderRadius: radius.pill,
   },
   segmentActive: {
-    backgroundColor: colors.cream,
+    backgroundColor: colors.chromeFg,
   },
   label: {
     fontFamily: fonts.sansMedium,
@@ -73,7 +73,7 @@ function __gs_styles(colors) {
   },
   labelActive: {
     fontFamily: fonts.sansSemiBold,
-    color: colors.navy,
+    color: colors.textPrimary,
   },
   })
 }

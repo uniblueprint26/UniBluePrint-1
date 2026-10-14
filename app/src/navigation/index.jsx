@@ -103,8 +103,8 @@ const Drawer = createDrawerNavigator()
 const noHeader   = { headerShown: false, animation: 'slide_from_right' }
 const backHeader = {
   animation: 'slide_from_right',
-  headerStyle: { backgroundColor: colors.navy },
-  headerTintColor: colors.cream,
+  headerStyle: { backgroundColor: colors.chromeBg },
+  headerTintColor: colors.chromeFg,
   headerTitleStyle: { fontFamily: fonts.sansSemiBold },
 }
 

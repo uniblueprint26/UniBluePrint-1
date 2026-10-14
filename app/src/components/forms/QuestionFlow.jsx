@@ -127,8 +127,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
           accessibilityLabel={index === 0 ? 'Close' : 'Go back to previous question'}
         >
           {index === 0
-            ? <X size={20} color={colors.navy} />
-            : <ChevronLeft size={20} color={colors.navy} />}
+            ? <X size={20} color={colors.textPrimary} />
+            : <ChevronLeft size={20} color={colors.textPrimary} />}
         </TouchableOpacity>
         <View
           style={styles.progressTrack}
@@ -184,16 +184,16 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   header: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: spacing.md, paddingBottom: spacing.sm,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.background,
   },
   headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   progressTrack: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.border, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: colors.navy, borderRadius: 2 },
+  progressFill: { height: '100%', backgroundColor: colors.accentBg, borderRadius: 2 },
   stepCount: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted, width: 34, textAlign: 'right' },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
@@ -202,7 +202,7 @@ function __gs_styles(colors) {
   // available viewport. Shared by all 8 Foundation Blueprint intake flows.
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
-  title: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, lineHeight: 30 },
+  title: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, lineHeight: 30 },
   subtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 8, lineHeight: 20 },
   stepBody: { marginTop: spacing.lg },
 
@@ -215,7 +215,7 @@ function __gs_styles(colors) {
   footer: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: spacing.md, paddingTop: spacing.sm,
-    backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: colors.border,
+    backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border,
   },
   skipBtn: { paddingVertical: 14, paddingHorizontal: 4 },
   skipBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
