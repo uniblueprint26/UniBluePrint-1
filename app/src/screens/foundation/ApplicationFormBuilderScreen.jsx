@@ -208,7 +208,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   if (evidenceCheck === 'loading') {
     return (
       <View style={styles.loadingScreen}>
-        <ActivityIndicator color={colors.navy} />
+        <ActivityIndicator color={colors.textPrimary} />
       </View>
     )
   }
@@ -224,7 +224,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel="Close"
           >
-            <X size={20} color={colors.navy} />
+            <X size={20} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
         <EmptyState
@@ -256,8 +256,8 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  loadingScreen: { flex: 1, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center' },
-  gateScreen: { flex: 1, backgroundColor: colors.cream },
+  loadingScreen: { flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  gateScreen: { flex: 1, backgroundColor: colors.background },
   gateHeader: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
   gateHeaderBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   })

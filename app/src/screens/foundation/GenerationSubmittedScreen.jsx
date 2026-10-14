@@ -87,7 +87,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
         </Text>
 
         <View style={styles.reviewBadge}>
-          <UserCheck size={14} color={colors.navy} strokeWidth={2} />
+          <UserCheck size={14} color={colors.textPrimary} strokeWidth={2} />
           <Text style={styles.reviewBadgeText}>Reviewed by a real Campus Handler, never AI-only</Text>
         </View>
 
@@ -116,7 +116,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream, paddingHorizontal: spacing.lg, alignItems: 'center' },
+  screen: { flex: 1, backgroundColor: colors.background, paddingHorizontal: spacing.lg, alignItems: 'center' },
   iconWrap: { marginBottom: spacing.lg, minHeight: 56, justifyContent: 'center', alignItems: 'center' },
 
   loadingRing: { alignItems: 'center', gap: 12 },
@@ -125,10 +125,10 @@ function getStyles(colors) {
     width: 180, height: 6, borderRadius: 3,
     backgroundColor: 'rgba(30,58,95,0.1)', overflow: 'hidden',
   },
-  barFill: { height: '100%', borderRadius: 3, backgroundColor: colors.navy },
+  barFill: { height: '100%', borderRadius: 3, backgroundColor: colors.accentBg },
 
-  title: { fontFamily: fonts.serif, fontSize: 26, color: colors.navy, textAlign: 'center' },
-  body: { fontFamily: fonts.sans, fontSize: 15, color: colors.navy, textAlign: 'center', marginTop: 12, lineHeight: 22 },
+  title: { fontFamily: fonts.serif, fontSize: 26, color: colors.textPrimary, textAlign: 'center' },
+  body: { fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, textAlign: 'center', marginTop: 12, lineHeight: 22 },
 
   reviewBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 7,
@@ -136,12 +136,12 @@ function getStyles(colors) {
     paddingHorizontal: 14, paddingVertical: 8, marginTop: 16,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
   },
-  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy },
+  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
 
   subBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 14, lineHeight: 19 },
   primaryBtn: { marginTop: spacing.xl, ...shadows.card },
 
   secondaryBtn: { alignItems: 'center', marginTop: spacing.lg },
-  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.navy },
+  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
   })
 }

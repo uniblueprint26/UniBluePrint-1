@@ -186,7 +186,7 @@ export default function FoundationScreen({ navigation }) {
           variant="navy"
           onBack={safeGoBack}
           backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="FOUNDATION BLUEPRINT"
           title="Professional Documents"
           subtitle="Built on real research into what Irish employers and ATS systems actually screen for, not a generic template. Every submission is checked by a real Campus Handler before it reaches you."
@@ -227,7 +227,7 @@ export default function FoundationScreen({ navigation }) {
             {TRUST_POINTS.map(({ icon: Icon, title, line }, i) => (
               <View key={title} style={[styles.trustRow, i > 0 && styles.trustRowBorder]}>
                 <View style={styles.trustIconWrap}>
-                  <Icon size={17} color={colors.navy} strokeWidth={2} />
+                  <Icon size={17} color={colors.textPrimary} strokeWidth={2} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.trustTitle}>{title}</Text>
@@ -251,7 +251,7 @@ export default function FoundationScreen({ navigation }) {
               <Text style={styles.evidenceBankTitle}>Your Evidence Bank</Text>
               <Text style={styles.evidenceBankSubtitle}>Save your best real-life examples once, in STAR format — Application Form Assistance and Interview Prep both pull answers straight from them instead of starting blank</Text>
             </View>
-            <ChevronRight size={20} color={colors.navy} />
+            <ChevronRight size={20} color={colors.textPrimary} />
           </TouchableOpacity>
 
           {/* Entry point for Career Readiness — the gamified, all-8-builders
@@ -265,13 +265,13 @@ export default function FoundationScreen({ navigation }) {
             accessibilityRole="button"
           >
             <View style={styles.readinessIconWrap}>
-              <Target size={18} color={colors.cream} strokeWidth={2} />
+              <Target size={18} color={colors.accentFg} strokeWidth={2} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.readinessTitle}>Career Readiness</Text>
               <Text style={styles.readinessSubtitle}>See your progress across all 8 builders as rings and XP — start one, finish one, watch it fill in.</Text>
             </View>
-            <ChevronRight size={20} color={colors.cream} />
+            <ChevronRight size={20} color={colors.accentFg} />
           </TouchableOpacity>
 
           <Text style={styles.servicesSubHeader}>Career Services</Text>
@@ -285,7 +285,7 @@ export default function FoundationScreen({ navigation }) {
                 <Card style={[styles.serviceCard, selected === title && styles.serviceCardActive]}>
                   <View style={styles.serviceCardTop}>
                     <View style={[styles.serviceIcon, { backgroundColor: color }]}>
-                      <Icon size={20} color={colors.navy} />
+                      <Icon size={20} color={colors.textPrimary} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.serviceTitle}>{title}</Text>
@@ -320,8 +320,8 @@ export default function FoundationScreen({ navigation }) {
                               <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
                             </View>
                             <View style={[styles.priceBox, styles.priceBoxPremium]}>
-                              <Text style={[styles.priceBoxLabel, { color: colors.cream }]}>Premium</Text>
-                              <Text style={[styles.priceTrial, { color: colors.cream }]}>{pricePrem}</Text>
+                              <Text style={[styles.priceBoxLabel, { color: colors.accentFg }]}>Premium</Text>
+                              <Text style={[styles.priceTrial, { color: colors.accentFg }]}>{pricePrem}</Text>
                               <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
                                 {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
                               </Text>
@@ -369,7 +369,7 @@ export default function FoundationScreen({ navigation }) {
           <Text style={[styles.servicesSubHeader, { marginTop: spacing.xl }]}>CAO & College Applications</Text>
           <Card style={styles.ccCard}>
             <View style={styles.ccCardHeader}>
-              <Compass size={22} color={colors.navy} />
+              <Compass size={22} color={colors.textPrimary} />
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={styles.ccCardTitle}>Powered by CourseCompass</Text>
                 <Text style={styles.ccCardSub}>AI-powered CAO course matching for young people across Ireland</Text>
@@ -381,7 +381,7 @@ export default function FoundationScreen({ navigation }) {
             <View style={styles.ccToolGrid}>
               {CC_TOOLS.map(({ name, icon: Icon, url, desc }) => (
                 <TouchableOpacity key={name} style={styles.ccTool} activeOpacity={0.8} onPress={() => Linking.openURL(url)}>
-                  <View style={styles.ccToolIcon}><Icon size={16} color={colors.navy} /></View>
+                  <View style={styles.ccToolIcon}><Icon size={16} color={colors.textPrimary} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.ccToolName}>{name}</Text>
                     <Text style={styles.ccToolDesc} numberOfLines={1}>{desc}</Text>
@@ -391,7 +391,7 @@ export default function FoundationScreen({ navigation }) {
               ))}
             </View>
             <TouchableOpacity style={styles.ccVisitBtn} activeOpacity={0.8} onPress={() => Linking.openURL('https://coursecompass.ie/course-compass')}>
-              <Compass size={15} color={colors.cream} />
+              <Compass size={15} color={colors.accentFg} />
               <Text style={styles.ccVisitBtnText}>Visit Course Compass →</Text>
             </TouchableOpacity>
           </Card>
@@ -417,15 +417,15 @@ export default function FoundationScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   // Integrated header + hero
   heroBlock: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.chromeBg,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.sm,
   },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.cream, marginTop: 6, marginBottom: 10 },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 6, marginBottom: 10 },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed navy header on every platform — without
@@ -439,16 +439,16 @@ function getStyles(colors) {
   // pill row that appeared after a full stats grid). Same navy block
   // language as the hero and the Course Compass "visit" button.
   tierBanner: {
-    backgroundColor: colors.navy, borderRadius: radius.card,
+    backgroundColor: colors.chromeBg, borderRadius: radius.card,
     padding: 18, marginBottom: 14, ...shadows.card,
   },
   tierBannerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  tierBannerTitle:  { fontFamily: fonts.serif, fontSize: 17, color: colors.cream },
+  tierBannerTitle:  { fontFamily: fonts.serif, fontSize: 17, color: colors.chromeFg },
   tierRow:  { flexDirection: 'row', alignItems: 'stretch' },
   tierBox:  { flex: 1, alignItems: 'center' },
   tierPremiumLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   tierLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', textTransform: 'uppercase', letterSpacing: 0.8 },
-  tierValue: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginTop: 5 },
+  tierValue: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, marginTop: 5 },
   tierSub:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.55)', marginTop: 4, textAlign: 'center', lineHeight: 15 },
   tierSep:   { width: 1, alignSelf: 'stretch', backgroundColor: 'rgba(245,240,232,0.18)', marginHorizontal: 10 },
 
@@ -457,8 +457,8 @@ function getStyles(colors) {
   trustCard: { marginBottom: spacing.sm, padding: 6 },
   trustRow:  { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 12, paddingHorizontal: 8 },
   trustRowBorder: { borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
-  trustIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  trustTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  trustIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  trustTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   trustLine:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
 
   servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 12 },
@@ -468,30 +468,30 @@ function getStyles(colors) {
     backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, marginTop: spacing.sm,
     borderWidth: 1, borderColor: colors.border,
   },
-  evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
   readinessBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.navy, borderRadius: radius.card, padding: 16, marginTop: 12,
+    backgroundColor: colors.accentBg, borderRadius: radius.card, padding: 16, marginTop: 12,
   },
   readinessIconWrap: {
     width: 36, height: 36, borderRadius: radius.circle, backgroundColor: 'rgba(245,240,232,0.14)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  readinessTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  readinessTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   readinessSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.7)', marginTop: 3, lineHeight: 17 },
 
   // Service cards
   serviceCard:       { padding: 18 },
-  serviceCardActive: { borderWidth: 1.5, borderColor: colors.navy },
+  serviceCardActive: { borderWidth: 1.5, borderColor: colors.accentBg },
   serviceCardTop:    { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   // True icon-in-a-colored-circle, matching the circle pattern already used
   // elsewhere in the app (e.g. CourseConnectScreen's mentorCircle) — was a
   // rounded square (borderRadius: 10) before this pass.
   serviceIcon:       { width: 46, height: 46, borderRadius: radius.circle, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  serviceTitle:      { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  serviceTagline:    { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.navy, opacity: 0.6, marginTop: 2, lineHeight: 17 },
+  serviceTitle:      { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
+  serviceTagline:    { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, opacity: 0.6, marginTop: 2, lineHeight: 17 },
   serviceExpanded:   { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   serviceDesc:       { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 14 },
   // iOS-only neutral status copy in place of price + Order CTA — same
@@ -499,30 +499,30 @@ function getStyles(colors) {
   iosOrderNote:      { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, textAlign: 'center', paddingVertical: 4 },
 
   pricingRow:      { flexDirection: 'row', gap: 10 },
-  priceBox:        { flex: 1, backgroundColor: colors.cream, borderRadius: radius.button, padding: 14, alignItems: 'center' },
-  priceBoxPremium: { backgroundColor: colors.navy },
+  priceBox:        { flex: 1, backgroundColor: colors.background, borderRadius: radius.button, padding: 14, alignItems: 'center' },
+  priceBoxPremium: { backgroundColor: colors.accentBg },
   priceBoxLabel:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  priceTrial:      { fontFamily: fonts.serif, fontSize: 22, color: colors.navy },
+  priceTrial:      { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary },
   priceBoxSub:     { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 4, textAlign: 'center' },
 
   // One consistent CTA across all 8 service cards — same height, radius,
   // weight and shadow regardless of which service it's for.
-  orderBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, alignItems: 'center', justifyContent: 'center', marginTop: 12, ...shadows.card },
-  orderBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream, letterSpacing: 0.2 },
+  orderBtn:     { backgroundColor: colors.accentBg, borderRadius: radius.button, height: 46, alignItems: 'center', justifyContent: 'center', marginTop: 12, ...shadows.card },
+  orderBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg, letterSpacing: 0.2 },
 
   // Course Compass
   ccCard:       { padding: 18, marginBottom: 4 },
   ccCardHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
-  ccCardTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  ccCardTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   ccCardSub:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   ccCardDesc:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 16 },
   ccToolGrid:   { gap: 10, marginBottom: 16 },
-  ccTool:       { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.cream, borderRadius: radius.button, padding: 12 },
+  ccTool:       { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.background, borderRadius: radius.button, padding: 12 },
   ccToolIcon:   { width: 32, height: 32, borderRadius: 8, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  ccToolName:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  ccToolName:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   ccToolDesc:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
-  ccVisitBtn:   { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  ccVisitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  ccVisitBtn:   { backgroundColor: colors.accentBg, borderRadius: radius.button, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  ccVisitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
 
   // Deliberately secondary — every service card above already has its own
   // Order button, so this fallback contact no longer needs to read as the
@@ -532,6 +532,6 @@ function getStyles(colors) {
     backgroundColor: colors.surface, borderRadius: radius.button, height: 50,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)', marginTop: spacing.lg,
   },
-  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   })
 }

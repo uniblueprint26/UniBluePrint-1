@@ -86,7 +86,7 @@ function RadioOptions({ options, value, onChange }) {
             <View style={[styles.radioCircle, active && styles.radioCircleActive]}>
               {active && <View style={styles.radioDot} />}
             </View>
-            {!!Icon && <Icon size={16} color={active ? colors.navy : colors.muted} style={{ marginRight: 4 }} />}
+            {!!Icon && <Icon size={16} color={active ? colors.accentBg : colors.muted} style={{ marginRight: 4 }} />}
             <Text style={[styles.radioLabel, active && styles.radioLabelActive]}>{opt.label}</Text>
           </TouchableOpacity>
         )
@@ -315,7 +315,7 @@ export default function EvidenceBankScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel={addStep === 0 ? 'Close' : 'Go back to previous question'}
           >
-            {addStep === 0 ? <X size={20} color={colors.navy} /> : <ChevronLeft size={20} color={colors.navy} />}
+            {addStep === 0 ? <X size={20} color={colors.textPrimary} /> : <ChevronLeft size={20} color={colors.textPrimary} />}
           </TouchableOpacity>
           <View style={styles.progressTrack} accessibilityRole="progressbar" accessibilityValue={{ min: 1, max: ADD_STEPS.length, now: addStep + 1 }}>
             <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
@@ -360,7 +360,7 @@ export default function EvidenceBankScreen({ navigation }) {
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity onPress={closeDetail} activeOpacity={0.7} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Back">
-            <ChevronLeft size={20} color={colors.navy} />
+            <ChevronLeft size={20} color={colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Your story</Text>
           <TouchableOpacity onPress={deleteDetail} activeOpacity={0.7} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Delete story">
@@ -435,7 +435,7 @@ export default function EvidenceBankScreen({ navigation }) {
           accessibilityRole="button"
           accessibilityLabel="Close"
         >
-          <X size={20} color={colors.navy} />
+          <X size={20} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Evidence Bank</Text>
         <View style={styles.headerBtn} />
@@ -453,7 +453,7 @@ export default function EvidenceBankScreen({ navigation }) {
         {/* Stats row */}
         <StatTileRow style={{ marginTop: spacing.md }}>
           <StatTile
-            icon={BookOpen} iconBg="#EFF6FF" iconColor={colors.navy}
+            icon={BookOpen} iconBg="#EFF6FF" iconColor={colors.textPrimary}
             value={loading ? '–' : storiesCount} label={'Evidence\nStories'} border
           />
           <StatTile
@@ -480,7 +480,7 @@ export default function EvidenceBankScreen({ navigation }) {
                 accessibilityRole="button"
                 accessibilityLabel={`Add a ${cat.label.toLowerCase()} story`}
               >
-                <Icon size={18} color={colors.navy} strokeWidth={2} />
+                <Icon size={18} color={colors.textPrimary} strokeWidth={2} />
                 <Text style={styles.categoryTileText}>{cat.promptLabel}</Text>
               </TouchableOpacity>
             )
@@ -490,7 +490,7 @@ export default function EvidenceBankScreen({ navigation }) {
         {/* Stories */}
         <Text style={styles.sectionLabel}>Your stories</Text>
         {loading ? (
-          <ActivityIndicator color={colors.navy} style={{ marginTop: 24 }} />
+          <ActivityIndicator color={colors.textPrimary} style={{ marginTop: 24 }} />
         ) : storiesCount === 0 ? (
           <EmptyState
             icon={BookOpen}
@@ -532,7 +532,7 @@ export default function EvidenceBankScreen({ navigation }) {
           style={styles.addBtn}
           accessibilityRole="button"
         >
-          <Plus size={16} color={colors.navy} />
+          <Plus size={16} color={colors.textPrimary} />
           <Text style={styles.addBtnText}>Add a story</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -542,28 +542,28 @@ export default function EvidenceBankScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: spacing.md, paddingBottom: spacing.sm,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.background,
   },
   headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy },
+  headerTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary },
 
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
 
   pageSubtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 4 },
 
   bannerCard: {
-    marginTop: spacing.md, backgroundColor: colors.navy, borderRadius: radius.card,
+    marginTop: spacing.md, backgroundColor: colors.accentBg, borderRadius: radius.card,
     padding: 16, borderLeftWidth: 4, borderLeftColor: colors.gold,
   },
-  bannerText: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.cream, lineHeight: 20 },
+  bannerText: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.accentFg, lineHeight: 20 },
 
-  sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy, marginTop: spacing.lg, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },
+  sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: spacing.lg, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },
 
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   categoryTile: {
@@ -571,21 +571,21 @@ function getStyles(colors) {
     borderRadius: radius.card, borderWidth: 1, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6,
   },
-  categoryTileText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.navy, textAlign: 'center', letterSpacing: 0.3 },
+  categoryTileText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.textPrimary, textAlign: 'center', letterSpacing: 0.3 },
 
   storyCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, ...shadows.card },
   storyCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  storyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy, marginTop: 10 },
+  storyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginTop: 10 },
   storyPreview: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 6, lineHeight: 18 },
-  tagChip: { backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' },
-  tagChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
+  tagChip: { backgroundColor: colors.background, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' },
+  tagChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
 
   addBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.navy,
+    height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.accentBg,
     borderStyle: 'dashed', marginTop: 16,
   },
-  addBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  addBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
 
   formActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
   cancelBtn: { flex: 1, height: 48, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: colors.border },
@@ -601,33 +601,33 @@ function getStyles(colors) {
     borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.button,
     paddingVertical: 12, paddingHorizontal: 14, backgroundColor: colors.surface,
   },
-  radioRowActive: { borderColor: colors.navy, backgroundColor: 'rgba(30,58,95,0.04)' },
+  radioRowActive: { borderColor: colors.accentBg, backgroundColor: 'rgba(30,58,95,0.04)' },
   radioCircle: {
     width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: colors.light,
     alignItems: 'center', justifyContent: 'center',
   },
-  radioCircleActive: { borderColor: colors.navy },
-  radioDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.navy },
+  radioCircleActive: { borderColor: colors.accentBg },
+  radioDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.accentBg },
   radioLabel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted, flex: 1 },
-  radioLabelActive: { color: colors.navy, fontFamily: fonts.sansSemiBold },
+  radioLabelActive: { color: colors.accentBg, fontFamily: fonts.sansSemiBold },
 
   // Guided add-flow chrome (mirrors QuestionFlow's own styling)
   flowHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: spacing.md, paddingBottom: spacing.sm,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.background,
   },
   progressTrack: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.border, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: colors.navy, borderRadius: 2 },
+  progressFill: { height: '100%', backgroundColor: colors.accentBg, borderRadius: 2 },
   stepCount: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted, width: 34, textAlign: 'right' },
-  flowTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, lineHeight: 30 },
+  flowTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, lineHeight: 30 },
   flowSubtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 8, lineHeight: 20 },
   flowFooter: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: spacing.md, paddingTop: spacing.sm,
-    backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: colors.border,
+    backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border,
   },
-  nextBtn: { flex: 1, height: 52, borderRadius: radius.button, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center', ...shadows.card },
-  nextBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.cream },
+  nextBtn: { flex: 1, height: 52, borderRadius: radius.button, backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center', ...shadows.card },
+  nextBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
   })
 }
