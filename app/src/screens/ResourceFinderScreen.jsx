@@ -17,6 +17,7 @@ import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { fileTypeLabel } from './BoardDetailScreen'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 function formatDate(dateStr) {
   try {
@@ -30,6 +31,7 @@ export default function ResourceFinderScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation, 'CourseConnect')
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
@@ -73,7 +75,7 @@ export default function ResourceFinderScreen({ navigation }) {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 80 }} keyboardShouldPersistTaps="handled">
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Course Connect"
           title="Resource Finder"
           subtitle="Search shared notes and past papers from every Irish college by subject, course, or keyword."

@@ -14,6 +14,7 @@ import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 
@@ -225,6 +226,7 @@ export default function CampusConnectScreen({ navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
   const institutionShort = user?.user_metadata?.institution_short
   const [search, setSearch] = useState('')
 
@@ -260,7 +262,7 @@ export default function CampusConnectScreen({ navigation }) {
         {/* ── Integrated header + hero ── */}
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Home"
           logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
           eyebrow="CAMPUS CONNECT"

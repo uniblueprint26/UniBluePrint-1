@@ -22,6 +22,7 @@ import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // Same reasons/flow as the rest of the app's Report action (BoardDetailScreen),
 // reused here rather than reinvented.
@@ -42,6 +43,7 @@ export default function ModuleQAScreen({ navigation, route }) {
   const f = __gs_f(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation, 'CourseConnect')
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
   const openAsk = route?.params?.openAsk
   const openQuestionId = route?.params?.openQuestionId
@@ -196,7 +198,7 @@ export default function ModuleQAScreen({ navigation, route }) {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Course Connect"
           title="Module Q&A"
           subtitle="Select your course, programme, or workplace, ask a question, and get answers from people who've been there."

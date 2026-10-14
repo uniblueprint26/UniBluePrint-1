@@ -17,6 +17,7 @@ import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { goToHome } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -675,6 +676,7 @@ export default function ElevationScreen({ navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
   // Elevation Blueprint ("full access to all six services") is a Pro-only
   // surface per docs/business/subscription-pricing-model.md §1.1/§1.2 —
   // unlike Lifestyle Blueprint, free tier gets no browse-only allowance
@@ -750,7 +752,7 @@ export default function ElevationScreen({ navigation }) {
         {/* ── Integrated header + hero (single navy block) ── */}
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Home"
           logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
           eyebrow="ELEVATION BLUEPRINT"

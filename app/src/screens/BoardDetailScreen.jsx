@@ -49,6 +49,7 @@ import { getCourseBoard } from '../constants/courseConnectBoards'
 import { getMarketplaceBoard } from '../constants/marketplaceBoards'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -100,6 +101,12 @@ export default function BoardDetailScreen({ navigation, route }) {
     : registry === 'marketplace' ? getMarketplaceBoard(boardKey)
     : getBoard(boardKey)
   const backLabel = registry === 'course' ? 'Course Connect' : registry === 'marketplace' ? 'Marketplace' : 'Campus Connect'
+  // Matches backLabel above — the same board this screen is "back" to when
+  // there IS history, used as the safe fallback when there isn't (e.g. a
+  // notification deep-linking straight to a problem's solutions thread via
+  // openProblemId, with no back stack at all).
+  const backFallbackRoute = registry === 'course' ? 'CourseConnect' : registry === 'marketplace' ? 'Marketplace' : 'CampusConnect'
+  const safeGoBack = useSafeGoBack(navigation, backFallbackRoute)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -219,7 +226,7 @@ export default function BoardDetailScreen({ navigation, route }) {
   if (!board) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader compact variant="cream" onBack={() => navigation.goBack()} backLabel="" title="Board" />
+        <ScreenHeader compact variant="cream" onBack={safeGoBack} backLabel="" title="Board" />
         <Text style={styles.notFound}>Board not found.</Text>
       </View>
     )
@@ -941,7 +948,7 @@ export default function BoardDetailScreen({ navigation, route }) {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel={backLabel}
           icon={board.Icon
             ? <board.Icon size={28} color={colors.cream} strokeWidth={1.8} />

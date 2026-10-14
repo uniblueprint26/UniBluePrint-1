@@ -22,6 +22,7 @@ import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPicke
 import InterestsModal from '../components/profile/InterestsModal'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { goToHome } from '../navigation/helpers'
 import { useUserType } from '../hooks/useUserType'
 import { useInterests } from '../hooks/useInterests'
@@ -380,6 +381,7 @@ export default function CourseConnectScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [interestsModalOpen, setInterestsModalOpen] = useState(false)
   const { userType, label: userTypeLabel } = useUserType()
@@ -500,7 +502,7 @@ export default function CourseConnectScreen({ navigation }) {
         {/* ── Integrated header + hero (stats live in the navy block) ── */}
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           backLabel="Home"
           logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
           eyebrow="COURSE CONNECT"
