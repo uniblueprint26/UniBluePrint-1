@@ -104,7 +104,7 @@ export default function OutputDetailScreen({ navigation, route }) {
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {status === 'loading' && (
-          <ActivityIndicator color={colors.navy} style={{ marginTop: 40 }} />
+          <ActivityIndicator color={colors.textPrimary} style={{ marginTop: 40 }} />
         )}
 
         {status === 'error' && (
@@ -155,25 +155,25 @@ export default function OutputDetailScreen({ navigation, route }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.cream, marginTop: 6 },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg, marginTop: 6 },
 
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.xl },
 
   textCard: { padding: 18 },
-  bodyText: { fontFamily: fonts.sans, fontSize: 14, color: colors.navy, lineHeight: 22 },
+  bodyText: { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, lineHeight: 22 },
   scopeNote: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, textAlign: 'center', marginTop: 14 },
 
   messageCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },
-  messageTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginTop: 6, textAlign: 'center' },
+  messageTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, marginTop: 6, textAlign: 'center' },
   messageSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, paddingHorizontal: 12 },
 
   footer: {
     paddingHorizontal: spacing.md, paddingTop: spacing.sm, paddingBottom: spacing.md,
-    backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: colors.border,
+    backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border,
   },
   shareBtn: { width: '100%' },
   })

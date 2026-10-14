@@ -240,7 +240,7 @@ export default function CareerReadinessScreen({ navigation }) {
         variant="navy"
         onBack={safeGoBack}
         backLabel="Foundation"
-        logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+        logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
         eyebrow="CAREER READINESS"
         title="Your Blueprint Progress"
         subtitle="Your progress across all 8 Foundation Blueprint builders, in one place — no leaderboard, nothing comparing you to anyone else."
@@ -252,10 +252,10 @@ export default function CareerReadinessScreen({ navigation }) {
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.navy} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />}
       >
         {loading ? (
-          <ActivityIndicator color={colors.navy} style={{ marginTop: 40 }} />
+          <ActivityIndicator color={colors.textPrimary} style={{ marginTop: 40 }} />
         ) : (
           <>
             {/* Overall readiness ring + XP bar */}
@@ -333,7 +333,7 @@ export default function CareerReadinessScreen({ navigation }) {
                     accessibilityLabel={`${b.fullLabel}: ${statusText}`}
                   >
                     <ProgressRing size={60} strokeWidth={5} progress={progress} color={ringColor} trackColor={colors.border}>
-                      <Icon size={20} color={b.status === 'not_started' ? colors.light : colors.navy} strokeWidth={1.8} />
+                      <Icon size={20} color={b.status === 'not_started' ? colors.light : colors.textPrimary} strokeWidth={1.8} />
                     </ProgressRing>
                     <Text style={styles.builderLabel} numberOfLines={2}>{b.label}</Text>
                     <Text style={[styles.builderStatus, { color: statusColor }]} numberOfLines={1}>{statusText}</Text>
@@ -359,27 +359,27 @@ export default function CareerReadinessScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, marginBottom: 8 },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginTop: 6, marginBottom: 8 },
 
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
   overallCard: { padding: 18 },
   overallTop: { flexDirection: 'row', alignItems: 'center', gap: 18 },
-  overallPct: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy, textAlign: 'center' },
+  overallPct: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, textAlign: 'center' },
   overallPctLabel: { fontFamily: fonts.sansMedium, fontSize: 10.5, color: colors.muted, textAlign: 'center', marginTop: 1, textTransform: 'uppercase', letterSpacing: 0.4 },
   overallStats: { flex: 1, gap: 8 },
   overallStatRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   overallDot: { width: 9, height: 9, borderRadius: 4.5 },
-  overallStatText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  overallStatText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   overallHint: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, lineHeight: 16, marginTop: 2 },
 
   xpBlock: { marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   xpHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  xpLevelTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  xpLevelTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   xpCount: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
   xpTrack: { height: 10, borderRadius: radius.pill, backgroundColor: colors.border, marginTop: 8, overflow: 'hidden' },
   xpFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.goldDeep },
@@ -391,7 +391,7 @@ function __gs_styles(colors) {
   milestoneRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 12, paddingHorizontal: 12 },
   milestoneRowBorder: { borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   milestoneLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.muted },
-  milestoneLabelAchieved: { color: colors.navy },
+  milestoneLabelAchieved: { color: colors.textPrimary },
   milestoneDetail: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 16 },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
@@ -400,7 +400,7 @@ function __gs_styles(colors) {
     borderWidth: 1, borderColor: colors.border, alignItems: 'center',
     paddingVertical: 16, paddingHorizontal: 8, ...shadows.card,
   },
-  builderLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy, textAlign: 'center', marginTop: 10, lineHeight: 16 },
+  builderLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary, textAlign: 'center', marginTop: 10, lineHeight: 16 },
   builderStatus: { fontFamily: fonts.sansMedium, fontSize: 10.5, textAlign: 'center', marginTop: 3 },
 
   emptyNudge: {

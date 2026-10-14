@@ -67,7 +67,7 @@ function OutputRow({ row, isLast, onPress }) {
       <View style={[styles.rowIcon, { backgroundColor: delivered ? '#F0FDF4' : '#EFF6FF' }]}>
         {delivered
           ? <CheckCircle size={16} color="#15803D" strokeWidth={1.8} />
-          : <FileText size={16} color={colors.navy} strokeWidth={1.8} />}
+          : <FileText size={16} color={colors.textPrimary} strokeWidth={1.8} />}
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.rowTitle} numberOfLines={1}>{row.services?.name || 'Service'}</Text>
@@ -77,7 +77,7 @@ function OutputRow({ row, isLast, onPress }) {
         </Text>
         {delivered && (
           <View style={styles.reviewBadge}>
-            <UserCheck size={10} color={colors.navy} strokeWidth={2.2} />
+            <UserCheck size={10} color={colors.textPrimary} strokeWidth={2.2} />
             <Text style={styles.reviewBadgeText}>Reviewed by your Campus Handler</Text>
           </View>
         )}
@@ -136,7 +136,7 @@ export default function MyOutputsScreen({ navigation }) {
         variant="navy"
         onBack={safeGoBack}
         backLabel="Home"
-        logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
+        logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
         eyebrow="MY OUTPUTS"
         title="Your Completed Documents"
         subtitle={deliveredCount > 0
@@ -150,7 +150,7 @@ export default function MyOutputsScreen({ navigation }) {
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.navy} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />}
       >
         {loading ? (
           <Text style={styles.loadingText}>Loading your outputs...</Text>
@@ -174,7 +174,7 @@ export default function MyOutputsScreen({ navigation }) {
                 own dashboard — give it the same stat-tile authority the
                 portal dashboards have, not just a flat list. */}
             <StatTileRow style={{ marginBottom: spacing.md }}>
-              <StatTile icon={Inbox} iconBg="#EFF6FF" iconColor={colors.navy} value={queuedCount} label="Queued" border />
+              <StatTile icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary} value={queuedCount} label="Queued" border />
               <StatTile icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep} value={inReviewCount} label="In Review" border />
               <StatTile icon={CheckCircle} iconBg="#F0FDF4" iconColor={colors.success} value={deliveredCount} label="Delivered" />
             </StatTileRow>
@@ -202,10 +202,10 @@ export default function MyOutputsScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
-  heroBlock: { backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, marginBottom: 8 },
+  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginTop: 6, marginBottom: 8 },
 
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed header on native.
@@ -214,17 +214,17 @@ function getStyles(colors) {
   loadingText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 40 },
 
   emptyCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },
-  emptyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginTop: 6 },
+  emptyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary, marginTop: 6 },
   emptySub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, paddingHorizontal: 12 },
   emptyBtn: { marginTop: 10, ...shadows.card },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
   rowDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   rowIcon: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   rowMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
   reviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
-  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.navy },
+  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.textPrimary },
   rowTrailing: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 },
   stagePill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
