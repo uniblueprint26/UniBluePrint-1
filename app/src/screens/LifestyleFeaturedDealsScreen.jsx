@@ -47,6 +47,7 @@ import {
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { PARTNERS } from '../data/lifestylePartners'
 
 // ─── Curated roster ───────────────────────────────────────────────────────────
@@ -184,6 +185,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const [detailPartnerId, setDetailPartnerId] = useState(null)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [revealedKeys, setRevealedKeys] = useState(() => new Set())
@@ -234,7 +236,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
               <View style={styles.navRow}>
                 <TouchableOpacity
                   style={styles.backBtn}
-                  onPress={() => navigation.goBack()}
+                  onPress={safeGoBack}
                   activeOpacity={0.7}
                   accessibilityRole="button"
                   accessibilityLabel="Go back"

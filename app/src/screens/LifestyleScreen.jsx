@@ -10,6 +10,7 @@ import FeatureCard from '../components/ui/FeatureCard'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
 
 // Re-exported so existing imports elsewhere in the app (FounderPortalScreen,
@@ -62,6 +63,7 @@ export default function LifestyleScreen({ navigation, route }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
 
   // A highlight arriving from a deep link (e.g. Elevation Blueprint's
   // cross-links to Camila/LEVA's partner listing) used to open straight to
@@ -92,7 +94,7 @@ export default function LifestyleScreen({ navigation, route }) {
         {/* ── Integrated header + hero (single navy block) ── */}
         <ScreenHeader
           variant="navy"
-          onBack={() => navigation.goBack()}
+          onBack={safeGoBack}
           logoCenter={<UBPLogo height={33} color={colors.cream} onPress={() => goToHome(navigation)} />}
           eyebrow="LIFESTYLE"
           title="Lifestyle Blueprint"

@@ -29,6 +29,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 
 // Icon + accent per category — crisis kept separate (always-open, its own
@@ -147,6 +148,7 @@ export default function LifestyleWellbeingScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const [openCategoryKey, setOpenCategoryKey] = useState(null)
   const openCategory = OTHER_CATEGORIES.find(c => c.key === openCategoryKey) || null
 
@@ -162,7 +164,7 @@ export default function LifestyleWellbeingScreen({ navigation }) {
           <View style={styles.navRow}>
             <TouchableOpacity
               style={styles.backBtn}
-              onPress={() => navigation.goBack()}
+              onPress={safeGoBack}
               activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityLabel="Go back"

@@ -26,6 +26,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { formatNumber } from '../utils/formatNumber'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -45,6 +46,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const { user } = useAuth()
 
   const [loaded, setLoaded] = useState(false)
@@ -118,7 +120,7 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
           <View style={styles.navRow}>
             <TouchableOpacity
               style={styles.backBtn}
-              onPress={() => navigation.goBack()}
+              onPress={safeGoBack}
               activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityLabel="Go back"

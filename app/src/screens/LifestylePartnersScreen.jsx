@@ -33,6 +33,7 @@ import {
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { PARTNERS } from '../data/lifestylePartners'
 
 const CATEGORY_KEYS = FILTERS.filter(f => f.key !== 'all').map(f => f.key)
@@ -42,6 +43,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
   const styles = __gs_styles(colors)
   const partnerStyles = getPartnerStyles(colors)
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [detailPartnerId, setDetailPartnerId] = useState(route?.params?.highlightId || null)
@@ -100,7 +102,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
             <View style={styles.navRow}>
               <TouchableOpacity
                 style={styles.backBtn}
-                onPress={() => navigation.goBack()}
+                onPress={safeGoBack}
                 activeOpacity={0.7}
                 accessibilityRole="button"
                 accessibilityLabel="Go back"
