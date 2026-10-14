@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
-import { submitForReview } from '../../lib/submitForReview'
+import { payAndSubmit } from '../../lib/foundationPayment'
+import PayLabel from '../../components/foundation/PayLabel'
 import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
@@ -193,7 +194,8 @@ export default function PersonalStatementPage() {
     setSubmitting(true)
     try {
       const serviceName = tier === 'premium' ? 'Personal Statement — Premium' : 'Personal Statement — Standard'
-      const subId = await submitForReview('personal_statements', doc.id, serviceName, `Personal Statement — ${form.target_course} at ${form.target_institution}`, tier)
+      const subId = await payAndSubmit('personal_statements', doc.id, serviceName, `Personal Statement — ${form.target_course} at ${form.target_institution}`, tier)
+      if (!subId) return // sent to Stripe Checkout; the success page finishes the submission
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -277,7 +279,7 @@ export default function PersonalStatementPage() {
               style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', alignSelf: 'flex-start' }}
             >
               {submitting ? <Loader2 size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Send size={16} aria-hidden="true" />}
-              {submitting ? 'Sending…' : 'Submit for Handler review'}
+              {submitting ? 'Sending…' : <PayLabel table="personal_statements" tier={tier} label="Submit for Handler review" />}
             </button>
           </div>
         )}

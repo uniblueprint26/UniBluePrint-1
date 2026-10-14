@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
-import { submitForReview } from '../../lib/submitForReview'
+import { payAndSubmit } from '../../lib/foundationPayment'
+import PayLabel from '../../components/foundation/PayLabel'
 import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { loadProfileDefaults, flattenProfileSkills, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormField, FormInput, FormSelect, FormTextarea, FormCheckbox, ErrorBanner, parseDbError } from '../../components/ui/Form'
@@ -199,7 +200,8 @@ export default function LinkedInOptimisationPage() {
     setError('')
     try {
       const serviceName = tier === 'premium' ? 'LinkedIn Optimisation — Premium' : 'LinkedIn Optimisation — Standard'
-      const subId = await submitForReview('linkedin_documents', cvDoc.id, serviceName, 'LinkedIn Optimisation', tier)
+      const subId = await payAndSubmit('linkedin_documents', cvDoc.id, serviceName, 'LinkedIn Optimisation', tier)
+      if (!subId) return // sent to Stripe Checkout; the success page finishes the submission
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -288,7 +290,7 @@ export default function LinkedInOptimisationPage() {
                 style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 {submitting ? <Loader2 size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Send size={16} aria-hidden="true" />}
-                {submitting ? 'Sending…' : 'Submit for Handler review'}
+                {submitting ? 'Sending…' : <PayLabel table="linkedin_documents" tier={tier} label="Submit for Handler review" />}
               </button>
             </div>
           </div>

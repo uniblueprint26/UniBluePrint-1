@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
-import { submitForReview } from '../../lib/submitForReview'
+import { payAndSubmit } from '../../lib/foundationPayment'
+import PayLabel from '../../components/foundation/PayLabel'
 import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults } from '../../lib/careerProfile'
 import { OPPORTUNITY_TYPES } from '../../lib/jobSearchConstants'
@@ -199,26 +200,34 @@ export default function JobSearchSupportPage() {
         .maybeSingle()
       if (guideRow) setHandlerGuide(guideRow.handler_guide)
 
-      // The strategy is shown to the student immediately, above — unlike the
-      // other 8 generators, this one was never gated on Handler approval, and
-      // that stays true here. Submitting to the queue runs alongside it so a
-      // Handler can pick up the live advisory conversation the service
-      // description promises; it is not a precondition for the student seeing
-      // their result. A failure here is therefore soft: the student keeps
-      // their strategy, and this is the one thing worth surfacing to fix later
-      // rather than silently losing the ticket.
-      try {
-        const serviceName = tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard'
-        const label = `Job Search — ${form.field_or_industry}`
-        const subId = await submitForReview('job_search_sessions', data.session.id, serviceName, label, tier)
-        setSubmissionId(subId)
-      } catch (queueErr) {
-        console.error('Could not queue this session for a Campus Handler:', queueErr)
-      }
+      // The strategy is shown to the student immediately — unlike the other
+      // generators, this one was never gated on Handler approval. Queuing the
+      // live Handler advisory session used to run silently right here, but
+      // submit_document_for_review now requires a paid foundation_payments row,
+      // so it would fail every time. The student requests it explicitly via
+      // handleRequestHandler below, which takes payment first.
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setGenerating(false)
+    }
+  })
+
+  const [requesting, setRequesting] = useState(false)
+  const handleRequestHandler = () => runLocked(async () => {
+    if (!session) return
+    setRequesting(true)
+    setError('')
+    try {
+      const serviceName = tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard'
+      const label = `Job Search — ${form.field_or_industry || session.input?.field_or_industry || 'Untitled'}`
+      const subId = await payAndSubmit('job_search_sessions', session.id, serviceName, label, tier)
+      if (!subId) return // sent to Stripe Checkout; the success page finishes the submission
+      setSubmissionId(subId)
+    } catch (err) {
+      setError(err.message || 'Could not request your Handler session.')
+    } finally {
+      setRequesting(false)
     }
   })
 
@@ -260,6 +269,23 @@ export default function JobSearchSupportPage() {
         ) : (
           <>
             <StrategyResult strategy={session.student_strategy} handlerGuide={handlerGuide} />
+            {!submissionId && (
+              <FormCard>
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>Book your live Handler session</h2>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', margin: '8px 0 16px', lineHeight: 1.6 }}>
+                  Your strategy above is yours to keep. To add a live advisory session with a Campus Handler, pay securely and we'll queue it straight away.
+                </p>
+                <div style={{ maxWidth: '360px', marginBottom: '16px' }}>
+                  <TierPicker value={tier} onChange={setTier} />
+                </div>
+                <button
+                  type="button" onClick={handleRequestHandler} disabled={requesting}
+                  style={{ height: '48px', padding: '0 24px', background: requesting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: requesting ? 'not-allowed' : 'pointer' }}
+                >
+                  {requesting ? 'Sending…' : <PayLabel table="job_search_sessions" tier={tier} label="Request a Handler session" />}
+                </button>
+              </FormCard>
+            )}
             <PipelineStatusTimeline submissionId={submissionId} />
           </>
         )}

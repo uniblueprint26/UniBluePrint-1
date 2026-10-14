@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
-import { submitForReview } from '../../lib/submitForReview'
+import { payAndSubmit } from '../../lib/foundationPayment'
+import PayLabel from '../../components/foundation/PayLabel'
 import { LIMITS } from '../../lib/fieldLimits'
 import { loadProfileDefaults, experienceNarrative } from '../../lib/careerProfile'
 import { FormCard, FormInput, FormTextarea, ErrorBanner, parseDbError } from '../../components/ui/Form'
@@ -192,7 +193,8 @@ export default function InterviewPrepPage() {
       // yet — simplifying to the two base packs rather than offering an
       // upsell for a feature that doesn't exist.
       const serviceName = tier === 'premium' ? 'Interview Preparation — Premium Pack' : 'Interview Preparation — Standard Pack'
-      const subId = await submitForReview('interview_prep_packs', pack.id, serviceName, `Interview Prep — ${form.target_role}`, tier)
+      const subId = await payAndSubmit('interview_prep_packs', pack.id, serviceName, `Interview Prep — ${form.target_role}`, tier)
+      if (!subId) return // sent to Stripe Checkout; the success page finishes the submission
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -290,7 +292,7 @@ export default function InterviewPrepPage() {
               style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', alignSelf: 'flex-start' }}
             >
               {submitting ? <Loader2 size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Send size={16} aria-hidden="true" />}
-              {submitting ? 'Sending…' : 'Submit for Handler review'}
+              {submitting ? 'Sending…' : <PayLabel table="interview_prep_packs" tier={tier} label="Submit for Handler review" />}
             </button>
           </div>
         )}

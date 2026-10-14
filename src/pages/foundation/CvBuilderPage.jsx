@@ -5,7 +5,8 @@ import { Loader2, Trash2, Download, Send, ArrowLeft, CheckCircle, AlertTriangle 
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { invokeFunction } from '../../lib/invokeFunction'
-import { submitForReview } from '../../lib/submitForReview'
+import { payAndSubmit } from '../../lib/foundationPayment'
+import PayLabel from '../../components/foundation/PayLabel'
 import { LIMITS, checkLengths } from '../../lib/fieldLimits'
 import { loadProfileDefaults } from '../../lib/careerProfile'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
@@ -293,7 +294,8 @@ export default function CvBuilderPage() {
     setError('')
     try {
       const serviceName = tier === 'premium' ? 'CV Optimisation — Premium' : 'CV Optimisation — Standard'
-      const subId = await submitForReview('cv_documents', cvDoc.id, serviceName, `CV Builder — ${cvDoc.title}`, tier)
+      const subId = await payAndSubmit('cv_documents', cvDoc.id, serviceName, `CV Builder — ${cvDoc.title}`, tier)
+      if (!subId) return // sent to Stripe Checkout; the success page finishes the submission
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -746,7 +748,7 @@ function ReviewStep({ cvDoc, submitted, submissionId, submitting, tier, onTierCh
           style={{ height: '48px', padding: '0 24px', background: submitting ? 'rgba(30,58,95,0.7)' : '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           {submitting ? <Loader2 size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Send size={16} aria-hidden="true" />}
-          {submitting ? 'Sending…' : 'Submit for Handler review'}
+          {submitting ? 'Sending…' : <PayLabel table="cv_documents" tier={tier} label="Submit for Handler review" />}
         </button>
         <button
           type="button" onClick={onStartOver}

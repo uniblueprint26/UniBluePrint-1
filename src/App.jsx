@@ -45,6 +45,7 @@ const HelpPage = lazy(() => import('./pages/HelpPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'))
 const SubscriptionSuccessPage = lazy(() => import('./pages/SubscriptionSuccessPage'))
+const FoundationPaymentSuccessPage = lazy(() => import('./pages/FoundationPaymentSuccessPage'))
 const SubscriptionManagementPage = lazy(() => import('./pages/SubscriptionManagementPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ServerErrorPage = lazy(() => import('./pages/ServerErrorPage'))
@@ -239,6 +240,10 @@ function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        {/* Not ProtectedRoute: Foundation checkouts started in the mobile app
+            land here in an external browser with no website session. The page
+            itself only acts when this browser started the checkout. */}
+        <Route path="/foundation/payment-success" element={<FoundationPaymentSuccessPage />} />
         <Route
           path="/subscription-success"
           element={
