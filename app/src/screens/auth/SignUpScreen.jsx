@@ -1287,7 +1287,7 @@ function __gs_styles(colors) {
 
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.white, borderRadius: radius.button,
+    backgroundColor: colors.surface, borderRadius: radius.button,
     paddingHorizontal: 14, minHeight: 52,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
     ...shadows.card,
@@ -1313,7 +1313,7 @@ function __gs_styles(colors) {
 
   // Institution dropdown
   instDropdown: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1, borderTopWidth: 0,
     borderColor: 'rgba(30,58,95,0.12)',
     borderBottomLeftRadius: radius.button,
@@ -1337,7 +1337,7 @@ function __gs_styles(colors) {
   instItemCity: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
 
   instHint: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1, borderTopWidth: 0,
     borderColor: 'rgba(30,58,95,0.12)',
     borderBottomLeftRadius: radius.button, borderBottomRightRadius: radius.button,
@@ -1357,7 +1357,7 @@ function __gs_styles(colors) {
   situationList: { gap: 10, marginTop: spacing.lg },
   situationCard: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
     paddingHorizontal: 16, paddingVertical: 14,
     ...shadows.card,
@@ -1416,7 +1416,7 @@ function __gs_styles(colors) {
   chipCount:       { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 10, textAlign: 'right' },
   chip: {
     borderRadius: 20, paddingHorizontal: 13, paddingVertical: 7,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
   },
   chipActive:      { backgroundColor: colors.navy, borderColor: colors.navy },
@@ -1427,7 +1427,7 @@ function __gs_styles(colors) {
   // Add-your-own custom interest
   customInterestRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 12 },
   customInterestInput: {
-    flex: 1, backgroundColor: colors.white, borderRadius: 20,
+    flex: 1, backgroundColor: colors.surface, borderRadius: 20,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
     paddingHorizontal: 14, paddingVertical: 10,
     fontFamily: fonts.sans, fontSize: 13, color: colors.navy,
@@ -1441,7 +1441,7 @@ function __gs_styles(colors) {
   // Availability (status) multi-select
   statusOption: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
     paddingHorizontal: 16, paddingVertical: 14,
     ...shadows.card,

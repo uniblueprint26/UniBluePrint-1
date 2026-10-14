@@ -199,7 +199,7 @@ function __gs_styles(colors) {
 
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.white, borderRadius: radius.button,
+    backgroundColor: colors.surface, borderRadius: radius.button,
     paddingHorizontal: 14, height: 52,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
     ...shadows.card,
