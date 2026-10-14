@@ -110,7 +110,7 @@ export default function AdBoardScreen({ navigation }) {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.topBar}>
-        <UBPLogo height={26} color={colors.cream} onPress={() => goToHome(navigation)} />
+        <UBPLogo height={26} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
         <View style={{ flex: 1 }} />
         <TouchableOpacity
           onPress={() => openMenu(navigation)}
@@ -119,10 +119,10 @@ export default function AdBoardScreen({ navigation }) {
           accessibilityRole="button"
           accessibilityLabel="Open menu"
         >
-          <Menu size={19} color={colors.cream} />
+          <Menu size={19} color={colors.chromeFg} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.postBtn} activeOpacity={0.8} onPress={() => setModalVisible(true)}>
-          <Plus size={14} color={colors.navy} strokeWidth={2.5} />
+          <Plus size={14} color={colors.chromeBg} strokeWidth={2.5} />
           <Text style={styles.postBtnText}>Post an Ad</Text>
         </TouchableOpacity>
       </View>
@@ -133,7 +133,7 @@ export default function AdBoardScreen({ navigation }) {
         <TouchableOpacity activeOpacity={0.92} onPress={() => navigation.navigate('WeeklyBlueprint')}>
           <Card style={styles.magazineCard}>
             <LinearGradient
-              colors={[shade(colors.navy, -12), colors.navy, shade(colors.navy, 10)]}
+              colors={[shade(colors.chromeBg, -12), colors.chromeBg, shade(colors.chromeBg, 10)]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.magazineBanner}
             >
@@ -152,7 +152,7 @@ export default function AdBoardScreen({ navigation }) {
               <View style={styles.teaserRow}>
                 {TEASER_SECTIONS.map(s => (
                   <View key={s.label} style={styles.teaserChip}>
-                    <s.Icon size={12} color={colors.navy} strokeWidth={2} />
+                    <s.Icon size={12} color={colors.textPrimary} strokeWidth={2} />
                     <Text style={styles.teaserChipText}>{s.label}</Text>
                   </View>
                 ))}
@@ -161,7 +161,7 @@ export default function AdBoardScreen({ navigation }) {
               <View style={styles.magazineFooter}>
                 <View style={styles.magazineCta}>
                   <Text style={styles.magazineCtaText}>Open This Week's Issue</Text>
-                  <ChevronRight size={15} color={colors.cream} />
+                  <ChevronRight size={15} color={colors.accentFg} />
                 </View>
                 <Text style={styles.magazineFooterNote}>This week's 26-page drop + a note from the team</Text>
               </View>
@@ -252,7 +252,7 @@ export default function AdBoardScreen({ navigation }) {
         </Card>
 
         <TouchableOpacity style={styles.advertiseCta} activeOpacity={0.85} onPress={() => setModalVisible(true)}>
-          <Sparkles size={14} color={colors.cream} strokeWidth={2} />
+          <Sparkles size={14} color={colors.accentFg} strokeWidth={2} />
           <Text style={styles.advertiseCtaText}>Advertise With Us</Text>
         </TouchableOpacity>
 
@@ -266,15 +266,15 @@ export default function AdBoardScreen({ navigation }) {
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   topBar: {
-    backgroundColor: colors.navy, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
+    backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
   },
   menuBtn: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.cream, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
+  postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.chromeFg, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.chromeBg },
 
   // Magazine card — full-width gradient banner on top (readable at any
   // width, unlike the old 92px cover column it replaced) with a real
@@ -284,7 +284,7 @@ function __gs_styles(colors) {
   magazineBanner: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 20 },
   magazineBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,162,75,0.22)', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
   magazineBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
-  magazineBannerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.cream, marginTop: 10, lineHeight: 30 },
+  magazineBannerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, marginTop: 10, lineHeight: 30 },
   magazineRule: { width: 34, height: 2, backgroundColor: colors.gold, borderRadius: 1, marginTop: 10, marginBottom: 10 },
   magazineBannerTheme: { fontFamily: fonts.sans, fontSize: 12.5, color: 'rgba(245,240,232,0.78)', lineHeight: 18 },
 
@@ -297,37 +297,37 @@ function __gs_styles(colors) {
     backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
     paddingHorizontal: 9, paddingVertical: 6,
   },
-  teaserChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.navy },
+  teaserChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
 
   magazineFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginTop: 14 },
-  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10 },
-  magazineCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.cream },
+  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.accentBg, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10 },
+  magazineCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.accentFg },
   magazineFooterNote: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, fontStyle: 'italic' },
 
   // Entry cards (Blog / Marketplace)
   entryRow: { flexDirection: 'row', gap: 12, marginBottom: spacing.lg },
   entryCard: { padding: 16 },
   entryIconWrap: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  entryTitle: { fontFamily: fonts.serif, fontSize: 16, color: colors.navy, marginTop: 10 },
+  entryTitle: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, marginTop: 10 },
   entrySub: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16, minHeight: 32 },
   entryFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   entryFooterText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.light },
 
   sectionKicker: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 1, textTransform: 'uppercase' },
-  sectionHeading: { fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginTop: 6 },
+  sectionHeading: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginTop: 6 },
   sectionSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
 
   emptyNote: { fontFamily: fonts.sans, fontSize: 13, color: colors.light, fontStyle: 'italic', padding: 14 },
   adRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   adIcon: { width: 36, height: 36, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   adBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.navy, marginTop: 2 },
+  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary, marginTop: 2 },
   adReportBtn: { padding: 4, marginRight: 2 },
 
   advertiseCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
-    backgroundColor: colors.navy, borderRadius: radius.button, paddingVertical: 14, marginTop: 16,
+    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, marginTop: 16,
   },
-  advertiseCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
+  advertiseCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
   })
 }
