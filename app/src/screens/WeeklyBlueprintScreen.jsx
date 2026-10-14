@@ -1083,7 +1083,7 @@ function __gs_styles(colors) {
 
   // Pager controls
   pagerControls: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.md, paddingTop: 12, backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
-  pagerBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  pagerBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   pagerTrack: { flex: 1, height: 4, borderRadius: 2, backgroundColor: 'rgba(30,58,95,0.1)', overflow: 'hidden' },
   pagerFill: { height: 4, borderRadius: 2, backgroundColor: colors.navy },
   })

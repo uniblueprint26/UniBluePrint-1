@@ -1462,7 +1462,7 @@ function __gs_styles(colors) {
 
   // Tab selector
   tabRow: {
-    flexDirection: 'row', backgroundColor: colors.white, padding: 5,
+    flexDirection: 'row', backgroundColor: colors.surface, padding: 5,
     marginHorizontal: spacing.md, marginTop: spacing.md,
     borderRadius: radius.card, gap: 5, ...shadows.card,
   },
@@ -1479,7 +1479,7 @@ function __gs_styles(colors) {
   // Account type row — links out to Settings rather than editing in place
   userTypeRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 1, borderColor: colors.border,
     paddingHorizontal: 16, paddingVertical: 13,
   },
@@ -1556,7 +1556,7 @@ function __gs_styles(colors) {
   // Segment / filter
   segmentRow: {
     flexDirection: 'row', gap: 8,
-    backgroundColor: colors.white, borderRadius: radius.button,
+    backgroundColor: colors.surface, borderRadius: radius.button,
     padding: 4, ...shadows.card,
   },
   segChip:         { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.button - 2 },
@@ -1570,7 +1570,7 @@ function __gs_styles(colors) {
 
   // Mini dashboard
   dashboard: {
-    flexDirection: 'row', backgroundColor: colors.white,
+    flexDirection: 'row', backgroundColor: colors.surface,
     borderRadius: radius.card, padding: spacing.md, marginTop: spacing.md,
     alignItems: 'center', ...shadows.card,
   },
@@ -1657,7 +1657,7 @@ function __gs_styles(colors) {
   // CourseCompass funding link
   compassLinkRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     paddingHorizontal: 16, paddingVertical: 14, marginTop: spacing.sm, ...shadows.card,
   },
   compassLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy, flex: 1, marginRight: 8 },
@@ -1758,7 +1758,7 @@ function __gs_sheet(colors) {
   return StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
     padding: spacing.lg, paddingBottom: 34, maxHeight: '90%',
   },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },

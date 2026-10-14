@@ -150,7 +150,7 @@ function getStyles(colors) {
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
   searchWrap: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     paddingHorizontal: 14, height: 48, ...shadows.card,
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.navy },

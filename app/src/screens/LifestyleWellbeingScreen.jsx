@@ -280,7 +280,7 @@ function __gs_styles(colors) {
   // Category grid — real 2-up tiles, not a list.
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   catTile: {
-    width: '48%', backgroundColor: colors.white, borderRadius: radius.card,
+    width: '48%', backgroundColor: colors.surface, borderRadius: radius.card,
     padding: 14, ...shadows.card,
   },
   catTileIcon: {
@@ -293,7 +293,7 @@ function __gs_styles(colors) {
   // Category detail sheet
   sheetBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.card + 4, borderTopRightRadius: radius.card + 4,
     paddingHorizontal: 18, paddingTop: 12, maxHeight: '85%',
   },
@@ -310,7 +310,7 @@ function __gs_styles(colors) {
   // Wellbeing Reads — a real 2-up grid, not a list of rows.
   readsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   readTile: {
-    width: '48%', backgroundColor: colors.white, borderRadius: radius.card,
+    width: '48%', backgroundColor: colors.surface, borderRadius: radius.card,
     padding: 14, ...shadows.card,
   },
   readIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },

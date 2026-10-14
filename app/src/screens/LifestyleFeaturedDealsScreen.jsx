@@ -349,7 +349,7 @@ function __gs_styles(colors) {
 
   // Hero product card
   heroCard: {
-    backgroundColor: colors.white, borderRadius: radius.card, overflow: 'hidden', ...shadows.elevated,
+    backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadows.elevated,
   },
   heroCaption: { padding: 16 },
   heroFeaturedTag: {
@@ -365,7 +365,7 @@ function __gs_styles(colors) {
   columnWrapper: { gap: 10, paddingHorizontal: spacing.md },
   tileWrap: { flex: 1, marginBottom: 10 },
   tileCaption: {
-    backgroundColor: colors.white, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
+    backgroundColor: colors.surface, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
     padding: 10, ...shadows.card,
   },
   tileBrand:    { fontFamily: fonts.serif, fontSize: 13.5, color: colors.navy },
@@ -406,7 +406,7 @@ function __gs_styles(colors) {
   exploreMoreBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     marginTop: 12, paddingVertical: 12, borderRadius: radius.button,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
   },
   exploreMoreText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
   })

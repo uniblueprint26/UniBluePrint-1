@@ -250,7 +250,7 @@ function getStyles(colors) {
   heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.cream, marginTop: 6, lineHeight: 34 },
 
   card: {
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     borderWidth: 2, borderColor: colors.border,
     padding: 22, ...shadows.card,
   },

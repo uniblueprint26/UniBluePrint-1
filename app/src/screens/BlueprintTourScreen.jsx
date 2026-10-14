@@ -434,7 +434,7 @@ export default function BlueprintTourScreen({ mode = 'first-launch', onFinish })
 
 function __gs_styles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.white },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   liveArea: { flex: 1, backgroundColor: colors.cream, overflow: 'hidden' },
   mockWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xxl },
@@ -457,7 +457,7 @@ function __gs_styles(colors) {
   progressFillTop: { height: '100%', borderRadius: 2, backgroundColor: colors.gold },
 
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 26, borderTopRightRadius: 26,
     paddingHorizontal: spacing.lg, paddingTop: spacing.md,
     marginTop: -26,
@@ -499,7 +499,7 @@ function __gs_mock(colors) {
   return StyleSheet.create({
   quickAccessGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   quickAccessTile: {
-    width: '47%', backgroundColor: colors.white, borderRadius: radius.card,
+    width: '47%', backgroundColor: colors.surface, borderRadius: radius.card,
     padding: 14, ...shadows.card,
   },
   quickAccessIconWrap: {
@@ -512,7 +512,7 @@ function __gs_mock(colors) {
   cardList: { gap: 10 },
   listRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: radius.card,
+    backgroundColor: colors.surface, borderRadius: radius.card,
     padding: 14, ...shadows.card,
   },
   listDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
@@ -521,7 +521,7 @@ function __gs_mock(colors) {
   listMeta: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
   listMetaText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
 
-  profileCard: { backgroundColor: colors.white, borderRadius: radius.card, padding: 16, ...shadows.elevated },
+  profileCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, ...shadows.elevated },
   profileTopRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
   profileAvatar: {
     width: 48, height: 48, borderRadius: 24, borderWidth: 2,
@@ -548,10 +548,10 @@ function __gs_mock(colors) {
   tabRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   tabPill: {
     borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7,
-    backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
   },
   tabPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.navy },
-  statCard: { backgroundColor: colors.white, borderRadius: radius.card, padding: 16, ...shadows.card },
+  statCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, ...shadows.card },
   statLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
   statValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginBottom: 10 },
   progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.cream, overflow: 'hidden' },
