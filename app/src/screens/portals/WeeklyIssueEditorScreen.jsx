@@ -9,6 +9,7 @@ import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Editorial content for the 10 Weekly Blueprint content sections that have
 // no other real data source (see supabase/migrations/20260829160000_weekly_blueprint.sql
@@ -125,6 +126,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
   const s = __gs_s(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation)
 
   const [issues, setIssues] = useState([])
   const [loading, setLoading] = useState(true)
@@ -254,7 +256,7 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
       <View style={[s.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity
           style={s.backBtn}
-          onPress={() => activeIssue ? closeIssue() : navigation.goBack()}
+          onPress={() => activeIssue ? closeIssue() : safeGoBack()}
           activeOpacity={0.7}
         >
           <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />

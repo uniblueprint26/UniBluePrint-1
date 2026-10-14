@@ -12,6 +12,7 @@ import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { formatDocumentContent } from '../../lib/formatGeneratedDocument'
 import { ticketUrgency, getTicketDisplayName } from '../../hooks/useHandlerTickets'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // TicketDetailScreen — what a Campus Handler actually needs to review and act
 // on one ticket, opened from StudioQueueScreen's TicketCard (replacing the
@@ -122,6 +123,7 @@ export default function TicketDetailScreen({ navigation, route }) {
   const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors, isDark)
   const { ticketId } = route.params || {}
+  const safeGoBack = useSafeGoBack(navigation, 'StudioQueue')
 
   const [status, setStatus] = useState('loading') // loading | ok | error
   const [submission, setSubmission] = useState(null)
@@ -288,7 +290,7 @@ export default function TicketDetailScreen({ navigation, route }) {
         flagged: 'Flagged to Operations.',
         incomplete: 'Marked incomplete — the student has been notified.',
       }[decision]
-      Alert.alert('Done', copy, [{ text: 'OK', onPress: () => navigation.goBack() }])
+      Alert.alert('Done', copy, [{ text: 'OK', onPress: safeGoBack }])
     } catch (e) {
       console.error('[TicketDetail] unexpected error submitting decision', e)
       setFormError('Something went wrong submitting your decision. Please try again.')
@@ -300,7 +302,7 @@ export default function TicketDetailScreen({ navigation, route }) {
   if (status === 'loading') {
     return (
       <View style={styles.screen}>
-        <ScreenHeader variant="navy" onBack={() => navigation.goBack()} backLabel="Queue" eyebrow="TICKET" title="Loading..." style={styles.heroBlock} titleStyle={styles.heroTitle} />
+        <ScreenHeader variant="navy" onBack={safeGoBack} backLabel="Queue" eyebrow="TICKET" title="Loading..." style={styles.heroBlock} titleStyle={styles.heroTitle} />
         <ActivityIndicator color={colors.navy} style={{ marginTop: 40 }} />
       </View>
     )
@@ -309,7 +311,7 @@ export default function TicketDetailScreen({ navigation, route }) {
   if (status === 'error' || !submission) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader variant="navy" onBack={() => navigation.goBack()} backLabel="Queue" eyebrow="TICKET" title="Ticket" style={styles.heroBlock} titleStyle={styles.heroTitle} />
+        <ScreenHeader variant="navy" onBack={safeGoBack} backLabel="Queue" eyebrow="TICKET" title="Ticket" style={styles.heroBlock} titleStyle={styles.heroTitle} />
         <Card style={[styles.messageCard, { margin: spacing.md }]}>
           <AlertCircle size={32} color={colors.destructive} />
           <Text style={styles.messageTitle}>Couldn't load this ticket</Text>
@@ -341,7 +343,7 @@ export default function TicketDetailScreen({ navigation, route }) {
     <View style={styles.screen}>
       <ScreenHeader
         variant="navy"
-        onBack={() => navigation.goBack()}
+        onBack={safeGoBack}
         backLabel="Queue"
         eyebrow="THE BLUEPRINT STUDIO"
         title={serviceName}

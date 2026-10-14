@@ -6,6 +6,7 @@ import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../ui/UBPLogo'
 import { HeaderIconButton } from '../ui/ScreenHeader'
 import { goToHome } from '../../navigation/helpers'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Shared utility header used by screens pushed from Home (Lifestyle,
 // Budgeting). `showBack` renders the same back chevron used everywhere
@@ -14,6 +15,7 @@ import { goToHome } from '../../navigation/helpers'
 export default function TopBar({ navigation, showBack = false, notificationCount = 0, onProfilePress, onBellPress }) {
   const insets = useSafeAreaInsets()
   const { colors } = useTheme()
+  const safeGoBack = useSafeGoBack(navigation)
 
   // Both icons used to render with no handler at all when the caller (e.g.
   // BudgetingScreen) passed neither prop — dead taps. Default to sensible
@@ -28,7 +30,7 @@ export default function TopBar({ navigation, showBack = false, notificationCount
         {showBack && (
           <HeaderIconButton
             icon={ChevronLeft}
-            onPress={() => navigation?.goBack()}
+            onPress={safeGoBack}
             color={colors.chromeFg}
             size={20}
             style={styles.backBtn}
