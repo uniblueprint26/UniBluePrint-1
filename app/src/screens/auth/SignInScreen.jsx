@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../../components/ui/UBPLogo'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 export default function SignInScreen({ navigation }) {
   const { colors } = useTheme()
@@ -20,6 +21,7 @@ export default function SignInScreen({ navigation }) {
   const [error, setError] = useState('')
   const insets = useSafeAreaInsets()
   const { signIn } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation, 'Welcome')
 
   async function handleSignIn() {
     if (!email || !password) {
@@ -50,7 +52,7 @@ export default function SignInScreen({ navigation }) {
       >
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={safeGoBack}
             style={styles.backBtn}
             activeOpacity={0.7}
             accessibilityRole="button"

@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../../components/ui/UBPLogo'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 export default function ForgotPasswordScreen({ navigation }) {
   const { colors } = useTheme()
@@ -19,6 +20,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const [sent, setSent] = useState(false)
   const insets = useSafeAreaInsets()
   const { resetPassword } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation, 'SignIn')
 
   async function handleReset() {
     if (!email) { setError('Please enter your email address.'); return }
@@ -47,7 +49,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       >
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={safeGoBack}
             style={styles.backBtn}
             activeOpacity={0.7}
             accessibilityRole="button"

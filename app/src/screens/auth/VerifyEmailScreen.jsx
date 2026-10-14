@@ -9,6 +9,7 @@ import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../../hooks/useStatusBarStyle'
 import UBPLogo from '../../components/ui/UBPLogo'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 export default function VerifyEmailScreen({ route, navigation }) {
   const { colors } = useTheme()
@@ -22,6 +23,7 @@ export default function VerifyEmailScreen({ route, navigation }) {
   const [error, setError] = useState('')
   const insets = useSafeAreaInsets()
   const { resendVerification } = useAuth()
+  const safeGoBack = useSafeGoBack(navigation, 'SignUp')
 
   async function handleResend() {
     if (!email) return
@@ -45,7 +47,7 @@ export default function VerifyEmailScreen({ route, navigation }) {
     >
       <View style={[styles.header]}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={safeGoBack}
           style={styles.backBtn}
           activeOpacity={0.7}
           accessibilityRole="button"

@@ -23,6 +23,7 @@ import { WEBSITE_LINKS } from '../../constants/site'
 import { TERMS_VERSION, PRIVACY_VERSION, MIN_SIGNUP_AGE } from '../../constants/legal'
 import { USER_TYPES, mapSituationToUserType } from '../../constants/userTypes'
 import { isAtLeastAge } from '../../utils/age'
+import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // ── Situations ────────────────────────────────────────────────────────────────
 
@@ -139,6 +140,7 @@ export default function SignUpScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { signUp } = useAuth()
   const scrollRef = useRef(null)
+  const safeGoBack = useSafeGoBack(navigation, 'Welcome')
 
   // Step: 1 = basics, 2 = situation, 3 = details
   const [step, setStep] = useState(1)
@@ -271,7 +273,7 @@ export default function SignUpScreen({ navigation }) {
     setError('')
     if (step === 2) { setStep(1); return }
     if (step === 3) { setStep(2); return }
-    navigation.goBack()
+    safeGoBack()
   }
 
   function handleStep1Continue() {
