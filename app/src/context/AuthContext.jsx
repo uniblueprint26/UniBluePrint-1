@@ -6,6 +6,7 @@ import { MAX_INTERESTS, MAX_CUSTOM_INTEREST_LENGTH } from '../data/interests'
 import { SITE_URL } from '../constants/site'
 import {
   STATUS_OPTIONS, SOCIAL_LINK_FIELDS, MAX_BIO_LENGTH, MAX_SOCIAL_LINK_LENGTH,
+  MAX_CREDENTIALS, MAX_CREDENTIAL_LENGTH,
 } from '../constants/directory'
 
 const AuthContext = createContext({})
@@ -65,7 +66,8 @@ export function AuthProvider({ children }) {
       .from('profiles')
       .select(`
         id, full_name, avatar_url, user_type, interests, date_of_birth,
-        discoverable, course, year_of_study, institution, statuses, bio, social_links
+        discoverable, course, year_of_study, institution, statuses, bio, social_links,
+        directory_credentials, directory_hide_location
       `)
       .eq('id', userId)
       .maybeSingle()
@@ -228,12 +230,15 @@ export function AuthProvider({ children }) {
   // Writes the Directory-discovery self-service fields in one call: the
   // public/private toggle (discoverable), the free-text bio, the "what are
   // you open to" statuses (see constants/directory.js' STATUS_OPTIONS —
-  // the same concept SignUpScreen.jsx collects at sign-up), and the fixed
-  // set of self-reported social links. This is the write boundary the
-  // Directory Profile settings modal (ProfileScreen.jsx) uses — validated
-  // here, not just in the UI, so a bad payload can't reach the database
-  // however it got constructed. Each field is optional in `fields`; only
-  // the keys actually passed are validated and written.
+  // the same concept SignUpScreen.jsx collects at sign-up), the fixed set
+  // of self-reported social links, the short self-written credentials list,
+  // and the per-profile "hide my location" toggle (credentials/hideLocation
+  // — see the 20261015140000_directory_credentials_endorsements migration).
+  // This is the write boundary the Directory Profile settings modal
+  // (ProfileScreen.jsx) uses — validated here, not just in the UI, so a bad
+  // payload can't reach the database however it got constructed. Each field
+  // is optional in `fields`; only the keys actually passed are validated
+  // and written.
   const updateDirectoryProfile = useCallback(async fields => {
     if (!user?.id) return { error: new Error('Not signed in') }
     const updates = {}
@@ -262,6 +267,21 @@ export function AuthProvider({ children }) {
       }
       updates.social_links = cleaned
     }
+    if ('credentials' in fields) {
+      if (!Array.isArray(fields.credentials)) return { error: new Error('Invalid credentials') }
+      const cleaned = [...new Set(
+        fields.credentials
+          .map(c => String(c || '').trim().replace(/\s+/g, ' ').slice(0, MAX_CREDENTIAL_LENGTH))
+          .filter(Boolean)
+      )]
+      if (cleaned.length > MAX_CREDENTIALS) {
+        return { error: new Error(`You can add up to ${MAX_CREDENTIALS} credentials.`) }
+      }
+      updates.directory_credentials = cleaned
+    }
+    if ('hideLocation' in fields) {
+      updates.directory_hide_location = !!fields.hideLocation
+    }
 
     if (Object.keys(updates).length === 0) return { error: null }
 
@@ -276,9 +296,96 @@ export function AuthProvider({ children }) {
         ...('bio' in updates ? { bio: updates.bio } : {}),
         ...('statuses' in updates ? { statuses: updates.statuses } : {}),
         ...('social_links' in updates ? { social_links: updates.social_links } : {}),
+        ...('directory_credentials' in updates ? { directory_credentials: updates.directory_credentials } : {}),
+        ...('directory_hide_location' in updates ? { directory_hide_location: updates.directory_hide_location } : {}),
       }))
     }
     return { error }
+  }, [user?.id])
+
+  // Writes the institution/course (Student) or trade/training-provider
+  // (Apprentice) details SignUpScreen.jsx collects at sign-up — the gap
+  // ProfileScreen's Edit Profile modal and HelpScreen both used to flag as
+  // "set during onboarding, cannot be changed here yet". Mirrors
+  // updateDirectoryProfile's shape: validated here, not just in the UI, and
+  // each key in `fields` is optional so a caller can write just the ones
+  // that apply to the person's user_type.
+  //
+  // Two destinations, same split doSignUp() already writes to: institution/
+  // course land on the queryable profiles columns (institution, course —
+  // see 20261012110000_directory_discovery.sql) AND on auth user_metadata,
+  // since ProfileScreen's header subtitle and getProfileSubLine() read
+  // institution/course/trade/training_provider from user_metadata, not from
+  // `profile`. trade/training_provider have no profiles column at all (Task
+  // #? never promoted them the way institution/course were) so those only
+  // ever land in user_metadata.
+  //
+  // Each of institution/trade/trainingProvider accepts either a picked
+  // object ({ name, short|category }) from the same institutions.js/
+  // apprenticeships.js lookups SignUpScreen uses, a plain string (free-typed
+  // fallback, same as SignUpScreen's PLC/apprenticeship branches), or null/
+  // empty to clear the field.
+  const updateEducationDetails = useCallback(async fields => {
+    if (!user?.id) return { error: new Error('Not signed in') }
+    const profileUpdates = {}
+    const metadataUpdates = {}
+
+    function cleanText(value) {
+      return String(value || '').trim().slice(0, 200) || null
+    }
+
+    if ('institution' in fields) {
+      const inst = fields.institution
+      if (inst && typeof inst === 'object') {
+        const name = cleanText(inst.name)
+        profileUpdates.institution       = name
+        metadataUpdates.institution      = name
+        metadataUpdates.institution_short = cleanText(inst.short)
+        metadataUpdates.university       = name // backward compat, same as doSignUp()
+      } else {
+        const name = cleanText(inst)
+        profileUpdates.institution        = name
+        metadataUpdates.institution       = name
+        metadataUpdates.institution_short = null
+        metadataUpdates.university        = name
+      }
+    }
+    if ('course' in fields) {
+      const course = cleanText(fields.course)
+      profileUpdates.course  = course
+      metadataUpdates.course = course
+    }
+    if ('trade' in fields) {
+      const trade = fields.trade
+      if (trade && typeof trade === 'object') {
+        metadataUpdates.trade          = cleanText(trade.name)
+        metadataUpdates.trade_category = cleanText(trade.category)
+      } else {
+        metadataUpdates.trade          = cleanText(trade)
+        metadataUpdates.trade_category = null
+      }
+    }
+    if ('trainingProvider' in fields) {
+      const provider = fields.trainingProvider
+      metadataUpdates.training_provider = (provider && typeof provider === 'object')
+        ? cleanText(provider.name)
+        : cleanText(provider)
+    }
+
+    if (Object.keys(profileUpdates).length === 0 && Object.keys(metadataUpdates).length === 0) {
+      return { error: null }
+    }
+
+    if (Object.keys(profileUpdates).length) {
+      const { error } = await supabase.from('profiles').update(profileUpdates).eq('id', user.id)
+      if (error) return { error }
+      setProfile(prev => ({ ...(prev || { id: user.id }), ...profileUpdates }))
+    }
+    if (Object.keys(metadataUpdates).length) {
+      const { error } = await supabase.auth.updateUser({ data: metadataUpdates })
+      if (error) return { error }
+    }
+    return { error: null }
   }, [user?.id])
 
   function hasRole(role) {
@@ -344,6 +451,11 @@ export function AuthProvider({ children }) {
   const bio = profile?.bio ?? null
   const statuses = Array.isArray(profile?.statuses) ? profile.statuses : []
   const socialLinks = (profile?.social_links && typeof profile.social_links === 'object') ? profile.social_links : {}
+  // Short self-written credentials list + the "hide my location" toggle —
+  // same split as the fields above, added by the
+  // 20261015140000_directory_credentials_endorsements migration.
+  const credentials = Array.isArray(profile?.directory_credentials) ? profile.directory_credentials : []
+  const hideLocation = profile?.directory_hide_location ?? false
 
   return (
     <AuthContext.Provider value={{
@@ -353,10 +465,10 @@ export function AuthProvider({ children }) {
       isHandler, isCoach, isFounder, isOperations, isBusiness, isFinance,
       isStudioEligible, isAnyPortalEligible, studioLabel,
       portalMode, setPortalMode,
-      profile, profileLoading, userType, updateUserType,
+      profile, profileLoading, userType, updateUserType, updateEducationDetails,
       interests, updateInterests,
       dateOfBirth,
-      discoverable, bio, statuses, socialLinks, updateDirectoryProfile,
+      discoverable, bio, statuses, socialLinks, credentials, hideLocation, updateDirectoryProfile,
       refreshProfile: () => loadProfile(user?.id),
     }}>
       {children}
