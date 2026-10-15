@@ -19,32 +19,26 @@ import { supabase } from '../../lib/supabase'
 //
 // Client Activity and Earnings were re-investigated once payments went live
 // (#95/#56) to see whether either stub could honestly show a real number
-// now. Neither can, so both still show an honest "not built yet" state
-// rather than a fabricated one:
+// now.
 //
 //  - Client Activity: chat_rooms/chat_participants/direct_messages
 //    (20260805000000, 20261011224102) support generic 1:1 messaging, but no
 //    chat room is ever created from a coach_bookings row and there is no
 //    goals/milestone table anywhere — a coach-student conversation existing
 //    in the DB would be indistinguishable from any other direct message, so
-//    there is no "client activity for this coach" feed to query.
+//    there is no "client activity for this coach" feed to query. Still an
+//    honest "not built yet" state rather than a fabricated one.
 //
-//  - Earnings: coach_bookings (20260907120000) has no price/amount column —
-//    a confirmed booking alone says nothing about what it was worth.
-//    partner_tier_assignments / partner_negotiation_log
-//    (20261012100000_partner_tiering_framework) DO support a per-coach
-//    negotiated commission %, but it is empty, decision-pending
-//    infrastructure today: tier/payment_option default null, and even a
-//    populated negotiated_commission_pct would be a percentage of a coach
-//    revenue stream that does not exist — Elevation/coaching access is
-//    bundled into the flat Pro subscription (create-checkout-session has no
-//    per-coach line item at all), so there is no base amount to apply a
-//    rate to. Multiplying anything together here would be a fabricated
-//    number wearing real-looking decimal places. "Sessions Delivered"
-//    stays the headline stat because it IS real; "This Period" earnings
-//    says plainly that revenue-share isn't set up instead of showing a
-//    dead-end "Coming soon" button that pre-payments copy made okay but
-//    now reads as broken.
+//  - Earnings: real now. The platform collects the student's payment
+//    directly for Elevation coach bookings (CoachBookingScreen.jsx,
+//    create-coach-checkout-session, coach_payments — 20261015014215), so
+//    coach_bookings/coach_payments carry a real amount_cents/paid. What a
+//    coach is actually OWED from that is read via get_my_coach_earnings()
+//    (20261015144526) — gross collected, plus the coach's computed share
+//    IF their Partner Tiering tier + payment option (and, for Option B, a
+//    logged negotiated rate) are assigned; otherwise the section shows the
+//    gross figure only and says plainly that the split is pending tier
+//    assignment, rather than guessing one. See useCoachEarnings() below.
 //
 // Specialisms are read from the coach's own coach_profiles.specialisation —
 // the only specialism field the schema has today (a single free-text value,
@@ -414,12 +408,48 @@ function useCoachBookings(userId) {
   return { loading, loadError, upcoming, activeClientCount, monthlyBookings, specialisation }
 }
 
+// Earnings — reads get_my_coach_earnings() (20261015144526): what students
+// have actually paid the platform for this coach (coach_payments, real
+// Stripe charges), and the coach's computed share if a tier/payment_option
+// is assigned. Resolves strictly to the caller's own linked coach_profiles
+// row server-side (SECURITY DEFINER, user_id = auth.uid()) — this screen
+// never passes a coach identifier itself.
+function useCoachEarnings(userId) {
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [earnings, setEarnings] = useState(null) // single row, or null (unlinked/no data)
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+
+    supabase
+      .rpc('get_my_coach_earnings')
+      .then(({ data, error }) => {
+        if (cancelled) return
+        if (error) { setLoadError(true); setLoading(false); return }
+        setEarnings((data && data[0]) || null)
+        setLoading(false)
+      })
+      .catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+
+    return () => { cancelled = true }
+  }, [userId])
+
+  return { loading, loadError, earnings }
+}
+
+function formatEuros(cents) {
+  return `€${(cents / 100).toFixed(2)}`
+}
+
 export default function CoachStudioScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { setPortalMode, user } = useAuth()
   const { loading: bookingsLoading, loadError: bookingsError, upcoming, activeClientCount, monthlyBookings, specialisation } = useCoachBookings(user?.id)
+  const { loading: earningsLoading, loadError: earningsError, earnings } = useCoachEarnings(user?.id)
   const specialisms = parseSpecialisms(specialisation)
 
   function backToMyBlueprint() {
@@ -507,32 +537,66 @@ export default function CoachStudioScreen({ navigation }) {
           </Text>
         </Card>
 
-        {/* Earnings — Sessions Delivered is real (same monthlyBookings as the
-            header stat). "This Period" earnings cannot honestly be a number:
-            bookings carry no price, and Elevation access is bundled into the
-            flat Pro subscription with no per-coach revenue-share decided or
-            populated yet (partner_tier_assignments / partner_negotiation_log
-            are empty infrastructure for every real coach today). So this
-            says that plainly instead of showing a dead-end button. */}
+        {/* Earnings — real money now. Gross collected and paid-booking count
+            come straight from coach_payments (actual confirmed Stripe
+            charges). The coach's share is only ever shown when a tier +
+            payment option (and, for Option B, a logged negotiated rate) is
+            actually assigned — get_my_coach_earnings() returns null/pending
+            otherwise, and this never computes a guessed split. Nothing here
+            claims a payout has been made; that is explicitly out of scope
+            (no payout-transfer tracking exists in the schema yet) and the
+            note below says so. */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <TrendingUp size={14} color={colors.textPrimary} />
           <Text style={styles.sectionEyebrow}>EARNINGS</Text>
         </View>
         <Card style={styles.earningsCard}>
-          <View style={styles.earningsRow}>
-            <View style={styles.earningsTile}>
-              <Text style={styles.earningsTileLabel}>Sessions Delivered</Text>
-              <Text style={styles.earningsTileValue}>{monthlyBookings}</Text>
-            </View>
-            <View style={[styles.earningsTile, styles.earningsTileBorder]}>
-              <Text style={styles.earningsTileLabel}>This Period</Text>
-              <Text style={[styles.earningsTileValue, { fontSize: 15 }]}>Not tracked yet</Text>
-            </View>
-          </View>
-          <Text style={styles.earningsNote}>
-            Elevation coaching is included in Pro membership today — there's no revenue-share or per-coach
-            payout set up yet. We'll let you know here once that's decided.
-          </Text>
+          {earningsLoading ? (
+            <ActivityIndicator size="small" color={colors.textPrimary} />
+          ) : earningsError ? (
+            <Text style={styles.editUnlinkedText}>Couldn't load your earnings right now. Pull to refresh or check back shortly.</Text>
+          ) : !earnings ? (
+            <Text style={styles.editUnlinkedText}>
+              Your coach profile hasn't been linked yet, so there's nothing to show here. Once Operations
+              connects your account, any payments students make for your sessions will appear here.
+            </Text>
+          ) : (
+            <>
+              <View style={styles.earningsRow}>
+                <View style={styles.earningsTile}>
+                  <Text style={styles.earningsTileLabel}>Paid Bookings</Text>
+                  <Text style={styles.earningsTileValue}>{earnings.paid_bookings_count}</Text>
+                </View>
+                <View style={[styles.earningsTile, styles.earningsTileBorder]}>
+                  <Text style={styles.earningsTileLabel}>Total Collected</Text>
+                  <Text style={[styles.earningsTileValue, { fontSize: 20 }]}>{formatEuros(earnings.total_collected_cents)}</Text>
+                </View>
+              </View>
+
+              {earnings.pending_tier_assignment ? (
+                <Text style={styles.earningsNote}>
+                  This is the gross amount students have paid for your sessions — collected by UBP via Stripe.
+                  Your share isn't shown yet because your Partner Tier / payment option hasn't been assigned.
+                  We'll show your exact split here as soon as that's set.
+                </Text>
+              ) : (
+                <>
+                  <View style={styles.earningsShareRow}>
+                    <Text style={styles.earningsShareLabel}>
+                      Your share{earnings.commission_source === 'negotiated' ? ' (negotiated rate)' : ` (${earnings.tier} tier, Option A)`}
+                      {' — '}{(100 - Number(earnings.commission_pct)).toFixed(0)}%
+                    </Text>
+                    <Text style={styles.earningsShareValue}>{formatEuros(earnings.coach_share_cents)}</Text>
+                  </View>
+                  <Text style={styles.earningsNote}>
+                    This is a computed figure, not a transfer — payouts to coaches are still handled outside
+                    the app for now. It reflects every payment students have made for your sessions through
+                    UBP, at your current {Number(earnings.commission_pct).toFixed(0)}% platform commission.
+                  </Text>
+                </>
+              )}
+            </>
+          )}
         </Card>
 
         {/* Specialisms */}
@@ -613,6 +677,12 @@ function __gs_styles(colors) {
   earningsTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14 },
   earningsTileLabel: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
   earningsTileValue: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary },
+  earningsShareRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 10, marginBottom: 4,
+  },
+  earningsShareLabel: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, flex: 1, marginRight: 10 },
+  earningsShareValue: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary },
   earningsNote: {
     fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18,
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)', paddingTop: 12,
