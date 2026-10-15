@@ -322,6 +322,10 @@ export default function FounderPortalScreen({ navigation }) {
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 40 }} />
+        ) : (
+        <>
         {!!loadError && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{loadError}</Text>
@@ -351,7 +355,7 @@ export default function FounderPortalScreen({ navigation }) {
               <Text style={styles.rolePillText}>{role}: {count}</Text>
             </View>
           ))}
-          {!loading && Object.keys(roleCounts).length === 0 && (
+          {Object.keys(roleCounts).length === 0 && (
             <Text style={styles.emptyText}>No roles assigned to any account yet.</Text>
           )}
         </View>
@@ -422,6 +426,8 @@ export default function FounderPortalScreen({ navigation }) {
           <Text style={styles.complianceValue}>{gdprPending ?? 0}</Text>
           <Text style={styles.complianceLabel}>GDPR requests awaiting action</Text>
         </Card>
+        </>
+        )}
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <Newspaper size={14} color={colors.textPrimary} />

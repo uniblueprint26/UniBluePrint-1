@@ -27,10 +27,14 @@ export default function OperationsPortalScreen({ navigation }) {
   const [ticketLookupId, setTicketLookupId] = useState('')
 
   const [queue, setQueue] = useState(null)
+  const [queueLoading, setQueueLoading] = useState(true)
+  const [queueError, setQueueError] = useState(null)
   const [gdprRequests, setGdprRequests] = useState([])
   const [gdprLoading, setGdprLoading] = useState(true)
   const [gdprError, setGdprError] = useState(null)
   const [enquiries, setEnquiries] = useState([])
+  const [enquiriesLoading, setEnquiriesLoading] = useState(true)
+  const [enquiriesError, setEnquiriesError] = useState(null)
   const [markingDone, setMarkingDone] = useState(null) // the request being actioned, or null
   const [doneNote, setDoneNote] = useState('')
   const [savingDone, setSavingDone] = useState(false)
@@ -40,6 +44,36 @@ export default function OperationsPortalScreen({ navigation }) {
     // React Navigation v7's navigate() pushes rather than pops, which would
     // grow the stack on every switch; popTo returns to the existing HomeMain.
     navigation.popTo('HomeMain')
+  }
+
+  async function loadQueue() {
+    setQueueLoading(true)
+    setQueueError(null)
+    const { data, error } = await supabase.rpc('get_ops_queue_snapshot')
+    if (error) {
+      setQueueError('Could not load the request queue.')
+      setQueueLoading(false)
+      return
+    }
+    setQueue(data?.[0] || null)
+    setQueueLoading(false)
+  }
+
+  async function loadEnquiries() {
+    setEnquiriesLoading(true)
+    setEnquiriesError(null)
+    const { data, error } = await supabase
+      .from('coach_enquiries')
+      .select('id, coach_name, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10)
+    if (error) {
+      setEnquiriesError('Could not load coach enquiries.')
+      setEnquiriesLoading(false)
+      return
+    }
+    setEnquiries(data || [])
+    setEnquiriesLoading(false)
   }
 
   async function loadGdpr() {
@@ -105,19 +139,11 @@ export default function OperationsPortalScreen({ navigation }) {
   }
 
   useEffect(() => {
-    let cancelled = false
-    async function load() {
-      const [{ data: queueSnapshot }, , { data: enq }] = await Promise.all([
-        supabase.rpc('get_ops_queue_snapshot'),
-        loadGdpr(),
-        supabase.from('coach_enquiries').select('id, coach_name, status, created_at').order('created_at', { ascending: false }).limit(10),
-      ])
-      if (cancelled) return
-      setQueue(queueSnapshot?.[0] || null)
-      setEnquiries(enq || [])
-    }
-    load()
-    return () => { cancelled = true }
+    // Three independent loads (own loading/error state each, like loadGdpr)
+    // so a failure or slow connection on one never hides or blocks the others.
+    loadQueue()
+    loadGdpr()
+    loadEnquiries()
   }, [])
 
   return (
@@ -141,28 +167,47 @@ export default function OperationsPortalScreen({ navigation }) {
           <Text style={styles.sectionEyebrow}>REQUEST QUEUE</Text>
         </View>
         <Card style={styles.queueCard}>
-          <View style={styles.queueRow}>
-            <StatTile
-              icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary}
-              value={queue?.queued != null ? formatNumber(queue.queued) : '—'} label="Queued" border
-            />
-            <StatTile
-              icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep}
-              value={queue?.in_progress != null ? formatNumber(queue.in_progress) : '—'} label="In Progress" border
-            />
-            <StatTile
-              icon={CheckCircle2} iconBg="#F0FDF4" iconColor={colors.success}
-              value={queue?.completed_today != null ? formatNumber(queue.completed_today) : '—'} label="Completed Today"
-            />
-          </View>
-          <View style={styles.urgencyRow}>
-            <View style={[styles.urgencyDot, { backgroundColor: '#DC2626' }]} />
-            <Text style={styles.urgencyText}>{formatNumber(queue?.red_count ?? 0)} red</Text>
-            <View style={[styles.urgencyDot, { backgroundColor: '#F59E0B' }]} />
-            <Text style={styles.urgencyText}>{formatNumber(queue?.amber_count ?? 0)} amber</Text>
-            <View style={[styles.urgencyDot, { backgroundColor: '#16A34A' }]} />
-            <Text style={styles.urgencyText}>{formatNumber(queue?.green_count ?? 0)} green</Text>
-          </View>
+          {queueLoading ? (
+            <View style={styles.gdprStateRow}>
+              <ActivityIndicator size="small" color={colors.textPrimary} />
+              <Text style={styles.gdprStateText}>Loading request queue…</Text>
+            </View>
+          ) : queueError ? (
+            <View style={styles.gdprStateRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.gdprErrorText}>{queueError}</Text>
+              </View>
+              <TouchableOpacity style={styles.retryBtn} activeOpacity={0.8} onPress={loadQueue}>
+                <RotateCcw size={13} color={colors.textPrimary} strokeWidth={2} />
+                <Text style={styles.retryBtnText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <View style={styles.queueRow}>
+                <StatTile
+                  icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary}
+                  value={queue?.queued != null ? formatNumber(queue.queued) : '—'} label="Queued" border
+                />
+                <StatTile
+                  icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+                  value={queue?.in_progress != null ? formatNumber(queue.in_progress) : '—'} label="In Progress" border
+                />
+                <StatTile
+                  icon={CheckCircle2} iconBg="#F0FDF4" iconColor={colors.success}
+                  value={queue?.completed_today != null ? formatNumber(queue.completed_today) : '—'} label="Completed Today"
+                />
+              </View>
+              <View style={styles.urgencyRow}>
+                <View style={[styles.urgencyDot, { backgroundColor: '#DC2626' }]} />
+                <Text style={styles.urgencyText}>{formatNumber(queue?.red_count ?? 0)} red</Text>
+                <View style={[styles.urgencyDot, { backgroundColor: '#F59E0B' }]} />
+                <Text style={styles.urgencyText}>{formatNumber(queue?.amber_count ?? 0)} amber</Text>
+                <View style={[styles.urgencyDot, { backgroundColor: '#16A34A' }]} />
+                <Text style={styles.urgencyText}>{formatNumber(queue?.green_count ?? 0)} green</Text>
+              </View>
+            </>
+          )}
         </Card>
 
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
@@ -243,7 +288,22 @@ export default function OperationsPortalScreen({ navigation }) {
           <Text style={styles.sectionEyebrow}>RECENT COACH ENQUIRIES</Text>
         </View>
         <Card style={{ padding: 0 }}>
-          {enquiries.length === 0 ? (
+          {enquiriesLoading ? (
+            <View style={styles.gdprStateRow}>
+              <ActivityIndicator size="small" color={colors.textPrimary} />
+              <Text style={styles.gdprStateText}>Loading coach enquiries…</Text>
+            </View>
+          ) : enquiriesError ? (
+            <View style={styles.gdprStateRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.gdprErrorText}>{enquiriesError}</Text>
+              </View>
+              <TouchableOpacity style={styles.retryBtn} activeOpacity={0.8} onPress={loadEnquiries}>
+                <RotateCcw size={13} color={colors.textPrimary} strokeWidth={2} />
+                <Text style={styles.retryBtnText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : enquiries.length === 0 ? (
             <Text style={styles.emptyRow}>No enquiries yet.</Text>
           ) : enquiries.map((e, i, arr) => (
             <View key={e.id} style={[styles.listRow, i < arr.length - 1 && styles.divider]}>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   TrendingUp, Percent, HandCoins, RotateCcw, Sparkles, Receipt,
@@ -89,6 +89,10 @@ export default function FinancePortalScreen({ navigation }) {
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 40 }} />
+        ) : (
+        <>
         {!!loadError && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{loadError}</Text>
@@ -180,6 +184,8 @@ export default function FinancePortalScreen({ navigation }) {
             />
           </View>
         </Card>
+        </>
+        )}
 
         <View style={{ marginTop: spacing.xl }}>
           <PartnerTieringAdmin />
