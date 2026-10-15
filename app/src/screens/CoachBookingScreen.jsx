@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { User, CalendarDays, Clock, CheckCircle2 } from 'lucide-react-native'
+import { User, CalendarDays, Clock, CheckCircle2, Wallet } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
+import CoachCheckoutModal from '../components/elevation/CoachCheckoutModal'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
@@ -15,6 +16,7 @@ import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
 import { coachSlug } from './ElevationScreen'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { getCoachPricingShape, formatEuro } from '../lib/coachPricing'
 
 // ── Book a Coach ─────────────────────────────────────────────────────────────
 // A dedicated pick-date -> pick-time -> confirm flow, reachable from a
@@ -25,6 +27,19 @@ import { useSafeGoBack } from '../hooks/useSafeGoBack'
 // writes an actual row to coach_bookings, which the coach (if they're a
 // registered platform user) and Operations/Founder both see and can action,
 // exactly like the existing coach_enquiries "quick message" path.
+//
+// Real payment (task #95's sibling, Elevation): coach pricing isn't a clean
+// fixed table like Foundation's 8 services (see lib/coachPricing.js's own
+// header for the three shapes it parses out of ElevationScreen's COACHES
+// array). For a coach with a `pricelist`, Step 3 below asks which item the
+// student is booking; for a coach with a parseable `from` price, that price
+// is shown directly. Either way, confirming opens Stripe Checkout
+// (CoachCheckoutModal) and the booking is only ever inserted as a real
+// 'requested' row once Stripe confirms the charge — same "pay before
+// confirmation" shape as Foundation's "pay before Handler review". A coach
+// priced `Available on request` (or an unparseable/free pricelist item) has
+// nothing to charge, so it keeps the original enquiry-only insert, no
+// payment step at all.
 
 const TIME_SLOTS = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM']
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -62,14 +77,22 @@ export default function CoachBookingScreen({ route, navigation }) {
   const { canAccess: hasProAccess, loading: proLoading } = useProAccess()
 
   const days = useMemo(() => buildUpcomingDays(10), [])
+  const pricing = useMemo(() => getCoachPricingShape(coach), [coach])
   const [selectedDay, setSelectedDay] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
+  const [selectedItem, setSelectedItem] = useState(null)
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
+  const checkoutRef = useRef(null)
+  // Holds the id of a 'pending_payment' coach_bookings row across a
+  // cancelled-and-retried checkout attempt, so retrying re-uses it instead
+  // of inserting a duplicate row for the same selection.
+  const pendingBookingIdRef = useRef(null)
 
-  const ready = !!(selectedDay && selectedTime)
+  const itemReady = pricing.kind !== 'pricelist' || !!selectedItem
+  const ready = !!(selectedDay && selectedTime && itemReady)
 
   if (proLoading) return null
 
@@ -103,18 +126,83 @@ export default function CoachBookingScreen({ route, navigation }) {
     setSending(true)
     setErrorMsg(null)
     try {
-      const { error } = await supabase.from('coach_bookings').insert({
-        user_id: user.id,
-        coach_slug: coachSlug(coach.id),
-        coach_name: coach.name,
-        slot_date: isoDate(selectedDay),
-        slot_label: selectedTime,
-        message: message.trim() || null,
-      })
-      if (error) throw error
+      // Enquiry-only coach ('Available on request', or no parseable price
+      // at all) — original flow, completely untouched: a plain request,
+      // no payment gate.
+      if (pricing.kind === 'enquiry') {
+        const { error } = await supabase.from('coach_bookings').insert({
+          user_id: user.id,
+          coach_slug: coachSlug(coach.id),
+          coach_name: coach.name,
+          slot_date: isoDate(selectedDay),
+          slot_label: selectedTime,
+          message: message.trim() || null,
+        })
+        if (error) throw error
+        setSent(true)
+        return
+      }
+
+      const amountCents = pricing.kind === 'pricelist' ? selectedItem.cents : pricing.cents
+      const itemLabel = pricing.kind === 'pricelist' ? selectedItem.label : null
+
+      if (!amountCents || amountCents <= 0) {
+        // A free pricelist item (e.g. "Initial consultation" — €0) —
+        // nothing to charge, so this books directly too, tagged with which
+        // free item was requested.
+        const { error } = await supabase.from('coach_bookings').insert({
+          user_id: user.id,
+          coach_slug: coachSlug(coach.id),
+          coach_name: coach.name,
+          slot_date: isoDate(selectedDay),
+          slot_label: selectedTime,
+          message: message.trim() || null,
+          pricelist_item: itemLabel,
+          amount_cents: 0,
+        })
+        if (error) throw error
+        setSent(true)
+        return
+      }
+
+      // Real money — insert (or re-use, on a retry) a held booking row,
+      // then gate on Stripe actually confirming the charge before it
+      // becomes a real 'requested' booking anyone sees — same "pay before
+      // confirmation" shape as Foundation's "pay before Handler review".
+      let bookingId = pendingBookingIdRef.current
+      if (!bookingId) {
+        const { data: booking, error: bookingErr } = await supabase
+          .from('coach_bookings')
+          .insert({
+            user_id: user.id,
+            coach_slug: coachSlug(coach.id),
+            coach_name: coach.name,
+            slot_date: isoDate(selectedDay),
+            slot_label: selectedTime,
+            message: message.trim() || null,
+            status: 'pending_payment',
+            pricelist_item: itemLabel,
+            amount_cents: amountCents,
+          })
+          .select('id')
+          .single()
+        if (bookingErr || !booking) throw bookingErr || new Error('Could not start your booking. Please try again.')
+        bookingId = booking.id
+        pendingBookingIdRef.current = bookingId
+      }
+
+      await checkoutRef.current.start({ bookingId, itemLabel })
+      pendingBookingIdRef.current = null
       setSent(true)
-    } catch {
-      setErrorMsg('Could not send your booking request. Please try again.')
+    } catch (err) {
+      // If payment was explicitly cancelled, free up the held booking row
+      // (the one RLS transition a student can make on it) so a retry with
+      // a different selection doesn't leave debris behind.
+      if (err?.message === 'Payment cancelled.' && pendingBookingIdRef.current) {
+        await supabase.from('coach_bookings').update({ status: 'cancelled' }).eq('id', pendingBookingIdRef.current)
+        pendingBookingIdRef.current = null
+      }
+      setErrorMsg(err?.message || 'Could not send your booking request. Please try again.')
     } finally {
       setSending(false)
     }
@@ -236,9 +324,50 @@ export default function CoachBookingScreen({ route, navigation }) {
             </>
           )}
 
-          {/* Step 3 — confirm */}
+          {/* Step 3 — what's being booked/paid for. Only shown for a coach
+              with a real chargeable price (see lib/coachPricing.js) — an
+              "Available on request" coach has nothing to pick here and
+              goes straight to the note/confirm step below, unchanged. */}
+          {pricing.kind === 'pricelist' && (
+            <>
+              <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
+                <Wallet size={14} color={colors.textPrimary} />
+                <Text style={styles.stepLabel}>3. Choose what you're booking</Text>
+              </View>
+              <Text style={styles.hintText}>Paid items are charged now to confirm the request; free items send straight away.</Text>
+              <View style={styles.pricelistWrap}>
+                {pricing.items.map(item => {
+                  const active = selectedItem?.label === item.label
+                  return (
+                    <TouchableOpacity
+                      key={item.label}
+                      style={[styles.pricelistRow, active && styles.pricelistRowActive]}
+                      activeOpacity={0.85}
+                      onPress={() => setSelectedItem(item)}
+                    >
+                      <Text style={[styles.pricelistLabel, active && styles.pricelistTextActive]}>{item.label}</Text>
+                      <Text style={[styles.pricelistPrice, active && styles.pricelistTextActive]}>
+                        {item.chargeable ? item.priceLabel : (item.cents === 0 ? 'Free' : item.priceLabel || 'Ask')}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            </>
+          )}
+
+          {pricing.kind === 'flat' && (
+            <View style={styles.flatPriceCard}>
+              <Wallet size={14} color={colors.textPrimary} />
+              <Text style={styles.flatPriceText}>
+                This session is <Text style={styles.summaryStrong}>{formatEuro(pricing.cents)}</Text> — you'll pay when you confirm below.
+              </Text>
+            </View>
+          )}
+
+          {/* Step 4 — confirm */}
           <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
-            <Text style={styles.stepLabel}>3. Add a note (optional) and confirm</Text>
+            <Text style={styles.stepLabel}>{pricing.kind === 'pricelist' ? '4' : '3'}. Add a note (optional) and confirm</Text>
           </View>
           <TextInput
             style={styles.input}
@@ -257,7 +386,17 @@ export default function CoachBookingScreen({ route, navigation }) {
                 Requesting <Text style={styles.summaryStrong}>{selectedTime}</Text> on{' '}
                 <Text style={styles.summaryStrong}>
                   {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })}
-                </Text>{' '}with {coach.name}.
+                </Text>{' '}with {coach.name}
+                {pricing.kind === 'pricelist' && selectedItem && (
+                  <>{' '}for <Text style={styles.summaryStrong}>{selectedItem.label}</Text></>
+                )}
+                .
+                {pricing.kind === 'pricelist' && selectedItem?.chargeable && (
+                  <Text style={styles.summaryStrong}> Paying {selectedItem.priceLabel} now.</Text>
+                )}
+                {pricing.kind === 'flat' && (
+                  <Text style={styles.summaryStrong}> Paying {formatEuro(pricing.cents)} now.</Text>
+                )}
               </Text>
             </View>
           )}
@@ -272,14 +411,21 @@ export default function CoachBookingScreen({ route, navigation }) {
           >
             {sending
               ? <ActivityIndicator size="small" color={colors.accentFg} />
-              : <Text style={styles.confirmCtaText}>Send Booking Request</Text>
+              : <Text style={styles.confirmCtaText}>
+                  {(pricing.kind === 'flat' || (pricing.kind === 'pricelist' && selectedItem?.chargeable))
+                    ? 'Pay & Send Booking Request'
+                    : 'Send Booking Request'}
+                </Text>
             }
           </TouchableOpacity>
           <Text style={styles.disclaimer}>
-            This sends a request, it isn't confirmed until {coach.name} accepts.
+            {(pricing.kind === 'flat' || (pricing.kind === 'pricelist' && selectedItem?.chargeable))
+              ? `Confirming opens secure payment in your browser. Your request to ${coach.name} is sent once that's done — it isn't confirmed until they accept.`
+              : `This sends a request, it isn't confirmed until ${coach.name} accepts.`}
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
+      <CoachCheckoutModal ref={checkoutRef} />
     </View>
   )
 }
@@ -344,6 +490,26 @@ function __gs_styles(colors) {
     fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
     ...shadows.card,
   },
+
+  pricelistWrap: { gap: 8 },
+  pricelistRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: colors.surface, borderRadius: radius.card,
+    borderWidth: 1.5, borderColor: 'transparent',
+    paddingHorizontal: 14, paddingVertical: 12, ...shadows.card,
+  },
+  pricelistRowActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  pricelistLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, flex: 1, paddingRight: 10 },
+  pricelistPrice: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+  pricelistTextActive: { color: colors.accentFg },
+
+  flatPriceCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 9,
+    backgroundColor: colors.surface, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 14, ...shadows.card,
+  },
+  flatPriceText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, flex: 1, lineHeight: 19 },
 
   summaryCard: {
     backgroundColor: 'rgba(201,162,75,0.10)', borderRadius: 8,
