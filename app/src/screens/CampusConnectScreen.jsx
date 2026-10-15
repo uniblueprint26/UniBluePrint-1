@@ -4,7 +4,7 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, Plus } from 'lucide-react-native'
+import { Search, Plus, Compass, X } from 'lucide-react-native'
 
 import SectionHeader from '../components/ui/SectionHeader'
 import ScreenHeader from '../components/ui/ScreenHeader'
@@ -17,6 +17,8 @@ import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
+import { useUserType } from '../hooks/useUserType'
+import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
 
 // ─── Board showcase (14 boards, one consistent card treatment) ─────────────
 // Restyled to match Course Connect's hub layout: one full-width FeatureCard
@@ -230,6 +232,20 @@ export default function CampusConnectScreen({ navigation }) {
   const institutionShort = user?.user_metadata?.institution_short
   const [search, setSearch] = useState('')
 
+  // ── Leaving Cert nudge toward Course Connect ────────────────────────────
+  // Desmond's call: Campus Connect stays open and unfiltered for every
+  // user_type (no screen branches by user_type to gate/hide content, and
+  // this shouldn't be the first) — clubs, reviews, accommodation etc. all
+  // stay fully visible to a Leaving Cert student who taps in. This is just
+  // a light, dismissible pointer toward Course Connect, which is actually
+  // built for where a pre-CAO-offer 5th/6th year is at (see its
+  // PATH_CONTENT[USER_TYPE_LEAVING_CERT] banner copy for the matching
+  // tone). Session-only dismiss via local state is deliberate — it's a
+  // skippable nudge, not a flag worth persisting server-side.
+  const { userType } = useUserType()
+  const [nudgeDismissed, setNudgeDismissed] = useState(false)
+  const showCourseConnectNudge = userType === USER_TYPE_LEAVING_CERT && !nudgeDismissed
+
   // ── Post to Board picker ────────────────────────────────────────────────────
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -291,6 +307,39 @@ export default function CampusConnectScreen({ navigation }) {
         </ScreenHeader>
 
         <View style={styles.content}>
+
+          {/* ── Leaving Cert nudge — additive only, see hook comment above.
+              Everything below (search, all 14 boards, posting) stays exactly
+              as it is for every other user_type, including Leaving Cert. ── */}
+          {showCourseConnectNudge && (
+            <TouchableOpacity
+              style={styles.nudgeBanner}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('CourseConnect')}
+              accessibilityRole="button"
+              accessibilityLabel="Haven't picked a college yet? Open Course Connect"
+            >
+              <View style={styles.nudgeIcon}>
+                <Compass size={15} color={colors.textPrimary} strokeWidth={2} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nudgeTitle}>HAVEN'T PICKED A COLLEGE YET?</Text>
+                <Text style={styles.nudgeText}>
+                  Course Connect is built for exactly where you are — CAO courses, not clubs and accommodation.
+                </Text>
+                <Text style={styles.nudgeLink}>Open Course Connect →</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.nudgeClose}
+                onPress={(e) => { e.stopPropagation?.(); setNudgeDismissed(true) }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel="Dismiss"
+              >
+                <X size={14} color={colors.muted} strokeWidth={2} />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          )}
 
           {/* Search — filters the board showcase below by name or topic */}
           <View style={styles.searchWrap}>
@@ -366,6 +415,25 @@ function __gs_styles(colors) {
   scrollView: { flex: 1 },
   scroll:  {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
+
+  // Leaving Cert → Course Connect nudge (dismissible, matches
+  // MockContentBanner's card treatment: tinted surface, rounded, bordered)
+  nudgeBanner: {
+    backgroundColor: '#EEF2FF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(30,58,95,0.1)',
+    marginBottom: spacing.md,
+  },
+  nudgeIcon: { marginTop: 1 },
+  nudgeTitle: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.6 },
+  nudgeText: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textPrimary, marginTop: 3, lineHeight: 18 },
+  nudgeLink: { fontFamily: fonts.sansMedium, fontSize: 11.5, color: colors.navy, marginTop: 6 },
+  nudgeClose: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 
   // Search
   searchWrap: {
