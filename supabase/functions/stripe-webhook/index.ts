@@ -19,12 +19,19 @@
 //   https://<project-ref>.supabase.co/functions/v1/stripe-webhook
 // subscribed to: checkout.session.completed, checkout.session.expired,
 // customer.subscription.updated, customer.subscription.deleted,
-// invoice.payment_failed
+// invoice.payment_failed, account.updated
 // (checkout.session.expired is new as of task #95 — needed so an
 // abandoned Foundation checkout doesn't leave its foundation_payments row
 // stuck on 'pending' forever. This needs an actual Stripe dashboard
 // config change outside this codebase — see task #95's report. Also now
 // needed for coach_payments, same reason.)
+//
+// account.updated is new as of the Stripe Connect coach-payout work
+// (20261015150039) and needs its OWN manual Dashboard step beyond just
+// adding it to this list: the webhook endpoint must also have "Listen to
+// events on Connected accounts" enabled, since account.updated fires on a
+// connected account (a coach's Express account), not the platform account
+// itself. See handleConnectAccountUpdated's own comment below.
 //
 // Writes to public.subscriptions (tier/status/current_period_end/
 // stripe_customer_id/stripe_subscription_id), not profiles — that's the
@@ -119,7 +126,13 @@ async function markFoundationPaymentFailed(paymentId: string) {
 // same as foundation_payment_id above — already known and unique, no
 // ambiguity to resolve.
 async function markCoachPaymentPaid(paymentId: string, bookingId: string | undefined, paymentIntentId: string | null) {
-  const { error } = await supabase
+  // .select() on the UPDATE: returns the row only when the update actually
+  // matched (first time pending -> paid). A retried webhook delivery for an
+  // already-paid payment matches zero rows, so `updatedPayment` comes back
+  // null and the Connect payout attempt below is correctly skipped — this
+  // is what makes attemptCoachPayout() idempotent against Stripe's own
+  // at-least-once delivery guarantee, with no separate dedupe table needed.
+  const { data: updatedPayment, error } = await supabase
     .from('coach_payments')
     .update({
       status: 'paid',
@@ -129,18 +142,182 @@ async function markCoachPaymentPaid(paymentId: string, bookingId: string | undef
     })
     .eq('id', paymentId)
     .eq('status', 'pending') // don't resurrect a row already marked failed/canceled
+    .select('id, coach_slug, amount_cents')
+    .maybeSingle()
   if (error) console.error('[stripe-webhook] could not mark coach_payments paid', paymentId, error)
 
   if (!bookingId) {
     console.error('[stripe-webhook] coach payment completed with no booking_id in metadata', paymentId)
-    return
+  } else {
+    const { error: bookingErr } = await supabase
+      .from('coach_bookings')
+      .update({ status: 'requested', paid: true })
+      .eq('id', bookingId)
+      .eq('status', 'pending_payment') // don't resurrect a booking already cancelled
+    if (bookingErr) console.error('[stripe-webhook] could not flip coach_bookings to requested', bookingId, bookingErr)
   }
-  const { error: bookingErr } = await supabase
-    .from('coach_bookings')
-    .update({ status: 'requested', paid: true })
-    .eq('id', bookingId)
-    .eq('status', 'pending_payment') // don't resurrect a booking already cancelled
-  if (bookingErr) console.error('[stripe-webhook] could not flip coach_bookings to requested', bookingId, bookingErr)
+
+  // Stripe Connect automated coach payout (20261015150039) — only ever
+  // attempted the first time this exact payment flips pending -> paid (see
+  // the .select()/maybeSingle() comment above).
+  if (updatedPayment) {
+    await attemptCoachPayout(updatedPayment.id, updatedPayment.coach_slug, updatedPayment.amount_cents)
+  }
+}
+
+// Computes the coach's share via the SAME commission helper
+// get_my_coach_earnings() uses (public._coach_commission_for — never a
+// second, possibly-drifted copy of that CASE logic) and, only when a real
+// commission split is resolvable AND the coach has a verified Stripe
+// Connect account, creates an actual Stripe Transfer for that share. Every
+// outcome — transferred, or correctly not attempted, or attempted and
+// rejected by Stripe — is recorded exactly once in coach_payment_transfers
+// (coach_payment_id is unique on that table), so this is also idempotent
+// against being called twice for the same payment by accident.
+async function attemptCoachPayout(coachPaymentId: string, coachSlug: string, grossAmountCents: number) {
+  try {
+    const { data: coachProfile, error: profileErr } = await supabase
+      .from('coach_profiles')
+      .select('id')
+      .eq('coach_slug', coachSlug)
+      .maybeSingle()
+    if (profileErr || !coachProfile) {
+      console.error('[stripe-webhook] attemptCoachPayout: no coach_profiles row for', coachSlug, profileErr)
+      await recordPayoutAttempt({
+        coach_payment_id: coachPaymentId, coach_profile_id: null, coach_slug: coachSlug,
+        gross_amount_cents: grossAmountCents, status: 'pending', pending_reason: 'pending_tier_assignment',
+      })
+      return
+    }
+
+    // Service-role call to the internal helper — _coach_commission_for is
+    // deliberately NOT granted to anon/authenticated (see its own migration
+    // comment), only to service_role, which is exactly what this client is.
+    const { data: commissionRows, error: commissionErr } = await supabase
+      .rpc('_coach_commission_for', { _coach_profile_id: coachProfile.id })
+    if (commissionErr) {
+      console.error('[stripe-webhook] attemptCoachPayout: commission RPC failed', coachPaymentId, commissionErr)
+      await recordPayoutAttempt({
+        coach_payment_id: coachPaymentId, coach_profile_id: coachProfile.id, coach_slug: coachSlug,
+        gross_amount_cents: grossAmountCents, status: 'failed', error_message: `commission lookup failed: ${commissionErr.message}`,
+      })
+      return
+    }
+
+    const commission = commissionRows?.[0]
+    if (!commission || commission.pending_tier_assignment || commission.commission_pct == null) {
+      // Signature / unassigned tier / unset payment_option / Option B with
+      // no logged rate yet — same "never guessed" case
+      // get_my_coach_earnings() already shows the coach as a gross-only
+      // figure. Nothing to transfer; Finance/Founder resolve this manually
+      // once the tier/payment_option is actually assigned.
+      await recordPayoutAttempt({
+        coach_payment_id: coachPaymentId, coach_profile_id: coachProfile.id, coach_slug: coachSlug,
+        gross_amount_cents: grossAmountCents, status: 'pending', pending_reason: 'pending_tier_assignment',
+      })
+      return
+    }
+
+    const commissionPct = Number(commission.commission_pct)
+    const coachShareCents = Math.round(grossAmountCents * (100 - commissionPct) / 100)
+
+    const { data: connectAccount, error: connectErr } = await supabase
+      .from('coach_connect_accounts')
+      .select('stripe_account_id, charges_enabled, payouts_enabled')
+      .eq('coach_profile_id', coachProfile.id)
+      .maybeSingle()
+    if (connectErr) {
+      console.error('[stripe-webhook] attemptCoachPayout: connect account lookup failed', coachPaymentId, connectErr)
+    }
+
+    if (!connectAccount) {
+      await recordPayoutAttempt({
+        coach_payment_id: coachPaymentId, coach_profile_id: coachProfile.id, coach_slug: coachSlug,
+        gross_amount_cents: grossAmountCents, commission_pct: commissionPct, commission_source: commission.commission_source,
+        coach_share_cents: coachShareCents, status: 'pending', pending_reason: 'no_connect_account',
+      })
+      return
+    }
+    if (!connectAccount.charges_enabled || !connectAccount.payouts_enabled) {
+      await recordPayoutAttempt({
+        coach_payment_id: coachPaymentId, coach_profile_id: coachProfile.id, coach_slug: coachSlug,
+        gross_amount_cents: grossAmountCents, commission_pct: commissionPct, commission_source: commission.commission_source,
+        coach_share_cents: coachShareCents, stripe_connect_account_id: connectAccount.stripe_account_id,
+        status: 'pending', pending_reason: 'connect_account_not_verified',
+      })
+      return
+    }
+
+    let transfer
+    try {
+      transfer = await stripe.transfers.create({
+        amount: coachShareCents,
+        currency: 'eur',
+        destination: connectAccount.stripe_account_id,
+        transfer_group: `coach_payment_${coachPaymentId}`,
+        metadata: { coach_payment_id: coachPaymentId, coach_slug: coachSlug },
+      })
+    } catch (stripeErr) {
+      console.error('[stripe-webhook] attemptCoachPayout: stripe.transfers.create failed', coachPaymentId, stripeErr)
+      await recordPayoutAttempt({
+        coach_payment_id: coachPaymentId, coach_profile_id: coachProfile.id, coach_slug: coachSlug,
+        gross_amount_cents: grossAmountCents, commission_pct: commissionPct, commission_source: commission.commission_source,
+        coach_share_cents: coachShareCents, stripe_connect_account_id: connectAccount.stripe_account_id,
+        status: 'failed', error_message: stripeErr instanceof Error ? stripeErr.message : 'Stripe transfer failed.',
+      })
+      return
+    }
+
+    await recordPayoutAttempt({
+      coach_payment_id: coachPaymentId, coach_profile_id: coachProfile.id, coach_slug: coachSlug,
+      gross_amount_cents: grossAmountCents, commission_pct: commissionPct, commission_source: commission.commission_source,
+      coach_share_cents: coachShareCents, stripe_connect_account_id: connectAccount.stripe_account_id,
+      stripe_transfer_id: transfer.id, status: 'transferred', transferred_at: new Date().toISOString(),
+    })
+  } catch (err) {
+    console.error('[stripe-webhook] attemptCoachPayout unexpected error', coachPaymentId, err)
+    await recordPayoutAttempt({
+      coach_payment_id: coachPaymentId, coach_profile_id: null, coach_slug: coachSlug,
+      gross_amount_cents: grossAmountCents, status: 'failed',
+      error_message: err instanceof Error ? err.message : 'Unknown error',
+    })
+  }
+}
+
+async function recordPayoutAttempt(row: Record<string, unknown>) {
+  // coach_payment_id is unique on this table — if a duplicate call somehow
+  // slipped past markCoachPaymentPaid's own pending->paid guard, this insert
+  // simply fails loudly rather than ever recording two attempts for the
+  // same payment.
+  const { error } = await supabase.from('coach_payment_transfers').insert(row)
+  if (error) console.error('[stripe-webhook] could not record coach_payment_transfers row', row.coach_payment_id, error)
+}
+
+// Keeps coach_connect_accounts in sync with Stripe's own view of a coach's
+// Express account — fires on every change Stripe makes to that account
+// object (onboarding step completed, a capability enabled, a requirement
+// added, etc.), not just the final "fully verified" moment.
+//
+// IMPORTANT — needs a Stripe Dashboard config step this codebase cannot do
+// for itself (same class of manual step this file's header already flags
+// for checkout.session.expired): the webhook endpoint must have "Listen to
+// events on Connected accounts" turned on, AND account.updated added to its
+// subscribed event list. Without that, Stripe never sends this event here
+// at all and coach_connect_accounts only ever updates via this function's
+// own on-demand stripe.accounts.retrieve() calls (create-coach-connect-
+// account, on every "continue onboarding" click) — which still works, just
+// not instantly the moment Stripe itself finishes verifying the coach.
+async function handleConnectAccountUpdated(account: Stripe.Account) {
+  const { error } = await supabase
+    .from('coach_connect_accounts')
+    .update({
+      details_submitted: !!account.details_submitted,
+      charges_enabled: !!account.charges_enabled,
+      payouts_enabled: !!account.payouts_enabled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('stripe_account_id', account.id)
+  if (error) console.error('[stripe-webhook] could not update coach_connect_accounts from account.updated', account.id, error)
 }
 
 async function markCoachPaymentFailed(paymentId: string) {
@@ -337,6 +514,16 @@ Deno.serve(async req => {
           status: 'canceled',
           updated_at: new Date().toISOString(),
         }).eq('user_id', userId)
+        break
+      }
+
+      case 'account.updated': {
+        // Stripe Connect Express account status changed (onboarding step,
+        // capability enabled/disabled, new requirement, etc.) — see
+        // handleConnectAccountUpdated's own comment for the Dashboard config
+        // this needs to actually arrive here.
+        const account = event.data.object as Stripe.Account
+        await handleConnectAccountUpdated(account)
         break
       }
 

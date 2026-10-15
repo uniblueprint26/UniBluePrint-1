@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   TrendingUp, Percent, HandCoins, RotateCcw, Sparkles, Receipt,
-  GraduationCap, UserCheck, Megaphone,
+  GraduationCap, UserCheck, Megaphone, CreditCard, AlertTriangle,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -24,6 +24,15 @@ function formatCents(cents) {
   return `€${formatNumber(Math.abs(cents) / 100, { decimals: 2 })}`
 }
 
+// Human labels for coach_payment_transfers.pending_reason — see
+// 20261015150039_coach_stripe_connect.sql's own column comment for what
+// each value means.
+const PENDING_REASON_LABELS = {
+  pending_tier_assignment: 'Awaiting Partner Tier assignment',
+  no_connect_account: 'Coach hasn\'t started Stripe onboarding',
+  connect_account_not_verified: 'Stripe onboarding not yet verified',
+}
+
 export default function FinancePortalScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
@@ -36,6 +45,8 @@ export default function FinancePortalScreen({ navigation }) {
   const [oneTimeRevenue, setOneTimeRevenue] = useState(null)
   const [commissions, setCommissions] = useState(null)
   const [payouts, setPayouts] = useState(null)
+  const [coachPayouts, setCoachPayouts] = useState(null)
+  const [pendingCoachPayouts, setPendingCoachPayouts] = useState([])
 
   function backToMyBlueprint() {
     setPortalMode('personal')
@@ -53,25 +64,36 @@ export default function FinancePortalScreen({ navigation }) {
         { data: oneTimeRows, error: oneTimeErr },
         { data: commissionRows, error: commissionErr },
         { data: payoutRows, error: payoutErr },
+        { data: coachPayoutRows, error: coachPayoutErr },
+        { data: pendingCoachPayoutRows, error: pendingCoachPayoutErr },
       ] = await Promise.all([
-        // All four RPCs are security definer and re-check finance/founder
+        // All RPCs are security definer and re-check finance/founder
         // server-side (migration 20260829140000) — this screen only ever
         // reaches a finance (or finance+founder) account to begin with, but
         // the gate is enforced there regardless of who calls it.
         supabase.rpc('get_finance_revenue_snapshot'),
         // Real, actually-collected one-time Stripe revenue (foundation,
-        // coaching, board listings) — a separate RPC (20261015170000) from
+        // coaching, board listings) — a separate RPC (20261015150614) from
         // the subscription-based snapshot above, not blended into its
         // modelled MRR/ARR. Same default 'month' range as the call above.
         supabase.rpc('get_finance_one_time_payments_summary'),
         supabase.rpc('get_finance_commission_summary'),
         supabase.rpc('get_finance_partner_payout_summary'),
+        // Coach Stripe Connect automated payouts (20261015150039) — separate
+        // from the Lifestyle Blueprint PARTNER PAYOUTS above (that table is
+        // partners-only; coach_payment_transfers is a new, coach-only table).
+        supabase.rpc('get_finance_coach_payout_summary'),
+        supabase.rpc('get_finance_pending_coach_payouts'),
       ])
-      if (revenueErr || oneTimeErr || commissionErr || payoutErr) throw revenueErr || oneTimeErr || commissionErr || payoutErr
+      if (revenueErr || oneTimeErr || commissionErr || payoutErr || coachPayoutErr || pendingCoachPayoutErr) {
+        throw revenueErr || oneTimeErr || commissionErr || payoutErr || coachPayoutErr || pendingCoachPayoutErr
+      }
       setRevenue(revenueRows?.[0] || null)
       setOneTimeRevenue(oneTimeRows?.[0] || null)
       setCommissions(commissionRows?.[0] || null)
       setPayouts(payoutRows?.[0] || null)
+      setCoachPayouts(coachPayoutRows?.[0] || null)
+      setPendingCoachPayouts(pendingCoachPayoutRows || [])
     } catch {
       // Without this, a failed load here left every tile showing "—" with
       // no indication anything had actually gone wrong.
@@ -233,6 +255,55 @@ export default function FinancePortalScreen({ navigation }) {
             />
           </View>
         </Card>
+
+        {/* Coach Stripe Connect payouts — automated transfers to coaches
+            (20261015150039), separate from the Lifestyle Blueprint partner
+            payouts above (different table, different entity). "Pending"
+            here means an actual payment Stripe already collected from a
+            student but that could NOT yet be transferred to the coach —
+            the list below is what Finance/Founder resolve manually (assign
+            a Partner Tier, or prompt the coach to finish Stripe
+            onboarding). Nothing here is guessed or retried automatically. */}
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <CreditCard size={14} color={colors.textPrimary} />
+          <Text style={styles.sectionEyebrow}>COACH PAYOUTS (STRIPE CONNECT)</Text>
+        </View>
+        <Card style={styles.summaryCard}>
+          <View style={styles.summaryRow}>
+            <StatTile
+              icon={AlertTriangle} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+              value={coachPayouts ? formatCents(coachPayouts.pending_amount_cents) : '—'}
+              label={`Pending (${formatNumber(coachPayouts?.pending_count ?? 0)})`} border
+            />
+            <StatTile
+              icon={Receipt} iconBg="#F0FDF4" iconColor={colors.success}
+              value={coachPayouts ? formatCents(coachPayouts.transferred_amount_cents) : '—'}
+              label={`Transferred (${formatNumber(coachPayouts?.transferred_count ?? 0)})`}
+            />
+          </View>
+          {!!coachPayouts?.failed_count && (
+            <View style={styles.footerRow}>
+              <Text style={[styles.footerText, { color: colors.destructive }]}>
+                {formatNumber(coachPayouts.failed_count)} transfer attempt{coachPayouts.failed_count === 1 ? '' : 's'} failed at Stripe — check function logs.
+              </Text>
+            </View>
+          )}
+        </Card>
+        {pendingCoachPayouts.length > 0 && (
+          <View style={styles.pendingPayoutList}>
+            {pendingCoachPayouts.map(row => (
+              <View key={row.id} style={styles.pendingPayoutRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.pendingPayoutCoach}>{row.coach_slug}</Text>
+                  <Text style={styles.pendingPayoutReason}>
+                    {PENDING_REASON_LABELS[row.pending_reason] || row.pending_reason}
+                  </Text>
+                </View>
+                <Text style={styles.pendingPayoutAmount}>{formatCents(row.gross_amount_cents)}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         </>
         )}
 
@@ -275,5 +346,15 @@ function __gs_styles(colors) {
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)',
   },
   retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
+
+  pendingPayoutList: { marginTop: 10, gap: 8 },
+  pendingPayoutRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+    backgroundColor: colors.surface, borderRadius: radius.button, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    paddingVertical: 10, paddingHorizontal: 13,
+  },
+  pendingPayoutCoach: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary },
+  pendingPayoutReason: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 2 },
+  pendingPayoutAmount: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, flexShrink: 0 },
   })
 }

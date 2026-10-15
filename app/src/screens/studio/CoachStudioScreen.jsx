@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Switch } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Switch, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent, CreditCard,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -41,6 +41,13 @@ import { supabase } from '../../lib/supabase'
 //    logged negotiated rate) are assigned; otherwise the section shows the
 //    gross figure only and says plainly that the split is pending tier
 //    assignment, rather than guessing one. See useCoachEarnings() below.
+//
+//  - Payout account: as of 20261015150039, a resolvable share is also
+//    AUTOMATICALLY transferred via Stripe Connect once the coach's Express
+//    account is verified — see PayoutAccountSection below, the self-service
+//    onboarding surface for that Connect account. This screen still has no
+//    transfer-history view (coach_payment_transfers is readable by the coach
+//    but nothing here renders it yet) — flagged as a follow-up, not guessed.
 //
 // Specialisms are read from the coach's own coach_profiles.specialisation —
 // the only specialism field the schema has today (a single free-text value,
@@ -538,6 +545,144 @@ function formatEuros(cents) {
   return `€${(cents / 100).toFixed(2)}`
 }
 
+// ── Payout Account (Stripe Connect) ──────────────────────────────────────
+// Self-service onboarding for the coach's Stripe Express Connect account —
+// the piece that makes the Earnings section's "your share" figure above an
+// actual bank transfer rather than just a computed number (20261015150039).
+// Same unlinked-profile guard as the other self-service sections — a coach
+// without a linked coach_profiles row has nothing to attach a Connect
+// account to yet. Status (not started / pending / verified) is read
+// straight from coach_connect_accounts (RLS: a coach reads only their own
+// row) — never inferred from anything else, since Stripe is the only real
+// source of truth for whether charges_enabled/payouts_enabled are true.
+function PayoutAccountSection({ userId }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const [loading, setLoading]     = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [unlinked, setUnlinked]   = useState(false)
+  const [connectStatus, setConnectStatus] = useState(null) // null = not started, else { charges_enabled, payouts_enabled }
+  const [starting, setStarting]   = useState(false)
+  const [startError, setStartError] = useState(null)
+
+  function load() {
+    if (!userId) return
+    let cancelled = false
+    setLoading(true)
+    setLoadError(false)
+    setStartError(null)
+
+    async function run() {
+      const { data: profile, error: profileErr } = await supabase
+        .from('coach_profiles')
+        .select('id, coach_slug')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (cancelled) return
+      if (profileErr) { setLoadError(true); setLoading(false); return }
+      if (!profile?.coach_slug) { setUnlinked(true); setLoading(false); return }
+
+      const { data: connect, error: connectErr } = await supabase
+        .from('coach_connect_accounts')
+        .select('charges_enabled, payouts_enabled')
+        .eq('coach_profile_id', profile.id)
+        .maybeSingle()
+      if (cancelled) return
+      if (connectErr) { setLoadError(true); setLoading(false); return }
+      setConnectStatus(connect || null)
+      setLoading(false)
+    }
+
+    run().catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }
+  useEffect(load, [userId])
+
+  const verified = !!(connectStatus?.charges_enabled && connectStatus?.payouts_enabled)
+  const started  = !!connectStatus
+
+  async function startOnboarding() {
+    setStarting(true)
+    setStartError(null)
+    try {
+      const { data, error } = await supabase.functions.invoke('create-coach-connect-account')
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || 'Could not start payout onboarding. Please try again.')
+      }
+      if (data.already_verified) {
+        setConnectStatus({ charges_enabled: true, payouts_enabled: true })
+        return
+      }
+      if (data.url) {
+        await Linking.openURL(data.url)
+        // Re-check once the coach comes back from Stripe's hosted flow —
+        // there's no in-app callback, so a plain reload on return is the
+        // simplest honest refresh (same "pull to refresh" shape every other
+        // section on this screen already relies on for async state).
+        load()
+      }
+    } catch (err) {
+      setStartError(err?.message || 'Could not start payout onboarding. Please try again.')
+    } finally {
+      setStarting(false)
+    }
+  }
+
+  return (
+    <>
+      <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+        <CreditCard size={14} color={colors.textPrimary} />
+        <Text style={styles.sectionEyebrow}>PAYOUT ACCOUNT</Text>
+      </View>
+      <Card style={styles.editCard}>
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.textPrimary} />
+        ) : loadError ? (
+          <Text style={styles.editUnlinkedText}>Couldn't load your payout account status right now. Pull to refresh or check back shortly.</Text>
+        ) : unlinked ? (
+          <Text style={styles.editUnlinkedText}>
+            Your coach profile hasn't been linked yet. Contact Operations first — once that's done you can
+            set up automatic payouts here.
+          </Text>
+        ) : (
+          <>
+            <View style={styles.payoutStatusRow}>
+              <View style={[styles.payoutStatusDot, verified ? styles.payoutStatusDotVerified : started ? styles.payoutStatusDotPending : styles.payoutStatusDotNotStarted]} />
+              <Text style={styles.payoutStatusText}>
+                {verified ? 'Verified — payouts are active' : started ? 'Pending verification with Stripe' : 'Not started'}
+              </Text>
+            </View>
+            <Text style={styles.introCallIntro}>
+              {verified
+                ? 'Your Stripe payout account is verified. Your share of every new paid booking is transferred automatically — no further action needed.'
+                : started
+                ? 'You started Stripe onboarding but it isn\'t fully verified yet. Continue where you left off to finish bank/identity verification with Stripe.'
+                : 'Connect a bank account via Stripe so your share of each booking payment can be paid out to you automatically, as soon as it\'s collected.'}
+            </Text>
+            {!!startError && <Text style={styles.introCallError}>{startError}</Text>}
+            {!verified && (
+              <TouchableOpacity
+                style={[styles.editSaveBtn, starting && { opacity: 0.7 }]}
+                activeOpacity={0.85}
+                onPress={startOnboarding}
+                disabled={starting}
+              >
+                {starting
+                  ? <ActivityIndicator size="small" color={colors.accentFg} />
+                  : <>
+                      <CreditCard size={14} color={colors.accentFg} strokeWidth={2} />
+                      <Text style={styles.editSaveBtnText}>{started ? 'Continue Onboarding' : 'Set Up Payouts'}</Text>
+                    </>
+                }
+              </TouchableOpacity>
+            )}
+          </>
+        )}
+      </Card>
+    </>
+  )
+}
+
 export default function CoachStudioScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
@@ -684,9 +829,9 @@ export default function CoachStudioScreen({ navigation }) {
                     <Text style={styles.earningsShareValue}>{formatEuros(earnings.coach_share_cents)}</Text>
                   </View>
                   <Text style={styles.earningsNote}>
-                    This is a computed figure, not a transfer — payouts to coaches are still handled outside
-                    the app for now. It reflects every payment students have made for your sessions through
-                    UBP, at your current {Number(earnings.commission_pct).toFixed(0)}% platform commission.
+                    Once your Payout Account below is verified, your share of each new payment is sent to you
+                    automatically via Stripe — this figure reflects every payment students have made for your
+                    sessions through UBP, at your current {Number(earnings.commission_pct).toFixed(0)}% platform commission.
                   </Text>
                 </>
               )}
@@ -715,6 +860,9 @@ export default function CoachStudioScreen({ navigation }) {
 
         {/* Tier & Terms — read-only self-view */}
         <TierTermsSection userId={user?.id} />
+
+        {/* Payout Account — Stripe Connect onboarding (automated transfers) */}
+        <PayoutAccountSection userId={user?.id} />
 
         {/* Edit My Profile — self-serve bio + photo */}
         <EditProfileSection userId={user?.id} />
@@ -854,5 +1002,12 @@ function __gs_styles(colors) {
     fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   introCallError: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
+
+  payoutStatusRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
+  payoutStatusDot: { width: 8, height: 8, borderRadius: 4 },
+  payoutStatusDotVerified: { backgroundColor: '#15803D' },
+  payoutStatusDotPending: { backgroundColor: colors.goldDeep },
+  payoutStatusDotNotStarted: { backgroundColor: colors.muted },
+  payoutStatusText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
   })
 }
