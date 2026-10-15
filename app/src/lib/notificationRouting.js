@@ -28,6 +28,14 @@ export async function goToRelatedEntity(navigation, notif, userId) {
     case 'submission':
       navigation.navigate('MyOutputs')
       return
+    // Application Tracker's deadline reminder — see
+    // handle_application_deadline_reminders() in
+    // 20261015140000_job_application_tracker.sql. No extra lookup needed:
+    // the tracker's own list is the right destination for any application,
+    // not a single-item detail screen.
+    case 'job_application':
+      navigation.navigate('ApplicationTracker')
+      return
     case 'coach_booking': {
       const { data: booking } = await supabase
         .from('coach_bookings')

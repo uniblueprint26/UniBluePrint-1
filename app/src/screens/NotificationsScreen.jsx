@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import {
   Bell, FileText, Calendar, Star, Megaphone,
   Clock, AlertTriangle, Sun, CreditCard, Archive, Repeat,
   MessageCircle, MessagesSquare, UserCheck, Mail, CheckCheck,
-  TrendingUp,
+  TrendingUp, CalendarClock,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
@@ -45,6 +45,10 @@ function getTypeConfig(colors) {
   // — generated every Monday by generate_weekly_blueprint_reports(), see
   // 20261015130000_weekly_blueprint_report.sql.
   weekly_summary:     { Icon: TrendingUp,    color: colors.newBadge, bg: '#F5F3FF' },
+  // Application Tracker's deadline reminder (within 3 days, once per
+  // application) — see handle_application_deadline_reminders() in
+  // 20261015140000_job_application_tracker.sql.
+  job_application_reminder: { Icon: CalendarClock, color: colors.warning, bg: colors.warningBg },
   }
 }
 
@@ -195,7 +199,9 @@ export default function NotificationsScreen({ navigation }) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />}
       >
         {loading ? (
-          <Text style={styles.loadingText}>Loading notifications...</Text>
+          <View style={styles.loadingWrap}>
+            <ActivityIndicator color={colors.textPrimary} size="small" />
+          </View>
         ) : notifications.length > 0 ? (
           <Card style={styles.notifList}>
             {notifications.map((notif, i) => (
@@ -227,7 +233,7 @@ function __gs_styles(colors) {
   // fills the space below the fixed header on native.
   scrollView: { flex: 1 },
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
-  loadingText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 32 },
+  loadingWrap: { alignItems: 'center', paddingVertical: 48 },
 
   notifList: { padding: 0 },
   notifRow: {

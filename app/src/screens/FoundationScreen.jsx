@@ -299,6 +299,25 @@ export default function FoundationScreen({ navigation }) {
             <ChevronRight size={20} color={colors.accentFg} />
           </TouchableOpacity>
 
+          {/* Entry point for the Application Tracker — placed right beside
+              My Outputs' own entry points (Home dashboard, Career
+              Readiness) rather than as a new top-level nav section. Unlike
+              a generic to-do list, a tracked application can link straight
+              to the exact delivered document (CV, cover letter, etc.) from
+              My Outputs that was actually used for it. */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('ApplicationTracker')}
+            style={styles.evidenceBankBanner}
+            accessibilityRole="button"
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.evidenceBankTitle}>Application Tracker</Text>
+              <Text style={styles.evidenceBankSubtitle}>Track every application you've sent, link it to the document you used, and get a reminder before each deadline</Text>
+            </View>
+            <ChevronRight size={20} color={colors.textPrimary} />
+          </TouchableOpacity>
+
           <Text style={styles.servicesSubHeader}>Career Services</Text>
           <View style={{ gap: 16 }}>
             {orderedCareerServices.map(({ icon: Icon, title, tagline, description, priceStd, pricePrem, color }) => (
