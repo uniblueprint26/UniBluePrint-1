@@ -63,9 +63,8 @@ Standard pricing is identical for everyone — free tier and Pro. Pro subscriber
 | CV Optimisation | €20 | €36 | €30 |
 | LinkedIn Optimisation | €20 | €36 | €30 |
 | Cover Letter Assistance | €20 | €36 | €30 |
-| Application Form Assistance | From €20 | From €36 | From €30 |
-| Interview Prep — pack | €20 | €36 | €30 |
-| Interview Prep — pack + mock | €35 | €45 | €38 |
+| Application Form Assistance | €20 | €36 | €30 |
+| Interview Prep | €20 | €36 | €30 |
 | Job Search Support | €15 | €26 | €22 |
 | CAO Personal Statement | €20 | €36 | €30 |
 | Course Selection Guidance | €15 | €26 | €22 |
