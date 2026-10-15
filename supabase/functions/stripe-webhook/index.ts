@@ -250,13 +250,22 @@ async function attemptCoachPayout(coachPaymentId: string, coachSlug: string, gro
 
     let transfer
     try {
+      // Idempotency key (separate from the pending->paid DB guard above):
+      // derived deterministically from coach_payments.id so that if this
+      // process crashes or times out AFTER Stripe accepts the transfer but
+      // BEFORE recordPayoutAttempt()'s insert below completes, a retry (webhook
+      // redelivery re-entering this same pending->paid race, or any other
+      // re-invocation for this payment) hits Stripe with the same key and gets
+      // back the SAME transfer object rather than creating a second one — so
+      // the coach can never be paid twice for one coach_payments row even in
+      // that crash window, with no separate dedupe table needed on our side.
       transfer = await stripe.transfers.create({
         amount: coachShareCents,
         currency: 'eur',
         destination: connectAccount.stripe_account_id,
         transfer_group: `coach_payment_${coachPaymentId}`,
         metadata: { coach_payment_id: coachPaymentId, coach_slug: coachSlug },
-      })
+      }, { idempotencyKey: `coach-transfer-${coachPaymentId}` })
     } catch (stripeErr) {
       console.error('[stripe-webhook] attemptCoachPayout: stripe.transfers.create failed', coachPaymentId, stripeErr)
       await recordPayoutAttempt({
