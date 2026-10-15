@@ -13,8 +13,8 @@
  * const { userType, label, setUserType, types, loading } = useUserType()
  *
  * Return shape:
- *   userType   — one of 'student' | 'apprentice' | 'gap_year' | 'worker'
- *                (see constants/userTypes.js), never null/undefined —
+ *   userType   — one of 'student' | 'apprentice' | 'gap_year' | 'worker' |
+ *                'leaving_cert' (see constants/userTypes.js), never null/undefined —
  *                falls back to the default while loading or signed out.
  *   label      — display label for the current userType, e.g. "Apprentice".
  *   types      — the full USER_TYPES list ({ key, label, sub }[]) for

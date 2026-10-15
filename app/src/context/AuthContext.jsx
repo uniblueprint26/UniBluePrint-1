@@ -315,7 +315,7 @@ export function AuthProvider({ children }) {
   const portalRole = roles.find(r => PORTAL_ROLES.includes(r)) || null
 
   // The general user_type concept (Student / Apprentice / Gap Year /
-  // Worker) — falls back to the default while the profile is still loading
+  // Worker / 5th-6th Year Leaving Cert) — falls back to the default while the profile is still loading
   // or for a user with no profile row yet, so every consumer always gets a
   // valid key. Prefer the useUserType() hook over reading these directly.
   const userType = (profile?.user_type && isValidUserType(profile.user_type))
