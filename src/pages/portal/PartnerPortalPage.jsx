@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet-async'
 import {
-  ShieldCheck, Eye, Ticket, Percent, Lock, Mail, Tag, AlertCircle, Clock3,
+  ShieldCheck, Eye, Ticket, Percent, Lock, Mail, Tag, AlertCircle, Clock3, Award,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
@@ -37,6 +37,14 @@ const SERIF = "'DM Serif Display', serif"
 const SANS  = "'DM Sans', sans-serif"
 
 const EMPTY_STATS = { views: 0, claims: 0, uniqueEngagedUsers: 0 }
+
+// Option A/B labels — see docs/business/partner-tiering-framework.md. The
+// actual rent/commission figures per tier are locked numbers in that doc,
+// not something this page hardcodes or recomputes; it only ever renders
+// the stored payment_option and, for Option B, the partner's own stored
+// negotiated rate (never another partner's).
+const TIER_LABEL = { access: 'Access', plus: 'Plus', signature: 'Signature' }
+const PAYMENT_OPTION_LABEL = { fixed: 'Fixed (Option A)', negotiated: 'Negotiated (Option B)' }
 
 function fmt(n) {
   if (n === null || n === undefined) return '—'
@@ -181,6 +189,15 @@ export default function PartnerPortalPage() {
   const [stats, setStats] = useState(EMPTY_STATS)
   const [benchmark, setBenchmark] = useState(null)
 
+  // Separate state from the stats/deal load below — get_my_tier_status()
+  // (20261012104351_partner_tiering_framework) is a different RPC with its
+  // own independent shape, and a failure here must never hide the
+  // views/claims stats above. tierStatus is null until loaded, or stays
+  // null forever if the RPC errors or the partner has no row yet (both
+  // rendered as an honest "not yet classified" state, never a guess).
+  const [tierStatus, setTierStatus] = useState(null)
+  const [tierError, setTierError] = useState('')
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -239,6 +256,19 @@ export default function PartnerPortalPage() {
           : null)
       } else {
         setBenchmark(null)
+      }
+
+      // Tier/payment-option/founding-badge self-view. Deliberately not
+      // inside the Promise.all above or the try/catch's throw path -- a
+      // tier-status failure should show its own inline error, not blank
+      // the whole page that already loaded real stats successfully.
+      const { data: tierRows, error: tierErr } = await supabase.rpc('get_my_tier_status')
+      if (tierErr) {
+        setTierError('Could not load your tier and terms.')
+        setTierStatus(null)
+      } else {
+        setTierError('')
+        setTierStatus((tierRows && tierRows[0]) || null)
       }
     } catch (err) {
       setError(err.message || 'Could not load your Partner Portal data.')
@@ -344,6 +374,82 @@ export default function PartnerPortalPage() {
           caption={redemptionRatePct == null ? 'Not enough data yet -- shows once your listing has views.' : 'Share of views that turned into a claim.'}
         />
       </div>
+
+      {/* ── YOUR TIER & TERMS ─────────────────────────────────────────── */}
+      <div style={{ marginBottom: '10px' }}>
+        <SectionLabel>Your tier &amp; terms</SectionLabel>
+      </div>
+      <Card style={{ marginBottom: '24px' }}>
+        {tierError ? (
+          <p style={{ fontFamily: SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={15} /> {tierError}
+          </p>
+        ) : (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              {tierStatus?.tier ? (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  background: 'rgba(30,58,95,0.08)', color: NAVY, borderRadius: '20px',
+                  padding: '6px 14px', fontFamily: SANS, fontSize: '12px', fontWeight: '700',
+                }}>
+                  <Award size={13} /> {TIER_LABEL[tierStatus.tier] || tierStatus.tier}
+                </span>
+              ) : (
+                <span style={{ fontFamily: SANS, fontSize: '12.5px', color: MUTED, fontStyle: 'italic' }}>
+                  Not yet classified
+                </span>
+              )}
+              {!!tierStatus?.founding_badge && (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  background: 'rgba(245,158,11,0.12)', color: '#B45309', borderRadius: '20px',
+                  padding: '6px 14px', fontFamily: SANS, fontSize: '12px', fontWeight: '700',
+                }}>
+                  Founding Partner
+                </span>
+              )}
+            </div>
+
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(30,58,95,0.08)',
+            }}>
+              <span style={{ fontFamily: SANS, fontSize: '12.5px', color: GREY }}>Payment option</span>
+              <span style={{ fontFamily: SANS, fontSize: '12.5px', fontWeight: '700', color: NAVY }}>
+                {PAYMENT_OPTION_LABEL[tierStatus?.payment_option] || 'Not yet set'}
+              </span>
+            </div>
+
+            {tierStatus?.payment_option === 'negotiated' && (
+              <div style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '10px', background: '#FFFBEB' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Percent size={13} color="#B45309" />
+                  <span style={{ fontFamily: SANS, fontSize: '13px', fontWeight: '700', color: '#B45309' }}>
+                    {tierStatus?.negotiated_commission_pct != null
+                      ? `${tierStatus.negotiated_commission_pct}% commission`
+                      : 'Rate on file with Finance'}
+                  </span>
+                </div>
+                {!!tierStatus?.negotiated_rationale && (
+                  <p style={{ fontFamily: SANS, fontSize: '12px', color: NAVY, fontStyle: 'italic', marginTop: '6px', lineHeight: 1.5 }}>
+                    "{tierStatus.negotiated_rationale}"
+                  </p>
+                )}
+                {!!tierStatus?.negotiated_effective_from && (
+                  <p style={{ fontFamily: SANS, fontSize: '11px', color: MUTED, marginTop: '6px' }}>
+                    Effective from {new Date(tierStatus.negotiated_effective_from).toLocaleDateString('en-IE')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <p style={{ fontFamily: SANS, fontSize: '11px', color: MUTED, marginTop: '14px', lineHeight: 1.6 }}>
+              This shows your own tier and terms only — never another partner's. Questions about your tier or terms go to your Partnership Contact or Finance.
+            </p>
+          </>
+        )}
+      </Card>
 
       {/* ── VIEWS OVER TIME (no history table yet -- honest placeholder) ─ */}
       <div style={{ marginBottom: '24px' }}>
