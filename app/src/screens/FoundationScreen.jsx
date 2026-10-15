@@ -15,6 +15,8 @@ import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useUserType } from '../hooks/useUserType'
+import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
 // (a CV, a cover letter, etc.) — App Store 3.1.1 — so no price, "Order"
@@ -77,6 +79,10 @@ export const CAREER_SERVICES = [
     priceStd: '€10',
     pricePrem: '€15',
     color: '#F0F9FF',
+    // CAO-relevant for Leaving Cert users (CAO personal statement) — drives
+    // the Leaving-Cert-only reorder below, nothing else. See
+    // orderCareerServicesForUserType().
+    caoRelevant: true,
   },
   {
     icon: Award,
@@ -106,6 +112,20 @@ export const CAREER_SERVICES = [
     color: '#F0F9FF',
   },
 ]
+
+// Every service stays visible and tappable for every user type — this never
+// filters or hides anything, it only changes display order, and only for
+// Leaving Cert. Everyone else keeps CAREER_SERVICES' own order untouched.
+// A stable sort (one comparator, driven off each service's own
+// `caoRelevant` flag above) partitions caoRelevant services to the front
+// while preserving relative order within each group — so a new CAO-relevant
+// service only needs the flag set on it, not a parallel list to maintain.
+function orderCareerServicesForUserType(userType) {
+  if (userType !== USER_TYPE_LEAVING_CERT) return CAREER_SERVICES
+  return [...CAREER_SERVICES].sort(
+    (a, b) => (b.caoRelevant === true) - (a.caoRelevant === true)
+  )
+}
 
 // ─── Course Compass tools ─────────────────────────────────────────────────────
 
@@ -152,6 +172,11 @@ export default function FoundationScreen({ navigation }) {
   // automatically once the window ends.
   const { isWeekendWindow } = useWeekendDeliveryCopy()
   const safeGoBack = useSafeGoBack(navigation)
+  // CAO-relevant services (e.g. Personal Statement) lead the list for
+  // Leaving Cert users; every other user type sees CAREER_SERVICES' own
+  // order, unchanged. See orderCareerServicesForUserType() above.
+  const { userType } = useUserType()
+  const orderedCareerServices = orderCareerServicesForUserType(userType)
 
   return (
     <View style={styles.screen}>
@@ -276,7 +301,7 @@ export default function FoundationScreen({ navigation }) {
 
           <Text style={styles.servicesSubHeader}>Career Services</Text>
           <View style={{ gap: 16 }}>
-            {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, priceStd, pricePrem, color }) => (
+            {orderedCareerServices.map(({ icon: Icon, title, tagline, description, priceStd, pricePrem, color }) => (
               <TouchableOpacity
                 key={title}
                 activeOpacity={0.88}
