@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput,
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Users, Inbox, ShieldAlert, TrendingUp, Image as ImageIcon, X, Newspaper, ChevronRight,
-  Sparkles, Plus, Trash2, Clock, CheckCircle2,
+  Sparkles, Plus, Trash2, Clock, CheckCircle2, Receipt, ArrowRight,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -182,6 +182,7 @@ export default function FounderPortalScreen({ navigation }) {
   const [queue, setQueue]       = useState(null)
   const [gdprPending, setGdprPending] = useState(null)
   const [photoEntity, setPhotoEntity] = useState(null)
+  const [ticketLookupId, setTicketLookupId] = useState('')
 
   // ── Spotlight carousel curation ──────────────────────────────────────────
   const [featuredList, setFeaturedList]     = useState([])
@@ -256,6 +257,17 @@ export default function FounderPortalScreen({ navigation }) {
     // React Navigation v7's navigate() pushes rather than pops, which would
     // grow the stack on every switch; popTo returns to the existing HomeMain.
     navigation.popTo('HomeMain')
+  }
+
+  // See OperationsPortalScreen's identical lookup for why this exists —
+  // TicketDetailScreen already has the Refund action (foundation_refund_
+  // flow.sql) and Founder can now read any submission row there too (same
+  // migration), but there's no submissions browser anywhere in the app to
+  // find a ticket id from first.
+  function openTicketLookup() {
+    const id = ticketLookupId.trim()
+    if (!id) return
+    navigation.navigate('TicketDetail', { ticketId: id })
   }
 
   async function loadDashboard() {
@@ -370,6 +382,35 @@ export default function FounderPortalScreen({ navigation }) {
             <Text style={styles.urgencyText}>{formatNumber(queue?.amber_count ?? 0)} amber</Text>
             <View style={[styles.urgencyDot, { backgroundColor: '#16A34A' }]} />
             <Text style={styles.urgencyText}>{formatNumber(queue?.green_count ?? 0)} green</Text>
+          </View>
+        </Card>
+
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <Receipt size={14} color={colors.textPrimary} />
+          <Text style={styles.sectionEyebrow}>FOUNDATION PAYMENTS — OPEN A TICKET</Text>
+        </View>
+        <Card>
+          <Text style={styles.lookupHint}>
+            Paste a submission id to open its ticket — issue a refund from there (Refund action, under PAYMENT).
+          </Text>
+          <View style={styles.lookupRow}>
+            <TextInput
+              style={styles.lookupInput}
+              placeholder="Submission ID"
+              placeholderTextColor={colors.light}
+              value={ticketLookupId}
+              onChangeText={setTicketLookupId}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              style={[styles.lookupBtn, !ticketLookupId.trim() && { opacity: 0.5 }]}
+              activeOpacity={0.85}
+              onPress={openTicketLookup}
+              disabled={!ticketLookupId.trim()}
+            >
+              <ArrowRight size={16} color={colors.accentFg} />
+            </TouchableOpacity>
           </View>
         </Card>
 
@@ -568,6 +609,18 @@ function __gs_styles(colors) {
   emptyText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic' },
 
   queueCard: {},
+  lookupHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17, marginBottom: 10 },
+  lookupRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  lookupInput: {
+    flex: 1, backgroundColor: 'rgba(30,58,95,0.04)', borderRadius: radius.button,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    paddingHorizontal: 14, paddingVertical: 10,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary,
+  },
+  lookupBtn: {
+    width: 40, height: 40, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center',
+  },
   queueRow: { flexDirection: 'row', marginBottom: 14 },
   urgencyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   urgencyDot: { width: 8, height: 8, borderRadius: 4 },

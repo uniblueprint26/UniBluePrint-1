@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
-import { AlertCircle, Clock, Sparkles, FileText, Flag, CheckCircle2 } from 'lucide-react-native'
+import { AlertCircle, Clock, Sparkles, FileText, Flag, CheckCircle2, ShieldAlert, X } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -9,6 +9,7 @@ import ScreenHeader from '../../components/ui/ScreenHeader'
 import { FieldLabel, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { formatDocumentContent } from '../../lib/formatGeneratedDocument'
 import { ticketUrgency, getTicketDisplayName } from '../../hooks/useHandlerTickets'
@@ -44,6 +45,17 @@ import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 // the app called it from anywhere. This screen is that missing call site.
 // start_review() (claim_submission's other sibling) is wired in too, fired
 // once, quietly, the first time a Handler opens an 'assigned' ticket here.
+//
+// Refund action (foundation_refund_flow.sql / refund-foundation-payment Edge
+// Function) lives here too, gated to isOperations/isFounder — this is the
+// one existing screen that already renders a submission's tier/payment
+// context, and Operations already has RLS read access to any submission
+// row (Founder's own gap is closed by that same migration). There's no
+// "browse all submissions" admin screen anywhere in the app today, so
+// OperationsPortalScreen/FounderPortalScreen each got a small "open a
+// ticket by ID" lookup as the entry point into this screen for staff who
+// aren't a Handler with this ticket already in their own queue — see those
+// screens' own comments.
 
 const DOC_CONFIG = {
   cv_documents:         { outputColumn: 'generated',        intakeColumn: 'input' },
@@ -102,6 +114,14 @@ function formatDate(iso) {
 
 const URGENCY_COLOR = { green: '#16A34A', amber: '#F59E0B', red: '#DC2626' }
 
+// Mirrors FoundationCheckoutModal.jsx's own cents formatter — amount_cents
+// is euro-only today (foundation_payments.currency defaults to 'eur' and
+// nothing sets another value), same assumption that file already makes.
+function formatCents(cents) {
+  if (cents == null) return '—'
+  return `€${(cents / 100).toFixed(2)}`
+}
+
 function Pill({ label, bg, fg }) {
   return (
     <View style={{ backgroundColor: bg, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 }}>
@@ -122,6 +142,8 @@ function ContentBlock({ text, emptyLabel }) {
 export default function TicketDetailScreen({ navigation, route }) {
   const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors, isDark)
+  const { isOperations, isFounder } = useAuth()
+  const canRefund = isOperations || isFounder
   const { ticketId } = route.params || {}
   const safeGoBack = useSafeGoBack(navigation, 'StudioQueue')
 
@@ -136,6 +158,11 @@ export default function TicketDetailScreen({ navigation, route }) {
   const [note, setNote] = useState('')
   const [formError, setFormError] = useState('')
   const [submittingDecision, setSubmittingDecision] = useState(null) // 'approved' | 'flagged' | 'incomplete' | null
+
+  const [refundModalOpen, setRefundModalOpen] = useState(false)
+  const [refundReason, setRefundReason] = useState('')
+  const [refundError, setRefundError] = useState('')
+  const [refunding, setRefunding] = useState(false)
 
   const loadDocument = useCallback(async sub => {
     const config = sub.document_table ? DOC_CONFIG[sub.document_table] : null
@@ -191,7 +218,7 @@ export default function TicketDetailScreen({ navigation, route }) {
     try {
       const { data, error } = await supabase
         .from('submissions')
-        .select('id, user_id, tier, stage, turnaround_deadline, submitted_at, notes, submitted_name, document_table, document_id, marked_incomplete, incomplete_reason, services(name)')
+        .select('id, user_id, tier, stage, turnaround_deadline, submitted_at, notes, submitted_name, document_table, document_id, marked_incomplete, incomplete_reason, amount_cents, paid, refunded_at, refund_id, services(name)')
         .eq('id', ticketId)
         .single()
       if (error || !data) {
@@ -299,6 +326,59 @@ export default function TicketDetailScreen({ navigation, route }) {
     }
   }
 
+  function openRefundModal() {
+    setRefundReason('')
+    setRefundError('')
+    setRefundModalOpen(true)
+  }
+
+  // Step one of two deliberate steps before any money actually moves: typing
+  // a real reason here just opens the second, explicit confirm below — this
+  // alone never calls the Edge Function.
+  function reviewRefund() {
+    if (refundReason.trim().length < 10) {
+      setRefundError('A refund reason of at least a few words is required.')
+      return
+    }
+    const amountLabel = formatCents(submission.amount_cents)
+    Alert.alert(
+      'Confirm refund',
+      `This will refund ${amountLabel} to the student via Stripe and cannot be undone. Continue?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: `Refund ${amountLabel}`, style: 'destructive', onPress: submitRefund },
+      ],
+    )
+  }
+
+  async function submitRefund() {
+    if (refunding) return
+    setRefunding(true)
+    setRefundError('')
+    try {
+      const { data, error } = await supabase.functions.invoke('refund-foundation-payment', {
+        body: { submission_id: submission.id, reason: refundReason.trim() },
+      })
+      // supabase-js only populates `error` for a network failure, not a
+      // non-2xx response — a 4xx/5xx from the function body comes back as
+      // `data.error` instead, same shape jsonResponse() in that function
+      // always returns on failure.
+      if (error || data?.error) {
+        setRefundError(data?.error || error?.message || 'Something went wrong issuing the refund. Please try again.')
+        return
+      }
+      setRefundModalOpen(false)
+      setSubmission(prev => (prev ? { ...prev, refunded_at: new Date().toISOString(), refund_id: data?.refund_id ?? null } : prev))
+      loadRevisions(submission.id)
+      Alert.alert('Refunded', `${formatCents(data?.amount_cents ?? submission.amount_cents)} has been refunded to the student.`)
+    } catch (e) {
+      console.error('[TicketDetail] unexpected error issuing refund', e)
+      setRefundError('Something went wrong issuing the refund. Please try again.')
+    } finally {
+      setRefunding(false)
+    }
+  }
+
   if (status === 'loading') {
     return (
       <View style={styles.screen}>
@@ -328,6 +408,7 @@ export default function TicketDetailScreen({ navigation, route }) {
   const displayName = getTicketDisplayName(submission)
   const config = submission.document_table ? DOC_CONFIG[submission.document_table] : null
   const alreadyDelivered = submission.stage === 'delivered'
+  const isRefunded = !!submission.refunded_at
 
   const intakeText = doc && config ? formatDocumentContent(doc[config.intakeColumn]) : ''
   const generatedText = doc && config ? formatDocumentContent(doc[config.outputColumn], { forHandler: true }) : ''
@@ -382,6 +463,35 @@ export default function TicketDetailScreen({ navigation, route }) {
             <CheckCircle2 size={18} color={colors.success} />
             <Text style={styles.noticeBody}>This ticket has already been delivered to the student.</Text>
           </Card>
+        )}
+
+        {isRefunded && (
+          <Card style={[styles.noticeCard, { borderColor: colors.destructive }]}>
+            <ShieldAlert size={18} color={colors.destructive} />
+            <Text style={styles.noticeBody}>
+              This submission has been refunded ({formatCents(submission.amount_cents)}). No further action is needed.
+            </Text>
+          </Card>
+        )}
+
+        {/* Operations/Founder only — see this screen's own header comment */}
+        {canRefund && submission.paid && (
+          <>
+            <Text style={styles.sectionLabel}>OPERATIONS — PAYMENT</Text>
+            <Card style={styles.sectionCard}>
+              <View style={styles.metaGrid}>
+                <View style={styles.metaRow}>
+                  <Text style={styles.metaLabel}>Charged</Text>
+                  <Text style={styles.metaValue}>{formatCents(submission.amount_cents)} ({tierLabel})</Text>
+                </View>
+              </View>
+              {isRefunded ? (
+                <Text style={styles.inlineNoticeText}>Refunded {formatDate(submission.refunded_at)}.</Text>
+              ) : (
+                <Button label="Issue Refund" onPress={openRefundModal} variant="destructive" />
+              )}
+            </Card>
+          </>
         )}
 
         {/* Student's submission */}
@@ -470,7 +580,7 @@ export default function TicketDetailScreen({ navigation, route }) {
         )}
 
         {/* Decision */}
-        {!alreadyDelivered && (
+        {!alreadyDelivered && !isRefunded && (
           <>
             <Text style={styles.sectionLabel}>YOUR DECISION</Text>
             <Card style={styles.sectionCard}>
@@ -528,6 +638,58 @@ export default function TicketDetailScreen({ navigation, route }) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Refund reason — step one of two. Submitting this only opens the
+          Alert.alert destructive confirm in reviewRefund(); the actual
+          Edge Function call happens from submitRefund(), after that second,
+          explicit tap. Mirrors OperationsPortalScreen's own "Mark request
+          completed" modal shape. */}
+      <Modal visible={refundModalOpen} transparent animationType="slide" onRequestClose={() => setRefundModalOpen(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.modalBackdrop}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Issue refund</Text>
+              <TouchableOpacity
+                onPress={() => setRefundModalOpen(false)}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+              >
+                <X size={18} color={colors.muted} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSub}>
+              This refunds {formatCents(submission.amount_cents)} to the student via Stripe. This is real money leaving the
+              account and cannot be undone — explain why before continuing.
+            </Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Why is this being refunded? e.g. duplicate charge, service not delivered, student request approved by Operations"
+              placeholderTextColor={colors.light}
+              value={refundReason}
+              onChangeText={t => { setRefundReason(t); setRefundError('') }}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+            {!!refundError && (
+              <View style={styles.formErrorBox}>
+                <AlertCircle size={15} color={colors.destructive} />
+                <Text style={styles.formErrorText}>{refundError}</Text>
+              </View>
+            )}
+            <Button
+              label={refunding ? 'Refunding…' : `Review & Refund ${formatCents(submission.amount_cents)}`}
+              onPress={reviewRefund}
+              variant="destructive"
+              loading={refunding}
+              disabled={refunding}
+              style={{ marginTop: 4 }}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   )
 }
@@ -585,5 +747,21 @@ function __gs_styles(colors, isDark) {
     messageCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },
     messageTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, marginTop: 6, textAlign: 'center' },
     messageSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, paddingHorizontal: 12 },
+
+    modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
+    modalSheet: {
+      backgroundColor: colors.surface, borderTopLeftRadius: 22, borderTopRightRadius: 22,
+      padding: spacing.lg, paddingBottom: 34,
+    },
+    modalHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 },
+    modalTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1, marginRight: 12 },
+    modalSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 14 },
+    modalInput: {
+      backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
+      borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+      padding: 14, minHeight: 84,
+      fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
+      marginBottom: 14,
+    },
   })
 }

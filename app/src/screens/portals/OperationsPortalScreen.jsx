@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw, Clock, CheckCircle2 } from 'lucide-react-native'
+import { Inbox, ShieldAlert, MessageSquare, Check, X, RotateCcw, Clock, CheckCircle2, Receipt, ArrowRight } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
@@ -23,6 +23,8 @@ export default function OperationsPortalScreen({ navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { setPortalMode, user } = useAuth()
+
+  const [ticketLookupId, setTicketLookupId] = useState('')
 
   const [queue, setQueue] = useState(null)
   const [gdprRequests, setGdprRequests] = useState([])
@@ -59,6 +61,21 @@ export default function OperationsPortalScreen({ navigation }) {
     }
     setGdprRequests(data || [])
     setGdprLoading(false)
+  }
+
+  // Opens TicketDetailScreen directly by submission id — that screen already
+  // has the Refund action (foundation_refund_flow.sql), but there's no
+  // "browse all submissions" admin list anywhere in the app yet to get a
+  // ticket id from in the first place. Operations already has RLS read
+  // access to any submission row, so once Operations has an id in hand
+  // (from a student complaint, a Handler's "Flag to Operations" note, etc.)
+  // this is the smallest way to actually get there — not a substitute for a
+  // real submissions browser, which is a bigger piece of work than tonight's
+  // refund flow on its own.
+  function openTicketLookup() {
+    const id = ticketLookupId.trim()
+    if (!id) return
+    navigation.navigate('TicketDetail', { ticketId: id })
   }
 
   function openMarkDone(req) {
@@ -145,6 +162,35 @@ export default function OperationsPortalScreen({ navigation }) {
             <Text style={styles.urgencyText}>{formatNumber(queue?.amber_count ?? 0)} amber</Text>
             <View style={[styles.urgencyDot, { backgroundColor: '#16A34A' }]} />
             <Text style={styles.urgencyText}>{formatNumber(queue?.green_count ?? 0)} green</Text>
+          </View>
+        </Card>
+
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <Receipt size={14} color={colors.textPrimary} />
+          <Text style={styles.sectionEyebrow}>FOUNDATION PAYMENTS — OPEN A TICKET</Text>
+        </View>
+        <Card style={styles.lookupCard}>
+          <Text style={styles.lookupHint}>
+            Paste a submission id to open its ticket — issue a refund from there (Refund action, under PAYMENT).
+          </Text>
+          <View style={styles.lookupRow}>
+            <TextInput
+              style={styles.lookupInput}
+              placeholder="Submission ID"
+              placeholderTextColor={colors.light}
+              value={ticketLookupId}
+              onChangeText={setTicketLookupId}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              style={[styles.lookupBtn, !ticketLookupId.trim() && { opacity: 0.5 }]}
+              activeOpacity={0.85}
+              onPress={openTicketLookup}
+              disabled={!ticketLookupId.trim()}
+            >
+              <ArrowRight size={16} color={colors.accentFg} />
+            </TouchableOpacity>
           </View>
         </Card>
 
@@ -272,6 +318,19 @@ function __gs_styles(colors) {
   sectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
 
   queueCard: {},
+  lookupCard: {},
+  lookupHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17, marginBottom: 10 },
+  lookupRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  lookupInput: {
+    flex: 1, backgroundColor: 'rgba(30,58,95,0.04)', borderRadius: radius.button,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    paddingHorizontal: 14, paddingVertical: 10,
+    fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary,
+  },
+  lookupBtn: {
+    width: 40, height: 40, borderRadius: radius.button,
+    backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center',
+  },
   queueRow: { flexDirection: 'row', marginBottom: 14 },
   urgencyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   urgencyDot: { width: 8, height: 8, borderRadius: 4 },
