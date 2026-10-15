@@ -184,10 +184,10 @@ export default function ForBusinessesPage() {
         <title>For Businesses | UniBlueprint</title>
         <meta
           name="description"
-          content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect, launching September 2026."
+          content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect. Coming soon."
         />
         <meta property="og:title" content="For Businesses | UniBlueprint" />
-        <meta property="og:description" content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect, launching September 2026." />
+        <meta property="og:description" content="Partner with UniBlueprint to reach young people across Ireland through the Lifestyle Blueprint and Campus Connect. Coming soon." />
         <style>{BIZ_STYLES}</style>
       </Helmet>
 

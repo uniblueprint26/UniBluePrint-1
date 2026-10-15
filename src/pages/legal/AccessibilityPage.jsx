@@ -41,7 +41,7 @@ export default function AccessibilityPage() {
           }}>
             <Section title="Our Commitment">
               <p style={P}>UniBlueprint is committed to ensuring that our platform is accessible to all users, including those with disabilities. We believe that every young person should be able to access the tools and services that help them succeed, regardless of how they interact with technology.</p>
-              <p style={P}>We are actively working to improve the accessibility of the UniBlueprint platform and to ensure that it meets recognised accessibility standards ahead of and beyond our September 2026 launch.</p>
+              <p style={P}>We are actively working to improve the accessibility of the UniBlueprint platform and to ensure that it meets recognised accessibility standards ahead of and beyond our upcoming launch.</p>
               <p style={P}>This Platform is operated by UniBlueprint Limited, a company registered in Ireland under company number 826545, with its registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland.</p>
             </Section>
 
@@ -58,7 +58,7 @@ export default function AccessibilityPage() {
                 <li style={{ marginBottom: '6px' }}>Certain form inputs may not surface inline error messages to assistive technologies in all browsers. We are implementing ARIA describedby associations throughout the checkout and submission flows.</li>
                 <li style={{ marginBottom: '6px' }}>A small number of decorative SVG map elements may produce redundant announcements on some screen reader and browser combinations. We are auditing aria-hidden coverage.</li>
               </ul>
-              <p style={P}>We are targeting full resolution of these items before or shortly after our September 2026 launch. If you encounter an issue not listed here, please let us know using the contact details below.</p>
+              <p style={P}>We are targeting full resolution of these items before or shortly after our upcoming launch. If you encounter an issue not listed here, please let us know using the contact details below.</p>
             </Section>
 
             <Section title="How to Request Accessible Content">

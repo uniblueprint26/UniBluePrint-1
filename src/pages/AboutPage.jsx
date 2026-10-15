@@ -100,7 +100,7 @@ const BTB = [
   { label: '#041', date: 'May 13, 2026',   title: 'Preparations Pt. 2', photo: '/images/btb/btb-041.jpg' },
   { label: '#042', date: 'May 14, 2026',   title: 'Showtime',           photo: '/images/btb/btb-042.jpg' },
   { label: '#043', date: 'May 16, 2026',   title: 'Cafe Conversations', photo: '/images/btb/btb-043.jpg' },
-  { label: '',     date: 'September 2026', title: 'Launch',             photo: null },
+  { label: '',     date: 'Coming Soon', title: 'Launch',             photo: null },
 ]
 
 const ROTATIONS = [-2.8, 1.8, -1.4, 2.6, -2.2, 1.4, -3, 2, -1.8, 3.2, -2, 1.6, -2.5, 1]
@@ -727,7 +727,7 @@ export default function AboutPage() {
             fontSize: 'clamp(28px, 4vw, 44px)', color: '#F5F0E8',
             lineHeight: 1.1, margin: 0,
           }}>
-            Launching September 2026.
+            Coming Soon.
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",

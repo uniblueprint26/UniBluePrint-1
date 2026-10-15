@@ -298,7 +298,7 @@ function AmbassadorForm() {
   }
 
   return (
-    <FormCard title="Ambassador Application" subtitle="We're selecting ambassadors campus by campus ahead of September 2026. We will be in touch within 2 business days.">
+    <FormCard title="Ambassador Application" subtitle="We're selecting ambassadors campus by campus ahead of launch. We will be in touch within 2 business days.">
       {success ? (
         <SuccessCard title="Application received" subtitle="We'll review your application and be in touch within 2 business days." />
       ) : (
@@ -574,7 +574,7 @@ export default function JoinPage() {
             <RoleInfo
               icon={Megaphone}
               title="Ambassador"
-              tagline="Be the face of UniBlueprint on your campus. Spread the word, build community, and shape how UniBlueprint launches in September 2026."
+              tagline="Be the face of UniBlueprint on your campus. Spread the word, build community, and shape how UniBlueprint launches. Coming soon."
               doItems={[
                 'Represent UniBlueprint on your campus',
                 'Share with your network',

@@ -111,7 +111,7 @@ const FAQS = [
   },
   {
     q: 'What happens after approval?',
-    a: 'Approved content is added to the UniBlueprint content library so it is ready for students to use from launch day in September 2026.',
+    a: 'Approved content is added to the UniBlueprint content library so it is ready for students to use from launch day.',
   },
 ]
 
@@ -219,7 +219,7 @@ export default function ContributorsLandingPage() {
         <title>Blueprint Contributors | UniBlueprint</title>
         <meta
           name="description"
-          content="Become a Blueprint Contributor and help build Ireland's Student Success Library. Submit Leaving Cert notes, course reviews, campus knowledge and more before the September 2026 launch. €100 cash prize and Top 10 national recognition."
+          content="Become a Blueprint Contributor and help build Ireland's Student Success Library. Submit Leaving Cert notes, course reviews, campus knowledge and more before launch. €100 cash prize and Top 10 national recognition."
         />
         <meta property="og:title" content="Blueprint Contributors | UniBlueprint" />
         <meta property="og:description" content="Help build Ireland's Student Success Library. Become a Blueprint Contributor before launch." />
@@ -271,7 +271,7 @@ export default function ContributorsLandingPage() {
                 A mission, not a task list
               </h2>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '16px', lineHeight: 1.8 }}>
-                Blueprint Contributors are students who share real knowledge — Leaving Cert notes, course reviews, campus tips, career opportunities — before UniBlueprint officially launches in September 2026.
+                Blueprint Contributors are students who share real knowledge — Leaving Cert notes, course reviews, campus tips, career opportunities — before UniBlueprint officially launches.
               </p>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.8 }}>
                 Every contribution helps build a content library that supports students from Leaving Certificate through CAO decisions, college, apprenticeships and careers — so the next student who joins UniBlueprint has real, useful, student-made resources from the very first day.
@@ -283,7 +283,7 @@ export default function ContributorsLandingPage() {
               </h3>
               <ul style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px', listStyle: 'none' }}>
                 {[
-                  'Students launching in September see real value immediately — not an empty platform.',
+                  'Students joining from day one see real value immediately — not an empty platform.',
                   'Your notes, reviews and advice genuinely help the next student behind you.',
                   'You get recognised for the impact you make, not just the amount you upload.',
                 ].map(text => (

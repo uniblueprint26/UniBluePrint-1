@@ -319,7 +319,7 @@ export default function DownloadPage() {
     <>
       <Helmet>
         <title>Download | UniBlueprint</title>
-        <meta name="description" content="Download the UniBlueprint app for iOS and Android, the all-in-one platform for young people across Ireland, launching soon." />
+        <meta name="description" content="Download the UniBlueprint app for iOS and Android, the all-in-one platform for young people across Ireland. Coming soon." />
         <script type="application/ld+json">{JSON.stringify(APP_JSON_LD)}</script>
         <style>{DL_STYLES}</style>
         <style>{`

@@ -87,7 +87,7 @@ export default function LaunchGate({ children }) {
           color: 'rgba(245,240,232,0.5)', textTransform: 'uppercase',
           letterSpacing: '0.1em', margin: '0 0 32px',
         }}>
-          Launching soon
+          Coming Soon
         </p>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '32px' }}>

@@ -58,8 +58,8 @@ export const SEARCH_DATA = [
   // FAQs
   { id: 'faq-what-is', type: 'faq', title: 'What is UniBlueprint?', description: "UniBlueprint is Ireland's platform for young people providing academic and career support.", path: '/faqs' },
   { id: 'faq-free', type: 'faq', title: 'Is UniBlueprint free to use?', description: 'UniBlueprint has a free tier and a Pro subscription.', path: '/faqs' },
-  { id: 'faq-launch', type: 'faq', title: 'When does UniBlueprint launch?', description: 'UniBlueprint launches in September 2026 at Irish universities during freshers week.', path: '/faqs' },
-  { id: 'faq-universities', type: 'faq', title: 'Which universities are included at launch?', description: 'UniBlueprint launches across Irish universities and colleges in September 2026.', path: '/faqs' },
+  { id: 'faq-launch', type: 'faq', title: 'When does UniBlueprint launch?', description: 'UniBlueprint is coming soon to Irish universities, launching during freshers week.', path: '/faqs' },
+  { id: 'faq-universities', type: 'faq', title: 'Which universities are included at launch?', description: 'UniBlueprint will launch across Irish universities and colleges. Coming soon.', path: '/faqs' },
   { id: 'faq-who', type: 'faq', title: 'Who is UniBlueprint for?', description: 'UniBlueprint is for young people in Ireland across every pathway, college, apprenticeship, and beyond.', path: '/faqs' },
   { id: 'faq-pro-cost', type: 'faq', title: 'What does Pro cost?', description: 'Pro subscription pricing details for UniBlueprint.', path: '/faqs' },
   { id: 'faq-free-trial', type: 'faq', title: 'What is included in the free trial?', description: 'The free trial offers 50% off Pro and every other service for a limited time.', path: '/faqs' },
