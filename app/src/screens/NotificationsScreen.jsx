@@ -6,6 +6,7 @@ import {
   Bell, FileText, Calendar, Star, Megaphone,
   Clock, AlertTriangle, Sun, CreditCard, Archive, Repeat,
   MessageCircle, MessagesSquare, UserCheck, Mail, CheckCheck,
+  TrendingUp,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
@@ -40,6 +41,10 @@ function getTypeConfig(colors) {
   chat_message:       { Icon: MessageCircle, color: '#1d4ed8', bg: colors.infoBg },
   board_reply:        { Icon: MessagesSquare, color: colors.newBadge, bg: '#F5F3FF' },
   coach_enquiry:      { Icon: Mail,          color: '#1d4ed8', bg: colors.infoBg },
+  // Pro-only "Weekly Blueprint Report" (subscription-pricing-model.md §1.2)
+  // — generated every Monday by generate_weekly_blueprint_reports(), see
+  // 20261015130000_weekly_blueprint_report.sql.
+  weekly_summary:     { Icon: TrendingUp,    color: colors.newBadge, bg: '#F5F3FF' },
   }
 }
 
