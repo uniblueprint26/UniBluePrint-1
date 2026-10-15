@@ -1,6 +1,7 @@
 // Handles Stripe webhook events and keeps public.subscriptions (Pro
-// subscriptions) AND public.foundation_payments (Foundation Blueprint
-// one-time document charges, task #95) in sync.
+// subscriptions), public.foundation_payments (Foundation Blueprint
+// one-time document charges, task #95) AND public.coach_payments
+// (Elevation coach booking charges, task #95's sibling) in sync.
 //
 // Deploy: supabase functions deploy stripe-webhook --no-verify-jwt
 // (--no-verify-jwt because Stripe calls this directly, not through a
@@ -20,7 +21,8 @@
 // (checkout.session.expired is new as of task #95 — needed so an
 // abandoned Foundation checkout doesn't leave its foundation_payments row
 // stuck on 'pending' forever. This needs an actual Stripe dashboard
-// config change outside this codebase — see task #95's report.)
+// config change outside this codebase — see task #95's report. Also now
+// needed for coach_payments, same reason.)
 //
 // Writes to public.subscriptions (tier/status/current_period_end/
 // stripe_customer_id/stripe_subscription_id), not profiles — that's the
@@ -29,13 +31,16 @@
 // comments referenced a nonexistent profiles.is_pro column; same bug class
 // already found and fixed on the website's SubscriptionManagementPage.
 //
-// checkout.session.completed now covers two distinct kinds of session —
-// session.mode distinguishes them, same way Stripe itself does:
-//   'subscription' -> Pro/Premium (create-checkout-session), unchanged.
-//   'payment'      -> a single Foundation Blueprint document
-//                      (create-foundation-checkout-session, task #95).
-// They're never confused with each other because a Checkout Session's
-// mode is fixed at creation and Stripe reports it back verbatim.
+// checkout.session.completed now covers three distinct kinds of session —
+// session.mode distinguishes the subscription case, and session.metadata.kind
+// distinguishes the two 'payment'-mode cases, same way Stripe itself
+// reports both back verbatim (a Checkout Session's mode and metadata are
+// fixed at creation):
+//   'subscription'                     -> Pro/Premium (create-checkout-session), unchanged.
+//   'payment', kind 'foundation_one_time' -> a single Foundation Blueprint
+//                                            document (create-foundation-checkout-session, task #95).
+//   'payment', kind 'coach_booking'       -> a single Elevation coach booking
+//                                            (create-coach-checkout-session, task #95's sibling).
 
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -90,6 +95,53 @@ async function markFoundationPaymentFailed(paymentId: string) {
   if (error) console.error('[stripe-webhook] could not mark foundation_payments failed', paymentId, error)
 }
 
+// Task #95's sibling (Elevation) — marks a coach booking payment paid once
+// Stripe actually confirms the charge, and flips its coach_bookings row from
+// 'pending_payment' to 'requested' in the same breath. That second update is
+// what makes the booking "real" (notify_on_coach_booking's own comment) —
+// the coach_bookings row existed before this (inserted by the client as
+// 'pending_payment'), but it isn't a request the coach/Ops should see or act
+// on until a real charge backs it. Matched by booking_id (set in checkout
+// session metadata at creation, create-coach-checkout-session/index.ts),
+// same as foundation_payment_id above — already known and unique, no
+// ambiguity to resolve.
+async function markCoachPaymentPaid(paymentId: string, bookingId: string | undefined, paymentIntentId: string | null) {
+  const { error } = await supabase
+    .from('coach_payments')
+    .update({
+      status: 'paid',
+      stripe_payment_intent_id: paymentIntentId,
+      paid_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', paymentId)
+    .eq('status', 'pending') // don't resurrect a row already marked failed/canceled
+  if (error) console.error('[stripe-webhook] could not mark coach_payments paid', paymentId, error)
+
+  if (!bookingId) {
+    console.error('[stripe-webhook] coach payment completed with no booking_id in metadata', paymentId)
+    return
+  }
+  const { error: bookingErr } = await supabase
+    .from('coach_bookings')
+    .update({ status: 'requested', paid: true })
+    .eq('id', bookingId)
+    .eq('status', 'pending_payment') // don't resurrect a booking already cancelled
+  if (bookingErr) console.error('[stripe-webhook] could not flip coach_bookings to requested', bookingId, bookingErr)
+}
+
+async function markCoachPaymentFailed(paymentId: string) {
+  const { error } = await supabase
+    .from('coach_payments')
+    .update({ status: 'failed', updated_at: new Date().toISOString() })
+    .eq('id', paymentId)
+    .eq('status', 'pending')
+  if (error) console.error('[stripe-webhook] could not mark coach_payments failed', paymentId, error)
+  // coach_bookings itself is deliberately left at 'pending_payment' — the
+  // student can retry checkout against the same booking row (same
+  // abandoned-checkout tradeoff foundation_payments already accepts).
+}
+
 Deno.serve(async req => {
   const signature = req.headers.get('stripe-signature')
   const body = await req.text()
@@ -108,13 +160,29 @@ Deno.serve(async req => {
         const session = event.data.object as Stripe.Checkout.Session
 
         if (session.mode === 'payment') {
-          // Foundation Blueprint one-time document charge (task #95).
+          const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null
+          const kind = session.metadata?.kind
+
+          if (kind === 'coach_booking') {
+            // Elevation coach booking charge (task #95's sibling).
+            const paymentId = session.metadata?.coach_payment_id
+            if (!paymentId) {
+              console.error('checkout.session.completed (coach_booking) missing coach_payment_id metadata', session.id)
+              break
+            }
+            await markCoachPaymentPaid(paymentId, session.metadata?.booking_id, paymentIntentId)
+            break
+          }
+
+          // Foundation Blueprint one-time document charge (task #95) —
+          // the default/only other payment-mode kind. Older sessions
+          // created before `kind` existed on foundation_payment_id-bearing
+          // sessions also fall through here correctly.
           const paymentId = session.metadata?.foundation_payment_id
           if (!paymentId) {
             console.error('checkout.session.completed (payment mode) missing foundation_payment_id metadata', session.id)
             break
           }
-          const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null
           await markFoundationPaymentPaid(paymentId, paymentIntentId)
           break
         }
@@ -137,15 +205,21 @@ Deno.serve(async req => {
       }
 
       case 'checkout.session.expired': {
-        // Only meaningful for Foundation's one-time payment sessions — a
-        // Pro/Premium subscription checkout has nothing in `subscriptions`
-        // to roll back if it's abandoned (no row was ever created for it
-        // until completion). Needs this event added to the Stripe
-        // dashboard's webhook subscription list; see this file's header.
+        // Only meaningful for one-time payment sessions (Foundation or
+        // coach booking) — a Pro/Premium subscription checkout has nothing
+        // in `subscriptions` to roll back if it's abandoned (no row was
+        // ever created for it until completion). Needs this event added to
+        // the Stripe dashboard's webhook subscription list; see this
+        // file's header.
         const session = event.data.object as Stripe.Checkout.Session
         if (session.mode === 'payment') {
-          const paymentId = session.metadata?.foundation_payment_id
-          if (paymentId) await markFoundationPaymentFailed(paymentId)
+          if (session.metadata?.kind === 'coach_booking') {
+            const paymentId = session.metadata?.coach_payment_id
+            if (paymentId) await markCoachPaymentFailed(paymentId)
+          } else {
+            const paymentId = session.metadata?.foundation_payment_id
+            if (paymentId) await markFoundationPaymentFailed(paymentId)
+          }
         }
         break
       }
