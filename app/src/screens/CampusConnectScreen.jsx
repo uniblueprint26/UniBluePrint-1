@@ -11,6 +11,7 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import Button from '../components/ui/Button'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
+import CampusPulseCard from '../components/campusConnect/CampusPulseCard'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -340,6 +341,11 @@ export default function CampusConnectScreen({ navigation }) {
               </TouchableOpacity>
             </TouchableOpacity>
           )}
+
+          {/* ── Campus Pulse — Desmond's weekly low-pressure prompt module,
+              lives on the Campus Events board area. See CampusPulseCard.jsx
+              and supabase/migrations/20261015140000_campus_pulse.sql. ── */}
+          <CampusPulseCard navigation={navigation} />
 
           {/* Search — filters the board showcase below by name or topic */}
           <View style={styles.searchWrap}>

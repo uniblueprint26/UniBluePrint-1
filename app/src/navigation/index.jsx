@@ -25,6 +25,7 @@ import FoundationScreen    from '../screens/FoundationScreen'
 import ElevationScreen     from '../screens/ElevationScreen'
 import CampusConnectScreen from '../screens/CampusConnectScreen'
 import BoardDetailScreen   from '../screens/BoardDetailScreen'
+import CampusPulseArchiveScreen from '../screens/CampusPulseArchiveScreen'
 import CourseConnectScreen from '../screens/CourseConnectScreen'
 import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
@@ -117,6 +118,7 @@ function HomeStack() {
       <Stack.Screen name="Elevation"     component={ElevationScreen}     />
       <Stack.Screen name="CampusConnect" component={CampusConnectScreen} />
       <Stack.Screen name="BoardDetail"   component={BoardDetailScreen}   />
+      <Stack.Screen name="CampusPulseArchive" component={CampusPulseArchiveScreen} />
       <Stack.Screen name="CourseConnect" component={CourseConnectScreen} />
       <Stack.Screen name="ModuleQA"      component={ModuleQAScreen}      />
       <Stack.Screen name="ResourceFinder" component={ResourceFinderScreen} />
