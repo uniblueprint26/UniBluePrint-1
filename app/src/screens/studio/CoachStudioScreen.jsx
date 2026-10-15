@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Switch } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
 import ScreenHeader from '../../components/ui/ScreenHeader'
 import ImageUploader from '../../components/ui/ImageUploader'
+import PartnerTierBadge from '../../components/ui/PartnerTierBadge'
+import FoundingPartnerBadge from '../../components/ui/FoundingPartnerBadge'
 import { fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
@@ -165,6 +167,99 @@ function EditProfileSection({ userId }) {
           </>
         )}
       </Card>
+    </>
+  )
+}
+
+// ── Tier & Terms self-view ───────────────────────────────────────────────
+// Read-only self-view of a coach's own Access/Plus/Signature tier,
+// Founding Partner Badge, and payment option/negotiated rate, via
+// get_my_tier_status() (20261012104351_partner_tiering_framework). Same
+// RPC and shape as PartnerPortalScreen's "YOUR TIER & TERMS" section for
+// business partners — this is the coach-facing equivalent the framework
+// doc calls for ("Lifestyle Blueprint businesses and coaches sit under one
+// unified tiering system"). Every real coach today reads back
+// tier/payment_option = null (see the Earnings section's own comment
+// above) -- that is shown honestly as "Not yet classified" / "Not yet
+// set", the same empty state PartnerPortalScreen already uses, not hidden
+// just because nothing is populated yet.
+function TierTermsSection({ userId }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
+  const [tierStatus, setTierStatus] = useState(null)
+
+  function load() {
+    if (!userId) return
+    let cancelled = false
+    setLoading(true)
+    setLoadError(null)
+    supabase.rpc('get_my_tier_status').then(({ data, error }) => {
+      if (cancelled) return
+      if (error) {
+        setLoadError('Could not load your tier and terms.')
+      } else {
+        setTierStatus((data && data[0]) || null)
+      }
+      setLoading(false)
+    })
+    return () => { cancelled = true }
+  }
+  useEffect(load, [userId])
+
+  return (
+    <>
+      <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+        <Award size={14} color={colors.textPrimary} />
+        <Text style={styles.sectionEyebrow}>YOUR TIER &amp; TERMS</Text>
+      </View>
+      {loading ? (
+        <ActivityIndicator size="small" color={colors.textPrimary} />
+      ) : loadError ? (
+        <View style={styles.tierErrorRow}>
+          <Text style={styles.tierErrorText}>{loadError}</Text>
+          <TouchableOpacity onPress={load} activeOpacity={0.7} style={styles.tierRetryBtn} accessibilityRole="button">
+            <Text style={styles.tierRetryBtnText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <Card>
+          <View style={styles.tierBadgeRow}>
+            {tierStatus?.tier ? (
+              <PartnerTierBadge tier={tierStatus.tier} />
+            ) : (
+              <Text style={styles.tierUnsetText}>Not yet classified</Text>
+            )}
+            <FoundingPartnerBadge founding={!!tierStatus?.founding_badge} />
+          </View>
+
+          <View style={styles.tierTermRow}>
+            <Text style={styles.tierTermLabel}>Payment option</Text>
+            <Text style={styles.tierTermValue}>
+              {tierStatus?.payment_option === 'negotiated' ? 'Negotiated (Option B)'
+                : tierStatus?.payment_option === 'fixed' ? 'Fixed (Option A)'
+                : 'Not yet set'}
+            </Text>
+          </View>
+
+          {tierStatus?.payment_option === 'negotiated' && (
+            <View style={styles.tierNegotiatedBox}>
+              <View style={styles.tierNegotiatedHeaderRow}>
+                <Percent size={13} color={colors.goldDeep} />
+                <Text style={styles.tierNegotiatedRate}>
+                  {tierStatus?.negotiated_commission_pct != null
+                    ? `${tierStatus.negotiated_commission_pct}% commission`
+                    : 'Rate on file with Finance'}
+                </Text>
+              </View>
+              {!!tierStatus?.negotiated_rationale && (
+                <Text style={styles.tierNegotiatedRationale}>“{tierStatus.negotiated_rationale}”</Text>
+              )}
+            </View>
+          )}
+        </Card>
+      )}
     </>
   )
 }
@@ -618,6 +713,9 @@ export default function CoachStudioScreen({ navigation }) {
           </View>
         )}
 
+        {/* Tier & Terms — read-only self-view */}
+        <TierTermsSection userId={user?.id} />
+
         {/* Edit My Profile — self-serve bio + photo */}
         <EditProfileSection userId={user?.id} />
 
@@ -655,6 +753,26 @@ function __gs_styles(colors) {
     color: colors.muted, letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
+
+  tierBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  tierUnsetText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, fontStyle: 'italic' },
+  tierTermRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
+  },
+  tierTermLabel: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted },
+  tierTermValue: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary },
+  tierNegotiatedBox: { marginTop: 12, padding: 12, borderRadius: radius.button, backgroundColor: '#FFFBEB' },
+  tierNegotiatedHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  tierNegotiatedRate: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldDeep },
+  tierNegotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
+  tierErrorRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+    backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button, padding: 14,
+  },
+  tierErrorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+  tierRetryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+  tierRetryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
 
   sessionCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   sessionClient: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
