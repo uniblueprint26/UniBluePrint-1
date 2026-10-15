@@ -1,10 +1,6 @@
 /**
  * BudgetingScreen — UniBlueprint financial companion
  *
- * ATTRIBUTION NOTE: The hero copy references "financial expert Suzi Grant."
- * Confirm correct spelling/full name and obtain appropriate permission
- * before this copy goes live. See HERO_ATTRIBUTION_NOTE below.
- *
  * SUSI FIGURES: Rates are the published 2026/27 full-time undergraduate figures
  * from susi.ie. Thresholds adjust per additional dependant as listed per band.
  */
@@ -1395,24 +1391,15 @@ export default function BudgetingScreen({ navigation, route }) {
         keyboardShouldPersistTaps="handled"
       >
         {/* Hero */}
-        {/*
-          HERO_ATTRIBUTION_NOTE: The copy below references "Suzi Grant."
-          Confirm correct spelling/full name and obtain appropriate permission
-          before this version goes live. The placeholder copy is intentionally
-          written so it can be dropped in or updated once confirmed.
-        */}
         <View style={styles.hero}>
           <Text style={styles.heroEyebrow}>FINANCIAL COMPANION</Text>
           <Text style={styles.heroTitle}>Know where your money goes, every week.</Text>
           <Text style={styles.heroSub}>
             Track what you spend, set savings goals, understand what you're owed, and explore investing, all in one place.
           </Text>
-          {/* NOTE: Attribution copy — confirm "Suzi Grant" spelling and permission before going live */}
-          {/*
           <Text style={styles.heroCurator}>
-            Insights and guidance from financial expert Suzi Grant.
+            Includes a built-in SUSI Grant Checker, so you always know what state support you could be entitled to.
           </Text>
-          */}
         </View>
 
         {/* Tab selector — icon centred above label (not side-by-side) so a
@@ -1469,6 +1456,7 @@ function __gs_styles(colors) {
   heroEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2 },
   heroTitle:   { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, marginTop: 6, lineHeight: 38 },
   heroSub:     { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', marginTop: 10, lineHeight: 22 },
+  heroCurator: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: 'rgba(245,240,232,0.6)', marginTop: 14, lineHeight: 19 },
 
   // Tab selector
   tabRow: {
