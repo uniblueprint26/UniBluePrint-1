@@ -105,8 +105,13 @@ export default function CondensedDashboard({
         supabase.from('submissions').select('stage')
           .eq('user_id', userId).neq('stage', 'delivered')
           .order('submitted_at', { ascending: false }).limit(1).maybeSingle(),
+        // Excludes 'pending_payment' too (task #95's sibling, Elevation) —
+        // a chargeable coach booking isn't real until Stripe confirms it
+        // (see CoachBookingScreen.jsx), so an abandoned/unpaid checkout
+        // shouldn't show up here as if it were an actual upcoming session.
         supabase.from('coach_bookings').select('coach_name, slot_date, slot_label, status')
-          .eq('user_id', userId).gte('slot_date', todayIso).neq('status', 'cancelled')
+          .eq('user_id', userId).gte('slot_date', todayIso)
+          .not('status', 'in', '(cancelled,pending_payment)')
           .order('slot_date', { ascending: true }).limit(1).maybeSingle(),
       ]).catch(() => [{ count: 0 }, { data: null }, { data: null }])
       if (cancelled) return
