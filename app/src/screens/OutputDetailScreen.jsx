@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Share } from 'react-native'
-import { Share2, AlertCircle } from 'lucide-react-native'
+import { Share2, AlertCircle, Archive } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { formatGeneratedDocument } from '../lib/formatGeneratedDocument'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useProAccess } from '../hooks/useProAccess'
 
 // Delivered-document viewer, opened from a delivered row in MyOutputsScreen.
 // Deliberately plain-text + share only — real PDF/rich-document formatting
@@ -39,19 +41,42 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+// Output-wallet storage subtitle for a delivered, not-yet-expired document
+// (see 20261015130000_output_wallet_retention.sql) — mirrors MyOutputsScreen's
+// own storageNote() so the two screens never disagree about what a null
+// expires_at vs. a future one means. A nice-to-have next to "Delivered
+// {date}" in the header, not shown once wallet_scrubbed_at is set (that
+// gets the full expired explanation below instead).
+function storageNote(expiresAt) {
+  if (!expiresAt) return 'Stored permanently'
+  return `Storage until ${formatDate(expiresAt)}`
+}
+
 export default function OutputDetailScreen({ navigation, route }) {
   const { colors } = useTheme()
   const styles = getStyles(colors)
-  const { documentTable, documentId, serviceName, deliveredAt } = route.params || {}
+  const { documentTable, documentId, serviceName, deliveredAt, expiresAt, walletScrubbedAt } = route.params || {}
   const contentColumn = CONTENT_COLUMN[documentTable]
   const safeGoBack = useSafeGoBack(navigation, 'MyOutputs')
+  const { canAccess: isPro, loading: proLoading } = useProAccess()
+  // wallet_scrubbed_at is only set once expire_wallet_outputs() has actually
+  // cleared this document's content — passed straight from MyOutputsScreen's
+  // own query, so this never has to guess from an empty generated column.
+  const isExpired = !!walletScrubbedAt
 
-  const [status, setStatus] = useState('loading') // 'loading' | 'ok' | 'empty' | 'error' | 'unsupported'
+  const [status, setStatus] = useState('loading') // 'loading' | 'ok' | 'empty' | 'error' | 'unsupported' | 'expired'
   const [text, setText] = useState('')
 
   const load = useCallback(async () => {
     if (!documentTable || !documentId || !contentColumn) {
       setStatus('unsupported')
+      return
+    }
+    if (isExpired) {
+      // Content is already gone — don't even make the round trip, just go
+      // straight to the explanation instead of a flash of "loading" then
+      // "Nothing to show yet" as if we don't know why.
+      setStatus('expired')
       return
     }
     setStatus('loading')
@@ -74,7 +99,7 @@ export default function OutputDetailScreen({ navigation, route }) {
       console.error('[OutputDetail] unexpected error loading document', e)
       setStatus('error')
     }
-  }, [documentTable, documentId, contentColumn])
+  }, [documentTable, documentId, contentColumn, isExpired])
 
   useEffect(() => { load() }, [load])
 
@@ -95,9 +120,11 @@ export default function OutputDetailScreen({ navigation, route }) {
         variant="navy"
         onBack={safeGoBack}
         backLabel="My Outputs"
-        eyebrow="DELIVERED"
+        eyebrow={isExpired ? 'EXPIRED' : 'DELIVERED'}
         title={serviceName || 'Your document'}
-        subtitle={deliveredAt ? `Delivered ${formatDate(deliveredAt)}` : undefined}
+        subtitle={deliveredAt
+          ? `Delivered ${formatDate(deliveredAt)}${!isExpired ? ` · ${storageNote(expiresAt)}` : ''}`
+          : undefined}
         style={styles.heroBlock}
         titleStyle={styles.heroTitle}
       />
@@ -122,6 +149,32 @@ export default function OutputDetailScreen({ navigation, route }) {
             <Text style={styles.messageTitle}>Can’t open this document type</Text>
             <Text style={styles.messageSub}>Check My Outputs or your notifications for an update.</Text>
           </Card>
+        )}
+
+        {status === 'expired' && (
+          proLoading ? (
+            <ActivityIndicator color={colors.textPrimary} style={{ marginTop: 40 }} />
+          ) : isPro ? (
+            // Pro but still expired: the scrub already ran before this user
+            // upgraded, and 20261015130000_output_wallet_retention.sql's
+            // "permanent" guarantee only protects content that still
+            // existed at upgrade time — it isn't an undo. Different message
+            // from the free-tier case below: there's nothing left to
+            // upgrade towards here, just an honest explanation.
+            <Card style={styles.messageCard}>
+              <Archive size={32} color={colors.muted} />
+              <Text style={styles.messageTitle}>This document's content is gone</Text>
+              <Text style={styles.messageSub}>
+                Its free-tier wallet storage window ended and the content was cleared before you upgraded to Pro, so it can't be restored. Pro keeps everything delivered from here on.
+              </Text>
+            </Card>
+          ) : (
+            <ProUpgradeGate
+              title="Wallet storage has expired"
+              message="This output's free-tier wallet storage window has ended and its content has been cleared. Upgrade to Pro for permanent storage."
+              ctaLabel="Upgrade to Pro"
+            />
+          )
         )}
 
         {status === 'empty' && (
