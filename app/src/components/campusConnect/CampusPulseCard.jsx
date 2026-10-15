@@ -43,18 +43,26 @@ export default function CampusPulseCard({ navigation }) {
   const [prompt, setPrompt] = useState(null)
   const [responses, setResponses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [draft, setDraft] = useState('')
   const [saving, setSaving] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data: activePrompt } = await supabase
+    setLoadError(null)
+    const { data: activePrompt, error: promptError } = await supabase
       .from('campus_pulse_prompts')
       .select('*')
       .eq('active', true)
       .limit(1)
       .maybeSingle()
+
+    if (promptError) {
+      setLoadError('Could not load Campus Pulse.')
+      setLoading(false)
+      return
+    }
 
     if (!activePrompt) {
       setPrompt(null)
@@ -63,12 +71,18 @@ export default function CampusPulseCard({ navigation }) {
       return
     }
 
-    const { data: rows } = await supabase
+    const { data: rows, error: responsesError } = await supabase
       .from('campus_pulse_responses')
       .select('*')
       .eq('prompt_id', activePrompt.id)
       .is('archived_at', null)
       .order('created_at', { ascending: false })
+
+    if (responsesError) {
+      setLoadError('Could not load responses.')
+      setLoading(false)
+      return
+    }
 
     setPrompt(activePrompt)
     setResponses(rows || [])
@@ -108,6 +122,19 @@ export default function CampusPulseCard({ navigation }) {
     return (
       <Card style={styles.card}>
         <ActivityIndicator size="small" color={colors.textPrimary} />
+      </Card>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <Card style={styles.card}>
+        <View style={styles.errorBox}>
+          <Text style={styles.errorBoxText}>{loadError}</Text>
+          <TouchableOpacity onPress={load} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
+            <Text style={styles.retryBtnText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
       </Card>
     )
   }
@@ -216,6 +243,13 @@ function getStyles(colors) {
     },
     submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
     errorText: { fontFamily: fonts.sans, fontSize: 12, color: colors.destructive, marginTop: 8 },
+    errorBox: {
+      backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
+      padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+    },
+    errorBoxText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+    retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+    retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
     myResponseNote: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
     myResponseNoteText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, flex: 1 },
     responsesList: { marginTop: 16, gap: 12 },
