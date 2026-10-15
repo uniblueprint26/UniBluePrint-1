@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Euro, Users, TrendingUp, AlertCircle, Wallet, Handshake } from 'lucide-react'
+import {
+  Euro, Users, TrendingUp, AlertCircle, Wallet, Handshake,
+  Receipt, GraduationCap, UserCheck, Megaphone, CreditCard, AlertTriangle,
+} from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 // Real data, sourced from supabase/migrations/20260829140000_finance_dashboard_views.sql.
@@ -16,6 +19,15 @@ const RANGES = [
   { key: 'month', label: 'This Month' },
   { key: 'year',  label: 'This Year' },
 ]
+
+// Human labels for coach_payment_transfers.pending_reason — see
+// 20261015150039_coach_stripe_connect.sql's own column comment for what
+// each value means.
+const PENDING_REASON_LABELS = {
+  pending_tier_assignment: 'Awaiting Partner Tier assignment',
+  no_connect_account: "Coach hasn't started Stripe onboarding",
+  connect_account_not_verified: 'Stripe onboarding not yet verified',
+}
 
 const NAVY = '#1E3A5F'
 const CREAM = '#F5F0E8'
@@ -113,15 +125,48 @@ function MoneyRow({ label, count, cents, tone = NAVY }) {
   )
 }
 
+function PendingPayoutRow({ coachSlug, reason, cents }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
+      background: CREAM, borderRadius: '8px', border: '1px solid rgba(30,58,95,0.08)',
+      padding: '9px 13px',
+    }}>
+      <div style={{ minWidth: 0 }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: '600', color: NAVY, margin: 0 }}>
+          {coachSlug}
+        </p>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: GREY, margin: '2px 0 0' }}>
+          {PENDING_REASON_LABELS[reason] || reason}
+        </p>
+      </div>
+      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600', color: NAVY, flexShrink: 0 }}>
+        {fmtEuro(cents)}
+      </span>
+    </div>
+  )
+}
+
 const EMPTY_REVENUE = {
   active_pro_monthly: 0, active_pro_annual: 0, new_subscriptions_in_range: 0,
   canceled_in_range: 0, estimated_mrr_cents: 0, estimated_arr_cents: 0,
+}
+const EMPTY_ONE_TIME = {
+  foundation_payments_count: 0, foundation_revenue_cents: 0,
+  coach_payments_count: 0, coach_revenue_cents: 0,
+  board_listing_payments_count: 0, board_listing_revenue_cents: 0,
+  total_one_time_revenue_cents: 0,
 }
 const EMPTY_COMMISSIONS = {
   pending_count: 0, pending_amount_cents: 0, paid_count: 0, paid_amount_cents: 0,
   declared_in_range_count: 0, declared_in_range_amount_cents: 0,
 }
 const EMPTY_PAYOUTS = { pending_count: 0, pending_amount_cents: 0, paid_count: 0, paid_amount_cents: 0 }
+const EMPTY_COACH_PAYOUTS = {
+  pending_count: 0, pending_amount_cents: 0,
+  transferred_count: 0, transferred_amount_cents: 0,
+  failed_count: 0,
+}
 
 export default function FinanceDashboardPage() {
   const [range, setRange] = useState('month')
@@ -129,24 +174,42 @@ export default function FinanceDashboardPage() {
   const [error, setError] = useState('')
 
   const [revenue, setRevenue] = useState(EMPTY_REVENUE)
+  const [oneTimeRevenue, setOneTimeRevenue] = useState(EMPTY_ONE_TIME)
   const [commissions, setCommissions] = useState(EMPTY_COMMISSIONS)
   const [payouts, setPayouts] = useState(EMPTY_PAYOUTS)
+  const [coachPayouts, setCoachPayouts] = useState(EMPTY_COACH_PAYOUTS)
+  const [pendingCoachPayouts, setPendingCoachPayouts] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [revRes, commRes, payoutRes] = await Promise.all([
+      const [revRes, oneTimeRes, commRes, payoutRes, coachPayoutRes, pendingCoachPayoutRes] = await Promise.all([
         supabase.rpc('get_finance_revenue_snapshot', { _range: range }),
+        // Real, actually-collected one-time Stripe revenue (foundation,
+        // coaching, board listings) — a separate RPC (20261015150614) from
+        // the subscription-based snapshot above, not blended into its
+        // modelled MRR/ARR. Shares the same _range window.
+        supabase.rpc('get_finance_one_time_payments_summary', { _range: range }),
         supabase.rpc('get_finance_commission_summary', { _range: range }),
         supabase.rpc('get_finance_partner_payout_summary'),
+        // Coach Stripe Connect automated payouts (20261015150039) — separate
+        // from the Lifestyle Blueprint partner payouts above (that table is
+        // partners-only; coach_payment_transfers is a new, coach-only table).
+        // Not range-scoped: it reflects the current pending/transferred/
+        // failed state of the table, not activity within the selected period.
+        supabase.rpc('get_finance_coach_payout_summary'),
+        supabase.rpc('get_finance_pending_coach_payouts'),
       ])
-      const firstError = [revRes, commRes, payoutRes].find(r => r.error)
+      const firstError = [revRes, oneTimeRes, commRes, payoutRes, coachPayoutRes, pendingCoachPayoutRes].find(r => r.error)
       if (firstError) throw firstError.error
 
       setRevenue(revRes.data?.[0] || EMPTY_REVENUE)
+      setOneTimeRevenue(oneTimeRes.data?.[0] || EMPTY_ONE_TIME)
       setCommissions(commRes.data?.[0] || EMPTY_COMMISSIONS)
       setPayouts(payoutRes.data?.[0] || EMPTY_PAYOUTS)
+      setCoachPayouts(coachPayoutRes.data?.[0] || EMPTY_COACH_PAYOUTS)
+      setPendingCoachPayouts(pendingCoachPayoutRes.data || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -223,6 +286,35 @@ export default function FinanceDashboardPage() {
           </div>
         </Card>
 
+        {/* ── ONE-TIME REVENUE ─────────────────────────────────────────── */}
+        {/* Real Stripe payments actually collected (foundation_payments /
+            coach_payments / board_listing_payments, migration 20261015170000
+            per the mobile FinancePortalScreen; summary RPC is 20261015150614).
+            Deliberately separate from SUBSCRIPTION REVENUE above — these are
+            one-off charges, never blended into the modelled MRR/ARR. */}
+        <Card style={{ marginBottom: '20px' }}>
+          <SectionTitle
+            eyebrow="One-Time Revenue"
+            title="One-time payments"
+            caption="Real Stripe payments actually collected this period, Foundation services, coaching bookings, and board listings. Kept separate from the subscription MRR/ARR above."
+          />
+          <div className="fn-grid" style={{ opacity: loading ? 0.6 : 1 }}>
+            <Tile
+              label="Foundation" sub={`${fmt(oneTimeRevenue.foundation_payments_count)} payments`}
+              value={fmtEuro(oneTimeRevenue.foundation_revenue_cents)} icon={GraduationCap} accent="#2563EB"
+            />
+            <Tile
+              label="Coaching" sub={`${fmt(oneTimeRevenue.coach_payments_count)} payments`}
+              value={fmtEuro(oneTimeRevenue.coach_revenue_cents)} icon={UserCheck} accent="#A21CAF"
+            />
+            <Tile
+              label="Board listings" sub={`${fmt(oneTimeRevenue.board_listing_payments_count)} payments`}
+              value={fmtEuro(oneTimeRevenue.board_listing_revenue_cents)} icon={Megaphone} accent={GREEN}
+            />
+            <Tile label="Total one-time" value={fmtEuro(oneTimeRevenue.total_one_time_revenue_cents)} icon={Receipt} accent={NAVY} />
+          </div>
+        </Card>
+
         {/* ── COMMISSIONS + PAYOUTS ────────────────────────────────────── */}
         <div className="fn-two-col">
           <Card>
@@ -248,6 +340,52 @@ export default function FinanceDashboardPage() {
             </div>
           </Card>
         </div>
+
+        {/* ── COACH PAYOUTS (STRIPE CONNECT) ───────────────────────────── */}
+        {/* Automated Stripe Connect transfers to coaches (20261015150039) --
+            separate from the Lifestyle Blueprint partner payouts above
+            (different table, different entity). "Pending" here means an
+            actual payment Stripe already collected from a student but that
+            could NOT yet be transferred to the coach -- the list below is
+            what Finance/Founder resolve manually (assign a Partner Tier, or
+            prompt the coach to finish Stripe onboarding). Nothing here is
+            guessed or retried automatically, and it isn't scoped to the
+            selected period -- it reflects the table's current state. */}
+        <Card style={{ marginTop: '20px' }}>
+          <SectionTitle
+            eyebrow="Coaches"
+            title="Coach payouts (Stripe Connect)"
+            caption="Automated transfers to coaches once a student payment is collected. Pending items below need a Partner Tier assigned or the coach's Stripe onboarding finished before they can transfer."
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <MoneyRow label="Pending" count={coachPayouts.pending_count} cents={coachPayouts.pending_amount_cents} tone={AMBER} />
+            <MoneyRow label="Transferred" count={coachPayouts.transferred_count} cents={coachPayouts.transferred_amount_cents} tone={GREEN} />
+          </div>
+
+          {coachPayouts.failed_count > 0 && (
+            <p style={{
+              display: 'flex', alignItems: 'center', gap: '6px', marginTop: '14px', marginBottom: 0,
+              fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: RED,
+            }}>
+              <AlertTriangle size={14} />
+              {fmt(coachPayouts.failed_count)} transfer attempt{coachPayouts.failed_count === 1 ? '' : 's'} failed at Stripe, check function logs.
+            </p>
+          )}
+
+          {pendingCoachPayouts.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
+              {pendingCoachPayouts.map(row => (
+                <PendingPayoutRow key={row.id} coachSlug={row.coach_slug} reason={row.pending_reason} cents={row.gross_amount_cents} />
+              ))}
+            </div>
+          )}
+
+          {!loading && coachPayouts.pending_count === 0 && coachPayouts.transferred_count === 0 && (
+            <p style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '14px', marginBottom: 0, fontFamily: "'DM Sans', sans-serif", fontSize: '11.5px', color: MUTED }}>
+              <CreditCard size={12} /> No coach Stripe Connect transfers recorded yet.
+            </p>
+          )}
+        </Card>
 
       </div>
     </>
