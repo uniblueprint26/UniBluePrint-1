@@ -29,6 +29,12 @@ import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 const SITUATIONS = [
   {
+    key:      'leaving_cert',
+    label:    '5th/6th Year (Leaving Cert)',
+    sub:      'Still in secondary school, preparing for your Leaving Cert and CAO application',
+    hasDetails: false,
+  },
+  {
     key:      'in_college',
     label:    'In College or University',
     sub:      'Currently enrolled in a third-level programme',

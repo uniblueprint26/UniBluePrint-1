@@ -59,6 +59,16 @@ const INCOME_TEMPLATES = {
     { id: 3, label: 'Family support' },
     { id: 4, label: 'Scholarship / Bursary' },
   ],
+  // 5th/6th-year Leaving Cert students aren't in college yet, so no SUSI
+  // Grant line (SUSI only pays out once you're enrolled on an approved
+  // course) — their real income sources are part-time work and an
+  // allowance/pocket money, not a grant or a wage from a trade.
+  leaving_cert: [
+    { id: 1, label: 'Part-time work' },
+    { id: 2, label: 'Allowance / Pocket money' },
+    { id: 3, label: 'Family support' },
+    { id: 4, label: 'Other income' },
+  ],
   apprentice: [
     { id: 1, label: 'Apprenticeship wage' },
     { id: 2, label: 'Family support' },
