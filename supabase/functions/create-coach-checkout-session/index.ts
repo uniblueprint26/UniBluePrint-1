@@ -45,6 +45,19 @@
 // hasn't been made (see docs/business/subscription-pricing-model.md's
 // "Note — coach/partner commission split"), and this function has no
 // notion of it at all.
+//
+// Self-service intro call (Desmond-approved, migration
+// 20261015150000_coach_intro_call_offers.sql): coaches decide for
+// themselves whether to offer a priced "intro call" and at what price —
+// deliberately NOT assigned centrally, so it can't live in the hand-kept
+// COACH_PRICING map below. When the request carries `intro_call: true`,
+// the amount is instead resolved by reading the coach's own ACTIVE
+// coach_intro_call_offers row (RLS lets any authenticated user read an
+// active row — see that table's own policy) — never trusted from the
+// client. A coach's intro call set to €0 is never sent here at all; the
+// client books that directly, no Stripe step, same as any other free
+// pricelist item (e.g. Kevin/TrainWitKev's "Initial consultation") — see
+// CoachBookingScreen.jsx.
 
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -133,7 +146,7 @@ Deno.serve(async req => {
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) return jsonResponse({ error: 'Not authenticated' }, 401)
 
-    const { booking_id, item_label } = await req.json()
+    const { booking_id, item_label, intro_call } = await req.json()
     if (!booking_id || typeof booking_id !== 'string') {
       return jsonResponse({ error: 'booking_id is required' }, 422)
     }
@@ -152,20 +165,40 @@ Deno.serve(async req => {
       return jsonResponse({ error: 'This booking is not awaiting payment.' }, 409)
     }
 
-    const pricing = COACH_PRICING[booking.coach_slug]
-    if (!pricing) return jsonResponse({ error: 'This coach has no payable pricing configured.' }, 422)
-
     let unitAmount: number | undefined
     let resolvedItemLabel: string | null = null
-    if (pricing.items) {
-      if (!item_label || typeof item_label !== 'string' || !(item_label in pricing.items)) {
-        return jsonResponse({ error: 'A valid item_label is required for this coach.' }, 422)
+
+    if (intro_call === true) {
+      // Self-service intro call (see header comment) — resolved from the
+      // coach's own ACTIVE coach_intro_call_offers row, never from
+      // COACH_PRICING (which has no notion of this offer at all) and never
+      // from anything the client sends beyond the `intro_call` flag itself.
+      const { data: offer, error: offerErr } = await supabase
+        .from('coach_intro_call_offers')
+        .select('price_cents, duration_minutes')
+        .eq('coach_slug', booking.coach_slug)
+        .eq('active', true)
+        .maybeSingle()
+      if (offerErr || !offer) {
+        return jsonResponse({ error: 'This coach has no active intro call offer.' }, 422)
       }
-      unitAmount = pricing.items[item_label]
-      resolvedItemLabel = item_label
-    } else if (pricing.flatCents) {
-      unitAmount = pricing.flatCents
+      unitAmount = offer.price_cents
+      resolvedItemLabel = `Intro Call (${offer.duration_minutes} min)`
+    } else {
+      const pricing = COACH_PRICING[booking.coach_slug]
+      if (!pricing) return jsonResponse({ error: 'This coach has no payable pricing configured.' }, 422)
+
+      if (pricing.items) {
+        if (!item_label || typeof item_label !== 'string' || !(item_label in pricing.items)) {
+          return jsonResponse({ error: 'A valid item_label is required for this coach.' }, 422)
+        }
+        unitAmount = pricing.items[item_label]
+        resolvedItemLabel = item_label
+      } else if (pricing.flatCents) {
+        unitAmount = pricing.flatCents
+      }
     }
+
     if (!unitAmount || unitAmount <= 0) {
       return jsonResponse({ error: 'This coach has no payable pricing configured.' }, 422)
     }

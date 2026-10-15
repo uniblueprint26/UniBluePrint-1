@@ -20,6 +20,8 @@ import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { coachBookingUrl } from '../constants/site'
 import { useProAccess } from '../hooks/useProAccess'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { fetchActiveIntroCallOffer, introCallLabel } from '../lib/introCallOffers'
+import { formatEuro } from '../lib/coachPricing'
 
 // iOS: coaching sessions are a real-world service (App Store 3.1.3(e),
 // "goods and services outside the app"), not digital content — so "Book a
@@ -380,6 +382,12 @@ export default function CoachProfileScreen({ route, navigation }) {
   // row with a coach_slug matching this listing. Falls back to the static
   // listing data when no override exists yet.
   const [override, setOverride] = useState(null)
+  // The coach's own self-set intro call offer (Desmond-approved, migration
+  // 20261015150000_coach_intro_call_offers.sql), if they've turned one on —
+  // null until fetched, and stays null for coaches with none active (the
+  // default for every coach). Shown alongside their existing pricelist, not
+  // instead of it — see the Pricing section below.
+  const [introOffer, setIntroOffer] = useState(null)
   const [enquiryOpen, setEnquiryOpen] = useState(false)
   const [rateOpen, setRateOpen] = useState(false)
   const [myRating, setMyRating] = useState(null)
@@ -397,6 +405,14 @@ export default function CoachProfileScreen({ route, navigation }) {
       .eq('coach_slug', coachSlug(baseCoach.id))
       .maybeSingle()
       .then(({ data }) => { if (!cancelled && data) setOverride(data) })
+    return () => { cancelled = true }
+  }, [baseCoach.id])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchActiveIntroCallOffer(coachSlug(baseCoach.id)).then(offer => {
+      if (!cancelled) setIntroOffer(offer)
+    })
     return () => { cancelled = true }
   }, [baseCoach.id])
 
@@ -444,6 +460,17 @@ export default function CoachProfileScreen({ route, navigation }) {
   const coach = override
     ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto, verified: !!override.verified }
     : { ...baseCoach, photoUrl: resolvedPhoto, verified: false }
+
+  // Pricing section data: the coach's existing static pricelist (untouched)
+  // plus, when active, their own self-set intro call offer as one more row
+  // — never replacing anything already there. A coach with no pricelist at
+  // all but an active intro call still gets a (single-row) Pricing section.
+  const introRow = introOffer
+    ? { label: introCallLabel(introOffer), price: introOffer.price_cents > 0 ? formatEuro(introOffer.price_cents) : 'Free' }
+    : null
+  const displayPricelist = introRow
+    ? [...(coach.pricelist || []), introRow]
+    : coach.pricelist
 
   function handleEnquire() {
     if (!coach.contact) return
@@ -629,17 +656,18 @@ export default function CoachProfileScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* ── Pricelist ── */}
-        {coach.pricelist && (
+        {/* ── Pricelist (coach's existing items, plus their own active
+            intro call offer as one more row — see displayPricelist above) ── */}
+        {displayPricelist && displayPricelist.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Pricing</Text>
             <View style={styles.pricelistCard}>
-              {coach.pricelist.map((p, i) => (
+              {displayPricelist.map((p, i) => (
                 <View
                   key={p.label}
                   style={[
                     styles.pricelistRow,
-                    i < coach.pricelist.length - 1 && styles.pricelistDivider,
+                    i < displayPricelist.length - 1 && styles.pricelistDivider,
                   ]}
                 >
                   <Text style={styles.pricelistLabel}>{p.label}</Text>
@@ -655,8 +683,8 @@ export default function CoachProfileScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* ── Pricing note (no pricelist) ── */}
-        {!coach.pricelist && coach.pricingNote && (
+        {/* ── Pricing note (no pricelist/intro call) ── */}
+        {!(displayPricelist && displayPricelist.length > 0) && coach.pricingNote && (
           <View style={styles.section}>
             <View style={styles.noteCard}>
               <Text style={styles.noteText}>{coach.pricingNote}</Text>

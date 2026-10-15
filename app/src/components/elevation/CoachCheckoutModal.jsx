@@ -12,7 +12,12 @@ import { formatEuro } from '../../lib/coachPricing'
 // `<CoachCheckoutModal ref={checkoutRef} />` once alongside the booking
 // form, then right after inserting the 'pending_payment' coach_bookings row:
 //
-//   await checkoutRef.current.start({ bookingId: booking.id, itemLabel })
+//   await checkoutRef.current.start({ bookingId: booking.id, itemLabel, introCall })
+//
+// introCall (optional, default false) tells create-coach-checkout-session to
+// resolve the charge from the coach's own self-set coach_intro_call_offers
+// row instead of the hand-kept COACH_PRICING map — see
+// CoachBookingScreen.jsx's header comment on the self-service intro call.
 //
 // start() resolves once Stripe has actually confirmed the charge, or
 // rejects with 'Payment cancelled.' — mirrors FoundationCheckoutModal.jsx
@@ -93,7 +98,7 @@ const CoachCheckoutModal = forwardRef(function CoachCheckoutModal(_props, ref) {
     setState({ visible: true, phase: 'creating', error: null, amountCents: null })
     try {
       const { data, error } = await supabase.functions.invoke('create-coach-checkout-session', {
-        body: { booking_id: params.bookingId, item_label: params.itemLabel ?? null },
+        body: { booking_id: params.bookingId, item_label: params.itemLabel ?? null, intro_call: params.introCall ?? false },
       })
       if (error || data?.error) {
         throw new Error(data?.error || error?.message || 'Could not start checkout. Please try again.')

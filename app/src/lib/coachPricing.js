@@ -63,3 +63,46 @@ export function getCoachPricingShape(coach) {
 export function formatEuro(cents) {
   return `€${(cents / 100).toFixed(2)}`
 }
+
+// Merges a coach's self-set, active intro-call offer (see
+// lib/introCallOffers.js and migration 20261015150000_coach_intro_call_
+// offers.sql) into whichever pricing shape getCoachPricingShape produced —
+// purely additive. `offer` is null for the (default, most common) case of a
+// coach with no active intro call, in which case `pricing` is returned
+// completely unchanged.
+//
+//   - 'pricelist' coach: the intro call becomes one more selectable item
+//     alongside their existing pricelist (e.g. Kevin's existing pricelist
+//     items, untouched, plus his new intro call).
+//   - 'enquiry' coach: the intro call becomes the one real, bookable/
+//     payable thing they now offer — the original enquiry-only flow is
+//     otherwise untouched for any coach without an active offer.
+//   - 'flat' coach: left as-is. No coach in today's roster is actually in
+//     this bucket (see coachPricing.js's own header), so combining a flat
+//     price with a self-set intro call isn't built here.
+export function withIntroCallOffer(pricing, offer) {
+  if (!offer) return pricing
+  const introItem = {
+    label: introCallLabel(offer),
+    priceLabel: offer.price_cents > 0 ? formatEuro(offer.price_cents) : 'Free',
+    cents: offer.price_cents,
+    chargeable: offer.price_cents > 0,
+    isIntroCall: true,
+  }
+  if (pricing.kind === 'pricelist') {
+    return { kind: 'pricelist', items: [...pricing.items, introItem] }
+  }
+  if (pricing.kind === 'enquiry') {
+    return { kind: 'pricelist', items: [introItem] }
+  }
+  return pricing
+}
+
+// Exact same label text create-coach-checkout-session builds server-side
+// when resolving an intro-call charge — a simple template string kept in
+// sync by eye rather than by a shared constant across the JS/TS boundary.
+// Exported so lib/introCallOffers.js's helpers can build the identical
+// string without duplicating this template.
+export function introCallLabel(offer) {
+  return `Intro Call (${offer.duration_minutes} min)`
+}

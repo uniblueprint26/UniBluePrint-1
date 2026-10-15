@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   ActivityIndicator, KeyboardAvoidingView, Platform,
@@ -16,7 +16,8 @@ import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
 import { coachSlug } from './ElevationScreen'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
-import { getCoachPricingShape, formatEuro } from '../lib/coachPricing'
+import { getCoachPricingShape, formatEuro, withIntroCallOffer } from '../lib/coachPricing'
+import { fetchActiveIntroCallOffer } from '../lib/introCallOffers'
 
 // ── Book a Coach ─────────────────────────────────────────────────────────────
 // A dedicated pick-date -> pick-time -> confirm flow, reachable from a
@@ -40,6 +41,19 @@ import { getCoachPricingShape, formatEuro } from '../lib/coachPricing'
 // priced `Available on request` (or an unparseable/free pricelist item) has
 // nothing to charge, so it keeps the original enquiry-only insert, no
 // payment step at all.
+//
+// Self-service intro call (Desmond-approved, see migration
+// 20261015150000_coach_intro_call_offers.sql): a coach can separately opt
+// into a self-priced "intro call" offer from their own CoachStudioScreen —
+// independent of the static COACHES pricelist above. `effectivePricing`
+// below merges that ACTIVE offer (if any) into whatever `pricing` shape
+// getCoachPricingShape already produced (see lib/coachPricing.js's
+// withIntroCallOffer), as one more selectable item. A free (€0) intro call
+// still books directly through the existing free-item path below — never a
+// second free-booking code path; a priced one is charged by the same
+// create-coach-checkout-session call, just with `intro_call: true` so it
+// resolves the amount from coach_intro_call_offers instead of the hand-kept
+// COACH_PRICING map.
 
 const TIME_SLOTS = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM']
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -78,6 +92,18 @@ export default function CoachBookingScreen({ route, navigation }) {
 
   const days = useMemo(() => buildUpcomingDays(10), [])
   const pricing = useMemo(() => getCoachPricingShape(coach), [coach])
+  // The coach's own self-set intro call offer, if they've turned one on
+  // (see header comment) — null until fetched, and stays null for the vast
+  // majority of coaches who have none active.
+  const [introOffer, setIntroOffer] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    fetchActiveIntroCallOffer(coachSlug(coach.id)).then(offer => {
+      if (!cancelled) setIntroOffer(offer)
+    })
+    return () => { cancelled = true }
+  }, [coach.id])
+  const effectivePricing = useMemo(() => withIntroCallOffer(pricing, introOffer), [pricing, introOffer])
   const [selectedDay, setSelectedDay] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
@@ -91,7 +117,7 @@ export default function CoachBookingScreen({ route, navigation }) {
   // of inserting a duplicate row for the same selection.
   const pendingBookingIdRef = useRef(null)
 
-  const itemReady = pricing.kind !== 'pricelist' || !!selectedItem
+  const itemReady = effectivePricing.kind !== 'pricelist' || !!selectedItem
   const ready = !!(selectedDay && selectedTime && itemReady)
 
   if (proLoading) return null
@@ -127,9 +153,9 @@ export default function CoachBookingScreen({ route, navigation }) {
     setErrorMsg(null)
     try {
       // Enquiry-only coach ('Available on request', or no parseable price
-      // at all) — original flow, completely untouched: a plain request,
-      // no payment gate.
-      if (pricing.kind === 'enquiry') {
+      // at all, AND no active intro call offer either) — original flow,
+      // completely untouched: a plain request, no payment gate.
+      if (effectivePricing.kind === 'enquiry') {
         const { error } = await supabase.from('coach_bookings').insert({
           user_id: user.id,
           coach_slug: coachSlug(coach.id),
@@ -143,13 +169,14 @@ export default function CoachBookingScreen({ route, navigation }) {
         return
       }
 
-      const amountCents = pricing.kind === 'pricelist' ? selectedItem.cents : pricing.cents
-      const itemLabel = pricing.kind === 'pricelist' ? selectedItem.label : null
+      const amountCents = effectivePricing.kind === 'pricelist' ? selectedItem.cents : effectivePricing.cents
+      const itemLabel = effectivePricing.kind === 'pricelist' ? selectedItem.label : null
+      const isIntroCall = effectivePricing.kind === 'pricelist' && !!selectedItem.isIntroCall
 
       if (!amountCents || amountCents <= 0) {
-        // A free pricelist item (e.g. "Initial consultation" — €0) —
-        // nothing to charge, so this books directly too, tagged with which
-        // free item was requested.
+        // A free pricelist item (e.g. "Initial consultation" — €0, or a
+        // coach's own free intro call offer) — nothing to charge, so this
+        // books directly too, tagged with which free item was requested.
         const { error } = await supabase.from('coach_bookings').insert({
           user_id: user.id,
           coach_slug: coachSlug(coach.id),
@@ -191,7 +218,7 @@ export default function CoachBookingScreen({ route, navigation }) {
         pendingBookingIdRef.current = bookingId
       }
 
-      await checkoutRef.current.start({ bookingId, itemLabel })
+      await checkoutRef.current.start({ bookingId, itemLabel, introCall: isIntroCall })
       pendingBookingIdRef.current = null
       setSent(true)
     } catch (err) {
@@ -328,7 +355,7 @@ export default function CoachBookingScreen({ route, navigation }) {
               with a real chargeable price (see lib/coachPricing.js) — an
               "Available on request" coach has nothing to pick here and
               goes straight to the note/confirm step below, unchanged. */}
-          {pricing.kind === 'pricelist' && (
+          {effectivePricing.kind === 'pricelist' && (
             <>
               <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
                 <Wallet size={14} color={colors.textPrimary} />
@@ -336,7 +363,7 @@ export default function CoachBookingScreen({ route, navigation }) {
               </View>
               <Text style={styles.hintText}>Paid items are charged now to confirm the request; free items send straight away.</Text>
               <View style={styles.pricelistWrap}>
-                {pricing.items.map(item => {
+                {effectivePricing.items.map(item => {
                   const active = selectedItem?.label === item.label
                   return (
                     <TouchableOpacity
@@ -356,18 +383,18 @@ export default function CoachBookingScreen({ route, navigation }) {
             </>
           )}
 
-          {pricing.kind === 'flat' && (
+          {effectivePricing.kind === 'flat' && (
             <View style={styles.flatPriceCard}>
               <Wallet size={14} color={colors.textPrimary} />
               <Text style={styles.flatPriceText}>
-                This session is <Text style={styles.summaryStrong}>{formatEuro(pricing.cents)}</Text> — you'll pay when you confirm below.
+                This session is <Text style={styles.summaryStrong}>{formatEuro(effectivePricing.cents)}</Text> — you'll pay when you confirm below.
               </Text>
             </View>
           )}
 
           {/* Step 4 — confirm */}
           <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
-            <Text style={styles.stepLabel}>{pricing.kind === 'pricelist' ? '4' : '3'}. Add a note (optional) and confirm</Text>
+            <Text style={styles.stepLabel}>{effectivePricing.kind === 'pricelist' ? '4' : '3'}. Add a note (optional) and confirm</Text>
           </View>
           <TextInput
             style={styles.input}
@@ -387,15 +414,15 @@ export default function CoachBookingScreen({ route, navigation }) {
                 <Text style={styles.summaryStrong}>
                   {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </Text>{' '}with {coach.name}
-                {pricing.kind === 'pricelist' && selectedItem && (
+                {effectivePricing.kind === 'pricelist' && selectedItem && (
                   <>{' '}for <Text style={styles.summaryStrong}>{selectedItem.label}</Text></>
                 )}
                 .
-                {pricing.kind === 'pricelist' && selectedItem?.chargeable && (
+                {effectivePricing.kind === 'pricelist' && selectedItem?.chargeable && (
                   <Text style={styles.summaryStrong}> Paying {selectedItem.priceLabel} now.</Text>
                 )}
-                {pricing.kind === 'flat' && (
-                  <Text style={styles.summaryStrong}> Paying {formatEuro(pricing.cents)} now.</Text>
+                {effectivePricing.kind === 'flat' && (
+                  <Text style={styles.summaryStrong}> Paying {formatEuro(effectivePricing.cents)} now.</Text>
                 )}
               </Text>
             </View>
@@ -412,14 +439,14 @@ export default function CoachBookingScreen({ route, navigation }) {
             {sending
               ? <ActivityIndicator size="small" color={colors.accentFg} />
               : <Text style={styles.confirmCtaText}>
-                  {(pricing.kind === 'flat' || (pricing.kind === 'pricelist' && selectedItem?.chargeable))
+                  {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
                     ? 'Pay & Send Booking Request'
                     : 'Send Booking Request'}
                 </Text>
             }
           </TouchableOpacity>
           <Text style={styles.disclaimer}>
-            {(pricing.kind === 'flat' || (pricing.kind === 'pricelist' && selectedItem?.chargeable))
+            {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
               ? `Confirming opens secure payment in your browser. Your request to ${coach.name} is sent once that's done — it isn't confirmed until they accept.`
               : `This sends a request, it isn't confirmed until ${coach.name} accepts.`}
           </Text>

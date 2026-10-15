@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Switch } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -168,6 +168,188 @@ function EditProfileSection({ userId }) {
               }
             </TouchableOpacity>
             {saved && <Text style={styles.editSavedText}>Saved. Operations has been notified.</Text>}
+          </>
+        )}
+      </Card>
+    </>
+  )
+}
+
+// ── Intro Call Offer ─────────────────────────────────────────────────────
+// Self-service "intro call" / taster-session tier (Desmond-approved — see
+// migration 20261015150000_coach_intro_call_offers.sql). Desmond deliberately
+// does NOT want this assigned centrally: every coach decides for themself
+// whether to offer one and at what price (default OFF). This is a NEW,
+// separate offer layered on top of a coach's existing pricelist (set
+// centrally in ElevationScreen.jsx's COACHES array) — it never edits or
+// replaces anything already there. Same unlinked-profile guard as
+// EditProfileSection above — a coach without a linked coach_profiles row
+// (coach_slug) has nothing to attach this offer to yet.
+function IntroCallOfferSection({ userId }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const [loading, setLoading]     = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [coachSlugValue, setCoachSlugValue] = useState(null) // null if unlinked
+  const [active, setActive]                 = useState(false)
+  const [priceEuros, setPriceEuros]         = useState('0')
+  const [durationMinutes, setDurationMinutes] = useState('15')
+  const [saving, setSaving]       = useState(false)
+  const [saved, setSaved]         = useState(false)
+  const [saveError, setSaveError] = useState(null)
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+
+    async function load() {
+      const { data: profile, error: profileErr } = await supabase
+        .from('coach_profiles')
+        .select('coach_slug')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (cancelled) return
+      if (profileErr || !profile?.coach_slug) {
+        setLoadError(!!profileErr)
+        setLoading(false)
+        return
+      }
+      setCoachSlugValue(profile.coach_slug)
+
+      // RLS lets a coach read their own row regardless of active state
+      // (coach_manage_own_intro_call_offer) — unlike the authenticated
+      // active-only read policy students get, so a coach can see and edit
+      // a currently-OFF offer here.
+      const { data: offer, error: offerErr } = await supabase
+        .from('coach_intro_call_offers')
+        .select('active, price_cents, duration_minutes')
+        .eq('coach_slug', profile.coach_slug)
+        .maybeSingle()
+      if (cancelled) return
+      if (offerErr) { setLoadError(true); setLoading(false); return }
+      if (offer) {
+        setActive(offer.active)
+        setPriceEuros((offer.price_cents / 100).toFixed(2))
+        setDurationMinutes(String(offer.duration_minutes))
+      }
+      setLoading(false)
+    }
+
+    load().catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }, [userId])
+
+  async function save() {
+    if (!coachSlugValue) return
+    const parsedPrice = Math.round(parseFloat(String(priceEuros).replace(',', '.')) * 100)
+    const parsedDuration = parseInt(durationMinutes, 10)
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      setSaveError('Enter a valid price — 0 or more (0 for a free intro call).')
+      return
+    }
+    if (!Number.isInteger(parsedDuration) || parsedDuration <= 0) {
+      setSaveError('Enter a valid duration in minutes — more than 0.')
+      return
+    }
+    setSaving(true)
+    setSaved(false)
+    setSaveError(null)
+    try {
+      // Upsert — this is the coach's first save (insert) if they've never
+      // set an offer before, or an update on every save after that; RLS's
+      // "coach_manage_own_intro_call_offer" with-check covers both since
+      // coach_slug always matches this coach's own linked row.
+      const { error } = await supabase
+        .from('coach_intro_call_offers')
+        .upsert({
+          coach_slug: coachSlugValue,
+          active,
+          price_cents: parsedPrice,
+          duration_minutes: parsedDuration,
+        }, { onConflict: 'coach_slug' })
+      if (error) throw error
+      setSaved(true)
+    } catch (err) {
+      setSaveError(err?.message || 'Could not save your intro call offer. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <>
+      <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+        <Wallet size={14} color={colors.textPrimary} />
+        <Text style={styles.sectionEyebrow}>INTRO CALL OFFER</Text>
+      </View>
+
+      <Card style={styles.editCard}>
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.textPrimary} />
+        ) : loadError ? (
+          <Text style={styles.editUnlinkedText}>Couldn't load your intro call offer right now. Pull to refresh or check back shortly.</Text>
+        ) : !coachSlugValue ? (
+          <Text style={styles.editUnlinkedText}>
+            Your coach profile hasn't been linked yet. Contact Operations to get your bio and listing
+            connected, once that's done you can set up your own intro call offer here.
+          </Text>
+        ) : (
+          <>
+            <Text style={styles.introCallIntro}>
+              Offer students a short intro / taster call at a price you set. Off by default — you decide
+              whether to turn it on, what to charge (including free), and how long it runs.
+            </Text>
+
+            <View style={styles.introCallToggleRow}>
+              <Text style={styles.introCallToggleLabel}>Show this offer to students</Text>
+              <Switch
+                value={active}
+                onValueChange={setActive}
+                trackColor={{ false: 'rgba(30,58,95,0.15)', true: colors.accentBg }}
+              />
+            </View>
+
+            <Text style={styles.editLabel}>Price (EUR — 0 for a free intro call)</Text>
+            <TextInput
+              style={styles.introCallInput}
+              value={priceEuros}
+              onChangeText={setPriceEuros}
+              keyboardType="decimal-pad"
+              placeholder="0.00"
+              placeholderTextColor={colors.light}
+            />
+
+            <Text style={styles.editLabel}>Duration (minutes)</Text>
+            <TextInput
+              style={styles.introCallInput}
+              value={durationMinutes}
+              onChangeText={setDurationMinutes}
+              keyboardType="number-pad"
+              placeholder="15"
+              placeholderTextColor={colors.light}
+            />
+
+            {!!saveError && <Text style={styles.introCallError}>{saveError}</Text>}
+
+            <TouchableOpacity
+              style={[styles.editSaveBtn, saving && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              onPress={save}
+              disabled={saving}
+            >
+              {saving
+                ? <ActivityIndicator size="small" color={colors.accentFg} />
+                : <>
+                    <Save size={14} color={colors.accentFg} strokeWidth={2} />
+                    <Text style={styles.editSaveBtnText}>Save Intro Call Offer</Text>
+                  </>
+              }
+            </TouchableOpacity>
+            {saved && (
+              <Text style={styles.editSavedText}>
+                Saved{active ? ' — now visible to students on your profile and booking page.' : ' — currently hidden from students.'}
+              </Text>
+            )}
           </>
         )}
       </Card>
@@ -375,6 +557,9 @@ export default function CoachStudioScreen({ navigation }) {
         {/* Edit My Profile — self-serve bio + photo */}
         <EditProfileSection userId={user?.id} />
 
+        {/* Intro Call Offer — self-serve toggle + price + duration */}
+        <IntroCallOfferSection userId={user?.id} />
+
       </ScrollView>
     </View>
   )
@@ -464,5 +649,22 @@ function __gs_styles(colors) {
     fontFamily: fonts.sans, fontSize: 12, color: '#15803D',
     textAlign: 'center', marginTop: 10,
   },
+
+  introCallIntro: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginBottom: 16 },
+  introCallToggleRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  introCallToggleLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.7, flex: 1, marginRight: 12,
+  },
+  introCallInput: {
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+    padding: 12, marginTop: 8, marginBottom: 16,
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
+  },
+  introCallError: { fontFamily: fonts.sans, fontSize: 12, color: '#DC2626', marginBottom: 10 },
   })
 }
