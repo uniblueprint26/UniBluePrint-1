@@ -18,7 +18,7 @@ import { useTheme } from '../../context/ThemeContext'
 
 export default function FeatureCard({ feature, dark = false, onPress }) {
   const { colors } = useTheme()
-  const cardBg    = dark ? 'rgba(245,240,232,0.08)' : colors.white
+  const cardBg    = dark ? 'rgba(245,240,232,0.08)' : colors.surface
   const labelClr  = dark ? 'rgba(245,240,232,0.5)'  : colors.muted
   const titleClr  = dark ? colors.cream              : colors.textPrimary
   const subClr    = dark ? 'rgba(245,240,232,0.65)'  : colors.muted
