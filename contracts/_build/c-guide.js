@@ -22,7 +22,7 @@ const guide = () => build({
       ['#', 'Document', 'Who signs it', 'Priority'],
       [
         ['01', 'Founder Service Agreement', 'Founder', 'Sign first'],
-        ['02', 'Partner Agreement', 'Lifestyle Blueprint businesses', 'Before September'],
+        ['02', 'Lifestyle Blueprint Business Partner Agreement', 'Lifestyle Blueprint businesses', 'Before September'],
         ['03', 'Uni Coach Agreement', 'Elevation Blueprint coaches', 'Before September'],
         ['04', 'Campus Handler Agreement', 'Foundation Blueprint reviewers', 'Before September'],
         ['05', 'Campus Ambassador Agreement', 'Campus ambassadors', 'Before September'],
@@ -42,9 +42,9 @@ const guide = () => build({
     H('Two things to resolve before anything is sent'),
 
     CL('1', 'The coach revenue share is already public'),
-    S('1.1', 'The website Join page states that Uni Coaches "Keep 85% of every booking". That is a public commitment made to every coach who has read it.'),
-    S('1.2', 'Document 03 is drafted at 85% coach / 15% UniBlueprint to match. Clause 7 then gives you a mechanism to confirm or change the rate by 25 September 2026, with the coach free to walk away if the change is less favourable.'),
-    S('1.3', 'If you want a different split, change the website first. Issuing a contract at a worse rate than your published promise is the kind of inconsistency that loses coaches and invites a consumer-protection complaint.'),
+    S('1.1', 'The website Join page states that Uni Coaches "keep the majority of every booking". That is a public commitment made to every coach who has read it.'),
+    S('1.2', 'Document 03 is now built around that commitment: Payment Option B defaults to an 85% Coach Share / 15% Platform Fee split, and Payment Option A gives 90% (Access Tier) or 92% (Plus Tier) — all consistent with “majority”. If a Payment Option B rate is individually renegotiated under clause 6.1 to below 50%, that no longer matches the public claim and must be confirmed as an intended departure from it before the agreement is issued.'),
+    S('1.3', 'If you want a different split for any Tier or Payment Option, change the website’s wording first. Issuing a contract at a rate that contradicts your published promise is the kind of inconsistency the WRC or a consumer protection body looks for.'),
 
     CL('2', 'You are not incorporated yet'),
     S('2.1', 'Every template carries [COMPANY NUMBER] and [REGISTERED OFFICE] placeholders. Until UniBlueprint Limited exists, there is no company to contract with.'),
@@ -101,15 +101,15 @@ const guide = () => build({
     S('9', 'Issue 06 to 10 to internal team as they join.'),
     S('10', 'Keep a signed-contract register. Document 08 clause 1.1(e) makes that Legal\'s job.'),
 
-    H('The September deadlines you set'),
+    H('Deadlines built into the documents and the website'),
     TABLE(
       ['Date', 'What happens', 'Where it is written'],
       [
-        ['20th of trial month', 'Partner must confirm or make contact with their UBP contact', 'Doc 02, clause 3'],
-        ['5 days before that', 'UniBlueprint must send a reminder, or the date extends', 'Doc 02, clause 3.3'],
-        ['End of trial month', 'If no contact, listing pauses. No charge, no debt.', 'Doc 02, clause 3.4'],
-        ['25 September 2026', 'UniBlueprint confirms the coach revenue share from 1 October', 'Doc 03, clause 7.2'],
-        ['Within 14 days after', 'Coach may exit without penalty if the rate is worse', 'Doc 03, clause 7.3'],
+        ['Decision Point (30 days after the Listing Live Date)', 'Partner must confirm continuation (Payment Option A or B) or make contact with its Partnership Contact', 'Doc 02, clause 3.1'],
+        ['At least 5 days before the Decision Point', 'UniBlueprint must send a written reminder, or the Decision Point extends by 5 days', 'Doc 02, clause 3.3'],
+        ['At the Decision Point, if neither of the above happens', 'Listing pauses. No charge, no debt.', 'Doc 02, clause 3.5'],
+        ["30 days after the Coach's profile first becomes visible (end of the Free Trial Period)", 'Coach Agreement issued confirming Tier and Payment Option (defaults to 85% Coach Share / 15% Platform Fee if the Coach does not choose)', 'Doc 03, clauses 6.1 and 6.3'],
+        ['At any time, including during the trial', "Either party may end the Coach's engagement on notice; no charge or debt arises during the Free Trial Period", 'Doc 03, clause 20.2'],
         ['30 September 2026', 'September trial pricing ends', 'Website and app'],
         ['1 October 2026', 'Standard pricing applies', 'Website and app'],
       ],
@@ -124,7 +124,7 @@ const guide = () => build({
 
     H('Keeping it consistent with the product'),
     P('These contracts reference what the website and app actually say. If you change any of the following, the contracts must change too:'),
-    B('The coach revenue share on the Join page (currently 85%)'),
+    B('The coach revenue share framing on the Join page (currently "majority of every booking", with the Tier/Payment Option percentages set out in document 03 clause 6.1)'),
     B('The refund and cancellation terms in the Refund Policy (24-hour cancellation, 48-hour quality window)'),
     B('Service prices on the Pricing page (Foundation €15 to €20, Elevation €20 to €40)'),
     B('The September trial dates (ends 30 September 2026, standard pricing 1 October 2026)'),
