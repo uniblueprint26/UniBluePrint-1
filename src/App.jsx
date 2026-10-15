@@ -13,6 +13,7 @@ const BehindTheBlueprintPage = lazy(() => import('./pages/BehindTheBlueprintPage
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'))
 const FoundationBlueprintPage = lazy(() => import('./pages/FoundationBlueprintPage'))
 const ElevationBlueprintPage = lazy(() => import('./pages/ElevationBlueprintPage'))
+const ElevationCoachProfilePage = lazy(() => import('./pages/ElevationCoachProfilePage'))
 const ElevationCoachBookingPage = lazy(() => import('./pages/ElevationCoachBookingPage'))
 const LifestyleBlueprintPage = lazy(() => import('./pages/LifestyleBlueprintPage'))
 const CampusConnectPage = lazy(() => import('./pages/CampusConnectPage'))
@@ -87,6 +88,11 @@ function AppRoutes() {
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/foundation-blueprint" element={<FoundationBlueprintPage />} />
         <Route path="/elevation-blueprint" element={<ElevationBlueprintPage />} />
+        {/* Public, no auth wall — a single coach's shareable preview link
+            (the "Partiful pattern": works for someone signed out with no
+            app, see ElevationCoachProfilePage.jsx's own comment). Not
+            wrapped in ProtectedRoute, same reasoning as book-coach below. */}
+        <Route path="/elevation/coach/:id" element={<ElevationCoachProfilePage />} />
         {/* Not wrapped in ProtectedRoute — the page itself shows a sign-in
             prompt that keeps the coach/booking query params (coach, name,
             category) intact across that detour, rather than losing them to
