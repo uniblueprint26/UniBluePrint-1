@@ -10,6 +10,14 @@
  * activeTicketCount both read, so the two screens can't disagree about how
  * many tickets a Handler is carrying.
  *
+ * refunded_at is excluded too (foundation_refund_flow.sql) — a refunded
+ * submission is withdrawn from the live queue even if its stage hadn't
+ * otherwise moved to 'delivered' yet, since Operations/Founder refunding it
+ * means no further Handler work on it is expected. refund-foundation-
+ * payment doesn't change `stage` itself (see that migration's own comment
+ * on why), so this filter is what actually keeps a refunded ticket out of
+ * a Handler's active list.
+ *
  * Note on turnaround_deadline vs. submissions.deadline: the pipeline's own
  * SQL helper, ticket_urgency(), reads submissions.deadline, but nothing in
  * the app ever writes that column — submit_document_for_review() only sets
@@ -52,6 +60,7 @@ export function useHandlerTickets(userId) {
         .select('id, tier, stage, turnaround_deadline, submitted_name, services(name)')
         .eq('handler_id', userId)
         .in('stage', ACTIVE_STAGES)
+        .is('refunded_at', null)
         .order('turnaround_deadline', { ascending: true })
       if (error) throw error
       setTickets(data || [])
