@@ -6,7 +6,7 @@
  * Societies "request a new society" flow, which shares this form but
  * targets a different subset of fields / a different status value).
  */
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   Modal, View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -14,12 +14,33 @@ import {
 import { X, Plus, Star, Check } from 'lucide-react-native'
 import ImageUploader from '../ui/ImageUploader'
 import FileUploader from '../ui/FileUploader'
+import BoardListingCheckoutModal from '../boards/BoardListingCheckoutModal'
 import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
+import { useProAccess } from '../../hooks/useProAccess'
+import { MARKETPLACE_SKILL_PRICE_CENTS, formatEuro } from '../../constants/boardListingPricing'
+import { confirmAsync } from '../../utils/confirmAlert'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+// Default `paymentGate` per target table, used whenever a caller doesn't
+// pass one explicitly (see the `paymentGate` prop doc below). Keyed by
+// table name rather than wired through BoardDetailScreen/marketplaceBoards.js
+// so every existing call site keeps working unchanged — this is the one
+// board whose postings are sometimes paid (pricing doc §1.7). 'buysell'
+// (marketplace_listings) and every Campus/Course Connect board are
+// deliberately absent, so they fall through to the normal free-insert path.
+const DEFAULT_PAYMENT_GATES = {
+  marketplace_skills: {
+    listingKind: 'marketplace_skill',
+    priceCents: MARKETPLACE_SKILL_PRICE_CENTS,
+    shouldCharge: v => v.listing_type === 'Offering a skill',
+    confirmMessage: (amountCents, isPro) =>
+      `Offering a skill costs ${formatEuro(amountCents)}${isPro ? ' (Pro rate)' : ''} to list. ("Looking for a skill" posts stay free.)`,
+  },
+}
 
 function StarPicker({ value, onChange }) {
   const { colors } = useTheme()
@@ -140,12 +161,31 @@ function TogglePicker({ value, onChange, onLabel, offLabel }) {
 export default function PostFormModal({
   visible, onClose, board, fields, tableOverride, titleOverride,
   extraValues, onPosted, userIdField = 'user_id', includePosterName = true,
+  // paymentGate — optional override for boards with a real per-listing
+  // charge (currently just the Skills Marketplace's "Offering a skill"
+  // case, pricing doc §1.7; see boardListingPricing.js and
+  // BoardListingCheckoutModal.jsx for the shared shape Ad Board's
+  // PostAdModal also uses). Shape:
+  //   { listingKind: 'marketplace_skill', priceCents: { free, pro },
+  //     shouldCharge: (values) => boolean, confirmMessage?: (amountCents, isPro) => string }
+  // shouldCharge is checked against the live form `values` at submit time
+  // (e.g. only when listing_type === 'Offering a skill') — everything else
+  // this board posts stays on the normal direct-insert path below. The
+  // amount shown here is disclosure only; create-board-listing-checkout-
+  // session recomputes it server-side and is the actual charge. When not
+  // passed, DEFAULT_PAYMENT_GATES[table] applies instead (see above), so
+  // every existing PostFormModal call site (BoardDetailScreen included)
+  // gets the real gate with no change on its end.
+  paymentGate,
 }) {
   const { colors } = useTheme()
   const f = getStyles(colors)
   const { user } = useAuth()
+  const { isPro } = useProAccess()
+  const checkoutRef = useRef(null)
   const activeFields = fields || board?.fields || []
   const table = tableOverride || board?.table
+  const effectivePaymentGate = paymentGate || DEFAULT_PAYMENT_GATES[table] || null
 
   const initial = {}
   activeFields.forEach(field => {
@@ -193,6 +233,22 @@ export default function PostFormModal({
       }
     }
 
+    // Payment gate check happens before the spinner shows — same "confirm,
+    // then pay" order PostAdModal.jsx uses for Ad Board ads. If the user
+    // cancels here, nothing has been touched yet (no setSaving, no payload
+    // built), so just bail out.
+    const charge = effectivePaymentGate && effectivePaymentGate.shouldCharge(values) ? effectivePaymentGate : null
+    if (charge) {
+      const amountCents = isPro ? charge.priceCents.pro : charge.priceCents.free
+      const ok = await confirmAsync(
+        'Payment required',
+        charge.confirmMessage
+          ? charge.confirmMessage(amountCents, isPro)
+          : `This listing costs ${formatEuro(amountCents)}${isPro ? ' (Pro rate)' : ''}.`,
+      )
+      if (!ok) return
+    }
+
     setSaving(true)
     setErrorMsg(null)
 
@@ -225,12 +281,28 @@ export default function PostFormModal({
     }
 
     try {
-      const { data, error } = await supabase.from(table).insert(payload).select().single()
-      if (error) throw error
-      onPosted(data)
-      reset()
-    } catch {
-      setErrorMsg('Could not post. Please check your entries and try again.')
+      if (charge) {
+        // The paid path never inserts directly — create-board-listing-
+        // checkout-session / stripe-webhook does that once Stripe confirms
+        // the charge (or immediately, server-side, for Ad Board's free
+        // monthly ad; not applicable here since marketplace listings are
+        // never free — see boardListingPricing.js). `payload` already has
+        // every form field the edge function expects; it ignores
+        // user_id/poster_name and sets those itself from the authenticated
+        // caller, so sending them here too is harmless.
+        const row = await checkoutRef.current.start({ listingKind: charge.listingKind, payload })
+        onPosted(row)
+        reset()
+      } else {
+        const { data, error } = await supabase.from(table).insert(payload).select().single()
+        if (error) throw error
+        onPosted(data)
+        reset()
+      }
+    } catch (err) {
+      if (err?.message !== 'Payment cancelled.') {
+        setErrorMsg(err?.message && charge ? err.message : 'Could not post. Please check your entries and try again.')
+      }
     } finally {
       setSaving(false)
     }
@@ -352,6 +424,8 @@ export default function PostFormModal({
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+
+      {!!effectivePaymentGate && <BoardListingCheckoutModal ref={checkoutRef} />}
     </Modal>
   )
 }

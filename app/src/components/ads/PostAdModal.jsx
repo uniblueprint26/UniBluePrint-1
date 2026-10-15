@@ -4,17 +4,21 @@
  * live Ad Board list) and WeeklyBlueprintScreen (the magazine's Ad Board
  * page "Advertise With Us" CTA), so it lives here rather than duplicated.
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput,
   Modal, KeyboardAvoidingView, Platform, ScrollView, Alert, StyleSheet,
 } from 'react-native'
 import { X, Globe, Building2, ShoppingBag } from 'lucide-react-native'
 import ImageUploader from '../ui/ImageUploader'
+import BoardListingCheckoutModal from '../boards/BoardListingCheckoutModal'
 import { supabase } from '../../lib/supabase'
 import { fonts, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
+import { useProAccess } from '../../hooks/useProAccess'
+import { AD_BOARD_PRICE_CENTS, formatEuro, ordinal } from '../../constants/boardListingPricing'
+import { confirmAsync } from '../../utils/confirmAlert'
 
 function __gs_BOARDS(colors) {
   return [
@@ -30,6 +34,8 @@ export default function PostAdModal({ visible, onClose }) {
   const m = __gs_m(colors)
   const BOARDS = __gs_BOARDS(colors)
   const { user }                        = useAuth()
+  const { isPro }                       = useProAccess()
+  const checkoutRef                     = useRef(null)
   const [title,       setTitle]         = useState('')
   const [description, setDescription]   = useState('')
   const [link,        setLink]          = useState('')
@@ -49,27 +55,53 @@ export default function PostAdModal({ visible, onClose }) {
     setBoards(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key])
   }
 
+  // Ad Board pricing (docs/business/subscription-pricing-model.md §1.6):
+  // 1 free ad per calendar month for everyone, then €4.99 (free tier) /
+  // €1.99 (Pro) per ad. The monthly count is only ever a client-side
+  // disclosure here — create-board-listing-checkout-session recomputes it
+  // server-side and is the actual gate (see that function's own comment),
+  // so a stale/manipulated count here can at most show the wrong price in
+  // this confirm dialog, never let anyone post for free.
   async function handleSubmit() {
     if (!canSubmit || submitting) return
     setSubmitting(true)
     try {
-      const { error } = await supabase.from('ads').insert({
-        user_id:     user?.id,
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+      const { count } = await supabase
+        .from('ads')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', startOfMonth.toISOString())
+      const nth = (count || 0) + 1
+
+      if (nth > 1) {
+        const amountCents = isPro ? AD_BOARD_PRICE_CENTS.pro : AD_BOARD_PRICE_CENTS.free
+        const ok = await confirmAsync(
+          'Payment required',
+          `This is your ${ordinal(nth)} ad this month — ${formatEuro(amountCents)}. Your first ad each calendar month is free; this one isn't.`,
+        )
+        if (!ok) { setSubmitting(false); return }
+      }
+
+      const payload = {
         title:       title.trim(),
         description: description.trim(),
         target_url:  link.trim() || null,
         boards,
-        status:      'pending_review',
-        active:      false,
         image_url:   imageUrl || null,
-      })
-      if (error) throw error
+      }
+      await checkoutRef.current.start({ listingKind: 'ad_board', payload })
+
       setTitle(''); setDescription(''); setLink(''); setBoards([])
       setImageUrl(null)
       onClose()
       Alert.alert('Ad submitted', 'Your ad is in for review. It goes live once approved.')
-    } catch {
-      Alert.alert('Something went wrong', 'Your ad was not submitted. Please try again.')
+    } catch (err) {
+      if (err?.message !== 'Payment cancelled.') {
+        Alert.alert('Something went wrong', err?.message || 'Your ad was not submitted. Please try again.')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -153,9 +185,15 @@ export default function PostAdModal({ visible, onClose }) {
               <Text style={m.submitBtnText}>{submitting ? 'Submitting...' : 'Submit Ad for Review'}</Text>
             </TouchableOpacity>
             <Text style={m.submitNote}>Ads are reviewed by the UniBlueprint team before going live. We'll be in touch within 24 hours.</Text>
+            <Text style={m.submitNote}>
+              Your first ad each calendar month is free. After that it's {formatEuro(AD_BOARD_PRICE_CENTS.free)} per ad
+              ({formatEuro(AD_BOARD_PRICE_CENTS.pro)} for Pro).
+            </Text>
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+
+      <BoardListingCheckoutModal ref={checkoutRef} />
     </Modal>
   )
 }
