@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, X, Menu } from 'lucide-react-native'
+import { Search, X, Menu, GraduationCap } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -13,6 +13,7 @@ import { INTERESTS } from '../data/interests'
 import { useAuth } from '../context/AuthContext'
 import { useInterests } from '../hooks/useInterests'
 import { STATUS_LABEL_BY_KEY } from '../constants/directory'
+import { userTypeLabel } from '../constants/userTypes'
 import { rankDirectoryCandidates } from '../lib/directoryRanking'
 import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
 
@@ -35,7 +36,7 @@ async function fetchDirectoryCandidates() {
 // Keyed by the same STATUS_OPTIONS keys collected at sign-up and editable
 // later from Profile > Directory Profile (see constants/directory.js).
 
-const STATUS_STYLES = {
+export const STATUS_STYLES = {
   open:   { color: '#166534', bg: 'rgba(22,101,52,0.08)',   border: 'rgba(22,101,52,0.14)' },
   study:  { color: '#1d4ed8', bg: 'rgba(29,78,216,0.07)',   border: 'rgba(29,78,216,0.14)' },
   mentor: { color: '#6d28d9', bg: 'rgba(109,40,217,0.07)', border: 'rgba(109,40,217,0.14)' },
@@ -50,14 +51,18 @@ const AVATAR_COLORS = [
   '#15803D', '#9D174D', '#C2410C',
 ]
 
-function avatarColorFor(id) {
+// Exported (also used by StudentProfileScreen.jsx's full profile header) so
+// the same person renders with the exact same avatar colour/initials on the
+// compact card and the full profile, rather than two independent copies
+// that could ever drift.
+export function avatarColorFor(id) {
   const str = String(id || '')
   let hash = 0
   for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0
   return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
-function initialsFor(name) {
+export function initialsFor(name) {
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return '?'
   return parts.slice(0, 2).map(w => w[0]).join('').toUpperCase()
@@ -114,27 +119,56 @@ function topTagsFromCandidates(candidates, limit) {
 
 // ── StudentCard ───────────────────────────────────────────────────────────────
 
-function StudentCard({ student, searchQuery, onConnect, connecting }) {
+function StudentCard({ student, searchQuery, onConnect, connecting, onViewProfile }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const q = searchQuery.trim().toLowerCase()
   const tags = student.interests || []
   const statuses = student.statuses || []
+  // Credentials — a short, self-written free-text list (profiles.
+  // directory_credentials, up to MAX_CREDENTIALS entries — see
+  // constants/directory.js and the 20261015140000_directory_credentials_
+  // endorsements migration). Peer skill-endorsements are deliberately NOT
+  // shown here — only on the full profile (StudentProfileScreen.jsx).
+  const credentials = student.directory_credentials || []
 
   return (
     <Card style={styles.studentCard}>
-      <View style={styles.cardHead}>
-        <View style={[styles.avatar, { backgroundColor: avatarColorFor(student.id) }]}>
-          <Text style={styles.avatarText}>{initialsFor(student.full_name)}</Text>
+      {/* Tapping the identity area (everything except Connect) opens the
+          full profile. Nested TouchableOpacity/Button below claim their own
+          taps, so this never intercepts the Connect press. */}
+      <TouchableOpacity activeOpacity={0.7} onPress={() => onViewProfile(student)}>
+        <View style={styles.cardHead}>
+          <View style={[styles.avatar, { backgroundColor: avatarColorFor(student.id) }]}>
+            <Text style={styles.avatarText}>{initialsFor(student.full_name)}</Text>
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.cardName}>{student.full_name || 'UniBlueprint Student'}</Text>
+            {!!student.user_type && (
+              <Text style={styles.cardType} numberOfLines={1}>{userTypeLabel(student.user_type)}</Text>
+            )}
+            {!!student.course && <Text style={styles.cardCourse} numberOfLines={1}>{student.course}</Text>}
+            {/* institution is already nulled server-side (get_directory_profiles())
+                whenever this person has turned directory_hide_location on —
+                so "show when present" here IS the removable-location rule,
+                enforced where it actually matters. */}
+            {!!student.institution && <Text style={styles.cardUni} numberOfLines={1}>{student.institution}</Text>}
+          </View>
         </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.cardName}>{student.full_name || 'UniBlueprint Student'}</Text>
-          {!!student.course && <Text style={styles.cardCourse} numberOfLines={1}>{student.course}</Text>}
-          {!!student.institution && <Text style={styles.cardUni} numberOfLines={1}>{student.institution}</Text>}
-        </View>
-      </View>
 
-      {!!student.bio && <Text style={styles.cardBio}>{student.bio}</Text>}
+        {credentials.length > 0 && (
+          <View style={styles.credRow}>
+            {credentials.map(c => (
+              <View key={c} style={styles.credChip}>
+                <GraduationCap size={11} color={colors.textPrimary} strokeWidth={1.8} />
+                <Text style={styles.credChipText}>{c}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {!!student.bio && <Text style={styles.cardBio}>{student.bio}</Text>}
+      </TouchableOpacity>
 
       {/* Status badges — show all statuses the user is available for */}
       {statuses.length > 0 && (
@@ -289,6 +323,14 @@ export default function DirectoryScreen({ navigation }) {
     return matchFilter && matchSearch
   })
 
+  // Opens the full Directory profile (StudentProfileScreen.jsx). The whole
+  // candidate row is already in hand (get_directory_profiles() already
+  // returned everything that screen needs — credentials, user_type,
+  // social_links, bio, etc.), so it's passed through rather than re-fetched.
+  function handleViewProfile(student) {
+    navigation.navigate('StudentProfile', { student })
+  }
+
   async function handleConnect(student) {
     if (connectingId) return
     setConnectingId(student.id)
@@ -432,6 +474,7 @@ export default function DirectoryScreen({ navigation }) {
                 student={s}
                 searchQuery={search}
                 onConnect={handleConnect}
+                onViewProfile={handleViewProfile}
                 connecting={connectingId === s.id}
               />
             ))}
@@ -503,9 +546,26 @@ function __gs_styles(colors) {
   },
   avatarText: { fontFamily: fonts.serif, fontSize: 18, color: '#fff' },
   cardName:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
+  // Account type (profiles.user_type) — a plain small line under the name,
+  // same tier as course/institution, never a loud badge: this is a coarse
+  // "what kind of person is this" label, not a status or achievement.
+  cardType:   { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.accentBg, marginTop: 2 },
   cardCourse: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   cardUni:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 1 },
   cardBio:    { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 18, marginBottom: 12 },
+
+  // Credentials — short self-written free-text chips (profiles.
+  // directory_credentials), styled distinctly from the interest tags below
+  // (a graduation-cap icon, not a plain pill) since these are a self-made
+  // factual claim, not an interest/affinity tag.
+  credRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
+  credChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.pill,
+    paddingHorizontal: 10, paddingVertical: 5,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+  },
+  credChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
 
   // Status badges (row, multi-value)
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },

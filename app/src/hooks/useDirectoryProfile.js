@@ -13,22 +13,30 @@
  *
  * import { useDirectoryProfile } from '../hooks/useDirectoryProfile'
  * const {
- *   discoverable, bio, statuses, socialLinks, loading,
- *   setDiscoverable, setBio, setStatuses, setSocialLinks, save,
+ *   discoverable, bio, statuses, socialLinks, credentials, hideLocation, loading,
+ *   setDiscoverable, setBio, setStatuses, setSocialLinks, setCredentials, setHideLocation, save,
  * } = useDirectoryProfile()
  *
+ * credentials/hideLocation (profiles.directory_credentials/
+ * directory_hide_location — see the
+ * 20261015140000_directory_credentials_endorsements migration) are the
+ * short self-written credentials list shown on the Directory card and the
+ * per-profile "hide my location" toggle, added alongside the fields above.
+ *
  * save(fields) accepts any subset of { discoverable, bio, statuses,
- * socialLinks } in one call (one write, one local update) — the
- * setDiscoverable/setBio/setStatuses/setSocialLinks helpers are thin
- * single-field convenience wrappers around it. All resolve { error } (error
- * is null on success) — never throw.
+ * socialLinks, credentials, hideLocation } in one call (one write, one
+ * local update) — the setDiscoverable/setBio/setStatuses/setSocialLinks/
+ * setCredentials/setHideLocation helpers are thin single-field convenience
+ * wrappers around it. All resolve { error } (error is null on success) —
+ * never throw.
  */
 
 import { useAuth } from '../context/AuthContext'
 
 export function useDirectoryProfile() {
   const {
-    discoverable, bio, statuses, socialLinks, profileLoading, updateDirectoryProfile,
+    discoverable, bio, statuses, socialLinks, credentials, hideLocation,
+    profileLoading, updateDirectoryProfile,
   } = useAuth()
 
   async function save(fields) {
@@ -40,11 +48,15 @@ export function useDirectoryProfile() {
     bio,
     statuses,
     socialLinks,
+    credentials,
+    hideLocation,
     loading: profileLoading,
     save,
     setDiscoverable: next => save({ discoverable: next }),
     setBio:          next => save({ bio: next }),
     setStatuses:     next => save({ statuses: next }),
     setSocialLinks:  next => save({ socialLinks: next }),
+    setCredentials:  next => save({ credentials: next }),
+    setHideLocation: next => save({ hideLocation: next }),
   }
 }

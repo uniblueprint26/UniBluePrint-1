@@ -69,3 +69,14 @@ export const MAX_BIO_LENGTH = 280
 
 /** Max characters for any one social link value. */
 export const MAX_SOCIAL_LINK_LENGTH = 120
+
+/**
+ * Credentials — a short, self-written free-text list shown on the Directory
+ * card (e.g. "BA Business, DCU", "Qualified Electrician", "2nd Year Law").
+ * Backed by profiles.directory_credentials (see the
+ * 20261015140000_directory_credentials_endorsements migration), which
+ * enforces the same MAX_CREDENTIALS cap at the database level
+ * (profiles_directory_credentials_max3) — not just here.
+ */
+export const MAX_CREDENTIALS = 3
+export const MAX_CREDENTIAL_LENGTH = 60
