@@ -13,7 +13,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressa
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, ChevronDown, Phone, Mail, AtSign, Link2, HelpCircle, X,
-  Dumbbell, Sparkles, ShoppingBag, UtensilsCrossed, Wrench,
+  Dumbbell, Sparkles, ShoppingBag, UtensilsCrossed, Wrench, Heart, Ticket,
 } from 'lucide-react-native'
 import VerifiedBadge from '../ui/VerifiedBadge'
 import ProUpgradeGate from '../ui/ProUpgradeGate'
@@ -24,6 +24,7 @@ import { useAuth } from '../../context/AuthContext'
 import { logPartnerEvent } from '../../lib/partnerEvents'
 import { supabase } from '../../lib/supabase'
 import { usePartnerContact } from '../../hooks/usePartnerContact'
+import { usePartnerFollow } from '../../hooks/usePartnerFollow'
 
 // Real verification, not a blanket claim — see VerifiedBadge's own header
 // comment. partners.verified (migration 20260926091500_verified_field.sql,
@@ -179,6 +180,41 @@ function ContactChip({ type, value, partner }) {
     <TouchableOpacity style={styles.contactChip} onPress={onPress} activeOpacity={0.8}>
       {icons[type]}
       <Text style={styles.contactChipText}>{labels[type]}</Text>
+    </TouchableOpacity>
+  )
+}
+
+// ─── Follow Button — "Follow this partner" toggle (founder decision, Oct
+// 2026 — see supabase/migrations/20261015140000_partner_follows.sql and
+// 20261015140500_partner_follow_notifications.sql). Lives in
+// PartnerDetailSheet only, not the grid/list cards: following is a
+// deliberate action taken after actually reading the listing, not a quick
+// reflex tap from a thumbnail. A user who follows a partner gets notified
+// (NotificationsScreen, category 'partner_deal') the next time that
+// partner's deal changes. ───────────────────────────────────────────────────
+function FollowButton({ partnerId, style }) {
+  const { colors } = useTheme()
+  const styles = getPartnerStyles(colors)
+  const { user } = useAuth()
+  const { following, loading, toggle } = usePartnerFollow(partnerId, { enabled: !!partnerId })
+  if (!user?.id) return null
+  return (
+    <TouchableOpacity
+      style={[styles.followBtn, following && styles.followBtnActive, style]}
+      onPress={toggle}
+      disabled={loading}
+      activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={following ? 'Unfollow partner' : 'Follow partner'}
+    >
+      <Heart
+        size={13}
+        color={following ? '#FFFFFF' : colors.textPrimary}
+        fill={following ? '#FFFFFF' : 'transparent'}
+      />
+      <Text style={[styles.followBtnText, following && styles.followBtnTextActive]}>
+        {following ? 'Following' : 'Follow'}
+      </Text>
     </TouchableOpacity>
   )
 }
@@ -431,7 +467,7 @@ export function PartnerExpandCard({ partner, visible, onClose, onViewFull }) {
 // used to reveal inline now lives here, unchanged in content — only the
 // presentation moved from an in-place accordion to a bottom sheet, so the
 // grid above it can stay a real grid. ───────────────────────────────────────
-export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
+export function PartnerDetailSheet({ partner, visible, onClose, navigation, onShowCode }) {
   const { colors } = useTheme()
   const styles = getPartnerStyles(colors)
   // Bottom safe-area inset (home indicator on iOS, gesture bar on Android) —
@@ -526,12 +562,25 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation }) {
                 <VerifiedBadge verified={verified} compact />
               </View>
             </View>
+            <FollowButton partnerId={partner.id} />
           </View>
           <View style={[styles.detailAccentLine, { backgroundColor: accent }]} />
 
           {partner.deal && (
-            <View style={styles.dealPill}>
-              <Text style={styles.dealPillText}>{partner.deal}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <View style={styles.dealPill}>
+                <Text style={styles.dealPillText}>{partner.deal}</Text>
+              </View>
+              {onShowCode && (
+                <TouchableOpacity
+                  style={styles.showCodeBtn}
+                  activeOpacity={0.8}
+                  onPress={() => { onClose(); onShowCode(partner.id) }}
+                >
+                  <Ticket size={12} color={colors.chromeFg} />
+                  <Text style={styles.showCodeBtnText}>Show code</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
@@ -796,6 +845,24 @@ export function getPartnerStyles(colors) {
     paddingHorizontal: 9, paddingVertical: 3,
   },
   dealPillText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: '#145A3E' },
+
+  // Follow toggle — PartnerDetailSheet's header row, next to the brand name.
+  followBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 11, paddingVertical: 7, borderRadius: radius.pill,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt,
+  },
+  followBtnActive: { backgroundColor: '#DB2777', borderColor: '#DB2777' },
+  followBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
+  followBtnTextActive: { color: '#FFFFFF' },
+
+  // "Show code" CTA — sits next to the deal pill, opens RedemptionCodeSheet.
+  showCodeBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 7,
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.badge,
+    backgroundColor: colors.chromeBg,
+  },
+  showCodeBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.chromeFg },
 
   // Coming Soon grid — compact, two-up
   soonHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },

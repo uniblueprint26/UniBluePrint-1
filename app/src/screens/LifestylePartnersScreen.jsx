@@ -30,6 +30,7 @@ import {
   FILTERS, ComingSoonGridCard, CategoryAccordion, PartnerExpandCard, PartnerDetailSheet,
   getPartnerStyles,
 } from '../components/lifestyle/PartnerCards'
+import RedemptionCodeSheet from '../components/lifestyle/RedemptionCodeSheet'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
@@ -47,6 +48,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [detailPartnerId, setDetailPartnerId] = useState(route?.params?.highlightId || null)
+  const [codePartnerId, setCodePartnerId] = useState(null)
   const [mapHighlightId, setMapHighlightId] = useState(null)
   const highlightId = mapHighlightId || route?.params?.highlightId
 
@@ -78,6 +80,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
 
   const expandPartner = PARTNERS.find(p => p.id === expandPartnerId) || null
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
+  const codePartner = PARTNERS.find(p => p.id === codePartnerId) || null
 
   // Tapping "View full listing" on the map's info card jumps straight to
   // that partner's full detail sheet and expands its category, same
@@ -181,6 +184,12 @@ export default function LifestylePartnersScreen({ navigation, route }) {
         visible={!!detailPartner}
         onClose={() => { setDetailPartnerId(null); setMapHighlightId(null) }}
         navigation={navigation}
+        onShowCode={id => setCodePartnerId(id)}
+      />
+      <RedemptionCodeSheet
+        partner={codePartner}
+        visible={!!codePartner}
+        onClose={() => setCodePartnerId(null)}
       />
       <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
     </View>

@@ -1,0 +1,24 @@
+-- Lifestyle Blueprint: close a gap in generate_deal_redemption_code()'s own
+-- intended lockdown (20261015141000_deal_redemption_codes.sql — "no
+-- update/insert RLS policy ... a student can never INSERT/UPDATE a row
+-- directly"). That migration's `revoke all on function ... from public`
+-- does not actually revoke the `anon` role's EXECUTE: Supabase grants
+-- EXECUTE on every new public-schema function to anon/authenticated/
+-- service_role directly (not just via the PUBLIC pseudo-role), so revoking
+-- from PUBLIC alone leaves anon's own direct grant untouched — confirmed
+-- live via information_schema.routine_privileges (anon still listed) and
+-- flagged by the project's own security advisors as
+-- anon_security_definer_function_executable.
+--
+-- In practice an anonymous caller hitting this RPC today gets an ugly
+-- unhandled-exception response rather than a real code or a leak: for a
+-- Mental Health & Wellbeing partner, get_lifestyle_partner_contact()
+-- grants access regardless of auth state (by design — those partners stay
+-- free for everyone, auth or not), so requires_pro comes back false and
+-- execution reaches `insert into deal_redemption_codes (user_id, ...)
+-- values (auth.uid(), ...)` with auth.uid() = null, which the column's
+-- `not null` constraint rejects. No code is ever actually issued to an
+-- unauthenticated caller — but an RPC that can only ever error for anon
+-- should not be anon-executable in the first place, so this revokes it
+-- explicitly rather than relying on that constraint as the real guard.
+revoke execute on function public.generate_deal_redemption_code(text, text) from anon;

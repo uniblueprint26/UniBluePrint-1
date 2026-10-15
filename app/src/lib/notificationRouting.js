@@ -82,6 +82,28 @@ export async function goToRelatedEntity(navigation, notif, userId) {
       navigation.navigate('ModuleQA', { openQuestionId: answer?.question_id || null })
       return
     }
+    // A followed Lifestyle Blueprint partner's new deal — see
+    // notify_followers_of_new_deal() in
+    // 20261015140500_partner_follow_notifications.sql. The notification
+    // carries the new deals row's own id, not a partner slug, so resolve
+    // deals -> partners -> partner_slug before navigating (Explore's
+    // highlightId param is keyed by that slug, same as every other
+    // Lifestyle deep link into this screen).
+    case 'deal': {
+      const { data: deal } = await supabase
+        .from('deals')
+        .select('partner_id')
+        .eq('id', id)
+        .maybeSingle()
+      if (!deal?.partner_id) { navigation.navigate('LifestylePartners'); return }
+      const { data: partner } = await supabase
+        .from('partners')
+        .select('partner_slug')
+        .eq('id', deal.partner_id)
+        .maybeSingle()
+      navigation.navigate('LifestylePartners', { highlightId: partner?.partner_slug || null })
+      return
+    }
     case 'chat_room': {
       const { data } = await supabase
         .from('chat_rooms')

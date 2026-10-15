@@ -44,6 +44,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import {
   CATEGORY_META, PartnerDetailSheet, PartnerExpandCard,
 } from '../components/lifestyle/PartnerCards'
+import RedemptionCodeSheet from '../components/lifestyle/RedemptionCodeSheet'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { goToHome } from '../navigation/helpers'
@@ -188,10 +189,12 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
   const safeGoBack = useSafeGoBack(navigation)
   const [detailPartnerId, setDetailPartnerId] = useState(null)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
+  const [codePartnerId, setCodePartnerId] = useState(null)
   const [revealedKeys, setRevealedKeys] = useState(() => new Set())
 
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
   const expandPartner = PARTNERS.find(p => p.id === expandPartnerId) || null
+  const codePartner = PARTNERS.find(p => p.id === codePartnerId) || null
 
   // FlatList calls this with whichever rows just crossed the visibility
   // threshold — merge their keys into the revealed set so each tile's own
@@ -309,6 +312,12 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
         visible={!!detailPartner}
         onClose={() => setDetailPartnerId(null)}
         navigation={navigation}
+        onShowCode={id => setCodePartnerId(id)}
+      />
+      <RedemptionCodeSheet
+        partner={codePartner}
+        visible={!!codePartner}
+        onClose={() => setCodePartnerId(null)}
       />
     </View>
   )

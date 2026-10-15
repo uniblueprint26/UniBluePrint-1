@@ -6,7 +6,7 @@ import {
   Bell, FileText, Calendar, Star, Megaphone,
   Clock, AlertTriangle, Sun, CreditCard, Archive, Repeat,
   MessageCircle, MessagesSquare, UserCheck, Mail, CheckCheck,
-  TrendingUp, CalendarClock,
+  TrendingUp, CalendarClock, Tag,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
@@ -49,6 +49,10 @@ function getTypeConfig(colors) {
   // application) — see handle_application_deadline_reminders() in
   // 20261015140000_job_application_tracker.sql.
   job_application_reminder: { Icon: CalendarClock, color: colors.warning, bg: colors.warningBg },
+  // A followed Lifestyle Blueprint partner posted a new deal — see
+  // notify_followers_of_new_deal() in
+  // 20261015140500_partner_follow_notifications.sql.
+  partner_deal:       { Icon: Tag,            color: '#B45309', bg: '#FEF3C7' },
   }
 }
 

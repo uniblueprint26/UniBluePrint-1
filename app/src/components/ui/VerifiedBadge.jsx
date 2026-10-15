@@ -12,13 +12,19 @@ import { fonts, radius } from '../../constants/theme'
 // row. ElevationScreen, CoachProfileScreen and PartnerCards all fetch that
 // real column and pass it in explicitly; no caller should hand this a
 // hardcoded `true`.
+//
+// `label` (default "Verified") lets a caller use the same pill for a
+// differently-worded claim backed by its own real column — e.g.
+// profiles.verified_student (RedemptionCodeSheet.jsx, showing the account
+// holder is a "Verified Student") — without duplicating this component for
+// what's otherwise identical markup/styling.
 
-export default function VerifiedBadge({ verified = false, style, compact = false }) {
+export default function VerifiedBadge({ verified = false, style, compact = false, label = 'Verified' }) {
   if (!verified) return null
   return (
     <View style={[styles.badge, compact && styles.badgeCompact, style]}>
       <BadgeCheck size={compact ? 11 : 13} color="#3B82F6" />
-      <Text style={[styles.text, compact && styles.textCompact]}>Verified</Text>
+      <Text style={[styles.text, compact && styles.textCompact]}>{label}</Text>
     </View>
   )
 }
