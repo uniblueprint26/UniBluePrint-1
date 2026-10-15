@@ -61,14 +61,20 @@ const PAGE_STYLES = `
   }
 `
 
-// ─── SUSI thresholds (2025/26 indicative figures, verify at susi.ie) ─────────
+// ─── SUSI 2026/27 full-time undergraduate rates — source: susi.ie ───────────
+// Thresholds shown are for households with fewer than 4 dependant children.
+// Each band adds perDep per additional dependant above the base count.
+// Kept in sync with app/src/screens/BudgetingScreen.jsx — update both together.
 
 const SUSI_BANDS = [
-  { label: 'Under €42,000',   max: 42000,  result: 'full',    grant: '€3,025 - €6,115 / year', colour: '#145A3E' },
-  { label: '€42,000 - €58,000', max: 58000, result: 'partial', grant: '€250 - €2,775 / year',   colour: '#7C3500' },
-  { label: '€58,000 - €100,000', max: 100000, result: 'low',  grant: '€250 - €500 / year',      colour: '#2D4B8E' },
-  { label: 'Over €100,000',   max: Infinity, result: 'none',  grant: 'Likely not eligible',      colour: '#6B7280' },
+  { band: 'Special', threshold: 28600, nonadj: 7936, adj: 3230, perDep: 4950, colour: '#145A3E' },
+  { band: 'Band 1',  threshold: 47010, nonadj: 4722, adj: 1774, perDep: 4950, colour: '#2F7A52' },
+  { band: 'Band 2',  threshold: 48270, nonadj: 3532, adj: 1343, perDep: 4785, colour: '#2D4B8E' },
+  { band: 'Band 3',  threshold: 51040, nonadj: 2702, adj:  975, perDep: 4785, colour: '#7C3500' },
+  { band: 'Band 4',  threshold: 58470, nonadj: 1866, adj:  612, perDep: 4785, colour: '#9C6B14' },
 ]
+const SUSI_FEE_THRESHOLD = 120000  // Fee contribution only (no maintenance) up to €120,000
+const SUSI_FEE_PER_DEP   =   4785  // Additional dependant allowance for fee-only bands
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
@@ -315,13 +321,54 @@ function BudgetCalculator() {
 
 function SusiChecker() {
   const [income, setIncome] = useState('')
-  const [status, setStatus] = useState('dependent') // dependent | independent
+  const [dependants, setDependants] = useState('1')
+  const [adjacent, setAdjacent] = useState(false)
 
-  const band = useMemo(() => {
-    const val = Number(income)
-    if (!val) return null
-    return SUSI_BANDS.find(b => val <= b.max)
-  }, [income])
+  const result = useMemo(() => {
+    const inc = Number(income)
+    if (!income || !inc) return null
+    const deps = Math.max(1, parseInt(dependants, 10) || 1)
+
+    // Walk through each band — threshold scales up per additional dependant
+    let matched = null
+    for (let i = 0; i < SUSI_BANDS.length; i++) {
+      const b = SUSI_BANDS[i]
+      const threshold = b.threshold + (deps - 1) * b.perDep
+      if (inc <= threshold) { matched = b; break }
+    }
+
+    if (matched) {
+      const maintenance = adjacent ? matched.adj : matched.nonadj
+      return {
+        band: matched.band,
+        colour: matched.colour,
+        maintenance,
+        feeOnly: false,
+        over: false,
+        note: `Based on your household income, you may qualify for the ${matched.band} maintenance grant.`,
+      }
+    }
+    if (inc <= SUSI_FEE_THRESHOLD + (deps - 1) * SUSI_FEE_PER_DEP) {
+      return {
+        band: 'Fee Only',
+        colour: '#6B7280',
+        maintenance: 0,
+        feeOnly: true,
+        over: false,
+        note: 'Your income may be above the maintenance grant threshold but you could still qualify for a fee contribution grant toward your Student Contribution Charge. Check susi.ie for the exact fee bands.',
+      }
+    }
+    return {
+      band: 'over',
+      colour: '#9CA3AF',
+      maintenance: 0,
+      feeOnly: false,
+      over: true,
+      note: 'Based on your income, your household may be above all SUSI thresholds for this year. Thresholds change annually, so it is always worth checking susi.ie directly.',
+    }
+  }, [income, dependants, adjacent])
+
+  const depOpts = ['1', '2', '3', '4', '5', '6+']
 
   return (
     <div>
@@ -335,7 +382,7 @@ function SusiChecker() {
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '13px', color: '#6B7280', lineHeight: 1.5,
         }}>
-          This is an estimate only, based on indicative 2025/26 income thresholds. Always apply directly at{' '}
+          Estimator only, not an official assessment. Rates are the published 2026/27 figures from{' '}
           <a
             href="https://susi.ie"
             target="_blank"
@@ -344,26 +391,49 @@ function SusiChecker() {
           >
             susi.ie
           </a>
-          {' '}for an official assessment.
+          . Your actual award depends on full means testing.
         </p>
       </div>
 
-      {/* Student status */}
+      {/* Dependants */}
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '14px', color: '#1E3A5F', fontWeight: '600', marginBottom: '10px',
       }}>
-        Are you a dependent or independent student?
+        Number of dependants in household
+      </p>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        {depOpts.map(opt => (
+          <button
+            key={opt}
+            onClick={() => setDependants(opt)}
+            className={`susi-option${dependants === opt ? ' active' : ''}`}
+            style={{ minWidth: '56px', textAlign: 'center', cursor: 'pointer', font: 'inherit', padding: '10px 14px' }}
+          >
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px', color: '#1E3A5F', fontWeight: '600',
+            }}>{opt}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* Distance from college */}
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '14px', color: '#1E3A5F', fontWeight: '600', marginBottom: '10px',
+      }}>
+        Distance from college
       </p>
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {[
-          { key: 'dependent',   label: 'Dependent',   sub: 'Under 23, full-time, from your family home' },
-          { key: 'independent', label: 'Independent', sub: 'Over 23, or self-supporting' },
+          { key: false, label: 'Non-Adjacent', sub: '30km or more from college' },
+          { key: true,  label: 'Adjacent',     sub: 'Under 30km from college' },
         ].map(opt => (
           <button
-            key={opt.key}
-            onClick={() => setStatus(opt.key)}
-            className={`susi-option${status === opt.key ? ' active' : ''}`}
+            key={String(opt.key)}
+            onClick={() => setAdjacent(opt.key)}
+            className={`susi-option${adjacent === opt.key ? ' active' : ''}`}
             style={{ flex: 1, minWidth: '180px', textAlign: 'left', cursor: 'pointer', font: 'inherit' }}
           >
             <p style={{
@@ -385,7 +455,7 @@ function SusiChecker() {
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '14px', color: '#1E3A5F', fontWeight: '600', marginBottom: '8px',
         }}>
-          {status === 'dependent' ? 'Household reckonable income (approximate)' : 'Your reckonable income (approximate)'}
+          Household reckonable income
         </label>
         <div style={{ position: 'relative', maxWidth: '340px' }}>
           <span style={{
@@ -397,7 +467,7 @@ function SusiChecker() {
             type="number" min="0" step="1000"
             className="budget-input"
             style={{ paddingLeft: '28px' }}
-            placeholder="e.g. 45000"
+            placeholder="e.g. 38000"
             value={income}
             onChange={e => setIncome(e.target.value)}
           />
@@ -405,35 +475,36 @@ function SusiChecker() {
       </div>
 
       {/* Result */}
-      {band && (
+      {result && (
         <div style={{
           background: '#FFFFFF', borderRadius: '14px',
-          border: `2px solid ${band.colour}22`,
-          borderLeft: `4px solid ${band.colour}`,
+          border: `2px solid ${result.colour}22`,
+          borderLeft: `4px solid ${result.colour}`,
           padding: '24px 24px',
         }}>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em',
-            textTransform: 'uppercase', color: band.colour, marginBottom: '8px',
+            textTransform: 'uppercase', color: result.colour, marginBottom: '8px',
           }}>
-            {band.result === 'full' && 'Likely eligible: full grant'}
-            {band.result === 'partial' && 'Likely eligible: partial grant'}
-            {band.result === 'low' && 'May be eligible: low grant'}
-            {band.result === 'none' && 'Unlikely to be eligible'}
+            {!result.feeOnly && !result.over && `Likely eligible: ${result.band} maintenance grant`}
+            {result.feeOnly && 'May be eligible: fee contribution only'}
+            {result.over && 'Unlikely to be eligible'}
           </p>
           <p style={{
             fontFamily: "'DM Serif Display', serif",
             fontSize: '24px', color: '#1E3A5F',
           }}>
-            {band.grant}
+            {result.maintenance > 0
+              ? `€${result.maintenance.toLocaleString()} / year`
+              : (result.feeOnly ? 'Fee contribution only' : 'No maintenance grant')}
           </p>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '13px', color: '#9CA3AF',
             marginTop: '8px', lineHeight: 1.5,
           }}>
-            Based on indicative income thresholds. Actual grant depends on your full application, course level, and proximity to college.
+            {result.note}
           </p>
           <a
             href="https://susi.ie"
@@ -459,11 +530,11 @@ function SusiChecker() {
           fontSize: '12px', color: '#9CA3AF', fontWeight: '600',
           textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px',
         }}>
-          Indicative income bands
+          2026/27 maintenance grant rates
         </p>
         <div className="susi-grid">
           {SUSI_BANDS.map(b => (
-            <div key={b.label} style={{
+            <div key={b.band} style={{
               background: '#FFFFFF', borderRadius: '10px',
               padding: '16px', borderTop: `3px solid ${b.colour}`,
               boxShadow: '0 1px 8px rgba(30,58,95,0.06)',
@@ -473,13 +544,19 @@ function SusiChecker() {
                 fontSize: '11px', color: '#9CA3AF', fontWeight: '600',
                 textTransform: 'uppercase', letterSpacing: '0.05em',
               }}>
-                {b.label}
+                {b.band}
               </p>
               <p style={{
                 fontFamily: "'DM Serif Display', serif",
                 fontSize: '15px', color: '#1E3A5F', marginTop: '6px',
               }}>
-                {b.grant}
+                €{b.nonadj.toLocaleString()} <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>non-adj</span>
+              </p>
+              <p style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: '15px', color: '#1E3A5F', marginTop: '2px',
+              }}>
+                €{b.adj.toLocaleString()} <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF' }}>adj</span>
               </p>
             </div>
           ))}
@@ -708,7 +785,7 @@ export default function BudgetingPage() {
             fontSize: '12px', color: 'rgba(245,240,232,0.3)',
             marginTop: '12px',
           }}>
-            Free on iOS and Android. Launching September 2026.
+            Free on iOS and Android. Coming soon.
           </p>
         </div>
       </section>
