@@ -4,11 +4,12 @@ import {
   Modal, TextInput, Image, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Constants from 'expo-constants'
 import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
   Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart, Eye,
-  Palette, Sun, Moon, Smartphone, Share2,
+  Palette, Sun, Moon, Smartphone, Share2, MapPin,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -25,9 +26,19 @@ import InterestsModal from '../components/profile/InterestsModal'
 import {
   STATUS_OPTIONS, SOCIAL_LINK_FIELDS, VISIBILITY_OPTIONS, MAX_BIO_LENGTH,
 } from '../constants/directory'
+import { USER_TYPE_STUDENT, USER_TYPE_APPRENTICE } from '../constants/userTypes'
+import { searchInstitutions } from '../data/institutions'
+import { searchTrades, searchProviders } from '../data/apprenticeships'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
+
+// Read from the one place the real build/version number lives (app.json's
+// expo.version, surfaced to the app via Constants.expoConfig) instead of a
+// hardcoded literal that silently goes stale every release. Falls back to
+// app.json's current value only in the unlikely case expoConfig hasn't
+// loaded yet (e.g. a bare/non-Expo-managed runtime).
+const appVersion = Constants.expoConfig?.version || '1.0.0'
 
 // ── Explore links ──────────────────────────────────────────────────────────────
 
@@ -91,7 +102,14 @@ const ACCOUNT_LINKS = [
 ]
 
 // ── Edit Profile Modal ─────────────────────────────────────────────────────────
-// Lets the user update their display name and profile photo.
+// Lets the user update their display name, profile photo, and — gated on
+// user_type (see constants/userTypes.js) — their institution/course
+// (Student) or trade/training provider (Apprentice) details. Those used to
+// be onboarding-only, with a static note here saying so (the same gap
+// HelpScreen's "Updating your profile information" item flagged); now
+// backed by AuthContext's updateEducationDetails(), which writes the exact
+// fields that apply to this person's account type.
+//
 // Photo: uploaded to the profile-pictures bucket at a fixed path ({userId}/avatar.jpg)
 // using upsert=true — overwrites in place, so no orphaned files accumulate on re-upload.
 // Name: written to both profiles.full_name and auth user metadata so both
@@ -99,17 +117,62 @@ const ACCOUNT_LINKS = [
 
 function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar }) {
   const { colors } = useTheme()
+  const { user, updateEducationDetails } = useAuth()
+  const { userType } = useUserType()
   const [name,      setName]      = useState(currentName || '')
   const [avatarUrl, setAvatarUrl] = useState(null)  // URL returned by ImageUploader on upload
   const [saving,    setSaving]    = useState(false)
+
+  // Which extra section applies, same two shapes SignUpScreen's step 3
+  // collects — a Worker/Gap Year/Leaving Cert account gets neither.
+  const showInstitutionFields    = userType === USER_TYPE_STUDENT
+  const showApprenticeshipFields = userType === USER_TYPE_APPRENTICE
+
+  // Current values live on auth user_metadata, not `profile` — that's what
+  // ProfileScreen's own header subtitle (getProfileSubLine) reads from, so
+  // this form's starting point has to match it exactly.
+  const currentInstitutionName  = user?.user_metadata?.institution || user?.user_metadata?.university || ''
+  const currentCourse           = user?.user_metadata?.course || ''
+  const currentTrade            = user?.user_metadata?.trade || ''
+  const currentTrainingProvider = user?.user_metadata?.training_provider || ''
+
+  // Institution (Student) — same search-and-pick-or-type-free mechanism as
+  // SignUpScreen's in_college/plc steps (data/institutions.js).
+  const [institutionQuery,    setInstitutionQuery]    = useState('')
+  const [selectedInstitution, setSelectedInstitution] = useState(null)
+  const [showInstList,        setShowInstList]        = useState(false)
+  const [course,              setCourse]              = useState('')
+
+  // Trade + training provider (Apprentice) — same pickers SignUpScreen's
+  // apprenticeship step uses (data/apprenticeships.js).
+  const [tradeQuery,      setTradeQuery]      = useState('')
+  const [selectedTrade,   setSelectedTrade]   = useState(null)
+  const [showTradeList,   setShowTradeList]   = useState(false)
+  const [providerQuery,   setProviderQuery]   = useState('')
+  const [selectedProvider, setSelectedProvider] = useState(null)
+  const [showProviderList, setShowProviderList] = useState(false)
 
   // Reset form fields each time the modal opens
   useEffect(() => {
     if (visible) {
       setName(currentName || '')
       setAvatarUrl(null)
+      setInstitutionQuery(currentInstitutionName)
+      setSelectedInstitution(null)
+      setShowInstList(false)
+      setCourse(currentCourse)
+      setTradeQuery(currentTrade)
+      setSelectedTrade(null)
+      setShowTradeList(false)
+      setProviderQuery(currentTrainingProvider)
+      setSelectedProvider(null)
+      setShowProviderList(false)
     }
-  }, [visible, currentName])
+  }, [visible, currentName, currentInstitutionName, currentCourse, currentTrade, currentTrainingProvider])
+
+  const instResults = institutionQuery.trim() ? searchInstitutions(institutionQuery).slice(0, 8) : []
+  const tradeResults = tradeQuery.trim() ? searchTrades(tradeQuery).slice(0, 8) : []
+  const providerResults = providerQuery.trim() ? searchProviders(providerQuery).slice(0, 8) : []
 
   async function handleSave() {
     if (saving) return
@@ -130,6 +193,17 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
       // Sync display name into auth metadata so ProfileScreen re-renders immediately
       if (name.trim() && name.trim() !== currentName) {
         await supabase.auth.updateUser({ data: { full_name: name.trim() } })
+      }
+
+      if (showInstitutionFields) {
+        const institutionValue = selectedInstitution || institutionQuery.trim() || null
+        const { error } = await updateEducationDetails({ institution: institutionValue, course })
+        if (error) throw error
+      } else if (showApprenticeshipFields) {
+        const tradeValue    = selectedTrade    || tradeQuery.trim()    || null
+        const providerValue = selectedProvider || providerQuery.trim() || null
+        const { error } = await updateEducationDetails({ trade: tradeValue, trainingProvider: providerValue })
+        if (error) throw error
       }
 
       onClose({ name: name.trim() || currentName, avatarUrl: avatarUrl || currentAvatar })
@@ -204,6 +278,127 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               returnKeyType="done"
             />
 
+            {/* Institution + course — Student accounts only */}
+            {showInstitutionFields && (
+              <>
+                <Text style={[ep.fieldLabel, { color: colors.textSecondary, marginTop: 28 }]}>Institution</Text>
+                <View style={[
+                  ep.pickerWrap,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  showInstList && instResults.length > 0 && ep.pickerWrapOpen,
+                ]}>
+                  <GraduationCap size={16} color={colors.textTertiary} style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={[ep.pickerInput, { color: colors.textPrimary }]}
+                    value={institutionQuery}
+                    onChangeText={text => { setInstitutionQuery(text); setSelectedInstitution(null); setShowInstList(true) }}
+                    onFocus={() => setShowInstList(true)}
+                    placeholder="Search by name or short form…"
+                    placeholderTextColor={colors.textTertiary}
+                    autoCorrect={false}
+                    autoCapitalize="words"
+                  />
+                </View>
+                {showInstList && instResults.length > 0 && (
+                  <View style={[ep.dropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    {instResults.map((inst, i) => (
+                      <TouchableOpacity
+                        key={inst.id}
+                        style={[ep.dropdownItem, i < instResults.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}
+                        onPress={() => { setSelectedInstitution(inst); setInstitutionQuery(inst.name); setShowInstList(false) }}
+                        activeOpacity={0.75}
+                      >
+                        <Text style={[ep.dropdownItemText, { color: colors.textPrimary }]} numberOfLines={1}>{inst.name}</Text>
+                        {inst.city ? <Text style={[ep.dropdownItemSub, { color: colors.textTertiary }]}>{inst.city}</Text> : null}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
+                <Text style={[ep.fieldLabel, { color: colors.textSecondary, marginTop: 20 }]}>Course or Programme</Text>
+                <TextInput
+                  style={[ep.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]}
+                  value={course}
+                  onChangeText={setCourse}
+                  placeholder="e.g. Business, Computer Science"
+                  placeholderTextColor={colors.textTertiary}
+                />
+              </>
+            )}
+
+            {/* Trade + training provider — Apprentice accounts only */}
+            {showApprenticeshipFields && (
+              <>
+                <Text style={[ep.fieldLabel, { color: colors.textSecondary, marginTop: 28 }]}>Trade or Craft</Text>
+                <View style={[
+                  ep.pickerWrap,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  showTradeList && tradeResults.length > 0 && ep.pickerWrapOpen,
+                ]}>
+                  <Briefcase size={16} color={colors.textTertiary} style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={[ep.pickerInput, { color: colors.textPrimary }]}
+                    value={tradeQuery}
+                    onChangeText={text => { setTradeQuery(text); setSelectedTrade(null); setShowTradeList(true) }}
+                    onFocus={() => setShowTradeList(true)}
+                    placeholder="e.g. Electrical, Plumbing, Software Developer"
+                    placeholderTextColor={colors.textTertiary}
+                    autoCorrect={false}
+                    autoCapitalize="words"
+                  />
+                </View>
+                {showTradeList && tradeResults.length > 0 && (
+                  <View style={[ep.dropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    {tradeResults.map((t, i) => (
+                      <TouchableOpacity
+                        key={t.id}
+                        style={[ep.dropdownItem, i < tradeResults.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}
+                        onPress={() => { setSelectedTrade(t); setTradeQuery(t.name); setShowTradeList(false) }}
+                        activeOpacity={0.75}
+                      >
+                        <Text style={[ep.dropdownItemText, { color: colors.textPrimary, flex: 1 }]} numberOfLines={1}>{t.name}</Text>
+                        <Text style={[ep.dropdownItemSub, { color: colors.textTertiary }]}>{t.category}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
+                <Text style={[ep.fieldLabel, { color: colors.textSecondary, marginTop: 20 }]}>Training Provider</Text>
+                <View style={[
+                  ep.pickerWrap,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  showProviderList && providerResults.length > 0 && ep.pickerWrapOpen,
+                ]}>
+                  <MapPin size={16} color={colors.textTertiary} style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={[ep.pickerInput, { color: colors.textPrimary }]}
+                    value={providerQuery}
+                    onChangeText={text => { setProviderQuery(text); setSelectedProvider(null); setShowProviderList(true) }}
+                    onFocus={() => setShowProviderList(true)}
+                    placeholder="e.g. City of Dublin ETB, Cork ETB"
+                    placeholderTextColor={colors.textTertiary}
+                    autoCorrect={false}
+                    autoCapitalize="words"
+                  />
+                </View>
+                {showProviderList && providerResults.length > 0 && (
+                  <View style={[ep.dropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    {providerResults.map((p, i) => (
+                      <TouchableOpacity
+                        key={p.id}
+                        style={[ep.dropdownItem, i < providerResults.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}
+                        onPress={() => { setSelectedProvider(p); setProviderQuery(p.name); setShowProviderList(false) }}
+                        activeOpacity={0.75}
+                      >
+                        <Text style={[ep.dropdownItemText, { color: colors.textPrimary }]} numberOfLines={1}>{p.name}</Text>
+                        {p.city ? <Text style={[ep.dropdownItemSub, { color: colors.textTertiary }]}>{p.city}</Text> : null}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </>
+            )}
+
             {/* Save */}
             <Button
               label={saving ? 'Saving…' : 'Save Changes'}
@@ -213,9 +408,12 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               style={ep.saveBtn}
             />
 
-            <Text style={[ep.note, { color: colors.textTertiary }]}>
-              University, course, and apprenticeship details are set during onboarding and cannot be changed here yet.
-            </Text>
+            {!showInstitutionFields && !showApprenticeshipFields && (
+              <Text style={[ep.note, { color: colors.textTertiary }]}>
+                Institution, course, and apprenticeship fields appear here for Student and Apprentice account types.
+                You can change your account type anytime from Account Type in Settings.
+              </Text>
+            )}
 
           </ScrollView>
         </View>
@@ -257,6 +455,30 @@ const ep = StyleSheet.create({
     fontFamily: fonts.sans, fontSize: 12,
     textAlign: 'center', marginTop: 16, lineHeight: 18,
   },
+
+  // Institution/trade/provider search pickers — same search-then-pick
+  // pattern as SignUpScreen's own institution/trade/provider fields.
+  pickerWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: radius.button, borderWidth: 1,
+    paddingHorizontal: 14, minHeight: 48,
+  },
+  pickerWrapOpen: {
+    borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+  },
+  pickerInput: {
+    flex: 1, fontFamily: fonts.sans, fontSize: 15, paddingVertical: 12,
+  },
+  dropdown: {
+    borderWidth: 1, borderTopWidth: 0,
+    borderBottomLeftRadius: radius.button, borderBottomRightRadius: radius.button,
+  },
+  dropdownItem: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+    paddingHorizontal: 14, paddingVertical: 12,
+  },
+  dropdownItemText: { fontFamily: fonts.sansMedium, fontSize: 14, flexShrink: 1 },
+  dropdownItemSub:  { fontFamily: fonts.sans, fontSize: 11, flexShrink: 0 },
 })
 
 // ── Account Type Modal ───────────────────────────────────────────────────────
@@ -1159,7 +1381,7 @@ export default function ProfileScreen({ navigation }) {
             onPress={handleSignOut}
             style={{ height: 50 }}
           />
-          <Text style={[styles.versionText, { color: colors.textTertiary }]}>UniBlueprint · v1.0.0</Text>
+          <Text style={[styles.versionText, { color: colors.textTertiary }]}>UniBlueprint · v{appVersion}</Text>
           <Text style={[styles.legalText, { color: colors.textTertiary }]}>{LEGAL_ENTITY_LINE}</Text>
         </View>
 
