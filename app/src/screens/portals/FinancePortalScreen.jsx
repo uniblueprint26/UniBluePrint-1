@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   TrendingUp, Percent, HandCoins, RotateCcw, Sparkles, Receipt,
+  GraduationCap, UserCheck, Megaphone,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -32,6 +33,7 @@ export default function FinancePortalScreen({ navigation }) {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [revenue, setRevenue] = useState(null)
+  const [oneTimeRevenue, setOneTimeRevenue] = useState(null)
   const [commissions, setCommissions] = useState(null)
   const [payouts, setPayouts] = useState(null)
 
@@ -48,19 +50,26 @@ export default function FinancePortalScreen({ navigation }) {
     try {
       const [
         { data: revenueRows, error: revenueErr },
+        { data: oneTimeRows, error: oneTimeErr },
         { data: commissionRows, error: commissionErr },
         { data: payoutRows, error: payoutErr },
       ] = await Promise.all([
-        // All three RPCs are security definer and re-check finance/founder
+        // All four RPCs are security definer and re-check finance/founder
         // server-side (migration 20260829140000) — this screen only ever
         // reaches a finance (or finance+founder) account to begin with, but
         // the gate is enforced there regardless of who calls it.
         supabase.rpc('get_finance_revenue_snapshot'),
+        // Real, actually-collected one-time Stripe revenue (foundation,
+        // coaching, board listings) — a separate RPC (20261015170000) from
+        // the subscription-based snapshot above, not blended into its
+        // modelled MRR/ARR. Same default 'month' range as the call above.
+        supabase.rpc('get_finance_one_time_payments_summary'),
         supabase.rpc('get_finance_commission_summary'),
         supabase.rpc('get_finance_partner_payout_summary'),
       ])
-      if (revenueErr || commissionErr || payoutErr) throw revenueErr || commissionErr || payoutErr
+      if (revenueErr || oneTimeErr || commissionErr || payoutErr) throw revenueErr || oneTimeErr || commissionErr || payoutErr
       setRevenue(revenueRows?.[0] || null)
+      setOneTimeRevenue(oneTimeRows?.[0] || null)
       setCommissions(commissionRows?.[0] || null)
       setPayouts(payoutRows?.[0] || null)
     } catch {
@@ -138,6 +147,46 @@ export default function FinancePortalScreen({ navigation }) {
             <Text style={styles.statPillText}>{formatNumber(revenue?.canceled_in_range ?? 0)} canceled this month</Text>
           </View>
         </View>
+
+        {/* One-time payments — real Stripe revenue actually collected
+            (foundation_payments / coach_payments / board_listing_payments,
+            migration 20261015170000). Deliberately a separate section from
+            SUBSCRIPTION REVENUE above: these are one-off charges, not
+            subscriptions, so they're never blended into the modelled
+            MRR/ARR figures. */}
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <Receipt size={14} color={colors.textPrimary} />
+          <Text style={styles.sectionEyebrow}>ONE-TIME REVENUE</Text>
+        </View>
+        <Text style={styles.sectionCaption}>
+          Real Stripe payments actually collected this month — Foundation
+          services, coaching bookings, and board listings. Kept separate
+          from the subscription MRR/ARR above.
+        </Text>
+        <StatTileRow>
+          <StatTile
+            icon={GraduationCap} iconBg="#EFF6FF" iconColor="#2563EB"
+            value={oneTimeRevenue ? formatCents(oneTimeRevenue.foundation_revenue_cents) : '—'}
+            label={`Foundation (${formatNumber(oneTimeRevenue?.foundation_payments_count ?? 0)})`} border
+          />
+          <StatTile
+            icon={UserCheck} iconBg="#FDF4FF" iconColor="#A21CAF"
+            value={oneTimeRevenue ? formatCents(oneTimeRevenue.coach_revenue_cents) : '—'}
+            label={`Coaching (${formatNumber(oneTimeRevenue?.coach_payments_count ?? 0)})`}
+          />
+        </StatTileRow>
+        <StatTileRow style={{ marginTop: 10 }}>
+          <StatTile
+            icon={Megaphone} iconBg="#F0FDF4" iconColor={colors.success}
+            value={oneTimeRevenue ? formatCents(oneTimeRevenue.board_listing_revenue_cents) : '—'}
+            label={`Board listings (${formatNumber(oneTimeRevenue?.board_listing_payments_count ?? 0)})`} border
+          />
+          <StatTile
+            icon={Receipt} iconBg="#FEF9C3" iconColor={colors.goldDeep}
+            value={oneTimeRevenue ? formatCents(oneTimeRevenue.total_one_time_revenue_cents) : '—'}
+            label="Total one-time"
+          />
+        </StatTileRow>
 
         {/* Handler commissions */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
