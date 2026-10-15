@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Switch, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent, CreditCard,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent, CreditCard, Receipt,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -45,9 +45,10 @@ import { supabase } from '../../lib/supabase'
 //  - Payout account: as of 20261015150039, a resolvable share is also
 //    AUTOMATICALLY transferred via Stripe Connect once the coach's Express
 //    account is verified — see PayoutAccountSection below, the self-service
-//    onboarding surface for that Connect account. This screen still has no
-//    transfer-history view (coach_payment_transfers is readable by the coach
-//    but nothing here renders it yet) — flagged as a follow-up, not guessed.
+//    onboarding surface for that Connect account. TransferHistorySection
+//    below now reads coach_payment_transfers directly — RLS already scopes
+//    it to the coach's own rows, same shape PayoutAccountSection already
+//    relies on for coach_connect_accounts, so no new RPC was needed.
 //
 // Specialisms are read from the coach's own coach_profiles.specialisation —
 // the only specialism field the schema has today (a single free-text value,
@@ -683,6 +684,141 @@ function PayoutAccountSection({ userId }) {
   )
 }
 
+// ── Payout History (Stripe Connect transfer attempts) ────────────────────
+// Reads coach_payment_transfers (20261015150039) directly via the Supabase
+// JS client — confirmed live that coach_read_own_payment_transfers already
+// scopes every row to this coach's own coach_profile_id the exact same way
+// coach_connect_accounts' own RLS does (via coach_profiles.user_id =
+// auth.uid()), the shape PayoutAccountSection above already relies on for a
+// plain .from() select — so a new SECURITY DEFINER RPC would only add
+// surface area for no extra safety here. Every real coach today has zero
+// rows (no coach yet has both a resolvable commission split AND a verified
+// Connect account, per 20261015150039's own migration header), shown as a
+// plain "No payouts yet" empty state rather than an error. pending_reason/
+// error_message are translated to plain language — never the raw enum/
+// Stripe text — via describeTransferReason() below.
+function describeTransferReason(row) {
+  if (row.status === 'pending') {
+    switch (row.pending_reason) {
+      case 'pending_tier_assignment':
+        return 'Pending — your Partner Tier / payment option hasn\'t been assigned yet.'
+      case 'no_connect_account':
+        return 'Pending — you haven\'t set up your payout account yet.'
+      case 'connect_account_not_verified':
+        return 'Pending — your payout account isn\'t fully verified with Stripe yet.'
+      default:
+        return 'Pending — this payout hasn\'t been resolved yet.'
+    }
+  }
+  if (row.status === 'failed') {
+    return row.error_message
+      ? `Failed — ${row.error_message}`
+      : 'Failed — Stripe could not complete this transfer.'
+  }
+  return null
+}
+
+function TransferHistorySection({ userId }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const [loading, setLoading]     = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [unlinked, setUnlinked]   = useState(false)
+  const [transfers, setTransfers] = useState([])
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+
+    async function load() {
+      const { data: profile, error: profileErr } = await supabase
+        .from('coach_profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (cancelled) return
+      if (profileErr) { setLoadError(true); setLoading(false); return }
+      if (!profile?.id) { setUnlinked(true); setLoading(false); return }
+
+      // RLS (coach_read_own_payment_transfers) already restricts this to
+      // the caller's own rows regardless of the filter below; the explicit
+      // .eq keeps the query's intent legible and matches the shape
+      // PayoutAccountSection uses for coach_connect_accounts above.
+      const { data, error } = await supabase
+        .from('coach_payment_transfers')
+        .select('id, gross_amount_cents, status, pending_reason, error_message, attempted_at')
+        .eq('coach_profile_id', profile.id)
+        .order('attempted_at', { ascending: false })
+        .limit(50)
+      if (cancelled) return
+      if (error) { setLoadError(true); setLoading(false); return }
+      setTransfers(data || [])
+      setLoading(false)
+    }
+
+    load().catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }, [userId])
+
+  return (
+    <>
+      <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+        <Receipt size={14} color={colors.textPrimary} />
+        <Text style={styles.sectionEyebrow}>PAYOUT HISTORY</Text>
+      </View>
+      {loading ? (
+        <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
+          <ActivityIndicator size="small" color={colors.textPrimary} />
+        </Card>
+      ) : loadError ? (
+        <Card>
+          <Text style={styles.editUnlinkedText}>Couldn't load your payout history right now. Pull to refresh or check back shortly.</Text>
+        </Card>
+      ) : unlinked ? (
+        <Card>
+          <Text style={styles.editUnlinkedText}>
+            Your coach profile hasn't been linked yet, so there's nothing to show here.
+          </Text>
+        </Card>
+      ) : transfers.length === 0 ? (
+        <Card>
+          <Text style={styles.editUnlinkedText}>No payouts yet.</Text>
+        </Card>
+      ) : (
+        <View style={{ gap: 8 }}>
+          {transfers.map(t => {
+            const reason = describeTransferReason(t)
+            return (
+              <Card key={t.id} style={styles.transferCard}>
+                <View style={styles.transferHeaderRow}>
+                  <Text style={styles.transferDate}>
+                    {new Date(t.attempted_at).toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </Text>
+                  <Text style={styles.transferAmount}>{formatEuros(t.gross_amount_cents)}</Text>
+                </View>
+                <View style={styles.transferStatusRow}>
+                  <View
+                    style={[
+                      styles.transferStatusDot,
+                      t.status === 'transferred' ? styles.transferStatusDotTransferred
+                        : t.status === 'failed' ? styles.transferStatusDotFailed
+                        : styles.transferStatusDotPending,
+                    ]}
+                  />
+                  <Text style={styles.transferStatusText}>
+                    {t.status === 'transferred' ? 'Transferred' : t.status === 'failed' ? 'Failed' : 'Pending'}
+                  </Text>
+                </View>
+                {!!reason && <Text style={styles.transferReasonText}>{reason}</Text>}
+              </Card>
+            )
+          })}
+        </View>
+      )}
+    </>
+  )
+}
+
 export default function CoachStudioScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
@@ -864,6 +1000,9 @@ export default function CoachStudioScreen({ navigation }) {
         {/* Payout Account — Stripe Connect onboarding (automated transfers) */}
         <PayoutAccountSection userId={user?.id} />
 
+        {/* Payout History — past coach_payment_transfers attempts */}
+        <TransferHistorySection userId={user?.id} />
+
         {/* Edit My Profile — self-serve bio + photo */}
         <EditProfileSection userId={user?.id} />
 
@@ -1009,5 +1148,17 @@ function __gs_styles(colors) {
   payoutStatusDotPending: { backgroundColor: colors.goldDeep },
   payoutStatusDotNotStarted: { backgroundColor: colors.muted },
   payoutStatusText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+
+  transferCard: { padding: 14 },
+  transferHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  transferDate: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textPrimary },
+  transferAmount: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary },
+  transferStatusRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  transferStatusDot: { width: 7, height: 7, borderRadius: 3.5 },
+  transferStatusDotTransferred: { backgroundColor: '#15803D' },
+  transferStatusDotPending: { backgroundColor: colors.goldDeep },
+  transferStatusDotFailed: { backgroundColor: colors.destructive },
+  transferStatusText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
+  transferReasonText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 5 },
   })
 }
