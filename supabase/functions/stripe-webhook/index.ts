@@ -1,7 +1,9 @@
 // Handles Stripe webhook events and keeps public.subscriptions (Pro
 // subscriptions), public.foundation_payments (Foundation Blueprint
-// one-time document charges, task #95) AND public.coach_payments
-// (Elevation coach booking charges, task #95's sibling) in sync.
+// one-time document charges, task #95), public.coach_payments (Elevation
+// coach booking charges, task #95's sibling) AND public.board_listing_payments
+// (Ad Board / Marketplace "Providing Services" listing charges, pricing
+// doc §1.6/§1.7) in sync.
 //
 // Deploy: supabase functions deploy stripe-webhook --no-verify-jwt
 // (--no-verify-jwt because Stripe calls this directly, not through a
@@ -31,9 +33,9 @@
 // comments referenced a nonexistent profiles.is_pro column; same bug class
 // already found and fixed on the website's SubscriptionManagementPage.
 //
-// checkout.session.completed now covers three distinct kinds of session —
+// checkout.session.completed now covers four distinct kinds of session —
 // session.mode distinguishes the subscription case, and session.metadata.kind
-// distinguishes the two 'payment'-mode cases, same way Stripe itself
+// distinguishes the three 'payment'-mode cases, same way Stripe itself
 // reports both back verbatim (a Checkout Session's mode and metadata are
 // fixed at creation):
 //   'subscription'                     -> Pro/Premium (create-checkout-session), unchanged.
@@ -41,6 +43,17 @@
 //                                            document (create-foundation-checkout-session, task #95).
 //   'payment', kind 'coach_booking'       -> a single Elevation coach booking
 //                                            (create-coach-checkout-session, task #95's sibling).
+//   'payment', kind 'board_listing_payment' -> a single Ad Board ad or
+//                                            Marketplace "Providing Services"
+//                                            listing (create-board-listing-
+//                                            checkout-session, pricing doc
+//                                            §1.6/§1.7). Unlike the other two,
+//                                            the listing row does not exist
+//                                            yet when checkout starts — this
+//                                            is the one case where the
+//                                            webhook itself inserts the real
+//                                            content row (see
+//                                            markBoardListingPaymentPaid below).
 
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -142,6 +155,67 @@ async function markCoachPaymentFailed(paymentId: string) {
   // abandoned-checkout tradeoff foundation_payments already accepts).
 }
 
+// Ad Board / Marketplace "Providing Services" listing charge (pricing doc
+// §1.6/§1.7). The one payment kind where the content row does not exist
+// before checkout — board_listing_payments.payload holds the exact
+// insert-ready row (captured at checkout-creation time by
+// create-board-listing-checkout-session), and this is the only place that
+// ever inserts it, only once Stripe has actually confirmed the charge.
+//
+// The update's `.eq('status', 'pending')` doubles as the idempotency guard:
+// on a retried webhook delivery for the same event, the update matches zero
+// rows (status is already 'paid') and `.select().maybeSingle()` returns
+// null, so the insert below is skipped — the listing is never created
+// twice. created_listing_id is set in a second update once the insert
+// succeeds, same two-step shape foundation_payments' paid_at/status update
+// already uses elsewhere in this file.
+async function markBoardListingPaymentPaid(paymentId: string, paymentIntentId: string | null) {
+  const { data: row, error } = await supabase
+    .from('board_listing_payments')
+    .update({
+      status: 'paid',
+      stripe_payment_intent_id: paymentIntentId,
+      paid_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', paymentId)
+    .eq('status', 'pending')
+    .select('listing_kind, payload')
+    .maybeSingle()
+  if (error) {
+    console.error('[stripe-webhook] could not mark board_listing_payments paid', paymentId, error)
+    return
+  }
+  if (!row) return // already processed (webhook retry) or unknown id
+
+  const targetTable = row.listing_kind === 'ad_board' ? 'ads' : 'marketplace_skills'
+  const { data: listingRow, error: insertErr } = await supabase
+    .from(targetTable)
+    .insert(row.payload)
+    .select('id')
+    .single()
+  if (insertErr || !listingRow) {
+    console.error(`[stripe-webhook] could not insert ${targetTable} row after payment`, paymentId, insertErr)
+    return
+  }
+  const { error: linkErr } = await supabase
+    .from('board_listing_payments')
+    .update({ created_listing_id: listingRow.id, updated_at: new Date().toISOString() })
+    .eq('id', paymentId)
+  if (linkErr) console.error('[stripe-webhook] could not link created_listing_id', paymentId, linkErr)
+}
+
+async function markBoardListingPaymentFailed(paymentId: string) {
+  const { error } = await supabase
+    .from('board_listing_payments')
+    .update({ status: 'failed', updated_at: new Date().toISOString() })
+    .eq('id', paymentId)
+    .eq('status', 'pending')
+  if (error) console.error('[stripe-webhook] could not mark board_listing_payments failed', paymentId, error)
+  // Nothing was ever created for this attempt, so there's no content row to
+  // roll back — the student can simply fill the form in again.
+}
+
 Deno.serve(async req => {
   const signature = req.headers.get('stripe-signature')
   const body = await req.text()
@@ -171,6 +245,19 @@ Deno.serve(async req => {
               break
             }
             await markCoachPaymentPaid(paymentId, session.metadata?.booking_id, paymentIntentId)
+            break
+          }
+
+          if (kind === 'board_listing_payment') {
+            // Ad Board / Marketplace "Providing Services" listing charge
+            // (pricing doc §1.6/§1.7) — the one kind that inserts the real
+            // content row itself; see markBoardListingPaymentPaid's comment.
+            const paymentId = session.metadata?.board_listing_payment_id
+            if (!paymentId) {
+              console.error('checkout.session.completed (board_listing_payment) missing board_listing_payment_id metadata', session.id)
+              break
+            }
+            await markBoardListingPaymentPaid(paymentId, paymentIntentId)
             break
           }
 
@@ -216,6 +303,9 @@ Deno.serve(async req => {
           if (session.metadata?.kind === 'coach_booking') {
             const paymentId = session.metadata?.coach_payment_id
             if (paymentId) await markCoachPaymentFailed(paymentId)
+          } else if (session.metadata?.kind === 'board_listing_payment') {
+            const paymentId = session.metadata?.board_listing_payment_id
+            if (paymentId) await markBoardListingPaymentFailed(paymentId)
           } else {
             const paymentId = session.metadata?.foundation_payment_id
             if (paymentId) await markFoundationPaymentFailed(paymentId)
