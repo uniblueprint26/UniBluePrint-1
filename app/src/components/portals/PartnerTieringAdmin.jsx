@@ -63,7 +63,8 @@ export default function PartnerTieringAdmin() {
   const [search, setSearch] = useState('')
 
   const [manageEntity, setManageEntity] = useState(null) // row being managed, or null
-  const [historyEntity, setHistoryEntity] = useState(null) // row whose history modal is open, or null
+  const [historyEntity, setHistoryEntity] = useState(null) // row whose negotiation-history modal is open, or null
+  const [changeLogEntity, setChangeLogEntity] = useState(null) // row whose tier/payment/badge change-log modal is open, or null
 
   function loadList() {
     setLoading(true)
@@ -177,18 +178,24 @@ export default function PartnerTieringAdmin() {
         onPatch={patchRow}
         canSeeNegotiatedRate={canSeeNegotiatedRate}
         onViewHistory={row => setHistoryEntity(row)}
+        onViewChangeLog={row => setChangeLogEntity(row)}
       />
 
       <NegotiationHistoryModal
         entity={historyEntity}
         onClose={() => setHistoryEntity(null)}
       />
+
+      <TierChangeLogModal
+        entity={changeLogEntity}
+        onClose={() => setChangeLogEntity(null)}
+      />
     </View>
   )
 }
 
 // ── Manage one entity's tier / payment option / founding badge ────────────
-function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onViewHistory }) {
+function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onViewHistory, onViewChangeLog }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const [savingTier, setSavingTier] = useState(false)
@@ -384,6 +391,20 @@ function ManageTierModal({ entity, onClose, onPatch, canSeeNegotiatedRate, onVie
               )}
             </TouchableOpacity>
 
+            {/* Tier/payment-option/badge change log — visible to every tier
+                admin (founder/finance/operations), not just finance/founder,
+                matching get_tier_change_log()'s own visibility: these three
+                fields are already shown to Operations on the roster itself,
+                unlike the negotiated rate below. */}
+            <TouchableOpacity
+              style={styles.historyLinkRow}
+              activeOpacity={0.75}
+              onPress={() => onViewChangeLog(entity)}
+            >
+              <History size={14} color={colors.textPrimary} />
+              <Text style={styles.historyLinkText}>View tier/payment/badge change history</Text>
+            </TouchableOpacity>
+
             {canSeeNegotiatedRate ? (
               <>
                 <Text style={[styles.fieldLabel, { marginTop: 22 }]}>Record a negotiated rate (Option B)</Text>
@@ -525,6 +546,100 @@ function NegotiationHistoryModal({ entity, onClose }) {
                   <Text style={styles.currentRateRationale}>“{r.rationale}”</Text>
                   {!!r.recorded_by_role_snapshot && (
                     <Text style={styles.historyMeta}>Recorded by {r.recorded_by_role_snapshot}</Text>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+    </Modal>
+  )
+}
+
+// ── Tier/payment-option/founding-badge change log — any tier admin ────────
+// (founder/finance/operations), unlike NegotiationHistoryModal above which
+// is finance/founder only. Backed by 20261015160000_partner_tier_change_log
+// via get_tier_change_log(), which does its own is_partner_tier_admin()
+// check server-side regardless of who this modal is shown to.
+const FIELD_LABEL = { tier: 'Tier', payment_option: 'Payment option', founding_badge: 'Founding badge' }
+const TIER_VALUE_LABEL = { access: 'Access', plus: 'Plus', signature: 'Signature' }
+const PAYMENT_VALUE_LABEL = { fixed: 'Fixed (Option A)', negotiated: 'Negotiated (Option B)' }
+
+function formatChangeValue(field, value) {
+  if (value == null || value === '') return 'Not set'
+  if (field === 'tier') return TIER_VALUE_LABEL[value] || value
+  if (field === 'payment_option') return PAYMENT_VALUE_LABEL[value] || value
+  if (field === 'founding_badge') return value === 'true' ? 'Granted' : 'Not granted'
+  return value
+}
+
+function TierChangeLogModal({ entity, onClose }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
+
+  useEffect(() => {
+    if (!entity) return
+    setLoading(true)
+    setLoadError(null)
+    supabase.rpc('get_tier_change_log', {
+      _entity_type: entity.entity_type, _entity_id: entity.entity_id,
+    }).then(({ data, error }) => {
+      if (error) {
+        setLoadError('Could not load the change history.')
+      } else {
+        setRows(data || [])
+      }
+      setLoading(false)
+    })
+  }, [entity?.entity_type, entity?.entity_id])
+
+  if (!entity) return null
+
+  return (
+    <Modal visible={!!entity} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={styles.modalBackdrop}>
+        <View style={[styles.modalSheet, { maxHeight: '75%' }]}>
+          <View style={styles.modalHeaderRow}>
+            <View style={{ flex: 1, marginRight: 12 }}>
+              <Text style={styles.modalTitle} numberOfLines={1}>{entity.display_name}</Text>
+              <Text style={styles.modalSubEntity}>Tier/payment/badge change history</Text>
+            </View>
+            <TouchableOpacity
+              onPress={onClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+
+          {loading ? (
+            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 16 }} />
+          ) : loadError ? (
+            <Text style={styles.rateErrorText}>{loadError}</Text>
+          ) : rows.length === 0 ? (
+            <Text style={styles.emptyRow}>No tier, payment-option, or founding-badge changes recorded for this entity yet.</Text>
+          ) : (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {rows.map((r, i) => (
+                <View key={r.id} style={[styles.historyRow, i > 0 && styles.divider]}>
+                  <View style={styles.currentRateHeaderRow}>
+                    <Text style={styles.currentRateValue}>{FIELD_LABEL[r.field] || r.field}</Text>
+                    <Text style={styles.historyDate}>
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <Text style={styles.currentRateRationale}>
+                    {formatChangeValue(r.field, r.old_value)} → {formatChangeValue(r.field, r.new_value)}
+                  </Text>
+                  {!!r.changed_by_role_snapshot && (
+                    <Text style={styles.historyMeta}>Changed by {r.changed_by_role_snapshot}</Text>
                   )}
                 </View>
               ))}
