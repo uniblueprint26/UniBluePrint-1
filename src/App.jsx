@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useScrollToTop } from './hooks/useScrollToTop'
 import { useUTMCapture } from './hooks/useUTMCapture'
+import { useReferralCapture } from './hooks/useReferralCapture'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import RequireRole from './components/auth/RequireRole'
@@ -78,6 +79,7 @@ const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
 function AppRoutes() {
   useScrollToTop()
   useUTMCapture()
+  useReferralCapture()
 
   return (
     <Routes>

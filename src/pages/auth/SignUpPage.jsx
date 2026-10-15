@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import AuthLayout from '../../components/auth/AuthLayout'
 import AuthInput from '../../components/auth/AuthInput'
 import { FormCheckbox, syncMailchimp } from '../../components/ui/Form'
+import { getReferralCode } from '../../hooks/useReferralCapture'
 import {
   submitButtonStyle,
   submitButtonDisabledStyle,
@@ -16,6 +17,12 @@ import {
 export default function SignUpPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
+  // Pre-filled from ?ref=<code> if someone arrived via a friend's invite
+  // link (see useReferralCapture) — still editable, so someone who was
+  // handed a code by word of mouth rather than a link can type it in too.
+  // Attribution only, see the referral_tracking migration: this never
+  // affects price, access, or anything billing-related.
+  const [referralCode, setReferralCode] = useState(() => getReferralCode())
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const [error, setError] = useState('')
@@ -46,7 +53,11 @@ export default function SignUpPage() {
       const { error: err } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        options: { data: { full_name: form.fullName, marketing_consent: marketingConsent } },
+        options: { data: {
+          full_name: form.fullName,
+          marketing_consent: marketingConsent,
+          ...(referralCode.trim() ? { referred_by_code: referralCode.trim() } : {}),
+        } },
       })
       if (err) throw err
       if (marketingConsent) syncMailchimp(form.email, form.fullName, 'sign_up')
@@ -122,6 +133,16 @@ export default function SignUpPage() {
           error={fieldErrors.confirmPassword}
           autoComplete="new-password"
           placeholder="••••••••"
+        />
+
+        <AuthInput
+          label="Invite code (optional)"
+          type="text"
+          value={referralCode}
+          onChange={e => setReferralCode(e.target.value)}
+          hint="Got invited by a friend? Enter their code here."
+          autoComplete="off"
+          placeholder="e.g. a1b2c3d4"
         />
 
         <div style={{ marginTop: '4px' }}>

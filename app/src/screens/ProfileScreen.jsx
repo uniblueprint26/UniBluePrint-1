@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert, Linking,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert, Linking, Share,
   Modal, TextInput, Image, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -8,7 +8,7 @@ import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
   Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart, Eye,
-  Palette, Sun, Moon, Smartphone,
+  Palette, Sun, Moon, Smartphone, Share2,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -20,6 +20,7 @@ import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
 import { useInterests } from '../hooks/useInterests'
 import { useDirectoryProfile } from '../hooks/useDirectoryProfile'
+import { useReferrals } from '../hooks/useReferrals'
 import InterestsModal from '../components/profile/InterestsModal'
 import {
   STATUS_OPTIONS, SOCIAL_LINK_FIELDS, VISIBILITY_OPTIONS, MAX_BIO_LENGTH,
@@ -779,6 +780,84 @@ const rp = StyleSheet.create({
 })
 
 
+// ── Invite Friends card ──────────────────────────────────────────────────────
+// Attribution only — see the 20261015120000_referral_tracking migration and
+// useReferrals(). Sharing or using a code never changes anyone's price,
+// access, or billing; this card exists purely so a user can see their own
+// code/link and how many people have used it, same spirit as the Directory
+// Profile's "who you are" rather than anything commercial.
+function InviteFriendsCard() {
+  const { colors } = useTheme()
+  const { code, shareLink, count, loading } = useReferrals()
+
+  async function handleShare() {
+    if (!shareLink) return
+    try {
+      await Share.share({
+        message: `Join me on UniBlueprint — the free platform for CVs, coaching, and student life in Ireland. ${shareLink}`,
+      })
+    } catch { /* user cancelled or share sheet unavailable — nothing to recover from */ }
+  }
+
+  if (loading || !code) return null
+
+  return (
+    <View style={[inv.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={inv.row}>
+        <View style={[inv.iconWrap, { backgroundColor: colors.background }]}>
+          <Share2 size={18} color={colors.textPrimary} strokeWidth={1.8} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[inv.title, { color: colors.textPrimary }]}>Invite Friends</Text>
+          <Text style={[inv.sub, { color: colors.textSecondary }]}>
+            {count > 0
+              ? `${count} friend${count === 1 ? '' : 's'} joined using your code`
+              : 'Share your code — no catch, just helps us grow'}
+          </Text>
+        </View>
+      </View>
+      <View style={[inv.codeRow, { backgroundColor: colors.background, borderColor: colors.border }]}>
+        <Text style={[inv.codeText, { color: colors.textPrimary }]}>{code}</Text>
+      </View>
+      <TouchableOpacity
+        style={[inv.shareBtn, { backgroundColor: colors.accentBg }]}
+        activeOpacity={0.85}
+        onPress={handleShare}
+        accessibilityRole="button"
+        accessibilityLabel="Share your invite link"
+      >
+        <Text style={[inv.shareBtnText, { color: colors.accentFg }]}>Share Invite Link</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+const inv = StyleSheet.create({
+  card: {
+    borderRadius: radius.card, borderWidth: 1,
+    marginHorizontal: spacing.md, marginTop: spacing.md,
+    padding: 16,
+  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
+  iconWrap: {
+    width: 36, height: 36, borderRadius: 9,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  title: { fontFamily: fonts.sansSemiBold, fontSize: 14, marginBottom: 2 },
+  sub:   { fontFamily: fonts.sans, fontSize: 12, lineHeight: 17 },
+  codeRow: {
+    borderRadius: radius.button, borderWidth: 1,
+    paddingVertical: 12, alignItems: 'center',
+    marginBottom: 10,
+  },
+  codeText: { fontFamily: fonts.sansSemiBold, fontSize: 18, letterSpacing: 1.5 },
+  shareBtn: {
+    borderRadius: radius.button, height: 46,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  shareBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
+})
+
 // ── Screen ─────────────────────────────────────────────────────────────────────
 
 export default function ProfileScreen({ navigation }) {
@@ -997,6 +1076,9 @@ export default function ProfileScreen({ navigation }) {
                 : 'Upgrade to unlock priority coach access and premium document services. Plans and payment are handled securely on the UniBlueprint website, never in the app.'}
           </Text>
         </View>
+
+        {/* Invite Friends — attribution only, see useReferrals() */}
+        <InviteFriendsCard />
 
         {/* Handler rating prompt — shows only when there's a delivered, unrated request */}
         <HandlerRatingPrompt userId={user?.id} />

@@ -7,7 +7,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User, Mail, Lock, GraduationCap, BookOpen, Briefcase, MapPin, Calendar,
-  Eye, EyeOff, AlertCircle, ChevronLeft, Check,
+  Eye, EyeOff, AlertCircle, ChevronLeft, Check, Users,
 } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -158,6 +158,13 @@ export default function SignUpScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPw, setShowPw]               = useState(false)
   const [showConfirmPw, setShowConfirmPw] = useState(false)
+  // Optional "share with friends" code (see ProfileScreen's Invite Friends
+  // card and the 20261015120000_referral_tracking migration). The app has
+  // no deep-link capture for this today — unlike the website's ?ref=
+  // query param, there's no universal-links setup to catch an install from
+  // a link — so this is a plain, manually-typed optional field. Attribution
+  // only: a code here never changes price, access, or anything billing.
+  const [referralCode, setReferralCode]   = useState('')
 
   // Date of birth — three plain numeric fields rather than a native wheel
   // picker, matching how this app already collects a date elsewhere (a
@@ -334,6 +341,7 @@ export default function SignUpScreen({ navigation }) {
     try {
       const dob = parseDob()
       const metadata = { full_name: name.trim(), situation, date_of_birth: dob ? isoDob(dob) : null }
+      if (referralCode.trim()) metadata.referred_by_code = referralCode.trim()
 
       if (situation === 'in_college' && selectedInstitution) {
         metadata.institution       = selectedInstitution.name
@@ -563,6 +571,18 @@ export default function SignUpScreen({ navigation }) {
                   </TouchableOpacity>
                 </View>
               </View>
+
+              <Field label="Invite Code (optional)" icon={Users}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Got a code from a friend?"
+                  placeholderTextColor={colors.light}
+                  value={referralCode}
+                  onChangeText={setReferralCode}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </Field>
 
               <View style={styles.field}>
                 <Text style={styles.label}>Date of Birth</Text>
