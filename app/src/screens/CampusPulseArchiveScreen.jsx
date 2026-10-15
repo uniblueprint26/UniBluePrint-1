@@ -42,23 +42,48 @@ export default function CampusPulseArchiveScreen({ navigation }) {
 
   const [prompts, setPrompts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [expanded, setExpanded] = useState(null)
   const [responsesByPrompt, setResponsesByPrompt] = useState({})
   const [loadingResponsesFor, setLoadingResponsesFor] = useState(null)
+  const [responseErrors, setResponseErrors] = useState({})
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
+    setLoadError(null)
+    const { data, error } = await supabase
       .from('campus_pulse_prompts')
       .select('*')
       .eq('active', false)
       .not('week_start', 'is', null)
       .order('week_start', { ascending: false })
+    if (error) {
+      setLoadError('Could not load past weeks.')
+      setLoading(false)
+      return
+    }
     setPrompts(data || [])
     setLoading(false)
   }, [])
 
   useFocusEffect(useCallback(() => { load() }, [load]))
+
+  const fetchResponses = useCallback(async (id) => {
+    setLoadingResponsesFor(id)
+    setResponseErrors(prev => ({ ...prev, [id]: null }))
+    const { data, error } = await supabase
+      .from('campus_pulse_responses')
+      .select('*')
+      .eq('prompt_id', id)
+      .order('created_at', { ascending: false })
+    if (error) {
+      setResponseErrors(prev => ({ ...prev, [id]: 'Could not load responses.' }))
+      setLoadingResponsesFor(null)
+      return
+    }
+    setResponsesByPrompt(prev => ({ ...prev, [id]: data || [] }))
+    setLoadingResponsesFor(null)
+  }, [])
 
   async function toggleExpand(promptItem) {
     const id = promptItem.id
@@ -68,14 +93,7 @@ export default function CampusPulseArchiveScreen({ navigation }) {
     }
     setExpanded(id)
     if (responsesByPrompt[id]) return
-    setLoadingResponsesFor(id)
-    const { data } = await supabase
-      .from('campus_pulse_responses')
-      .select('*')
-      .eq('prompt_id', id)
-      .order('created_at', { ascending: false })
-    setResponsesByPrompt(prev => ({ ...prev, [id]: data || [] }))
-    setLoadingResponsesFor(null)
+    fetchResponses(id)
   }
 
   return (
@@ -102,6 +120,13 @@ export default function CampusPulseArchiveScreen({ navigation }) {
 
         {loading ? (
           <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
+        ) : loadError ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{loadError}</Text>
+            <TouchableOpacity onPress={load} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
+              <Text style={styles.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
         ) : prompts.length === 0 ? (
           <Text style={styles.emptyText}>No past weeks yet — check back once this week's prompt rotates.</Text>
         ) : (
@@ -129,6 +154,13 @@ export default function CampusPulseArchiveScreen({ navigation }) {
                     <View style={styles.responsesWrap}>
                       {loadingResponsesFor === p.id ? (
                         <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 10 }} />
+                      ) : responseErrors[p.id] ? (
+                        <View style={styles.errorBox}>
+                          <Text style={styles.errorText}>{responseErrors[p.id]}</Text>
+                          <TouchableOpacity onPress={() => fetchResponses(p.id)} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
+                            <Text style={styles.retryBtnText}>Retry</Text>
+                          </TouchableOpacity>
+                        </View>
                       ) : !weekResponses || weekResponses.length === 0 ? (
                         <Text style={styles.noResponsesText}>Nobody replied to this one.</Text>
                       ) : (
@@ -158,6 +190,13 @@ function getStyles(colors) {
     introRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: spacing.md },
     introText: { flex: 1, fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 18 },
     emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', paddingVertical: spacing.xl },
+    errorBox: {
+      backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
+      padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+    },
+    errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
+    retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
+    retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
     weekCard: { padding: 16 },
     weekHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
     weekRange: {
