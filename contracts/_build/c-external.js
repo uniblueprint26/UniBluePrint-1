@@ -14,7 +14,7 @@ const EMAIL = 'uniblueprintoperations@gmail.com'
 // ═══════════════════════════════════════════════════════════════════════════
 
 const partner = () => build({
-  file: '02-Partner-Agreement.docx',
+  file: '02-Lifestyle-Blueprint-Business-Partner-Agreement.docx',
   ref: 'UBP-PARTNER-v2.0',
   title: 'UniBlueprint Partner Agreement',
   children: [
