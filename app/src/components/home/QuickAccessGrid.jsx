@@ -338,7 +338,17 @@ function getStyles(colors) {
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 10,
   },
-  label: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary, lineHeight: 16, marginBottom: 4 },
+  // Fixed navy, not colors.textPrimary: this card's own backgroundColor is
+  // `item.bg`, one of ALL_SHORTCUTS' hardcoded light pastel hexes (e.g.
+  // '#EFF6FF') — a fixed-category-tile color that doesn't track light/dark
+  // mode (same as AdBoardScreen's entryIconWrap). textPrimary flips to the
+  // light cream brand swatch in dark mode, which read as near-invisible
+  // against that still-light pastel tile (worst on '#EFF6FF', the bg shared
+  // by the Foundation/"Submit a Service" and "Find a Coach" cards — closest
+  // in luminance to the cream text). colors.navy is the same literal hex in
+  // both palettes, so it keeps the contrast that already worked in light
+  // mode instead of silently breaking it in dark mode.
+  label: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 16, marginBottom: 4 },
   sub:   { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, lineHeight: 14 },
   removeBadge: {
     position: 'absolute', top: -7, right: -7,
