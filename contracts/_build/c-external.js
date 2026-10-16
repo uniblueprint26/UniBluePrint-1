@@ -217,12 +217,13 @@ const partner = () => build({
 
     MiniHead('Parties', 160),
     P('(1)\tUniBlueprint Limited, a company incorporated in Ireland (registered number 826545) whose registered office is at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland (“UniBlueprint”, “we”, “us”).'),
-    P('(2)\t[PARTNER LEGAL NAME], trading as [TRADING NAME], of [BUSINESS ADDRESS], [company/VAT number if applicable] (the “Partner”, “you”).'),
+    P('(2)\t[PARTNER LEGAL NAME], trading as [TRADING NAME], of [BUSINESS ADDRESS] (the “Partner”, “you”).'),
     MiniHead('Dated: [DATE]', 200),
 
     RNOTE('What this document is', [
       ['This is the agreement for your ', BOLD('free trial period'), ' on Lifestyle Blueprint. It is ', BOLD('not'), ' the final, long-term contract between us. It sets out, honestly and in both directions, what you can expect from UniBlueprint during the trial and what we ask of you in return — not just our terms imposed on you.'],
       ['If, by the end of the trial, you want to carry on listing with us, we will send you a fuller ', BOLD('Business Partner Agreement'), ' covering the ongoing, paid relationship, built on everything already in this document — nothing here is thrown away, only added to.'],
+      ['If you decide to continue beyond the Free Trial Period, we will confirm any further details we need from you at that point, as part of issuing the Business Partner Agreement — not before.'],
       ['Fill in every bracketed field and complete Schedule 1 (the Offer) before this is sent for signature. If anything in here is unclear, contact your Partnership Contact in Schedule 3 before you need to decide anything — we would rather explain it now than have you find out later.'],
     ]),
 
@@ -467,7 +468,7 @@ const coach = () => build({
 
     MiniHead('Parties', 160),
     P('(1)\tUniBlueprint Limited, a company incorporated in Ireland (registered number 826545) whose registered office is at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland (“UniBlueprint”, “we”, “us”).'),
-    P('(2)\t[COACH FULL NAME] of [ADDRESS], [PPS number / business or VAT number] (the “Coach”, “you”).'),
+    P('(2)\t[COACH FULL NAME] of [ADDRESS] (the “Coach”, “you”).'),
     MiniHead('Dated: [DATE]', 200),
 
     RNOTE('What this document is', [
@@ -542,7 +543,7 @@ const coach = () => build({
     S('4.1', 'The Coach must hold and maintain, at their own cost, for the term of this Agreement and for six (6) years afterwards:'),
     L('a', 'professional indemnity insurance of not less than €250,000; and'),
     L('b', 'where the Coach delivers any in-person session, or any session involving physical exercise, training, treatment, or nutrition advice, public liability insurance of not less than €1,000,000.'),
-    S('4.2', 'The Coach will provide a copy of the certificate of insurance before their first Booking and on each renewal. UniBlueprint may suspend the Coach’s listing while evidence of valid insurance is outstanding.'),
+    S('4.2', 'The Coach is not required to provide evidence of insurance to begin the Free Trial Period. If the Coach continues beyond the Free Trial Period, UniBlueprint will request evidence of the insurance required under clause 4.1 at that point, and may suspend the Coach’s listing if it is not then provided.'),
     S('4.3', 'Insurance does not limit the Coach’s liability under clause 11.'),
 
     CL('5', 'Prices and listing'),
@@ -558,7 +559,7 @@ const coach = () => build({
     L('b', 'make contact with UniBlueprint (by email, telephone, message, or meeting), using the contact details in Schedule 4, to discuss continuing, varying, or ending the arrangement.'),
     S('6.2', 'Contact under clause 6.1(b) is sufficient to satisfy the Decision Point requirement. The Coach is not required to make a final commitment by the Decision Point, only to engage.'),
     S('6.3', 'UniBlueprint will send the Coach a written reminder no later than five (5) days before the Decision Point, to the Coach’s email address in Schedule 4. Failure by UniBlueprint to send that reminder extends the Decision Point by five (5) days.'),
-    S('6.4', 'If the Coach confirms they wish to continue under clause 6.1(a), or confirms continuing after contact under clause 6.1(b), UniBlueprint will issue the Coach Agreement — the fuller, ongoing contract — confirming the Coach’s Tier and Payment Option under clause 7, before any Tier Fee or Platform Fee becomes payable. Nothing in this Agreement itself commits the Coach to a Tier, a Payment Option, or a paid term; that is fixed only by signing the Coach Agreement.'),
+    S('6.4', 'If the Coach confirms they wish to continue under clause 6.1(a), or confirms continuing after contact under clause 6.1(b), UniBlueprint will issue the Coach Agreement — the fuller, ongoing contract — confirming the Coach’s Tier and Payment Option under clause 7, before any Tier Fee or Platform Fee becomes payable. Nothing in this Agreement itself commits the Coach to a Tier, a Payment Option, or a paid term; that is fixed only by signing the Coach Agreement. If you decide to continue beyond the Free Trial Period, we will confirm any further details we need from you at that point, as part of issuing the Coach Agreement — not before.'),
     S('6.5', 'If the Coach does neither of the things in clause 6.1 by the Decision Point, then the Coach’s profile will be paused. A paused profile is hidden from Members. No Tier Fee or Platform Fee is payable and no debt arises. Silence does not create a payment obligation.'),
     S('6.6', 'A profile paused under clause 6.5 may be reactivated at any time within six (6) months by written agreement, without repeating the Free Trial Period.'),
 
@@ -701,6 +702,7 @@ const coach = () => build({
     BLANK(),
 
     H('Schedule 3: Insurance held'),
+    P('This Schedule is not required to begin the Free Trial Period. Complete it if the Coach continues beyond the Free Trial Period.'),
     TABLE(
       ['Cover', 'Insurer', 'Policy number', 'Limit', 'Renewal date'],
       [
@@ -712,6 +714,7 @@ const coach = () => build({
     BLANK(),
 
     H('Schedule 4: Payment and contact details'),
+    P('The Coach bank account name, IBAN, tax reference, and VAT registration fields below are not required to begin the Free Trial Period. Complete them if the Coach continues beyond the Free Trial Period. The Coach email and phone fields are current contact details and should be completed now.'),
     TABLE(
       ['Item', 'Detail'],
       [
