@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert,
-  ActivityIndicator, Modal, Linking,
+  ActivityIndicator, Modal, Linking, TextInput,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, GraduationCap, MapPin, AtSign, Link2, ThumbsUp, X, Check,
+  ChevronLeft, GraduationCap, MapPin, AtSign, Link2, ThumbsUp, X, Check, MessageSquareQuote,
 } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -14,7 +14,9 @@ import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { supabase } from '../lib/supabase'
 import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
 import { STATUS_LABEL_BY_KEY, SOCIAL_LINK_FIELDS } from '../constants/directory'
-import { ENDORSEMENT_TAGS } from '../constants/endorsements'
+import {
+  ENDORSEMENT_TAGS, CUSTOM_ENDORSEMENT_TAG, MAX_CUSTOM_ENDORSEMENT_LENGTH,
+} from '../constants/endorsements'
 import { userTypeLabel } from '../constants/userTypes'
 import { STATUS_STYLES, avatarColorFor, initialsFor } from './DirectoryScreen'
 import Button from '../components/ui/Button'
@@ -34,7 +36,12 @@ import Button from '../components/ui/Button'
 //     peer_endorsement_counts), plus an "add an endorsement" action for any
 //     other signed-in viewer — intentionally NOT surfaced on the compact
 //     card/list, so endorsements never turn Directory browsing into a
-//     leaderboard.
+//     leaderboard. Alongside the 6 fixed preset tags, a viewer can also
+//     leave a free-typed custom endorsement (peer_endorsements rows with
+//     tag = CUSTOM_ENDORSEMENT_TAG, text in custom_text — see the
+//     20261016090000_peer_endorsements_custom_text migration). Custom notes
+//     don't aggregate into a count the way presets do, so they're rendered
+//     as their own "What people are saying" list instead of a chip.
 
 function openSocialLink(key, rawValue) {
   const value = String(rawValue || '').trim()
@@ -54,15 +61,26 @@ function openSocialLink(key, rawValue) {
 const SOCIAL_ICON = { instagram: AtSign, linkedin: Link2, other: Link2 }
 
 // ── Add an endorsement modal ─────────────────────────────────────────────────
-// Lets the viewer give the profile owner one tag from the shared, fixed
-// ENDORSEMENT_TAGS vocabulary. Tags already given by this viewer to this
-// person are excluded from the list entirely (peer_endorsements_unique
+// Lets the viewer give the profile owner either one tag from the shared,
+// fixed ENDORSEMENT_TAGS vocabulary, OR a free-typed custom note — the same
+// "pick from a list OR type your own" pattern used for interests
+// (hooks/useInterests.js) and Directory credentials
+// (constants/directory.js' MAX_CREDENTIAL_LENGTH), just applied here to
+// endorsements. Preset tags already given by this viewer to this person are
+// excluded from the list entirely (peer_endorsements_unique_preset_idx
 // enforces this at the database level too — this is just the UI not
-// offering a tag that would fail).
+// offering a tag that would fail); a custom note has no such limit, so the
+// text field is always available.
 
-function AddEndorsementModal({ visible, onClose, availableTags, onPick, saving }) {
+function AddEndorsementModal({
+  visible, onClose, availableTags, onPick, saving,
+  customDraft, onCustomDraftChange, onSubmitCustom,
+}) {
   const { colors } = useTheme()
   const m = __gs_m(colors)
+  const trimmedCustom = customDraft.trim()
+  const canSubmitCustom = trimmedCustom.length > 0 && !saving
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={m.backdrop}>
@@ -83,7 +101,7 @@ function AddEndorsementModal({ visible, onClose, availableTags, onPick, saving }
             Pick what best describes working or connecting with this person. You can give one of each tag.
           </Text>
           {availableTags.length === 0 ? (
-            <Text style={m.doneAll}>You've already given every endorsement tag to this person.</Text>
+            <Text style={m.doneAll}>You've already given every preset endorsement tag to this person.</Text>
           ) : (
             <View style={{ gap: 8 }}>
               {availableTags.map(tag => (
@@ -101,6 +119,38 @@ function AddEndorsementModal({ visible, onClose, availableTags, onPick, saving }
               ))}
             </View>
           )}
+
+          <View style={m.divider} />
+
+          <Text style={m.customLabel}>Or write your own</Text>
+          <Text style={m.sub}>
+            Say something specific — you can give this person more than one custom note.
+          </Text>
+          <TextInput
+            value={customDraft}
+            onChangeText={onCustomDraftChange}
+            placeholder="e.g. Always helped me prep for exams"
+            placeholderTextColor={colors.muted}
+            style={m.customInput}
+            multiline
+            maxLength={MAX_CUSTOM_ENDORSEMENT_LENGTH}
+            editable={!saving}
+          />
+          <View style={m.customFooterRow}>
+            <Text style={m.customCount}>{trimmedCustom.length}/{MAX_CUSTOM_ENDORSEMENT_LENGTH}</Text>
+            <TouchableOpacity
+              style={[m.customSubmitBtn, !canSubmitCustom && m.customSubmitBtnDisabled]}
+              activeOpacity={0.75}
+              disabled={!canSubmitCustom}
+              onPress={() => onSubmitCustom(customDraft)}
+              accessibilityRole="button"
+              accessibilityLabel="Submit custom endorsement"
+            >
+              {saving
+                ? <ActivityIndicator size="small" color={colors.accentFg} />
+                : <Text style={m.customSubmitBtnText}>Add note</Text>}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -125,6 +175,13 @@ export default function StudentProfileScreen({ route, navigation }) {
   // actions too.
   const [counts, setCounts] = useState({})
   const [myGivenTags, setMyGivenTags] = useState([])
+  // Free-typed custom endorsements (tag = CUSTOM_ENDORSEMENT_TAG) for this
+  // profile — read fresh alongside the preset counts/mine, same reasoning:
+  // other viewers can add their own at any time. Rendered as its own "What
+  // people are saying" list since, unlike presets, these don't aggregate
+  // into a count.
+  const [customEndorsements, setCustomEndorsements] = useState([])
+  const [customDraft, setCustomDraft] = useState('')
   const [endorsementsLoading, setEndorsementsLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -139,6 +196,12 @@ export default function StudentProfileScreen({ route, navigation }) {
         .from('peer_endorsement_counts')
         .select('tag, endorsement_count')
         .eq('endorsed_id', student.id)
+      const customPromise = supabase
+        .from('peer_endorsements')
+        .select('id, custom_text, created_at')
+        .eq('endorsed_id', student.id)
+        .eq('tag', CUSTOM_ENDORSEMENT_TAG)
+        .order('created_at', { ascending: false })
       const minePromise = canEndorse
         ? supabase
             .from('peer_endorsements')
@@ -147,10 +210,12 @@ export default function StudentProfileScreen({ route, navigation }) {
             .eq('endorser_id', user.id)
         : Promise.resolve({ data: [] })
 
-      const [{ data: countRows }, { data: mineRows }] = await Promise.all([countsPromise, minePromise])
+      const [{ data: countRows }, { data: customRows }, { data: mineRows }] =
+        await Promise.all([countsPromise, customPromise, minePromise])
       const byTag = {}
       for (const row of countRows || []) byTag[row.tag] = row.endorsement_count
       setCounts(byTag)
+      setCustomEndorsements(customRows || [])
       setMyGivenTags((mineRows || []).map(r => r.tag))
     } catch {
       // Leave whatever was last successfully loaded (or the zeroed default)
@@ -172,6 +237,39 @@ export default function StudentProfileScreen({ route, navigation }) {
         tag,
       })
       if (error) throw error
+      setAddOpen(false)
+      await loadEndorsements()
+    } catch {
+      Alert.alert('Could not save that', 'Please try again in a moment.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Trims, collapses whitespace, and length-caps a free-typed custom
+  // endorsement — same normalize-at-the-write-boundary convention as
+  // normalizeInterestLabel() (hooks/useInterests.js) and
+  // updateDirectoryProfile()'s credentials handling (AuthContext.jsx). A
+  // string that's pure whitespace trims to '' and is rejected below, so a
+  // blank note can never be saved.
+  function normalizeCustomEndorsement(raw) {
+    return String(raw || '').trim().replace(/\s+/g, ' ').slice(0, MAX_CUSTOM_ENDORSEMENT_LENGTH)
+  }
+
+  async function giveCustomEndorsement(rawText) {
+    if (!canEndorse || saving) return
+    const clean = normalizeCustomEndorsement(rawText)
+    if (!clean) return
+    setSaving(true)
+    try {
+      const { error } = await supabase.from('peer_endorsements').insert({
+        endorser_id: user.id,
+        endorsed_id: student.id,
+        tag: CUSTOM_ENDORSEMENT_TAG,
+        custom_text: clean,
+      })
+      if (error) throw error
+      setCustomDraft('')
       setAddOpen(false)
       await loadEndorsements()
     } catch {
@@ -375,6 +473,23 @@ export default function StudentProfileScreen({ route, navigation }) {
             </View>
           )}
 
+          {/* Free-typed custom endorsements — distinct from the counted
+              preset chips above, since each one is its own note rather than
+              something that aggregates into a count. */}
+          {!endorsementsLoading && customEndorsements.length > 0 && (
+            <View style={styles.customEndorseWrap}>
+              <Text style={styles.customEndorseLabel}>What people are saying</Text>
+              <View style={{ gap: 8 }}>
+                {customEndorsements.map(e => (
+                  <View key={e.id} style={styles.customEndorseCard}>
+                    <MessageSquareQuote size={14} color={colors.muted} strokeWidth={1.8} />
+                    <Text style={styles.customEndorseText}>{e.custom_text}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
           {canEndorse && !endorsementsLoading && (
             <TouchableOpacity
               style={styles.addEndorseBtn}
@@ -403,6 +518,9 @@ export default function StudentProfileScreen({ route, navigation }) {
         availableTags={availableTags}
         onPick={giveEndorsement}
         saving={saving}
+        customDraft={customDraft}
+        onCustomDraftChange={setCustomDraft}
+        onSubmitCustom={giveCustomEndorsement}
       />
     </View>
   )
@@ -506,6 +624,20 @@ function __gs_styles(colors) {
   },
   endorseCountText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.accentFg },
 
+  customEndorseWrap: { marginTop: 14 },
+  customEndorseLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 11,
+    color: colors.muted, textTransform: 'uppercase',
+    letterSpacing: 0.6, marginBottom: 8,
+  },
+  customEndorseCard: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
+    backgroundColor: colors.surface, borderRadius: radius.card,
+    paddingHorizontal: 14, paddingVertical: 12,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card,
+  },
+  customEndorseText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
+
   addEndorseBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     height: 44, borderRadius: radius.button, marginTop: 14,
@@ -536,5 +668,27 @@ function __gs_m(colors) {
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
   },
   tagRowText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
+
+  divider: { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: 18 },
+  customLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginBottom: 4 },
+  customInput: {
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    paddingHorizontal: 14, paddingVertical: 12,
+    minHeight: 72, textAlignVertical: 'top',
+  },
+  customFooterRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  customCount: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
+  customSubmitBtn: {
+    backgroundColor: colors.accentBg, borderRadius: radius.pill,
+    paddingHorizontal: 18, paddingVertical: 10,
+    minWidth: 92, alignItems: 'center',
+  },
+  customSubmitBtnDisabled: { opacity: 0.4 },
+  customSubmitBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.accentFg },
   })
 }
