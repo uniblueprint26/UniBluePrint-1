@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Switch, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent, CreditCard, Receipt,
+  Users, Calendar, Clock, MessageSquare, TrendingUp, UserCog, Save, Wallet, Award, Percent, CreditCard, Receipt, BarChart3, Ticket,
 } from 'lucide-react-native'
 
 import Card from '../../components/ui/Card'
@@ -546,6 +546,85 @@ function formatEuros(cents) {
   return `€${(cents / 100).toFixed(2)}`
 }
 
+// Per-session-type breakdown — see the migration's own comment for why this
+// (unlike partner-side views/claims) is genuinely derivable from existing
+// data: coach_payments.item_label is already the session/package label on
+// every real Stripe charge.
+function useCoachBookingBreakdown(userId) {
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [breakdown, setBreakdown] = useState([])
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+    supabase.rpc('get_my_coach_booking_breakdown').then(({ data, error }) => {
+      if (cancelled) return
+      if (error) { setLoadError(true); setLoading(false); return }
+      setBreakdown(data || [])
+      setLoading(false)
+    }).catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }, [userId])
+
+  return { loading, loadError, breakdown }
+}
+
+const TREND_DAYS = 14
+
+function useCoachBookingTrend(userId) {
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [trend, setTrend] = useState([])
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+    supabase.rpc('get_my_coach_booking_trend', { days_back: TREND_DAYS }).then(({ data, error }) => {
+      if (cancelled) return
+      if (error) { setLoadError(true); setLoading(false); return }
+      setTrend(data || [])
+      setLoading(false)
+    }).catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
+    return () => { cancelled = true }
+  }, [userId])
+
+  return { loading, loadError, trend }
+}
+
+// Same grouped-bar-chart approach as PartnerPortalScreen's EngagementTrendChart
+// (no charting library) — bars scaled against this window's own max so a
+// quiet period still reads clearly instead of every bar maxing out.
+function BookingTrendChart({ trend, colors }) {
+  const maxValue = Math.max(1, ...trend.map(d => d.bookings))
+  const CHART_HEIGHT = 90
+
+  return (
+    <View style={bookingChartStyles.row}>
+      {trend.map(d => {
+        const h = Math.max(2, Math.round((d.bookings / maxValue) * CHART_HEIGHT))
+        const label = new Date(d.day).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+        return (
+          <View key={d.day} style={bookingChartStyles.col}>
+            <View style={[bookingChartStyles.barWrap, { height: CHART_HEIGHT }]}>
+              <View style={[bookingChartStyles.bar, { height: h, backgroundColor: colors.textPrimary }]} />
+            </View>
+            <Text style={[bookingChartStyles.dayLabel, { color: colors.muted }]} numberOfLines={1}>{label}</Text>
+          </View>
+        )
+      })}
+    </View>
+  )
+}
+
+const bookingChartStyles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 3 },
+  col: { alignItems: 'center', flex: 1, minWidth: 0 },
+  barWrap: { alignItems: 'center', justifyContent: 'flex-end' },
+  bar: { width: 8, borderRadius: 2 },
+  dayLabel: { fontFamily: fonts.sans, fontSize: 8, marginTop: 6, transform: [{ rotate: '-45deg' }] },
+})
+
 // ── Payout Account (Stripe Connect) ──────────────────────────────────────
 // Self-service onboarding for the coach's Stripe Express Connect account —
 // the piece that makes the Earnings section's "your share" figure above an
@@ -826,6 +905,8 @@ export default function CoachStudioScreen({ navigation }) {
   const { setPortalMode, user } = useAuth()
   const { loading: bookingsLoading, loadError: bookingsError, upcoming, activeClientCount, monthlyBookings, specialisation } = useCoachBookings(user?.id)
   const { loading: earningsLoading, loadError: earningsError, earnings } = useCoachEarnings(user?.id)
+  const { loading: trendLoading, loadError: trendError, trend } = useCoachBookingTrend(user?.id)
+  const { loading: breakdownLoading, loadError: breakdownError, breakdown } = useCoachBookingBreakdown(user?.id)
   const specialisms = parseSpecialisms(specialisation)
 
   function backToMyBlueprint() {
@@ -975,6 +1056,65 @@ export default function CoachStudioScreen({ navigation }) {
           )}
         </Card>
 
+        {/* Booking trend — daily paid-booking count over the last 14 days,
+            same coach_payments rows the Earnings card sums, just bucketed
+            by day. */}
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <BarChart3 size={14} color={colors.textPrimary} />
+          <Text style={styles.sectionEyebrow}>BOOKING TREND — LAST {TREND_DAYS} DAYS</Text>
+        </View>
+        {trendLoading ? (
+          <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
+            <ActivityIndicator size="small" color={colors.textPrimary} />
+          </Card>
+        ) : trendError ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>Couldn't load your booking trend right now. Pull to refresh or check back shortly.</Text>
+          </Card>
+        ) : trend.every(d => d.bookings === 0) ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>No bookings yet in this window.</Text>
+          </Card>
+        ) : (
+          <Card style={styles.trendCard}>
+            <BookingTrendChart trend={trend} colors={colors} />
+          </Card>
+        )}
+
+        {/* Per-session-type breakdown — see useCoachBookingBreakdown's own
+            comment for why this, unlike a partner's views/claims, can
+            honestly be broken down by type with existing data. */}
+        <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
+          <Ticket size={14} color={colors.textPrimary} />
+          <Text style={styles.sectionEyebrow}>BOOKINGS BY SESSION TYPE</Text>
+        </View>
+        {breakdownLoading ? (
+          <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
+            <ActivityIndicator size="small" color={colors.textPrimary} />
+          </Card>
+        ) : breakdownError ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>Couldn't load your booking breakdown right now. Pull to refresh or check back shortly.</Text>
+          </Card>
+        ) : breakdown.length === 0 ? (
+          <Card>
+            <Text style={styles.editUnlinkedText}>No paid bookings yet.</Text>
+          </Card>
+        ) : (
+          <Card style={styles.breakdownCard}>
+            {breakdown.map((row, i) => (
+              <View
+                key={row.item_label}
+                style={[styles.breakdownRow, i < breakdown.length - 1 && styles.breakdownRowBorder]}
+              >
+                <Text style={styles.breakdownLabel} numberOfLines={1}>{row.item_label}</Text>
+                <Text style={styles.breakdownCount}>{row.bookings_count} booking{row.bookings_count === 1 ? '' : 's'}</Text>
+                <Text style={styles.breakdownTotal}>{formatEuros(row.total_cents)}</Text>
+              </View>
+            ))}
+          </Card>
+        )}
+
         {/* Specialisms */}
         <View style={[styles.sectionRow, { marginTop: spacing.xl }]}>
           <Users size={14} color={colors.textPrimary} />
@@ -1077,6 +1217,16 @@ function __gs_styles(colors) {
   activityTime: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
 
   earningsCard: {},
+  trendCard: { paddingTop: 20, paddingBottom: 12 },
+  breakdownCard: { paddingVertical: 4 },
+  breakdownRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 12, gap: 10,
+  },
+  breakdownRowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)' },
+  breakdownLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, flex: 1, minWidth: 0 },
+  breakdownCount: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted },
+  breakdownTotal: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, minWidth: 64, textAlign: 'right' },
   earningsRow: { flexDirection: 'row', marginBottom: 14 },
   earningsTile: { flex: 1 },
   earningsTileBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(30,58,95,0.08)', paddingLeft: 14 },
