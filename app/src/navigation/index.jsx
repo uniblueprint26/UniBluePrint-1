@@ -103,9 +103,21 @@ const Tab    = createBottomTabNavigator()
 const Stack  = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
 
-const noHeader   = { headerShown: false, animation: 'slide_from_right' }
+// freezeOnBlur: native-stack keeps every pushed screen mounted for the rest
+// of the session by default (that's what makes instant back-navigation
+// possible) — but with no freeze, every screen a person has ever opened
+// keeps re-rendering, polling, and holding its realtime Supabase
+// subscription open in the background for as long as the app runs. Across
+// a session that visits several screens (chat rooms, dashboards, profiles),
+// that's a pile of simultaneously-live timers/subscriptions that only grows,
+// which is consistent with reports of the app degrading/crashing the longer
+// someone navigates around. freezeOnBlur suspends a screen's React tree
+// (via react-native-screens) once it's no longer focused, while still
+// keeping it mounted for instant back-navigation.
+const noHeader   = { headerShown: false, animation: 'slide_from_right', freezeOnBlur: true }
 const backHeader = {
   animation: 'slide_from_right',
+  freezeOnBlur: true,
   headerStyle: { backgroundColor: colors.chromeBg },
   headerTintColor: colors.chromeFg,
   headerTitleStyle: { fontFamily: fonts.sansSemiBold },
