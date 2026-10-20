@@ -83,7 +83,15 @@ export default function CoachBookingScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const safeGoBack = useSafeGoBack(navigation)
-  const { coach } = route.params
+  // route.params can legitimately be missing entirely — e.g. navigation
+  // restoring a persisted stack after a cold start, or any future caller
+  // that navigates here without a coach (today's only call site,
+  // CoachProfileScreen, always passes one, but nothing enforces that) — so
+  // this falls back rather than crashing on destructuring, same guard every
+  // other params-driven screen in this app uses. The `if (!coach)` return
+  // below (after the Pro-access check, matching CoachProfileScreen's own
+  // ordering) renders a plain "not found" state instead of crashing.
+  const { coach } = route.params || {}
   // Defense in depth — CoachProfileScreen already gates the "Book a Coach"
   // CTA that leads here, but this screen is reachable by direct navigation
   // too, so it enforces the same Elevation-is-Pro-only rule itself rather
@@ -91,18 +99,21 @@ export default function CoachBookingScreen({ route, navigation }) {
   const { canAccess: hasProAccess, loading: proLoading } = useProAccess()
 
   const days = useMemo(() => buildUpcomingDays(10), [])
+  // getCoachPricingShape already reads coach?.pricelist defensively, so a
+  // missing coach just resolves to its 'enquiry' fallback shape here.
   const pricing = useMemo(() => getCoachPricingShape(coach), [coach])
   // The coach's own self-set intro call offer, if they've turned one on
   // (see header comment) — null until fetched, and stays null for the vast
   // majority of coaches who have none active.
   const [introOffer, setIntroOffer] = useState(null)
   useEffect(() => {
+    if (!coach) return
     let cancelled = false
     fetchActiveIntroCallOffer(coachSlug(coach.id)).then(offer => {
       if (!cancelled) setIntroOffer(offer)
     })
     return () => { cancelled = true }
-  }, [coach.id])
+  }, [coach?.id])
   const effectivePricing = useMemo(() => withIntroCallOffer(pricing, introOffer), [pricing, introOffer])
   const [selectedDay, setSelectedDay] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
@@ -121,6 +132,23 @@ export default function CoachBookingScreen({ route, navigation }) {
   const ready = !!(selectedDay && selectedTime && itemReady)
 
   if (proLoading) return null
+
+  // No coach in route.params at all — see the header comment on the coach
+  // destructure above for how this can happen.
+  if (!coach) {
+    return (
+      <View style={styles.screen}>
+        <ScreenHeader
+          variant="navy"
+          onBack={safeGoBack}
+          eyebrow="BOOK A COACH"
+          title="Coach not found"
+          style={styles.header}
+          titleStyle={styles.headerTitle}
+        />
+      </View>
+    )
+  }
 
   if (!hasProAccess) {
     return (
