@@ -369,7 +369,15 @@ export default function CoachProfileScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const safeGoBack = useSafeGoBack(navigation)
-  const { coach: baseCoach } = route.params
+  // route.params can legitimately be missing entirely — e.g. navigation
+  // restoring a persisted stack after a cold start, or any future caller
+  // that navigates here without a coach (every current call site passes
+  // one, but nothing enforces that) — so this falls back to undefined
+  // rather than crashing on destructuring, matching the || {} guard every
+  // other params-driven screen in this app already uses (OutputDetailScreen,
+  // StudentProfileScreen, TicketDetailScreen, etc.). The `if (!baseCoach)`
+  // guard below renders a plain "not found" state instead.
+  const { coach: baseCoach } = route.params || {}
   // Elevation is a Pro-only surface (see ElevationScreen.jsx's own comment
   // and docs/business/subscription-pricing-model.md) — gated again here,
   // not just on the ElevationScreen directory, because this screen is also
@@ -398,6 +406,7 @@ export default function CoachProfileScreen({ route, navigation }) {
   const [hasEngaged, setHasEngaged] = useState(null)
 
   useEffect(() => {
+    if (!baseCoach) return
     let cancelled = false
     supabase
       .from('coach_profiles')
@@ -406,20 +415,21 @@ export default function CoachProfileScreen({ route, navigation }) {
       .maybeSingle()
       .then(({ data }) => { if (!cancelled && data) setOverride(data) })
     return () => { cancelled = true }
-  }, [baseCoach.id])
+  }, [baseCoach?.id])
 
   useEffect(() => {
+    if (!baseCoach) return
     let cancelled = false
     fetchActiveIntroCallOffer(coachSlug(baseCoach.id)).then(offer => {
       if (!cancelled) setIntroOffer(offer)
     })
     return () => { cancelled = true }
-  }, [baseCoach.id])
+  }, [baseCoach?.id])
 
   // Has this user already rated this coach? One rating per user per coach
   // (coach_ratings has a unique constraint on coach_slug + user_id).
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id || !baseCoach) return
     let cancelled = false
     supabase
       .from('coach_ratings')
@@ -429,14 +439,14 @@ export default function CoachProfileScreen({ route, navigation }) {
       .maybeSingle()
       .then(({ data }) => { if (!cancelled && data) setMyRating(data.rating) })
     return () => { cancelled = true }
-  }, [baseCoach.id, user?.id])
+  }, [baseCoach?.id, user?.id])
 
   // Has this user ever booked or enquired with this coach? Checked against
   // both real mechanisms already in the schema — coach_bookings (the new
   // dedicated booking flow) and coach_enquiries (the existing quick-message
   // path) — either one counts as "an actual booking/connection".
   const checkEngagement = useCallback(() => {
-    if (!user?.id) { setHasEngaged(null); return }
+    if (!user?.id || !baseCoach) { setHasEngaged(null); return }
     const slug = coachSlug(baseCoach.id)
     Promise.all([
       supabase.from('coach_bookings').select('id').eq('coach_slug', slug).eq('user_id', user.id).limit(1),
@@ -445,7 +455,7 @@ export default function CoachProfileScreen({ route, navigation }) {
       const engaged = (bookings.data?.length > 0) || (enquiries.data?.length > 0)
       setHasEngaged(engaged)
     }).catch(() => setHasEngaged(false))
-  }, [baseCoach.id, user?.id])
+  }, [baseCoach?.id, user?.id])
 
   useFocusEffect(useCallback(() => { checkEngagement() }, [checkEngagement]))
 
@@ -453,11 +463,13 @@ export default function CoachProfileScreen({ route, navigation }) {
   // when present, otherwise fall back to the coach's bundled heroImage
   // (e.g. Milan Piroska, Tadgh Darcy's studio shots) — same precedence as
   // the Home Spotlight carousel (see lib/featuredContent.js coach()), so a
-  // coach's photo is consistent everywhere it appears.
-  const resolvedPhoto = override?.photo_url || baseCoach.heroImage || null
+  // coach's photo is consistent everywhere it appears. null-safe throughout
+  // — baseCoach can be missing (see the `if (!baseCoach)` render guard
+  // below); `coach` just resolves to null in that case rather than crashing.
+  const resolvedPhoto = override?.photo_url || baseCoach?.heroImage || null
   // Verified is never assumed — only a real coach_profiles.verified = true
   // row earns the badge (see VerifiedBadge's own default of false).
-  const coach = override
+  const coach = !baseCoach ? null : override
     ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto, verified: !!override.verified }
     : { ...baseCoach, photoUrl: resolvedPhoto, verified: false }
 
@@ -469,8 +481,8 @@ export default function CoachProfileScreen({ route, navigation }) {
     ? { label: introCallLabel(introOffer), price: introOffer.price_cents > 0 ? formatEuro(introOffer.price_cents) : 'Free' }
     : null
   const displayPricelist = introRow
-    ? [...(coach.pricelist || []), introRow]
-    : coach.pricelist
+    ? [...(coach?.pricelist || []), introRow]
+    : coach?.pricelist
 
   function handleEnquire() {
     if (!coach.contact) return
@@ -478,6 +490,23 @@ export default function CoachProfileScreen({ route, navigation }) {
     if (coach.contact.phone)     return openLink('phone',     coach.contact.phone)
     if (coach.contact.instagram) return openLink('instagram', coach.contact.instagram)
     if (coach.contact.linktree)  return openLink('linktree',  coach.contact.linktree)
+  }
+
+  // No coach in route.params at all — see the header comment on baseCoach
+  // above for how this can happen. Checked before the Pro gate below since
+  // that branch itself reads coach.name/coach.category.
+  if (!coach) {
+    return (
+      <View style={styles.screen}>
+        <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
+          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
+            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
+            <Text style={styles.backBtnText}>Back</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerName}>Coach not found</Text>
+        </View>
+      </View>
+    )
   }
 
   // Fails closed while subscription status is still resolving — render
