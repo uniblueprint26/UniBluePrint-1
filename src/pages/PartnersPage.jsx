@@ -28,7 +28,10 @@ const LIVE_PARTNERS = [
   {
     id: 'energie',
     name: 'Energie Fitness',
-    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    // TODO: src/assets/energie-fitness-logo.png.jpeg exists and has a
+    // near-white background that would sit acceptably on this card's cream
+    // badge -- worth wiring in, just hasn't been.
+    logo: null,
     initials: 'EF', initBg: '#0369A1', // temp fallback until the real logo lands
     category: 'Gym Membership',
     description: 'Full gym access at an exclusive member rate versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
@@ -36,7 +39,11 @@ const LIVE_PARTNERS = [
   {
     id: 'jmc',
     name: 'JMC Fitness',
-    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    // TODO: src/assets/jmc-fitness-logo.png.jpeg exists but has an opaque
+    // navy-gradient background -- would render as a solid-colour square at
+    // this card's 56x56 badge size, not a clean logo. Needs a
+    // transparent/cropped export before wiring in, not just an import.
+    logo: null,
     initials: 'JMC', initBg: '#166534', // temp fallback until the real logo lands
     category: 'Sports Coaching',
     description: 'Elite sports coaching with fully personalised programmes. Online coaching, in-person training on North Dublin 4G astro, dietary guidance, specialist football coaching, and connections to professional agents.',
@@ -44,7 +51,11 @@ const LIVE_PARTNERS = [
   {
     id: 'nyz3ditz',
     name: 'Nyz3ditz',
-    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    // TODO: src/assets/nyz3ditz-logo.png.jpeg exists but has an opaque
+    // black background -- would render as a solid black square at this
+    // card's 56x56 badge size, not a clean logo. Needs a
+    // transparent/cropped export before wiring in, not just an import.
+    logo: null,
     initials: 'N3', initBg: '#C2410C', // temp fallback until the real logo lands
     category: 'Photography & Video',
     description: 'Professional photography and videography mentorship from Nathan Yanzo. Monthly subscriptions include Zoom mentorship calls and editing guidance. One-to-one shoot sessions also available for those building their creative portfolio.',
@@ -54,7 +65,11 @@ const LIVE_PARTNERS = [
   {
     id: 'whipwizardz',
     name: 'Whip Wizardz',
-    logo: null, // TODO: real logo not uploaded yet, was a 1x1px placeholder
+    // TODO: src/assets/whip-wizardz-logo.png.png exists but has an opaque
+    // black background -- would render as a solid black square at this
+    // card's 56x56 badge size, not a clean logo. Needs a
+    // transparent/cropped export before wiring in, not just an import.
+    logo: null,
     initials: 'WW', initBg: '#1E3A5F', // temp fallback until the real logo lands
     category: 'Automotive',
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment, all with student-friendly pricing.',

@@ -6,7 +6,10 @@ import { supabase } from '../lib/supabase'
 
 const ACCENT = '#1B4B5A'
 
-// TODO: Replace with the real Course Compass website URL when confirmed
+// Confirmed live domain -- used consistently across both this site
+// (PartnersPage.jsx, FoundationBlueprintPage.jsx) and the mobile app
+// (CompassScreen.jsx, FoundationScreen.jsx, BudgetingScreen.jsx), where
+// comments note it's been verified against coursecompass.ie directly.
 const CC_URL = 'https://coursecompass.ie'
 
 // Logs an activity_events row so Desmond has real click numbers to negotiate
