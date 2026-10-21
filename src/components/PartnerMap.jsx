@@ -11,6 +11,12 @@ const GOLD_GLOW = 'rgba(201,162,75,0.4)'
 const LOCKED = '#8B9BB5'
 const NAVY = '#1E3A5F'
 
+// The search input above is deliberately disabled/read-only ("via the app,
+// coming soon"), so its results dropdown can never actually have a query to
+// show. Named rather than a bare `false` so the gate reads as intentional,
+// not dead code, now that this file is linted.
+const SEARCH_ENABLED = false
+
 // ─── Ireland outline, derived from real county coordinates, not traced free-hand.
 // viewBox 0 0 400 480. Smoothed through 53 coastal reference points (Malin Head,
 // Fair Head, Carlingford Lough, Dublin Bay, Carnsore Point, Hook Head, the Cork/
@@ -419,7 +425,7 @@ export default function PartnerMap() {
             readOnly
           />
         </div>
-        {false && query && resultsOpen && (
+        {SEARCH_ENABLED && query && resultsOpen && (
           <div className="pmap-search-results">
             {results.length === 0 && <div className="pmap-search-empty">No matches for "{query}"</div>}
             {results.map(r => (
