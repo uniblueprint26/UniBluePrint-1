@@ -427,3 +427,99 @@ export async function getTechIdeasTriagedComparison(range = 'week') {
   if (error) throw error
   return { trackable: true, value: data?.[0] || null }
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Outreach Hub (Studio Phase 4) -- for Sienna/Ethan/Fabz/James. Inbound
+// pipeline (8 real enquiry/application tables, genuinely 0 rows each
+// today), the real 0-live-coaches recruitment fact, real partner
+// growth/engagement (excluding synthetic partner rows and banned demo/QA
+// accounts), and the new outreach_contacts log + its generic team_tasks
+// reuse (team='outreach'). All via supabase/migrations/
+// 20261022190100_outreach_hub_schema.sql's SECURITY DEFINER RPCs -- same
+// "no direct table grant" pattern as Legal's legal_contracts/Tech's
+// tech_ideas. team_tasks itself needs no new code here -- getTeamTasks
+// ('outreach') / getTeamRoster('outreach') / createTeamTask('outreach', ...)
+// already work the moment the 'outreach' role exists.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Real, live per-table counts across all 8 enquiry/application tables --
+ * genuinely 0 across the board today, not a broken query. */
+export async function getOutreachInboundPipeline() {
+  const { data, error } = await supabase.rpc('get_outreach_inbound_pipeline')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real coach_profiles breakdown -- surfaces the 0-real-live-coaches fact
+ * directly rather than burying it in a bigger number. */
+export async function getOutreachCoachRecruitmentSnapshot() {
+  const { data, error } = await supabase.rpc('get_outreach_coach_recruitment_snapshot')
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+/** Real partner/top-of-funnel counts (excludes the 7 synthetic "Example/
+ * Placeholder/Sample" partner rows) plus early_access_signups/referrals. */
+export async function getOutreachPartnerSnapshot() {
+  const { data, error } = await supabase.rpc('get_outreach_partner_snapshot')
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+/** Real month-by-month new (non-synthetic) partner count, last 6 months. */
+export async function getOutreachPartnerGrowthByMonth() {
+  const { data, error } = await supabase.rpc('get_outreach_partner_growth_by_month')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real month-by-month partner_follows trend, excluding banned demo/QA
+ * accounts (19 of 20 real rows today) -- honestly near-all-zero. */
+export async function getOutreachPartnerFollowTrendByMonth() {
+  const { data, error } = await supabase.rpc('get_outreach_partner_follow_trend_by_month')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getOutreachContacts() {
+  const { data, error } = await supabase.rpc('list_outreach_contacts')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createOutreachContact(fields) {
+  const { data, error } = await supabase.rpc('create_outreach_contact', {
+    _entity_type: fields.entityType,
+    _entity_name: fields.entityName,
+    _contact_channel: fields.contactChannel || null,
+    _contacted_at: fields.contactedAt || new Date().toISOString(),
+    _status: fields.status || 'contacted',
+    _notes: fields.notes || null,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function updateOutreachContact(id, fields) {
+  const { error } = await supabase.rpc('update_outreach_contact', {
+    _id: id,
+    _entity_name: fields.entityName || null,
+    _contact_channel: fields.contactChannel || null,
+    _contacted_at: fields.contactedAt || null,
+    _notes: fields.notes || null,
+  })
+  if (error) throw error
+}
+
+export async function setOutreachContactStatus(id, status, notes) {
+  const { error } = await supabase.rpc('set_outreach_contact_status', { _id: id, _status: status, _notes: notes || null })
+  if (error) throw error
+}
+
+/** Real feed for the Outreach Hub's ComparisonWidget -- contacts signed
+ * this range vs the prior one, from outreach_contact_status_log. */
+export async function getOutreachContactsSignedComparison(range = 'week') {
+  const { data, error } = await supabase.rpc('get_outreach_contacts_signed_comparison', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}

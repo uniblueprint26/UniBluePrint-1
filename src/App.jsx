@@ -58,6 +58,7 @@ const OperationsDashboardPage = lazy(() => import('./pages/admin/OperationsDashb
 const FinanceDashboardPage = lazy(() => import('./pages/admin/FinanceDashboardPage'))
 const LegalDashboardPage = lazy(() => import('./pages/admin/LegalDashboardPage'))
 const TechDashboardPage = lazy(() => import('./pages/admin/TechDashboardPage'))
+const OutreachDashboardPage = lazy(() => import('./pages/admin/OutreachDashboardPage'))
 const PartnerPortalPage = lazy(() => import('./pages/portal/PartnerPortalPage'))
 
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
@@ -316,6 +317,14 @@ function AppRoutes() {
           element={
             <RequireRole allow={['tech', 'founder', 'admin']}>
               <TechDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/outreach"
+          element={
+            <RequireRole allow={['outreach', 'founder', 'admin']}>
+              <OutreachDashboardPage />
             </RequireRole>
           }
         />
