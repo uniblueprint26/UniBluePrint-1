@@ -13,6 +13,7 @@ export const HUB_QUOTES = {
   founder: [PLACEHOLDER_QUOTE],
   operations: [PLACEHOLDER_QUOTE],
   legal: [PLACEHOLDER_QUOTE],
+  tech: [PLACEHOLDER_QUOTE],
 }
 
 export function getQuotePool(hubKey) {

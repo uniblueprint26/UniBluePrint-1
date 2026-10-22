@@ -356,3 +356,74 @@ export async function setTeamTaskStatus(id, status) {
   const { error } = await supabase.rpc('set_team_task_status', { _id: id, _status: status })
   if (error) throw error
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Tech Hub (Studio Phase 3) -- health overview snapshots (advisor findings
+// + deployed Edge Functions, both Management-API-only data captured as
+// real timestamped snapshots -- see supabase/migrations/
+// 20261022180100_tech_hub_schema.sql's header for why), live generation_usage
+// reads, and the idea inbox (tech_ideas / tech_idea_status_log). All via
+// that migration's SECURITY DEFINER RPCs -- same "no direct table grant"
+// pattern as Legal's legal_contracts/team_tasks. team_tasks itself needs no
+// new code here -- getTeamTasks('tech') / getTeamRoster('tech') /
+// createTeamTask('tech', ...) / setTeamTaskStatus already work the moment
+// the 'tech' role exists, reused directly for Enoch's QA/test board.
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function getTechAdvisorSnapshot() {
+  const { data, error } = await supabase.rpc('get_tech_advisor_snapshot')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getTechEdgeFunctionSnapshot() {
+  const { data, error } = await supabase.rpc('get_tech_edge_function_snapshot')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real per-function invocation/error rate -- NOT trackable today. See
+ * tech_edge_function_snapshots' own migration comment: query_logs
+ * (function_edge_logs) held only 2 real log lines total at the time this
+ * was built, nowhere near enough real volume for a meaningful rate. Kept as
+ * a real function (not just a comment) for the same reason getProfileViews
+ * etc. are above -- a future pass with real log volume swaps this one
+ * function's body in, nothing else changes. */
+export async function getTechFunctionHealthRates() {
+  return notTrackable('Edge Function invocation/error logs (function_edge_logs) held only 2 real log lines total at capture time -- not enough real volume for a meaningful per-function rate. The deployed-function list/status above is real; this rate is not fabricated from 2 data points.')
+}
+
+/** Real AI-generation call volume + estimated cost from generation_usage
+ * (excludes banned demo/QA accounts server-side). Genuinely 0 today -- see
+ * that RPC's own comment -- the pipeline is real and wired, just unused by
+ * any real generation so far. */
+export async function getTechGenerationUsageSummary(range = 'month') {
+  const { data, error } = await supabase.rpc('get_tech_generation_usage_summary', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || { call_count: 0, total_cost_cents: 0, by_function: [] } }
+}
+
+export async function getTechIdeas() {
+  const { data, error } = await supabase.rpc('list_tech_ideas')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createTechIdea(title, description) {
+  const { data, error } = await supabase.rpc('create_tech_idea', { _title: title, _description: description || null })
+  if (error) throw error
+  return data
+}
+
+export async function setTechIdeaStatus(id, status, notes) {
+  const { error } = await supabase.rpc('set_tech_idea_status', { _id: id, _status: status, _notes: notes || null })
+  if (error) throw error
+}
+
+/** Real feed for the Tech Hub's ComparisonWidget -- ideas triaged (moved
+ * out of `new`) this range vs the prior one, from tech_idea_status_log. */
+export async function getTechIdeasTriagedComparison(range = 'week') {
+  const { data, error } = await supabase.rpc('get_tech_ideas_triaged_comparison', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}

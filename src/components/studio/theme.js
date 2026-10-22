@@ -32,11 +32,12 @@ export const FONT_SERIF = "'DM Serif Display', serif"
 export const FONT_SANS = "'DM Sans', sans-serif"
 
 // Per-hub accent colors, layered on top of the shared navy/cream/gold base.
-// Add a new key here when a future hub (Legal/Marketing/Tech/Outreach/
-// Co-Director) is built on StudioShell -- do not invent a parallel palette.
+// Add a new key here when a future hub (Marketing/Outreach/Co-Director) is
+// built on StudioShell -- do not invent a parallel palette.
 export const HUB_ACCENTS = {
   finance: '#A21CAF',   // matches the existing "Coaching" tile accent on FinanceDashboardPage
   founder: NAVY,
   operations: '#2563EB',
   legal: '#0F766E',     // deep teal -- distinct from Finance's purple/Operations' blue, reads as "compliance" without borrowing red/amber (reserved for status, not identity, on this page)
+  tech: '#EA580C',      // burnt orange -- distinct from finance/legal/operations' purple/teal/blue, reads as "build/ship" energy without touching red/amber (status-only on this page) or green (reserved for "healthy"/good status elsewhere)
 }
