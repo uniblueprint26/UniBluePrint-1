@@ -1,0 +1,263 @@
+// Universal metrics data layer for Studio hubs. Real Supabase-backed query
+// functions only -- nothing here returns mock/fabricated data. Every
+// function that reads user-linked activity excludes the 24 demo/QA/test
+// accounts banned today (auth.users.banned_until = 'infinity') -- either by
+// calling a SECURITY DEFINER RPC that already filters them server-side
+// (see supabase/migrations/20261022120000_studio_finance_hub_banned_
+// exclusion_and_money_requests.sql), or, for metrics with no RPC yet, by
+// being explicit in this file's own comments about what is and isn't
+// filtered.
+//
+// Each function's return shape includes a `trackable` flag. `trackable:
+// false` means the underlying data genuinely does not exist yet in the
+// schema -- this file never invents a column or fakes a zero to paper over
+// a gap; it says so, with a `reason`, so the UI can render an honest "not
+// yet tracked" state (see MetricBarChart's `tbd` row type) instead of a
+// silent/misleading 0.
+//
+// Checked live against the schema on 2026-10-22 (via Supabase MCP
+// list_tables / execute_sql), not assumed:
+//   - Profile views: NOT tracked. activity_events.type only ever contains
+//     'partner_deal_viewed' / 'partner_deal_claimed' today (plus whatever
+//     EVENT_LABELS on FounderDashboardPage separately expects) -- no
+//     profile-view event exists for coaches or partners.
+//   - Saves/bookmarks: NOT tracked. No bookmarks/saves table exists.
+//   - Enquiry response rate / response time: NOT tracked precisely.
+//     coach_enquiries and business_enquiries have a `status` column but no
+//     responded_at timestamp, so "time to respond" cannot be computed; only
+//     a count by status (which doesn't distinguish "responded" from other
+//     non-pending states today).
+//   - Listing -> action click-through rate: NOT tracked. partner_follows /
+//     deal_redemption_codes record the action itself (follow, claim) but
+//     there is no listing-impression/view event to divide by for a CTR.
+
+import { supabase } from './supabase'
+
+function notTrackable(reason) {
+  return { trackable: false, reason, value: null }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// ENGAGEMENT
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Not yet trackable -- see file header. Kept as a real function (not just
+ * a comment) so a future hub's code can call it uniformly alongside the
+ * trackable ones below, and so wiring in the real column later is a
+ * one-function change, not a hunt through every call site. */
+export async function getProfileViews() {
+  return notTrackable('No profile-view event exists in activity_events or elsewhere yet.')
+}
+
+export async function getSavesBookmarks() {
+  return notTrackable('No saves/bookmarks table exists yet.')
+}
+
+/** Lifestyle partner follow growth. Real, via partner_follows (RLS already
+ * lets a partner_tier_admin read via get_all_partner_stats-style RPCs for
+ * aggregate counts; this reads the raw per-partner follower count that
+ * feeds Founder's existing "Lifestyle partner performance" table, which
+ * does NOT currently exclude banned accounts -- Phase 1 scope here is the
+ * Finance Hub only, so Founder Dashboard's own query is left untouched. */
+export async function getPartnerFollowCount(partnerId) {
+  const { count, error } = await supabase
+    .from('partner_follows')
+    .select('id', { count: 'exact', head: true })
+    .eq('partner_id', partnerId)
+  if (error) throw error
+  return { trackable: true, value: count ?? 0 }
+}
+
+/** Real redemption code claims (deal_redemption_codes.used_at not null). */
+export async function getRedemptionClaimCount(dealId) {
+  const { count, error } = await supabase
+    .from('deal_redemption_codes')
+    .select('id', { count: 'exact', head: true })
+    .eq('deal_id', dealId)
+    .not('used_at', 'is', null)
+  if (error) throw error
+  return { trackable: true, value: count ?? 0 }
+}
+
+/** Enquiry response rate -- real counts by status, but see the header note:
+ * this is a proxy, not a true response rate (no responded_at timestamp). */
+export async function getCoachEnquiryStatusCounts() {
+  const { data, error } = await supabase.from('coach_enquiries').select('status')
+  if (error) throw error
+  const counts = {}
+  for (const row of data || []) counts[row.status] = (counts[row.status] || 0) + 1
+  return {
+    trackable: true,
+    caveat: 'Proxy only -- status breakdown, not a true response time (no responded_at column exists).',
+    value: counts,
+  }
+}
+
+export async function getListingClickThroughRate() {
+  return notTrackable('No listing-impression/view event exists to divide action counts by.')
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// QUALITY
+// ─────────────────────────────────────────────────────────────────────────
+
+/** coach_rating_summary -- fixed to security_invoker today, safe to read
+ * directly as any authenticated caller (it is a plain aggregate view, no
+ * banned-account linkage since a rating belongs to the rater, not the
+ * coach being rated, and a banned student's past rating of a coach is real
+ * historical signal about that coach, not demo noise to strip out). */
+export async function getCoachRatingSummary(coachSlug) {
+  const { data, error } = await supabase
+    .from('coach_rating_summary')
+    .select('*')
+    .eq('coach_slug', coachSlug)
+    .maybeSingle()
+  if (error) throw error
+  return { trackable: true, value: data || { rating_count: 0, avg_rating: null } }
+}
+
+export async function getResponseTimeToEnquiries() {
+  return notTrackable('No responded_at/first-response timestamp exists on coach_enquiries or business_enquiries.')
+}
+
+/** Founding Partner Badge + current tier -- real, via get_partner_tier_admin_list()
+ * (finance/founder/operations only, already role-gated server-side). */
+export async function getPartnerTierAdminList() {
+  const { data, error } = await supabase.rpc('get_partner_tier_admin_list')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// REVENUE (Finance Hub) -- all via the banned-account-excluding RPCs.
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function getFinanceRevenueSnapshot(range = 'month') {
+  const { data, error } = await supabase.rpc('get_finance_revenue_snapshot', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+export async function getFinanceOneTimePayments(range = 'month') {
+  const { data, error } = await supabase.rpc('get_finance_one_time_payments_summary', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+export async function getFinanceRevenueByTier(range = 'month') {
+  const { data, error } = await supabase.rpc('get_finance_revenue_by_tier', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getFinanceMarginSummary(range = 'month') {
+  const { data, error } = await supabase.rpc('get_finance_margin_summary', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+export async function getFinancePayoutFailureQueue() {
+  const { data, error } = await supabase.rpc('get_finance_payout_failure_queue')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getFinanceRevenueByCohort() {
+  const { data, error } = await supabase.rpc('get_finance_revenue_by_cohort')
+  if (error) throw error
+  return {
+    trackable: true,
+    caveat: 'By signup month only -- campus/institution cohorting is not included, profiles.institution is null for every row today.',
+    value: data || [],
+  }
+}
+
+export async function getFinanceCoachRevenueComparison(range = 'week') {
+  const { data, error } = await supabase.rpc('get_finance_coach_revenue_comparison', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getFinanceCoachPayoutSummary() {
+  const { data, error } = await supabase.rpc('get_finance_coach_payout_summary')
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+export async function getFinancePendingCoachPayouts() {
+  const { data, error } = await supabase.rpc('get_finance_pending_coach_payouts')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getFinanceCommissionSummary(range = 'month') {
+  const { data, error } = await supabase.rpc('get_finance_commission_summary', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+export async function getFinancePartnerPayoutSummary() {
+  const { data, error } = await supabase.rpc('get_finance_partner_payout_summary')
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// GROWTH -- week-over-week %, percentile rank, "rising" flag.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Generic WoW %, used by any hub once it has two real period totals. */
+export function weekOverWeekChangePct(current, previous) {
+  if (current == null || previous == null) return null
+  if (previous === 0) return current > 0 ? 100 : 0
+  return Math.round(((current - previous) / previous) * 100)
+}
+
+/** Percentile rank within a same-category cohort (0-100, higher = better),
+ * from a { rank, total } pair such as get_finance_coach_revenue_comparison
+ * already returns per coach. */
+export function percentileRank(rank, total) {
+  if (!rank || !total || total <= 1) return null
+  return Math.round(100 * (1 - (rank - 1) / (total - 1)))
+}
+
+/** "Rising" = fastest week-over-week growth among a comparison list (array
+ * of { key, revenue_cents_this_period, revenue_cents_last_period }). Real
+ * computation off get_finance_coach_revenue_comparison's own feed, never a
+ * separate fabricated score. */
+export function findRising(comparisonRows = []) {
+  let best = null
+  let bestPct = -Infinity
+  for (const row of comparisonRows) {
+    const pct = weekOverWeekChangePct(row.revenue_cents_this_period, row.revenue_cents_last_period)
+    if (pct != null && pct > bestPct && row.revenue_cents_this_period > 0) {
+      bestPct = pct
+      best = row
+    }
+  }
+  return best ? { ...best, changePct: bestPct } : null
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Money requests queue (new, Finance Hub write tool).
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function getMoneyRequests() {
+  const { data, error } = await supabase
+    .from('money_requests')
+    .select('*')
+    .order('requested_at', { ascending: false })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createMoneyRequest(amountCents, reason) {
+  const { data, error } = await supabase.rpc('create_money_request', { _amount_cents: amountCents, _reason: reason })
+  if (error) throw error
+  return data
+}
+
+export async function decideMoneyRequest(id, status, note) {
+  const { error } = await supabase.rpc('decide_money_request', { _id: id, _status: status, _note: note || null })
+  if (error) throw error
+}
