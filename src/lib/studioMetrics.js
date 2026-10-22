@@ -523,3 +523,86 @@ export async function getOutreachContactsSignedComparison(range = 'week') {
   if (error) throw error
   return { trackable: true, value: data?.[0] || null }
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Marketing Hub (Studio Phase 5) -- for Alex, Elizabeth, Ethan and Fabz.
+// Real deal-view/deal-claim funnel (activity_events, banned-excluded --
+// almost entirely demo-contaminated, see migration header) and its
+// per-partner breakdown (also excludes the synthetic "Example/Placeholder/
+// Sample" partner rows), real early_access_signups (4 rows) as a list and a
+// month-by-month trend, the real featured_content management view (toggle
+// active + edit caption/CTA/priority -- writes straight through to the
+// live home-screen carousel), and the generic team_tasks reuse
+// (team='marketing'). All via supabase/migrations/
+// 20261022200100_marketing_hub_schema.sql's SECURITY DEFINER RPCs -- same
+// "no direct table grant" pattern as Legal's legal_contracts/Outreach's
+// outreach_contacts (featured_content itself DOES have its own direct RLS
+// for the live carousel -- untouched -- these RPCs are a management layer
+// on top of it, not a replacement). team_tasks itself needs no new code
+// here -- getTeamTasks('marketing') / getTeamRoster('marketing') /
+// createTeamTask('marketing', ...) already work the moment the 'marketing'
+// role exists.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Real partner_deal_viewed/partner_deal_claimed funnel, banned-excluded,
+ * with the raw totals alongside for honest context -- genuinely 1 real
+ * view / 0 real claims today, out of 1818 raw rows. */
+export async function getMarketingEngagementFunnel() {
+  const { data, error } = await supabase.rpc('get_marketing_engagement_funnel')
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+/** Real per-partner engagement -- excludes banned demo/QA accounts AND the
+ * synthetic "Example/Placeholder/Sample" partner rows. Genuinely just one
+ * real row today. */
+export async function getMarketingEngagementByPartner() {
+  const { data, error } = await supabase.rpc('get_marketing_engagement_by_partner')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real feed for the Marketing Hub's ComparisonWidget -- banned-excluded
+ * partner_deal_claimed count this range vs the prior one. */
+export async function getMarketingDealClaimsComparison(range = 'week') {
+  const { data, error } = await supabase.rpc('get_marketing_deal_claims_comparison', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+/** Real early_access_signups rows (4 today) -- a genuine lead list. */
+export async function getMarketingEarlyAccessSignups() {
+  const { data, error } = await supabase.rpc('get_marketing_early_access_signups')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real month-by-month early_access_signups count, last 6 months. */
+export async function getMarketingEarlyAccessSignupsByMonth() {
+  const { data, error } = await supabase.rpc('get_marketing_early_access_signups_by_month')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Full featured_content list (active AND inactive) -- the carousel's own
+ * RLS only shows active rows to a plain authenticated user. */
+export async function getMarketingFeaturedContent() {
+  const { data, error } = await supabase.rpc('get_marketing_featured_content')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function setMarketingFeaturedContentActive(id, active) {
+  const { error } = await supabase.rpc('set_marketing_featured_content_active', { _id: id, _active: active })
+  if (error) throw error
+}
+
+export async function updateMarketingFeaturedContentDetails(id, fields) {
+  const { error } = await supabase.rpc('update_marketing_featured_content_details', {
+    _id: id,
+    _caption: fields.caption ?? null,
+    _cta_label: fields.ctaLabel ?? null,
+    _priority: fields.priority ?? null,
+  })
+  if (error) throw error
+}

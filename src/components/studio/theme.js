@@ -41,4 +41,5 @@ export const HUB_ACCENTS = {
   legal: '#0F766E',     // deep teal -- distinct from Finance's purple/Operations' blue, reads as "compliance" without borrowing red/amber (reserved for status, not identity, on this page)
   tech: '#EA580C',      // burnt orange -- distinct from finance/legal/operations' purple/teal/blue, reads as "build/ship" energy without touching red/amber (status-only on this page) or green (reserved for "healthy"/good status elsewhere)
   outreach: '#DB2777',  // rose/pink -- distinct hue from finance's violet-purple (#A21CAF), legal's teal, tech's burnt orange and operations' blue, and from the RED (#DC2626) reserved for status elsewhere on this page; reads as "outward-facing/relationships" warmth, fitting for a team whose job is people, not infrastructure
+  marketing: '#4F46E5', // indigo -- distinct from finance's violet-purple (#A21CAF), legal's teal, tech's burnt orange, outreach's rose and Operations' own royal blue (#2563EB) above, and from RED/AMBER/GREEN (status-only on this page); reads as "brand/visibility" energy, fitting for the team that curates what gets promoted
 }
