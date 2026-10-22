@@ -48,7 +48,7 @@ export default function StatStrip({ cells = [], columns = 4, style }) {
         @media (max-width: 1100px) { .studio-stat-strip { grid-template-columns: repeat(2, 1fr) !important; } }
         @media (max-width: 560px) { .studio-stat-strip { grid-template-columns: 1fr !important; } }
       `}</style>
-      {cells.map(c => <StatCell key={c.key || c.label} {...c} />)}
+      {cells.map(({ key, ...c }) => <StatCell key={key || c.label} {...c} />)}
     </div>
   )
 }

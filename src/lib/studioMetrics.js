@@ -261,3 +261,98 @@ export async function decideMoneyRequest(id, status, note) {
   const { error } = await supabase.rpc('decide_money_request', { _id: id, _status: status, _note: note || null })
   if (error) throw error
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Legal Hub (Studio Phase 2) -- contracts register, GDPR/acknowledgement
+// compliance reads, and the generic cross-hub team_tasks reader/writers.
+// All via supabase/migrations/20261022174125_legal_hub_schema.sql's
+// SECURITY DEFINER RPCs -- legal_contracts/legal_contract_status_log/
+// team_tasks have no direct table grant at all, same pattern as
+// partner_tier_assignments.
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function getLegalContracts() {
+  const { data, error } = await supabase.rpc('list_legal_contracts')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createLegalContract(entityType, entityId, contractName, status = 'not_sent', notes = null) {
+  const { data, error } = await supabase.rpc('create_legal_contract', {
+    _entity_type: entityType, _entity_id: entityId, _contract_name: contractName, _status: status, _notes: notes,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function setLegalContractStatus(id, status, notes) {
+  const { error } = await supabase.rpc('set_legal_contract_status', { _id: id, _status: status, _notes: notes || null })
+  if (error) throw error
+}
+
+/** Real feed for the Legal Hub's ComparisonWidget -- contracts resolved (signed) this range vs the prior one, from legal_contract_status_log. */
+export async function getLegalContractsResolvedComparison(range = 'week') {
+  const { data, error } = await supabase.rpc('get_legal_contracts_resolved_comparison', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+/** Real gdpr_requests rows (0 today -- genuinely empty, not filtered down) with a computed is_overdue flag. */
+export async function getLegalGdprRequests() {
+  const { data, error } = await supabase.rpc('get_legal_gdpr_requests')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real % of active (non-banned) users who've acknowledged the latest version of each known legal document, excluding banned demo/QA accounts from both sides of the fraction. */
+export async function getLegalAcknowledgementCoverage() {
+  const { data, error } = await supabase.rpc('get_legal_acknowledgement_coverage')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+// ── Generic team_tasks ("targets, batches, delegated tasks") -- reusable
+// by any future hub the same way Legal uses it here, see TaskBoard.jsx. ──
+
+export async function getTeamTasks(team) {
+  const { data, error } = await supabase.rpc('list_team_tasks', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function getTeamRoster(team) {
+  const { data, error } = await supabase.rpc('get_team_roster', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createTeamTask(team, fields) {
+  const { data, error } = await supabase.rpc('create_team_task', {
+    _team: team,
+    _title: fields.title,
+    _description: fields.description || null,
+    _batch_label: fields.batchLabel || null,
+    _target_date: fields.targetDate || null,
+    _assigned_to: fields.assignedTo || null,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function updateTeamTask(id, fields) {
+  const { error } = await supabase.rpc('update_team_task', {
+    _id: id,
+    _title: fields.title || null,
+    _description: fields.description || null,
+    _batch_label: fields.batchLabel || null,
+    _target_date: fields.targetDate || null,
+    _assigned_to: fields.assignedTo || null,
+    _clear_assigned_to: !!fields.clearAssignedTo,
+  })
+  if (error) throw error
+}
+
+export async function setTeamTaskStatus(id, status) {
+  const { error } = await supabase.rpc('set_team_task_status', { _id: id, _status: status })
+  if (error) throw error
+}

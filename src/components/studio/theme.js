@@ -38,4 +38,5 @@ export const HUB_ACCENTS = {
   finance: '#A21CAF',   // matches the existing "Coaching" tile accent on FinanceDashboardPage
   founder: NAVY,
   operations: '#2563EB',
+  legal: '#0F766E',     // deep teal -- distinct from Finance's purple/Operations' blue, reads as "compliance" without borrowing red/amber (reserved for status, not identity, on this page)
 }

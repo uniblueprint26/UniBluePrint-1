@@ -1,0 +1,5 @@
+-- No-op. An earlier apply_migration call in this pass was sent with only
+-- these comment lines (a copy/paste mistake -- the real schema went out
+-- one call later as 20261022174125_legal_hub_schema.sql instead). Recorded
+-- here, empty, so this file matches what is actually in the remote
+-- migration history for this version -- nothing to replay.
