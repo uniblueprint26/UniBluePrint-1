@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import {
   Euro, TrendingUp, PiggyBank, Landmark,
-  Inbox, UserCheck, Eye, MousePointerClick, CheckCircle2, AlertCircle,
+  Inbox, UserCheck, Eye, MousePointerClick, CheckCircle2, AlertCircle, HeartHandshake,
 } from 'lucide-react'
 import {
-  StudioShell, StatStrip, MetricBarChart,
+  StudioShell, StatStrip, MetricBarChart, TaskBoard,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
 } from '../../components/studio'
 import {
@@ -15,6 +15,7 @@ import {
   getOutreachInboundPipeline, getOutreachCoachRecruitmentSnapshot,
   getMarketingEngagementFunnel,
   getCoDirectorPendingDecisions,
+  getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
 } from '../../lib/studioMetrics'
 
 // Co-Director Hub (Studio Phase 6) -- for Daniel (Co-Director), genuine
@@ -41,6 +42,19 @@ import {
 // each hub's OWN detail page's job (Finance/Tech already have one); this
 // rollup's job is "what does leadership need to see right now", not a
 // second place to slice every hub's history.
+//
+// Studio Phase 9 addition -- "Co-Director Priorities": the same generic
+// team_tasks board (TaskBoard, team='co_director') the Founder Dashboard
+// got in Phase 8 as "Founder Priorities", for Daniel's own cross-hub action
+// items. This hub had gone without one, which the Phase 9 audit flagged as
+// an unintentional asymmetry between the two apex-oversight hubs. Needs
+// zero new schema: 'co_director' is already a real app_role value
+// (pre-dating this hub), team_tasks.team is a plain text column with no
+// CHECK constraint on its values, and _is_team_member_or_admin() already
+// treats any co_director/founder/admin caller as authorized for ANY _team
+// value -- confirmed live via Supabase MCP (list_team_tasks/create_team_
+// task/set_team_task_status/get_team_roster all gate on that one function)
+// before writing this, not assumed, the same way Founder Priorities did.
 
 const PAGE_STYLES = `
   .cd-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
@@ -119,6 +133,10 @@ export default function CoDirectorDashboardPage() {
   const [funnel, setFunnel] = useState(null)
   const [decisions, setDecisions] = useState([])
 
+  // ── Co-Director Priorities (generic team_tasks, team='co_director') ────
+  const [tasks, setTasks] = useState([])
+  const [members, setMembers] = useState([])
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -126,6 +144,7 @@ export default function CoDirectorDashboardPage() {
       const [
         revRes, marginRes, contractsRes, advisorRes,
         pipelineRes, coachRes, funnelRes, decisionsRes,
+        tasksRes, membersRes,
       ] = await Promise.all([
         getFinanceRevenueSnapshot('month'),
         getFinanceMarginSummary('month'),
@@ -135,6 +154,8 @@ export default function CoDirectorDashboardPage() {
         getOutreachCoachRecruitmentSnapshot(),
         getMarketingEngagementFunnel(),
         getCoDirectorPendingDecisions(),
+        getTeamTasks('co_director'),
+        getTeamRoster('co_director'),
       ])
       setRevenue(revRes.value || EMPTY_REVENUE)
       setMargin(marginRes.value || EMPTY_MARGIN)
@@ -144,6 +165,8 @@ export default function CoDirectorDashboardPage() {
       setCoachSnapshot(coachRes.value || null)
       setFunnel(funnelRes.value || null)
       setDecisions(decisionsRes.value || [])
+      setTasks(tasksRes.value || [])
+      setMembers(membersRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load the rollup data.')
     } finally {
@@ -152,6 +175,31 @@ export default function CoDirectorDashboardPage() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  // ── Co-Director Priorities task actions ─────────────────────────────────
+  async function addTask(fields) {
+    try {
+      await createTeamTask('co_director', fields)
+      const r = await getTeamTasks('co_director')
+      setTasks(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not create that priority.')
+    }
+  }
+  async function changeTaskStatus(id, status) {
+    try {
+      await setTeamTaskStatus(id, status)
+      const r = await getTeamTasks('co_director')
+      setTasks(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that priority.')
+    }
+  }
+  const tasksByStatus = useMemo(() => {
+    const counts = { todo: 0, in_progress: 0, done: 0 }
+    for (const t of tasks) counts[t.status] = (counts[t.status] || 0) + 1
+    return counts
+  }, [tasks])
 
   // ── Derived: Legal contracts by status (same shape as LegalDashboardPage) ──
   const contractsByStatus = useMemo(() => {
@@ -180,6 +228,7 @@ export default function CoDirectorDashboardPage() {
     { id: 'cd-outreach', label: 'Outreach' },
     { id: 'cd-marketing', label: 'Marketing' },
     { id: 'cd-decisions', label: 'Needs A Decision' },
+    { id: 'cd-priorities', label: 'Co-Director Priorities' },
   ]
 
   return (
@@ -334,6 +383,33 @@ export default function CoDirectorDashboardPage() {
               </table>
             </div>
           )}
+        </Card>
+
+        {/* ══ CO-DIRECTOR PRIORITIES ═══════════════════════════════════
+            Studio Phase 9 addition: the generic team_tasks board,
+            team='co_director' -- Daniel's own cross-hub action items,
+            parity with the Founder Dashboard's "Founder Priorities". */}
+        <Card id="cd-priorities" style={{ marginTop: '20px' }}>
+          <SectionTitle eyebrow="New" title="Co-Director Priorities"
+            caption="Real, generic team_tasks rows for the Co-Director team (the same reusable TaskBoard component Legal/Tech/Outreach/Marketing/Handler/Founder use) -- Daniel's own cross-hub action items that don't belong to any one team. Seeded empty -- nothing below is a placeholder." />
+          <StatStrip
+            columns={3}
+            style={{ marginBottom: '16px' }}
+            cells={[
+              { key: 'todo', label: 'To do', value: fmt(tasksByStatus.todo), icon: Inbox, accent: MUTED },
+              { key: 'in-progress', label: 'In progress', value: fmt(tasksByStatus.in_progress), icon: TrendingUp, accent: AMBER },
+              { key: 'done', label: 'Done', value: fmt(tasksByStatus.done), icon: HeartHandshake, accent: GREEN },
+            ]}
+          />
+          <TaskBoard
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={addTask}
+            onStatusChange={changeTaskStatus}
+            accentColor={HUB_ACCENTS.co_director}
+            emptyLabel="No Co-Director priorities yet -- add the first real one above."
+          />
         </Card>
 
       </StudioShell>

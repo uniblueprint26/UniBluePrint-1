@@ -70,7 +70,15 @@ export default function TaskBoard({
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 1fr 1fr 1fr auto', gap: '8px', alignItems: 'flex-end', marginBottom: '16px' }}>
+      <div
+        className="studio-taskboard-form"
+        style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 1fr 1fr 1fr auto', gap: '8px', alignItems: 'flex-end', marginBottom: '16px' }}
+      >
+        <style>{`
+          @media (max-width: 700px) { .studio-taskboard-form { grid-template-columns: 1fr 1fr !important; } }
+          @media (max-width: 480px) { .studio-taskboard-form { grid-template-columns: 1fr !important; } }
+          @media (max-width: 480px) { .studio-taskboard-form button { width: 100%; } }
+        `}</style>
         <TBField label="Title">
           <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={tbInput} placeholder="What needs doing..." />
         </TBField>

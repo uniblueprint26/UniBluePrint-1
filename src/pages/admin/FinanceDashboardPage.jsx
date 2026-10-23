@@ -51,7 +51,6 @@ const PENDING_REASON_LABELS = {
 }
 
 const PAGE_STYLES = `
-  .fn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .fn-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
   .fn-three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .fn-table-wrap { overflow-x: auto; }
@@ -59,8 +58,7 @@ const PAGE_STYLES = `
   .fn-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
   .fn-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); white-space: nowrap; }
   .fn-table tr:last-child td { border-bottom: none; }
-  @media (max-width: 1100px) { .fn-grid { grid-template-columns: repeat(2, 1fr); } .fn-two-col { grid-template-columns: 1fr; } .fn-three-col { grid-template-columns: 1fr; } }
-  @media (max-width: 560px) { .fn-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .fn-two-col { grid-template-columns: 1fr; } .fn-three-col { grid-template-columns: 1fr; } }
 `
 
 function fmtEuro(cents) {
@@ -93,18 +91,6 @@ function Card({ children, style, id }) {
   return (
     <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
       {children}
-    </div>
-  )
-}
-
-function Tile({ label, sub, value, icon: Icon, accent = NAVY }) {
-  return (
-    <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid rgba(30,58,95,0.08)', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: CREAM, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Icon size={13} color={accent} />
-      </div>
-      <p style={{ fontFamily: FONT_SERIF, fontSize: '24px', color: accent, lineHeight: 1.1, marginTop: '2px' }}>{value}</p>
-      <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY, lineHeight: 1.3 }}>{label}{sub ? `, ${sub}` : ''}</p>
     </div>
   )
 }
@@ -451,23 +437,31 @@ export default function FinanceDashboardPage() {
           <Card style={{ marginBottom: '20px' }}>
             <SectionTitle eyebrow="Revenue" title="Subscription revenue"
               caption="Modelled from list price and active subscription counts, excluding banned demo/QA accounts. Not a reconciled Stripe figure -- Stripe's webhook records tier and status, not the amount charged per invoice." />
-            <div className="fn-grid" style={{ opacity: loading ? 0.6 : 1 }}>
-              <Tile label="Estimated MRR" value={fmtEuro(revenue.estimated_mrr_cents)} icon={Euro} accent={NAVY} />
-              <Tile label="Estimated ARR" value={fmtEuro(revenue.estimated_arr_cents)} icon={TrendingUp} accent={NAVY} />
-              <Tile label="Active Pro subscribers" sub={`${totalActiveSubs} total`} value={`${revenue.active_pro_monthly} mo / ${revenue.active_pro_annual} yr`} icon={Users} accent={NAVY} />
-              <Tile label="New this period" sub={`${revenue.canceled_in_range} canceled`} value={revenue.new_subscriptions_in_range} icon={Wallet} accent={revenue.canceled_in_range > revenue.new_subscriptions_in_range ? AMBER : GREEN} />
-            </div>
+            <StatStrip
+              columns={4}
+              style={{ opacity: loading ? 0.6 : 1 }}
+              cells={[
+                { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), icon: Euro, accent: NAVY },
+                { key: 'arr', label: 'Estimated ARR', value: fmtEuro(revenue.estimated_arr_cents), icon: TrendingUp, accent: NAVY },
+                { key: 'active-subs', label: 'Active Pro subscribers', sub: `${totalActiveSubs} total`, value: `${revenue.active_pro_monthly} mo / ${revenue.active_pro_annual} yr`, icon: Users, accent: NAVY },
+                { key: 'new-this-period', label: 'New this period', sub: `${revenue.canceled_in_range} canceled`, value: revenue.new_subscriptions_in_range, icon: Wallet, accent: revenue.canceled_in_range > revenue.new_subscriptions_in_range ? AMBER : GREEN },
+              ]}
+            />
           </Card>
 
           <Card style={{ marginBottom: '20px' }}>
             <SectionTitle eyebrow="One-Time Revenue" title="One-time payments"
               caption="Real Stripe payments actually collected this period, excluding banned demo/QA accounts. Checked live: every coach_payments row that existed before today's ban belonged to a demo account -- 0 real coaching revenue is the honest current number, not a bug." />
-            <div className="fn-grid" style={{ opacity: loading ? 0.6 : 1 }}>
-              <Tile label="Foundation" sub={`${fmt(oneTimeRevenue.foundation_payments_count)} payments`} value={fmtEuro(oneTimeRevenue.foundation_revenue_cents)} icon={GraduationCap} accent="#2563EB" />
-              <Tile label="Coaching" sub={`${fmt(oneTimeRevenue.coach_payments_count)} payments`} value={fmtEuro(oneTimeRevenue.coach_revenue_cents)} icon={UserCheck} accent="#A21CAF" />
-              <Tile label="Board listings" sub={`${fmt(oneTimeRevenue.board_listing_payments_count)} payments`} value={fmtEuro(oneTimeRevenue.board_listing_revenue_cents)} icon={Megaphone} accent={GREEN} />
-              <Tile label="Total one-time" value={fmtEuro(oneTimeRevenue.total_one_time_revenue_cents)} icon={Receipt} accent={NAVY} />
-            </div>
+            <StatStrip
+              columns={4}
+              style={{ opacity: loading ? 0.6 : 1 }}
+              cells={[
+                { key: 'foundation', label: 'Foundation', sub: `${fmt(oneTimeRevenue.foundation_payments_count)} payments`, value: fmtEuro(oneTimeRevenue.foundation_revenue_cents), icon: GraduationCap, accent: '#2563EB' },
+                { key: 'coaching', label: 'Coaching', sub: `${fmt(oneTimeRevenue.coach_payments_count)} payments`, value: fmtEuro(oneTimeRevenue.coach_revenue_cents), icon: UserCheck, accent: '#A21CAF' },
+                { key: 'board-listings', label: 'Board listings', sub: `${fmt(oneTimeRevenue.board_listing_payments_count)} payments`, value: fmtEuro(oneTimeRevenue.board_listing_revenue_cents), icon: Megaphone, accent: GREEN },
+                { key: 'total-one-time', label: 'Total one-time', value: fmtEuro(oneTimeRevenue.total_one_time_revenue_cents), icon: Receipt, accent: NAVY },
+              ]}
+            />
           </Card>
 
           <Card>
@@ -487,11 +481,15 @@ export default function FinanceDashboardPage() {
           <Card style={{ marginBottom: '20px' }}>
             <SectionTitle eyebrow="Margin" title="UBP take-home margin"
               caption="Gross coach payment minus the coach's share, from coach_payment_transfers (transferred + pending, excluding failed and banned accounts)." />
-            <div className="fn-three-col" style={{ opacity: loading ? 0.6 : 1 }}>
-              <Tile label="Gross collected" value={fmtEuro(margin.gross_collected_cents)} icon={Landmark} accent={NAVY} />
-              <Tile label="Paid to coaches" value={fmtEuro(margin.paid_to_coaches_cents)} icon={Wallet} accent={GREY} />
-              <Tile label="UBP margin" sub={margin.margin_pct != null ? `${pctWhole(margin.margin_pct)} of gross` : 'no gross yet'} value={fmtEuro(margin.ubp_margin_cents)} icon={PiggyBank} accent={GREEN} />
-            </div>
+            <StatStrip
+              columns={3}
+              style={{ opacity: loading ? 0.6 : 1 }}
+              cells={[
+                { key: 'gross-collected', label: 'Gross collected', value: fmtEuro(margin.gross_collected_cents), icon: Landmark, accent: NAVY },
+                { key: 'paid-to-coaches', label: 'Paid to coaches', value: fmtEuro(margin.paid_to_coaches_cents), icon: Wallet, accent: GREY },
+                { key: 'ubp-margin', label: 'UBP margin', sub: margin.margin_pct != null ? `${pctWhole(margin.margin_pct)} of gross` : 'no gross yet', value: fmtEuro(margin.ubp_margin_cents), icon: PiggyBank, accent: GREEN },
+              ]}
+            />
           </Card>
 
           <div className="fn-two-col" style={{ marginBottom: '20px' }}>
@@ -752,11 +750,15 @@ export default function FinanceDashboardPage() {
             </div>
           </div>
 
-          <div className="fn-three-col" style={{ marginTop: '16px' }}>
-            <Tile label="Option A revenue" value={fmtEuro(Math.round(pricing.a * 100))} icon={Receipt} accent={NAVY} />
-            <Tile label="Option B revenue" value={fmtEuro(Math.round(pricing.bb * 100))} icon={Receipt} accent={HUB_ACCENTS.finance} />
-            <Tile label="Equivalent B rate" value={pricing.eq != null ? pctWhole(pricing.eq * 100) : '—'} icon={TrendingUp} accent={GREEN} />
-          </div>
+          <StatStrip
+            columns={3}
+            style={{ marginTop: '16px' }}
+            cells={[
+              { key: 'option-a-revenue', label: 'Option A revenue', value: fmtEuro(Math.round(pricing.a * 100)), icon: Receipt, accent: NAVY },
+              { key: 'option-b-revenue', label: 'Option B revenue', value: fmtEuro(Math.round(pricing.bb * 100)), icon: Receipt, accent: HUB_ACCENTS.finance },
+              { key: 'equivalent-b-rate', label: 'Equivalent B rate', value: pricing.eq != null ? pctWhole(pricing.eq * 100) : '—', icon: TrendingUp, accent: GREEN },
+            ]}
+          />
 
           <MetricBarChart
             data={[

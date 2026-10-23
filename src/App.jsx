@@ -237,7 +237,7 @@ function AppRoutes() {
         <Route
           path="/handler/queue"
           element={
-            <RequireRole roles={['handler', 'operations', 'co_director']}>
+            <RequireRole roles={['handler', 'operations', 'co_director', 'founder', 'admin']}>
               <HandlerQueuePage />
             </RequireRole>
           }
