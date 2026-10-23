@@ -60,6 +60,7 @@ const LegalDashboardPage = lazy(() => import('./pages/admin/LegalDashboardPage')
 const TechDashboardPage = lazy(() => import('./pages/admin/TechDashboardPage'))
 const OutreachDashboardPage = lazy(() => import('./pages/admin/OutreachDashboardPage'))
 const MarketingDashboardPage = lazy(() => import('./pages/admin/MarketingDashboardPage'))
+const CoDirectorDashboardPage = lazy(() => import('./pages/admin/CoDirectorDashboardPage'))
 const PartnerPortalPage = lazy(() => import('./pages/portal/PartnerPortalPage'))
 
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
@@ -236,7 +237,7 @@ function AppRoutes() {
         <Route
           path="/handler/queue"
           element={
-            <RequireRole roles={['handler', 'operations']}>
+            <RequireRole roles={['handler', 'operations', 'co_director']}>
               <HandlerQueuePage />
             </RequireRole>
           }
@@ -284,7 +285,7 @@ function AppRoutes() {
         <Route
           path="/admin/founder"
           element={
-            <RequireRole allow={['founder', 'admin']}>
+            <RequireRole allow={['founder', 'admin', 'co_director']}>
               <FounderDashboardPage />
             </RequireRole>
           }
@@ -292,7 +293,7 @@ function AppRoutes() {
         <Route
           path="/admin/operations"
           element={
-            <RequireRole allow={['operations', 'founder', 'admin']}>
+            <RequireRole allow={['operations', 'founder', 'admin', 'co_director']}>
               <OperationsDashboardPage />
             </RequireRole>
           }
@@ -300,7 +301,7 @@ function AppRoutes() {
         <Route
           path="/admin/finance"
           element={
-            <RequireRole allow={['finance', 'founder', 'admin']}>
+            <RequireRole allow={['finance', 'founder', 'admin', 'co_director']}>
               <FinanceDashboardPage />
             </RequireRole>
           }
@@ -308,7 +309,7 @@ function AppRoutes() {
         <Route
           path="/admin/legal"
           element={
-            <RequireRole allow={['legal', 'founder', 'admin']}>
+            <RequireRole allow={['legal', 'founder', 'admin', 'co_director']}>
               <LegalDashboardPage />
             </RequireRole>
           }
@@ -316,7 +317,7 @@ function AppRoutes() {
         <Route
           path="/admin/tech"
           element={
-            <RequireRole allow={['tech', 'founder', 'admin']}>
+            <RequireRole allow={['tech', 'founder', 'admin', 'co_director']}>
               <TechDashboardPage />
             </RequireRole>
           }
@@ -324,7 +325,7 @@ function AppRoutes() {
         <Route
           path="/admin/outreach"
           element={
-            <RequireRole allow={['outreach', 'founder', 'admin']}>
+            <RequireRole allow={['outreach', 'founder', 'admin', 'co_director']}>
               <OutreachDashboardPage />
             </RequireRole>
           }
@@ -332,15 +333,23 @@ function AppRoutes() {
         <Route
           path="/admin/marketing"
           element={
-            <RequireRole allow={['marketing', 'founder', 'admin']}>
+            <RequireRole allow={['marketing', 'founder', 'admin', 'co_director']}>
               <MarketingDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/co-director"
+          element={
+            <RequireRole allow={['co_director', 'founder', 'admin']}>
+              <CoDirectorDashboardPage />
             </RequireRole>
           }
         />
         <Route
           path="/portal/partner"
           element={
-            <RequireRole allow={['business', 'operations', 'founder', 'admin']}>
+            <RequireRole allow={['business', 'operations', 'founder', 'admin', 'co_director']}>
               <PartnerPortalPage />
             </RequireRole>
           }

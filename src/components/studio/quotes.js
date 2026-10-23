@@ -16,6 +16,7 @@ export const HUB_QUOTES = {
   tech: [PLACEHOLDER_QUOTE],
   outreach: [PLACEHOLDER_QUOTE],
   marketing: [PLACEHOLDER_QUOTE],
+  co_director: [PLACEHOLDER_QUOTE],
 }
 
 export function getQuotePool(hubKey) {

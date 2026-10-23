@@ -606,3 +606,23 @@ export async function updateMarketingFeaturedContentDetails(id, fields) {
   })
   if (error) throw error
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Co-Director Hub (Studio Phase 6) -- for Daniel, genuinely founder-
+// equivalent oversight across Finance/Legal/Tech/Outreach/Marketing. Every
+// headline number the Co-Director Dashboard shows reuses the functions
+// above (Finance/Legal/Tech/Outreach/Marketing's own getters) -- this is
+// the ONE genuinely new query this phase adds: a company-wide "what needs
+// a decision" rollup, via get_co_director_pending_decisions() (supabase/
+// migrations/20261023120200_co_director_hub_schema.sql). Checked live
+// before building it -- see that migration's own header for what's
+// genuinely 0 today (including one leftover Playwright-QA scratch row in
+// tech_ideas this query deliberately excludes, same contamination-
+// exclusion diligence every prior Studio phase applied to its own data).
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function getCoDirectorPendingDecisions() {
+  const { data, error } = await supabase.rpc('get_co_director_pending_decisions')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}

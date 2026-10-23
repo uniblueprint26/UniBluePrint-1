@@ -1,0 +1,16 @@
+-- Co-Director Hub (Studio Phase 6) -- new role, genuinely founder-equivalent
+-- access for Daniel (Co-Director), per the founder's own earlier brief
+-- ("Co-Director (Daniel), full founder-equivalent access"). Postgres won't
+-- let a brand-new enum value be used in the same transaction that adds it
+-- (SQLSTATE 55P04) -- the same constraint hit by every prior Studio phase's
+-- own role-enum migration (20260828170000_finance_role_enum.sql,
+-- 20261022173925_legal_role_enum.sql, 20261022180654_tech_role_enum.sql,
+-- 20261022190000_outreach_role_enum.sql, 20261022200000_marketing_role_enum.sql)
+-- -- so this lands and commits on its own first, before anything else
+-- references 'co_director'.
+--
+-- No real account holds this role yet -- same as every hub lead before it
+-- (Rachel/Basmail, Eman/Tayyab/Praise/Enoch, Sienna/Ethan/Fabz/James,
+-- Alex/Elizabeth). The role/access infrastructure is built now so it is
+-- correct and ready the moment a real account is assigned it.
+alter type public.app_role add value if not exists 'co_director';
