@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link } from 'react-router-dom'
 import {
   Loader2, ArrowLeft, Clock, Zap, Check, Flag, AlertTriangle, ShieldAlert,
-  Bell, UserCog, XCircle, MessageCircle,
+  Bell, UserCog, XCircle, MessageCircle, Inbox, CheckCircle2, TrendingUp,
+  HeartHandshake, AlertCircle,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useUserRole } from '../../hooks/useUserRole'
@@ -16,20 +16,49 @@ import {
   reassignSubmission, cancelSubmission, contactStudent,
   fetchHandlerNotifications, markNotificationRead, fetchJobSearchHandlerGuide,
 } from '../../lib/handlerQueue'
+import {
+  getHandlerQueueSnapshot, getHandlerTicketsByWeek, getHandlerTicketsResolvedComparison,
+  getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+} from '../../lib/studioMetrics'
+import {
+  StudioShell, StatStrip, ComparisonWidget, TaskBoard,
+  NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+} from '../../components/studio'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { FormCard, ErrorBanner } from '../../components/ui/Form'
 import JobSearchHandlerGuide from '../../components/handler/JobSearchHandlerGuide'
 import QualityScorecard, { DIMENSIONS } from '../../components/handler/QualityScorecard'
 
-/**
- * The Campus Handler review queue — /handler/queue.
- *
- * Four tabs: Premium Queue, Standard Queue, Mine, and (Operations only)
- * Escalated. Deliberately functional rather than polished: the content view
- * renders input/generated jsonb generically across all 7 document types
- * rather than 7 bespoke renderers, matching the same "visibility over
- * prettiness" call MyDocumentsPage made.
- */
+// Campus Handler Hub (Studio Phase 7) -- /handler/queue, rebuilt onto the
+// shared Studio design system (StudioShell/StatStrip/ComparisonWidget/
+// TaskBoard/QuoteBanner -- see src/components/studio/). This is a redesign,
+// not a feature rewrite: every real action a Handler takes (claim a
+// submission, review it, score it, approve/flag/mark-incomplete; Operations
+// reassign/deliver/contact/cancel) is the exact same src/lib/handlerQueue.js
+// pipeline as before, untouched. What changes is the shell around it --
+// Overview/Queue/Performance/Team Tasks sections, real headline metrics via
+// the 3 new RPCs in supabase/migrations/20261023180000_handler_hub_schema.sql
+// (src/lib/studioMetrics.js's getHandlerQueueSnapshot/getHandlerTicketsByWeek/
+// getHandlerTicketsResolvedComparison), and the generic team_tasks board
+// (team='handler') for shift-coordination/handoff work that sits outside the
+// formal per-ticket pipeline.
+//
+// Genuinely all-zero today -- submissions/handler_queue/handler_escalations
+// hold 0 rows (checked live via Supabase MCP, 2026-10-23), a real pre-launch
+// pipeline, the same honest state Outreach Hub's inbound pipeline found --
+// not a broken query. Every metric excludes the banned demo/QA accounts the
+// same way every other Studio hub does.
+//
+// The ticket-review workflow itself (claim -> scorecard -> decision,
+// Operations' reassign/deliver/contact/cancel) keeps its own specialized,
+// master-detail UI (SubmissionDetail below) rather than being forced into
+// TaskBoard's generic create/status shape -- a ticket's real lifecycle
+// (claim, start review, score 5 quality dimensions, a 2-sentence-minimum
+// note, approve/flag/incomplete, Operations-only reassign/deliver/contact/
+// cancel) doesn't fit TaskBoard's todo/in_progress/done model. TaskBoard IS
+// reused, but for a genuinely different, simpler thing: ad-hoc Handler-team
+// coordination tasks (team='handler'), the same way Legal/Tech/Outreach/
+// Marketing each reuse it for their own team's batches/targets.
 export default function HandlerQueuePage() {
   const { user } = useAuth()
   const { isOperations } = useUserRole()
@@ -46,26 +75,69 @@ export default function HandlerQueuePage() {
   const [notifOpen, setNotifOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
 
+  // Studio Overview/Performance/Team Tasks -- new in Phase 7.
+  const [snapshot, setSnapshot] = useState(null)
+  const [weekly, setWeekly] = useState([])
+  const [comparisonWindow, setComparisonWindow] = useState('week')
+  const [comparison, setComparison] = useState(null)
+  const [tasks, setTasks] = useState([])
+  const [members, setMembers] = useState([])
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const tasks = [fetchPremiumQueue(), fetchStandardQueue(), fetchMyActiveAssignments(user.id), fetchHandlerNotifications(user.id)]
-      if (isOperations) tasks.push(fetchOperationsQueue())
-      const [p, s, m, n, e] = await Promise.all(tasks)
+      const tasksToRun = [
+        fetchPremiumQueue(), fetchStandardQueue(), fetchMyActiveAssignments(user.id), fetchHandlerNotifications(user.id),
+        getHandlerQueueSnapshot(), getHandlerTicketsByWeek(), getHandlerTicketsResolvedComparison(comparisonWindow),
+        getTeamTasks('handler'), getTeamRoster('handler'),
+      ]
+      if (isOperations) tasksToRun.push(fetchOperationsQueue())
+      const [p, s, m, n, snapRes, weekRes, compRes, tasksRes, membersRes, e] = await Promise.all(tasksToRun)
       setPremium(p)
       setStandard(s)
       setMine(m)
       setNotifications(n)
+      setSnapshot(snapRes.value || null)
+      setWeekly(weekRes.value || [])
+      setComparison(compRes.value || null)
+      setTasks(tasksRes.value || [])
+      setMembers(membersRes.value || [])
       if (isOperations) setEscalated(e || [])
     } catch (err) {
       setError(err.message || 'Could not load the queue.')
     } finally {
       setLoading(false)
     }
-  }, [user.id, isOperations])
+  }, [user.id, isOperations, comparisonWindow])
 
   useEffect(() => { load() }, [load])
+
+  // ── Handler Team Tasks (generic team_tasks, team='handler') ────────────
+  async function addTask(fields) {
+    try {
+      await createTeamTask('handler', fields)
+      const r = await getTeamTasks('handler')
+      setTasks(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not create that task.')
+    }
+  }
+  async function changeTaskStatus(id, status) {
+    try {
+      await setTeamTaskStatus(id, status)
+      const r = await getTeamTasks('handler')
+      setTasks(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that task.')
+    }
+  }
+
+  const tasksByStatus = useMemo(() => {
+    const counts = { todo: 0, in_progress: 0, done: 0 }
+    for (const t of tasks) counts[t.status] = (counts[t.status] || 0) + 1
+    return counts
+  }, [tasks])
 
   const handleClaim = (submissionId) => runLocked(async () => {
     setClaimingId(submissionId)
@@ -114,98 +186,237 @@ export default function HandlerQueuePage() {
     ...(isOperations ? [{ key: 'escalated', label: `Escalated (${escalated.length})` }] : []),
   ]
 
-  return (
-    <>
-      <Helmet><title>Handler Queue | UniBlueprint</title></Helmet>
-      <div style={{ maxWidth: '820px', margin: '0 auto', padding: '48px 24px 96px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', textDecoration: 'none', marginBottom: '20px' }}>
-            <ArrowLeft size={14} aria-hidden="true" /> Home
-          </Link>
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button" onClick={handleOpenNotifications} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
-              style={{ position: 'relative', background: '#FFFFFF', border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Bell size={17} color="#1E3A5F" aria-hidden="true" />
-              {unreadCount > 0 && (
-                <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#DC2626', color: '#FFFFFF', fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 700, borderRadius: '9px', minWidth: '17px', height: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px' }}>
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-            {notifOpen && (
-              <div style={{ position: 'absolute', right: 0, top: '46px', width: '320px', maxHeight: '360px', overflowY: 'auto', background: '#FFFFFF', borderRadius: '10px', boxShadow: '0px 8px 30px rgba(30,58,95,0.18)', zIndex: 10, padding: '10px' }}>
-                {notifications.length === 0 ? (
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', padding: '10px' }}>No notifications yet.</p>
-                ) : notifications.map((n) => (
-                  <div key={n.id} style={{ padding: '9px 10px', borderRadius: '7px', background: n.read ? 'transparent' : 'rgba(30,58,95,0.05)' }}>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#374151', lineHeight: 1.5 }}>{n.message}</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10.5px', color: '#9CA3AF', marginTop: '3px' }}>{new Date(n.created_at).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Handler Queue</h1>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          Claim a submission to review it. Every decision needs a note before it can go through.
-        </p>
+  const sections = [
+    { id: 'hh-overview', label: 'Overview' },
+    { id: 'hh-queue', label: 'Queue' },
+    { id: 'hh-performance', label: 'Performance' },
+    { id: 'hh-tasks', label: 'Handler Team Tasks' },
+  ]
 
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          {tabs.map((t) => (
-            <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)} label={t.label} />
+  const heroCharts = [
+    {
+      key: 'queue-by-tier', eyebrow: 'Live', title: 'Open queue, by tier',
+      caption: snapshot
+        ? `${fmt(snapshot.open_tickets)} tickets currently open (not yet delivered) across both tiers -- ${fmt(snapshot.unclaimed_tickets)} still unclaimed.`
+        : 'Loading…',
+      data: snapshot ? [
+        { name: 'Premium', value: snapshot.premium_open, color: HUB_ACCENTS.handler },
+        { name: 'Standard', value: snapshot.standard_open, color: NAVY },
+      ] : [],
+      emptyLabel: 'Loading…',
+    },
+    {
+      key: 'opened-by-week', eyebrow: 'Real, 6 weeks', title: 'Tickets opened, by week',
+      caption: 'Real submissions.submitted_at count, by calendar week -- includes genuine zero weeks, not skipped.',
+      data: weekly.map(w => ({ name: w.week_label, value: w.opened_count, color: HUB_ACCENTS.handler })),
+      emptyLabel: 'Loading…',
+      nameWidth: 80,
+    },
+    {
+      key: 'resolved-by-week', eyebrow: 'Real, 6 weeks', title: 'Tickets delivered, by week',
+      caption: 'Real submissions.delivered_at count, by calendar week.',
+      data: weekly.map(w => ({ name: w.week_label, value: w.resolved_count, color: GREEN })),
+      emptyLabel: 'Loading…',
+      nameWidth: 80,
+    },
+  ]
+
+  const notifBell = (
+    <div style={{ position: 'relative' }}>
+      <button
+        type="button" onClick={handleOpenNotifications} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
+        style={{ position: 'relative', background: '#FFFFFF', border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Bell size={17} color={NAVY} aria-hidden="true" />
+        {unreadCount > 0 && (
+          <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: RED, color: '#FFFFFF', fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, borderRadius: '9px', minWidth: '17px', height: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px' }}>
+            {unreadCount}
+          </span>
+        )}
+      </button>
+      {notifOpen && (
+        <div style={{ position: 'absolute', right: 0, top: '46px', width: '320px', maxHeight: '360px', overflowY: 'auto', background: '#FFFFFF', borderRadius: '10px', boxShadow: '0px 8px 30px rgba(30,58,95,0.18)', zIndex: 10, padding: '10px' }}>
+          {notifications.length === 0 ? (
+            <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: MUTED, padding: '10px' }}>No notifications yet.</p>
+          ) : notifications.map((n) => (
+            <div key={n.id} style={{ padding: '9px 10px', borderRadius: '7px', background: n.read ? 'transparent' : 'rgba(30,58,95,0.05)' }}>
+              <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: '#374151', lineHeight: 1.5 }}>{n.message}</p>
+              <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', color: MUTED, marginTop: '3px' }}>{new Date(n.created_at).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
           ))}
         </div>
+      )}
+    </div>
+  )
 
-        {error && <ErrorBanner message={error} onRetry={load} />}
+  return (
+    <>
+      <Helmet>
+        <title>Campus Handler Hub | UniBlueprint</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
 
-        {loading ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280' }}>
-            <Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true" /> Loading…
-          </div>
-        ) : tab === 'premium' ? (
-          premium.length === 0 ? (
-            <EmptyState text="No premium tickets waiting. Premium submissions will appear here." />
-          ) : (
-            <ListBlock>
-              {premium.map((s) => (
-                <QueueRow key={s.id} submission={s} action={<ClaimButton s={s} claimingId={claimingId} onClaim={handleClaim} />} />
-              ))}
-            </ListBlock>
-          )
-        ) : tab === 'standard' ? (
-          standard.length === 0 ? (
-            <EmptyState text="No standard tickets waiting. Standard submissions will appear here." />
-          ) : (
-            <ListBlock>
-              {standard.map((s) => (
-                <QueueRow key={s.id} submission={s} action={<ClaimButton s={s} claimingId={claimingId} onClaim={handleClaim} />} />
-              ))}
-            </ListBlock>
-          )
-        ) : tab === 'mine' ? (
-          mine.length === 0 ? (
-            <EmptyState text="Nothing currently assigned to you." />
-          ) : (
-            <ListBlock>
-              {mine.map((s) => (
-                <QueueRow key={s.id} submission={s} onClick={() => setSelected({ row: s, mode: 'handler' })} clickable />
-              ))}
-            </ListBlock>
-          )
-        ) : escalated.length === 0 ? (
-          <EmptyState text="Nothing escalated, flagged, or incomplete right now." />
-        ) : (
-          <ListBlock>
-            {escalated.map((s) => (
-              <QueueRow key={s.ticket_id} submission={{ id: s.submission_id, ...s }} onClick={() => setSelected({ row: { id: s.submission_id, ...s }, mode: 'operations' })} clickable operationsView />
-            ))}
-          </ListBlock>
+      <StudioShell
+        hubKey="handler"
+        title="Campus Handler Hub"
+        subtitle="Real queue, claim, review and delivery pipeline for Campus/Job-Search Handlers and Operations. Claim a submission to review it -- every decision needs a note before it can go through. Real headline metrics below exclude banned demo/QA accounts."
+        accentColor={HUB_ACCENTS.handler}
+        heroCharts={heroCharts}
+        sections={sections}
+        rangeControl={notifBell}
+        error={!!error && (
+          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+            <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertCircle size={15} /> {error}
+            </p>
+          </Card>
         )}
-      </div>
+      >
+
+        {/* ══ OVERVIEW ═════════════════════════════════════════════════ */}
+        <div id="hh-overview" style={{ scrollMarginTop: '60px' }}>
+          <Card style={{ marginBottom: '20px' }}>
+            <SectionTitle eyebrow="Live" title="Queue at a glance"
+              caption="Real, live counts from submissions/handler_queue/handler_escalations, excluding banned demo/QA accounts. Genuinely all-zero until a real submission enters the pipeline -- a real pre-launch state, not a broken query." />
+            <StatStrip
+              columns={3}
+              style={{ opacity: loading ? 0.6 : 1 }}
+              cells={[
+                { key: 'open', label: 'Open tickets', value: fmt(snapshot?.open_tickets), icon: Inbox, accent: HUB_ACCENTS.handler },
+                { key: 'unclaimed', label: 'Unclaimed', value: fmt(snapshot?.unclaimed_tickets), icon: Clock, accent: snapshot?.unclaimed_tickets > 0 ? AMBER : GREEN },
+                { key: 'escalated', label: 'Escalated, unresolved', value: fmt(snapshot?.escalated_open), icon: Flag, accent: snapshot?.escalated_open > 0 ? RED : GREEN },
+                { key: 'overdue', label: 'Overdue right now', value: fmt(snapshot?.overdue_open), icon: AlertTriangle, accent: snapshot?.overdue_open > 0 ? RED : GREEN },
+                { key: 'delivered-week', label: 'Delivered this week', value: fmt(snapshot?.delivered_this_week), icon: CheckCircle2, accent: GREEN },
+                { key: 'avg-hours', label: 'Avg resolution, this week', sub: 'hours', value: fmt(snapshot?.avg_resolution_hours_this_week), icon: TrendingUp, accent: NAVY },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ══ QUEUE ════════════════════════════════════════════════════ */}
+        <Card id="hh-queue" style={{ marginBottom: '20px' }}>
+          <SectionTitle eyebrow="Work the queue" title="Premium Queue, Standard Queue, Mine, Escalated"
+            caption="Claim a submission to review it. Every decision needs a note of at least two sentences before it can go through." />
+
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '18px', flexWrap: 'wrap' }}>
+            {tabs.map((t) => (
+              <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)} label={t.label} />
+            ))}
+          </div>
+
+          {loading ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: FONT_SANS, fontSize: '14px', color: GREY }}>
+              <Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true" /> Loading…
+            </div>
+          ) : tab === 'premium' ? (
+            premium.length === 0 ? (
+              <EmptyState text="No premium tickets waiting. Premium submissions will appear here." />
+            ) : (
+              <ListBlock>
+                {premium.map((s) => (
+                  <QueueRow key={s.id} submission={s} action={<ClaimButton s={s} claimingId={claimingId} onClaim={handleClaim} />} />
+                ))}
+              </ListBlock>
+            )
+          ) : tab === 'standard' ? (
+            standard.length === 0 ? (
+              <EmptyState text="No standard tickets waiting. Standard submissions will appear here." />
+            ) : (
+              <ListBlock>
+                {standard.map((s) => (
+                  <QueueRow key={s.id} submission={s} action={<ClaimButton s={s} claimingId={claimingId} onClaim={handleClaim} />} />
+                ))}
+              </ListBlock>
+            )
+          ) : tab === 'mine' ? (
+            mine.length === 0 ? (
+              <EmptyState text="Nothing currently assigned to you." />
+            ) : (
+              <ListBlock>
+                {mine.map((s) => (
+                  <QueueRow key={s.id} submission={s} onClick={() => setSelected({ row: s, mode: 'handler' })} clickable />
+                ))}
+              </ListBlock>
+            )
+          ) : escalated.length === 0 ? (
+            <EmptyState text="Nothing escalated, flagged, or incomplete right now." />
+          ) : (
+            <ListBlock>
+              {escalated.map((s) => (
+                <QueueRow key={s.ticket_id} submission={{ id: s.submission_id, ...s }} onClick={() => setSelected({ row: { id: s.submission_id, ...s }, mode: 'operations' })} clickable operationsView />
+              ))}
+            </ListBlock>
+          )}
+        </Card>
+
+        {/* ══ PERFORMANCE ══════════════════════════════════════════════ */}
+        <div id="hh-performance" style={{ marginBottom: '20px', scrollMarginTop: '60px' }}>
+          <SectionTitle eyebrow="Progress" title="What You've Got vs What You're Missing"
+            caption="Real, banned-excluded count of tickets delivered this window vs the window before it. Like Legal/Tech/Outreach/Marketing's own comparisons, this is a single hub-wide total, not a cohort of comparable Handlers, so top/lowest are left honestly blank; only the self-vs-last-period row below is real." />
+          <ComparisonWidget
+            entityLabel="Real tickets delivered"
+            value={comparison?.resolved_this_period ?? null}
+            topValue={null}
+            lowestValue={null}
+            lastPeriodValue={comparison?.resolved_last_period ?? null}
+            unit="tickets"
+            window={comparisonWindow}
+            onWindowChange={setComparisonWindow}
+            accentColor={HUB_ACCENTS.handler}
+            loading={loading}
+            emptyNote={comparison && comparison.resolved_this_period === 0 && comparison.resolved_last_period === 0
+              ? 'No real tickets have been delivered this window or last -- an honest 0, the pipeline is pre-launch. This fills in the moment a real ticket is delivered.'
+              : null}
+          />
+        </div>
+
+        {/* ══ HANDLER TEAM TASKS ═══════════════════════════════════════ */}
+        <Card id="hh-tasks">
+          <SectionTitle eyebrow="New" title="Handler Team Tasks"
+            caption="Real, generic team_tasks rows for the Handler team (the same reusable TaskBoard component Legal/Tech/Outreach/Marketing use) -- shift coordination, onboarding a new Handler, and other work that sits outside the formal per-ticket review pipeline above. Seeded empty -- nothing below is a placeholder." />
+          <StatStrip
+            columns={3}
+            style={{ marginBottom: '16px' }}
+            cells={[
+              { key: 'todo', label: 'To do', value: fmt(tasksByStatus.todo), icon: Inbox, accent: MUTED },
+              { key: 'in-progress', label: 'In progress', value: fmt(tasksByStatus.in_progress), icon: TrendingUp, accent: AMBER },
+              { key: 'done', label: 'Done', value: fmt(tasksByStatus.done), icon: HeartHandshake, accent: GREEN },
+            ]}
+          />
+          <TaskBoard
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={addTask}
+            onStatusChange={changeTaskStatus}
+            accentColor={HUB_ACCENTS.handler}
+            emptyLabel="No Handler team tasks yet -- add the first real one above."
+          />
+        </Card>
+
+      </StudioShell>
     </>
+  )
+}
+
+function fmt(n) { return n === null || n === undefined ? '—' : Number(n).toLocaleString('en-IE') }
+
+function SectionTitle({ eyebrow, title, caption }) {
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+        {eyebrow}
+      </p>
+      <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
+      {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
+    </div>
+  )
+}
+function Card({ children, style, id }) {
+  return (
+    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
+      {children}
+    </div>
   )
 }
 

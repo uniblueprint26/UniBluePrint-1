@@ -626,3 +626,40 @@ export async function getCoDirectorPendingDecisions() {
   if (error) throw error
   return { trackable: true, value: data || [] }
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Campus Handler Hub (Studio Phase 7) -- the Campus/Job-Search Handler
+// team's existing review pipeline (submissions/handler_queue/
+// handler_assignments/handler_escalations, built well before any Studio
+// hub existed -- see src/lib/handlerQueue.js for the full claim/review/
+// deliver pipeline this layer sits on top of) gets a real Studio Overview/
+// Performance reporting layer via supabase/migrations/
+// 20261023180000_handler_hub_schema.sql's 3 new SECURITY DEFINER RPCs.
+// Genuinely all-zero today -- submissions/handler_queue/handler_escalations
+// hold 0 rows (checked live), a real pre-launch pipeline, same honest state
+// Outreach Hub's inbound pipeline found, not a broken query. Every function
+// excludes the banned demo/QA accounts via submissions.user_id.
+// team_tasks reuse (team='handler') needs no new code here -- getTeamTasks
+// ('handler') / getTeamRoster('handler') / createTeamTask('handler', ...)
+// already work the moment a 'handler' role exists, which it has since the
+// very first migration.
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function getHandlerQueueSnapshot() {
+  const { data, error } = await supabase.rpc('get_handler_queue_snapshot')
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+export async function getHandlerTicketsByWeek() {
+  const { data, error } = await supabase.rpc('get_handler_tickets_by_week')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real feed for the Handler Hub's ComparisonWidget -- tickets delivered this range vs the prior one. */
+export async function getHandlerTicketsResolvedComparison(range = 'week') {
+  const { data, error } = await supabase.rpc('get_handler_tickets_resolved_comparison', { _range: range })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
