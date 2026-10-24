@@ -1,4 +1,4 @@
-import { NAVY, SAND, GREY, MUTED, FONT_SANS } from './theme'
+import { NAVY, SAND, GREY, BORDER, FONT_SANS } from './theme'
 
 /**
  * Horizontal bar chart matching the exact visual language already shipped
@@ -20,34 +20,37 @@ export default function MetricBarChart({
   legend,
 }) {
   if (!data.length) {
-    return <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: MUTED }}>{emptyLabel}</p>
+    return <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, lineHeight: 1.5, margin: 0 }}>{emptyLabel}</p>
   }
   const realValues = data.filter(d => !d.tbd).map(d => d.value || 0)
   const max = Math.max(...realValues, 1)
+  // One fixed value-column width per chart (sized to its longest label), so
+  // every bar track ends at the same x and nothing like "€1,250.00" clips.
+  const valueWidth = Math.max(48, ...data.filter(d => !d.tbd).map(d => String(valueFormatter(d.value)).length * 8 + 4))
 
   return (
     <div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {data.map(d => (
-          <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{
-              fontFamily: FONT_SANS, fontSize: '12px', color: NAVY,
-              width: `${nameWidth}px`, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '12px', minHeight: '18px' }}>
+            <span title={d.name} style={{
+              fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 500, color: NAVY,
+              width: `${nameWidth}px`, maxWidth: '45%', flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>
               {d.name}
             </span>
             {d.tbd ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
                 <span style={{
-                  fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED,
-                  background: SAND, borderRadius: '999px', padding: '3px 10px',
+                  fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 600, color: GREY,
+                  background: SAND, borderRadius: '999px', padding: '3px 10px', lineHeight: 1.4,
                 }}>
                   TBD{d.tbdReason ? ` — ${d.tbdReason}` : ' — not yet tracked'}
                 </span>
               </div>
             ) : (
               <>
-                <div style={{ flex: 1, background: SAND, borderRadius: '4px', height: '12px' }}>
+                <div style={{ flex: 1, minWidth: '40px', background: SAND, borderRadius: '4px', height: '10px', overflow: 'hidden' }}>
                   <div style={{
                     width: `${Math.max(((d.value || 0) / max) * 100, d.value ? 3 : 0)}%`, height: '100%',
                     background: d.color || accentColor, borderRadius: '0 4px 4px 0',
@@ -55,8 +58,8 @@ export default function MetricBarChart({
                   }} />
                 </div>
                 <span style={{
-                  fontFamily: FONT_SANS, fontSize: '11.5px', fontWeight: '600', color: GREY,
-                  width: '54px', textAlign: 'right', flexShrink: 0,
+                  fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, color: d.value ? NAVY : GREY,
+                  width: `${valueWidth}px`, textAlign: 'right', whiteSpace: 'nowrap', flexShrink: 0, fontVariantNumeric: 'tabular-nums',
                 }}>
                   {valueFormatter(d.value)}
                 </span>
@@ -67,9 +70,9 @@ export default function MetricBarChart({
       </div>
 
       {legend && legend.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginTop: '14px', paddingTop: '12px', borderTop: `1px solid ${BORDER}` }}>
           {legend.map(l => (
-            <span key={l.label} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: FONT_SANS, fontSize: '11px', color: GREY }}>
+            <span key={l.label} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: FONT_SANS, fontSize: '12px', color: GREY }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: l.color || accentColor, display: 'inline-block' }} />
               {l.label}
             </span>

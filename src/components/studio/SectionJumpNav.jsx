@@ -1,11 +1,16 @@
-import { NAVY, GREY, FONT_SANS } from './theme'
-
 /**
  * Jump-tabs that scroll-anchor down the page -- NOT separate routes/pages.
  * Clicking a tab smooth-scrolls to the section with that id, on the same
  * continuously-scrolling hub page. `sections`: [{ id, label }].
+ *
+ * Styling lives in StudioShell's shared stylesheet (.studio-jumpnav): sticks
+ * just under the site navbar, wraps on desktop, and becomes a single
+ * horizontally-scrolling row on phones so it never eats half the viewport
+ * while stuck. Hover/focus picks up the hub accent via --studio-accent.
  */
-export default function SectionJumpNav({ sections = [], accentColor = NAVY }) {
+// (`accentColor` is still accepted for API compatibility; the accent now
+// arrives through StudioShell's CSS variables instead.)
+export default function SectionJumpNav({ sections = [] }) {
   function jumpTo(id) {
     const el = document.getElementById(id)
     if (!el) return
@@ -15,28 +20,10 @@ export default function SectionJumpNav({ sections = [], accentColor = NAVY }) {
   if (!sections.length) return null
 
   return (
-    <nav
-      aria-label="Jump to section"
-      style={{
-        display: 'flex', flexWrap: 'wrap', gap: '8px',
-        background: '#FFFFFF', border: '1px solid rgba(30,58,95,0.08)', borderRadius: '10px',
-        padding: '10px 12px', marginBottom: '20px', position: 'sticky', top: '0', zIndex: 5,
-      }}
-    >
+    <nav aria-label="Jump to section" className="studio-jumpnav">
+      <span className="studio-jumpnav-label" aria-hidden="true">Jump to</span>
       {sections.map(s => (
-        <button
-          key={s.id}
-          type="button"
-          onClick={() => jumpTo(s.id)}
-          style={{
-            fontFamily: FONT_SANS, fontSize: '12px', fontWeight: '600',
-            padding: '6px 12px', borderRadius: '999px', border: `1px solid rgba(30,58,95,0.12)`,
-            background: 'transparent', color: GREY, cursor: 'pointer',
-            transition: 'background 150ms, color 150ms, border-color 150ms',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.color = accentColor }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(30,58,95,0.12)'; e.currentTarget.style.color = GREY }}
-        >
+        <button key={s.id} type="button" onClick={() => jumpTo(s.id)}>
           {s.label}
         </button>
       ))}

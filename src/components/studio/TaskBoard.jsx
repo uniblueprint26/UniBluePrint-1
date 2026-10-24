@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, Loader2 } from 'lucide-react'
-import { NAVY, CREAM, GREY, MUTED, FONT_SANS } from './theme'
+import { NAVY, CREAM, GREY, WHITE, BORDER, STUDIO_INPUT, STATUS_COLORS, FONT_SANS, studioButton, tint } from './theme'
 import StatusDot from './StatusDot'
 
 // Generic "targets, batches, delegated tasks" board -- per the founder's
@@ -68,89 +68,108 @@ export default function TaskBoard({
     }
   }
 
+  const canSubmit = !!form.title.trim()
+
   return (
     <div>
-      <div
-        className="studio-taskboard-form"
-        style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 1fr 1fr 1fr auto', gap: '8px', alignItems: 'flex-end', marginBottom: '16px' }}
-      >
-        <style>{`
-          @media (max-width: 700px) { .studio-taskboard-form { grid-template-columns: 1fr 1fr !important; } }
-          @media (max-width: 480px) { .studio-taskboard-form { grid-template-columns: 1fr !important; } }
-          @media (max-width: 480px) { .studio-taskboard-form button { width: 100%; } }
-        `}</style>
-        <TBField label="Title">
-          <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={tbInput} placeholder="What needs doing..." />
-        </TBField>
-        <TBField label="Description">
-          <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={tbInput} placeholder="Optional detail..." />
-        </TBField>
-        <TBField label="Batch">
-          <input type="text" value={form.batchLabel} onChange={e => setForm(f => ({ ...f, batchLabel: e.target.value }))} style={tbInput} placeholder="e.g. Q4 contracts" />
-        </TBField>
-        <TBField label="Target date">
-          <input type="date" value={form.targetDate} onChange={e => setForm(f => ({ ...f, targetDate: e.target.value }))} style={tbInput} />
-        </TBField>
-        <TBField label="Assign to">
-          <select value={form.assignedTo} onChange={e => setForm(f => ({ ...f, assignedTo: e.target.value }))} style={tbInput}>
-            <option value="">Unassigned</option>
-            {members.map(m => (
-              <option key={m.user_id} value={m.user_id}>{m.full_name || m.email}</option>
-            ))}
-          </select>
-        </TBField>
-        <button
-          type="button" disabled={submitting || !form.title.trim()}
-          onClick={submit}
-          style={{
-            fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, padding: '9px 14px', borderRadius: '8px', border: 'none',
-            background: form.title.trim() ? accentColor : MUTED, color: '#fff', cursor: form.title.trim() ? 'pointer' : 'not-allowed',
-            display: 'inline-flex', alignItems: 'center', gap: '6px', height: '36px', whiteSpace: 'nowrap',
-          }}
+      {/* Studio Phase 10: the create form sits in its own tinted panel so it
+          reads as "add something" rather than as a row of the list below;
+          same grid + the exact Phase 9 breakpoints (700px -> 2 cols, 480px
+          -> 1 col, full-width button), only restyled within them. */}
+      <div className="studio-form-panel">
+        <div
+          className="studio-taskboard-form"
+          style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 1fr 1fr 1fr auto', gap: '12px', alignItems: 'flex-end' }}
         >
-          {submitting ? <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Plus size={13} />}
-          Add
-        </button>
+          <style>{`
+            @media (max-width: 700px) { .studio-taskboard-form { grid-template-columns: 1fr 1fr !important; } }
+            @media (max-width: 480px) { .studio-taskboard-form { grid-template-columns: 1fr !important; } }
+            @media (max-width: 480px) { .studio-taskboard-form button { width: 100%; } }
+          `}</style>
+          <TBField label="Title">
+            <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={tbInput} placeholder="What needs doing..." />
+          </TBField>
+          <TBField label="Description">
+            <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={tbInput} placeholder="Optional detail..." />
+          </TBField>
+          <TBField label="Batch">
+            <input type="text" value={form.batchLabel} onChange={e => setForm(f => ({ ...f, batchLabel: e.target.value }))} style={tbInput} placeholder="e.g. Q4 contracts" />
+          </TBField>
+          <TBField label="Target date">
+            <input type="date" value={form.targetDate} onChange={e => setForm(f => ({ ...f, targetDate: e.target.value }))} style={tbInput} />
+          </TBField>
+          <TBField label="Assign to">
+            <select value={form.assignedTo} onChange={e => setForm(f => ({ ...f, assignedTo: e.target.value }))} style={tbInput}>
+              <option value="">Unassigned</option>
+              {members.map(m => (
+                <option key={m.user_id} value={m.user_id}>{m.full_name || m.email}</option>
+              ))}
+            </select>
+          </TBField>
+          <button
+            type="button" disabled={submitting || !canSubmit}
+            onClick={submit}
+            style={studioButton(accentColor, canSubmit)}
+          >
+            {submitting ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Plus size={14} />}
+            Add
+          </button>
+        </div>
       </div>
 
       {tasks.length === 0 ? (
-        <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: MUTED }}>{emptyLabel}</p>
+        <p style={{
+          fontFamily: FONT_SANS, fontSize: '13px', color: GREY, lineHeight: 1.5, margin: 0,
+          border: '1px dashed rgba(30,58,95,0.2)', borderRadius: '10px', padding: '14px 16px',
+        }}>
+          {emptyLabel}
+        </p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: loading ? 0.6 : 1 }}>
-          {tasks.map(t => (
-            <div key={t.id} style={{
-              display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px',
-              background: CREAM, borderRadius: '9px', border: '1px solid rgba(30,58,95,0.08)', padding: '10px 14px',
-            }}>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 600, color: NAVY }}>{t.title}</span>
-                  {t.batch_label && (
-                    <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, color: GREY, background: '#fff', border: '1px solid rgba(30,58,95,0.1)', borderRadius: '999px', padding: '2px 8px' }}>
-                      {t.batch_label}
-                    </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: loading ? 0.6 : 1, transition: 'opacity 150ms' }}>
+          {tasks.map(t => {
+            const meta = STATUS_META[t.status]
+            const statusColor = STATUS_COLORS[meta?.dot || 'grey']
+            const done = t.status === 'done'
+            return (
+              <div key={t.id} style={{
+                display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap',
+                background: WHITE, borderRadius: '10px', border: `1px solid ${BORDER}`, padding: '12px 16px',
+              }}>
+                <div style={{ minWidth: 0, flex: '1 1 260px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: '13.5px', fontWeight: 600, color: done ? GREY : NAVY, lineHeight: 1.4 }}>{t.title}</span>
+                    {t.batch_label && (
+                      <span style={{ fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 600, color: NAVY, background: CREAM, border: `1px solid ${BORDER}`, borderRadius: '999px', padding: '2px 9px', lineHeight: 1.4 }}>
+                        {t.batch_label}
+                      </span>
+                    )}
+                  </div>
+                  {t.description && (
+                    <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, margin: '4px 0 0', lineHeight: 1.55 }}>{t.description}</p>
                   )}
+                  <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '8px 0 0' }}>
+                    {t.assignee_name || 'Unassigned'}{t.target_date ? ` · due ${fmtDate(t.target_date)}` : ''}
+                  </p>
                 </div>
-                {t.description && (
-                  <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY, margin: '4px 0 0', lineHeight: 1.4 }}>{t.description}</p>
-                )}
-                <p style={{ fontFamily: FONT_SANS, fontSize: '11px', color: MUTED, margin: '5px 0 0' }}>
-                  {t.assignee_name || 'Unassigned'}{t.target_date ? ` · due ${fmtDate(t.target_date)}` : ''}
-                </p>
+                <label style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px', flexShrink: 0,
+                  background: tint(statusColor, 0.1), border: `1px solid ${tint(statusColor, 0.35)}`,
+                  borderRadius: '999px', padding: '0 4px 0 10px', height: '30px',
+                }}>
+                  <StatusDot status={meta?.dot || 'grey'} />
+                  <select
+                    value={t.status}
+                    aria-label="Task status"
+                    disabled={changingId === t.id || !onStatusChange}
+                    onChange={e => changeStatus(t.id, e.target.value)}
+                    style={{ fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 600, color: NAVY, padding: '4px 2px', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                  >
+                    {STATUS_ORDER.map(s => <option key={s} value={s}>{STATUS_META[s].label}</option>)}
+                  </select>
+                </label>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                <StatusDot status={STATUS_META[t.status]?.dot || 'grey'} />
-                <select
-                  value={t.status}
-                  disabled={changingId === t.id || !onStatusChange}
-                  onChange={e => changeStatus(t.id, e.target.value)}
-                  style={{ fontFamily: FONT_SANS, fontSize: '11.5px', padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(30,58,95,0.15)', background: '#fff' }}
-                >
-                  {STATUS_ORDER.map(s => <option key={s} value={s}>{STATUS_META[s].label}</option>)}
-                </select>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -159,8 +178,8 @@ export default function TaskBoard({
 
 function TBField({ label, children }) {
   return (
-    <label style={{ display: 'block' }}>
-      <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>
+    <label style={{ display: 'block', minWidth: 0 }}>
+      <span style={{ fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: GREY, display: 'block', marginBottom: '6px' }}>
         {label}
       </span>
       {children}
@@ -168,7 +187,4 @@ function TBField({ label, children }) {
   )
 }
 
-const tbInput = {
-  fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px',
-  border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px',
-}
+const tbInput = STUDIO_INPUT

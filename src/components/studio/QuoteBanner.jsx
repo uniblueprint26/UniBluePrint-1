@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { NAVY, CREAM, FONT_SERIF } from './theme'
+import { NAVY, BORDER, FONT_SERIF } from './theme'
 import { getQuotePool } from './quotes'
 
 /**
@@ -35,30 +35,42 @@ export default function QuoteBanner({ hubKey, quotes, accentColor = NAVY }) {
     return () => clearTimeout(timeoutRef.current)
   }, [pool.length])
 
-  const quote = pool[index % pool.length] || ''
+  const active = index % pool.length
 
+  // Studio Phase 10: a quiet aside rather than a dominant dark banner --
+  // light surface, hairline border, the hub accent carried only by the
+  // opening quote mark. Every quote in the pool is laid out in the same
+  // grid cell (only the active one visible), so the banner is always as tall
+  // as its longest line and the page below never jumps when it rotates.
   return (
-    <div
+    <figure
       style={{
-        background: NAVY, borderRadius: '14px', padding: '20px 24px',
-        display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px',
-        borderLeft: `4px solid ${accentColor}`,
+        display: 'flex', alignItems: 'flex-start', gap: '12px', margin: '0 0 var(--studio-gap, 24px)',
+        background: 'rgba(255,255,255,0.6)', border: `1px solid ${BORDER}`, borderRadius: '12px',
+        padding: '14px 20px',
       }}
     >
-      <span aria-hidden="true" style={{ fontFamily: FONT_SERIF, fontSize: '34px', color: accentColor, lineHeight: 1, flexShrink: 0 }}>
+      <span aria-hidden="true" style={{ fontFamily: FONT_SERIF, fontSize: '34px', color: accentColor, lineHeight: 0.8, flexShrink: 0, marginTop: '4px' }}>
         &ldquo;
       </span>
-      <p
-        key={index}
-        role="status"
-        aria-live="polite"
-        style={{
-          fontFamily: FONT_SERIF, fontSize: '15.5px', color: CREAM, lineHeight: 1.5, margin: 0,
-          fontStyle: 'italic',
-        }}
-      >
-        {quote}
-      </p>
-    </div>
+      <div style={{ display: 'grid', flex: 1, minWidth: 0 }}>
+        {pool.map((q, i) => (
+          <blockquote
+            key={i === active ? `active-${index}` : i}
+            className={i === active ? 'studio-fade-in' : undefined}
+            role={i === active ? 'status' : undefined}
+            aria-live={i === active ? 'polite' : undefined}
+            aria-hidden={i === active ? undefined : 'true'}
+            style={{
+              gridArea: '1 / 1', margin: 0, alignSelf: 'center',
+              fontFamily: FONT_SERIF, fontSize: '15px', color: NAVY, lineHeight: 1.55, fontStyle: 'italic',
+              visibility: i === active ? 'visible' : 'hidden',
+            }}
+          >
+            {q}
+          </blockquote>
+        ))}
+      </div>
+    </figure>
   )
 }

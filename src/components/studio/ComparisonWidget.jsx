@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TrendingUp, Trophy, Users } from 'lucide-react'
-import { NAVY, GREY, MUTED, CREAM, FONT_SERIF, FONT_SANS } from './theme'
+import { NAVY, GREY, CREAM, WHITE, SURFACE_TINT, BORDER, CARD_RADIUS, CARD_SHADOW, FONT_SERIF, FONT_SANS, tint } from './theme'
 import { buildComparisonCopy } from './comparisonCopy'
 
 const WINDOWS = [
@@ -47,28 +47,30 @@ export default function ComparisonWidget({
   const copy = buildComparisonCopy({ value, topValue, lowestValue, lastPeriodValue, unit, higherIsBetter, noun, periodLabel })
 
   return (
-    <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
-        <div>
-          <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+    <div className="studio-card" style={{ background: WHITE, borderRadius: CARD_RADIUS, border: `1px solid ${BORDER}`, boxShadow: CARD_SHADOW }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+        <div style={{ minWidth: 0 }}>
+          <p style={{ fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 700, color: GREY, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
             What You&rsquo;ve Got vs What You&rsquo;re Missing
           </p>
-          <h3 style={{ fontFamily: FONT_SERIF, fontSize: '17px', color: NAVY, margin: '3px 0 0' }}>
+          <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: '19px', color: NAVY, margin: '4px 0 0' }}>
             {entityLabel || 'This period'}
           </h3>
         </div>
-        <div style={{ display: 'inline-flex', background: CREAM, borderRadius: '8px', padding: '3px', border: '1px solid rgba(30,58,95,0.08)' }}>
+        <div role="group" aria-label="Comparison window" style={{ display: 'inline-flex', background: CREAM, borderRadius: '9px', padding: '3px', border: `1px solid ${BORDER}` }}>
           {WINDOWS.map(w => (
             <button
               key={w.key}
               type="button"
               onClick={() => selectWindow(w.key)}
               style={{
-                fontFamily: FONT_SANS, fontSize: '11.5px', fontWeight: '600',
-                padding: '5px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 600,
+                padding: '6px 12px', borderRadius: '7px', border: 'none', cursor: 'pointer',
                 background: activeWindow === w.key ? NAVY : 'transparent',
                 color: activeWindow === w.key ? CREAM : GREY,
+                transition: 'background 150ms, color 150ms',
               }}
+              aria-pressed={activeWindow === w.key}
             >
               {w.label}
             </button>
@@ -77,10 +79,10 @@ export default function ComparisonWidget({
       </div>
 
       {emptyNote && (
-        <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: MUTED, marginBottom: '12px' }}>{emptyNote}</p>
+        <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, lineHeight: 1.55, margin: '0 0 16px', maxWidth: '860px', overflowWrap: 'anywhere' }}>{emptyNote}</p>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: loading ? 0.6 : 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: loading ? 0.6 : 1, transition: 'opacity 150ms' }}>
         <Row icon={Trophy} accent={accentColor} text={copy.vsTop} />
         <Row icon={Users} accent={accentColor} text={copy.vsLowest} />
         <Row icon={TrendingUp} accent={accentColor} text={copy.vsSelf} />
@@ -91,11 +93,11 @@ export default function ComparisonWidget({
 
 function Row({ icon: Icon, accent, text }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-      <div style={{ width: '24px', height: '24px', borderRadius: '7px', background: CREAM, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
-        <Icon size={12} color={accent} />
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', background: SURFACE_TINT, border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '12px 14px' }}>
+      <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: tint(accent, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <Icon size={14} color={accent} aria-hidden="true" />
       </div>
-      <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, lineHeight: 1.5, margin: 0 }}>{text}</p>
+      <p style={{ fontFamily: FONT_SANS, fontSize: '13.5px', color: NAVY, lineHeight: 1.55, margin: '4px 0 0' }}>{text}</p>
     </div>
   )
 }

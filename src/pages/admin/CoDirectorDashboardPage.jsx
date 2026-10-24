@@ -5,8 +5,8 @@ import {
   Inbox, UserCheck, Eye, MousePointerClick, CheckCircle2, AlertCircle, HeartHandshake,
 } from 'lucide-react'
 import {
-  StudioShell, StatStrip, MetricBarChart, TaskBoard,
-  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, TaskBoard,
+  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS, tint,
 } from '../../components/studio'
 import {
   getFinanceRevenueSnapshot, getFinanceMarginSummary,
@@ -57,13 +57,8 @@ import {
 // before writing this, not assumed, the same way Founder Priorities did.
 
 const PAGE_STYLES = `
-  .cd-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
-  .cd-table-wrap { overflow-x: auto; }
-  .cd-table { width: 100%; border-collapse: collapse; }
-  .cd-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
-  .cd-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); vertical-align: top; }
-  .cd-table tr:last-child td { border-bottom: none; }
-  @media (max-width: 1100px) { .cd-two-col { grid-template-columns: 1fr; } }
+  .cd-two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  @media (max-width: 1100px) { .cd-two-col { grid-template-columns: minmax(0, 1fr); } }
 `
 
 function fmt(n) { return n === null || n === undefined ? '—' : n.toLocaleString('en-IE') }
@@ -84,32 +79,11 @@ const DECISION_CATEGORY_META = {
   outreach_contact_stalled: { label: 'Outreach — contact stalled', hub: 'outreach' },
 }
 
-function SectionTitle({ eyebrow, title, caption }) {
-  return (
-    <div style={{ marginBottom: '12px' }}>
-      <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-        {eyebrow}
-      </p>
-      <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-      {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-    </div>
-  )
-}
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
-function EmptyNote({ children, style }) {
-  return <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, display: 'flex', alignItems: 'center', gap: '6px', ...style }}>{children}</p>
-}
 function HubBadge({ hub, label }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700,
-      color: HUB_ACCENTS[hub] || NAVY, background: CREAM, borderRadius: '999px', padding: '3px 9px', textTransform: 'uppercase', letterSpacing: '0.04em',
+      color: HUB_ACCENTS[hub] || NAVY, background: tint(HUB_ACCENTS[hub] || NAVY, 0.08), border: `1px solid ${tint(HUB_ACCENTS[hub] || NAVY, 0.2)}`, borderRadius: '999px', padding: '3px 10px', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap',
     }}>
       <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: HUB_ACCENTS[hub] || NAVY }} />
       {label}
@@ -246,7 +220,7 @@ export default function CoDirectorDashboardPage() {
         accentColor={HUB_ACCENTS.co_director}
         sections={sections}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -255,7 +229,7 @@ export default function CoDirectorDashboardPage() {
       >
 
         {/* ══ FINANCE ══════════════════════════════════════════════════ */}
-        <Card id="cd-finance" style={{ marginBottom: '20px' }}>
+        <Card id="cd-finance" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="From Finance Hub" title="Revenue & margin"
             caption="Real subscription MRR/ARR and UBP take-home margin this month, excluding the 24 banned demo/QA accounts -- the same get_finance_revenue_snapshot()/get_finance_margin_summary() calls FinanceDashboardPage uses. See the Finance Hub itself for commissions, payouts, client register and the full picture." />
           <StatStrip
@@ -271,7 +245,7 @@ export default function CoDirectorDashboardPage() {
         </Card>
 
         {/* ══ LEGAL ════════════════════════════════════════════════════ */}
-        <Card id="cd-legal" style={{ marginBottom: '20px' }}>
+        <Card id="cd-legal" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="From Legal Hub" title="Contracts register, by status"
             caption="Real legal_contracts rows, by status -- the same list_legal_contracts() call LegalDashboardPage uses. See the Legal Hub itself for GDPR requests and acknowledgement coverage." />
           <MetricBarChart
@@ -288,7 +262,7 @@ export default function CoDirectorDashboardPage() {
         </Card>
 
         {/* ══ TECH ═════════════════════════════════════════════════════ */}
-        <Card id="cd-tech" style={{ marginBottom: '20px' }}>
+        <Card id="cd-tech" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="From Tech Hub" title="Platform health, by severity"
             caption={`Real Supabase security + performance advisor findings, by severity (captured ${capturedAt ? fmtDateTime(capturedAt) : '—'} -- a snapshot, same get_tech_advisor_snapshot() call TechDashboardPage uses; see that page's own caption for why this is a snapshot, not a live poll). ${fmt(totalFindings)} total findings across both categories.`} />
           <MetricBarChart
@@ -303,7 +277,7 @@ export default function CoDirectorDashboardPage() {
         </Card>
 
         {/* ══ OUTREACH ═════════════════════════════════════════════════ */}
-        <Card id="cd-outreach" style={{ marginBottom: '20px' }}>
+        <Card id="cd-outreach" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="From Outreach Hub" title="Inbound pipeline & coach recruitment"
             caption="Real counts across all 8 enquiry/application tables, and the real coach_profiles breakdown -- the same get_outreach_inbound_pipeline()/get_outreach_coach_recruitment_snapshot() calls OutreachDashboardPage uses." />
           <div className="cd-two-col" style={{ opacity: loading ? 0.6 : 1 }}>
@@ -314,24 +288,24 @@ export default function CoDirectorDashboardPage() {
               ]}
             />
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 16px', borderRadius: '10px',
-              background: coachSnapshot?.real_live_coaches > 0 ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.06)',
-              border: `1px solid ${coachSnapshot?.real_live_coaches > 0 ? GREEN : RED}`,
+              display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '10px', minWidth: 0,
+              background: tint(coachSnapshot?.real_live_coaches > 0 ? GREEN : RED, 0.06),
+              border: `1px solid ${tint(coachSnapshot?.real_live_coaches > 0 ? GREEN : RED, 0.35)}`,
             }}>
-              <UserCheck size={16} color={coachSnapshot?.real_live_coaches > 0 ? GREEN : RED} />
-              <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: NAVY, margin: 0, lineHeight: 1.5 }}>
+              <UserCheck size={18} style={{ flexShrink: 0 }} color={coachSnapshot?.real_live_coaches > 0 ? GREEN : RED} />
+              <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0, lineHeight: 1.55 }}>
                 <strong>{coachSnapshot ? fmt(coachSnapshot.real_live_coaches) : '—'} real, live Elevation coach{coachSnapshot?.real_live_coaches === 1 ? '' : 'es'}</strong> recruited to date
                 {coachSnapshot && coachSnapshot.real_live_coaches === 0 && ' -- genuinely 0, not rounded up (see Outreach Hub for the breakdown).'}
               </p>
             </div>
           </div>
           {totalPipeline === 0 && (
-            <EmptyNote style={{ marginTop: '10px' }}><Inbox size={12} /> Genuinely 0 inbound across all 8 tables today -- an honest pre-launch state, see Outreach Hub for the full breakdown.</EmptyNote>
+            <EmptyNote style={{ marginTop: '12px' }}><Inbox size={12} /> Genuinely 0 inbound across all 8 tables today -- an honest pre-launch state, see Outreach Hub for the full breakdown.</EmptyNote>
           )}
         </Card>
 
         {/* ══ MARKETING ════════════════════════════════════════════════ */}
-        <Card id="cd-marketing" style={{ marginBottom: '20px' }}>
+        <Card id="cd-marketing" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="From Marketing Hub" title="Deal engagement funnel"
             caption="Real, banned-excluded partner_deal_viewed/claimed counts -- the same get_marketing_engagement_funnel() call MarketingDashboardPage uses. Raw totals shown as honest context, never as the headline." />
           <StatStrip
@@ -355,17 +329,17 @@ export default function CoDirectorDashboardPage() {
             caption="A real, live rollup of items explicitly flagged for leadership sign-off: Legal contracts needing a fix, open Finance money requests, Tech ideas escalated to the founder, overdue team tasks (any team), and outreach contacts stalled 14+ days with no response. Checked live before building this -- one leftover QA-script test row in Tech's idea inbox is deliberately excluded (it was Playwright test scratch data from an earlier phase, not a real decision), the same contamination diligence every Studio phase has applied to its own data." />
           {decisions.length === 0 ? (
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 16px', borderRadius: '10px',
-              background: 'rgba(22,163,74,0.08)', border: `1px solid ${GREEN}`,
+              display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '10px',
+              background: tint(GREEN, 0.06), border: `1px solid ${tint(GREEN, 0.35)}`,
             }}>
-              <CheckCircle2 size={16} color={GREEN} />
-              <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0 }}>
+              <CheckCircle2 size={18} style={{ flexShrink: 0 }} color={GREEN} />
+              <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0, lineHeight: 1.55 }}>
                 <strong>Nothing pending.</strong> Every category above is genuinely caught up right now -- a real, honest "all clear", not an empty state hiding missing data.
               </p>
             </div>
           ) : (
-            <div className="cd-table-wrap">
-              <table className="cd-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table studio-table--top">
                 <thead><tr><th>Hub</th><th>Item</th><th>Detail</th><th>Flagged</th></tr></thead>
                 <tbody>
                   {decisions.map((d, i) => {
@@ -373,8 +347,8 @@ export default function CoDirectorDashboardPage() {
                     return (
                       <tr key={`${d.category}-${i}`}>
                         <td><HubBadge hub={meta.hub} label={meta.label} /></td>
-                        <td style={{ fontWeight: 600, maxWidth: '220px', whiteSpace: 'normal' }}>{d.label}</td>
-                        <td style={{ maxWidth: '320px', whiteSpace: 'normal', color: GREY }}>{d.detail || '—'}</td>
+                        <td style={{ fontWeight: 600, minWidth: '200px', maxWidth: '220px', whiteSpace: 'normal' }}>{d.label}</td>
+                        <td style={{ minWidth: '200px', maxWidth: '320px', whiteSpace: 'normal', color: GREY }}>{d.detail || '—'}</td>
                         <td style={{ whiteSpace: 'nowrap' }}>{fmtDateTime(d.flagged_at)}</td>
                       </tr>
                     )
@@ -389,7 +363,7 @@ export default function CoDirectorDashboardPage() {
             Studio Phase 9 addition: the generic team_tasks board,
             team='co_director' -- Daniel's own cross-hub action items,
             parity with the Founder Dashboard's "Founder Priorities". */}
-        <Card id="cd-priorities" style={{ marginTop: '20px' }}>
+        <Card id="cd-priorities" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Co-Director Priorities"
             caption="Real, generic team_tasks rows for the Co-Director team (the same reusable TaskBoard component Legal/Tech/Outreach/Marketing/Handler/Founder use) -- Daniel's own cross-hub action items that don't belong to any one team. Seeded empty -- nothing below is a placeholder." />
           <StatStrip

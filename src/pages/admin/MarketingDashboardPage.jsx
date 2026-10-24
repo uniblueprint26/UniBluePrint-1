@@ -5,7 +5,7 @@ import {
   Inbox, HeartHandshake, ToggleLeft, ToggleRight, Save,
 } from 'lucide-react'
 import {
-  StudioShell, StatStrip, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
 } from '../../components/studio'
 import {
@@ -76,43 +76,15 @@ const CONTENT_TYPE_LABELS = {
 }
 
 const PAGE_STYLES = `
-  .mh-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
-  .mh-table-wrap { overflow-x: auto; }
-  .mh-table { width: 100%; border-collapse: collapse; }
-  .mh-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
-  .mh-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); white-space: nowrap; }
-  .mh-table tr:last-child td { border-bottom: none; }
-  .mh-edit-input { font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 5px 7px; border-radius: 6px; border: 1px solid rgba(30,58,95,0.15); width: 100%; box-sizing: border-box; }
-  @media (max-width: 1100px) { .mh-two-col { grid-template-columns: 1fr; } }
+  .mh-two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  .mh-edit-input { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; height: 32px; padding: 0 9px; border-radius: 7px; border: 1px solid rgba(30,58,95,0.16); background: #FFFFFF; width: 100%; box-sizing: border-box; }
+  .mh-edit-input:focus { outline: none; border-color: var(--studio-accent); box-shadow: 0 0 0 3px var(--studio-accent-tint); }
+  @media (max-width: 1100px) { .mh-two-col { grid-template-columns: minmax(0, 1fr); } }
 `
 
 function fmt(n) { return n === null || n === undefined ? '—' : n.toLocaleString('en-IE') }
 function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' }) : '—' }
 
-function SectionTitle({ eyebrow, title, caption, action }) {
-  return (
-    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-      <div>
-        <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-          {eyebrow}
-        </p>
-        <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-        {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-      </div>
-      {action}
-    </div>
-  )
-}
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
-function EmptyNote({ children }) {
-  return <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, display: 'flex', alignItems: 'center', gap: '6px' }}>{children}</p>
-}
 
 export default function MarketingDashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -304,7 +276,7 @@ export default function MarketingDashboardPage() {
         heroCharts={heroCharts}
         sections={sections}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -313,8 +285,8 @@ export default function MarketingDashboardPage() {
       >
 
         {/* ══ HEALTH OVERVIEW ══════════════════════════════════════════ */}
-        <div id="mh-health" style={{ scrollMarginTop: '60px' }}>
-          <Card style={{ marginBottom: '20px' }}>
+        <div id="mh-health" >
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Snapshot" title="Engagement at a glance"
               caption="Real counts, excluding banned demo/QA accounts. The raw totals are shown as context, never as the headline." />
             <StatStrip
@@ -328,14 +300,14 @@ export default function MarketingDashboardPage() {
             />
           </Card>
 
-          <Card style={{ marginBottom: '20px' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Drill-down" title="Per-partner engagement (real)"
               caption="activity_events.detail holds the partner id (confirmed live). Excludes banned demo/QA accounts AND the synthetic 'Example/Placeholder/Sample' partner rows Legal/Outreach Hub also exclude -- every contaminated row in this table belonged to one of those synthetic partners." />
             {byPartner.length === 0 ? (
               <EmptyNote><Inbox size={12} /> No real per-partner engagement yet.</EmptyNote>
             ) : (
-              <div className="mh-table-wrap">
-                <table className="mh-table">
+              <div className="studio-table-wrap">
+                <table className="studio-table">
                   <thead><tr><th>Partner</th><th>Real views</th><th>Real claims</th></tr></thead>
                   <tbody>
                     {byPartner.map(p => (
@@ -353,7 +325,7 @@ export default function MarketingDashboardPage() {
         </div>
 
         {/* ══ FEATURED CONTENT ═════════════════════════════════════════ */}
-        <Card id="mh-featured" style={{ marginTop: '20px' }}>
+        <Card id="mh-featured" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Manage" title="Featured Content"
             caption="Real featured_content rows -- what's actually in rotation on the home-screen Spotlight carousel today. Toggle a pin out of rotation or back in, or edit its caption/CTA/display order (lower priority shows first). Writes through to the live carousel immediately. Adding a brand-new pin isn't exposed here -- see the migration's own note on why." />
           {/* TODO(phase-2-access-system): anyone on marketing/founder/admin
@@ -364,8 +336,8 @@ export default function MarketingDashboardPage() {
           {featured.length === 0 ? (
             <EmptyNote><Inbox size={12} /> Loading…</EmptyNote>
           ) : (
-            <div className="mh-table-wrap">
-              <table className="mh-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead><tr><th>Type</th><th>Ref</th><th>Caption</th><th>CTA label</th><th>Priority</th><th>Status</th><th></th></tr></thead>
                 <tbody>
                   {featured.map(f => {
@@ -374,7 +346,7 @@ export default function MarketingDashboardPage() {
                       <tr key={f.id}>
                         <td style={{ fontWeight: 600 }}>{CONTENT_TYPE_LABELS[f.content_type] || f.content_type}</td>
                         <td style={{ color: GREY }}>{f.ref_id}</td>
-                        <td style={{ minWidth: '160px' }}>
+                        <td style={{ minWidth: '220px', width: '32%' }}>
                           <input className="mh-edit-input" type="text" value={draft.caption}
                             onChange={e => updateDraft(f.id, 'caption', e.target.value)} placeholder="Editorial caption…" />
                         </td>
@@ -382,7 +354,7 @@ export default function MarketingDashboardPage() {
                           <input className="mh-edit-input" type="text" value={draft.ctaLabel}
                             onChange={e => updateDraft(f.id, 'ctaLabel', e.target.value)} placeholder="CTA override…" />
                         </td>
-                        <td style={{ minWidth: '70px' }}>
+                        <td style={{ minWidth: '70px', width: '90px' }}>
                           <input className="mh-edit-input" type="number" value={draft.priority}
                             onChange={e => updateDraft(f.id, 'priority', e.target.value)} />
                         </td>
@@ -407,11 +379,11 @@ export default function MarketingDashboardPage() {
                             title="Save caption/CTA/priority"
                             style={{
                               display: 'inline-flex', alignItems: 'center', gap: '5px', background: HUB_ACCENTS.marketing, color: '#fff',
-                              border: 'none', borderRadius: '6px', padding: '5px 9px', fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 700,
+                              border: 'none', borderRadius: '7px', height: '32px', padding: '0 12px', fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 700,
                               cursor: savingFeaturedId === f.id ? 'not-allowed' : 'pointer', opacity: savingFeaturedId === f.id ? 0.6 : 1,
                             }}
                           >
-                            <Save size={11} /> Save
+                            <Save size={12} /> Save
                           </button>
                         </td>
                       </tr>
@@ -424,14 +396,14 @@ export default function MarketingDashboardPage() {
         </Card>
 
         {/* ══ EARLY ACCESS LEADS ═══════════════════════════════════════ */}
-        <Card id="mh-leads" style={{ marginTop: '20px' }}>
+        <Card id="mh-leads" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Real" title="Early Access Leads"
             caption="Every real early_access_signups row -- a genuine, if small, top-of-funnel lead list. 4 real rows today, nothing padded." />
           {signups.length === 0 ? (
             <EmptyNote><Mail size={12} /> No early access signups yet.</EmptyNote>
           ) : (
-            <div className="mh-table-wrap">
-              <table className="mh-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead><tr><th>Email</th><th>Source</th><th>Marketing consent</th><th>Signed up</th></tr></thead>
                 <tbody>
                   {signups.map(s => (
@@ -449,7 +421,7 @@ export default function MarketingDashboardPage() {
         </Card>
 
         {/* ══ COMPARISON ═══════════════════════════════════════════════ */}
-        <div id="mh-comparison" style={{ marginTop: '20px', scrollMarginTop: '60px' }}>
+        <div id="mh-comparison" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Progress" title="What You've Got vs What You're Missing"
             caption="Real, banned-excluded partner_deal_claimed count this window vs the window before it. Like Legal/Tech/Outreach's own comparisons, this is a single hub-wide total, not a cohort of comparable people -- there is no real 'top performer' or 'category floor' to rank against, so top/lowest are left honestly blank; only the self-vs-last-period row below is real." />
           <ComparisonWidget
@@ -470,7 +442,7 @@ export default function MarketingDashboardPage() {
         </div>
 
         {/* ══ CONTENT & CAMPAIGN TASK BOARD ════════════════════════════ */}
-        <Card id="mh-tasks" style={{ marginTop: '20px' }}>
+        <Card id="mh-tasks" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Content & Campaign Task Board"
             caption="Real, generic team_tasks rows for the Marketing team (the same reusable TaskBoard component Legal/Tech/Outreach use) -- content batches, campaign targets, and delegated work Alex/Elizabeth/Ethan/Fabz assign to each other. This is also the real tool for blog/content-calendar planning, since blog posts are static JS files, not a database table. Seeded empty on purpose -- nothing below is a placeholder." />
           <StatStrip

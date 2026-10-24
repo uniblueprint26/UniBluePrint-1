@@ -5,8 +5,9 @@ import {
   PhoneCall, HeartHandshake, Handshake, Megaphone,
 } from 'lucide-react'
 import {
-  StudioShell, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
 } from '../../components/studio'
 import {
   getOutreachInboundPipeline, getOutreachCoachRecruitmentSnapshot, getOutreachPartnerSnapshot,
@@ -63,13 +64,8 @@ const CONTACT_STATUS_LABELS = { contacted: 'Contacted', responded: 'Responded', 
 const CONTACT_STATUS_DOT = { contacted: 'grey', responded: 'yellow', declined: 'red', signed: 'green' }
 
 const PAGE_STYLES = `
-  .oh-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
-  .oh-table-wrap { overflow-x: auto; }
-  .oh-table { width: 100%; border-collapse: collapse; }
-  .oh-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
-  .oh-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); white-space: nowrap; }
-  .oh-table tr:last-child td { border-bottom: none; }
-  @media (max-width: 1100px) { .oh-two-col { grid-template-columns: 1fr; } }
+  .oh-two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  @media (max-width: 1100px) { .oh-two-col { grid-template-columns: minmax(0, 1fr); } }
 `
 
 function fmt(n) { return n === null || n === undefined ? '—' : n.toLocaleString('en-IE') }
@@ -80,30 +76,6 @@ function todayLocalISO() {
   return d.toISOString().slice(0, 10)
 }
 
-function SectionTitle({ eyebrow, title, caption, action }) {
-  return (
-    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-      <div>
-        <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-          {eyebrow}
-        </p>
-        <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-        {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-      </div>
-      {action}
-    </div>
-  )
-}
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
-function EmptyNote({ children }) {
-  return <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, display: 'flex', alignItems: 'center', gap: '6px' }}>{children}</p>
-}
 
 export default function OutreachDashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -296,7 +268,7 @@ export default function OutreachDashboardPage() {
         heroCharts={heroCharts}
         sections={sections}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -305,8 +277,8 @@ export default function OutreachDashboardPage() {
       >
 
         {/* ══ HEALTH OVERVIEW ══════════════════════════════════════════ */}
-        <div id="oh-health" style={{ scrollMarginTop: '60px' }}>
-          <Card style={{ marginBottom: '20px' }}>
+        <div id="oh-health" >
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Snapshot" title="Partners & top-of-funnel at a glance"
               caption="Real counts, excluding the 7 synthetic 'Example/Placeholder/Sample' partner rows Legal Hub also found and excluded." />
             <StatStrip
@@ -320,15 +292,15 @@ export default function OutreachDashboardPage() {
             />
           </Card>
 
-          <div className="oh-two-col" style={{ marginBottom: '20px' }}>
+          <div className="oh-two-col" style={{ marginBottom: 'var(--studio-gap)' }}>
             <Card>
               <SectionTitle eyebrow="Drill-down" title="Inbound pipeline, full breakdown"
                 caption="Every real enquiry/application table, by exact type." />
               {pipeline.length === 0 ? (
                 <EmptyNote><Inbox size={12} /> No pipeline data yet.</EmptyNote>
               ) : (
-                <div className="oh-table-wrap">
-                  <table className="oh-table">
+                <div className="studio-table-wrap">
+                  <table className="studio-table">
                     <thead><tr><th>Type</th><th>Count</th></tr></thead>
                     <tbody>
                       {pipeline.map(p => (
@@ -341,7 +313,7 @@ export default function OutreachDashboardPage() {
                   </table>
                 </div>
               )}
-              <p style={{ fontFamily: FONT_SANS, fontSize: '11px', color: MUTED, marginTop: '10px' }}>
+              <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, lineHeight: 1.5, margin: '12px 0 0' }}>
                 Referrals (attribution-only, no reward attached): {fmt(partnerSnapshot?.referrals_count)} -- genuinely 0 today.
               </p>
             </Card>
@@ -352,17 +324,17 @@ export default function OutreachDashboardPage() {
               {coachSnapshot ? (
                 <>
                   <div style={{
-                    display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px',
-                    background: coachSnapshot.real_live_coaches > 0 ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.06)',
-                    border: `1px solid ${coachSnapshot.real_live_coaches > 0 ? GREEN : RED}`, marginBottom: '12px',
+                    display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '10px',
+                    background: tint(coachSnapshot.real_live_coaches > 0 ? GREEN : RED, 0.06),
+                    border: `1px solid ${tint(coachSnapshot.real_live_coaches > 0 ? GREEN : RED, 0.35)}`, marginBottom: '12px',
                   }}>
                     <StatusDot status={coachSnapshot.real_live_coaches > 0 ? 'green' : 'red'} size={10} />
-                    <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: NAVY, margin: 0, lineHeight: 1.5 }}>
+                    <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0, lineHeight: 1.55 }}>
                       <strong>{fmt(coachSnapshot.real_live_coaches)} real, live Elevation coach{coachSnapshot.real_live_coaches === 1 ? '' : 'es'}</strong> today
                       {coachSnapshot.real_live_coaches === 0 && ' -- real coach recruitment has not landed a single live coach yet. This is the real state, not a vanity metric to hide.'}
                     </p>
                   </div>
-                  <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY, lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, lineHeight: 1.6, margin: 0 }}>
                     Of {fmt(coachSnapshot.total_coach_profiles)} total coach_profiles rows: {fmt(coachSnapshot.seed_listings)} are seed listings with no real signed-up person behind them at all, and {fmt(coachSnapshot.banned_demo_accounts)} belong to banned demo/QA accounts.
                   </p>
                 </>
@@ -372,7 +344,7 @@ export default function OutreachDashboardPage() {
         </div>
 
         {/* ══ OUTREACH LOG ═════════════════════════════════════════════ */}
-        <Card id="oh-log" style={{ marginTop: '20px' }}>
+        <Card id="oh-log" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Outreach Log"
             caption="Real log of who's been contacted, when, and the outcome -- nothing structured existed for this before. Seeded empty on purpose (a real round of outreach emails is known to have happened this session via Gmail, but could not be safely/unambiguously counted from here -- see the migration's own note). Every row below is a real one, logged by Sienna/Ethan/Fabz/James as outreach actually happens." />
           {/* TODO(phase-2-access-system): anyone on outreach/founder/admin
@@ -380,45 +352,39 @@ export default function OutreachDashboardPage() {
               team-member split (the brief names no lead among Sienna/
               Ethan/Fabz/James), so this is an honest team-wide gate, not
               a locked-down one pretending to be finer-grained. */}
-          <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.3fr 1fr 1fr 1.6fr auto', gap: '8px', alignItems: 'flex-end', marginBottom: '16px' }}>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Type</span>
-              <select value={contactForm.entityType} onChange={e => setContactForm(f => ({ ...f, entityType: e.target.value }))}
-                style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }}>
-                {Object.keys(ENTITY_TYPE_LABELS).map(k => <option key={k} value={k}>{ENTITY_TYPE_LABELS[k]}</option>)}
-              </select>
-            </label>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Name</span>
-              <input type="text" value={contactForm.entityName} onChange={e => setContactForm(f => ({ ...f, entityName: e.target.value }))}
-                placeholder="Who was contacted..." style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }} />
-            </label>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Channel</span>
-              <input type="text" value={contactForm.contactChannel} onChange={e => setContactForm(f => ({ ...f, contactChannel: e.target.value }))}
-                placeholder="Email, phone..." style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }} />
-            </label>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Contacted</span>
-              <input type="date" value={contactForm.contactedAt} onChange={e => setContactForm(f => ({ ...f, contactedAt: e.target.value }))}
-                style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }} />
-            </label>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Notes</span>
-              <input type="text" value={contactForm.notes} onChange={e => setContactForm(f => ({ ...f, notes: e.target.value }))}
-                placeholder="Optional detail..." style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }} />
-            </label>
-            <button
-              type="button" disabled={submittingContact || !contactForm.entityName.trim()} onClick={submitContact}
-              style={{
-                fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, padding: '9px 14px', borderRadius: '8px', border: 'none',
-                background: contactForm.entityName.trim() ? HUB_ACCENTS.outreach : MUTED, color: '#fff',
-                cursor: contactForm.entityName.trim() ? 'pointer' : 'not-allowed', height: '36px', whiteSpace: 'nowrap',
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-              }}
-            >
-              <PhoneCall size={13} /> Log contact
-            </button>
+          <div className="studio-form-panel">
+            <div className="studio-form-row" style={{ gridTemplateColumns: '0.9fr 1.3fr 1fr 1fr 1.6fr auto' }}>
+              <StudioField label="Type">
+                <select value={contactForm.entityType} onChange={e => setContactForm(f => ({ ...f, entityType: e.target.value }))} style={STUDIO_INPUT}>
+                  {Object.keys(ENTITY_TYPE_LABELS).map(k => <option key={k} value={k}>{ENTITY_TYPE_LABELS[k]}</option>)}
+                </select>
+              </StudioField>
+              <StudioField label="Name">
+                <input type="text" value={contactForm.entityName} onChange={e => setContactForm(f => ({ ...f, entityName: e.target.value }))}
+                  placeholder="Who was contacted..." style={STUDIO_INPUT} />
+              </StudioField>
+              <StudioField label="Channel">
+                <input type="text" value={contactForm.contactChannel} onChange={e => setContactForm(f => ({ ...f, contactChannel: e.target.value }))}
+                  placeholder="Email, phone..." style={STUDIO_INPUT} />
+              </StudioField>
+              <StudioField label="Contacted">
+                <input type="date" value={contactForm.contactedAt} onChange={e => setContactForm(f => ({ ...f, contactedAt: e.target.value }))}
+                  style={STUDIO_INPUT} />
+              </StudioField>
+              <div className="studio-form-wide">
+                <StudioField label="Notes">
+                  <input type="text" value={contactForm.notes} onChange={e => setContactForm(f => ({ ...f, notes: e.target.value }))}
+                    placeholder="Optional detail..." style={STUDIO_INPUT} />
+                </StudioField>
+              </div>
+              <button
+                type="button" disabled={submittingContact || !contactForm.entityName.trim()} onClick={submitContact}
+                className="studio-form-wide"
+                style={studioButton(HUB_ACCENTS.outreach, !!contactForm.entityName.trim())}
+              >
+                <PhoneCall size={14} /> Log contact
+              </button>
+            </div>
           </div>
 
           <StatStrip
@@ -435,8 +401,8 @@ export default function OutreachDashboardPage() {
           {contacts.length === 0 ? (
             <EmptyNote><Inbox size={12} /> No outreach logged yet -- use the form above to log the first real contact attempt.</EmptyNote>
           ) : (
-            <div className="oh-table-wrap">
-              <table className="oh-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead><tr><th>Name</th><th>Type</th><th>Channel</th><th>Status</th><th>Notes</th><th>Contacted</th><th>Logged by</th></tr></thead>
                 <tbody>
                   {contacts.map(c => (
@@ -449,13 +415,13 @@ export default function OutreachDashboardPage() {
                           value={c.status}
                           disabled={savingContactId === c.id}
                           onChange={e => changeContactStatus(c.id, e.target.value)}
-                          style={{ fontFamily: FONT_SANS, fontSize: '11.5px', padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(30,58,95,0.15)' }}
+                          style={STUDIO_SELECT_SM}
                         >
                           {Object.keys(CONTACT_STATUS_LABELS).map(s => <option key={s} value={s}>{CONTACT_STATUS_LABELS[s]}</option>)}
                         </select>
-                        <span style={{ marginLeft: '6px' }}><StatusDot status={CONTACT_STATUS_DOT[c.status]} /></span>
+                        <span style={{ marginLeft: '10px', display: 'inline-flex', verticalAlign: 'middle' }}><StatusDot status={CONTACT_STATUS_DOT[c.status]} /></span>
                       </td>
-                      <td style={{ maxWidth: '240px', whiteSpace: 'normal', color: c.notes ? GREY : MUTED }}>{c.notes || '—'}</td>
+                      <td style={{ minWidth: '200px', maxWidth: '240px', whiteSpace: 'normal', color: c.notes ? GREY : MUTED }}>{c.notes || '—'}</td>
                       <td>{fmtDate(c.contacted_at)}</td>
                       <td>{c.logged_by_label}</td>
                     </tr>
@@ -467,7 +433,7 @@ export default function OutreachDashboardPage() {
         </Card>
 
         {/* ══ COMPARISON ═══════════════════════════════════════════════ */}
-        <div id="oh-comparison" style={{ marginTop: '20px', scrollMarginTop: '60px' }}>
+        <div id="oh-comparison" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Progress" title="What You've Got vs What You're Missing"
             caption="Real outreach contacts whose status moved to Signed this window vs the window before it, from outreach_contact_status_log -- an append-only history, not a guess. Like Legal's contracts-resolved and Tech's ideas-triaged comparisons, this is a single hub-wide total, not a cohort of comparable people -- there is no real 'top performer' or 'category floor' to rank against, so top/lowest are left honestly blank; only the self-vs-last-period row below is real." />
           <ComparisonWidget
@@ -488,7 +454,7 @@ export default function OutreachDashboardPage() {
         </div>
 
         {/* ══ CAMPAIGN TASK BOARD ══════════════════════════════════════ */}
-        <Card id="oh-tasks" style={{ marginTop: '20px' }}>
+        <Card id="oh-tasks" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Campaign Task Board"
             caption="Real, generic team_tasks rows for the Outreach team (the same reusable TaskBoard component Legal/Tech use) -- outreach campaigns, targets, batches, and delegated work Sienna/Ethan/Fabz/James assign to each other. Seeded empty on purpose -- nothing below is a placeholder." />
           <StatStrip

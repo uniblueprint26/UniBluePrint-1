@@ -5,8 +5,9 @@ import {
   Bug, FlaskConical, Filter, Cpu, AlertCircle, Megaphone, Clock,
 } from 'lucide-react'
 import {
-  StudioShell, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton,
 } from '../../components/studio'
 import {
   getTechAdvisorSnapshot, getTechEdgeFunctionSnapshot, getTechFunctionHealthRates,
@@ -74,13 +75,8 @@ const IDEA_STATUS_DOT = {
 const LINT_BASELINE = { errors: 0, warnings: 14, capturedAt: '2026-10-22', command: 'npm run lint' }
 
 const PAGE_STYLES = `
-  .tc-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
-  .tc-table-wrap { overflow-x: auto; }
-  .tc-table { width: 100%; border-collapse: collapse; }
-  .tc-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
-  .tc-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); white-space: nowrap; }
-  .tc-table tr:last-child td { border-bottom: none; }
-  @media (max-width: 1100px) { .tc-two-col { grid-template-columns: 1fr; } }
+  .tc-two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  @media (max-width: 1100px) { .tc-two-col { grid-template-columns: minmax(0, 1fr); } }
 `
 
 function fmt(n) { return n === null || n === undefined ? '—' : n.toLocaleString('en-IE') }
@@ -92,30 +88,6 @@ function fmtDateTime(d) {
   return d ? new Date(d).toLocaleString('en-IE', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
 }
 
-function SectionTitle({ eyebrow, title, caption, action }) {
-  return (
-    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-      <div>
-        <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-          {eyebrow}
-        </p>
-        <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-        {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-      </div>
-      {action}
-    </div>
-  )
-}
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
-function EmptyNote({ children }) {
-  return <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, display: 'flex', alignItems: 'center', gap: '6px' }}>{children}</p>
-}
 
 export default function TechDashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -303,7 +275,7 @@ export default function TechDashboardPage() {
         heroCharts={heroCharts}
         sections={sections}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -312,8 +284,8 @@ export default function TechDashboardPage() {
       >
 
         {/* ══ HEALTH OVERVIEW ══════════════════════════════════════════ */}
-        <div id="tech-health" style={{ scrollMarginTop: '60px' }}>
-          <Card style={{ marginBottom: '20px' }}>
+        <div id="tech-health" >
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Snapshot" title="Health at a glance"
               caption={`Captured ${capturedAt ? fmtDateTime(capturedAt) : '—'} via Supabase's security + performance advisors and its deployed Edge Function list -- both are Management-API-only checks this web app cannot poll live with its anon/authenticated keys, so this is a real, timestamped snapshot rather than a live-refreshing page. Refreshing it today means re-running the advisor check and inserting a new batch (manual) -- an automated refresh is real future work, not built here.`} />
             <StatStrip
@@ -327,15 +299,15 @@ export default function TechDashboardPage() {
             />
           </Card>
 
-          <div className="tc-two-col" style={{ marginBottom: '20px' }}>
+          <div className="tc-two-col" style={{ marginBottom: 'var(--studio-gap)' }}>
             <Card>
               <SectionTitle eyebrow="Drill-down" title="Advisor findings by check"
                 caption="Every real lint type Supabase's advisors currently report, with its severity and count -- not just the two hero totals above." />
               {advisorFindings.length === 0 ? (
                 <EmptyNote><ShieldAlert size={12} /> No advisor snapshot captured yet.</EmptyNote>
               ) : (
-                <div className="tc-table-wrap">
-                  <table className="tc-table">
+                <div className="studio-table-wrap">
+                  <table className="studio-table">
                     <thead><tr><th>Category</th><th>Check</th><th>Level</th><th>Count</th></tr></thead>
                     <tbody>
                       {advisorFindings.map(f => (
@@ -362,8 +334,8 @@ export default function TechDashboardPage() {
               {edgeFunctions.length === 0 ? (
                 <EmptyNote><Server size={12} /> No function snapshot captured yet.</EmptyNote>
               ) : (
-                <div className="tc-table-wrap" style={{ maxHeight: '340px', overflowY: 'auto' }}>
-                  <table className="tc-table">
+                <div className="studio-table-wrap" style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                  <table className="studio-table">
                     <thead><tr><th>Function</th><th>Status</th><th>Version</th><th>JWT</th></tr></thead>
                     <tbody>
                       {edgeFunctions.map(f => (
@@ -378,15 +350,15 @@ export default function TechDashboardPage() {
                   </table>
                 </div>
               )}
-              <p style={{ fontFamily: FONT_SANS, fontSize: '11px', color: MUTED, marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Cpu size={11} /> Per-function invocation/error rate: {functionHealth && !functionHealth.trackable ? `TBD -- ${functionHealth.reason}` : 'loading…'}
+              <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, lineHeight: 1.5, margin: '12px 0 0', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                <Cpu size={12} style={{ flexShrink: 0, marginTop: '2px' }} /> Per-function invocation/error rate: {functionHealth && !functionHealth.trackable ? `TBD -- ${functionHealth.reason}` : 'loading…'}
               </p>
             </Card>
           </div>
         </div>
 
         {/* ══ IDEA INBOX ═══════════════════════════════════════════════ */}
-        <Card id="tech-ideas" style={{ marginTop: '20px' }}>
+        <Card id="tech-ideas" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Idea Inbox"
             caption="Anyone on the Tech team can submit an idea below. Eman/Tayyab triage it (mark under review, action, decline, or flag Brought to founder to escalate to Desmond)." />
           {/* TODO(phase-2-access-system): triage (status changes below) is
@@ -396,42 +368,38 @@ export default function TechDashboardPage() {
               Once real per-person staff roles exist, this status dropdown
               should become read-only for anyone who isn't a lead -- see
               set_tech_idea_status()'s own TODO in the migration. */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 2fr auto', gap: '8px', alignItems: 'flex-end', marginBottom: '16px' }}>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Title</span>
-              <input type="text" value={ideaForm.title} onChange={e => setIdeaForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="What's the idea..." style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }} />
-            </label>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '4px' }}>Description</span>
-              <input type="text" value={ideaForm.description} onChange={e => setIdeaForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="Optional detail..." style={{ fontFamily: FONT_SANS, fontSize: '12.5px', padding: '7px 9px', borderRadius: '7px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box', height: '36px' }} />
-            </label>
-            <button
-              type="button" disabled={submittingIdea || !ideaForm.title.trim()} onClick={submitIdea}
-              style={{
-                fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, padding: '9px 14px', borderRadius: '8px', border: 'none',
-                background: ideaForm.title.trim() ? HUB_ACCENTS.tech : MUTED, color: '#fff',
-                cursor: ideaForm.title.trim() ? 'pointer' : 'not-allowed', height: '36px', whiteSpace: 'nowrap',
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-              }}
-            >
-              <Lightbulb size={13} /> Submit idea
-            </button>
+          <div className="studio-form-panel">
+            <div className="studio-form-row" style={{ gridTemplateColumns: '1.4fr 2fr auto' }}>
+              <StudioField label="Title">
+                <input type="text" value={ideaForm.title} onChange={e => setIdeaForm(f => ({ ...f, title: e.target.value }))}
+                  placeholder="What's the idea..." style={STUDIO_INPUT} />
+              </StudioField>
+              <StudioField label="Description">
+                <input type="text" value={ideaForm.description} onChange={e => setIdeaForm(f => ({ ...f, description: e.target.value }))}
+                  placeholder="Optional detail..." style={STUDIO_INPUT} />
+              </StudioField>
+              <button
+                type="button" disabled={submittingIdea || !ideaForm.title.trim()} onClick={submitIdea}
+                className="studio-form-wide"
+                style={studioButton(HUB_ACCENTS.tech, !!ideaForm.title.trim())}
+              >
+                <Lightbulb size={14} /> Submit idea
+              </button>
+            </div>
           </div>
 
           {ideas.length === 0 ? (
             <EmptyNote><Inbox size={12} /> No ideas submitted yet -- add the first real one above.</EmptyNote>
           ) : (
-            <div className="tc-table-wrap">
-              <table className="tc-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead><tr><th>Idea</th><th>Submitted by</th><th>Status</th><th>Notes</th><th>Submitted</th></tr></thead>
                 <tbody>
                   {ideas.map(idea => (
                     <tr key={idea.id}>
-                      <td style={{ maxWidth: '260px', whiteSpace: 'normal' }}>
+                      <td style={{ minWidth: '200px', maxWidth: '260px', whiteSpace: 'normal' }}>
                         <span style={{ fontWeight: 600 }}>{idea.title}</span>
-                        {idea.description && <div style={{ color: GREY, fontSize: '11.5px', marginTop: '2px' }}>{idea.description}</div>}
+                        {idea.description && <div style={{ color: GREY, fontSize: '12.5px', marginTop: '3px', lineHeight: 1.5 }}>{idea.description}</div>}
                       </td>
                       <td>{idea.submitted_by_label}</td>
                       <td>
@@ -439,18 +407,18 @@ export default function TechDashboardPage() {
                           value={idea.status}
                           disabled={savingIdeaId === idea.id}
                           onChange={e => changeIdeaStatus(idea.id, e.target.value)}
-                          style={{ fontFamily: FONT_SANS, fontSize: '11.5px', padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(30,58,95,0.15)' }}
+                          style={STUDIO_SELECT_SM}
                         >
                           {Object.keys(IDEA_STATUS_LABELS).map(s => <option key={s} value={s}>{IDEA_STATUS_LABELS[s]}</option>)}
                         </select>
-                        <span style={{ marginLeft: '6px' }}><StatusDot status={IDEA_STATUS_DOT[idea.status]} /></span>
+                        <span style={{ marginLeft: '10px', display: 'inline-flex', verticalAlign: 'middle' }}><StatusDot status={IDEA_STATUS_DOT[idea.status]} /></span>
                         {idea.status === 'brought_to_founder' && (
                           <span style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: 700, color: AMBER }}>
                             <Megaphone size={11} /> Desmond
                           </span>
                         )}
                       </td>
-                      <td style={{ maxWidth: '240px', whiteSpace: 'normal', color: idea.reviewer_notes ? GREY : MUTED }}>{idea.reviewer_notes || '—'}</td>
+                      <td style={{ minWidth: '200px', maxWidth: '240px', whiteSpace: 'normal', color: idea.reviewer_notes ? GREY : MUTED }}>{idea.reviewer_notes || '—'}</td>
                       <td>{fmtDateTime(idea.created_at)}</td>
                     </tr>
                   ))}
@@ -461,7 +429,7 @@ export default function TechDashboardPage() {
         </Card>
 
         {/* ══ COMPARISON ═══════════════════════════════════════════════ */}
-        <div id="tech-comparison" style={{ marginTop: '20px', scrollMarginTop: '60px' }}>
+        <div id="tech-comparison" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Progress" title="What You've Got vs What You're Missing"
             caption="Real ideas triaged (moved out of New) this window vs the window before it, from tech_idea_status_log -- an append-only history, not a guess. Like Legal's contracts-resolved comparison, this is a single hub-wide total, not a cohort of comparable people -- there is no real 'top performer' or 'category floor' to rank an idea-inbox total against, so top/lowest are left honestly blank rather than fabricated; only the self-vs-last-period row below is real." />
           <ComparisonWidget
@@ -482,7 +450,7 @@ export default function TechDashboardPage() {
         </div>
 
         {/* ══ QA / TEST BOARD ══════════════════════════════════════════ */}
-        <Card id="tech-qa" style={{ marginTop: '20px' }}>
+        <Card id="tech-qa" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="For Enoch" title="QA / Test Board"
             caption={'Real, generic team_tasks rows for the Tech team (the same reusable TaskBoard component Legal Hub uses). Use the batch label "QA" for Enoch\'s test-tracking work so it can be filtered to just his tasks below -- a convention, not a database constraint, so the board still works for any other tech task/target too.'}
             action={(
@@ -490,7 +458,7 @@ export default function TechDashboardPage() {
                 type="button"
                 onClick={() => setQaOnly(v => !v)}
                 style={{
-                  fontFamily: FONT_SANS, fontSize: '11.5px', fontWeight: 700, padding: '7px 12px', borderRadius: '999px',
+                  fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 700, padding: '0 14px', height: '32px', borderRadius: '999px',
                   border: `1px solid ${qaOnly ? HUB_ACCENTS.tech : 'rgba(30,58,95,0.15)'}`,
                   background: qaOnly ? HUB_ACCENTS.tech : '#fff', color: qaOnly ? '#fff' : GREY,
                   cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap',
@@ -501,7 +469,7 @@ export default function TechDashboardPage() {
             )}
           />
           {qaOnly && visibleTasks.length === 0 && tasks.length > 0 && (
-            <EmptyNote><FlaskConical size={12} /> No tasks labelled "QA" yet -- use the Batch field below when adding one for Enoch's testing work.</EmptyNote>
+            <EmptyNote style={{ marginBottom: '12px' }}><FlaskConical size={12} /> No tasks labelled "QA" yet -- use the Batch field below when adding one for Enoch's testing work.</EmptyNote>
           )}
           <TaskBoard
             tasks={visibleTasks}

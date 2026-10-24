@@ -18,8 +18,9 @@ import {
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StatStrip, MetricBarChart, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  EmptyNote, tint,
 } from '../../components/studio'
 
 // Founder Dashboard (Studio Phase 8) -- the LAST hub in the Studio rebuild,
@@ -95,16 +96,10 @@ const DECISION_CATEGORY_META = {
 }
 
 const PAGE_STYLES = `
-  .fh-topline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .fh-two-col { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; align-items: stretch; }
-  .fh-hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .fh-table-wrap { overflow-x: auto; }
-  .fh-table { width: 100%; border-collapse: collapse; }
-  .fh-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
-  .fh-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); vertical-align: top; }
-  .fh-table tr:last-child td { border-bottom: none; }
-  @media (max-width: 1100px) { .fh-topline-grid { grid-template-columns: repeat(2, 1fr); } .fh-two-col { grid-template-columns: 1fr; } .fh-hub-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .fh-topline-grid { grid-template-columns: 1fr; } .fh-hub-grid { grid-template-columns: 1fr; } }
+  .fh-two-col { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 16px; align-items: stretch; }
+  .fh-hub-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 1100px) { .fh-two-col { grid-template-columns: minmax(0, 1fr); } .fh-hub-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .fh-hub-grid { grid-template-columns: minmax(0, 1fr); } }
 `
 
 function fmt(n) {
@@ -119,29 +114,11 @@ function fmtDateTime(d) {
   return d ? new Date(d).toLocaleString('en-IE', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
 }
 
-function SectionTitle({ eyebrow, title, caption }) {
-  return (
-    <div style={{ marginBottom: '12px' }}>
-      <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-        {eyebrow}
-      </p>
-      <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-      {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-    </div>
-  )
-}
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
 function HubBadge({ hub, label }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: FONT_SANS, fontSize: '10px', fontWeight: 700,
-      color: HUB_ACCENTS[hub] || NAVY, background: CREAM, borderRadius: '999px', padding: '3px 9px', textTransform: 'uppercase', letterSpacing: '0.04em',
+      color: HUB_ACCENTS[hub] || NAVY, background: tint(HUB_ACCENTS[hub] || NAVY, 0.08), border: `1px solid ${tint(HUB_ACCENTS[hub] || NAVY, 0.2)}`, borderRadius: '999px', padding: '3px 10px', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap',
     }}>
       <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: HUB_ACCENTS[hub] || NAVY }} />
       {label}
@@ -151,7 +128,7 @@ function HubBadge({ hub, label }) {
 function HubCard({ hub, title, children }) {
   return (
     <Card>
-      <div style={{ marginBottom: '10px' }}>
+      <div style={{ marginBottom: '12px' }}>
         <HubBadge hub={hub} label={title} />
       </div>
       {children}
@@ -161,7 +138,7 @@ function HubCard({ hub, title, children }) {
 
 function GrowthChart({ data }) {
   const width = 640
-  const height = 140
+  const height = 180
   const padTop = 10
   const padBottom = 22
   const plotH = height - padTop - padBottom
@@ -185,8 +162,8 @@ function GrowthChart({ data }) {
       <text x={lastX} y={lastY - 10} textAnchor="end" fontFamily="'DM Sans', sans-serif" fontSize="11" fontWeight="700" fill={NAVY}>
         {data[data.length - 1] ?? 0}
       </text>
-      <text x="0" y={height - 4} fontFamily="'DM Sans', sans-serif" fontSize="10" fill={MUTED}>12 weeks ago</text>
-      <text x={width} y={height - 4} textAnchor="end" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={MUTED}>This week</text>
+      <text x="0" y={height - 4} fontFamily="'DM Sans', sans-serif" fontSize="11" fill={GREY}>12 weeks ago</text>
+      <text x={width} y={height - 4} textAnchor="end" fontFamily="'DM Sans', sans-serif" fontSize="11" fill={GREY}>This week</text>
     </svg>
   )
 }
@@ -356,15 +333,15 @@ export default function FounderDashboardPage() {
   ]
 
   const rangeControl = (
-    <div style={{ display: 'inline-flex', background: '#FFFFFF', borderRadius: '8px', padding: '3px', border: '1px solid rgba(30,58,95,0.08)' }}>
+    <div role="group" aria-label="Time range" style={{ display: 'inline-flex', background: '#FFFFFF', borderRadius: '10px', padding: '4px', border: '1px solid rgba(30,58,95,0.08)', boxShadow: '0 1px 2px rgba(30,58,95,0.04)', maxWidth: '100%', overflowX: 'auto' }}>
       {RANGES.map(r => (
         <button
           key={r.key}
           type="button"
           onClick={() => setRange(r.key)}
           style={{
-            fontFamily: FONT_SANS, fontSize: '12px', fontWeight: '600',
-            padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+            fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: '600', whiteSpace: 'nowrap',
+            padding: '7px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
             background: range === r.key ? NAVY : 'transparent',
             color: range === r.key ? CREAM : GREY,
             transition: 'background 150ms, color 150ms',
@@ -401,7 +378,7 @@ export default function FounderDashboardPage() {
         sections={sections}
         rangeControl={rangeControl}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -410,7 +387,7 @@ export default function FounderDashboardPage() {
       >
 
         {/* ══ COMPANY OVERVIEW ═══════════════════════════════════════════ */}
-        <div id="fh-overview" style={{ scrollMarginTop: '60px', marginBottom: '20px' }}>
+        <div id="fh-overview" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle
             eyebrow="Cross-hub rollup, this month"
             title="Company Overview"
@@ -475,11 +452,11 @@ export default function FounderDashboardPage() {
         </div>
 
         {/* ══ PLATFORM ═════════════════════════════════════════════════ */}
-        <div id="fh-platform" style={{ scrollMarginTop: '60px', marginBottom: '20px' }}>
-          <Card style={{ marginBottom: '16px' }}>
+        <div id="fh-platform" style={{ marginBottom: 'var(--studio-gap)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="UniBlueprint platform" title="Platform health"
               caption="Real totals as of now, plus submissions/enquiries for the selected period above. No delta/sparkline on purpose -- there is no historical snapshot table yet to compare a period against, so this shows current totals honestly rather than a fabricated trend." />
-            <div className="fh-topline-grid" style={{ opacity: loading ? 0.6 : 1 }}>
+            <div style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 150ms' }}>
               <StatStrip columns={4} cells={toplineTiles} />
             </div>
           </Card>
@@ -504,7 +481,7 @@ export default function FounderDashboardPage() {
         </div>
 
         {/* ══ ACTIVITY ═════════════════════════════════════════════════ */}
-        <div id="fh-activity" style={{ scrollMarginTop: '60px', marginBottom: '20px' }}>
+        <div id="fh-activity" style={{ marginBottom: 'var(--studio-gap)' }}>
           <div className="fh-two-col">
             <Card>
               <SectionTitle
@@ -517,10 +494,10 @@ export default function FounderDashboardPage() {
             <Card>
               <SectionTitle eyebrow="Institutions" title="Campus breakdown" caption="Member count by institution, all time; submission volume this period alongside." />
               {campuses.length === 0 ? (
-                <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: MUTED }}>No members with an institution on file yet.</p>
+                <EmptyNote>No members with an institution on file yet.</EmptyNote>
               ) : (
-                <div className="fh-table-wrap">
-                  <table className="fh-table">
+                <div className="studio-table-wrap">
+                  <table className="studio-table studio-table--top">
                     <thead><tr><th>Institution</th><th>Members</th><th>Submissions, this period</th></tr></thead>
                     <tbody>
                       {campuses.map(c => (
@@ -539,18 +516,18 @@ export default function FounderDashboardPage() {
         </div>
 
         {/* ══ PARTNERS & COACHES ═══════════════════════════════════════ */}
-        <div id="fh-partners" style={{ scrollMarginTop: '60px', marginBottom: '20px' }}>
-          <Card style={{ marginBottom: '16px' }}>
+        <div id="fh-partners" style={{ marginBottom: 'var(--studio-gap)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle
               eyebrow="Partner impact"
               title="Lifestyle partner performance"
               caption="All-time views, deal claims, and unique engaged users per live partner."
             />
             {partners.length === 0 ? (
-              <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: MUTED }}>No partner activity recorded yet.</p>
+              <EmptyNote>No partner activity recorded yet.</EmptyNote>
             ) : (
-              <div className="fh-table-wrap">
-                <table className="fh-table">
+              <div className="studio-table-wrap">
+                <table className="studio-table studio-table--top">
                   <thead>
                     <tr><th>Partner</th><th>Views</th><th>Deal claims</th><th>Unique users engaged</th></tr>
                   </thead>
@@ -576,10 +553,10 @@ export default function FounderDashboardPage() {
               caption="Enquiry counts and average rating this period. Coaches handle their own bookings outside the platform, so enquiries are the real, available signal, not a booking count."
             />
             {coaches.length === 0 ? (
-              <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: MUTED }}>No coach enquiries yet this period.</p>
+              <EmptyNote>No coach enquiries yet this period.</EmptyNote>
             ) : (
-              <div className="fh-table-wrap">
-                <table className="fh-table">
+              <div className="studio-table-wrap">
+                <table className="studio-table studio-table--top">
                   <thead><tr><th>Coach</th><th>Enquiries</th><th>Average rating</th></tr></thead>
                   <tbody>
                     {coaches.map(c => (
@@ -608,22 +585,22 @@ export default function FounderDashboardPage() {
         {/* ══ NEEDS A DECISION ═══════════════════════════════════════════
             Reuses get_co_director_pending_decisions() -- the Co-Director
             Hub's own cross-hub rollup, which already authorizes founder. */}
-        <Card id="fh-decisions" style={{ marginBottom: '20px' }}>
+        <Card id="fh-decisions" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Across every hub" title="What needs a decision"
             caption="A real, live rollup of items explicitly flagged for leadership sign-off: Legal contracts needing a fix, open Finance money requests, Tech ideas escalated to the founder, overdue team tasks (any team), and outreach contacts stalled 14+ days with no response. Same get_co_director_pending_decisions() the Co-Director Hub uses -- one shared rollup, not a duplicated query." />
           {decisions.length === 0 ? (
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 16px', borderRadius: '10px',
-              background: 'rgba(22,163,74,0.08)', border: `1px solid ${GREEN}`,
+              display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '10px',
+              background: tint(GREEN, 0.06), border: `1px solid ${tint(GREEN, 0.35)}`,
             }}>
-              <CheckCircle2 size={16} color={GREEN} />
-              <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0 }}>
+              <CheckCircle2 size={18} style={{ flexShrink: 0 }} color={GREEN} />
+              <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0, lineHeight: 1.55 }}>
                 <strong>Nothing pending.</strong> Every category above is genuinely caught up right now -- a real, honest "all clear", not an empty state hiding missing data.
               </p>
             </div>
           ) : (
-            <div className="fh-table-wrap">
-              <table className="fh-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table studio-table--top">
                 <thead><tr><th>Hub</th><th>Item</th><th>Detail</th><th>Flagged</th></tr></thead>
                 <tbody>
                   {decisions.map((d, i) => {
@@ -631,8 +608,8 @@ export default function FounderDashboardPage() {
                     return (
                       <tr key={`${d.category}-${i}`}>
                         <td><HubBadge hub={meta.hub} label={meta.label} /></td>
-                        <td style={{ fontWeight: 600, maxWidth: '220px', whiteSpace: 'normal' }}>{d.label}</td>
-                        <td style={{ maxWidth: '320px', whiteSpace: 'normal', color: GREY }}>{d.detail || '—'}</td>
+                        <td style={{ fontWeight: 600, minWidth: '200px', maxWidth: '220px', whiteSpace: 'normal' }}>{d.label}</td>
+                        <td style={{ minWidth: '200px', maxWidth: '320px', whiteSpace: 'normal', color: GREY }}>{d.detail || '—'}</td>
                         <td style={{ whiteSpace: 'nowrap' }}>{fmtDateTime(d.flagged_at)}</td>
                       </tr>
                     )

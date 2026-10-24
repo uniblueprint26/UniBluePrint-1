@@ -21,7 +21,7 @@ import {
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StatStrip, ComparisonWidget, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard,
   NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
 } from '../../components/studio'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
@@ -225,7 +225,7 @@ export default function HandlerQueuePage() {
     <div style={{ position: 'relative' }}>
       <button
         type="button" onClick={handleOpenNotifications} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
-        style={{ position: 'relative', background: '#FFFFFF', border: '1.5px solid rgba(30,58,95,0.15)', borderRadius: '8px', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ position: 'relative', background: '#FFFFFF', border: '1px solid rgba(30,58,95,0.12)', boxShadow: '0 1px 2px rgba(30,58,95,0.04)', borderRadius: '10px', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <Bell size={17} color={NAVY} aria-hidden="true" />
         {unreadCount > 0 && (
@@ -265,7 +265,7 @@ export default function HandlerQueuePage() {
         sections={sections}
         rangeControl={notifBell}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -274,8 +274,8 @@ export default function HandlerQueuePage() {
       >
 
         {/* ══ OVERVIEW ═════════════════════════════════════════════════ */}
-        <div id="hh-overview" style={{ scrollMarginTop: '60px' }}>
-          <Card style={{ marginBottom: '20px' }}>
+        <div id="hh-overview" >
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Live" title="Queue at a glance"
               caption="Real, live counts from submissions/handler_queue/handler_escalations, excluding banned demo/QA accounts. Genuinely all-zero until a real submission enters the pipeline -- a real pre-launch state, not a broken query." />
             <StatStrip
@@ -294,11 +294,11 @@ export default function HandlerQueuePage() {
         </div>
 
         {/* ══ QUEUE ════════════════════════════════════════════════════ */}
-        <Card id="hh-queue" style={{ marginBottom: '20px' }}>
+        <Card id="hh-queue" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Work the queue" title="Premium Queue, Standard Queue, Mine, Escalated"
             caption="Claim a submission to review it. Every decision needs a note of at least two sentences before it can go through." />
 
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '18px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
             {tabs.map((t) => (
               <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)} label={t.label} />
             ))}
@@ -350,7 +350,7 @@ export default function HandlerQueuePage() {
         </Card>
 
         {/* ══ PERFORMANCE ══════════════════════════════════════════════ */}
-        <div id="hh-performance" style={{ marginBottom: '20px', scrollMarginTop: '60px' }}>
+        <div id="hh-performance" style={{ marginBottom: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Progress" title="What You've Got vs What You're Missing"
             caption="Real, banned-excluded count of tickets delivered this window vs the window before it. Like Legal/Tech/Outreach/Marketing's own comparisons, this is a single hub-wide total, not a cohort of comparable Handlers, so top/lowest are left honestly blank; only the self-vs-last-period row below is real." />
           <ComparisonWidget
@@ -401,24 +401,6 @@ export default function HandlerQueuePage() {
 
 function fmt(n) { return n === null || n === undefined ? '—' : Number(n).toLocaleString('en-IE') }
 
-function SectionTitle({ eyebrow, title, caption }) {
-  return (
-    <div style={{ marginBottom: '12px' }}>
-      <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-        {eyebrow}
-      </p>
-      <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-      {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-    </div>
-  )
-}
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
 
 function ClaimButton({ s, claimingId, onClaim }) {
   return (
@@ -454,10 +436,10 @@ function QueueRow({ submission: s, action, onClick, clickable, operationsView })
     <div
       onClick={clickable ? onClick : undefined}
       style={{
-        background: '#FFFFFF', borderRadius: '10px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
-        padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px',
+        background: '#FFFFFF', borderRadius: '10px',
+        padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '16px',
         cursor: clickable ? 'pointer' : 'default',
-        border: operationsView ? '1.5px solid rgba(220,38,38,0.3)' : 'none',
+        border: operationsView ? '1.5px solid rgba(220,38,38,0.3)' : '1px solid rgba(30,58,95,0.1)',
       }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -509,7 +491,7 @@ function TabButton({ active, onClick, label }) {
     <button
       type="button" onClick={onClick}
       style={{
-        padding: '10px 16px', borderRadius: '8px', border: active ? 'none' : '1.5px solid rgba(30,58,95,0.15)',
+        height: '38px', padding: '0 16px', borderRadius: '999px', border: active ? '1px solid #1E3A5F' : '1px solid rgba(30,58,95,0.16)',
         background: active ? '#1E3A5F' : '#FFFFFF', color: active ? '#F5F0E8' : '#1E3A5F',
         fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
       }}
@@ -519,11 +501,16 @@ function TabButton({ active, onClick, label }) {
   )
 }
 
+// Studio Phase 10: same dashed, left-aligned "nothing here yet" panel
+// TaskBoard uses, instead of a second nested white form card.
 function EmptyState({ text }) {
   return (
-    <FormCard>
-      <p style={{ textAlign: 'center', padding: '24px 0', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF' }}>{text}</p>
-    </FormCard>
+    <p style={{
+      fontFamily: FONT_SANS, fontSize: '13px', color: GREY, lineHeight: 1.5, margin: 0,
+      border: '1px dashed rgba(30,58,95,0.2)', borderRadius: '10px', padding: '14px 16px',
+    }}>
+      {text}
+    </p>
   )
 }
 
@@ -656,7 +643,7 @@ function SubmissionDetail({ submission, mode, onBack, onResolved }) {
     <div style={{ maxWidth: '820px', margin: '0 auto', padding: '48px 24px 96px' }}>
       <button
         type="button" onClick={onBack}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '20px', padding: 0 }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 'var(--studio-gap)', padding: 0 }}
       >
         <ArrowLeft size={14} aria-hidden="true" /> Back to queue
       </button>
@@ -853,7 +840,7 @@ function LowScoreModal({ total, busy, onConfirm, onCancel }) {
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#9CA3AF', marginTop: '8px' }}>
           Your confirmation is recorded against this review.
         </p>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '10px', marginTop: 'var(--studio-gap)', justifyContent: 'flex-end' }}>
           <button
             type="button" onClick={onCancel} disabled={busy}
             style={{ height: '42px', padding: '0 18px', background: '#FFFFFF', color: '#1E3A5F', border: '1.5px solid rgba(30,58,95,0.2)', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: busy ? 'not-allowed' : 'pointer' }}

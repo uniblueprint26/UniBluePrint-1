@@ -6,7 +6,11 @@ import {
   PiggyBank, Landmark, Inbox, CheckCircle2, XCircle, History,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { StudioShell, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS } from '../../components/studio'
+import {
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot,
+  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
+} from '../../components/studio'
 import {
   getFinanceRevenueSnapshot, getFinanceOneTimePayments, getFinanceRevenueByTier,
   getFinanceMarginSummary, getFinancePayoutFailureQueue, getFinanceRevenueByCohort,
@@ -51,14 +55,9 @@ const PENDING_REASON_LABELS = {
 }
 
 const PAGE_STYLES = `
-  .fn-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
-  .fn-three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .fn-table-wrap { overflow-x: auto; }
-  .fn-table { width: 100%; border-collapse: collapse; }
-  .fn-table th { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; padding: 0 10px 8px; border-bottom: 1px solid rgba(30,58,95,0.1); white-space: nowrap; }
-  .fn-table td { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #1E3A5F; padding: 8px 10px; border-bottom: 1px solid rgba(30,58,95,0.06); white-space: nowrap; }
-  .fn-table tr:last-child td { border-bottom: none; }
-  @media (max-width: 1100px) { .fn-two-col { grid-template-columns: 1fr; } .fn-three-col { grid-template-columns: 1fr; } }
+  .fn-two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  .fn-three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 1100px) { .fn-two-col { grid-template-columns: minmax(0, 1fr); } .fn-three-col { grid-template-columns: minmax(0, 1fr); } }
 `
 
 function fmtEuro(cents) {
@@ -72,43 +71,19 @@ function fmt(n) {
 function pctWhole(x) { return x == null ? '—' : `${Number(x).toFixed(1)}%` }
 function safeNumber(v, def = 0) { const n = Number(v); return Number.isFinite(n) ? n : def }
 
-function SectionTitle({ eyebrow, title, caption, action }) {
-  return (
-    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-      <div>
-        <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-          {eyebrow}
-        </p>
-        <h2 style={{ fontFamily: FONT_SERIF, fontSize: '19px', color: NAVY, margin: '3px 0 0' }}>{title}</h2>
-        {caption && <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '4px 0 0', lineHeight: 1.5 }}>{caption}</p>}
-      </div>
-      {action}
-    </div>
-  )
-}
 
-function Card({ children, style, id }) {
-  return (
-    <div id={id} style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid rgba(30,58,95,0.08)', padding: '18px 20px', scrollMarginTop: '60px', ...style }}>
-      {children}
-    </div>
-  )
-}
 
 function MoneyRow({ label, count, cents, tone = NAVY }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-      <span style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY }}>
-        {label} {count != null && <span style={{ color: MUTED }}>({fmt(count)})</span>}
+      <span style={{ fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 500, color: NAVY }}>
+        {label} {count != null && <span style={{ color: GREY, fontWeight: 400 }}>({fmt(count)})</span>}
       </span>
-      <span style={{ fontFamily: FONT_SERIF, fontSize: '18px', color: tone }}>{fmtEuro(cents)}</span>
+      <span style={{ fontFamily: FONT_SERIF, fontSize: '20px', color: isZeroish(cents) ? GREY : tone, fontVariantNumeric: 'tabular-nums' }}>{fmtEuro(cents)}</span>
     </div>
   )
 }
 
-function EmptyNote({ children }) {
-  return <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, display: 'flex', alignItems: 'center', gap: '6px' }}>{children}</p>
-}
 
 // ─── Tier Scorecard math, ported verbatim from Alex's toolkit ────────────
 const SCORE_ANCHORS = {
@@ -412,10 +387,10 @@ export default function FinanceDashboardPage() {
         heroCharts={heroCharts}
         sections={sections}
         rangeControl={(
-          <div style={{ display: 'inline-flex', background: '#FFFFFF', borderRadius: '8px', padding: '3px', border: '1px solid rgba(30,58,95,0.08)' }}>
+          <div role="group" aria-label="Time range" style={{ display: 'inline-flex', background: '#FFFFFF', borderRadius: '10px', padding: '4px', border: '1px solid rgba(30,58,95,0.08)', boxShadow: '0 1px 2px rgba(30,58,95,0.04)', maxWidth: '100%', overflowX: 'auto' }}>
             {RANGES.map(r => (
               <button key={r.key} onClick={() => setRange(r.key)} style={{
-                fontFamily: FONT_SANS, fontSize: '12px', fontWeight: '600', padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: '600', whiteSpace: 'nowrap', padding: '7px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
                 background: range === r.key ? NAVY : 'transparent', color: range === r.key ? CREAM : GREY, transition: 'background 150ms, color 150ms',
               }}>
                 {r.label}
@@ -424,7 +399,7 @@ export default function FinanceDashboardPage() {
           </div>
         )}
         error={!!error && (
-          <Card style={{ marginBottom: '20px', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={15} /> {error}
             </p>
@@ -433,8 +408,8 @@ export default function FinanceDashboardPage() {
       >
 
         {/* ══ REVENUE ══════════════════════════════════════════════════ */}
-        <div id="fn-revenue" style={{ scrollMarginTop: '60px' }}>
-          <Card style={{ marginBottom: '20px' }}>
+        <div id="fn-revenue" >
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Revenue" title="Subscription revenue"
               caption="Modelled from list price and active subscription counts, excluding banned demo/QA accounts. Not a reconciled Stripe figure -- Stripe's webhook records tier and status, not the amount charged per invoice." />
             <StatStrip
@@ -449,7 +424,7 @@ export default function FinanceDashboardPage() {
             />
           </Card>
 
-          <Card style={{ marginBottom: '20px' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="One-Time Revenue" title="One-time payments"
               caption="Real Stripe payments actually collected this period, excluding banned demo/QA accounts. Checked live: every coach_payments row that existed before today's ban belonged to a demo account -- 0 real coaching revenue is the honest current number, not a bug." />
             <StatStrip
@@ -477,8 +452,8 @@ export default function FinanceDashboardPage() {
         </div>
 
         {/* ══ MARGIN + COMMISSIONS + PAYOUTS ═════════════════════════════ */}
-        <div id="fn-margin" style={{ marginTop: '20px', scrollMarginTop: '60px' }}>
-          <Card style={{ marginBottom: '20px' }}>
+        <div id="fn-margin" style={{ marginTop: 'var(--studio-gap)' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Margin" title="UBP take-home margin"
               caption="Gross coach payment minus the coach's share, from coach_payment_transfers (transferred + pending, excluding failed and banned accounts)." />
             <StatStrip
@@ -492,13 +467,13 @@ export default function FinanceDashboardPage() {
             />
           </Card>
 
-          <div className="fn-two-col" style={{ marginBottom: '20px' }}>
+          <div className="fn-two-col" style={{ marginBottom: 'var(--studio-gap)' }}>
             <Card>
               <SectionTitle eyebrow="Handlers" title="Commission declarations" caption="What Campus Handlers have declared for delivered work." />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <MoneyRow label="Pending" count={commissions.pending_count} cents={commissions.pending_amount_cents} tone={AMBER} />
                 <MoneyRow label="Paid" count={commissions.paid_count} cents={commissions.paid_amount_cents} tone={GREEN} />
-                <div style={{ height: '1px', background: 'rgba(30,58,95,0.08)' }} />
+                <div style={{ height: '1px', background: BORDER }} />
                 <MoneyRow label="Declared this period" count={commissions.declared_in_range_count} cents={commissions.declared_in_range_amount_cents} tone={NAVY} />
               </div>
             </Card>
@@ -512,7 +487,7 @@ export default function FinanceDashboardPage() {
             </Card>
           </div>
 
-          <Card style={{ marginBottom: '20px' }}>
+          <Card style={{ marginBottom: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="Coaches" title="Coach payouts (Stripe Connect)"
               caption="Automated transfers to coaches once a student payment is collected, excluding banned accounts. Pending items need a Partner Tier assigned or the coach's Stripe onboarding finished." />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -525,9 +500,9 @@ export default function FinanceDashboardPage() {
               </p>
             )}
             {pendingCoachPayouts.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${BORDER}` }}>
                 {pendingCoachPayouts.map(row => (
-                  <div key={row.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: CREAM, borderRadius: '8px', border: '1px solid rgba(30,58,95,0.08)', padding: '9px 13px' }}>
+                  <div key={row.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: SURFACE_TINT, borderRadius: '10px', border: `1px solid ${BORDER}`, padding: '10px 14px' }}>
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: '600', color: NAVY, margin: 0 }}>{row.coach_slug}</p>
                       <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY, margin: '2px 0 0' }}>{PENDING_REASON_LABELS[row.pending_reason] || row.pending_reason}</p>
@@ -538,7 +513,7 @@ export default function FinanceDashboardPage() {
               </div>
             )}
             {!loading && coachPayouts.pending_count === 0 && coachPayouts.transferred_count === 0 && (
-              <EmptyNote><CreditCard size={12} /> No coach Stripe Connect transfers recorded yet.</EmptyNote>
+              <EmptyNote style={{ marginTop: '12px' }}><CreditCard size={12} /> No coach Stripe Connect transfers recorded yet.</EmptyNote>
             )}
           </Card>
 
@@ -547,8 +522,8 @@ export default function FinanceDashboardPage() {
             {payoutFailures.length === 0 ? (
               <EmptyNote><CheckCircle2 size={12} color={GREEN} /> No failed transfer attempts recorded.</EmptyNote>
             ) : (
-              <div className="fn-table-wrap">
-                <table className="fn-table">
+              <div className="studio-table-wrap">
+                <table className="studio-table">
                   <thead><tr><th>Coach</th><th>Gross amount</th><th>Error</th><th>Attempted</th></tr></thead>
                   <tbody>
                     {payoutFailures.map(f => (
@@ -567,7 +542,7 @@ export default function FinanceDashboardPage() {
         </div>
 
         {/* ══ COMPARISON ═════════════════════════════════════════════════ */}
-        <div id="fn-comparison" style={{ marginTop: '20px', scrollMarginTop: '60px' }}>
+        <div id="fn-comparison" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Coach performance" title="What You've Got vs What You're Missing"
             caption="Real coach_payments revenue per coach, this window vs the window before it. The widget never names a coach -- 'top performer' and 'lowest performer' are always anonymized." />
           <ComparisonWidget
@@ -588,7 +563,7 @@ export default function FinanceDashboardPage() {
         </div>
 
         {/* ══ CLIENT REGISTER ═════════════════════════════════════════════ */}
-        <Card id="fn-clients" style={{ marginTop: '20px' }}>
+        <Card id="fn-clients" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Partner Commercial Toolkit" title="Client Register"
             caption="Real partners and coaches from partner_tier_assignments, via the existing get_partner_tier_admin_list() RPC -- not a local-only register. Load a client into the Tier Scorecard or A/B Revenue Model below to assess or reprice them." />
           {/* TODO(phase-2-access-system): negotiated_commission_pct / negotiated_rationale
@@ -603,8 +578,8 @@ export default function FinanceDashboardPage() {
           {clients.length === 0 ? (
             <EmptyNote>No partners or coaches found.</EmptyNote>
           ) : (
-            <div className="fn-table-wrap">
-              <table className="fn-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead>
                   <tr>
                     <th>Client</th><th>Type</th><th>Category</th><th>Tier</th><th>Payment option</th>
@@ -616,7 +591,7 @@ export default function FinanceDashboardPage() {
                     <tr key={`${c.entity_type}:${c.entity_id}`}>
                       <td style={{ fontWeight: 600 }}>{c.display_name}</td>
                       <td style={{ textTransform: 'capitalize' }}>{c.entity_type}</td>
-                      <td>{c.category || '—'}</td>
+                      <td style={{ whiteSpace: 'normal', minWidth: '160px', maxWidth: '280px' }}>{c.category || '—'}</td>
                       <td>{c.tier ? TIER_LABELS[c.tier] || c.tier : <span style={{ color: MUTED }}>Unassigned</span>}</td>
                       <td style={{ textTransform: 'capitalize' }}>{c.payment_option || '—'}</td>
                       <td>{c.negotiated_commission_pct != null ? pctWhole(c.negotiated_commission_pct) : '—'}</td>
@@ -631,15 +606,15 @@ export default function FinanceDashboardPage() {
         </Card>
 
         {/* ══ TIER SCORECARD ══════════════════════════════════════════════ */}
-        <Card id="fn-scorecard" style={{ marginTop: '20px' }}>
+        <Card id="fn-scorecard" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Partner Commercial Toolkit" title="Tier Scorecard"
             caption="Size / service breadth / pricing position, scored 1-5 each -- the exact classification Alex's toolkit used (Access 3-7, Plus 8-11 with 2+ dimensions at 3+, Signature candidate 12-15 with 2+ at 4+). Saving writes the resulting tier to partner_tier_assignments via set_partner_tier()." />
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '6px' }}>Client</label>
+          <div style={{ marginBottom: '16px', maxWidth: '360px' }}>
+            <Field label="Client">
             <select
               value={selectedClientKey}
               onChange={e => { setSelectedClientKey(e.target.value); setScoreState({ size: 1, service: 1, pricing: 1 }) }}
-              style={{ fontFamily: FONT_SANS, fontSize: '13px', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(30,58,95,0.15)', width: '100%', maxWidth: '360px' }}
+              style={STUDIO_INPUT}
             >
               <option value="">Select a client…</option>
               {clients.map(c => (
@@ -648,35 +623,37 @@ export default function FinanceDashboardPage() {
                 </option>
               ))}
             </select>
+            </Field>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <span style={{ fontFamily: FONT_SERIF, fontSize: '26px', color: NAVY }}>{TIER_LABELS[scoreResult.tier]}</span>
-            <span style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: MUTED }}>{scoreResult.total} / 15</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+            <span style={{ fontFamily: FONT_SERIF, fontSize: '30px', lineHeight: 1.1, color: NAVY }}>{TIER_LABELS[scoreResult.tier]}</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 600, color: GREY, fontVariantNumeric: 'tabular-nums' }}>{scoreResult.total} / 15</span>
             <StatusDot status={scoreResult.manual ? 'yellow' : 'green'} label={scoreResult.manual ? 'Finance review recommended' : 'Clear classification'} showLabel />
           </div>
 
           <div className="fn-three-col">
             {['size', 'service', 'pricing'].map(group => (
-              <div key={group} style={{ border: '1px solid rgba(30,58,95,0.08)', borderRadius: '10px', padding: '14px' }}>
+              <div key={group} style={{ background: SURFACE_TINT, border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
                   <h3 style={{ fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 700, color: NAVY, margin: 0, textTransform: 'capitalize' }}>{group === 'service' ? 'Service breadth' : group === 'pricing' ? 'Pricing position' : 'Size'}</h3>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED }}>{scoreState[group]} / 5</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 600, color: GREY }}>{scoreState[group]} / 5</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '5px', marginBottom: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px', marginBottom: '12px' }}>
                   {[1, 2, 3, 4, 5].map(n => (
                     <button key={n} type="button" onClick={() => setScoreState(s => ({ ...s, [group]: n }))}
                       style={{
-                        fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 700, padding: '8px 0', borderRadius: '7px',
+                        fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 700, height: '36px', borderRadius: '8px',
                         border: scoreState[group] === n ? `1px solid ${HUB_ACCENTS.finance}` : '1px solid rgba(30,58,95,0.15)',
-                        background: scoreState[group] === n ? '#f6edcf' : '#fff', cursor: 'pointer',
+                        background: scoreState[group] === n ? tint(HUB_ACCENTS.finance, 0.1) : '#fff', cursor: 'pointer',
+                        color: scoreState[group] === n ? HUB_ACCENTS.finance : NAVY, transition: 'background 150ms, border-color 150ms',
                       }}
                     >
                       {n}
                     </button>
                   ))}
                 </div>
-                <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY, lineHeight: 1.5, margin: 0, background: CREAM, borderRadius: '8px', padding: '8px 10px' }}>
+                <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, lineHeight: 1.55, margin: 0, background: '#FFFFFF', border: `1px solid ${BORDER}`, borderRadius: '8px', padding: '10px 12px' }}>
                   <strong>{scoreState[group]} — {SCORE_ANCHORS[group][scoreState[group]][0]}.</strong> {SCORE_ANCHORS[group][scoreState[group]][1]}
                 </p>
               </div>
@@ -687,10 +664,7 @@ export default function FinanceDashboardPage() {
             <button
               type="button" disabled={!selectedClient || savingTier}
               onClick={saveScorecardTier}
-              style={{
-                fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, padding: '9px 16px', borderRadius: '8px', border: 'none',
-                background: selectedClient ? NAVY : MUTED, color: CREAM, cursor: selectedClient ? 'pointer' : 'not-allowed',
-              }}
+              style={studioButton(NAVY, !!selectedClient)}
             >
               {savingTier ? 'Saving…' : `Save ${TIER_LABELS[scoreResult.tier]} to ${selectedClient ? selectedClient.display_name : 'client'}`}
             </button>
@@ -698,12 +672,12 @@ export default function FinanceDashboardPage() {
         </Card>
 
         {/* ══ A/B REVENUE MODEL ═══════════════════════════════════════════ */}
-        <Card id="fn-pricing" style={{ marginTop: '20px' }}>
+        <Card id="fn-pricing" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Partner Commercial Toolkit" title="A/B Revenue Model"
             caption="Option A = fixed fee + (A commission × revenue). Option B = B commission × revenue. Equivalent B rate = A commission + fixed fee / revenue. Kept exactly as Alex built it. Saving an Option B rate records it to partner_negotiation_log via record_negotiated_rate() (append-only, requires a rationale)." />
           <div className="fn-two-col">
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px', alignItems: 'end', marginBottom: '12px' }}>
                 <Field label="Commercial tier">
                   <select value={modelTier} onChange={e => setModelTier(e.target.value)} style={inputStyle}>
                     <option value="access">Access — €15 + 10%</option>
@@ -721,22 +695,19 @@ export default function FinanceDashboardPage() {
                 </Field>
               </div>
               <Field label="Rationale (required to save a negotiated Option B rate)">
-                <textarea value={modelRationale} onChange={e => setModelRationale(e.target.value)} rows={2} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Commercial context for this rate..." />
+                <textarea value={modelRationale} onChange={e => setModelRationale(e.target.value)} rows={2} style={{ ...inputStyle, height: 'auto', padding: '10px 12px', lineHeight: 1.5, resize: 'vertical' }} placeholder="Commercial context for this rate..." />
               </Field>
               <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
                 <button
                   type="button" disabled={!selectedClient || savingPricing}
                   onClick={savePricingDecision}
-                  style={{
-                    fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, padding: '9px 16px', borderRadius: '8px', border: 'none',
-                    background: selectedClient ? NAVY : MUTED, color: CREAM, cursor: selectedClient ? 'pointer' : 'not-allowed',
-                  }}
+                  style={studioButton(NAVY, !!selectedClient)}
                 >
                   {savingPricing ? 'Saving…' : `Save pricing to ${selectedClient ? selectedClient.display_name : 'client'}`}
                 </button>
               </div>
             </div>
-            <div style={{ background: NAVY, borderRadius: '11px', padding: '14px', color: CREAM }}>
+            <div style={{ background: NAVY, borderRadius: '12px', padding: '16px', color: CREAM }}>
               <p style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px', color: '#cbd8e7' }}>Model logic</p>
               <div style={{ fontFamily: 'monospace', fontSize: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px', marginBottom: '8px' }}>
                 Option A = Fixed fee + (A commission × Revenue)
@@ -760,20 +731,22 @@ export default function FinanceDashboardPage() {
             ]}
           />
 
-          <MetricBarChart
-            data={[
-              { name: 'Option A', value: pricing.a, color: '#2f6b9d' },
-              { name: 'Option B', value: pricing.bb, color: HUB_ACCENTS.finance },
-            ]}
-            valueFormatter={v => `€${v.toFixed(2)}`}
-            nameWidth={90}
-            accentColor={NAVY}
-          />
+          <div style={{ marginTop: '16px' }}>
+            <MetricBarChart
+              data={[
+                { name: 'Option A', value: pricing.a, color: '#2f6b9d' },
+                { name: 'Option B', value: pricing.bb, color: HUB_ACCENTS.finance },
+              ]}
+              valueFormatter={v => `€${v.toFixed(2)}`}
+              nameWidth={90}
+              accentColor={NAVY}
+            />
+          </div>
 
-          <div style={{ marginTop: '18px' }}>
+          <div style={{ marginTop: 'var(--studio-gap)' }}>
             <SectionTitle eyebrow="" title="Revenue sensitivity" caption="Equivalent Option B commission required to match Option A at different monthly revenue levels." />
-            <div className="fn-table-wrap">
-              <table className="fn-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead><tr><th>Monthly revenue</th><th>Option A revenue</th><th>Equivalent B rate</th></tr></thead>
                 <tbody>
                   {[100, 250, 500, 1000, 2000].map(r => {
@@ -793,11 +766,12 @@ export default function FinanceDashboardPage() {
         </Card>
 
         {/* ══ MONEY REQUESTS ══════════════════════════════════════════════ */}
-        <Card id="fn-requests" style={{ marginTop: '20px' }}>
+        <Card id="fn-requests" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Money requests from other teams"
             caption="Simple queue -- any team can ask Finance for budget; approve or deny here. Writes to the new money_requests table via create_money_request() / decide_money_request()." />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '10px', alignItems: 'flex-end', marginBottom: '16px' }}>
+          <div className="studio-form-panel">
+          <div className="studio-form-row" style={{ gridTemplateColumns: '1fr 2fr auto' }}>
             <Field label="Amount (€)">
               <input type="number" min="0" step="1" value={reqAmount} onChange={e => setReqAmount(e.target.value)} style={inputStyle} />
             </Field>
@@ -807,24 +781,26 @@ export default function FinanceDashboardPage() {
             <button
               type="button" disabled={reqSubmitting || !reqAmount || !reqReason.trim()}
               onClick={submitMoneyRequest}
-              style={{ fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: 700, padding: '9px 16px', borderRadius: '8px', border: 'none', background: NAVY, color: CREAM, cursor: 'pointer', height: '38px' }}
+              className="studio-form-wide"
+              style={studioButton(NAVY, !!(reqAmount && reqReason.trim()))}
             >
               {reqSubmitting ? 'Submitting…' : 'Submit request'}
             </button>
+          </div>
           </div>
 
           {moneyRequests.length === 0 ? (
             <EmptyNote><Inbox size={12} /> No money requests yet.</EmptyNote>
           ) : (
-            <div className="fn-table-wrap">
-              <table className="fn-table">
+            <div className="studio-table-wrap">
+              <table className="studio-table">
                 <thead><tr><th>Requested by</th><th>Amount</th><th>Reason</th><th>Status</th><th>Requested</th><th>Actions</th></tr></thead>
                 <tbody>
                   {moneyRequests.map(r => (
                     <tr key={r.id}>
                       <td style={{ textTransform: 'capitalize' }}>{r.requesting_role}</td>
                       <td style={{ fontWeight: 600 }}>{fmtEuro(r.amount_cents)}</td>
-                      <td style={{ maxWidth: '260px', whiteSpace: 'normal' }}>{r.reason}</td>
+                      <td style={{ minWidth: '200px', maxWidth: '260px', whiteSpace: 'normal' }}>{r.reason}</td>
                       <td>
                         <StatusDot
                           status={r.status === 'approved' ? 'green' : r.status === 'denied' ? 'red' : 'yellow'}
@@ -843,7 +819,7 @@ export default function FinanceDashboardPage() {
                             </button>
                           </div>
                         ) : (
-                          <span style={{ color: MUTED, display: 'inline-flex', alignItems: 'center', gap: '4px' }}><History size={11} /> decided</span>
+                          <span style={{ color: GREY, display: 'inline-flex', alignItems: 'center', gap: '5px' }}><History size={12} /> decided</span>
                         )}
                       </td>
                     </tr>
@@ -859,22 +835,9 @@ export default function FinanceDashboardPage() {
   )
 }
 
-const inputStyle = {
-  fontFamily: FONT_SANS, fontSize: '13px', padding: '8px 10px', borderRadius: '8px',
-  border: '1px solid rgba(30,58,95,0.15)', width: '100%', boxSizing: 'border-box',
-}
+const inputStyle = STUDIO_INPUT
 const iconBtnStyle = {
-  border: '1px solid rgba(30,58,95,0.12)', background: '#fff', borderRadius: '6px',
-  width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+  border: '1px solid rgba(30,58,95,0.14)', background: '#fff', borderRadius: '8px',
+  width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
 }
 
-function Field({ label, children }) {
-  return (
-    <label style={{ display: 'block' }}>
-      <span style={{ fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, display: 'block', marginBottom: '5px' }}>
-        {label}
-      </span>
-      {children}
-    </label>
-  )
-}
