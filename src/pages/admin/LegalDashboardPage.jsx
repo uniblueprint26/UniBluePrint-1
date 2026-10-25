@@ -5,7 +5,7 @@ import {
   AlertTriangle, CheckCircle2, Users, Inbox, Mail,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_SELECT_SM,
 } from '../../components/studio'
@@ -13,6 +13,7 @@ import {
   getLegalContracts, setLegalContractStatus, getLegalContractsResolvedComparison,
   getLegalGdprRequests, getLegalAcknowledgementCoverage,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
 } from '../../lib/studioMetrics'
 
 // Legal Hub (Studio Phase 2) -- for Rachel and Basmail, built on the same
@@ -67,6 +68,7 @@ export default function LegalDashboardPage() {
   const [ackCoverage, setAckCoverage] = useState([])
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
+  const [requests, setRequests] = useState([])
 
   const [comparisonWindow, setComparisonWindow] = useState('week')
   const [comparison, setComparison] = useState(null)
@@ -75,13 +77,14 @@ export default function LegalDashboardPage() {
     setLoading(true)
     setError('')
     try {
-      const [contractsRes, gdprRes, ackRes, tasksRes, membersRes, compareRes] = await Promise.all([
+      const [contractsRes, gdprRes, ackRes, tasksRes, membersRes, compareRes, requestsRes] = await Promise.all([
         getLegalContracts(),
         getLegalGdprRequests(),
         getLegalAcknowledgementCoverage(),
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
         getLegalContractsResolvedComparison(comparisonWindow),
+        listStudioRequests(TEAM),
       ])
       setContracts(contractsRes.value || [])
       setGdprRequests(gdprRes.value || [])
@@ -89,6 +92,7 @@ export default function LegalDashboardPage() {
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setComparison(compareRes.value || null)
+      setRequests(requestsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -133,6 +137,36 @@ export default function LegalDashboardPage() {
     }
   }
 
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t] = await Promise.all([listStudioRequests(TEAM), getTeamTasks(TEAM)])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
+    }
+  }
+
   // ── Derived counts ───────────────────────────────────────────────────────
   const contractsByStatus = useMemo(() => {
     const counts = { not_sent: 0, sent: 0, signed: 0, needs_fix: 0, expired: 0 }
@@ -168,6 +202,7 @@ export default function LegalDashboardPage() {
     { id: 'lg-comparison', label: 'Comparison' },
     { id: 'lg-tasks', label: 'Tasks & Batches' },
     { id: 'lg-folders', label: 'Individual Folders' },
+    { id: 'lg-requests', label: 'Requests' },
   ]
 
   const heroCharts = [
@@ -413,6 +448,26 @@ export default function LegalDashboardPage() {
               ))}
             </div>
           )}
+        </Card>
+
+        {/* ══ REQUESTS ═══════════════════════════════════════════════════
+            Studio Phase 11 -- cross-hub task handoff / access requests.
+            Hand a team_tasks row to a DIFFERENT hub, or ask to see another
+            hub's data / your own leads' view. Seeded empty -- real use only. */}
+        <Card id="lg-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions. Approving a task handoff actually moves it to that hub's own board." />
+          <RequestPanel
+            team={TEAM}
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createRequest}
+            onApprove={approveRequest}
+            onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.legal}
+          />
         </Card>
 
       </StudioShell>

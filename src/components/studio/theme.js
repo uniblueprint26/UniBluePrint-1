@@ -104,3 +104,13 @@ export const HUB_ACCENTS = {
   co_director: '#475569', // slate/graphite -- deliberately the one muted, cool-neutral accent among six warm/saturated hub hues (finance violet, legal teal, tech burnt orange, outreach rose, marketing indigo, operations blue) -- a rollup view sitting ABOVE the five operational hubs reads as senior/oversight precisely by not competing with any one of their colors, the same way NAVY/CREAM/GREY already read as the shared "base" layer every hub sits on. Distinct from GREY (#6B7280)/MUTED (#9CA3AF) by being darker and more saturated, so it still reads as a real accent, not disabled text. Judgment call, flagged in the Studio Phase 6 handback report.
   handler: '#B45309',   // deep amber/gold (amber-700) -- distinct hue from every existing accent: warmer/browner than tech's burnt orange (#EA580C), nowhere near finance's violet-purple, legal's teal, outreach's rose, marketing's indigo, operations' blue or co_director's slate. Reads as "dispatch/operational logistics" -- a queue being worked, tickets moving through stages -- the same intuition amber has in a shift-rota or ticketing UI, without touching GREEN/AMBER-as-status (#F59E0B, reserved for status elsewhere) or RED (status-only). Judgment call, flagged in the Studio Phase 7 handback report.
 }
+
+// Display labels for the free-text team values studio_requests/team_tasks
+// use (Studio Phase 11) -- shared by RequestPanel's target-team picker and
+// every hub's own "Requests" section so a cross-hub request reads the same
+// hub name everywhere, not a re-typed label per page.
+export const HUB_LABELS = {
+  finance: 'Finance', legal: 'Legal', tech: 'Tech', outreach: 'Outreach',
+  marketing: 'Marketing', handler: 'Campus Handler', operations: 'Operations',
+  co_director: 'Co-Director', founder: 'Founder',
+}

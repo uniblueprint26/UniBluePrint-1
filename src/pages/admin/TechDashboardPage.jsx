@@ -5,7 +5,7 @@ import {
   Bug, FlaskConical, Filter, Cpu, AlertCircle, Megaphone, Clock,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton,
 } from '../../components/studio'
@@ -13,6 +13,7 @@ import {
   getTechAdvisorSnapshot, getTechEdgeFunctionSnapshot, getTechFunctionHealthRates,
   getTechGenerationUsageSummary, getTechIdeas, createTechIdea, setTechIdeaStatus,
   getTechIdeasTriagedComparison, getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  getIsTeamLead, listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
 } from '../../lib/studioMetrics'
 
 // Tech Hub (Studio Phase 3) -- for Eman and Tayyab (leads, full access +
@@ -106,12 +107,14 @@ export default function TechDashboardPage() {
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
   const [qaOnly, setQaOnly] = useState(false)
+  const [requests, setRequests] = useState([])
+  const [isLead, setIsLead] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [advisorRes, edgeFnRes, healthRes, genRes, ideasRes, compareRes, tasksRes, membersRes] = await Promise.all([
+      const [advisorRes, edgeFnRes, healthRes, genRes, ideasRes, compareRes, tasksRes, membersRes, requestsRes, leadRes] = await Promise.all([
         getTechAdvisorSnapshot(),
         getTechEdgeFunctionSnapshot(),
         getTechFunctionHealthRates(),
@@ -120,6 +123,8 @@ export default function TechDashboardPage() {
         getTechIdeasTriagedComparison(comparisonWindow),
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
+        listStudioRequests(TEAM),
+        getIsTeamLead(TEAM),
       ])
       setAdvisorFindings(advisorRes.value || [])
       setEdgeFunctions(edgeFnRes.value || [])
@@ -129,6 +134,8 @@ export default function TechDashboardPage() {
       setComparison(compareRes.value || null)
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
+      setRequests(requestsRes.value || [])
+      setIsLead(!!leadRes.value)
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -195,6 +202,36 @@ export default function TechDashboardPage() {
     [tasks, qaOnly]
   )
 
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t] = await Promise.all([listStudioRequests(TEAM), getTeamTasks(TEAM)])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
+    }
+  }
+
   // ── Derived: advisor findings by severity ───────────────────────────────
   const severityTotals = useMemo(() => {
     const totals = { security: { ERROR: 0, WARN: 0, INFO: 0 }, performance: { ERROR: 0, WARN: 0, INFO: 0 } }
@@ -219,6 +256,7 @@ export default function TechDashboardPage() {
     { id: 'tech-ideas', label: 'Idea Inbox' },
     { id: 'tech-comparison', label: 'Comparison' },
     { id: 'tech-qa', label: 'QA / Test Board' },
+    { id: 'tech-requests', label: 'Requests' },
   ]
 
   const heroCharts = [
@@ -361,13 +399,13 @@ export default function TechDashboardPage() {
         <Card id="tech-ideas" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Idea Inbox"
             caption="Anyone on the Tech team can submit an idea below. Eman/Tayyab triage it (mark under review, action, decline, or flag Brought to founder to escalate to Desmond)." />
-          {/* TODO(phase-2-access-system): triage (status changes below) is
-              gated server-side to the whole tech/founder/admin group today
-              -- there is no "lead" (Eman/Tayyab) vs "team member"
-              (Praise/Enoch) role distinction yet to restrict it further.
-              Once real per-person staff roles exist, this status dropdown
-              should become read-only for anyone who isn't a lead -- see
-              set_tech_idea_status()'s own TODO in the migration. */}
+          {/* RESOLVED (Studio Phase 11, was TODO(phase-2-access-system)):
+              triage is now gated server-side to a real tech LEAD (is_lead
+              on user_roles, i.e. Eman/Tayyab once real) or founder/admin/
+              co_director -- set_tech_idea_status() enforces this itself, and
+              the dropdown below mirrors it client-side (read-only status
+              badge for a non-lead viewer like Praise/Enoch, who still see
+              everything, just cannot change it). */}
           <div className="studio-form-panel">
             <div className="studio-form-row" style={{ gridTemplateColumns: '1.4fr 2fr auto' }}>
               <StudioField label="Title">
@@ -403,14 +441,18 @@ export default function TechDashboardPage() {
                       </td>
                       <td>{idea.submitted_by_label}</td>
                       <td>
-                        <select
-                          value={idea.status}
-                          disabled={savingIdeaId === idea.id}
-                          onChange={e => changeIdeaStatus(idea.id, e.target.value)}
-                          style={STUDIO_SELECT_SM}
-                        >
-                          {Object.keys(IDEA_STATUS_LABELS).map(s => <option key={s} value={s}>{IDEA_STATUS_LABELS[s]}</option>)}
-                        </select>
+                        {isLead ? (
+                          <select
+                            value={idea.status}
+                            disabled={savingIdeaId === idea.id}
+                            onChange={e => changeIdeaStatus(idea.id, e.target.value)}
+                            style={STUDIO_SELECT_SM}
+                          >
+                            {Object.keys(IDEA_STATUS_LABELS).map(s => <option key={s} value={s}>{IDEA_STATUS_LABELS[s]}</option>)}
+                          </select>
+                        ) : (
+                          <span style={{ fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 600, color: NAVY }}>{IDEA_STATUS_LABELS[idea.status]}</span>
+                        )}
                         <span style={{ marginLeft: '10px', display: 'inline-flex', verticalAlign: 'middle' }}><StatusDot status={IDEA_STATUS_DOT[idea.status]} /></span>
                         {idea.status === 'brought_to_founder' && (
                           <span style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: 700, color: AMBER }}>
@@ -479,6 +521,24 @@ export default function TechDashboardPage() {
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.tech}
             emptyLabel="No tasks yet -- add the first real one above (use Batch 'QA' for Enoch's testing work)."
+          />
+        </Card>
+
+        {/* ══ REQUESTS ═══════════════════════════════════════════════════
+            Studio Phase 11 -- cross-hub task handoff / access requests. */}
+        <Card id="tech-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions. Approving a task handoff actually moves it to that hub's own board." />
+          <RequestPanel
+            team={TEAM}
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createRequest}
+            onApprove={approveRequest}
+            onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.tech}
           />
         </Card>
 

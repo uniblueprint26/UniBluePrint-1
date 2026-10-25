@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
 } from '../../components/studio'
@@ -17,6 +17,7 @@ import {
   getFinanceCoachRevenueComparison, getFinanceCoachPayoutSummary, getFinancePendingCoachPayouts,
   getFinanceCommissionSummary, getFinancePartnerPayoutSummary, getPartnerTierAdminList,
   getMoneyRequests, createMoneyRequest, decideMoneyRequest,
+  getIsTeamLead, getTeamTasks, getTeamRoster, listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
   weekOverWeekChangePct, percentileRank, findRising,
 } from '../../lib/studioMetrics'
 
@@ -165,6 +166,16 @@ export default function FinanceDashboardPage() {
 
   const [clients, setClients] = useState([])
   const [moneyRequests, setMoneyRequests] = useState([])
+  const [isLead, setIsLead] = useState(false)
+
+  // ── Requests (Studio Phase 11) -- Finance has no TaskBoard of its own
+  // (money_requests fills that role), so its own team_tasks/roster are
+  // fetched here specifically to back the Requests panel below: `tasks`
+  // lets Finance hand one of its own tasks to another hub, `members` lets
+  // a Finance approver re-assign an incoming handoff to a named teammate.
+  const [tasks, setTasks] = useState([])
+  const [members, setMembers] = useState([])
+  const [requests, setRequests] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -173,7 +184,7 @@ export default function FinanceDashboardPage() {
       const [
         revRes, oneTimeRes, byTierRes, marginRes, commRes, payoutRes,
         coachPayoutRes, pendingCoachPayoutRes, failureRes, cohortRes, compareRes,
-        clientsRes, requestsRes,
+        clientsRes, requestsRes, leadRes, tasksRes, membersRes, crossHubRes,
       ] = await Promise.all([
         getFinanceRevenueSnapshot(range),
         getFinanceOneTimePayments(range),
@@ -188,6 +199,10 @@ export default function FinanceDashboardPage() {
         getFinanceCoachRevenueComparison(comparisonWindow),
         getPartnerTierAdminList(),
         getMoneyRequests(),
+        getIsTeamLead('finance'),
+        getTeamTasks('finance'),
+        getTeamRoster('finance'),
+        listStudioRequests('finance'),
       ])
 
       setRevenue(revRes.value || EMPTY_REVENUE)
@@ -203,6 +218,10 @@ export default function FinanceDashboardPage() {
       setComparisonRows(compareRes.value || [])
       setClients(clientsRes.value || [])
       setMoneyRequests(requestsRes.value || [])
+      setIsLead(!!leadRes.value)
+      setTasks(tasksRes.value || [])
+      setMembers(membersRes.value || [])
+      setRequests(crossHubRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -256,6 +275,36 @@ export default function FinanceDashboardPage() {
       setError(err.message || 'Could not submit the request.')
     } finally {
       setReqSubmitting(false)
+    }
+  }
+
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createCrossHubRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests('finance')
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveCrossHubRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t] = await Promise.all([listStudioRequests('finance'), getTeamTasks('finance')])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyCrossHubRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const r = await listStudioRequests('finance')
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
     }
   }
   async function actOnRequest(id, status) {
@@ -329,6 +378,7 @@ export default function FinanceDashboardPage() {
     { id: 'fn-scorecard', label: 'Tier Scorecard' },
     { id: 'fn-pricing', label: 'A/B Revenue Model' },
     { id: 'fn-requests', label: 'Money Requests' },
+    { id: 'fn-crosshub', label: 'Requests' },
   ]
 
   const heroCharts = [
@@ -566,15 +616,14 @@ export default function FinanceDashboardPage() {
         <Card id="fn-clients" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Partner Commercial Toolkit" title="Client Register"
             caption="Real partners and coaches from partner_tier_assignments, via the existing get_partner_tier_admin_list() RPC -- not a local-only register. Load a client into the Tier Scorecard or A/B Revenue Model below to assess or reprice them." />
-          {/* TODO(phase-2-access-system): negotiated_commission_pct / negotiated_rationale
-              are already nulled server-side for anyone who isn't finance/founder
-              (see get_partner_tier_admin_list()'s v_can_see_rate check) -- this
-              route is currently gated to finance/founder/admin as a whole
-              (RequireRole on /admin/finance), with no leader-vs-team-member split
-              within that group. Once real per-person staff roles exist, swap this
-              route-level gate for a row-level "can this specific person see
-              negotiated rates" check right here, and hide the Negotiated rate /
-              rationale columns (not just blank them) for a team-member viewer. */}
+          {/* RESOLVED (Studio Phase 11, was TODO(phase-2-access-system)):
+              negotiated_commission_pct/negotiated_rationale are nulled
+              server-side for anyone who isn't founder/co_director or a real
+              finance LEAD (get_partner_tier_admin_list()'s v_can_see_rate,
+              now backed by user_roles.is_lead) -- a row-level check, not the
+              whole finance/founder/admin route-level group. The column is
+              hidden outright (not just blanked) for a team-member viewer,
+              per isLead below. */}
           {clients.length === 0 ? (
             <EmptyNote>No partners or coaches found.</EmptyNote>
           ) : (
@@ -583,7 +632,8 @@ export default function FinanceDashboardPage() {
                 <thead>
                   <tr>
                     <th>Client</th><th>Type</th><th>Category</th><th>Tier</th><th>Payment option</th>
-                    <th>Negotiated rate</th><th>Founding badge</th><th>Status</th>
+                    {isLead && <th>Negotiated rate</th>}
+                    <th>Founding badge</th><th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -594,7 +644,7 @@ export default function FinanceDashboardPage() {
                       <td style={{ whiteSpace: 'normal', minWidth: '160px', maxWidth: '280px' }}>{c.category || '—'}</td>
                       <td>{c.tier ? TIER_LABELS[c.tier] || c.tier : <span style={{ color: MUTED }}>Unassigned</span>}</td>
                       <td style={{ textTransform: 'capitalize' }}>{c.payment_option || '—'}</td>
-                      <td>{c.negotiated_commission_pct != null ? pctWhole(c.negotiated_commission_pct) : '—'}</td>
+                      {isLead && <td>{c.negotiated_commission_pct != null ? pctWhole(c.negotiated_commission_pct) : '—'}</td>}
                       <td>{c.founding_badge ? <StatusDot status="green" label="Founding badge" showLabel /> : <span style={{ color: MUTED }}>—</span>}</td>
                       <td><StatusDot status={c.is_active ? 'green' : 'red'} label={c.is_active ? 'Active' : 'Inactive'} showLabel /></td>
                     </tr>
@@ -602,6 +652,9 @@ export default function FinanceDashboardPage() {
                 </tbody>
               </table>
             </div>
+          )}
+          {!isLead && (
+            <EmptyNote style={{ marginTop: '10px' }}>Negotiated rates are visible to finance leads and founder/co_director only -- ask your lead if you need a rate for a client above.</EmptyNote>
           )}
         </Card>
 
@@ -828,6 +881,26 @@ export default function FinanceDashboardPage() {
               </table>
             </div>
           )}
+        </Card>
+
+        {/* ══ REQUESTS ═══════════════════════════════════════════════════
+            Studio Phase 11 -- cross-hub task handoff / access requests
+            (not to be confused with Money Requests above, which is
+            Finance's own pre-existing "ask Finance for budget" queue). */}
+        <Card id="fn-crosshub" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions. Approving a task handoff actually moves it to that hub's own board." />
+          <RequestPanel
+            team="finance"
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createCrossHubRequest}
+            onApprove={approveCrossHubRequest}
+            onDeny={denyCrossHubRequest}
+            accentColor={HUB_ACCENTS.finance}
+          />
         </Card>
 
       </StudioShell>

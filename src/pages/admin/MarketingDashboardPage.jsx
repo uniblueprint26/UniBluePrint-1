@@ -5,7 +5,7 @@ import {
   Inbox, HeartHandshake, ToggleLeft, ToggleRight, Save,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
 } from '../../components/studio'
 import {
@@ -13,6 +13,7 @@ import {
   getMarketingEarlyAccessSignups, getMarketingEarlyAccessSignupsByMonth,
   getMarketingFeaturedContent, setMarketingFeaturedContentActive, updateMarketingFeaturedContentDetails,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
 } from '../../lib/studioMetrics'
 
 // Marketing Hub (Studio Phase 5) -- for Alex, Elizabeth, Ethan and Fabz, the
@@ -61,12 +62,16 @@ import {
 // in this codebase yet -- an honest zero with nothing behind it would be
 // noise, not signal, unlike Outreach's empty-but-wired inbound pipeline).
 //
-// TODO(phase-2-access-system): the brief names no lead among Alex/
-// Elizabeth/Ethan/Fabz, so every RPC this page calls gates on the whole
-// marketing/founder/admin group -- an honest team-wide "everyone sees the
-// data" gate today (same principle Legal/Tech/Outreach used), not a silent
-// no-op. Once real per-person staff roles exist, a leader/member split can
-// narrow specific actions (e.g. toggling a featured pin) further.
+// CONFIRMED, not changed (Studio Phase 11, was TODO(phase-2-access-system)):
+// re-checked live before building the new lead-tier access system -- the
+// brief still names no lead among Alex/Elizabeth/Ethan/Fabz, so every RPC
+// this page calls stays gated on the whole marketing/founder/admin group,
+// an honest team-wide "everyone sees the data" gate, not a fabricated
+// lead. user_roles.is_lead exists for Marketing too (schema is generic)
+// and works the moment a real lead is named -- Studio Phase 11 also adds
+// a real cross-hub Requests section below (hand a task to another hub, or
+// ask for access into one), the "no access-request flow anywhere" gap
+// the audit flagged.
 
 const TEAM = 'marketing'
 
@@ -104,13 +109,14 @@ export default function MarketingDashboardPage() {
 
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
+  const [requests, setRequests] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
       const [
-        funnelRes, byPartnerRes, compareRes, signupsRes, signupsMonthRes, featuredRes, tasksRes, membersRes,
+        funnelRes, byPartnerRes, compareRes, signupsRes, signupsMonthRes, featuredRes, tasksRes, membersRes, requestsRes,
       ] = await Promise.all([
         getMarketingEngagementFunnel(),
         getMarketingEngagementByPartner(),
@@ -120,6 +126,7 @@ export default function MarketingDashboardPage() {
         getMarketingFeaturedContent(),
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
+        listStudioRequests(TEAM),
       ])
       setFunnel(funnelRes.value || null)
       setByPartner(byPartnerRes.value || [])
@@ -133,6 +140,7 @@ export default function MarketingDashboardPage() {
       }])))
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
+      setRequests(requestsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -207,6 +215,36 @@ export default function MarketingDashboardPage() {
     }
   }
 
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t] = await Promise.all([listStudioRequests(TEAM), getTeamTasks(TEAM)])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
+    }
+  }
+
   // ── Derived ───────────────────────────────────────────────────────────────
   const tasksByStatus = useMemo(() => {
     const counts = { todo: 0, in_progress: 0, done: 0 }
@@ -228,6 +266,7 @@ export default function MarketingDashboardPage() {
     { id: 'mh-leads', label: 'Early Access Leads' },
     { id: 'mh-comparison', label: 'Comparison' },
     { id: 'mh-tasks', label: 'Content & Campaign Task Board' },
+    { id: 'mh-requests', label: 'Requests' },
   ]
 
   const heroCharts = [
@@ -328,11 +367,10 @@ export default function MarketingDashboardPage() {
         <Card id="mh-featured" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="Manage" title="Featured Content"
             caption="Real featured_content rows -- what's actually in rotation on the home-screen Spotlight carousel today. Toggle a pin out of rotation or back in, or edit its caption/CTA/display order (lower priority shows first). Writes through to the live carousel immediately. Adding a brand-new pin isn't exposed here -- see the migration's own note on why." />
-          {/* TODO(phase-2-access-system): anyone on marketing/founder/admin
-              can toggle and edit any row today -- there is no leader vs
-              team-member split (the brief names no lead among Alex/
-              Elizabeth/Ethan/Fabz), so this is an honest team-wide gate,
-              not a locked-down one pretending to be finer-grained. */}
+          {/* CONFIRMED, not changed (Studio Phase 11, was TODO(phase-2-
+              access-system)): re-checked live -- the brief still names no
+              lead among Alex/Elizabeth/Ethan/Fabz, so this stays an honest
+              team-wide gate, not a fabricated one. */}
           {featured.length === 0 ? (
             <EmptyNote><Inbox size={12} /> Loading…</EmptyNote>
           ) : (
@@ -462,6 +500,24 @@ export default function MarketingDashboardPage() {
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.marketing}
             emptyLabel="No content/campaign tasks yet -- add the first real one above."
+          />
+        </Card>
+
+        {/* ══ REQUESTS ═══════════════════════════════════════════════════
+            Studio Phase 11 -- cross-hub task handoff / access requests. */}
+        <Card id="mh-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions. Approving a task handoff actually moves it to that hub's own board." />
+          <RequestPanel
+            team={TEAM}
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createRequest}
+            onApprove={approveRequest}
+            onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.marketing}
           />
         </Card>
 

@@ -5,7 +5,7 @@ import {
   PhoneCall, HeartHandshake, Handshake, Megaphone,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
 } from '../../components/studio'
@@ -14,6 +14,7 @@ import {
   getOutreachPartnerGrowthByMonth, getOutreachPartnerFollowTrendByMonth,
   getOutreachContacts, createOutreachContact, setOutreachContactStatus, getOutreachContactsSignedComparison,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
 } from '../../lib/studioMetrics'
 
 // Outreach Hub (Studio Phase 4) -- for Sienna, Ethan, Fabz and James, the
@@ -50,12 +51,16 @@ import {
 //     Hub, Studio Phase 2) with team='outreach' -- no new task table,
 //     exactly what it was built generic for.
 //
-// TODO(phase-2-access-system): the brief names no lead among Sienna/Ethan/
-// Fabz/James, so every RPC this page calls gates on the whole outreach/
-// founder/admin group -- an honest team-wide "everyone sees the data" gate
-// today (same principle Legal/Tech used), not a silent no-op. Once real
-// per-person staff roles exist, a leader/member split can narrow specific
-// actions (e.g. editing another member's logged contact) further.
+// CONFIRMED, not changed (Studio Phase 11, was TODO(phase-2-access-system)):
+// re-checked live before building the new lead-tier access system -- the
+// brief still names no lead among Sienna/Ethan/Fabz/James, so every RPC
+// this page calls stays gated on the whole outreach/founder/admin group,
+// an honest team-wide "everyone sees the data" gate, not a fabricated lead.
+// user_roles.is_lead exists for Outreach too (schema is generic) and
+// _is_team_lead_or_admin('outreach') works the moment a real lead is named
+// -- Studio Phase 11 also adds a real cross-hub Requests section below
+// (hand a task to another hub, or ask for access into one), the "no
+// access-request flow anywhere" gap the audit flagged.
 
 const TEAM = 'outreach'
 
@@ -93,6 +98,7 @@ export default function OutreachDashboardPage() {
 
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
+  const [requests, setRequests] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -100,7 +106,7 @@ export default function OutreachDashboardPage() {
     try {
       const [
         pipelineRes, coachRes, partnerRes, growthRes, followRes,
-        contactsRes, compareRes, tasksRes, membersRes,
+        contactsRes, compareRes, tasksRes, membersRes, requestsRes,
       ] = await Promise.all([
         getOutreachInboundPipeline(),
         getOutreachCoachRecruitmentSnapshot(),
@@ -111,6 +117,7 @@ export default function OutreachDashboardPage() {
         getOutreachContactsSignedComparison(comparisonWindow),
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
+        listStudioRequests(TEAM),
       ])
       setPipeline(pipelineRes.value || [])
       setCoachSnapshot(coachRes.value || null)
@@ -121,6 +128,7 @@ export default function OutreachDashboardPage() {
       setComparison(compareRes.value || null)
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
+      setRequests(requestsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -194,6 +202,36 @@ export default function OutreachDashboardPage() {
     }
   }
 
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t] = await Promise.all([listStudioRequests(TEAM), getTeamTasks(TEAM)])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const r = await listStudioRequests(TEAM)
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
+    }
+  }
+
   // ── Derived ───────────────────────────────────────────────────────────────
   const contactsByStatus = useMemo(() => {
     const counts = { contacted: 0, responded: 0, declined: 0, signed: 0 }
@@ -214,6 +252,7 @@ export default function OutreachDashboardPage() {
     { id: 'oh-log', label: 'Outreach Log' },
     { id: 'oh-comparison', label: 'Comparison' },
     { id: 'oh-tasks', label: 'Campaign Task Board' },
+    { id: 'oh-requests', label: 'Requests' },
   ]
 
   const heroCharts = [
@@ -347,11 +386,12 @@ export default function OutreachDashboardPage() {
         <Card id="oh-log" style={{ marginTop: 'var(--studio-gap)' }}>
           <SectionTitle eyebrow="New" title="Outreach Log"
             caption="Real log of who's been contacted, when, and the outcome -- nothing structured existed for this before. Seeded empty on purpose (a real round of outreach emails is known to have happened this session via Gmail, but could not be safely/unambiguously counted from here -- see the migration's own note). Every row below is a real one, logged by Sienna/Ethan/Fabz/James as outreach actually happens." />
-          {/* TODO(phase-2-access-system): anyone on outreach/founder/admin
-              can log and change status today -- there is no leader vs
-              team-member split (the brief names no lead among Sienna/
-              Ethan/Fabz/James), so this is an honest team-wide gate, not
-              a locked-down one pretending to be finer-grained. */}
+          {/* CONFIRMED, not changed (Studio Phase 11, was TODO(phase-2-
+              access-system)): re-checked live -- the brief still names no
+              lead among Sienna/Ethan/Fabz/James, so this stays an honest
+              team-wide gate, not a fabricated one. The is_lead column now
+              exists on user_roles for Outreach too (schema is generic),
+              ready the day the founder actually names a lead for this team. */}
           <div className="studio-form-panel">
             <div className="studio-form-row" style={{ gridTemplateColumns: '0.9fr 1.3fr 1fr 1fr 1.6fr auto' }}>
               <StudioField label="Type">
@@ -474,6 +514,24 @@ export default function OutreachDashboardPage() {
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.outreach}
             emptyLabel="No campaign tasks yet -- add the first real one above."
+          />
+        </Card>
+
+        {/* ══ REQUESTS ═══════════════════════════════════════════════════
+            Studio Phase 11 -- cross-hub task handoff / access requests. */}
+        <Card id="oh-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions. Approving a task handoff actually moves it to that hub's own board." />
+          <RequestPanel
+            team={TEAM}
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createRequest}
+            onApprove={approveRequest}
+            onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.outreach}
           />
         </Card>
 

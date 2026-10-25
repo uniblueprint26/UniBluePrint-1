@@ -16,10 +16,11 @@ import {
   getHandlerQueueSnapshot,
   getCoDirectorPendingDecisions,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest, getAllPendingStudioRequests,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard,
-  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard, RequestPanel,
+  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS,
   EmptyNote, tint,
 } from '../../components/studio'
 
@@ -207,6 +208,8 @@ export default function FounderDashboardPage() {
   // ── New: Founder Priorities (generic team_tasks, team='founder') ───────
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
+  const [requests, setRequests] = useState([])
+  const [allPendingRequests, setAllPendingRequests] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -217,7 +220,7 @@ export default function FounderDashboardPage() {
         enquiriesRes, ratingsRes, campusesRes, retentionRes,
         revRes, marginRes, contractsRes, advisorRes,
         pipelineRes, coachRes, funnelRes, handlerRes, decisionsRes,
-        tasksRes, membersRes,
+        tasksRes, membersRes, requestsRes, allPendingRes,
       ] = await Promise.all([
         supabase.rpc('get_founder_topline', { _range: range }),
         supabase.rpc('get_feature_engagement', { _range: range }),
@@ -238,6 +241,8 @@ export default function FounderDashboardPage() {
         getCoDirectorPendingDecisions(),
         getTeamTasks('founder'),
         getTeamRoster('founder'),
+        listStudioRequests('founder'),
+        getAllPendingStudioRequests(),
       ])
 
       const firstError = [toplineRes, engagementRes, signupsRes, partnersRes, enquiriesRes, ratingsRes, campusesRes, retentionRes]
@@ -270,6 +275,8 @@ export default function FounderDashboardPage() {
       setDecisions(decisionsRes.value || [])
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
+      setRequests(requestsRes.value || [])
+      setAllPendingRequests(allPendingRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -298,6 +305,39 @@ export default function FounderDashboardPage() {
       setError(err.message || 'Could not update that priority.')
     }
   }
+
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests('founder')
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t, allP] = await Promise.all([listStudioRequests('founder'), getTeamTasks('founder'), getAllPendingStudioRequests()])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+      setAllPendingRequests(allP.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const [r, allP] = await Promise.all([listStudioRequests('founder'), getAllPendingStudioRequests()])
+      setRequests(r.value || [])
+      setAllPendingRequests(allP.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
+    }
+  }
+
   const tasksByStatus = useMemo(() => {
     const counts = { todo: 0, in_progress: 0, done: 0 }
     for (const t of tasks) counts[t.status] = (counts[t.status] || 0) + 1
@@ -360,6 +400,8 @@ export default function FounderDashboardPage() {
     { id: 'fh-partners', label: 'Partners & Coaches' },
     { id: 'fh-decisions', label: 'Needs A Decision' },
     { id: 'fh-priorities', label: 'Founder Priorities' },
+    { id: 'fh-all-requests', label: 'Cross-Hub Requests' },
+    { id: 'fh-requests', label: 'Requests' },
   ]
 
   return (
@@ -643,6 +685,63 @@ export default function FounderDashboardPage() {
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.founder}
             emptyLabel="No Founder priorities yet -- add the first real one above."
+          />
+        </Card>
+
+        {/* ══ CROSS-HUB REQUESTS (COMPANY-WIDE) ═════════════════════════
+            Studio Phase 11 -- every pending task_handoff/access_request,
+            any team, not just ones directed at Founder. Reuses the exact
+            get_all_pending_studio_requests() rollup the Co-Director Hub
+            uses, same "shared getter" pattern as every other rollup here. */}
+        <Card id="fh-all-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New -- across every hub" title="Cross-hub requests, company-wide"
+            caption="Every pending task handoff or access request, any hub, not just ones sent to Founder -- a real-time view of who's asking whom for what across the whole Studio." />
+          {allPendingRequests.length === 0 ? (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '10px',
+              background: tint(GREEN, 0.06), border: `1px solid ${tint(GREEN, 0.35)}`,
+            }}>
+              <CheckCircle2 size={18} style={{ flexShrink: 0 }} color={GREEN} />
+              <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: 0, lineHeight: 1.55 }}>
+                <strong>Nothing pending.</strong> No cross-hub request is waiting on anyone right now.
+              </p>
+            </div>
+          ) : (
+            <div className="studio-table-wrap">
+              <table className="studio-table studio-table--top">
+                <thead><tr><th>From</th><th>To</th><th>Type</th><th>Detail</th><th>Sent</th></tr></thead>
+                <tbody>
+                  {allPendingRequests.map(r => (
+                    <tr key={r.id}>
+                      <td><HubBadge hub={r.requester_team} label={HUB_LABELS[r.requester_team] || r.requester_team} /></td>
+                      <td><HubBadge hub={r.target_team} label={HUB_LABELS[r.target_team] || r.target_team} /></td>
+                      <td style={{ textTransform: 'capitalize' }}>{r.request_type.replace('_', ' ')}</td>
+                      <td style={{ minWidth: '200px', maxWidth: '320px', whiteSpace: 'normal', color: GREY }}>{r.related_task_title ? `${r.related_task_title} -- ` : ''}{r.message}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{fmtDateTime(r.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
+        {/* ══ REQUESTS (FOUNDER'S OWN) ════════════════════════════════════
+            Studio Phase 11 -- hand a Founder priority to a specific hub, or
+            receive/approve requests directed at Founder. */}
+        <Card id="fh-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions." />
+          <RequestPanel
+            team="founder"
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createRequest}
+            onApprove={approveRequest}
+            onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.founder}
           />
         </Card>
 

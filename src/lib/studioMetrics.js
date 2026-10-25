@@ -357,6 +357,63 @@ export async function setTeamTaskStatus(id, status) {
   if (error) throw error
 }
 
+// ── Lead-tier access (Studio Phase 11) -- is this caller a real LEAD of
+// _team (or founder/admin/co_director), per user_roles.is_lead. Resolves
+// each hub's TODO(phase-2-access-system): Finance's negotiated-rate
+// visibility and Tech's idea-triage gate both call this to decide what to
+// render, same "ask a real RPC, never guess from the route-level role
+// alone" principle every hub already follows. ──
+export async function getIsTeamLead(team) {
+  const { data, error } = await supabase.rpc('am_i_team_lead', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: !!data }
+}
+
+// ── Cross-hub access/request system (Studio Phase 11) -- the "no hub has
+// an access-request flow" gap the audit flagged. Two real request types
+// via the new studio_requests table: task_handoff (delegate an existing
+// team_tasks row to a DIFFERENT hub) and access_request (ask to see
+// another hub's data, or ask your own hub's leads for the lead-only
+// view). See supabase/migrations' studio_phase11_leads_and_requests_v2
+// for the full RPC bodies and the shared RequestPanel Studio component
+// every hub page renders this through. ──
+export async function listStudioRequests(team) {
+  const { data, error } = await supabase.rpc('list_studio_requests', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createStudioRequest(fields) {
+  const { data, error } = await supabase.rpc('create_studio_request', {
+    _target_team: fields.targetTeam,
+    _request_type: fields.requestType,
+    _message: fields.message,
+    _target_user_id: fields.targetUserId || null,
+    _related_task_id: fields.relatedTaskId || null,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function approveStudioRequest(id, resolutionNote, assignTo) {
+  const { error } = await supabase.rpc('approve_studio_request', {
+    _id: id, _resolution_note: resolutionNote || null, _assign_to: assignTo || null,
+  })
+  if (error) throw error
+}
+
+export async function denyStudioRequest(id, resolutionNote) {
+  const { error } = await supabase.rpc('deny_studio_request', { _id: id, _resolution_note: resolutionNote || null })
+  if (error) throw error
+}
+
+/** Company-wide rollup of every pending cross-hub request, any team -- founder/admin/co_director only. Reused by both the Co-Director Hub and Founder Dashboard, same way getCoDirectorPendingDecisions() already is. */
+export async function getAllPendingStudioRequests() {
+  const { data, error } = await supabase.rpc('get_all_pending_studio_requests')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // Tech Hub (Studio Phase 3) -- health overview snapshots (advisor findings
 // + deployed Edge Functions, both Management-API-only data captured as

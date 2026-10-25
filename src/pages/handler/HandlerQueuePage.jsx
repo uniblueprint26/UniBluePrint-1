@@ -19,9 +19,10 @@ import {
 import {
   getHandlerQueueSnapshot, getHandlerTicketsByWeek, getHandlerTicketsResolvedComparison,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel,
   NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
 } from '../../components/studio'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
@@ -82,6 +83,7 @@ export default function HandlerQueuePage() {
   const [comparison, setComparison] = useState(null)
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
+  const [requests, setRequests] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -90,10 +92,10 @@ export default function HandlerQueuePage() {
       const tasksToRun = [
         fetchPremiumQueue(), fetchStandardQueue(), fetchMyActiveAssignments(user.id), fetchHandlerNotifications(user.id),
         getHandlerQueueSnapshot(), getHandlerTicketsByWeek(), getHandlerTicketsResolvedComparison(comparisonWindow),
-        getTeamTasks('handler'), getTeamRoster('handler'),
+        getTeamTasks('handler'), getTeamRoster('handler'), listStudioRequests('handler'),
       ]
       if (isOperations) tasksToRun.push(fetchOperationsQueue())
-      const [p, s, m, n, snapRes, weekRes, compRes, tasksRes, membersRes, e] = await Promise.all(tasksToRun)
+      const [p, s, m, n, snapRes, weekRes, compRes, tasksRes, membersRes, requestsRes, e] = await Promise.all(tasksToRun)
       setPremium(p)
       setStandard(s)
       setMine(m)
@@ -103,6 +105,7 @@ export default function HandlerQueuePage() {
       setComparison(compRes.value || null)
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
+      setRequests(requestsRes.value || [])
       if (isOperations) setEscalated(e || [])
     } catch (err) {
       setError(err.message || 'Could not load the queue.')
@@ -130,6 +133,36 @@ export default function HandlerQueuePage() {
       setTasks(r.value || [])
     } catch (err) {
       setError(err.message || 'Could not update that task.')
+    }
+  }
+
+  // ── Requests (Studio Phase 11 -- cross-hub task handoff / access requests) ──
+  async function createRequest(fields) {
+    try {
+      await createStudioRequest(fields)
+      const r = await listStudioRequests('handler')
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not send that request.')
+    }
+  }
+  async function approveRequest(id, note, assignTo) {
+    try {
+      await approveStudioRequest(id, note, assignTo)
+      const [r, t] = await Promise.all([listStudioRequests('handler'), getTeamTasks('handler')])
+      setRequests(r.value || [])
+      setTasks(t.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not approve that request.')
+    }
+  }
+  async function denyRequest(id, note) {
+    try {
+      await denyStudioRequest(id, note)
+      const r = await listStudioRequests('handler')
+      setRequests(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not deny that request.')
     }
   }
 
@@ -191,6 +224,7 @@ export default function HandlerQueuePage() {
     { id: 'hh-queue', label: 'Queue' },
     { id: 'hh-performance', label: 'Performance' },
     { id: 'hh-tasks', label: 'Handler Team Tasks' },
+    { id: 'hh-requests', label: 'Requests' },
   ]
 
   const heroCharts = [
@@ -391,6 +425,24 @@ export default function HandlerQueuePage() {
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.handler}
             emptyLabel="No Handler team tasks yet -- add the first real one above."
+          />
+        </Card>
+
+        {/* ══ REQUESTS ═══════════════════════════════════════════════════
+            Studio Phase 11 -- cross-hub task handoff / access requests. */}
+        <Card id="hh-requests" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Requests"
+            caption="Hand a task to a different hub, or ask another hub's leads for access -- real studio_requests rows, both directions. Approving a task handoff actually moves it to that hub's own board." />
+          <RequestPanel
+            team="handler"
+            requests={requests}
+            tasks={tasks}
+            members={members}
+            loading={loading}
+            onCreate={createRequest}
+            onApprove={approveRequest}
+            onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.handler}
           />
         </Card>
 
