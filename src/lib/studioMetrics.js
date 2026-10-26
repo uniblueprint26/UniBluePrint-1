@@ -297,6 +297,13 @@ export async function getLegalContractsResolvedComparison(range = 'week') {
   return { trackable: true, value: data?.[0] || null }
 }
 
+/** Studio Phase 13 -- same real legal_contract_status_log feed as the comparison above, bucketed by calendar week instead of collapsed to one this/last pair, for the Legal Hub's new TrendLineChart. Includes genuine zero weeks. */
+export async function getLegalContractsResolvedTrend(weeks = 8) {
+  const { data, error } = await supabase.rpc('get_legal_contracts_resolved_trend', { _weeks: weeks })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
 /** Real gdpr_requests rows (0 today -- genuinely empty, not filtered down) with a computed is_overdue flag. */
 export async function getLegalGdprRequests() {
   const { data, error } = await supabase.rpc('get_legal_gdpr_requests')
@@ -483,6 +490,13 @@ export async function getTechIdeasTriagedComparison(range = 'week') {
   const { data, error } = await supabase.rpc('get_tech_ideas_triaged_comparison', { _range: range })
   if (error) throw error
   return { trackable: true, value: data?.[0] || null }
+}
+
+/** Studio Phase 13 -- same real tech_idea_status_log feed, bucketed by calendar week, for the Tech Hub's new TrendLineChart. Includes genuine zero weeks. */
+export async function getTechIdeasTriagedTrend(weeks = 8) {
+  const { data, error } = await supabase.rpc('get_tech_ideas_triaged_trend', { _weeks: weeks })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -766,4 +780,35 @@ export async function deleteStudioGreeting(id) {
   const { error } = await supabase.rpc('delete_studio_greeting', { _id: id })
   if (error) throw error
   return { trackable: true, value: true }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// STUDIO PHASE 13 -- dashboard intelligence layer. The mini calendar and
+// activity heatmap are cross-hub (any team can use either), so their
+// getters live here rather than under one specific hub's section above.
+// See supabase/migrations/20261026130000_studio_phase13_dashboard_
+// intelligence.sql for get_task_due_date_density()/get_team_activity_
+// heatmap()'s full bodies and the no-new-table reasoning.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Real team_tasks.target_date counts per day, for the Studio mini
+ * calendar. `scope`: 'team' (every real task for `team`), 'mine' (further
+ * restricted to the caller's own assigned_to), 'all' (every team --
+ * founder/co_director/admin only; a non-admin caller gets the RPC's own
+ * real "not authorized" error, which MiniCalendar.jsx shows inline). */
+export async function getTaskDueDateDensity(team, scope = 'team') {
+  const { data, error } = await supabase.rpc('get_task_due_date_density', { _team: team, _scope: scope })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** Real per-day event-count density for the Studio contribution-style
+ * activity heatmap, for the last `days` days (default ~26 weeks). Always
+ * includes `team`'s own real team_tasks activity; legal/tech/outreach
+ * additionally get their real append-only status-log table unioned in --
+ * see the migration's own comment for which. */
+export async function getTeamActivityHeatmap(team, days = 182) {
+  const { data, error } = await supabase.rpc('get_team_activity_heatmap', { _team: team, _days: days })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
 }

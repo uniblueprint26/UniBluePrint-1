@@ -8,6 +8,16 @@ export { default as StatusDot } from './StatusDot'
 export { default as MetricBarChart } from './MetricBarChart'
 export { default as ComparisonWidget } from './ComparisonWidget'
 export { default as StatStrip } from './StatStrip'
+// Studio Phase 13 -- dashboard intelligence layer.
+export { default as TrendLineChart } from './TrendLineChart'
+export { default as DonutChart } from './DonutChart'
+export { default as Sparkline } from './Sparkline'
+export { default as HealthBadge } from './HealthBadge'
+export { default as PeriodToggle } from './PeriodToggle'
+export { default as ChartExportButton } from './ChartExportButton'
+export { default as GlanceCard } from './GlanceCard'
+export { default as MiniCalendar } from './MiniCalendar'
+export { default as ActivityHeatmap } from './ActivityHeatmap'
 // SectionJumpNav.jsx is fully superseded by StudioSidebar (Studio Phase
 // 12) -- StudioShell no longer renders it, and nothing else in the repo
 // imports it (checked via grep before this change). Left in the repo

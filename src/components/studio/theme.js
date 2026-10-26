@@ -88,6 +88,34 @@ export function getStatusColor(key) {
   return table[key] || table.grey
 }
 
+// ─── Studio Phase 13: real-hex neutrals for raw SVG charts ───────────────
+// TrendLineChart/DonutChart/ActivityHeatmap/MiniCalendar draw their own
+// axis/grid/text/surface colors as literal SVG attributes (stroke="...",
+// fill="..."), not CSS -- so, same reasoning as STATUS_HEX/getStatusColor
+// above, they cannot use the var()-backed NAVY/GREY/BORDER/WHITE exports:
+// a var() only resolves while the element is painted live in THIS page's
+// DOM, cascading from .studio-shell's own declaration. The PNG export
+// button (chartExport.js) serializes a chart's <svg> to a standalone
+// string and repaints it in a plain, detached <img> with no access to
+// this page's CSS custom properties at all -- a var() there resolves to
+// nothing (default initial value), not the light/dark value, so an
+// exported chart would download with invisible axis labels. These two
+// helpers are the exact light/dark hex pairs StudioShell.jsx's own
+// SHELL_STYLES already declares for --studio-grey/--studio-muted/
+// --studio-border/--studio-white -- re-read from the current mode flag,
+// never re-invented.
+export function getChartNeutral(key) {
+  const dark = _studioThemeMode === 'dark'
+  const table = {
+    text: dark ? '#B6C3D3' : '#6B7280',                              // --studio-grey
+    muted: dark ? '#8FA0B5' : '#9CA3AF',                              // --studio-muted
+    grid: dark ? 'rgba(245,240,232,0.14)' : 'rgba(30,58,95,0.08)',    // --studio-border
+    surface: dark ? '#2B4A74' : '#FFFFFF',                            // --studio-white
+    heading: dark ? '#F5F0E8' : '#1E3A5F',                            // --studio-navy
+  }
+  return table[key] || table.text
+}
+
 export const FONT_SERIF = "'DM Serif Display', serif"
 export const FONT_SANS = "'DM Sans', sans-serif"
 
@@ -169,6 +197,19 @@ export const HUB_ACCENTS = {
   co_director: '#475569', // slate/graphite -- deliberately the one muted, cool-neutral accent among six warm/saturated hub hues (finance violet, legal teal, tech burnt orange, outreach rose, marketing indigo, operations blue) -- a rollup view sitting ABOVE the five operational hubs reads as senior/oversight precisely by not competing with any one of their colors, the same way NAVY/CREAM/GREY already read as the shared "base" layer every hub sits on. Distinct from GREY (#6B7280)/MUTED (#9CA3AF) by being darker and more saturated, so it still reads as a real accent, not disabled text. Judgment call, flagged in the Studio Phase 6 handback report.
   handler: '#B45309',   // deep amber/gold (amber-700) -- distinct hue from every existing accent: warmer/browner than tech's burnt orange (#EA580C), nowhere near finance's violet-purple, legal's teal, outreach's rose, marketing's indigo, operations' blue or co_director's slate. Reads as "dispatch/operational logistics" -- a queue being worked, tickets moving through stages -- the same intuition amber has in a shift-rota or ticketing UI, without touching GREEN/AMBER-as-status (#F59E0B, reserved for status elsewhere) or RED (status-only). Judgment call, flagged in the Studio Phase 7 handback report.
 }
+
+// Studio Phase 13 -- the one shared day/week/month/year option set for
+// PeriodToggle.jsx. Lives here (plain constants only, same as HUB_ACCENTS/
+// HUB_LABELS above) rather than in PeriodToggle.jsx itself, so that
+// component file exports only the one component Fast Refresh expects --
+// keeps the Tech Hub's own documented 14-warning lint baseline from
+// growing by one for exporting a constant alongside a component.
+export const DAY_WEEK_MONTH_YEAR = [
+  { key: 'day', label: 'Day' },
+  { key: 'week', label: 'Week' },
+  { key: 'month', label: 'Month' },
+  { key: 'year', label: 'Year' },
+]
 
 // Display labels for the free-text team values studio_requests/team_tasks
 // use (Studio Phase 11) -- shared by RequestPanel's target-team picker and

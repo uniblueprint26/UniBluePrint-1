@@ -7,6 +7,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  GlanceCard, tint,
 } from '../../components/studio'
 import {
   getMarketingEngagementFunnel, getMarketingEngagementByPartner, getMarketingDealClaimsComparison,
@@ -284,18 +285,18 @@ export default function MarketingDashboardPage() {
     {
       key: 'early-access-trend', eyebrow: 'Top of funnel', title: 'Early access signups (real, per month)',
       caption: 'Real early_access_signups.created_at, by month -- includes real zero months, not skipped. Only 4 real rows exist today.',
-      data: signupsByMonth.map(m => ({ name: m.month_label, value: m.signup_count, color: HUB_ACCENTS.marketing })),
-      emptyLabel: 'No signup data yet.',
-      nameWidth: 90,
+      type: 'trend',
+      data: signupsByMonth.map(m => ({ x: m.month_label, y: m.signup_count })),
+      emptyLabel: 'Not enough real signups yet to show a monthly trend.',
     },
     {
       key: 'featured-by-type', eyebrow: 'Live', title: 'Currently featured, by type',
-      caption: `${fmt(activeFeaturedCount)} of ${fmt(featured.length)} featured_content rows are active right now -- real rotation shown on the home screen today.`,
-      data: Object.keys(CONTENT_TYPE_LABELS).map(k => ({
-        name: CONTENT_TYPE_LABELS[k], value: featuredByType[k] || 0, color: HUB_ACCENTS.marketing,
+      caption: `${fmt(activeFeaturedCount)} of ${fmt(featured.length)} featured_content rows are active right now -- a genuinely proportional mix, real rotation shown on the home screen today.`,
+      type: 'donut',
+      data: Object.keys(CONTENT_TYPE_LABELS).map((k, i) => ({
+        name: CONTENT_TYPE_LABELS[k], value: featuredByType[k] || 0, color: tint(HUB_ACCENTS.marketing, 1 - i * 0.14),
       })),
-      emptyLabel: 'Loading…',
-      nameWidth: 120,
+      emptyLabel: 'Nothing currently featured.',
     },
   ]
 
@@ -315,6 +316,17 @@ export default function MarketingDashboardPage() {
         accentColor={HUB_ACCENTS.marketing}
         heroCharts={heroCharts}
         sections={sections}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.marketing}
+            loading={loading}
+            items={[
+              { key: 'featured-active', label: 'Active featured pins', value: fmt(activeFeaturedCount), sub: `of ${fmt(featured.length)} total` },
+              { key: 'real-views', label: 'Real deal views', value: fmt(funnel?.real_views), health: funnel?.real_claims > 0 ? 'good' : 'neutral' },
+              { key: 'early-access', label: 'Early access signups', value: fmt(signups.length) },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>

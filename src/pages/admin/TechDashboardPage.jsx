@@ -8,12 +8,14 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton,
+  PeriodToggle, DAY_WEEK_MONTH_YEAR, TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
 import {
   getTechAdvisorSnapshot, getTechEdgeFunctionSnapshot, getTechFunctionHealthRates,
   getTechGenerationUsageSummary, getTechIdeas, createTechIdea, setTechIdeaStatus,
-  getTechIdeasTriagedComparison, getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
+  getTechIdeasTriagedComparison, getTechIdeasTriagedTrend, getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   getIsTeamLead, listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  getTaskDueDateDensity, getTeamActivityHeatmap,
 } from '../../lib/studioMetrics'
 
 // Tech Hub (Studio Phase 3) -- for Eman and Tayyab (leads, full access +
@@ -103,6 +105,7 @@ export default function TechDashboardPage() {
   const [ideas, setIdeas] = useState([])
   const [comparisonWindow, setComparisonWindow] = useState('week')
   const [comparison, setComparison] = useState(null)
+  const [triagedTrend, setTriagedTrend] = useState([])
 
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
@@ -114,13 +117,14 @@ export default function TechDashboardPage() {
     setLoading(true)
     setError('')
     try {
-      const [advisorRes, edgeFnRes, healthRes, genRes, ideasRes, compareRes, tasksRes, membersRes, requestsRes, leadRes] = await Promise.all([
+      const [advisorRes, edgeFnRes, healthRes, genRes, ideasRes, compareRes, trendRes, tasksRes, membersRes, requestsRes, leadRes] = await Promise.all([
         getTechAdvisorSnapshot(),
         getTechEdgeFunctionSnapshot(),
         getTechFunctionHealthRates(),
         getTechGenerationUsageSummary(genRange),
         getTechIdeas(),
         getTechIdeasTriagedComparison(comparisonWindow),
+        getTechIdeasTriagedTrend(8),
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
         listStudioRequests(TEAM),
@@ -132,6 +136,7 @@ export default function TechDashboardPage() {
       setGenUsage(genRes.value || { call_count: 0, total_cost_cents: 0, by_function: [] })
       setIdeas(ideasRes.value || [])
       setComparison(compareRes.value || null)
+      setTriagedTrend(trendRes.value || [])
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setRequests(requestsRes.value || [])
@@ -256,8 +261,15 @@ export default function TechDashboardPage() {
     { id: 'tech-ideas', label: 'Idea Inbox' },
     { id: 'tech-comparison', label: 'Comparison' },
     { id: 'tech-qa', label: 'QA / Test Board' },
+    { id: 'tech-activity', label: 'Calendar & Activity' },
     { id: 'tech-requests', label: 'Requests' },
   ]
+
+  // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap's own
+  // effects (keyed on this function identity) fetch exactly once per
+  // scope/mount, not on every TechDashboardPage render.
+  const fetchDueDates = useCallback(scope => getTaskDueDateDensity(TEAM, scope), [])
+  const fetchHeatmap = useCallback(d => getTeamActivityHeatmap(TEAM, d), [])
 
   const heroCharts = [
     {
@@ -295,6 +307,17 @@ export default function TechDashboardPage() {
       data: (genUsage.by_function || []).map(f => ({ name: f.function_name, value: f.calls, color: HUB_ACCENTS.tech })),
       emptyLabel: 'No AI-generation calls logged yet this range.',
     },
+    {
+      key: 'findings-mix', eyebrow: 'Live Health', title: 'Advisor findings mix',
+      caption: 'The same real snapshot as the two charts above, combined across security + performance into one proportional mix.',
+      type: 'donut',
+      data: [
+        { name: 'Error', value: totalErrors, color: getStatusColor('red') },
+        { name: 'Warn', value: severityTotals.security.WARN + severityTotals.performance.WARN, color: getStatusColor('yellow') },
+        { name: 'Info', value: severityTotals.security.INFO + severityTotals.performance.INFO, color: getStatusColor('grey') },
+      ],
+      emptyLabel: 'No advisor snapshot captured yet.',
+    },
   ]
 
   return (
@@ -313,6 +336,18 @@ export default function TechDashboardPage() {
         accentColor={HUB_ACCENTS.tech}
         heroCharts={heroCharts}
         sections={sections}
+        rangeControl={<PeriodToggle options={DAY_WEEK_MONTH_YEAR} value={genRange} onChange={setGenRange} ariaLabel="Generation usage range" />}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.tech}
+            loading={loading}
+            items={[
+              { key: 'errors', label: 'ERROR-level findings', value: fmt(totalErrors), health: totalErrors > 0 ? 'critical' : 'good' },
+              { key: 'functions', label: 'Edge Functions deployed', value: fmt(edgeFnStatusCounts.total) },
+              { key: 'ideas-open', label: 'Ideas awaiting triage', value: fmt(ideas.filter(i => i.status === 'new' || i.status === 'under_review').length), health: ideas.some(i => i.status === 'brought_to_founder') ? 'warning' : 'neutral' },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -490,6 +525,17 @@ export default function TechDashboardPage() {
               ? 'No ideas have moved out of New yet this window or last -- honest 0s, this will fill in as Eman/Tayyab start triaging.'
               : null}
           />
+          <Card style={{ marginTop: '16px' }}>
+            <SectionTitle eyebrow="Studio Phase 13" title="Ideas triaged, weekly trend"
+              caption="The same real tech_idea_status_log feed as above, now bucketed by calendar week instead of collapsed to one this-period/last-period pair." />
+            <TrendLineChart
+              data={triagedTrend.map(w => ({ x: w.week_label, y: w.triaged_count }))}
+              accentColor={HUB_ACCENTS.tech}
+              emptyLabel="Not enough real triage activity yet to show a weekly trend -- this will fill in as Eman/Tayyab triage more ideas."
+              loading={loading}
+              exportFilename="tech-ideas-triaged-trend"
+            />
+          </Card>
         </div>
 
         {/* ══ QA / TEST BOARD ══════════════════════════════════════════ */}
@@ -524,6 +570,23 @@ export default function TechDashboardPage() {
             emptyLabel="No tasks yet -- add the first real one above (use Batch 'QA' for Enoch's testing work)."
           />
         </Card>
+
+        {/* ══ CALENDAR & ACTIVITY ══════════════════════════════════════
+            Studio Phase 13 -- real team_tasks.target_date due-date density
+            (scope: mine / this hub / UBP-wide) and a real contribution-
+            style activity heatmap off tech_idea_status_log + team_tasks. */}
+        <div id="tech-activity" className="tc-two-col" style={{ marginTop: 'var(--studio-gap)' }}>
+          <Card>
+            <SectionTitle eyebrow="New" title="Due-date calendar"
+              caption="Real team_tasks.target_date rows for the Tech team. 'UBP-wide' covers every hub's tasks -- founder/co_director/admin only; anyone else who taps it simply gets a real, honest 'not authorized' message, not a fake empty calendar." />
+            <MiniCalendar team={TEAM} accentColor={HUB_ACCENTS.tech} canViewAll onFetchScope={fetchDueDates} />
+          </Card>
+          <Card>
+            <SectionTitle eyebrow="New" title="Activity heatmap"
+              caption="Real per-day event density for the Tech team over the last ~26 weeks -- tech_idea_status_log triage activity plus team_tasks created/closed activity. Most hubs are pre-launch, so most squares are honestly empty." />
+            <ActivityHeatmap team={TEAM} accentColor={HUB_ACCENTS.tech} onFetch={fetchHeatmap} exportFilename="tech-activity-heatmap" />
+          </Card>
+        </div>
 
         {/* ══ REQUESTS ═══════════════════════════════════════════════════
             Studio Phase 11 -- cross-hub task handoff / access requests. */}

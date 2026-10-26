@@ -4,6 +4,8 @@ import { NAVY, GREY, MUTED, SAND, SURFACE_TINT, BORDER, FONT_SERIF, FONT_SANS, t
 import GreetingBanner from './GreetingBanner'
 import StudioSidebar, { SIDEBAR_STYLES, SidebarToggleButton } from './StudioSidebar'
 import MetricBarChart from './MetricBarChart'
+import TrendLineChart from './TrendLineChart'
+import DonutChart from './DonutChart'
 import { StudioCard, Eyebrow } from './StudioPrimitives'
 import { SKELETON_STYLES } from './Skeleton'
 import { useStudioTheme } from './useStudioTheme'
@@ -130,8 +132,11 @@ const SHELL_STYLES = `
  * then the hub's own sections -- NOT separate pages, one continuous
  * scrolling page per hub, the sidebar just jumps around it.
  *
- * `heroCharts`: [{ key, title, caption?, data, valueFormatter? }] -- each
- * rendered as its own MetricBarChart card via the shared chart style.
+ * `heroCharts`: [{ key, title, caption?, data, valueFormatter?, type?,
+ * series?, accentColor? }] -- each rendered as its own card via the shared
+ * chart style. `type` (Studio Phase 13) is 'bar' (default, MetricBarChart),
+ * 'trend' (TrendLineChart -- pass `series` for 2+ lines, or `data` for one)
+ * or 'donut' (DonutChart, for a genuinely proportional breakdown).
  * `heroChartsLoading`: true while the hub's own page-level fetch is still
  * in flight, so each hero chart shows a shimmer skeleton instead of
  * momentarily looking like an empty chart (see MetricBarChart.jsx).
@@ -141,12 +146,15 @@ const SHELL_STYLES = `
  * -- also what the greeting banner and background texture render in.
  * `rangeControl`: optional node (e.g. the existing day/week/month/year
  * toggle) rendered in the header next to the title.
+ * `glanceCard` (Studio Phase 13): optional node -- a GlanceCard rendered
+ * above heroCharts, pinned at the very top of the Overview section.
  */
 export default function StudioShell({
   hubKey,
   title,
   subtitle,
   accentColor = NAVY,
+  glanceCard,
   heroCharts = [],
   heroChartsLoading = false,
   sections = [],
@@ -209,6 +217,12 @@ export default function StudioShell({
 
         {error}
 
+        {/* Studio Phase 13 -- the pinned "at a glance" summary card, above
+            the hero bar-chart row (see GlanceCard.jsx's own comment). One
+            integration point here rather than per-hub positioning, same
+            reasoning as the rest of this file. */}
+        {glanceCard}
+
         {heroCharts.length > 0 && (
           <div className="studio-hero-grid">
             {heroCharts.map(chart => (
@@ -219,14 +233,41 @@ export default function StudioShell({
                   <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '0 0 16px', lineHeight: 1.55, overflowWrap: 'anywhere' }}>{chart.caption}</p>
                 )}
                 <div>
-                  <MetricBarChart
-                    data={chart.data}
-                    accentColor={chart.accentColor || accentColor}
-                    valueFormatter={chart.valueFormatter}
-                    emptyLabel={chart.emptyLabel}
-                    nameWidth={chart.nameWidth || 130}
-                    loading={heroChartsLoading}
-                  />
+                  {/* Studio Phase 13: a hero chart card defaults to the
+                      original bar-chart rendering (`type` omitted, every
+                      pre-Phase-13 hub untouched) -- `type: 'trend'`/'donut'
+                      opt a specific card into the new SVG chart types,
+                      still through this one shared switch so every hub
+                      reuses the exact same integration point. */}
+                  {chart.type === 'trend' ? (
+                    <TrendLineChart
+                      data={chart.data}
+                      series={chart.series}
+                      accentColor={chart.accentColor || accentColor}
+                      valueFormatter={chart.valueFormatter}
+                      emptyLabel={chart.emptyLabel}
+                      loading={heroChartsLoading}
+                      exportFilename={chart.key}
+                    />
+                  ) : chart.type === 'donut' ? (
+                    <DonutChart
+                      data={chart.data}
+                      accentColor={chart.accentColor || accentColor}
+                      valueFormatter={chart.valueFormatter}
+                      emptyLabel={chart.emptyLabel}
+                      loading={heroChartsLoading}
+                      exportFilename={chart.key}
+                    />
+                  ) : (
+                    <MetricBarChart
+                      data={chart.data}
+                      accentColor={chart.accentColor || accentColor}
+                      valueFormatter={chart.valueFormatter}
+                      emptyLabel={chart.emptyLabel}
+                      nameWidth={chart.nameWidth || 130}
+                      loading={heroChartsLoading}
+                    />
+                  )}
                 </div>
               </StudioCard>
             ))}

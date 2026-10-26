@@ -8,6 +8,7 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
+  GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
 import {
   getOutreachInboundPipeline, getOutreachCoachRecruitmentSnapshot, getOutreachPartnerSnapshot,
@@ -15,6 +16,7 @@ import {
   getOutreachContacts, createOutreachContact, setOutreachContactStatus, getOutreachContactsSignedComparison,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  getTaskDueDateDensity, getTeamActivityHeatmap,
 } from '../../lib/studioMetrics'
 
 // Outreach Hub (Studio Phase 4) -- for Sienna, Ethan, Fabz and James, the
@@ -252,8 +254,20 @@ export default function OutreachDashboardPage() {
     { id: 'oh-log', label: 'Outreach Log' },
     { id: 'oh-comparison', label: 'Comparison' },
     { id: 'oh-tasks', label: 'Campaign Task Board' },
+    { id: 'oh-activity', label: 'Calendar & Activity' },
     { id: 'oh-requests', label: 'Requests' },
   ]
+
+  // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap fetch
+  // exactly once per scope/mount, not on every render.
+  const fetchDueDates = useCallback(scope => getTaskDueDateDensity(TEAM, scope), [])
+  const fetchHeatmap = useCallback(d => getTeamActivityHeatmap(TEAM, d), [])
+
+  // Studio Phase 13 -- real month-by-month new-partner counts, oldest ->
+  // newest, backing the "Real partners" StatStrip sparkline below. Same
+  // real feed as the partner-growth trend chart, just reshaped to a plain
+  // number array for Sparkline.
+  const partnerGrowthTrend = partnerGrowth.map(m => m.new_partners)
 
   const heroCharts = [
     {
@@ -267,27 +281,28 @@ export default function OutreachDashboardPage() {
     },
     {
       key: 'coach-recruitment', eyebrow: 'Important', title: 'Coach recruitment',
-      caption: 'Real coach_profiles breakdown -- not a vanity metric to round up. Seed listings have no real person behind them at all; the rest belong to banned demo/QA accounts.',
+      caption: 'Real coach_profiles breakdown, a genuinely proportional mix -- not a vanity metric to round up. Seed listings have no real person behind them at all; the rest belong to banned demo/QA accounts.',
+      type: 'donut',
       data: coachSnapshot ? [
-        { name: 'Real live coaches', value: coachSnapshot.real_live_coaches, color: coachSnapshot.real_live_coaches > 0 ? GREEN : RED },
-        { name: 'Banned demo accounts', value: coachSnapshot.banned_demo_accounts, color: MUTED },
-        { name: 'Seed listings (no real person)', value: coachSnapshot.seed_listings, color: MUTED },
+        { name: 'Real live coaches', value: coachSnapshot.real_live_coaches, color: coachSnapshot.real_live_coaches > 0 ? getStatusColor('green') : getStatusColor('red') },
+        { name: 'Banned demo accounts', value: coachSnapshot.banned_demo_accounts, color: getStatusColor('grey') },
+        { name: 'Seed listings (no real person)', value: coachSnapshot.seed_listings, color: getStatusColor('grey') },
       ] : [],
-      emptyLabel: 'Loading…',
+      emptyLabel: 'No coach_profiles rows found.',
     },
     {
       key: 'partner-growth', eyebrow: 'Growth', title: 'Partner growth (new, real, per month)',
       caption: 'Real partners.created_at, by month, excluding the 7 synthetic "Example/Placeholder/Sample" rows -- includes real zero months, not skipped.',
-      data: partnerGrowth.map(m => ({ name: m.month_label, value: m.new_partners, color: HUB_ACCENTS.outreach })),
-      emptyLabel: 'No partner growth data yet.',
-      nameWidth: 90,
+      type: 'trend',
+      data: partnerGrowth.map(m => ({ x: m.month_label, y: m.new_partners })),
+      emptyLabel: 'Not enough real partner growth yet to show a trend.',
     },
     {
       key: 'follow-trend', eyebrow: 'Engagement', title: 'Partner follows (real, per month)',
       caption: '19 of 20 partner_follows rows belong to banned demo/QA accounts -- excluded here. Only 1 real follow exists today. Honestly near-all-zero, not a broken chart.',
-      data: followTrend.map(m => ({ name: m.month_label, value: m.new_follows, color: HUB_ACCENTS.outreach })),
-      emptyLabel: 'No real engagement data yet.',
-      nameWidth: 90,
+      type: 'trend',
+      data: followTrend.map(m => ({ x: m.month_label, y: m.new_follows })),
+      emptyLabel: 'Not enough real engagement yet to show a trend.',
     },
   ]
 
@@ -307,6 +322,17 @@ export default function OutreachDashboardPage() {
         accentColor={HUB_ACCENTS.outreach}
         heroCharts={heroCharts}
         sections={sections}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.outreach}
+            loading={loading}
+            items={[
+              { key: 'real-partners', label: 'Real partners', value: fmt(partnerSnapshot?.real_partners), sub: `${fmt(partnerSnapshot?.active_partners)} active` },
+              { key: 'live-coaches', label: 'Real, live coaches', value: fmt(coachSnapshot?.real_live_coaches), health: coachSnapshot && coachSnapshot.real_live_coaches === 0 ? 'critical' : 'good' },
+              { key: 'contacts-signed', label: 'Contacts signed', value: fmt(contactsByStatus.signed), sub: `of ${fmt(contacts.length)} logged` },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -324,7 +350,7 @@ export default function OutreachDashboardPage() {
             <StatStrip
               columns={4}
               cells={[
-                { key: 'real-partners', label: 'Real partners', value: fmt(partnerSnapshot?.real_partners), icon: Handshake, accent: HUB_ACCENTS.outreach },
+                { key: 'real-partners', label: 'Real partners', value: fmt(partnerSnapshot?.real_partners), icon: Handshake, accent: HUB_ACCENTS.outreach, trend: partnerGrowthTrend },
                 { key: 'active-partners', label: 'Active partners', value: fmt(partnerSnapshot?.active_partners), icon: UserCheck, accent: GREEN },
                 { key: 'verified-partners', label: 'Verified partners', value: fmt(partnerSnapshot?.verified_partners), icon: UserCheck, accent: partnerSnapshot?.verified_partners > 0 ? GREEN : AMBER },
                 { key: 'early-access', label: 'Early access signups', value: fmt(partnerSnapshot?.early_access_signups), icon: Heart, accent: NAVY },
@@ -517,6 +543,23 @@ export default function OutreachDashboardPage() {
             emptyLabel="No campaign tasks yet -- add the first real one above."
           />
         </Card>
+
+        {/* ══ CALENDAR & ACTIVITY ══════════════════════════════════════
+            Studio Phase 13 -- real team_tasks.target_date due-date density
+            and a real contribution-style activity heatmap off
+            outreach_contact_status_log + team_tasks. */}
+        <div id="oh-activity" className="oh-two-col" style={{ marginTop: 'var(--studio-gap)' }}>
+          <Card>
+            <SectionTitle eyebrow="New" title="Due-date calendar"
+              caption="Real team_tasks.target_date rows for the Outreach team. 'UBP-wide' covers every hub's tasks -- founder/co_director/admin only." />
+            <MiniCalendar team={TEAM} accentColor={HUB_ACCENTS.outreach} canViewAll onFetchScope={fetchDueDates} />
+          </Card>
+          <Card>
+            <SectionTitle eyebrow="New" title="Activity heatmap"
+              caption="Real per-day event density for the Outreach team over the last ~26 weeks -- outreach_contact_status_log changes plus team_tasks created/closed activity." />
+            <ActivityHeatmap team={TEAM} accentColor={HUB_ACCENTS.outreach} onFetch={fetchHeatmap} exportFilename="outreach-activity-heatmap" />
+          </Card>
+        </div>
 
         {/* ══ REQUESTS ═══════════════════════════════════════════════════
             Studio Phase 11 -- cross-hub task handoff / access requests. */}

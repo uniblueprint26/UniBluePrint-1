@@ -1,4 +1,5 @@
 import { NAVY, GREY, MUTED, CREAM, SURFACE_TINT, BORDER, FONT_SERIF, FONT_SANS, isZeroish } from './theme'
+import Sparkline from './Sparkline'
 
 // Horizontal row-of-stat-cells pattern, matching the existing admin
 // dashboards' Tile/StatTile components (same card shape, icon chip, serif
@@ -12,7 +13,15 @@ import { NAVY, GREY, MUTED, CREAM, SURFACE_TINT, BORDER, FONT_SERIF, FONT_SANS, 
 // zero/empty value ("0", "€0.00", "—") renders in calm slate grey instead of
 // a saturated accent, so a pre-launch row of zeros reads as "nothing yet",
 // not as a wall of loud green/orange numbers or an error.
-function StatCell({ label, sub, value, icon: Icon, accent = NAVY }) {
+// Studio Phase 13: `trend` is an optional array of real historical numbers
+// (oldest -> newest, same metric as `value`) backing a tiny inline
+// Sparkline next to the label. Deliberately opt-in per cell, never
+// defaulted on -- a tile with no real per-period history behind it (most
+// of them, on a pre-launch dashboard) stays a plain number, per the brief's
+// own "do not fabricate a fake sparkline" rule. Sparkline itself already
+// renders nothing for <2 real points, so passing a short/empty `trend` is
+// always safe, never a visible gap.
+function StatCell({ label, sub, value, icon: Icon, accent = NAVY, trend }) {
   const zero = isZeroish(value)
   // MUTED (#9CA3AF) is passed as an accent to mean "de-emphasised", but it is
   // too light for a 30px figure or an icon on the cream tile -- render that
@@ -40,13 +49,16 @@ function StatCell({ label, sub, value, icon: Icon, accent = NAVY }) {
         </span>
       </div>
       <div>
-        <p className="studio-stat-value" style={{
-          fontFamily: FONT_SERIF, fontSize: '30px', lineHeight: 1.05, margin: 0,
-          color: zero ? GREY : tone, letterSpacing: '-0.01em',
-          fontVariantNumeric: 'tabular-nums', overflowWrap: 'anywhere',
-        }}>
-          {value}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', justifyContent: 'space-between' }}>
+          <p className="studio-stat-value" style={{
+            fontFamily: FONT_SERIF, fontSize: '30px', lineHeight: 1.05, margin: 0,
+            color: zero ? GREY : tone, letterSpacing: '-0.01em',
+            fontVariantNumeric: 'tabular-nums', overflowWrap: 'anywhere',
+          }}>
+            {value}
+          </p>
+          {trend && trend.length >= 2 && <Sparkline points={trend} color={zero ? GREY : tone} />}
+        </div>
         {sub && (
           <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY, lineHeight: 1.4, margin: '6px 0 0' }}>
             {sub}
@@ -69,7 +81,9 @@ const STRIP_STYLES = `
 `
 
 /**
- * `cells`: [{ key, label, sub?, value, icon?, accent? }]
+ * `cells`: [{ key, label, sub?, value, icon?, accent?, trend? }] -- `trend`
+ * (Studio Phase 13) is an optional array of real historical numbers behind
+ * a tiny inline Sparkline, see StatCell's own comment above.
  * `columns`: how many columns at desktop width (grid auto-collapses to 2
  * under 1100px; `columns={1}` stays a single column at every width).
  */

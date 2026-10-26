@@ -20,10 +20,12 @@ import {
   getHandlerQueueSnapshot, getHandlerTicketsByWeek, getHandlerTicketsResolvedComparison,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  getTaskDueDateDensity, getTeamActivityHeatmap,
 } from '../../lib/studioMetrics'
 import {
   StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel,
   NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
+  GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { FormCard, ErrorBanner } from '../../components/ui/Form'
@@ -172,6 +174,13 @@ export default function HandlerQueuePage() {
     return counts
   }, [tasks])
 
+  // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap fetch
+  // exactly once per scope/mount, not on every render. Declared here
+  // (before the `if (selected)` early return below) so these hooks always
+  // run in the same order every render, same as every other hook above.
+  const fetchDueDates = useCallback(scope => getTaskDueDateDensity('handler', scope), [])
+  const fetchHeatmap = useCallback(d => getTeamActivityHeatmap('handler', d), [])
+
   const handleClaim = (submissionId) => runLocked(async () => {
     setClaimingId(submissionId)
     setError('')
@@ -224,6 +233,7 @@ export default function HandlerQueuePage() {
     { id: 'hh-queue', label: 'Queue' },
     { id: 'hh-performance', label: 'Performance' },
     { id: 'hh-tasks', label: 'Handler Team Tasks' },
+    { id: 'hh-activity', label: 'Calendar & Activity' },
     { id: 'hh-requests', label: 'Requests' },
   ]
 
@@ -231,27 +241,24 @@ export default function HandlerQueuePage() {
     {
       key: 'queue-by-tier', eyebrow: 'Live', title: 'Open queue, by tier',
       caption: snapshot
-        ? `${fmt(snapshot.open_tickets)} tickets currently open (not yet delivered) across both tiers -- ${fmt(snapshot.unclaimed_tickets)} still unclaimed.`
+        ? `${fmt(snapshot.open_tickets)} tickets currently open (not yet delivered) across both tiers -- ${fmt(snapshot.unclaimed_tickets)} still unclaimed. A genuinely proportional mix, shown as a donut.`
         : 'Loading…',
+      type: 'donut',
       data: snapshot ? [
         { name: 'Premium', value: snapshot.premium_open, color: HUB_ACCENTS.handler },
-        { name: 'Standard', value: snapshot.standard_open, color: NAVY },
+        { name: 'Standard', value: snapshot.standard_open, color: getStatusColor('grey') },
       ] : [],
-      emptyLabel: 'Loading…',
+      emptyLabel: 'No open tickets right now.',
     },
     {
-      key: 'opened-by-week', eyebrow: 'Real, 6 weeks', title: 'Tickets opened, by week',
-      caption: 'Real submissions.submitted_at count, by calendar week -- includes genuine zero weeks, not skipped.',
-      data: weekly.map(w => ({ name: w.week_label, value: w.opened_count, color: HUB_ACCENTS.handler })),
-      emptyLabel: 'Loading…',
-      nameWidth: 80,
-    },
-    {
-      key: 'resolved-by-week', eyebrow: 'Real, 6 weeks', title: 'Tickets delivered, by week',
-      caption: 'Real submissions.delivered_at count, by calendar week.',
-      data: weekly.map(w => ({ name: w.week_label, value: w.resolved_count, color: GREEN })),
-      emptyLabel: 'Loading…',
-      nameWidth: 80,
+      key: 'opened-vs-resolved', eyebrow: 'Real, 6 weeks', title: 'Tickets opened vs. delivered, by week',
+      caption: 'Real submissions.submitted_at / delivered_at counts, by calendar week -- includes genuine zero weeks, not skipped.',
+      type: 'trend',
+      series: [
+        { key: 'opened', label: 'Opened', color: HUB_ACCENTS.handler, data: weekly.map(w => ({ x: w.week_label, y: w.opened_count })) },
+        { key: 'resolved', label: 'Delivered', color: getStatusColor('green'), data: weekly.map(w => ({ x: w.week_label, y: w.resolved_count })) },
+      ],
+      emptyLabel: 'Not enough real ticket volume yet to show a weekly trend.',
     },
   ]
 
@@ -299,6 +306,17 @@ export default function HandlerQueuePage() {
         heroCharts={heroCharts}
         sections={sections}
         rangeControl={notifBell}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.handler}
+            loading={loading}
+            items={[
+              { key: 'open', label: 'Tickets open', value: fmt(snapshot?.open_tickets) },
+              { key: 'unclaimed', label: 'Unclaimed', value: fmt(snapshot?.unclaimed_tickets), health: snapshot && snapshot.unclaimed_tickets > 0 ? 'warning' : 'good' },
+              { key: 'delivered', label: 'Delivered this window', value: fmt(comparison?.resolved_this_period) },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -428,6 +446,22 @@ export default function HandlerQueuePage() {
             emptyLabel="No Handler team tasks yet -- add the first real one above."
           />
         </Card>
+
+        {/* ══ CALENDAR & ACTIVITY ══════════════════════════════════════
+            Studio Phase 13 -- real team_tasks.target_date due-date density
+            and a real contribution-style activity heatmap off team_tasks. */}
+        <div id="hh-activity" style={{ marginTop: 'var(--studio-gap)', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px' }}>
+          <Card>
+            <SectionTitle eyebrow="New" title="Due-date calendar"
+              caption="Real team_tasks.target_date rows for the Handler team. 'UBP-wide' covers every hub's tasks -- founder/co_director/admin only." />
+            <MiniCalendar team="handler" accentColor={HUB_ACCENTS.handler} canViewAll onFetchScope={fetchDueDates} />
+          </Card>
+          <Card>
+            <SectionTitle eyebrow="New" title="Activity heatmap"
+              caption="Real per-day team_tasks created/closed activity for the Handler team over the last ~26 weeks." />
+            <ActivityHeatmap team="handler" accentColor={HUB_ACCENTS.handler} onFetch={fetchHeatmap} exportFilename="handler-activity-heatmap" />
+          </Card>
+        </div>
 
         {/* ══ REQUESTS ═══════════════════════════════════════════════════
             Studio Phase 11 -- cross-hub task handoff / access requests. */}

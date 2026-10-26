@@ -10,6 +10,7 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
+  PeriodToggle, TrendLineChart, GlanceCard, getStatusColor,
 } from '../../components/studio'
 import {
   getFinanceRevenueSnapshot, getFinanceOneTimePayments, getFinanceRevenueByTier,
@@ -403,12 +404,14 @@ export default function FinanceDashboardPage() {
     },
     {
       key: 'payout-status', eyebrow: 'Coaches', title: 'Payout status (all time)',
-      caption: 'Coach Stripe Connect transfer counts, excluding banned accounts.',
+      caption: 'Coach Stripe Connect transfer counts, excluding banned accounts -- a genuinely proportional mix, shown as a donut rather than independent bars.',
+      type: 'donut',
       data: [
-        { name: 'Pending', value: coachPayouts.pending_count, color: AMBER },
-        { name: 'Transferred', value: coachPayouts.transferred_count, color: GREEN },
-        { name: 'Failed', value: coachPayouts.failed_count, color: RED },
+        { name: 'Pending', value: coachPayouts.pending_count, color: getStatusColor('yellow') },
+        { name: 'Transferred', value: coachPayouts.transferred_count, color: getStatusColor('green') },
+        { name: 'Failed', value: coachPayouts.failed_count, color: getStatusColor('red') },
       ],
+      emptyLabel: 'No coach Stripe Connect transfers recorded yet.',
     },
     {
       key: 'margin', eyebrow: 'Margin', title: 'Gross vs. paid to coaches',
@@ -437,17 +440,17 @@ export default function FinanceDashboardPage() {
         accentColor={HUB_ACCENTS.finance}
         heroCharts={heroCharts}
         sections={sections}
-        rangeControl={(
-          <div role="group" aria-label="Time range" style={{ display: 'inline-flex', background: '#FFFFFF', borderRadius: '10px', padding: '4px', border: '1px solid rgba(30,58,95,0.08)', boxShadow: '0 1px 2px rgba(30,58,95,0.04)', maxWidth: '100%', overflowX: 'auto' }}>
-            {RANGES.map(r => (
-              <button key={r.key} onClick={() => setRange(r.key)} style={{
-                fontFamily: FONT_SANS, fontSize: '12.5px', fontWeight: '600', whiteSpace: 'nowrap', padding: '7px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
-                background: range === r.key ? NAVY : 'transparent', color: range === r.key ? CREAM : GREY, transition: 'background 150ms, color 150ms',
-              }}>
-                {r.label}
-              </button>
-            ))}
-          </div>
+        rangeControl={<PeriodToggle options={RANGES} value={range} onChange={setRange} />}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.finance}
+            loading={loading}
+            items={[
+              { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), health: revenue.estimated_mrr_cents > 0 ? 'good' : 'neutral' },
+              { key: 'active-subs', label: 'Active Pro subscribers', value: fmt(totalActiveSubs), sub: `${revenue.new_subscriptions_in_range} new / ${revenue.canceled_in_range} canceled this period` },
+              { key: 'margin', label: 'UBP margin this period', value: fmtEuro(margin.ubp_margin_cents), health: margin.gross_collected_cents <= 0 ? 'neutral' : margin.ubp_margin_cents > 0 ? 'good' : 'critical' },
+            ]}
+          />
         )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
@@ -492,12 +495,13 @@ export default function FinanceDashboardPage() {
 
           <Card>
             <SectionTitle eyebrow="Cohorts" title="Revenue by signup month"
-              caption="Real coaching revenue grouped by the paying student's signup month. Campus/institution cohorting is not shown -- profiles.institution is null for every row today, so it would only ever read 'unknown'." />
-            <MetricBarChart
-              data={revenueByCohort.map(r => ({ name: new Date(r.signup_month).toLocaleDateString('en-IE', { month: 'short', year: '2-digit' }), value: Number(r.revenue_cents) / 100 }))}
+              caption="Real coaching revenue grouped by the paying student's signup month, as a trend over time -- Campus/institution cohorting is not shown -- profiles.institution is null for every row today, so it would only ever read 'unknown'." />
+            <TrendLineChart
+              data={revenueByCohort.map(r => ({ x: new Date(r.signup_month).toLocaleDateString('en-IE', { month: 'short', year: '2-digit' }), y: Number(r.revenue_cents) / 100 }))}
               valueFormatter={v => `€${Math.round(v)}`}
               accentColor={HUB_ACCENTS.finance}
-              emptyLabel="No real revenue yet to cohort by signup month."
+              emptyLabel="Not enough real revenue yet to show a cohort trend."
+              exportFilename="finance-revenue-by-cohort"
             />
           </Card>
         </div>

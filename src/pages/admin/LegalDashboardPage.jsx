@@ -8,12 +8,14 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_SELECT_SM,
+  TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
 import {
-  getLegalContracts, setLegalContractStatus, getLegalContractsResolvedComparison,
+  getLegalContracts, setLegalContractStatus, getLegalContractsResolvedComparison, getLegalContractsResolvedTrend,
   getLegalGdprRequests, getLegalAcknowledgementCoverage,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  getTaskDueDateDensity, getTeamActivityHeatmap,
 } from '../../lib/studioMetrics'
 
 // Legal Hub (Studio Phase 2) -- for Rachel and Basmail, built on the same
@@ -72,18 +74,20 @@ export default function LegalDashboardPage() {
 
   const [comparisonWindow, setComparisonWindow] = useState('week')
   const [comparison, setComparison] = useState(null)
+  const [resolvedTrend, setResolvedTrend] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [contractsRes, gdprRes, ackRes, tasksRes, membersRes, compareRes, requestsRes] = await Promise.all([
+      const [contractsRes, gdprRes, ackRes, tasksRes, membersRes, compareRes, trendRes, requestsRes] = await Promise.all([
         getLegalContracts(),
         getLegalGdprRequests(),
         getLegalAcknowledgementCoverage(),
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
         getLegalContractsResolvedComparison(comparisonWindow),
+        getLegalContractsResolvedTrend(8),
         listStudioRequests(TEAM),
       ])
       setContracts(contractsRes.value || [])
@@ -92,6 +96,7 @@ export default function LegalDashboardPage() {
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setComparison(compareRes.value || null)
+      setResolvedTrend(trendRes.value || [])
       setRequests(requestsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
@@ -202,20 +207,28 @@ export default function LegalDashboardPage() {
     { id: 'lg-comparison', label: 'Comparison' },
     { id: 'lg-tasks', label: 'Tasks & Batches' },
     { id: 'lg-folders', label: 'Individual Folders' },
+    { id: 'lg-activity', label: 'Calendar & Activity' },
     { id: 'lg-requests', label: 'Requests' },
   ]
+
+  // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap fetch
+  // exactly once per scope/mount, not on every render.
+  const fetchDueDates = useCallback(scope => getTaskDueDateDensity(TEAM, scope), [])
+  const fetchHeatmap = useCallback(d => getTeamActivityHeatmap(TEAM, d), [])
 
   const heroCharts = [
     {
       key: 'contracts-status', eyebrow: 'Contracts', title: 'Register by status',
-      caption: '27 real partners tracked. Every status below reflects real paperwork, not an estimate.',
+      caption: '27 real partners tracked, a genuinely proportional mix -- every status below reflects real paperwork, not an estimate.',
+      type: 'donut',
       data: [
-        { name: 'Not sent', value: contractsByStatus.not_sent, color: MUTED },
-        { name: 'Sent', value: contractsByStatus.sent, color: AMBER },
-        { name: 'Signed', value: contractsByStatus.signed, color: GREEN },
-        { name: 'Needs fix', value: contractsByStatus.needs_fix, color: RED },
-        { name: 'Expired', value: contractsByStatus.expired, color: RED },
+        { name: 'Not sent', value: contractsByStatus.not_sent, color: getStatusColor('grey') },
+        { name: 'Sent', value: contractsByStatus.sent, color: getStatusColor('yellow') },
+        { name: 'Signed', value: contractsByStatus.signed, color: getStatusColor('green') },
+        { name: 'Needs fix', value: contractsByStatus.needs_fix, color: getStatusColor('red') },
+        { name: 'Expired', value: contractsByStatus.expired, color: getStatusColor('red') },
       ],
+      emptyLabel: 'No contracts tracked yet.',
     },
     {
       key: 'gdpr-status', eyebrow: 'Compliance', title: 'GDPR requests',
@@ -266,6 +279,17 @@ export default function LegalDashboardPage() {
         accentColor={HUB_ACCENTS.legal}
         heroCharts={heroCharts}
         sections={sections}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.legal}
+            loading={loading}
+            items={[
+              { key: 'signed', label: 'Contracts signed', value: fmt(contractsByStatus.signed), sub: `of ${fmt(contracts.length)} tracked` },
+              { key: 'gdpr', label: 'GDPR requests open', value: fmt(gdprOpenCount), health: gdprOverdueCount > 0 ? 'critical' : gdprOpenCount > 0 ? 'warning' : 'good' },
+              { key: 'ack', label: 'Avg. acknowledgement coverage', value: ackCoverage.length ? `${Math.round(ackCoverage.reduce((s, a) => s + (a.coverage_pct || 0), 0) / ackCoverage.length)}%` : '—' },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -397,6 +421,17 @@ export default function LegalDashboardPage() {
               ? 'No contracts have moved to Signed yet this window or last -- honest 0s, this will fill in as real paperwork closes out.'
               : null}
           />
+          <Card style={{ marginTop: '16px' }}>
+            <SectionTitle eyebrow="Studio Phase 13" title="Contracts resolved, weekly trend"
+              caption="The same real legal_contract_status_log feed as above, bucketed by calendar week instead of collapsed to one this-period/last-period pair." />
+            <TrendLineChart
+              data={resolvedTrend.map(w => ({ x: w.week_label, y: w.resolved_count }))}
+              accentColor={HUB_ACCENTS.legal}
+              emptyLabel="Not enough real paperwork closing out yet to show a weekly trend."
+              loading={loading}
+              exportFilename="legal-contracts-resolved-trend"
+            />
+          </Card>
         </div>
 
         {/* ══ TASKS & BATCHES ══════════════════════════════════════════ */}
@@ -450,6 +485,23 @@ export default function LegalDashboardPage() {
             </div>
           )}
         </Card>
+
+        {/* ══ CALENDAR & ACTIVITY ══════════════════════════════════════
+            Studio Phase 13 -- real team_tasks.target_date due-date density
+            and a real contribution-style activity heatmap off
+            legal_contract_status_log + team_tasks. */}
+        <div id="lg-activity" className="lg-two-col" style={{ marginTop: 'var(--studio-gap)' }}>
+          <Card>
+            <SectionTitle eyebrow="New" title="Due-date calendar"
+              caption="Real team_tasks.target_date rows for the Legal team. 'UBP-wide' covers every hub's tasks -- founder/co_director/admin only." />
+            <MiniCalendar team={TEAM} accentColor={HUB_ACCENTS.legal} canViewAll onFetchScope={fetchDueDates} />
+          </Card>
+          <Card>
+            <SectionTitle eyebrow="New" title="Activity heatmap"
+              caption="Real per-day event density for the Legal team over the last ~26 weeks -- legal_contract_status_log changes plus team_tasks created/closed activity." />
+            <ActivityHeatmap team={TEAM} accentColor={HUB_ACCENTS.legal} onFetch={fetchHeatmap} exportFilename="legal-activity-heatmap" />
+          </Card>
+        </div>
 
         {/* ══ REQUESTS ═══════════════════════════════════════════════════
             Studio Phase 11 -- cross-hub task handoff / access requests.

@@ -7,6 +7,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS, tint,
+  GlanceCard,
 } from '../../components/studio'
 import {
   getFinanceRevenueSnapshot, getFinanceMarginSummary,
@@ -262,6 +263,17 @@ export default function CoDirectorDashboardPage() {
         subtitle="One bird's-eye rollup of Finance, Legal, Tech, Outreach and Marketing's real headline numbers -- for Daniel. Every figure below is read live from the same hub RPCs each team's own page already calls; nothing is re-derived or duplicated. This month's snapshot throughout."
         accentColor={HUB_ACCENTS.co_director}
         sections={sections}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.co_director}
+            loading={loading}
+            items={[
+              { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents) },
+              { key: 'decisions', label: 'Pending decisions', value: fmt(decisions.length), health: decisions.length > 0 ? 'warning' : 'good' },
+              { key: 'errors', label: 'ERROR-level findings (Tech)', value: fmt(severityTotals.ERROR), health: severityTotals.ERROR > 0 ? 'critical' : 'good' },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>

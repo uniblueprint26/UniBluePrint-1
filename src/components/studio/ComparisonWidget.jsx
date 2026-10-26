@@ -1,14 +1,8 @@
 import { useState } from 'react'
 import { TrendingUp, Trophy, Users } from 'lucide-react'
-import { NAVY, GREY, CREAM, WHITE, SURFACE_TINT, BORDER, CARD_RADIUS, CARD_SHADOW, FONT_SERIF, FONT_SANS, tint } from './theme'
+import { NAVY, GREY, WHITE, SURFACE_TINT, BORDER, CARD_RADIUS, CARD_SHADOW, FONT_SERIF, FONT_SANS, tint, DAY_WEEK_MONTH_YEAR } from './theme'
 import { buildComparisonCopy } from './comparisonCopy'
-
-const WINDOWS = [
-  { key: 'day', label: 'Day' },
-  { key: 'week', label: 'Week' },
-  { key: 'month', label: 'Month' },
-  { key: 'year', label: 'Year' },
-]
+import PeriodToggle from './PeriodToggle'
 
 /**
  * "What You've Got vs What You're Missing" -- for one person/entity, shows:
@@ -57,25 +51,7 @@ export default function ComparisonWidget({
             {entityLabel || 'This period'}
           </h3>
         </div>
-        <div role="group" aria-label="Comparison window" style={{ display: 'inline-flex', background: CREAM, borderRadius: '9px', padding: '3px', border: `1px solid ${BORDER}` }}>
-          {WINDOWS.map(w => (
-            <button
-              key={w.key}
-              type="button"
-              onClick={() => selectWindow(w.key)}
-              style={{
-                fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 600,
-                padding: '6px 12px', borderRadius: '7px', border: 'none', cursor: 'pointer',
-                background: activeWindow === w.key ? NAVY : 'transparent',
-                color: activeWindow === w.key ? CREAM : GREY,
-                transition: 'background 150ms, color 150ms',
-              }}
-              aria-pressed={activeWindow === w.key}
-            >
-              {w.label}
-            </button>
-          ))}
-        </div>
+        <PeriodToggle options={DAY_WEEK_MONTH_YEAR} value={activeWindow} onChange={selectWindow} ariaLabel="Comparison window" />
       </div>
 
       {emptyNote && (

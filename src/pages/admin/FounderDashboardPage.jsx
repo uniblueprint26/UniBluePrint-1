@@ -22,7 +22,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard, RequestPanel,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, BORDER, WHITE, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS,
-  EmptyNote, tint, STUDIO_INPUT, studioButton,
+  EmptyNote, tint, STUDIO_INPUT, studioButton, GlanceCard,
 } from '../../components/studio'
 
 // Founder Dashboard (Studio Phase 8) -- the LAST hub in the Studio rebuild,
@@ -537,6 +537,17 @@ export default function FounderDashboardPage() {
         accentColor={HUB_ACCENTS.founder}
         sections={sections}
         rangeControl={rangeControl}
+        glanceCard={(
+          <GlanceCard
+            accentColor={HUB_ACCENTS.founder}
+            loading={loading}
+            items={[
+              { key: 'members', label: 'Total members', value: fmt(topline.total_members) },
+              { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), health: revenue.estimated_mrr_cents > 0 ? 'good' : 'neutral' },
+              { key: 'decisions', label: 'Pending decisions', value: fmt(decisions.length), health: decisions.length > 0 ? 'warning' : 'good' },
+            ]}
+          />
+        )}
         error={!!error && (
           <Card style={{ marginBottom: 'var(--studio-gap)', border: `1px solid ${RED}`, background: 'rgba(220,38,38,0.04)' }}>
             <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: RED, display: 'flex', alignItems: 'center', gap: '8px' }}>
