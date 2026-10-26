@@ -256,6 +256,7 @@ export default function CoDirectorDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="co_director"
         title="Co-Director Hub"
         subtitle="One bird's-eye rollup of Finance, Legal, Tech, Outreach and Marketing's real headline numbers -- for Daniel. Every figure below is read live from the same hub RPCs each team's own page already calls; nothing is re-derived or duplicated. This month's snapshot throughout."

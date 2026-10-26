@@ -720,3 +720,50 @@ export async function getHandlerTicketsResolvedComparison(range = 'week') {
   if (error) throw error
   return { trackable: true, value: data?.[0] || null }
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// PERSONALIZED GREETINGS (Studio Phase 12) -- see supabase/migrations/
+// 20261026120000_studio_phase12_greetings.sql. The read is unauthenticated-
+// safe to call from any hub -- get_active_studio_greeting() returns zero
+// rows (not an error) when nothing is set for this caller/hub, and
+// GreetingBanner.jsx falls back to the existing quotes.js pool itself.
+// Seeded with zero real messages -- the founder is writing those himself.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** `{ message, source: 'user'|'team' }` for the caller on this hub, or
+ * `null` if nothing is set (GreetingBanner then uses the quote pool). */
+export async function getActiveStudioGreeting(team) {
+  const { data, error } = await supabase.rpc('get_active_studio_greeting', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
+/** Founder/Co-Director/Admin only -- every greeting, for the management
+ * panel on the Founder Hub. */
+export async function listStudioGreetings() {
+  const { data, error } = await supabase.rpc('list_studio_greetings')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+/** scope: 'team' (needs `team`) or 'user' (needs `userId`, `team` optional
+ * to restrict that person's greeting to just one hub). */
+export async function createStudioGreeting({ message, scope, team = null, userId = null }) {
+  const { data, error } = await supabase.rpc('create_studio_greeting', {
+    _message: message, _scope: scope, _team: team, _user_id: userId,
+  })
+  if (error) throw error
+  return { trackable: true, value: data }
+}
+
+export async function setStudioGreetingActive(id, isActive) {
+  const { error } = await supabase.rpc('set_studio_greeting_active', { _id: id, _is_active: isActive })
+  if (error) throw error
+  return { trackable: true, value: true }
+}
+
+export async function deleteStudioGreeting(id) {
+  const { error } = await supabase.rpc('delete_studio_greeting', { _id: id })
+  if (error) throw error
+  return { trackable: true, value: true }
+}

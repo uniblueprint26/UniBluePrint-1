@@ -259,6 +259,7 @@ export default function LegalDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="legal"
         title="Legal Hub"
         subtitle="Contracts register, GDPR & acknowledgement compliance, and team tasks/batches. Real data, excluding banned demo/QA accounts."

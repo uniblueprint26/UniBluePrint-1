@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Plus, Loader2 } from 'lucide-react'
-import { NAVY, CREAM, GREY, WHITE, BORDER, STUDIO_INPUT, STATUS_COLORS, FONT_SANS, studioButton, tint } from './theme'
+import { NAVY, CREAM, GREY, WHITE, BORDER, BORDER_STRONG, STUDIO_INPUT, FONT_SANS, studioButton, tint, getStatusColor } from './theme'
 import StatusDot from './StatusDot'
+import { EmptyNote } from './StudioPrimitives'
 
 // Generic "targets, batches, delegated tasks" board -- per the founder's
 // brief, Legal is the first hub to need this, but Tech/Outreach/Marketing
@@ -118,17 +119,16 @@ export default function TaskBoard({
       </div>
 
       {tasks.length === 0 ? (
-        <p style={{
-          fontFamily: FONT_SANS, fontSize: '13px', color: GREY, lineHeight: 1.5, margin: 0,
-          border: '1px dashed rgba(30,58,95,0.2)', borderRadius: '10px', padding: '14px 16px',
+        <EmptyNote style={{
+          border: `1px dashed ${BORDER_STRONG}`, borderRadius: '10px', padding: '14px 16px', fontSize: '13px',
         }}>
           {emptyLabel}
-        </p>
+        </EmptyNote>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: loading ? 0.6 : 1, transition: 'opacity 150ms' }}>
           {tasks.map(t => {
             const meta = STATUS_META[t.status]
-            const statusColor = STATUS_COLORS[meta?.dot || 'grey']
+            const statusColor = getStatusColor(meta?.dot || 'grey')
             const done = t.status === 'done'
             return (
               <div key={t.id} style={{

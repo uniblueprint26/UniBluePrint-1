@@ -430,6 +430,7 @@ export default function FinanceDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="finance"
         title="Finance Hub"
         subtitle="Revenue, commissions, payouts, partner tiering, and cross-team money requests. Real data, excluding the 24 banned demo/QA accounts."

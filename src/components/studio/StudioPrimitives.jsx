@@ -51,13 +51,33 @@ export function SectionTitle({ eyebrow, title, caption, action }) {
   )
 }
 
+// Studio Phase 12 -- branded empty state. Every hub has genuinely empty
+// tables/sections right now (honestly so, pre-launch) -- this renders a
+// small UBP mark instead of a bare caption, so an empty section reads as
+// deliberate rather than broken. EmptyNote is already the one shared
+// "nothing here" primitive imported across every hub page (36+ call
+// sites), so upgrading it here applies everywhere with no per-page edits.
+function UbpMark({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 22 22" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M11 2 L19 7 V15 L11 20 L3 15 V7 Z" fill="none" stroke={GREY} strokeOpacity="0.5" strokeWidth="1.3" />
+      <path d="M11 6 L15 8.3 V13.7 L11 16 L7 13.7 V8.3 Z" fill={GREY} fillOpacity="0.35" />
+    </svg>
+  )
+}
+
 export function EmptyNote({ children, style }) {
+  // Mark trails the text (a quiet "signature", not a second leading icon --
+  // most existing call sites already open with their own contextual lucide
+  // icon, e.g. <EmptyNote><ShieldAlert .../> No advisor snapshot yet.
+  // </EmptyNote>, and stacking two icons at the front would clash).
   return (
     <p style={{
       fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, lineHeight: 1.5,
       display: 'flex', alignItems: 'center', gap: '8px', margin: 0, overflowWrap: 'anywhere', ...style,
     }}>
       {children}
+      <UbpMark />
     </p>
   )
 }

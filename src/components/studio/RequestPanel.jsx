@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Send, Check, X, Loader2, ArrowRightLeft, KeyRound, Inbox } from 'lucide-react'
 import {
-  NAVY, CREAM, GREY, MUTED, GREEN, RED, WHITE, BORDER, STUDIO_INPUT, STATUS_COLORS, HUB_LABELS, FONT_SANS, studioButton, tint,
+  NAVY, CREAM, GREY, MUTED, GREEN, RED, WHITE, BORDER, BORDER_STRONG, STUDIO_INPUT, HUB_LABELS, FONT_SANS, studioButton, tint, getStatusColor,
 } from './theme'
 import StatusDot from './StatusDot'
+import { EmptyNote } from './StudioPrimitives'
 
 // Studio Phase 11 -- the shared cross-hub Requests component every hub page
 // renders through (task #28). Two real request types, backed by the new
@@ -155,12 +156,11 @@ export default function RequestPanel({
       </div>
 
       {requests.length === 0 ? (
-        <p style={{
-          fontFamily: FONT_SANS, fontSize: '13px', color: GREY, lineHeight: 1.5, margin: 0,
-          border: '1px dashed rgba(30,58,95,0.2)', borderRadius: '10px', padding: '14px 16px',
+        <EmptyNote style={{
+          border: `1px dashed ${BORDER_STRONG}`, borderRadius: '10px', padding: '14px 16px', fontSize: '13px',
         }}>
           {emptyLabel}
-        </p>
+        </EmptyNote>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: loading ? 0.6 : 1, transition: 'opacity 150ms' }}>
           {requests.map(r => {
@@ -229,7 +229,7 @@ export default function RequestPanel({
                 ) : (
                   <label style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px', flexShrink: 0,
-                    background: tint(STATUS_COLORS[meta.dot], 0.1), border: `1px solid ${tint(STATUS_COLORS[meta.dot], 0.35)}`,
+                    background: tint(getStatusColor(meta.dot), 0.1), border: `1px solid ${tint(getStatusColor(meta.dot), 0.35)}`,
                     borderRadius: '999px', padding: '4px 10px 4px 10px', height: '30px',
                   }}>
                     <StatusDot status={meta.dot} />

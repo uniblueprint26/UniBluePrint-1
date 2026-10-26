@@ -4,7 +4,7 @@ import {
   Users, Crown, UserCheck, Briefcase, GraduationCap, Handshake,
   FileText, CalendarCheck, AlertCircle, Star,
   Euro, PiggyBank, Inbox, Eye, MousePointerClick, CheckCircle2,
-  AlertTriangle, HeartHandshake, TrendingUp, Clock,
+  AlertTriangle, HeartHandshake, TrendingUp, Clock, MessageSquareHeart, Trash2, Power,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
@@ -17,11 +17,12 @@ import {
   getCoDirectorPendingDecisions,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest, getAllPendingStudioRequests,
+  listStudioGreetings, createStudioGreeting, setStudioGreetingActive, deleteStudioGreeting,
 } from '../../lib/studioMetrics'
 import {
   StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard, RequestPanel,
-  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS,
-  EmptyNote, tint,
+  NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, BORDER, WHITE, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS,
+  EmptyNote, tint, STUDIO_INPUT, studioButton,
 } from '../../components/studio'
 
 // Founder Dashboard (Studio Phase 8) -- the LAST hub in the Studio rebuild,
@@ -126,6 +127,60 @@ function HubBadge({ hub, label }) {
     </span>
   )
 }
+/** Studio Phase 12 -- create form for the Team Greetings card above. Plain
+ * controlled inputs (same pattern as TaskBoard/RequestPanel's own forms),
+ * kept local to FounderDashboardPage since greeting management is
+ * founder-only, not a shared Studio component. */
+function GreetingForm({ form, setForm, roster, onSubmit, saving }) {
+  const canSubmit = !!form.message.trim() && (form.scope !== 'user' || !!form.userId)
+  return (
+    <div className="studio-form-panel">
+      <div
+        className="studio-greeting-form"
+        style={{ display: 'grid', gridTemplateColumns: form.scope === 'user' ? '1fr 1fr 1.4fr 2fr auto' : '1fr 1fr 2.4fr auto', gap: '12px', alignItems: 'flex-end' }}
+      >
+        <style>{`
+          @media (max-width: 820px) { .studio-greeting-form { grid-template-columns: 1fr 1fr !important; } }
+          @media (max-width: 480px) { .studio-greeting-form { grid-template-columns: 1fr !important; } .studio-greeting-form button { width: 100%; } }
+        `}</style>
+        <label style={{ display: 'block', minWidth: 0 }}>
+          <span style={fieldLabelStyle}>Scope</span>
+          <select value={form.scope} onChange={e => setForm(f => ({ ...f, scope: e.target.value, userId: '' }))} style={STUDIO_INPUT}>
+            <option value="team">Whole team</option>
+            <option value="user">One person</option>
+          </select>
+        </label>
+        <label style={{ display: 'block', minWidth: 0 }}>
+          <span style={fieldLabelStyle}>{form.scope === 'user' ? 'Roster (hub)' : 'Hub'}</span>
+          <select value={form.team} onChange={e => setForm(f => ({ ...f, team: e.target.value, userId: '' }))} style={STUDIO_INPUT}>
+            {Object.keys(HUB_LABELS).map(t => <option key={t} value={t}>{HUB_LABELS[t]}</option>)}
+          </select>
+        </label>
+        {form.scope === 'user' && (
+          <label style={{ display: 'block', minWidth: 0 }}>
+            <span style={fieldLabelStyle}>Person</span>
+            <select value={form.userId} onChange={e => setForm(f => ({ ...f, userId: e.target.value }))} style={STUDIO_INPUT}>
+              <option value="">{roster.length === 0 ? 'No one on that roster' : 'Select…'}</option>
+              {roster.map(m => <option key={m.user_id} value={m.user_id}>{m.full_name || m.email}</option>)}
+            </select>
+          </label>
+        )}
+        <label style={{ display: 'block', minWidth: 0 }}>
+          <span style={fieldLabelStyle}>Message</span>
+          <input
+            type="text" value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+            style={STUDIO_INPUT} placeholder="The real welcome message to show..."
+          />
+        </label>
+        <button type="button" disabled={saving || !canSubmit} onClick={onSubmit} style={studioButton(HUB_ACCENTS.founder, canSubmit)}>
+          Save
+        </button>
+      </div>
+    </div>
+  )
+}
+const fieldLabelStyle = { fontFamily: FONT_SANS, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: GREY, display: 'block', marginBottom: '6px' }
+
 function HubCard({ hub, title, children }) {
   return (
     <Card>
@@ -211,6 +266,14 @@ export default function FounderDashboardPage() {
   const [requests, setRequests] = useState([])
   const [allPendingRequests, setAllPendingRequests] = useState([])
 
+  // ── New: Team Greetings (Studio Phase 12) -- the founder's own place to
+  //    write the real personalized greeting messages (confirmed in the
+  //    brief that he's writing these himself; this is just the mechanism). ──
+  const [greetings, setGreetings] = useState([])
+  const [greetingForm, setGreetingForm] = useState({ message: '', scope: 'team', team: 'finance', userId: '' })
+  const [greetingRoster, setGreetingRoster] = useState([])
+  const [greetingSaving, setGreetingSaving] = useState(false)
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -285,6 +348,59 @@ export default function FounderDashboardPage() {
   }, [range])
 
   useEffect(() => { load() }, [load])
+
+  // ── Team Greetings (Studio Phase 12) -- independent of the range picker ──
+  const loadGreetings = useCallback(async () => {
+    try {
+      const r = await listStudioGreetings()
+      setGreetings(r.value || [])
+    } catch {
+      // Non-founder/co_director/admin roles (none reach this page) or a
+      // transient error -- the rest of the dashboard still works.
+    }
+  }, [])
+  useEffect(() => { loadGreetings() }, [loadGreetings])
+
+  useEffect(() => {
+    if (greetingForm.scope !== 'user') { setGreetingRoster([]); return }
+    getTeamRoster(greetingForm.team).then(r => setGreetingRoster(r.value || [])).catch(() => setGreetingRoster([]))
+  }, [greetingForm.scope, greetingForm.team])
+
+  async function submitGreeting() {
+    if (!greetingForm.message.trim()) return
+    if (greetingForm.scope === 'user' && !greetingForm.userId) return
+    setGreetingSaving(true)
+    try {
+      await createStudioGreeting({
+        message: greetingForm.message.trim(),
+        scope: greetingForm.scope,
+        team: greetingForm.scope === 'team' ? greetingForm.team : null,
+        userId: greetingForm.scope === 'user' ? greetingForm.userId : null,
+      })
+      setGreetingForm(f => ({ ...f, message: '', userId: '' }))
+      await loadGreetings()
+    } catch (err) {
+      setError(err.message || 'Could not save that greeting.')
+    } finally {
+      setGreetingSaving(false)
+    }
+  }
+  async function toggleGreetingActive(id, current) {
+    try {
+      await setStudioGreetingActive(id, !current)
+      await loadGreetings()
+    } catch (err) {
+      setError(err.message || 'Could not update that greeting.')
+    }
+  }
+  async function removeGreeting(id) {
+    try {
+      await deleteStudioGreeting(id)
+      await loadGreetings()
+    } catch (err) {
+      setError(err.message || 'Could not remove that greeting.')
+    }
+  }
 
   // ── Founder Priorities task actions ─────────────────────────────────────
   async function addTask(fields) {
@@ -400,6 +516,7 @@ export default function FounderDashboardPage() {
     { id: 'fh-partners', label: 'Partners & Coaches' },
     { id: 'fh-decisions', label: 'Needs A Decision' },
     { id: 'fh-priorities', label: 'Founder Priorities' },
+    { id: 'fh-greetings', label: 'Team Greetings' },
     { id: 'fh-all-requests', label: 'Cross-Hub Requests' },
     { id: 'fh-requests', label: 'Requests' },
   ]
@@ -413,6 +530,7 @@ export default function FounderDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="founder"
         title="Founder Dashboard"
         subtitle="Home base: a real, live rollup of every Studio hub's own headline numbers, plus platform health, feature usage, and partner/coach impact. Read only except Founder Priorities, below."
@@ -686,6 +804,65 @@ export default function FounderDashboardPage() {
             accentColor={HUB_ACCENTS.founder}
             emptyLabel="No Founder priorities yet -- add the first real one above."
           />
+        </Card>
+
+        {/* ══ TEAM GREETINGS (Studio Phase 12) ═══════════════════════════
+            The founder's own place to set the real personalized greeting
+            that renders at the top of a hub, in the hub's accent color
+            (GreetingBanner.jsx). No real per-person message is seeded by
+            this pass -- the founder is writing those himself; this is only
+            the mechanism (supabase/migrations/
+            20261026120000_studio_phase12_greetings.sql). */}
+        <Card id="fh-greetings" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Team Greetings"
+            caption="Set the real welcome message every hub shows near the top, in that hub's own accent color. A team-scoped message is seen by everyone on that hub; a user-scoped one is seen only by that person (optionally restricted to one hub). With nothing active, a hub falls back to its existing quote pool -- never an empty greeting." />
+          <GreetingForm
+            form={greetingForm} setForm={setGreetingForm} roster={greetingRoster}
+            onSubmit={submitGreeting} saving={greetingSaving}
+          />
+          {greetings.length === 0 ? (
+            <EmptyNote style={{ border: `1px dashed ${BORDER}`, borderRadius: '10px', padding: '14px 16px', marginTop: '4px' }}>
+              <MessageSquareHeart size={13} /> No greetings set yet -- every hub is showing its quote-pool fallback.
+            </EmptyNote>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+              {greetings.map(g => (
+                <div key={g.id} style={{
+                  display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap',
+                  background: WHITE, borderRadius: '10px', border: `1px solid ${BORDER}`, padding: '12px 16px', opacity: g.is_active ? 1 : 0.55,
+                }}>
+                  <div style={{ minWidth: 0, flex: '1 1 300px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{
+                        fontFamily: FONT_SANS, fontSize: '10.5px', fontWeight: 700, color: HUB_ACCENTS.founder,
+                        background: tint(HUB_ACCENTS.founder, 0.1), border: `1px solid ${tint(HUB_ACCENTS.founder, 0.3)}`,
+                        borderRadius: '999px', padding: '2px 9px', textTransform: 'uppercase', letterSpacing: '0.04em',
+                      }}>
+                        {g.scope === 'user' ? (g.user_name || 'Person') : (HUB_LABELS[g.team] || g.team)}
+                      </span>
+                      {g.scope === 'user' && g.team && (
+                        <span style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: GREY }}>on {HUB_LABELS[g.team] || g.team} only</span>
+                      )}
+                    </div>
+                    <p style={{ fontFamily: FONT_SANS, fontSize: '13px', color: NAVY, margin: '6px 0 0', lineHeight: 1.55 }}>{g.message}</p>
+                    <p style={{ fontFamily: FONT_SANS, fontSize: '11px', color: MUTED, margin: '6px 0 0' }}>
+                      {g.created_by_name ? `set by ${g.created_by_name}` : ''}{g.created_at ? ` · ${fmtDateTime(g.created_at)}` : ''}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                    <button type="button" onClick={() => toggleGreetingActive(g.id, g.is_active)}
+                      style={{ ...studioButton(g.is_active ? MUTED : GREEN, true), height: '30px', padding: '0 10px', fontSize: '12px' }}>
+                      <Power size={13} /> {g.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button type="button" onClick={() => removeGreeting(g.id)}
+                      style={{ ...studioButton(RED, true), height: '30px', padding: '0 10px', fontSize: '12px' }}>
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
 
         {/* ══ CROSS-HUB REQUESTS (COMPANY-WIDE) ═════════════════════════

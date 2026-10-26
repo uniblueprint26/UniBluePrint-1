@@ -6,30 +6,87 @@
 // re-typed per hub, so a future hub built on StudioShell automatically
 // matches the look of the ones that came before it.
 //
-// Dark mode: deliberately NOT implemented here. Checked the whole website
-// side of this repo (src/) for a dark-mode pattern before building this --
-// there isn't one. The mobile app (app/) has its own ThemeContext, but that
-// is a different codebase this pass is explicitly not touching. Every
-// existing internal dashboard (Founder/Operations/Finance) renders a fixed
-// light CREAM/NAVY surface regardless of system theme, so "follow the
-// existing pattern" here means staying light-only, not inventing a new
-// dark-mode system for just this one hub. Flagged in the handback report
-// for the founder to confirm -- if the website is meant to pick up system
-// dark mode later, that is a cross-hub design decision, not a Finance Hub
-// one-off.
+// ─── Studio Phase 12: dark mode, via CSS custom properties ───────────────
+// Every token below that's used as a plain `color`/`background` value
+// (NAVY, CREAM, WHITE, GREY, MUTED, SAND, BORDER, BORDER_STRONG,
+// SURFACE_TINT, CARD_SHADOW, GREEN, AMBER, RED) is now the STRING NAME of a
+// CSS variable (e.g. NAVY = 'var(--studio-navy)'), not a literal hex. The
+// hundreds of existing `style={{ color: NAVY }}` call sites across every
+// hub page do not need to change at all -- the browser resolves the var()
+// against whichever value is cascading from `.studio-shell`'s own
+// :root-level declaration (light defaults) or `.studio-shell[data-theme=
+// "dark"]` (the override), both defined once in StudioShell.jsx's
+// SHELL_STYLES. Toggling data-theme on the shell root is the entire
+// mechanism -- no React re-render of any of these call sites is required
+// for their colors to flip. See StudioShell.jsx + useStudioTheme.js.
+//
+// Reuses the app's own REAL shipped dark palette (app/src/constants/
+// theme.js's darkColors) rather than inventing a second one: background IS
+// the brand navy (#1E3A5F), surface is the lighter steel-navy (#2B4A74),
+// text is the brand cream (#F5F0E8) -- see the var defaults/overrides in
+// StudioShell.jsx for the exact values and the same WCAG-AA reasoning that
+// file already documents.
+//
+// The one exception is STATUS_COLORS (green/yellow/red/grey): StatusDot/
+// TaskBoard/RequestPanel feed these through `tint()` below to compute an
+// rgba() halo/pill-background, which needs a REAL hex at JS-eval time, not
+// a var() string. Those three files call getStatusColor(key) instead (see
+// bottom of this file) -- a tiny function reading a module-level mode flag
+// that StudioShell's theme hook sets synchronously on every render, before
+// any descendant (including those three) renders in that same pass.
+// GREEN/AMBER/RED below stay as var()-backed exports too, for every OTHER
+// call site that uses them as a plain color (StatStrip `accent`, button
+// backgrounds, etc.) -- those don't need getStatusColor(), var() is enough.
 
-export const NAVY = '#1E3A5F'
-export const CREAM = '#F5F0E8'
-export const SAND = '#EDE8DF'
-export const GREY = '#6B7280'
-export const MUTED = '#9CA3AF'
-export const GREEN = '#16A34A'
-export const AMBER = '#F59E0B'
-export const RED = '#DC2626'
-export const WHITE = '#FFFFFF'
+export const NAVY = 'var(--studio-navy)'
+export const CREAM = 'var(--studio-cream)'
+export const SAND = 'var(--studio-sand)'
+export const GREY = 'var(--studio-grey)'
+export const MUTED = 'var(--studio-muted)'
+export const GREEN = 'var(--studio-green)'
+export const AMBER = 'var(--studio-amber)'
+export const RED = 'var(--studio-red)'
+export const WHITE = 'var(--studio-white)'
 
 // StatusDot's status -> color language, shared with TaskBoard's status pill.
+// var()-backed -- fine for any plain color/background use. See
+// getStatusColor() below for the real-hex version `tint()` math needs.
 export const STATUS_COLORS = { green: GREEN, yellow: AMBER, red: RED, grey: MUTED }
+
+// ── Mode-aware REAL hex, for the few call sites that run a status color
+//    through tint() (StatusDot's halo, TaskBoard/RequestPanel's status
+//    pill background) rather than using it as a plain color. ──
+let _studioThemeMode = 'light'
+
+/** Called by useStudioTheme() on every StudioShell render, synchronously,
+ * before any descendant renders in that pass -- see the long comment above. */
+export function setStudioThemeMode(mode) {
+  _studioThemeMode = mode === 'dark' ? 'dark' : 'light'
+}
+
+export function getStudioThemeMode() {
+  return _studioThemeMode
+}
+
+// Light values match STATUS_COLORS' own light defaults exactly (see
+// --studio-green etc. in StudioShell.jsx). Dark values are the app's real
+// dark-mode success/warning/destructive tokens (app/src/constants/
+// theme.js's darkColors) -- brightened specifically so they still clear
+// WCAG AA against the dark navy/steel-navy backgrounds, same reasoning
+// that file documents for its own dark palette. "it's not just orange
+// yellow red we need some greens" (founder) -- green is real in both modes,
+// not a fallback to grey/amber.
+const STATUS_HEX = {
+  light: { green: '#16A34A', yellow: '#F59E0B', red: '#DC2626', grey: '#9CA3AF' },
+  dark: { green: '#4ADE80', yellow: '#FBBF24', red: '#FCA5A5', grey: '#8FA0B5' },
+}
+
+/** Real hex (not a var() string) for the current mode -- use this, not
+ * STATUS_COLORS, anywhere the value is fed through tint(). */
+export function getStatusColor(key) {
+  const table = STATUS_HEX[_studioThemeMode] || STATUS_HEX.light
+  return table[key] || table.grey
+}
 
 export const FONT_SERIF = "'DM Serif Display', serif"
 export const FONT_SANS = "'DM Sans', sans-serif"
@@ -41,11 +98,12 @@ export const FONT_SANS = "'DM Sans', sans-serif"
 // rgba(30,58,95,0.08-0.15) borders, navy-tinted soft shadow) -- only
 // softened slightly so a page with 10+ cards doesn't read as a stack of
 // floating tiles.
-export const SURFACE_TINT = '#FAF8F4' // nested surfaces (stat tiles, form panels, table headers) inside a white card
-export const BORDER = 'rgba(30,58,95,0.08)'
-export const BORDER_STRONG = 'rgba(30,58,95,0.16)' // inputs, selects
+export const SURFACE_TINT = 'var(--studio-surface-tint)' // nested surfaces (stat tiles, form panels, table headers) inside a white card
+export const BORDER = 'var(--studio-border)'
+export const BORDER_STRONG = 'var(--studio-border-strong)' // inputs, selects
 export const CARD_RADIUS = '12px'
-export const CARD_SHADOW = '0 1px 2px rgba(30,58,95,0.04), 0 2px 12px rgba(30,58,95,0.05)'
+export const CARD_SHADOW = 'var(--studio-card-shadow)'
+export const OVERLAY = 'var(--studio-overlay)' // modal/drawer backdrop
 
 // Spacing rhythm shared by every hub: 4 / 8 / 12 / 16 / 24 / 32.
 export const SPACE = { xs: '4px', sm: '8px', md: '12px', lg: '16px', xl: '24px', xxl: '32px' }
@@ -74,7 +132,7 @@ export function studioButton(background, enabled = true) {
   return {
     fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 700,
     height: '40px', padding: '0 18px', borderRadius: '8px', border: 'none',
-    background: enabled ? background : 'rgba(30,58,95,0.28)', color: WHITE,
+    background: enabled ? background : 'var(--studio-disabled-bg)', color: WHITE,
     cursor: enabled ? 'pointer' : 'not-allowed',
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
     whiteSpace: 'nowrap', transition: 'background 150ms, box-shadow 150ms',
@@ -95,7 +153,14 @@ export function isZeroish(value) {
 // built on StudioShell -- do not invent a parallel palette.
 export const HUB_ACCENTS = {
   finance: '#A21CAF',   // matches the existing "Coaching" tile accent on FinanceDashboardPage
-  founder: NAVY,
+  // Literal brand navy hex, NOT the NAVY export above -- NAVY is now a
+  // var(--studio-navy) STRING (it flips to cream-text in dark mode, see
+  // Studio Phase 12's theme.js header comment), while an identity accent
+  // color must stay the one fixed hex in both modes (same as every other
+  // hub's accent here) AND must stay real hex so tint() -- used for the
+  // sidebar/jump-nav hover tint and focus rings -- can actually compute an
+  // alpha-blended color from it instead of silently no-op'ing on a var().
+  founder: '#1E3A5F',
   operations: '#2563EB',
   legal: '#0F766E',     // deep teal -- distinct from Finance's purple/Operations' blue, reads as "compliance" without borrowing red/amber (reserved for status, not identity, on this page)
   tech: '#EA580C',      // burnt orange -- distinct from finance/legal/operations' purple/teal/blue, reads as "build/ship" energy without touching red/amber (status-only on this page) or green (reserved for "healthy"/good status elsewhere)

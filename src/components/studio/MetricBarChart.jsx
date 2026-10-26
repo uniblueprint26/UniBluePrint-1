@@ -1,4 +1,5 @@
 import { NAVY, SAND, GREY, BORDER, FONT_SANS } from './theme'
+import { ChartSkeleton } from './Skeleton'
 
 /**
  * Horizontal bar chart matching the exact visual language already shipped
@@ -18,7 +19,21 @@ export default function MetricBarChart({
   emptyLabel = 'Nothing recorded yet.',
   nameWidth = 160,
   legend,
+  loading = false,
 }) {
+  // Studio Phase 12: while the real data is still in flight, show a
+  // shimmer skeleton shaped like this chart instead of the real bars.
+  // Checking `loading` alone (not also data.length) matters here: several
+  // hubs build their hero chart rows as a fixed-shape array seeded with
+  // value: 0 (e.g. Tech's Error/Warn/Info severity totals), so `data`
+  // already has real length before the real numbers arrive -- gating only
+  // on an empty array would never show the skeleton for those charts, the
+  // exact "looks like it loaded (as zeros), not like it's loading" problem
+  // the brief flags. Once `loading` is false, an empty `data` still falls
+  // through to the real empty-state text below.
+  if (loading) {
+    return <ChartSkeleton rows={Math.max(data.length, 3)} />
+  }
   if (!data.length) {
     return <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, lineHeight: 1.5, margin: 0 }}>{emptyLabel}</p>
   }

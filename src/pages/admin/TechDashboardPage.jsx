@@ -306,6 +306,7 @@ export default function TechDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="tech"
         title="Tech Hub"
         subtitle="Live platform health (Supabase advisors, Edge Functions, AI-generation usage), an idea inbox, and the QA/test board. Real data, excluding banned demo/QA accounts. Read access is team-wide (Praise included) -- triage/approve is leads-only, see the Idea Inbox note below."

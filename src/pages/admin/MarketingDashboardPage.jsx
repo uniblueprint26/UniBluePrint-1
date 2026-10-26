@@ -308,6 +308,7 @@ export default function MarketingDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="marketing"
         title="Marketing Hub"
         subtitle="Real deal engagement, early-access leads, the featured-content rotation, and the content/campaign task board -- for Alex, Elizabeth, Ethan and Fabz. Real data throughout, excluding banned demo/QA accounts and synthetic partner rows. Read/write access is team-wide today, see the notes below."

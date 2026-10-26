@@ -291,6 +291,7 @@ export default function HandlerQueuePage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="handler"
         title="Campus Handler Hub"
         subtitle="Real queue, claim, review and delivery pipeline for Campus/Job-Search Handlers and Operations. Claim a submission to review it -- every decision needs a note before it can go through. Real headline metrics below exclude banned demo/QA accounts."

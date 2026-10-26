@@ -300,6 +300,7 @@ export default function OutreachDashboardPage() {
       </Helmet>
 
       <StudioShell
+        heroChartsLoading={loading}
         hubKey="outreach"
         title="Outreach Hub"
         subtitle="Inbound pipeline, partner/coach recruitment, the outreach log, and the campaign task board -- for Sienna, Ethan, Fabz and James. Real data throughout, excluding banned demo/QA accounts and synthetic partner rows. Read/write access is team-wide today, see the Outreach Log note below."
