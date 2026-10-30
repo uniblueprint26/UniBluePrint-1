@@ -30,16 +30,25 @@ export function useSortableTable(rows = [], columns = []) {
     return m
   }, [columns])
 
+  // Reads `sortKey` from the render closure rather than nesting setSortDir
+  // inside setSortKey's own functional updater. The nested form (which this
+  // was before) is a real React anti-pattern: React 18 StrictMode
+  // intentionally double-invokes a functional updater in development to
+  // surface exactly this kind of side effect, so the inner setSortDir call
+  // fired twice per click and silently cancelled itself out -- confirmed
+  // live, a second click on a sortable header never flipped asc -> desc in
+  // `npm run dev` (it does in a production build, where React doesn't
+  // double-invoke, which is why this wasn't caught by build/lint). toggleSort
+  // only ever runs from a click handler, never during render, so reading
+  // `sortKey` directly here is safe -- it's always the latest value.
   function toggleSort(key) {
     if (!colMap.has(key)) return
-    setSortKey(prevKey => {
-      if (prevKey === key) {
-        setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
-        return key
-      }
+    if (sortKey === key) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
       setSortDir('asc')
-      return key
-    })
+    }
   }
 
   const sortedRows = useMemo(() => {
