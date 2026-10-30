@@ -483,6 +483,9 @@ footer {
 @media (max-width: 767px) {
   .services-grid { gap: 10px; }
 }
+@media (max-width: 640px) {
+  .services-grid { grid-template-columns: 1fr; }
+}
 
 /* ─── Partner tools grid (Partners page) ─────────────────────────────── */
 .partner-tools-grid {

@@ -781,7 +781,7 @@ export default function FoundationBlueprintPage() {
             </p>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: '10px',
             }}>
               {CC_ALL_TOOLS.map(t => <CCMiniCard key={t.name} {...t} />)}
