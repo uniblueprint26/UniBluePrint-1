@@ -11,6 +11,7 @@ import {
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
   PeriodToggle, TrendLineChart, GlanceCard, getStatusColor,
+  useSortableTable, SortTh,
 } from '../../components/studio'
 import {
   getFinanceRevenueSnapshot, getFinanceOneTimePayments, getFinanceRevenueByTier,
@@ -322,6 +323,16 @@ export default function FinanceDashboardPage() {
   const [selectedClientKey, setSelectedClientKey] = useState('')
   const selectedClient = clients.find(c => `${c.entity_type}:${c.entity_id}` === selectedClientKey) || null
 
+  // Studio Phase 14 -- sortable Client Register (one of the 3-4 real
+  // register tables retrofitted this phase; see useSortableTable.js).
+  const clientSort = useSortableTable(clients, [
+    { key: 'display_name', sortValue: c => c.display_name },
+    { key: 'entity_type', sortValue: c => c.entity_type },
+    { key: 'tier', sortValue: c => c.tier },
+    { key: 'negotiated_commission_pct', sortValue: c => c.negotiated_commission_pct },
+    { key: 'is_active', sortValue: c => (c.is_active ? 1 : 0) },
+  ])
+
   const [scoreState, setScoreState] = useState({ size: 1, service: 1, pricing: 1 })
   const [savingTier, setSavingTier] = useState(false)
   const scoreResult = useMemo(() => classifyScores(scoreState), [scoreState])
@@ -440,6 +451,9 @@ export default function FinanceDashboardPage() {
         accentColor={HUB_ACCENTS.finance}
         heroCharts={heroCharts}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks('finance').then(r => setTasks(r.value || []))}
         rangeControl={<PeriodToggle options={RANGES} value={range} onChange={setRange} />}
         glanceCard={(
           <GlanceCard
@@ -632,17 +646,22 @@ export default function FinanceDashboardPage() {
           {clients.length === 0 ? (
             <EmptyNote>No partners or coaches found.</EmptyNote>
           ) : (
-            <div className="studio-table-wrap">
+            <div className="studio-table-wrap" style={{ maxHeight: '420px', overflowY: 'auto' }}>
               <table className="studio-table">
                 <thead>
                   <tr>
-                    <th>Client</th><th>Type</th><th>Category</th><th>Tier</th><th>Payment option</th>
-                    {isLead && <th>Negotiated rate</th>}
-                    <th>Founding badge</th><th>Status</th>
+                    <SortTh {...clientSort.getSortProps('display_name')}>Client</SortTh>
+                    <SortTh {...clientSort.getSortProps('entity_type')}>Type</SortTh>
+                    <th>Category</th>
+                    <SortTh {...clientSort.getSortProps('tier')}>Tier</SortTh>
+                    <th>Payment option</th>
+                    {isLead && <SortTh {...clientSort.getSortProps('negotiated_commission_pct')}>Negotiated rate</SortTh>}
+                    <th>Founding badge</th>
+                    <SortTh {...clientSort.getSortProps('is_active')}>Status</SortTh>
                   </tr>
                 </thead>
                 <tbody>
-                  {clients.map(c => (
+                  {clientSort.sortedRows.map(c => (
                     <tr key={`${c.entity_type}:${c.entity_id}`}>
                       <td style={{ fontWeight: 600 }}>{c.display_name}</td>
                       <td style={{ textTransform: 'capitalize' }}>{c.entity_type}</td>

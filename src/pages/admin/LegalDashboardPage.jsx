@@ -9,6 +9,7 @@ import {
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_SELECT_SM,
   TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  useSortableTable, SortTh,
 } from '../../components/studio'
 import {
   getLegalContracts, setLegalContractStatus, getLegalContractsResolvedComparison, getLegalContractsResolvedTrend,
@@ -106,6 +107,14 @@ export default function LegalDashboardPage() {
   }, [comparisonWindow])
 
   useEffect(() => { load() }, [load])
+
+  // Studio Phase 14 -- sortable Contracts Register (see useSortableTable.js).
+  const contractSort = useSortableTable(contracts, [
+    { key: 'display_name', sortValue: c => c.display_name },
+    { key: 'entity_type', sortValue: c => c.entity_type },
+    { key: 'contract_name', sortValue: c => c.contract_name },
+    { key: 'status', sortValue: c => c.status },
+  ])
 
   // ── Contracts register: status change ──────────────────────────────────
   const [savingContractId, setSavingContractId] = useState(null)
@@ -279,6 +288,9 @@ export default function LegalDashboardPage() {
         accentColor={HUB_ACCENTS.legal}
         heroCharts={heroCharts}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks(TEAM).then(r => setTasks(r.value || []))}
         glanceCard={(
           <GlanceCard
             accentColor={HUB_ACCENTS.legal}
@@ -306,13 +318,20 @@ export default function LegalDashboardPage() {
           {contracts.length === 0 ? (
             <EmptyNote><FileText size={12} /> No contracts tracked yet.</EmptyNote>
           ) : (
-            <div className="studio-table-wrap">
+            <div className="studio-table-wrap" style={{ maxHeight: '420px', overflowY: 'auto' }}>
               <table className="studio-table">
                 <thead>
-                  <tr><th>Entity</th><th>Type</th><th>Contract</th><th>Status</th><th>Notes</th><th>Last checked</th></tr>
+                  <tr>
+                    <SortTh {...contractSort.getSortProps('display_name')}>Entity</SortTh>
+                    <SortTh {...contractSort.getSortProps('entity_type')}>Type</SortTh>
+                    <SortTh {...contractSort.getSortProps('contract_name')}>Contract</SortTh>
+                    <SortTh {...contractSort.getSortProps('status')}>Status</SortTh>
+                    <th>Notes</th>
+                    <th>Last checked</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  {contracts.map(c => (
+                  {contractSort.sortedRows.map(c => (
                     <tr key={c.id}>
                       <td style={{ fontWeight: 600 }}>{c.display_name}</td>
                       <td style={{ textTransform: 'capitalize' }}>{c.entity_type}</td>
@@ -445,6 +464,7 @@ export default function LegalDashboardPage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.legal}
+            team={TEAM}
             emptyLabel="No tasks yet -- add the first real one above."
           />
         </Card>

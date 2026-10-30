@@ -9,6 +9,7 @@ import {
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
   GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  useSortableTable, SortTh,
 } from '../../components/studio'
 import {
   getOutreachInboundPipeline, getOutreachCoachRecruitmentSnapshot, getOutreachPartnerSnapshot,
@@ -95,6 +96,13 @@ export default function OutreachDashboardPage() {
   const [followTrend, setFollowTrend] = useState([])
 
   const [contacts, setContacts] = useState([])
+  // Studio Phase 14 -- sortable Outreach Log (see useSortableTable.js).
+  const contactSort = useSortableTable(contacts, [
+    { key: 'entity_name', sortValue: c => c.entity_name },
+    { key: 'entity_type', sortValue: c => c.entity_type },
+    { key: 'status', sortValue: c => c.status },
+    { key: 'contacted_at', sortValue: c => c.contacted_at ? new Date(c.contacted_at) : null },
+  ])
   const [comparisonWindow, setComparisonWindow] = useState('week')
   const [comparison, setComparison] = useState(null)
 
@@ -322,6 +330,9 @@ export default function OutreachDashboardPage() {
         accentColor={HUB_ACCENTS.outreach}
         heroCharts={heroCharts}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks(TEAM).then(r => setTasks(r.value || []))}
         glanceCard={(
           <GlanceCard
             accentColor={HUB_ACCENTS.outreach}
@@ -468,11 +479,21 @@ export default function OutreachDashboardPage() {
           {contacts.length === 0 ? (
             <EmptyNote><Inbox size={12} /> No outreach logged yet -- use the form above to log the first real contact attempt.</EmptyNote>
           ) : (
-            <div className="studio-table-wrap">
+            <div className="studio-table-wrap" style={{ maxHeight: '420px', overflowY: 'auto' }}>
               <table className="studio-table">
-                <thead><tr><th>Name</th><th>Type</th><th>Channel</th><th>Status</th><th>Notes</th><th>Contacted</th><th>Logged by</th></tr></thead>
+                <thead>
+                  <tr>
+                    <SortTh {...contactSort.getSortProps('entity_name')}>Name</SortTh>
+                    <SortTh {...contactSort.getSortProps('entity_type')}>Type</SortTh>
+                    <th>Channel</th>
+                    <SortTh {...contactSort.getSortProps('status')}>Status</SortTh>
+                    <th>Notes</th>
+                    <SortTh {...contactSort.getSortProps('contacted_at')}>Contacted</SortTh>
+                    <th>Logged by</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {contacts.map(c => (
+                  {contactSort.sortedRows.map(c => (
                     <tr key={c.id}>
                       <td style={{ fontWeight: 600 }}>{c.entity_name}</td>
                       <td>{ENTITY_TYPE_LABELS[c.entity_type] || c.entity_type}</td>
@@ -540,6 +561,7 @@ export default function OutreachDashboardPage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.outreach}
+            team={TEAM}
             emptyLabel="No campaign tasks yet -- add the first real one above."
           />
         </Card>

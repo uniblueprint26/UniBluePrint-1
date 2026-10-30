@@ -316,6 +316,9 @@ export default function MarketingDashboardPage() {
         accentColor={HUB_ACCENTS.marketing}
         heroCharts={heroCharts}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks(TEAM).then(r => setTasks(r.value || []))}
         glanceCard={(
           <GlanceCard
             accentColor={HUB_ACCENTS.marketing}
@@ -512,6 +515,7 @@ export default function MarketingDashboardPage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.marketing}
+            team={TEAM}
             emptyLabel="No content/campaign tasks yet -- add the first real one above."
           />
         </Card>

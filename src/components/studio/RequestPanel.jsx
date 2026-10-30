@@ -4,6 +4,7 @@ import {
   NAVY, CREAM, GREY, MUTED, GREEN, RED, WHITE, BORDER, BORDER_STRONG, STUDIO_INPUT, HUB_LABELS, FONT_SANS, studioButton, tint, getStatusColor,
 } from './theme'
 import StatusDot from './StatusDot'
+import Avatar from './Avatar'
 import { EmptyNote } from './StudioPrimitives'
 
 // Studio Phase 11 -- the shared cross-hub Requests component every hub page
@@ -194,9 +195,13 @@ export default function RequestPanel({
                     </p>
                   )}
                   <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, margin: '4px 0 0', lineHeight: 1.55 }}>{r.message}</p>
-                  <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, margin: '8px 0 0' }}>
+                  <p style={{ fontFamily: FONT_SANS, fontSize: '11.5px', color: MUTED, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <Avatar name={r.requester_name} userId={r.requester_id} avatarUrl={r.requester_avatar_url} size={16} />
                     {r.requester_name}{r.created_at ? ` · ${fmtDate(r.created_at)}` : ''}
                     {r.status !== 'pending' && r.resolved_by_name ? ` · ${meta.label.toLowerCase()} by ${r.resolved_by_name}` : ''}
+                    {r.status !== 'pending' && r.resolved_by_name && (
+                      <Avatar name={r.resolved_by_name} userId={r.resolved_by} avatarUrl={r.resolved_by_avatar_url} size={16} />
+                    )}
                   </p>
                 </div>
 

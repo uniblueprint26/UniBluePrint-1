@@ -263,6 +263,9 @@ export default function CoDirectorDashboardPage() {
         subtitle="One bird's-eye rollup of Finance, Legal, Tech, Outreach and Marketing's real headline numbers -- for Daniel. Every figure below is read live from the same hub RPCs each team's own page already calls; nothing is re-derived or duplicated. This month's snapshot throughout."
         accentColor={HUB_ACCENTS.co_director}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks('co_director').then(r => setTasks(r.value || []))}
         glanceCard={(
           <GlanceCard
             accentColor={HUB_ACCENTS.co_director}
@@ -437,6 +440,7 @@ export default function CoDirectorDashboardPage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.co_director}
+            team="co_director"
             emptyLabel="No Co-Director priorities yet -- add the first real one above."
           />
         </Card>

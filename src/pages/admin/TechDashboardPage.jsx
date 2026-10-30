@@ -9,6 +9,7 @@ import {
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton,
   PeriodToggle, DAY_WEEK_MONTH_YEAR, TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  useSortableTable, SortTh,
 } from '../../components/studio'
 import {
   getTechAdvisorSnapshot, getTechEdgeFunctionSnapshot, getTechFunctionHealthRates,
@@ -103,6 +104,13 @@ export default function TechDashboardPage() {
   const [genRange, setGenRange] = useState('month')
 
   const [ideas, setIdeas] = useState([])
+  // Studio Phase 14 -- sortable Idea Inbox (see useSortableTable.js).
+  const ideaSort = useSortableTable(ideas, [
+    { key: 'title', sortValue: i => i.title },
+    { key: 'submitted_by_label', sortValue: i => i.submitted_by_label },
+    { key: 'status', sortValue: i => i.status },
+    { key: 'created_at', sortValue: i => new Date(i.created_at) },
+  ])
   const [comparisonWindow, setComparisonWindow] = useState('week')
   const [comparison, setComparison] = useState(null)
   const [triagedTrend, setTriagedTrend] = useState([])
@@ -336,6 +344,9 @@ export default function TechDashboardPage() {
         accentColor={HUB_ACCENTS.tech}
         heroCharts={heroCharts}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks(TEAM).then(r => setTasks(r.value || []))}
         rangeControl={<PeriodToggle options={DAY_WEEK_MONTH_YEAR} value={genRange} onChange={setGenRange} ariaLabel="Generation usage range" />}
         glanceCard={(
           <GlanceCard
@@ -465,11 +476,19 @@ export default function TechDashboardPage() {
           {ideas.length === 0 ? (
             <EmptyNote><Inbox size={12} /> No ideas submitted yet -- add the first real one above.</EmptyNote>
           ) : (
-            <div className="studio-table-wrap">
+            <div className="studio-table-wrap" style={{ maxHeight: '420px', overflowY: 'auto' }}>
               <table className="studio-table">
-                <thead><tr><th>Idea</th><th>Submitted by</th><th>Status</th><th>Notes</th><th>Submitted</th></tr></thead>
+                <thead>
+                  <tr>
+                    <SortTh {...ideaSort.getSortProps('title')}>Idea</SortTh>
+                    <SortTh {...ideaSort.getSortProps('submitted_by_label')}>Submitted by</SortTh>
+                    <SortTh {...ideaSort.getSortProps('status')}>Status</SortTh>
+                    <th>Notes</th>
+                    <SortTh {...ideaSort.getSortProps('created_at')}>Submitted</SortTh>
+                  </tr>
+                </thead>
                 <tbody>
-                  {ideas.map(idea => (
+                  {ideaSort.sortedRows.map(idea => (
                     <tr key={idea.id}>
                       <td style={{ minWidth: '200px', maxWidth: '260px', whiteSpace: 'normal' }}>
                         <span style={{ fontWeight: 600 }}>{idea.title}</span>
@@ -567,6 +586,7 @@ export default function TechDashboardPage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.tech}
+            team={TEAM}
             emptyLabel="No tasks yet -- add the first real one above (use Batch 'QA' for Enoch's testing work)."
           />
         </Card>

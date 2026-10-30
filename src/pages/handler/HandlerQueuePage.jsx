@@ -305,6 +305,9 @@ export default function HandlerQueuePage() {
         accentColor={HUB_ACCENTS.handler}
         heroCharts={heroCharts}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks('handler').then(r => setTasks(r.value || []))}
         rangeControl={notifBell}
         glanceCard={(
           <GlanceCard
@@ -443,6 +446,7 @@ export default function HandlerQueuePage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.handler}
+            team="handler"
             emptyLabel="No Handler team tasks yet -- add the first real one above."
           />
         </Card>

@@ -321,14 +321,21 @@ export async function getLegalAcknowledgementCoverage() {
 // ── Generic team_tasks ("targets, batches, delegated tasks") -- reusable
 // by any future hub the same way Legal uses it here, see TaskBoard.jsx. ──
 
+// Studio Phase 14: both now call the _with_avatar RPCs (see supabase/
+// migrations/20261027090000_studio_phase14_avatar_columns.sql) -- same
+// rows/order as the originals, plus real profiles.avatar_url for the new
+// Avatar component. New functions rather than edited originals, because
+// Postgres won't widen a RETURNS TABLE signature via CREATE OR REPLACE and
+// DROP FUNCTION needed a confirmation this non-interactive pass couldn't
+// get answered -- see that migration's header for the full reasoning.
 export async function getTeamTasks(team) {
-  const { data, error } = await supabase.rpc('list_team_tasks', { _team: team })
+  const { data, error } = await supabase.rpc('list_team_tasks_with_avatar', { _team: team })
   if (error) throw error
   return { trackable: true, value: data || [] }
 }
 
 export async function getTeamRoster(team) {
-  const { data, error } = await supabase.rpc('get_team_roster', { _team: team })
+  const { data, error } = await supabase.rpc('get_team_roster_with_avatar', { _team: team })
   if (error) throw error
   return { trackable: true, value: data || [] }
 }
@@ -384,8 +391,12 @@ export async function getIsTeamLead(team) {
 // view). See supabase/migrations' studio_phase11_leads_and_requests_v2
 // for the full RPC bodies and the shared RequestPanel Studio component
 // every hub page renders this through. ──
+// Studio Phase 14: list_studio_requests_with_avatar -- same rows/order as
+// list_studio_requests, plus requester/target-user/resolver avatar_url.
+// See getTeamTasks/getTeamRoster's own Phase 14 comment just above for why
+// this is a new RPC name rather than an edit to the original.
 export async function listStudioRequests(team) {
-  const { data, error } = await supabase.rpc('list_studio_requests', { _team: team })
+  const { data, error } = await supabase.rpc('list_studio_requests_with_avatar', { _team: team })
   if (error) throw error
   return { trackable: true, value: data || [] }
 }
@@ -811,4 +822,53 @@ export async function getTeamActivityHeatmap(team, days = 182) {
   const { data, error } = await supabase.rpc('get_team_activity_heatmap', { _team: team, _days: days })
   if (error) throw error
   return { trackable: true, value: data || [] }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// STUDIO PHASE 14 -- navigation/identity layer. Avatar read/upload for the
+// CALLER's own account only -- both go straight at public.profiles (RLS:
+// "Users can read/update own profile" is auth.uid() = id, already covers
+// exactly this, no new policy). Upload reuses the EXACT bucket/path/upsert
+// convention the mobile app's ProfileScreen.jsx already writes through
+// (profile-pictures/{userId}/avatar.jpg, upsert true -- checked live, see
+// that migration's header) -- no new bucket, no new storage policy.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** `{ fullName, avatarUrl }` for the signed-in user, or null if not signed in. */
+export async function getMyStudioAvatar() {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('full_name, avatar_url')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (error) throw error
+  return { userId: user.id, fullName: data?.full_name || null, avatarUrl: data?.avatar_url || null }
+}
+
+/** Uploads `file` to the shared profile-pictures bucket at {userId}/avatar.jpg
+ * (upsert -- overwrites in place, no orphaned files), writes the resulting
+ * public URL to profiles.avatar_url, and returns that URL. */
+export async function uploadMyStudioAvatar(file) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in.')
+  const ext = (file.name?.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
+  const path = `${user.id}/avatar.${ext}`
+  const { error: uploadError } = await supabase.storage
+    .from('profile-pictures')
+    .upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' })
+  if (uploadError) throw uploadError
+  const { data: pub } = supabase.storage.from('profile-pictures').getPublicUrl(path)
+  const url = pub?.publicUrl
+  if (!url) throw new Error('Upload succeeded but no public URL was returned.')
+  // Cache-bust -- the path is fixed (upsert in place), so a browser/CDN
+  // would otherwise keep showing the previous photo after a re-upload.
+  const bustedUrl = `${url}?v=${Date.now()}`
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ avatar_url: bustedUrl })
+    .eq('id', user.id)
+  if (profileError) throw profileError
+  return bustedUrl
 }

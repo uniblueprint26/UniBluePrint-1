@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Search } from 'lucide-react'
 import { FONT_SANS } from './theme'
 
 // Studio Phase 12 -- persistent left sidebar nav, replacing the old
@@ -147,6 +147,30 @@ export const SIDEBAR_STYLES = `
       color: var(--studio-navy); cursor: pointer;
     }
   }
+
+  /* Studio Phase 14 -- quick-jump search trigger + the permanent
+     "Commands" help block, both rendered by this same sidebar so they
+     show up on every hub without a second integration point. */
+  .studio-sidebar-search {
+    display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+    font-family: ${FONT_SANS}; font-size: 12.5px; font-weight: 600; color: var(--studio-grey);
+    padding: 8px 10px; border-radius: 8px; border: 1px solid var(--studio-border-strong); background: var(--studio-white);
+    cursor: pointer; margin-bottom: 4px;
+  }
+  .studio-sidebar-search:hover, .studio-sidebar-search:focus-visible { border-color: var(--studio-accent); color: var(--studio-accent); outline: none; }
+  .studio-sidebar-search kbd {
+    margin-left: auto; font-size: 10px; font-weight: 700; color: var(--studio-muted); border: 1px solid var(--studio-border-strong);
+    border-radius: 4px; padding: 1px 5px; flex-shrink: 0;
+  }
+  .studio-sidebar-commands { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--studio-border); }
+  .studio-sidebar-commands ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+  .studio-sidebar-commands li {
+    font-family: ${FONT_SANS}; font-size: 11.5px; color: var(--studio-grey); line-height: 1.5; padding-left: 10px;
+  }
+  .studio-sidebar-commands kbd {
+    font-size: 10px; font-weight: 700; color: var(--studio-navy); border: 1px solid var(--studio-border-strong);
+    border-radius: 4px; padding: 1px 5px; margin-right: 3px;
+  }
 `
 
 /**
@@ -156,7 +180,7 @@ export const SIDEBAR_STYLES = `
  * caller, see StudioShell.jsx) under 960px so it's never just hidden with
  * no way to reach it on a phone.
  */
-export default function StudioSidebar({ hubKey, sections = [], title, open, onClose }) {
+export default function StudioSidebar({ hubKey, sections = [], title, open, onClose, onOpenPalette }) {
   const [activeId, setActiveId] = useState(sections[0]?.id)
   const grouped = groupSections(hubKey, sections)
 
@@ -164,6 +188,11 @@ export default function StudioSidebar({ hubKey, sections = [], title, open, onCl
     setActiveId(id)
     jumpTo(id)
     if (onClose) onClose()
+  }
+
+  function openPalette() {
+    if (onClose) onClose()
+    if (onOpenPalette) onOpenPalette()
   }
 
   return (
@@ -180,6 +209,15 @@ export default function StudioSidebar({ hubKey, sections = [], title, open, onCl
         <button type="button" className="studio-sidebar-close" onClick={onClose} aria-label="Close menu">
           <X size={16} />
         </button>
+
+        {/* Studio Phase 14 -- visible quick-jump search trigger, same
+            CommandPalette the Cmd+K/Ctrl+K shortcut opens (StudioShell.jsx). */}
+        {onOpenPalette && (
+          <button type="button" className="studio-sidebar-search" onClick={openPalette}>
+            <Search size={14} /> Jump to anything... <kbd>⌘K</kbd>
+          </button>
+        )}
+
         {grouped.map(({ group, items }) => (
           <div key={group}>
             <p className="studio-sidebar-group-label">{group}</p>
@@ -195,6 +233,18 @@ export default function StudioSidebar({ hubKey, sections = [], title, open, onCl
             ))}
           </div>
         ))}
+
+        {/* Studio Phase 14 -- the permanent, short "Commands" help section
+            every new teammate can read without being told, per the brief
+            -- three lines, not a wall of text. */}
+        <div className="studio-sidebar-commands">
+          <p className="studio-sidebar-group-label">Commands</p>
+          <ul>
+            <li><kbd>⌘K</kbd> jump to a section, hub, task or request</li>
+            <li><kbd>+</kbd> bottom-right -- quick-add a task from anywhere</li>
+            <li>Click a column heading on a register table to sort it</li>
+          </ul>
+        </div>
       </nav>
     </>
   )

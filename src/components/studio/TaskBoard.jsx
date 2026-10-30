@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { Plus, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Plus, Loader2, User, AlertTriangle, ListChecks } from 'lucide-react'
 import { NAVY, CREAM, GREY, WHITE, BORDER, BORDER_STRONG, STUDIO_INPUT, FONT_SANS, studioButton, tint, getStatusColor } from './theme'
 import StatusDot from './StatusDot'
+import Avatar from './Avatar'
 import { EmptyNote } from './StudioPrimitives'
+import { useAuth } from '../../context/AuthContext'
 
 // Generic "targets, batches, delegated tasks" board -- per the founder's
 // brief, Legal is the first hub to need this, but Tech/Outreach/Marketing
@@ -33,14 +35,48 @@ function fmtDate(d) {
   return new Date(d).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' })
 }
 
+function isOverdue(t) {
+  if (!t.target_date || t.status === 'done') return false
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  return new Date(t.target_date) < today
+}
+
+// Studio Phase 14 -- saved filters/views: "My tasks" / "Overdue", one-click
+// and remembered per person on THIS team's board (localStorage -- no DB
+// table, per the brief's own scope note; a real per-user preference, just
+// not one that needs to sync across devices). Scoped by `team` so Legal's
+// remembered filter doesn't leak onto Tech's board in the same browser.
+const FILTER_KEY_PREFIX = 'ubp_studio_taskboard_filter_'
+
+function readStoredFilter(team) {
+  try {
+    const v = localStorage.getItem(FILTER_KEY_PREFIX + (team || 'default'))
+    return v === 'mine' || v === 'overdue' ? v : 'all'
+  } catch {
+    return 'all'
+  }
+}
+
 export default function TaskBoard({
   tasks = [], members = [], loading = false,
-  onCreate, onStatusChange, accentColor = NAVY,
+  onCreate, onStatusChange, accentColor = NAVY, team = 'default',
   emptyLabel = 'No tasks yet -- add the first one below.',
 }) {
+  const { user } = useAuth()
   const [form, setForm] = useState({ title: '', description: '', batchLabel: '', targetDate: '', assignedTo: '' })
   const [submitting, setSubmitting] = useState(false)
   const [changingId, setChangingId] = useState(null)
+  const [filter, setFilter] = useState(() => readStoredFilter(team))
+
+  useEffect(() => {
+    try { localStorage.setItem(FILTER_KEY_PREFIX + (team || 'default'), filter) } catch { /* best-effort persistence only */ }
+  }, [filter, team])
+
+  const overdueCount = tasks.filter(isOverdue).length
+  const mineCount = user ? tasks.filter(t => t.assigned_to === user.id).length : 0
+  const visibleTasks = filter === 'mine' ? tasks.filter(t => user && t.assigned_to === user.id)
+    : filter === 'overdue' ? tasks.filter(isOverdue)
+    : tasks
 
   async function submit() {
     if (!form.title.trim() || !onCreate) return
@@ -118,15 +154,38 @@ export default function TaskBoard({
         </div>
       </div>
 
+      {/* Studio Phase 14 -- saved filters/views: one-click, remembered per
+          person on this board (localStorage, see readStoredFilter above). */}
+      {tasks.length > 0 && (
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
+          <FilterPill active={filter === 'all'} onClick={() => setFilter('all')} accentColor={accentColor}>
+            All ({tasks.length})
+          </FilterPill>
+          <FilterPill active={filter === 'mine'} onClick={() => setFilter('mine')} accentColor={accentColor} Icon={User}>
+            My tasks ({mineCount})
+          </FilterPill>
+          <FilterPill active={filter === 'overdue'} onClick={() => setFilter('overdue')} accentColor={accentColor} Icon={AlertTriangle}>
+            Overdue ({overdueCount})
+          </FilterPill>
+        </div>
+      )}
+
       {tasks.length === 0 ? (
         <EmptyNote style={{
           border: `1px dashed ${BORDER_STRONG}`, borderRadius: '10px', padding: '14px 16px', fontSize: '13px',
         }}>
           {emptyLabel}
         </EmptyNote>
+      ) : visibleTasks.length === 0 ? (
+        <EmptyNote style={{
+          border: `1px dashed ${BORDER_STRONG}`, borderRadius: '10px', padding: '14px 16px', fontSize: '13px',
+        }}>
+          <ListChecks size={14} style={{ marginRight: '6px', verticalAlign: '-2px' }} />
+          Nothing matches "{filter === 'mine' ? 'My tasks' : 'Overdue'}" right now.
+        </EmptyNote>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: loading ? 0.6 : 1, transition: 'opacity 150ms' }}>
-          {tasks.map(t => {
+          {visibleTasks.map(t => {
             const meta = STATUS_META[t.status]
             const statusColor = getStatusColor(meta?.dot || 'grey')
             const done = t.status === 'done'
@@ -147,8 +206,10 @@ export default function TaskBoard({
                   {t.description && (
                     <p style={{ fontFamily: FONT_SANS, fontSize: '12.5px', color: GREY, margin: '4px 0 0', lineHeight: 1.55 }}>{t.description}</p>
                   )}
-                  <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '8px 0 0' }}>
+                  <p style={{ fontFamily: FONT_SANS, fontSize: '12px', color: GREY, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Avatar name={t.assignee_name} userId={t.assigned_to} avatarUrl={t.assignee_avatar_url} size={18} />
                     {t.assignee_name || 'Unassigned'}{t.target_date ? ` · due ${fmtDate(t.target_date)}` : ''}
+                    {isOverdue(t) && <span style={{ color: 'var(--studio-red)', fontWeight: 700 }}>· overdue</span>}
                   </p>
                 </div>
                 <label style={{
@@ -173,6 +234,24 @@ export default function TaskBoard({
         </div>
       )}
     </div>
+  )
+}
+
+function FilterPill({ active, onClick, accentColor, Icon, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: FONT_SANS, fontSize: '12px', fontWeight: 600,
+        color: active ? WHITE : NAVY, background: active ? accentColor : CREAM,
+        border: `1px solid ${active ? accentColor : BORDER}`, borderRadius: '999px', padding: '5px 12px', cursor: 'pointer',
+      }}
+    >
+      {Icon && <Icon size={12} />}
+      {children}
+    </button>
   )
 }
 

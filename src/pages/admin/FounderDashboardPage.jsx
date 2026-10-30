@@ -536,6 +536,9 @@ export default function FounderDashboardPage() {
         subtitle="Home base: a real, live rollup of every Studio hub's own headline numbers, plus platform health, feature usage, and partner/coach impact. Read only except Founder Priorities, below."
         accentColor={HUB_ACCENTS.founder}
         sections={sections}
+        tasks={tasks}
+        requests={requests}
+        onQuickTaskCreated={() => getTeamTasks('founder').then(r => setTasks(r.value || []))}
         rangeControl={rangeControl}
         glanceCard={(
           <GlanceCard
@@ -813,6 +816,7 @@ export default function FounderDashboardPage() {
             onCreate={addTask}
             onStatusChange={changeTaskStatus}
             accentColor={HUB_ACCENTS.founder}
+            team="founder"
             emptyLabel="No Founder priorities yet -- add the first real one above."
           />
         </Card>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 import { NAVY, GREY, MUTED, SAND, SURFACE_TINT, BORDER, FONT_SERIF, FONT_SANS, tint } from './theme'
 import GreetingBanner from './GreetingBanner'
@@ -9,6 +9,12 @@ import DonutChart from './DonutChart'
 import { StudioCard, Eyebrow } from './StudioPrimitives'
 import { SKELETON_STYLES } from './Skeleton'
 import { useStudioTheme } from './useStudioTheme'
+// Studio Phase 14 -- navigation/identity layer, all integrated here once
+// rather than per-hub, same reasoning as every prior shared-shell piece in
+// this file (sidebar/dark-mode/greeting/skeleton CSS above).
+import CommandPalette from './CommandPalette'
+import QuickAddFab from './QuickAddFab'
+import AccountAvatarButton from './AccountAvatarButton'
 
 // Studio Phase 10: every rule here is shared by all 8 hubs -- page rhythm,
 // the "Studio card" surface, data tables, responsive form rows, and the
@@ -161,17 +167,49 @@ export default function StudioShell({
   rangeControl,
   error,
   children,
+  // Studio Phase 14 -- quick-jump search groups "Tasks"/"Requests" (see
+  // CommandPalette.jsx) read whatever the host page already fetched for
+  // its own TaskBoard/RequestPanel -- no new fetch, both optional.
+  tasks = [],
+  requests = [],
+  // Studio Phase 14 -- the floating quick-add button creates a real
+  // team_tasks row for THIS hub (hubKey === every hub page's own TEAM
+  // constant, checked live). Omit to hide the button on a hub that has no
+  // real use for it; every current hub page passes it.
+  onQuickTaskCreated,
 }) {
   const { mode, toggle } = useStudioTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  // Cmd+K / Ctrl+K opens the quick-jump search from anywhere on the hub,
+  // per the brief -- a document-level listener here (StudioShell is
+  // mounted exactly once per hub page) rather than one per button, so it
+  // works whether or not the person has ever clicked the search icon.
+  useEffect(() => {
+    function onKeyDown(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen(o => !o)
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   return (
     <div className="studio-shell" data-theme={mode} style={accentVars(accentColor)}>
       <style>{SHELL_STYLES}</style>
 
       {sections.length > 0 && (
-        <StudioSidebar hubKey={hubKey} sections={sections} title={title} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <StudioSidebar
+          hubKey={hubKey} sections={sections} title={title} open={sidebarOpen} onClose={() => setSidebarOpen(false)}
+          onOpenPalette={() => setPaletteOpen(true)}
+        />
       )}
+
+      <CommandPalette hubKey={hubKey} sections={sections} tasks={tasks} requests={requests} open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      {onQuickTaskCreated && <QuickAddFab team={hubKey} accentColor={accentColor} onCreated={onQuickTaskCreated} />}
 
       <div className="studio-main">
         {/* Studio Phase 12: a very faint per-hub geometric texture, contained
@@ -209,6 +247,7 @@ export default function StudioShell({
                 {mode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </button>
               {rangeControl}
+              <AccountAvatarButton />
             </div>
           </header>
 
