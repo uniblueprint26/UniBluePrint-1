@@ -44,7 +44,7 @@ export default function CommandPalette({ hubKey, sections = [], tasks = [], requ
     return undefined
   }, [open])
 
-  const groups = useMemo(() => buildGroups({ hubKey, sections, tasks, requests, roles, query }), [hubKey, sections, tasks, requests, roles, query])
+  const groups = useMemo(() => buildGroups({ hubKey, sections, tasks, requests, roles, query, navigate }), [hubKey, sections, tasks, requests, roles, query, navigate])
   const flatItems = useMemo(() => groups.flatMap(g => g.items), [groups])
 
   useEffect(() => { setActiveIndex(0) }, [query])
@@ -135,7 +135,7 @@ export default function CommandPalette({ hubKey, sections = [], tasks = [], requ
   )
 }
 
-function buildGroups({ hubKey, sections, tasks, requests, roles = [], query }) {
+function buildGroups({ hubKey, sections, tasks, requests, roles = [], query, navigate }) {
   const q = query.trim().toLowerCase()
   const match = label => q === '' || String(label || '').toLowerCase().includes(q)
 
@@ -153,7 +153,7 @@ function buildGroups({ hubKey, sections, tasks, requests, roles = [], query }) {
 
   const otherHubs = hubsAccessibleTo(roles, hubKey)
     .filter(h => match(h.label))
-    .map(h => ({ key: `hub-${h.key}`, label: h.label, sub: 'Open hub', Icon: LayoutGrid, action: () => { window.location.href = h.path } }))
+    .map(h => ({ key: `hub-${h.key}`, label: h.label, sub: 'Open hub', Icon: LayoutGrid, action: () => navigate(h.path) }))
 
   // Tasks/requests groups only once the person is actually typing -- with
   // an empty query they'd otherwise flood the list above the far more
