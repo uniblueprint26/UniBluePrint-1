@@ -23,6 +23,18 @@ export default function QuickAddFab({ team, accentColor = NAVY, onCreated }) {
     getTeamRoster(team).then(r => setMembers(r.value || [])).catch(() => setMembers([]))
   }, [open, team])
 
+  // Every other Studio Phase 14 dialog (CommandPalette, AccountAvatarButton's
+  // popover) closes on Escape -- this one didn't, confirmed live (the
+  // overlay has an onMouseDown backdrop-click close, but no keyboard path
+  // out at all once focus is inside the form). Same document-level listener
+  // pattern AccountAvatarButton already uses.
+  useEffect(() => {
+    if (!open) return undefined
+    function onKey(e) { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+
   async function submit() {
     if (!form.title.trim()) return
     setSubmitting(true)
@@ -65,7 +77,7 @@ export default function QuickAddFab({ team, accentColor = NAVY, onCreated }) {
         <div
           role="presentation"
           onMouseDown={e => { if (e.target === e.currentTarget) setOpen(false) }}
-          style={{ position: 'fixed', inset: 0, zIndex: 210, background: OVERLAY, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 501, background: OVERLAY, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
         >
           <div role="dialog" aria-modal="true" aria-label="Quick-add a task" className="studio-fab-panel">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -119,7 +131,16 @@ function FabField({ label, children }) {
 
 const FAB_STYLES = `
   .studio-fab {
-    position: fixed; right: 24px; bottom: 24px; z-index: 90; width: 52px; height: 52px; border-radius: 50%;
+    /* Studio hubs render the site-wide CookieBanner too (z-index 500 --
+       intentionally the highest in the app, a cookie-consent banner must
+       always stay reachable). A bottom-right FAB at the old z-index (90)
+       sat entirely BEHIND that full-width banner until consent was chosen
+       -- genuinely unclickable, not just visually covered, confirmed live:
+       a real pointer-events-based click lands on the banner's own subtree
+       instead. 501 -- one above the banner -- without touching the
+       banner's own z-index (that's the one stacking value already relied
+       on to beat everything else site-wide, not this file's to change). */
+    position: fixed; right: 24px; bottom: 24px; z-index: 501; width: 52px; height: 52px; border-radius: 50%;
     border: none; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center;
     cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.28); transition: transform 150ms;
   }
