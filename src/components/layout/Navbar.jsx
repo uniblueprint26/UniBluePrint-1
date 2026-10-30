@@ -9,6 +9,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import UBPLogo from '../ui/UBPLogo'
+import { HUB_REGISTRY } from '../studio/hubRegistry'
 
 // ─── Nav data ─────────────────────────────────────────────────────────────────
 
@@ -58,13 +59,29 @@ const JOIN_LINKS = [
 // Which staff surface a signed-in user's account-dropdown "Dashboard" link
 // points at, keyed by role and checked in this order (same roles + priority
 // RequireRole's allow-lists use per staff route in App.jsx: founder outranks
-// operations, which outranks finance/handler/business, since a founder also
-// passes every other route's role check).
+// co_director/operations, which outrank the single-hub roles, since a
+// founder also passes every other route's role check).
+//
+// Fix: this list predated the Legal/Tech/Outreach/Marketing/Co-Director hubs
+// (Studio Phases 2, 3, 4, 5, 6) and was never extended for them -- a staff
+// member who holds ONLY one of those five roles (not also founder/
+// operations/co_director) had no "Dashboard" link in this dropdown at all,
+// on either desktop or mobile, despite RequireRole already letting them
+// into their own hub by URL. HUB_REGISTRY (src/components/studio/
+// hubRegistry.js) is the single already-existing source of truth for
+// "hub key -> path", kept in sync with App.jsx's own RequireRole allow-lists
+// by the same convention CommandPalette.jsx relies on -- reused here rather
+// than re-typing a third copy of these paths.
 const DASHBOARD_ROLE_ROUTES = [
-  { role: 'founder', href: '/admin/founder' },
+  { role: 'founder', href: HUB_REGISTRY.founder.path },
+  { role: 'co_director', href: HUB_REGISTRY.co_director.path },
   { role: 'operations', href: '/admin/operations' },
-  { role: 'finance', href: '/admin/finance' },
-  { role: 'handler', href: '/handler/queue' },
+  { role: 'finance', href: HUB_REGISTRY.finance.path },
+  { role: 'legal', href: HUB_REGISTRY.legal.path },
+  { role: 'tech', href: HUB_REGISTRY.tech.path },
+  { role: 'outreach', href: HUB_REGISTRY.outreach.path },
+  { role: 'marketing', href: HUB_REGISTRY.marketing.path },
+  { role: 'handler', href: HUB_REGISTRY.handler.path },
   { role: 'business', href: '/portal/partner' },
 ]
 
