@@ -74,6 +74,72 @@ const COMMITMENT_HOURS = [
   '10+ hrs/week',
 ]
 
+// Same overview + role write-ups used on LinkedIn for the internal-team
+// hiring push, unchanged, so the story reads the same wherever someone
+// first encounters it.
+const TEAM_OVERVIEW = "UniBlueprint is Ireland's first all-in-one platform for student life, built by students, for students. Five pillars in one place: Foundation Blueprint for CVs, cover letters, and interview prep, Elevation Blueprint connecting students with real coaches and mentors, Lifestyle Blueprint for exclusive partner deals and discounts, Campus Connect for community at your own university, and Course Connect linking students across Ireland on the same course. Mental health and wellbeing support is permanently free for every student, no subscription, no exceptions. We're a team of 30+ across tech, legal, marketing, outreach, and finance, already live across 10+ Irish universities with partners on board and growing fast."
+
+const TEAM_ROLE_INFO = [
+  {
+    name: 'Outreach',
+    body: "We're growing the Outreach team at UniBlueprint under Sienna, our Outreach Lead, alongside Fabz and Ethan running their own sub-projects within the team. We're looking for outgoing, people-first personalities who are genuinely good at building relationships and opening doors, more than any specific background or qualification. If you can talk to anyone and get a yes, we want to hear from you. You'll work directly on real partnerships from day one, building the kind of experience and CV line that's hard to get anywhere else as a student.",
+  },
+  {
+    name: 'Marketing',
+    body: "We're growing the Marketing team at UniBlueprint across a few different strands. Creatives who can shoot, direct, and bring visuals to life will work closely with Bene on shoots and content. People who live and breathe posts and digital marketing will work alongside Elizabeth and Alex. And if you're a feature specialist with a specific skill to bring, you'll work directly alongside Emily. Whatever your lane, you'll help shape how a real, live platform tells its story to thousands of students, with genuine portfolio and CV-building experience in exactly the kind of work you want to be doing.",
+  },
+  {
+    name: 'Finance',
+    body: "We're growing the Finance team at UniBlueprint under Wami, filling specific gaps across budgeting, analysis, bookkeeping, and financial planning. This one's more experience and skill-based than our other teams. We're looking for people who already know their way around real numbers and can step into real responsibility quickly. It's genuine exposure to how a live startup actually runs its finances, not a classroom exercise.",
+  },
+  {
+    name: 'Tech & Development',
+    body: "We're growing the Tech team at UniBlueprint and looking for good tech students across the board, frontend, backend, mobile, QA, whatever your lane is. We only bring people on for work where a real person genuinely adds something and where we can offer real experience in return, not busywork. You'll work across the real, live app and Studio platform alongside the existing team, shipping production code used by real students. It's the kind of hands-on technical experience that actually moves a CV forward.",
+  },
+  {
+    name: 'Legal',
+    body: "We're looking for a small number of committed people to support the Legal team at UniBlueprint under Basmali and Rachel, helping with contracts, compliance, and partnership terms in your own spare time. This is one of the most important teams in the business, so we're looking for people who are genuinely reliable and want to build real legal experience on a live company, not just add a CV line. If that's you, we'd love to hear from you.",
+  },
+]
+
+function TeamIntro() {
+  return (
+    <div style={{ maxWidth: '640px', margin: '0 auto 32px' }}>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#4B5565',
+        lineHeight: 1.7, margin: '0 0 24px',
+      }}>
+        {TEAM_OVERVIEW}
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        {TEAM_ROLE_INFO.map(role => (
+          <div
+            key={role.name}
+            style={{
+              background: '#FFFFFF', borderRadius: '12px',
+              boxShadow: '0px 2px 12px rgba(30,58,95,0.06)',
+              padding: '20px 24px',
+            }}
+          >
+            <h3 style={{
+              fontFamily: "'DM Serif Display', serif", fontSize: '19px',
+              color: '#1E3A5F', margin: '0 0 8px',
+            }}>
+              {role.name}
+            </h3>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280',
+              lineHeight: 1.65, margin: 0,
+            }}>
+              {role.body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const TABS = [
   { id: 'general',     label: 'General enquiry', icon: MessageSquare },
   { id: 'partnership', label: 'Partnership',      icon: Handshake },
@@ -336,6 +402,8 @@ export default function ContactPage() {
               </button>
             ))}
           </div>
+
+          {activeTab === 'team' && <TeamIntro />}
 
           {/* Form card */}
           <FormCard
