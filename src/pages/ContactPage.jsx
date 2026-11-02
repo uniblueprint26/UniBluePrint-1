@@ -5,7 +5,7 @@ import { MessageSquare, Handshake, Users } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
-  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation,
+  SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
 
 // general_enquiries, partnership_enquiries, and team_applications (all 3 forms below) are
@@ -207,7 +207,11 @@ function TeamForm() {
       status: 'pending',
     }])
     if (dbError) { setError(parseDbError(dbError)); setLoading(false) }
-    else { sendFormConfirmation('team', form.email, form.name); setSuccess(true) }
+    else {
+      sendFormConfirmation('team', form.email, form.name)
+      notifyTeam('team_application', form.email, form.name)
+      setSuccess(true)
+    }
   }
 
   if (success) return <SuccessCard title="Application received" subtitle="We'll be in touch within 2 business days." />
@@ -245,10 +249,13 @@ function TeamForm() {
 
 // ─── ContactPage ───────────────────────────────────────────────────────────────
 
+const VALID_TABS = new Set(TABS.map(t => t.id))
+
 export default function ContactPage() {
   const [searchParams] = useSearchParams()
   const topic = searchParams.get('topic') || ''
-  const [activeTab, setActiveTab] = useState('general')
+  const requestedTab = searchParams.get('tab') || ''
+  const [activeTab, setActiveTab] = useState(VALID_TABS.has(requestedTab) ? requestedTab : 'general')
 
   return (
     <>
