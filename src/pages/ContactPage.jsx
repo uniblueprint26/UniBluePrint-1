@@ -94,7 +94,7 @@ const TEAM_ROLE_INFO = [
   },
   {
     name: 'Tech & Development',
-    body: "We're growing the Tech team at UniBlueprint and looking for good tech students across the board, frontend, backend, mobile, QA, whatever your lane is. We only bring people on for work where a real person genuinely adds something and where we can offer real experience in return, not busywork. You'll work under Eman and the existing team across the real, live app and Studio platform, shipping production code used by real students. It's the kind of hands-on technical experience that actually moves a CV forward.",
+    body: "We're growing the Tech team at UniBlueprint and looking for good tech students across the board, frontend, backend, mobile, QA, whatever your lane is. We only bring people on for work where a real person genuinely adds something and where we can offer real experience in return, not busywork. You'll work under Eman and Tayyab, our Tech Leads, and alongside the existing team across the real, live app and Studio platform, shipping production code used by real students. It's the kind of hands-on technical experience that actually moves a CV forward.",
   },
   {
     name: 'Legal',
