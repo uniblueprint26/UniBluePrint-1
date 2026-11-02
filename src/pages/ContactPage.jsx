@@ -90,11 +90,11 @@ const TEAM_ROLE_INFO = [
   },
   {
     name: 'Finance',
-    body: "We're growing the Finance team at UniBlueprint under Wami, filling specific gaps across budgeting, analysis, bookkeeping, and financial planning. This one's more experience and skill-based than our other teams. We're looking for people who already know their way around real numbers and can step into real responsibility quickly. It's genuine exposure to how a live startup actually runs its finances, not a classroom exercise.",
+    body: "We're growing the Finance team at UniBlueprint. You'll work under Wami, our Finance Lead, and alongside the existing team, filling specific gaps across budgeting, analysis, bookkeeping, and financial planning. This one's more experience and skill-based than our other teams. We're looking for people who already know their way around real numbers and can step into real responsibility quickly. It's genuine exposure to how a live startup actually runs its finances, not a classroom exercise.",
   },
   {
     name: 'Tech & Development',
-    body: "We're growing the Tech team at UniBlueprint and looking for good tech students across the board, frontend, backend, mobile, QA, whatever your lane is. We only bring people on for work where a real person genuinely adds something and where we can offer real experience in return, not busywork. You'll work across the real, live app and Studio platform alongside the existing team, shipping production code used by real students. It's the kind of hands-on technical experience that actually moves a CV forward.",
+    body: "We're growing the Tech team at UniBlueprint and looking for good tech students across the board, frontend, backend, mobile, QA, whatever your lane is. We only bring people on for work where a real person genuinely adds something and where we can offer real experience in return, not busywork. You'll work under Eman and the existing team across the real, live app and Studio platform, shipping production code used by real students. It's the kind of hands-on technical experience that actually moves a CV forward.",
   },
   {
     name: 'Legal',
