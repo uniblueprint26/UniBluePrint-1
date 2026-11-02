@@ -67,6 +67,13 @@ const TEAM_ROLES = [
   'Other',
 ]
 
+const COMMITMENT_HOURS = [
+  '2-3 hrs/week',
+  '3-5 hrs/week',
+  '5-10 hrs/week',
+  '10+ hrs/week',
+]
+
 const TABS = [
   { id: 'general',     label: 'General enquiry', icon: MessageSquare },
   { id: 'partnership', label: 'Partnership',      icon: Handshake },
@@ -187,7 +194,10 @@ function PartnershipForm() {
 // ─── Team Application Form ─────────────────────────────────────────────────────
 
 function TeamForm() {
-  const [form, setForm] = useState({ name: '', email: '', role: '', university: '', message: '' })
+  const [form, setForm] = useState({
+    name: '', email: '', role: '', university: '',
+    commitment_hours: '', experience_notes: '', message: '',
+  })
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -238,6 +248,18 @@ function TeamForm() {
           <FormInput value={form.university} onChange={set('university')} placeholder="University College Dublin" />
         </FormField>
       </div>
+      <FormField label="How many hours a week can you commit?">
+        <FormSelect value={form.commitment_hours} onChange={set('commitment_hours')} required>
+          <option value="">Select hours</option>
+          {COMMITMENT_HOURS.map(h => <option key={h} value={h}>{h}</option>)}
+        </FormSelect>
+      </FormField>
+      <FormField
+        label="Have you done this kind of work before?"
+        hint="No experience needed, just curious what you've tried, through study, work, or your own projects."
+      >
+        <FormTextarea value={form.experience_notes} onChange={set('experience_notes')} placeholder="Optional, tell us a bit if you have" rows={3} />
+      </FormField>
       <FormField label="Tell us about yourself" hint="Why do you want to work with UniBlueprint?">
         <FormTextarea value={form.message} onChange={set('message')} placeholder="I would love to contribute to..." rows={5} required />
       </FormField>
