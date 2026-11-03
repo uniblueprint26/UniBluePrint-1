@@ -367,7 +367,7 @@ export default function OperationsDashboardPage() {
 
         {/* ── QUEUE STATUS TILES ─────────────────────────────────────── */}
         <div className="od-queue-grid" style={{ marginBottom: '20px' }}>
-          {queueTiles.map(t => <QueueTile key={t.key} {...t} />)}
+          {queueTiles.map(({ key, ...t }) => <QueueTile key={key} {...t} />)}
         </div>
 
         {/* ── DEADLINE URGENCY BREAKDOWN ─────────────────────────────── */}
