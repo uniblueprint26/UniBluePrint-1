@@ -763,6 +763,17 @@ export async function getActiveStudioGreeting(team) {
   return { trackable: true, value: data?.[0] || null }
 }
 
+/** `{ id, message, created_at }` for the latest active scope='team'
+ * greeting on this hub, or `null`. Deliberately ignores any personal
+ * (scope='user') greeting the caller might also have -- see
+ * get_active_team_update()'s own comment. Powers TeamUpdateBell.jsx, kept
+ * separate from getActiveStudioGreeting() (the hero banner). */
+export async function getActiveTeamUpdate(team) {
+  const { data, error } = await supabase.rpc('get_active_team_update', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: data?.[0] || null }
+}
+
 /** Founder/Co-Director/Admin only -- every greeting, for the management
  * panel on the Founder Hub. */
 export async function listStudioGreetings() {

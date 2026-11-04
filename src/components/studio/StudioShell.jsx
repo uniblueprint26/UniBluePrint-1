@@ -15,6 +15,7 @@ import { useStudioTheme } from './useStudioTheme'
 import CommandPalette from './CommandPalette'
 import QuickAddFab from './QuickAddFab'
 import AccountAvatarButton from './AccountAvatarButton'
+import TeamUpdateBell from './TeamUpdateBell'
 
 // Studio Phase 10: every rule here is shared by all 8 hubs -- page rhythm,
 // the "Studio card" surface, data tables, responsive form rows, and the
@@ -247,6 +248,7 @@ export default function StudioShell({
                 {mode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </button>
               {rangeControl}
+              <TeamUpdateBell hubKey={hubKey} accentColor={accentColor} />
               <AccountAvatarButton />
             </div>
           </header>
