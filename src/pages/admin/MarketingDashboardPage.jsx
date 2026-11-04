@@ -5,7 +5,7 @@ import {
   Inbox, HeartHandshake, ToggleLeft, ToggleRight, Save,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   GlanceCard, tint,
 } from '../../components/studio'
@@ -268,6 +268,7 @@ export default function MarketingDashboardPage() {
     { id: 'mh-comparison', label: 'Comparison' },
     { id: 'mh-tasks', label: 'Content & Campaign Task Board' },
     { id: 'mh-requests', label: 'Requests' },
+    { id: 'mh-faq', label: 'FAQ' },
   ]
 
   const heroCharts = [
@@ -537,6 +538,8 @@ export default function MarketingDashboardPage() {
             accentColor={HUB_ACCENTS.marketing}
           />
         </Card>
+
+        <FaqSection id="mh-faq" hubKey="marketing" accentColor={HUB_ACCENTS.marketing} />
 
       </StudioShell>
     </>

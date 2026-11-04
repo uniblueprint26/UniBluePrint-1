@@ -5,7 +5,7 @@ import {
   AlertTriangle, CheckCircle2, Users, Inbox, Mail,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_SELECT_SM,
   TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
@@ -218,6 +218,7 @@ export default function LegalDashboardPage() {
     { id: 'lg-folders', label: 'Individual Folders' },
     { id: 'lg-activity', label: 'Calendar & Activity' },
     { id: 'lg-requests', label: 'Requests' },
+    { id: 'lg-faq', label: 'FAQ' },
   ]
 
   // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap fetch
@@ -542,6 +543,8 @@ export default function LegalDashboardPage() {
             accentColor={HUB_ACCENTS.legal}
           />
         </Card>
+
+        <FaqSection id="lg-faq" hubKey="legal" accentColor={HUB_ACCENTS.legal} />
 
       </StudioShell>
     </>

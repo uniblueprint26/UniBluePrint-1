@@ -5,7 +5,7 @@ import {
   PhoneCall, HeartHandshake, Handshake, Megaphone,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
   GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
@@ -264,6 +264,7 @@ export default function OutreachDashboardPage() {
     { id: 'oh-tasks', label: 'Campaign Task Board' },
     { id: 'oh-activity', label: 'Calendar & Activity' },
     { id: 'oh-requests', label: 'Requests' },
+    { id: 'oh-faq', label: 'FAQ' },
   ]
 
   // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap fetch
@@ -600,6 +601,8 @@ export default function OutreachDashboardPage() {
             accentColor={HUB_ACCENTS.outreach}
           />
         </Card>
+
+        <FaqSection id="oh-faq" hubKey="outreach" accentColor={HUB_ACCENTS.outreach} />
 
       </StudioShell>
     </>

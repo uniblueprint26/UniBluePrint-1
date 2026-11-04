@@ -5,7 +5,7 @@ import {
   Bug, FlaskConical, Filter, Cpu, AlertCircle, Megaphone, Clock,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton,
   PeriodToggle, DAY_WEEK_MONTH_YEAR, TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
@@ -271,6 +271,7 @@ export default function TechDashboardPage() {
     { id: 'tech-qa', label: 'QA / Test Board' },
     { id: 'tech-activity', label: 'Calendar & Activity' },
     { id: 'tech-requests', label: 'Requests' },
+    { id: 'tech-faq', label: 'FAQ' },
   ]
 
   // Studio Phase 13 -- memoized so MiniCalendar/ActivityHeatmap's own
@@ -625,6 +626,8 @@ export default function TechDashboardPage() {
             accentColor={HUB_ACCENTS.tech}
           />
         </Card>
+
+        <FaqSection id="tech-faq" hubKey="tech" accentColor={HUB_ACCENTS.tech} />
 
       </StudioShell>
     </>

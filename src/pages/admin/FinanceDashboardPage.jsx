@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
   PeriodToggle, TrendLineChart, GlanceCard, getStatusColor,
@@ -391,6 +391,7 @@ export default function FinanceDashboardPage() {
     { id: 'fn-pricing', label: 'A/B Revenue Model' },
     { id: 'fn-requests', label: 'Money Requests' },
     { id: 'fn-crosshub', label: 'Requests' },
+    { id: 'fn-faq', label: 'FAQ' },
   ]
 
   const heroCharts = [
@@ -926,6 +927,8 @@ export default function FinanceDashboardPage() {
             accentColor={HUB_ACCENTS.finance}
           />
         </Card>
+
+        <FaqSection id="fn-faq" hubKey="finance" accentColor={HUB_ACCENTS.finance} />
 
       </StudioShell>
     </>

@@ -20,7 +20,7 @@ import {
   listStudioGreetings, createStudioGreeting, setStudioGreetingActive, deleteStudioGreeting,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, BORDER, WHITE, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS,
   EmptyNote, tint, STUDIO_INPUT, studioButton, GlanceCard,
 } from '../../components/studio'
@@ -519,6 +519,7 @@ export default function FounderDashboardPage() {
     { id: 'fh-greetings', label: 'Team Greetings' },
     { id: 'fh-all-requests', label: 'Cross-Hub Requests' },
     { id: 'fh-requests', label: 'Requests' },
+    { id: 'fh-faq', label: 'FAQ' },
   ]
 
   return (
@@ -936,6 +937,8 @@ export default function FounderDashboardPage() {
             accentColor={HUB_ACCENTS.founder}
           />
         </Card>
+
+        <FaqSection id="fh-faq" hubKey="founder" accentColor={HUB_ACCENTS.founder} />
 
       </StudioShell>
     </>

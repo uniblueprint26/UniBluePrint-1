@@ -5,7 +5,7 @@ import {
   Inbox, UserCheck, Eye, MousePointerClick, CheckCircle2, AlertCircle, HeartHandshake,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS, tint,
   GlanceCard,
 } from '../../components/studio'
@@ -246,6 +246,7 @@ export default function CoDirectorDashboardPage() {
     { id: 'cd-priorities', label: 'Co-Director Priorities' },
     { id: 'cd-all-requests', label: 'Cross-Hub Requests' },
     { id: 'cd-requests', label: 'Requests' },
+    { id: 'cd-faq', label: 'FAQ' },
   ]
 
   return (
@@ -502,6 +503,8 @@ export default function CoDirectorDashboardPage() {
             accentColor={HUB_ACCENTS.co_director}
           />
         </Card>
+
+        <FaqSection id="cd-faq" hubKey="co_director" accentColor={HUB_ACCENTS.co_director} />
 
       </StudioShell>
     </>

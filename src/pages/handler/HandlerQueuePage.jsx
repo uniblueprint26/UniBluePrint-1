@@ -23,7 +23,7 @@ import {
   getTaskDueDateDensity, getTeamActivityHeatmap,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel, FaqSection,
   NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
@@ -235,6 +235,7 @@ export default function HandlerQueuePage() {
     { id: 'hh-tasks', label: 'Handler Team Tasks' },
     { id: 'hh-activity', label: 'Calendar & Activity' },
     { id: 'hh-requests', label: 'Requests' },
+    { id: 'hh-faq', label: 'FAQ' },
   ]
 
   const heroCharts = [
@@ -484,6 +485,8 @@ export default function HandlerQueuePage() {
             accentColor={HUB_ACCENTS.handler}
           />
         </Card>
+
+        <FaqSection id="hh-faq" hubKey="handler" accentColor={HUB_ACCENTS.handler} />
 
       </StudioShell>
     </>
