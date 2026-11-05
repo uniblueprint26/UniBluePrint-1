@@ -7,7 +7,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
-  GlanceCard, tint,
+  GlanceCard, ShareableStatCard, tint,
 } from '../../components/studio'
 import {
   getMarketingEngagementFunnel, getMarketingEngagementByPartner, getMarketingDealClaimsComparison,
@@ -301,6 +301,15 @@ export default function MarketingDashboardPage() {
     },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'featured-active', label: 'Active featured pins', value: fmt(activeFeaturedCount), sub: `of ${fmt(featured.length)} total` },
+    { key: 'real-views', label: 'Real deal views', value: fmt(funnel?.real_views), health: funnel?.real_claims > 0 ? 'good' : 'neutral' },
+    { key: 'early-access', label: 'Early access signups', value: fmt(signups.length) },
+  ]
+
   return (
     <>
       <Helmet>
@@ -324,11 +333,15 @@ export default function MarketingDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.marketing}
             loading={loading}
-            items={[
-              { key: 'featured-active', label: 'Active featured pins', value: fmt(activeFeaturedCount), sub: `of ${fmt(featured.length)} total` },
-              { key: 'real-views', label: 'Real deal views', value: fmt(funnel?.real_views), health: funnel?.real_claims > 0 ? 'good' : 'neutral' },
-              { key: 'early-access', label: 'Early access signups', value: fmt(signups.length) },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Marketing Hub"
+            accentColor={HUB_ACCENTS.marketing}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

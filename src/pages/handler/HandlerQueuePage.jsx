@@ -25,7 +25,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel, FaqSection,
   NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
-  GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
 import { useSubmitLock } from '../../hooks/useSubmitLock'
 import { FormCard, ErrorBanner } from '../../components/ui/Form'
@@ -291,6 +291,15 @@ export default function HandlerQueuePage() {
     </div>
   )
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'open', label: 'Tickets open', value: fmt(snapshot?.open_tickets) },
+    { key: 'unclaimed', label: 'Unclaimed', value: fmt(snapshot?.unclaimed_tickets), health: snapshot && snapshot.unclaimed_tickets > 0 ? 'warning' : 'good' },
+    { key: 'delivered', label: 'Delivered this window', value: fmt(comparison?.resolved_this_period) },
+  ]
+
   return (
     <>
       <Helmet>
@@ -314,11 +323,15 @@ export default function HandlerQueuePage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.handler}
             loading={loading}
-            items={[
-              { key: 'open', label: 'Tickets open', value: fmt(snapshot?.open_tickets) },
-              { key: 'unclaimed', label: 'Unclaimed', value: fmt(snapshot?.unclaimed_tickets), health: snapshot && snapshot.unclaimed_tickets > 0 ? 'warning' : 'good' },
-              { key: 'delivered', label: 'Delivered this window', value: fmt(comparison?.resolved_this_period) },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Campus Handler"
+            accentColor={HUB_ACCENTS.handler}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

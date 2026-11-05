@@ -8,7 +8,7 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton,
-  PeriodToggle, DAY_WEEK_MONTH_YEAR, TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  PeriodToggle, DAY_WEEK_MONTH_YEAR, TrendLineChart, GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
   useSortableTable, SortTh,
 } from '../../components/studio'
 import {
@@ -329,6 +329,15 @@ export default function TechDashboardPage() {
     },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'errors', label: 'ERROR-level findings', value: fmt(totalErrors), health: totalErrors > 0 ? 'critical' : 'good' },
+    { key: 'functions', label: 'Edge Functions deployed', value: fmt(edgeFnStatusCounts.total) },
+    { key: 'ideas-open', label: 'Ideas awaiting triage', value: fmt(ideas.filter(i => i.status === 'new' || i.status === 'under_review').length), health: ideas.some(i => i.status === 'brought_to_founder') ? 'warning' : 'neutral' },
+  ]
+
   return (
     <>
       <Helmet>
@@ -353,11 +362,15 @@ export default function TechDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.tech}
             loading={loading}
-            items={[
-              { key: 'errors', label: 'ERROR-level findings', value: fmt(totalErrors), health: totalErrors > 0 ? 'critical' : 'good' },
-              { key: 'functions', label: 'Edge Functions deployed', value: fmt(edgeFnStatusCounts.total) },
-              { key: 'ideas-open', label: 'Ideas awaiting triage', value: fmt(ideas.filter(i => i.status === 'new' || i.status === 'under_review').length), health: ideas.some(i => i.status === 'brought_to_founder') ? 'warning' : 'neutral' },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Tech Hub"
+            accentColor={HUB_ACCENTS.tech}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

@@ -8,7 +8,7 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
-  GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
   useSortableTable, SortTh,
 } from '../../components/studio'
 import {
@@ -315,6 +315,15 @@ export default function OutreachDashboardPage() {
     },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'real-partners', label: 'Real partners', value: fmt(partnerSnapshot?.real_partners), sub: `${fmt(partnerSnapshot?.active_partners)} active` },
+    { key: 'live-coaches', label: 'Real, live coaches', value: fmt(coachSnapshot?.real_live_coaches), health: coachSnapshot && coachSnapshot.real_live_coaches === 0 ? 'critical' : 'good' },
+    { key: 'contacts-signed', label: 'Contacts signed', value: fmt(contactsByStatus.signed), sub: `of ${fmt(contacts.length)} logged` },
+  ]
+
   return (
     <>
       <Helmet>
@@ -338,11 +347,15 @@ export default function OutreachDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.outreach}
             loading={loading}
-            items={[
-              { key: 'real-partners', label: 'Real partners', value: fmt(partnerSnapshot?.real_partners), sub: `${fmt(partnerSnapshot?.active_partners)} active` },
-              { key: 'live-coaches', label: 'Real, live coaches', value: fmt(coachSnapshot?.real_live_coaches), health: coachSnapshot && coachSnapshot.real_live_coaches === 0 ? 'critical' : 'good' },
-              { key: 'contacts-signed', label: 'Contacts signed', value: fmt(contactsByStatus.signed), sub: `of ${fmt(contacts.length)} logged` },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Outreach Hub"
+            accentColor={HUB_ACCENTS.outreach}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

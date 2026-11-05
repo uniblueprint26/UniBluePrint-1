@@ -16,6 +16,7 @@ export { default as HealthBadge } from './HealthBadge'
 export { default as PeriodToggle } from './PeriodToggle'
 export { default as ChartExportButton } from './ChartExportButton'
 export { default as GlanceCard } from './GlanceCard'
+export { default as ShareableStatCard } from './ShareableStatCard'
 export { default as MiniCalendar } from './MiniCalendar'
 export { default as ActivityHeatmap } from './ActivityHeatmap'
 // SectionJumpNav.jsx is fully superseded by StudioSidebar (Studio Phase

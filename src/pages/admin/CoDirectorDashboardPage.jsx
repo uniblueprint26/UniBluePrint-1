@@ -7,7 +7,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS, tint,
-  GlanceCard,
+  GlanceCard, ShareableStatCard,
 } from '../../components/studio'
 import {
   getFinanceRevenueSnapshot, getFinanceMarginSummary,
@@ -249,6 +249,15 @@ export default function CoDirectorDashboardPage() {
     { id: 'cd-faq', label: 'FAQ' },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents) },
+    { key: 'decisions', label: 'Pending decisions', value: fmt(decisions.length), health: decisions.length > 0 ? 'warning' : 'good' },
+    { key: 'errors', label: 'ERROR-level findings (Tech)', value: fmt(severityTotals.ERROR), health: severityTotals.ERROR > 0 ? 'critical' : 'good' },
+  ]
+
   return (
     <>
       <Helmet>
@@ -271,11 +280,15 @@ export default function CoDirectorDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.co_director}
             loading={loading}
-            items={[
-              { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents) },
-              { key: 'decisions', label: 'Pending decisions', value: fmt(decisions.length), health: decisions.length > 0 ? 'warning' : 'good' },
-              { key: 'errors', label: 'ERROR-level findings (Tech)', value: fmt(severityTotals.ERROR), health: severityTotals.ERROR > 0 ? 'critical' : 'good' },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Co-Director Hub"
+            accentColor={HUB_ACCENTS.co_director}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

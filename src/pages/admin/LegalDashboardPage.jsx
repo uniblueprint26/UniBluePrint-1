@@ -8,7 +8,7 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_SELECT_SM,
-  TrendLineChart, GlanceCard, MiniCalendar, ActivityHeatmap, getStatusColor,
+  TrendLineChart, GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
   useSortableTable, SortTh,
 } from '../../components/studio'
 import {
@@ -273,6 +273,15 @@ export default function LegalDashboardPage() {
     },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'signed', label: 'Contracts signed', value: fmt(contractsByStatus.signed), sub: `of ${fmt(contracts.length)} tracked` },
+    { key: 'gdpr', label: 'GDPR requests open', value: fmt(gdprOpenCount), health: gdprOverdueCount > 0 ? 'critical' : gdprOpenCount > 0 ? 'warning' : 'good' },
+    { key: 'ack', label: 'Avg. acknowledgement coverage', value: ackCoverage.length ? `${Math.round(ackCoverage.reduce((s, a) => s + (a.coverage_pct || 0), 0) / ackCoverage.length)}%` : '—' },
+  ]
+
   return (
     <>
       <Helmet>
@@ -296,11 +305,15 @@ export default function LegalDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.legal}
             loading={loading}
-            items={[
-              { key: 'signed', label: 'Contracts signed', value: fmt(contractsByStatus.signed), sub: `of ${fmt(contracts.length)} tracked` },
-              { key: 'gdpr', label: 'GDPR requests open', value: fmt(gdprOpenCount), health: gdprOverdueCount > 0 ? 'critical' : gdprOpenCount > 0 ? 'warning' : 'good' },
-              { key: 'ack', label: 'Avg. acknowledgement coverage', value: ackCoverage.length ? `${Math.round(ackCoverage.reduce((s, a) => s + (a.coverage_pct || 0), 0) / ackCoverage.length)}%` : '—' },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Legal Hub"
+            accentColor={HUB_ACCENTS.legal}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

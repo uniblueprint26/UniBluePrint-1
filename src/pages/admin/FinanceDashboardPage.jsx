@@ -10,7 +10,7 @@ import {
   StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
-  PeriodToggle, TrendLineChart, GlanceCard, getStatusColor,
+  PeriodToggle, TrendLineChart, GlanceCard, ShareableStatCard, getStatusColor,
   useSortableTable, SortTh,
 } from '../../components/studio'
 import {
@@ -436,6 +436,15 @@ export default function FinanceDashboardPage() {
     },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), health: revenue.estimated_mrr_cents > 0 ? 'good' : 'neutral' },
+    { key: 'active-subs', label: 'Active Pro subscribers', value: fmt(totalActiveSubs), sub: `${revenue.new_subscriptions_in_range} new / ${revenue.canceled_in_range} canceled this period` },
+    { key: 'margin', label: 'UBP margin this period', value: fmtEuro(margin.ubp_margin_cents), health: margin.gross_collected_cents <= 0 ? 'neutral' : margin.ubp_margin_cents > 0 ? 'good' : 'critical' },
+  ]
+
   return (
     <>
       <Helmet>
@@ -460,11 +469,15 @@ export default function FinanceDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.finance}
             loading={loading}
-            items={[
-              { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), health: revenue.estimated_mrr_cents > 0 ? 'good' : 'neutral' },
-              { key: 'active-subs', label: 'Active Pro subscribers', value: fmt(totalActiveSubs), sub: `${revenue.new_subscriptions_in_range} new / ${revenue.canceled_in_range} canceled this period` },
-              { key: 'margin', label: 'UBP margin this period', value: fmtEuro(margin.ubp_margin_cents), health: margin.gross_collected_cents <= 0 ? 'neutral' : margin.ubp_margin_cents > 0 ? 'good' : 'critical' },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Finance Hub"
+            accentColor={HUB_ACCENTS.finance}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (

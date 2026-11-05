@@ -155,6 +155,9 @@ const SHELL_STYLES = `
  * toggle) rendered in the header next to the title.
  * `glanceCard` (Studio Phase 13): optional node -- a GlanceCard rendered
  * above heroCharts, pinned at the very top of the Overview section.
+ * `statCard` (Studio Phase 15): optional node -- a ShareableStatCard
+ * rendered right after glanceCard, same reasoning (one integration point
+ * here rather than per-hub positioning).
  */
 export default function StudioShell({
   hubKey,
@@ -162,6 +165,7 @@ export default function StudioShell({
   subtitle,
   accentColor = NAVY,
   glanceCard,
+  statCard,
   heroCharts = [],
   heroChartsLoading = false,
   sections = [],
@@ -263,6 +267,7 @@ export default function StudioShell({
             integration point here rather than per-hub positioning, same
             reasoning as the rest of this file. */}
         {glanceCard}
+        {statCard}
 
         {heroCharts.length > 0 && (
           <div className="studio-hero-grid">

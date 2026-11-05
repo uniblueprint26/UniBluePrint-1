@@ -22,7 +22,7 @@ import {
 import {
   StudioShell, StudioCard as Card, SectionTitle, StatStrip, MetricBarChart, TaskBoard, RequestPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, BORDER, WHITE, HUB_ACCENTS, HUB_LABELS, FONT_SERIF, FONT_SANS,
-  EmptyNote, tint, STUDIO_INPUT, studioButton, GlanceCard,
+  EmptyNote, tint, STUDIO_INPUT, studioButton, GlanceCard, ShareableStatCard,
 } from '../../components/studio'
 
 // Founder Dashboard (Studio Phase 8) -- the LAST hub in the Studio rebuild,
@@ -522,6 +522,15 @@ export default function FounderDashboardPage() {
     { id: 'fh-faq', label: 'FAQ' },
   ]
 
+  // Studio Phase 15 -- lifted out of the GlanceCard JSX below so
+  // ShareableStatCard can render the exact same three numbers, not a
+  // re-typed (and driftable) copy of them.
+  const glanceItems = [
+    { key: 'members', label: 'Total members', value: fmt(topline.total_members) },
+    { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), health: revenue.estimated_mrr_cents > 0 ? 'good' : 'neutral' },
+    { key: 'decisions', label: 'Pending decisions', value: fmt(decisions.length), health: decisions.length > 0 ? 'warning' : 'good' },
+  ]
+
   return (
     <>
       <Helmet>
@@ -545,11 +554,15 @@ export default function FounderDashboardPage() {
           <GlanceCard
             accentColor={HUB_ACCENTS.founder}
             loading={loading}
-            items={[
-              { key: 'members', label: 'Total members', value: fmt(topline.total_members) },
-              { key: 'mrr', label: 'Estimated MRR', value: fmtEuro(revenue.estimated_mrr_cents), health: revenue.estimated_mrr_cents > 0 ? 'good' : 'neutral' },
-              { key: 'decisions', label: 'Pending decisions', value: fmt(decisions.length), health: decisions.length > 0 ? 'warning' : 'good' },
-            ]}
+            items={glanceItems}
+          />
+        )}
+        statCard={(
+          <ShareableStatCard
+            hubLabel="Founder Dashboard"
+            accentColor={HUB_ACCENTS.founder}
+            loading={loading}
+            items={glanceItems}
           />
         )}
         error={!!error && (
