@@ -96,7 +96,8 @@
         {
           "color": "#1E3A5F"
         }
-      ]
+      ],
+      "@sentry/react-native/expo"
     ]
   }
 }

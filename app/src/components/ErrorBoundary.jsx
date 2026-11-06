@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { AlertTriangle } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { Sentry } from '../lib/sentry'
 
 // Plain function component so the fallback UI can use the useTheme() hook —
 // ErrorBoundary itself has to stay a class (getDerivedStateFromError/
@@ -44,8 +45,9 @@ function ErrorFallback({ onReload }) {
  * fresh, discarding whatever state caused the crash. That recovers from the
  * overwhelming majority of render crashes (a bad value in one screen's
  * local state, a stale navigation param) without needing a real process
- * restart. A future #31 Sentry integration should log the error from
- * `componentDidCatch` below.
+ * restart. `componentDidCatch` below now also reports to Sentry (see
+ * src/lib/sentry.js) — a no-op until a real DSN is configured, same as
+ * every other Sentry call site.
  */
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -60,6 +62,7 @@ export default class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // eslint-disable-next-line no-console
     console.error('ErrorBoundary caught a render error:', error, info?.componentStack)
+    Sentry.captureException(error, { contexts: { react: { componentStack: info?.componentStack } } })
   }
 
   handleReload = () => {
