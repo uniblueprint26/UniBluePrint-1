@@ -76,6 +76,8 @@ export default function JobSearchSupportPage() {
   const [handlerGuide, setHandlerGuide] = useState(location.state?.handlerGuide ?? null)
   const [tier, setTier] = useState('standard')
   const [submissionId, setSubmissionId] = useState(null)
+  const [queueError, setQueueError] = useState('')
+  const [queueRetrying, setQueueRetrying] = useState(false)
   const [profileKnown, setProfileKnown] = useState(null)
 
   const [draftCheck, setDraftCheck] = useState('checking')
@@ -167,6 +169,29 @@ export default function JobSearchSupportPage() {
     }
   }
 
+  // Shared by the initial submit-to-queue attempt (inside handleGenerate) and
+  // the student-facing retry button, so a failed queue attempt isn't a dead
+  // end — see the comment above handleGenerate's own call site for why this
+  // failure is soft rather than fatal to begin with.
+  const queueForHandler = async (sessionId) => {
+    setQueueError('')
+    const serviceName = tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard'
+    const label = `Job Search — ${form.field_or_industry}`
+    try {
+      const subId = await submitForReview('job_search_sessions', sessionId, serviceName, label, tier)
+      setSubmissionId(subId)
+    } catch (queueErr) {
+      console.error('Could not queue this session for a Campus Handler:', queueErr)
+      setQueueError('Your strategy is saved, but we couldn\'t book your advisory session with a Campus Handler. Please try again.')
+    }
+  }
+
+  const retryQueue = () => {
+    if (!session) return
+    setQueueRetrying(true)
+    queueForHandler(session.id).finally(() => setQueueRetrying(false))
+  }
+
   const handleGenerate = () => runLocked(async () => {
     setError('')
     if (!form.field_or_industry.trim() || !form.opportunity_type.trim()) {
@@ -205,16 +230,9 @@ export default function JobSearchSupportPage() {
       // Handler can pick up the live advisory conversation the service
       // description promises; it is not a precondition for the student seeing
       // their result. A failure here is therefore soft: the student keeps
-      // their strategy, and this is the one thing worth surfacing to fix later
-      // rather than silently losing the ticket.
-      try {
-        const serviceName = tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard'
-        const label = `Job Search — ${form.field_or_industry}`
-        const subId = await submitForReview('job_search_sessions', data.session.id, serviceName, label, tier)
-        setSubmissionId(subId)
-      } catch (queueErr) {
-        console.error('Could not queue this session for a Campus Handler:', queueErr)
-      }
+      // their strategy, and queueForHandler surfaces it with a retry instead
+      // of silently losing the ticket (see ErrorBanner below StrategyResult).
+      await queueForHandler(data.session.id)
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
@@ -260,6 +278,11 @@ export default function JobSearchSupportPage() {
         ) : (
           <>
             <StrategyResult strategy={session.student_strategy} handlerGuide={handlerGuide} />
+            {queueError && (
+              <div style={{ marginTop: '20px' }}>
+                <ErrorBanner message={queueError} onRetry={queueRetrying ? undefined : retryQueue} />
+              </div>
+            )}
             <PipelineStatusTimeline submissionId={submissionId} />
           </>
         )}
