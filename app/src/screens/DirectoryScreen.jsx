@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, X } from 'lucide-react-native'
+import { Search, X, ChevronRight } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import Card from '../components/ui/Card'
 import { colors, fonts, spacing, radius } from '../constants/theme'
@@ -114,68 +114,73 @@ const FILTERS = [
 ]
 
 // ── StudentCard ───────────────────────────────────────────────────────────────
+// Adapted from Elevation's coach card (big avatar + name, a one-line
+// "about" row, pills, a footer button) but warmer and peer-to-peer, not
+// service-provider framing — no pricing/booking language, a friendly
+// "studying X at Y" line instead of a job title, and a plain "View Profile"
+// rather than anything that reads as hiring someone.
 
-function StudentCard({ student, searchQuery }) {
+function StudentCard({ student, searchQuery, onPress }) {
   const q = searchQuery.trim().toLowerCase()
 
   return (
-    <Card style={styles.studentCard}>
-      <View style={styles.cardHead}>
-        <View style={[styles.avatar, { backgroundColor: student.avatarBg }]}>
-          <Text style={styles.avatarText}>{student.initials}</Text>
-        </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.cardName}>{student.name}</Text>
-          <Text style={styles.cardCourse} numberOfLines={1}>{student.course}</Text>
-          <Text style={styles.cardUni} numberOfLines={1}>{student.uni}</Text>
-        </View>
-      </View>
-
-      {/* Status badges — show all statuses the user is available for */}
-      <View style={styles.statusRow}>
-        {student.statuses.map(s => {
-          const st = STATUS_STYLES[s]
-          return (
-            <View
-              key={s}
-              style={[styles.statusBadge, { backgroundColor: st.bg, borderColor: st.border }]}
-            >
-              <Text style={[styles.statusText, { color: st.color }]}>{st.label}</Text>
+    <TouchableOpacity activeOpacity={0.88} onPress={onPress}>
+      <Card style={styles.studentCard}>
+        <View style={styles.cardHead}>
+          <View style={styles.avatarWrap}>
+            <View style={[styles.avatar, { backgroundColor: student.avatarBg }]}>
+              <Text style={styles.avatarText}>{student.initials}</Text>
             </View>
-          )
-        })}
-      </View>
+            {student.statuses.includes('open') && <View style={styles.openDot} />}
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.cardName}>{student.name}</Text>
+            <Text style={styles.cardAbout} numberOfLines={1}>Studying {student.course} at {student.uni}</Text>
+          </View>
+        </View>
 
-      {/* Interest tags — highlighted when matched by search */}
-      <View style={styles.tagRow}>
-        {student.tags.map(tag => {
-          const matched = q && tag.toLowerCase().includes(q)
-          return (
-            <View key={tag} style={[styles.tag, matched && styles.tagMatched]}>
-              <Text style={[styles.tagText, matched && styles.tagTextMatched]}>{tag}</Text>
-            </View>
-          )
-        })}
-      </View>
+        {/* Status badges — show all statuses the user is available for */}
+        <View style={styles.statusRow}>
+          {student.statuses.map(s => {
+            const st = STATUS_STYLES[s]
+            return (
+              <View
+                key={s}
+                style={[styles.statusBadge, { backgroundColor: st.bg, borderColor: st.border }]}
+              >
+                <Text style={[styles.statusText, { color: st.color }]}>{st.label}</Text>
+              </View>
+            )
+          })}
+        </View>
 
-      <TouchableOpacity
-        style={styles.connectBtn}
-        activeOpacity={0.8}
-        onPress={() => Alert.alert(
-          student.name,
-          `Full profiles and direct connections are coming soon. You will be able to connect with ${student.name} through the app.`,
-          [{ text: 'Got it' }]
-        )}
-      >
-        <Text style={styles.connectBtnText}>View Profile</Text>
-      </TouchableOpacity>
-    </Card>
+        {/* Interest tags — highlighted when matched by search */}
+        <View style={styles.tagRow}>
+          {student.tags.map(tag => {
+            const matched = q && tag.toLowerCase().includes(q)
+            return (
+              <View key={tag} style={[styles.tag, matched && styles.tagMatched]}>
+                <Text style={[styles.tagText, matched && styles.tagTextMatched]}>{tag}</Text>
+              </View>
+            )
+          })}
+        </View>
+
+        <View style={styles.cardFooter}>
+          <Text style={styles.cardFooterHint}>Tap to see their profile</Text>
+          <View style={styles.connectBtn}>
+            <Text style={styles.connectBtnText}>View Profile</Text>
+            <ChevronRight size={13} color={colors.cream} strokeWidth={2.5} />
+          </View>
+        </View>
+      </Card>
+    </TouchableOpacity>
   )
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 
-export default function DirectoryScreen() {
+export default function DirectoryScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
@@ -279,7 +284,12 @@ export default function DirectoryScreen() {
         </View>
 
         {filtered.map((s, i) => (
-          <StudentCard key={i} student={s} searchQuery={search} />
+          <StudentCard
+            key={i}
+            student={s}
+            searchQuery={search}
+            onPress={() => navigation.navigate('StudentProfile', { student: s })}
+          />
         ))}
       </ScrollView>
     </View>
@@ -330,15 +340,19 @@ const styles = StyleSheet.create({
   },
 
   studentCard:  { padding: 18, marginBottom: 12 },
-  cardHead:     { flexDirection: 'row', gap: 12, marginBottom: 12, alignItems: 'flex-start' },
+  cardHead:     { flexDirection: 'row', gap: 14, marginBottom: 14, alignItems: 'center' },
+  avatarWrap:   { position: 'relative' },
   avatar: {
-    width: 46, height: 46, borderRadius: 23,
+    width: 52, height: 52, borderRadius: 26,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)',
   },
-  avatarText: { fontFamily: fonts.serif, fontSize: 18, color: '#fff' },
-  cardName:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  cardCourse: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
-  cardUni:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 1 },
+  // A warm "open to connect" signal, same idea as Elevation's online dot —
+  // only shown when the person actually is open, not as a generic presence dot.
+  openDot: { position: 'absolute', bottom: 1, right: 1, width: 13, height: 13, borderRadius: 7, backgroundColor: '#16A34A', borderWidth: 2, borderColor: colors.white },
+  avatarText: { fontFamily: fonts.serif, fontSize: 19, color: '#fff' },
+  cardName:   { fontFamily: fonts.serif, fontSize: 17, color: colors.navy },
+  cardAbout:  { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 3, fontStyle: 'italic' },
 
   // Status badges (row, multi-value)
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
@@ -361,9 +375,16 @@ const styles = StyleSheet.create({
   tagText: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
   tagTextMatched: { color: colors.cream },
 
+  // Footer — a friendly hint + button, not a price/booking row
+  cardFooter: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
+  },
+  cardFooterHint: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light },
   connectBtn: {
-    backgroundColor: colors.navy, borderRadius: 8,
-    paddingVertical: 10, alignItems: 'center',
+    backgroundColor: colors.navy, borderRadius: radius.button,
+    paddingHorizontal: 14, paddingVertical: 9,
+    flexDirection: 'row', alignItems: 'center', gap: 5,
   },
   connectBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 })

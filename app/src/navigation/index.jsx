@@ -22,6 +22,7 @@ import AdBoardScreen       from '../screens/AdBoardScreen'
 import BudgetingScreen     from '../screens/BudgetingScreen'
 import MessagesScreen      from '../screens/MessagesScreen'
 import DirectoryScreen     from '../screens/DirectoryScreen'
+import StudentProfileScreen from '../screens/StudentProfileScreen'
 import ProfileScreen       from '../screens/ProfileScreen'
 
 // Home sub-screens
@@ -147,6 +148,7 @@ function DirectoryStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="DirectoryMain" component={DirectoryScreen} />
+      <Stack.Screen name="StudentProfile" component={StudentProfileScreen} />
     </Stack.Navigator>
   )
 }
