@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CheckCircle2 } from 'lucide-react-native'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
+import SharePrompt from '../../components/feed/SharePrompt'
 
 // Generic confirmation screen for every Foundation Blueprint generator service —
 // built once here rather than duplicated per service, since the message is the
@@ -12,6 +14,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
   const insets = useSafeAreaInsets()
   const { serviceTitle, tier } = route.params || {}
   const isPremium = tier === 'premium'
+  const [promptDismissed, setPromptDismissed] = useState(false)
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
@@ -34,6 +37,17 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
       >
         <Text style={styles.primaryBtnText}>Back to Foundation Blueprint</Text>
       </TouchableOpacity>
+
+      <SharePrompt
+        visible={!promptDismissed}
+        prefill={{
+          initialTab: 'thread',
+          initialMood: 'delira',
+          initialText: `Just submitted my ${serviceTitle || 'Foundation Blueprint output'} 🎉`,
+        }}
+        onShare={(prefill) => navigation.navigate('Composer', prefill)}
+        onDismiss={() => setPromptDismissed(true)}
+      />
     </View>
   )
 }
