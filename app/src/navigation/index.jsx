@@ -44,6 +44,11 @@ import EvidenceBankScreen             from '../screens/foundation/EvidenceBankSc
 import GenerationSubmittedScreen      from '../screens/foundation/GenerationSubmittedScreen'
 import CompassScreen        from '../screens/CompassScreen'
 
+// Priority — UniBlueprint's events arm (demo build for Ross)
+import PrioritiesScreen        from '../screens/PrioritiesScreen'
+import PriorityEventScreen     from '../screens/PriorityEventScreen'
+import PriorityCheckoutScreen  from '../screens/PriorityCheckoutScreen'
+
 // Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches)
 import StudioQueueScreen    from '../screens/studio/StudioQueueScreen'
 import PromptLibraryScreen  from '../screens/studio/PromptLibraryScreen'
@@ -96,6 +101,9 @@ function HomeStack() {
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
+      <Stack.Screen name="Priorities"        component={PrioritiesScreen}       />
+      <Stack.Screen name="PriorityEvent"     component={PriorityEventScreen}    />
+      <Stack.Screen name="PriorityCheckout"  component={PriorityCheckoutScreen} />
       <Stack.Screen name="CvBuilder"                component={CvBuilderScreen}                options={{ presentation: 'modal' }} />
       <Stack.Screen name="LinkedinBuilder"          component={LinkedinBuilderScreen}          options={{ presentation: 'modal' }} />
       <Stack.Screen name="CoverLetterBuilder"       component={CoverLetterBuilderScreen}       options={{ presentation: 'modal' }} />

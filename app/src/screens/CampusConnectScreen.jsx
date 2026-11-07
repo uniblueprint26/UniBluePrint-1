@@ -5,7 +5,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Users, Car, CalendarDays, Lightbulb,
+  Users, Car, CalendarDays, Lightbulb, Ticket,
   Search, ChevronLeft, MapPin, AlertCircle, Plus, MessageSquare, X, Flag, Trash2, Minus,
 } from 'lucide-react-native'
 
@@ -15,8 +15,12 @@ import MockContentBanner from '../components/ui/MockContentBanner'
 import SectionHeader from '../components/ui/SectionHeader'
 import UBPLogo from '../components/ui/UBPLogo'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { priorityColors, priorityFonts } from '../constants/priorityTheme'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+
+const PRIORITY_GOLD = priorityColors.gold
+const PRIORITY_BG   = priorityColors.bg
 
 // ─── Feature Products ─────────────────────────────────────────────────────────
 
@@ -531,6 +535,36 @@ export default function CampusConnectScreen({ navigation }) {
             {CAMPUS_FEATURES.map(f => <FeatureCard key={f.key} feature={f} onPress={() => scrollToFeature(f.key)} />)}
           </View>
 
+          {/* Priority — UniBlueprint's events arm (House/Afrobeats/Folk
+              nights, ticketed in-app). Kept outside CAMPUS_FEATURES on
+              purpose: it carries its own brand (dark + gold, not UBP
+              navy/cream) and a real purchase flow, so it gets its own
+              full screen rather than an inline board like the four above. */}
+          <TouchableOpacity
+            style={priorityCardStyles.card}
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('Priorities')}
+          >
+            <View style={priorityCardStyles.topRow}>
+              <View style={priorityCardStyles.iconBox}>
+                <Ticket size={20} color={PRIORITY_GOLD} strokeWidth={2} />
+              </View>
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Text style={priorityCardStyles.label}>PRIORITY EVENTS</Text>
+                <Text style={priorityCardStyles.count}>Preview · by UniBlueprint</Text>
+              </View>
+              <View style={priorityCardStyles.newBadge}><Text style={priorityCardStyles.newBadgeText}>NEW</Text></View>
+            </View>
+            <Text style={priorityCardStyles.headline}>House, Afrobeats and Folk nights, ticketed in-app</Text>
+            <Text style={priorityCardStyles.sub}>
+              UniBlueprint's events arm — campus nightlife and live music across Ireland.
+            </Text>
+            <View style={priorityCardStyles.cta}>
+              <Text style={priorityCardStyles.ctaText}>Open Priority</Text>
+              <ChevronLeft size={13} color={PRIORITY_BG} style={{ transform: [{ rotate: '180deg' }] }} />
+            </View>
+          </TouchableOpacity>
+
           <View onLayout={registerSection('boards')} />
           <SectionHeader eyebrow="Community Boards" title="12 Boards, One Place" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
@@ -731,6 +765,33 @@ export default function CampusConnectScreen({ navigation }) {
     </KeyboardAvoidingView>
   )
 }
+
+// ─── Priority entry card — its own brand, deliberately not UBP navy/cream ────
+
+const priorityCardStyles = StyleSheet.create({
+  card: {
+    marginTop: 14, borderRadius: 14, padding: 16,
+    backgroundColor: priorityColors.bg, borderWidth: 1, borderColor: priorityColors.borderStrong,
+    ...shadows.card,
+  },
+  topRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  iconBox: {
+    width: 46, height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0, backgroundColor: 'rgba(201,162,75,0.14)',
+  },
+  label: { fontFamily: priorityFonts.sansSemiBold, fontSize: 10, letterSpacing: 0.8, color: PRIORITY_GOLD, marginBottom: 4 },
+  count: { fontFamily: priorityFonts.sans, fontSize: 12, color: priorityColors.textMuted },
+  newBadge: { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: PRIORITY_GOLD, alignSelf: 'flex-start' },
+  newBadgeText: { fontFamily: priorityFonts.sansSemiBold, fontSize: 9, color: PRIORITY_BG, letterSpacing: 0.5 },
+  headline: { fontFamily: priorityFonts.serif, fontSize: 20, marginTop: 12, lineHeight: 27, color: priorityColors.textPrimary },
+  sub: { fontFamily: priorityFonts.sans, fontSize: 13, marginTop: 5, lineHeight: 19, color: priorityColors.textMuted },
+  cta: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+    borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: PRIORITY_GOLD,
+    alignSelf: 'flex-end', marginTop: 14,
+  },
+  ctaText: { fontFamily: priorityFonts.sansSemiBold, fontSize: 13, color: PRIORITY_BG },
+})
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
