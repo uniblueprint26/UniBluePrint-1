@@ -553,7 +553,7 @@ export default function LifestyleScreen({ navigation, route }) {
 
           {viewMode === 'map' ? (
             <View style={styles.mapSection}>
-              <PartnerMap onViewListing={handleViewListing} />
+              <PartnerMap onViewListing={handleViewListing} navigation={navigation} />
             </View>
           ) : (
             <>
