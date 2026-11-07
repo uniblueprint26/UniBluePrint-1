@@ -76,9 +76,10 @@ function EditProfileSection({ userId }) {
   const styles = __gs_styles(colors)
   const [loading, setLoading]     = useState(true)
   const [loadError, setLoadError] = useState(false)
-  const [profile, setProfile]   = useState(null) // { coach_slug, bio, photo_url } or null if unlinked
+  const [profile, setProfile]   = useState(null) // { coach_slug, bio, photo_url, share_prompt_text } or null if unlinked
   const [bio, setBio]           = useState('')
   const [photoUrl, setPhotoUrl] = useState(null)
+  const [sharePrompt, setSharePrompt] = useState('')
   const [saving, setSaving]     = useState(false)
   const [saved, setSaved]       = useState(false)
 
@@ -87,7 +88,7 @@ function EditProfileSection({ userId }) {
     let cancelled = false
     supabase
       .from('coach_profiles')
-      .select('coach_slug, bio, photo_url')
+      .select('coach_slug, bio, photo_url, share_prompt_text')
       .eq('user_id', userId)
       .maybeSingle()
       .then(({ data, error }) => {
@@ -96,6 +97,7 @@ function EditProfileSection({ userId }) {
         setProfile(data || null)
         setBio(data?.bio || '')
         setPhotoUrl(data?.photo_url || null)
+        setSharePrompt(data?.share_prompt_text || '')
         setLoading(false)
       })
       .catch(() => { if (!cancelled) { setLoadError(true); setLoading(false) } })
@@ -109,7 +111,7 @@ function EditProfileSection({ userId }) {
     try {
       const { error } = await supabase
         .from('coach_profiles')
-        .update({ bio: bio.trim(), photo_url: photoUrl })
+        .update({ bio: bio.trim(), photo_url: photoUrl, share_prompt_text: sharePrompt.trim() || null })
         .eq('user_id', userId)
       if (error) throw error
       setSaved(true)
@@ -156,6 +158,22 @@ function EditProfileSection({ userId }) {
               textAlignVertical="top"
               placeholder="Tell people what you help with and how you work..."
               placeholderTextColor={colors.light}
+            />
+            <Text style={[styles.editLabel, { marginTop: spacing.md }]}>Share prompt (optional)</Text>
+            <Text style={styles.editHint}>
+              Shown to a student right after they send you a booking enquiry, inviting them to share
+              the moment on the feed. Leave blank to use UniBlueprint's default line.
+            </Text>
+            <TextInput
+              style={[styles.editInput, { minHeight: 60 }]}
+              value={sharePrompt}
+              onChangeText={setSharePrompt}
+              multiline
+              numberOfLines={2}
+              textAlignVertical="top"
+              placeholder="e.g. Booked a session with me? Tell your feed about it!"
+              placeholderTextColor={colors.light}
+              maxLength={200}
             />
             <TouchableOpacity
               style={[styles.editSaveBtn, saving && { opacity: 0.7 }]}
@@ -1257,6 +1275,10 @@ function __gs_styles(colors) {
   editLabel: {
     fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
     textTransform: 'uppercase', letterSpacing: 0.7, marginTop: 18, marginBottom: 8,
+  },
+  editHint: {
+    fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted,
+    lineHeight: 16, marginBottom: 8,
   },
   editInput: {
     backgroundColor: colors.surfaceAlt, borderRadius: radius.card,

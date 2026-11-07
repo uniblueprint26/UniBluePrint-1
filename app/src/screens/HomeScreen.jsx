@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking,
   Platform, useWindowDimensions,
@@ -6,13 +6,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import {
-  Bell, User, FileText, TrendingUp, Building2,
-  Heart, Globe, Compass, Calculator, Megaphone,
   MessageSquare, Users, Menu, CheckCircle,
-  Activity as ActivityIcon, ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
-import Card from '../components/ui/Card'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import QuickAccessGrid from '../components/home/QuickAccessGrid'
@@ -20,19 +17,26 @@ import DestinationPickerModal from '../components/home/DestinationPickerModal'
 import SpotlightCarousel from '../components/home/SpotlightCarousel'
 import CondensedDashboard from '../components/home/CondensedDashboard'
 import SidebarRail from '../components/home/SidebarRail'
-import { fonts } from '../constants/theme'
+import {
+  ComposerEntryBar, BuzzStrip, CampusPulse,
+  FeedPostCard, BuzzingHighlightCard, AdCard,
+} from '../components/feed/FeedKit'
+import {
+  fetchFeedPage, fetchBuzzingHighlight, fetchCampusPulse, fetchActivePlacement,
+  fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
+  DEFAULT_BUZZ_WINDOW,
+} from '../lib/feed'
+import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { fetchHomeActivity } from '../lib/homeActivityFeed'
 import { fetchSpotlightSlides } from '../lib/featuredContent'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const DEFAULT_SHORTCUTS = ['foundation', 'my_outputs', 'find_coach', 'campus']
 const MAX_SHORTCUTS = 4
-const ACTIVITY_REFRESH_MS = 60000
 
 // Every destination the Quick Access "+" picker can offer. `label` is the
 // canonical name shown in the picker; `homeLabel`/`homeSub`/`homeIcon` let a
@@ -90,14 +94,6 @@ function getGreetingWord(date = new Date()) {
   return 'Good night'
 }
 
-function timeAgo(dateStr) {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (diff < 60)     return 'Just now'
-  if (diff < 3600)   return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400)  return `${Math.floor(diff / 3600)}h ago`
-  if (diff < 172800) return 'Yesterday'
-  return `${Math.floor(diff / 86400)}d ago`
-}
 
 // ── Home Screen ──────────────────────────────────────────────────────────────
 
@@ -260,24 +256,78 @@ export default function HomeScreen({ navigation }) {
     setActiveNavKey('dashboard')
   }, []))
 
-  // ── Live Activity — refetches every 60s in the background (not realtime) ──
-  const [activity, setActivity]               = useState([])
-  const [loadingActivity, setLoadingActivity]  = useState(true)
+  // Home feed state
+  const [feedPosts, setFeedPosts]           = useState([])
+  const [loadingFeed, setLoadingFeed]       = useState(true)
+  const [buzzWindow, setBuzzWindow]         = useState(DEFAULT_BUZZ_WINDOW)
+  const [buzzingHighlight, setBuzzingHighlight] = useState(null)
+  const [campusPulse, setCampusPulse]       = useState({ total: 0, counts: {} })
+  const [placement, setPlacement]           = useState(null)
+  const [myReactions, setMyReactions]       = useState({})
 
-  const loadActivity = useCallback(async () => {
-    if (!user?.id) { setLoadingActivity(false); return }
-    try {
-      const events = await fetchHomeActivity({ userId: user.id, firstName })
-      setActivity(events)
-    } catch { /* keep whatever we already had */ }
-    finally { setLoadingActivity(false) }
-  }, [user?.id, firstName])
+  // Load the feed + the one-off placement on mount, and again whenever Home
+  // regains focus (so a post made in the Composer shows up on return).
+  useFocusEffect(useCallback(() => {
+    if (!user?.id) { setLoadingFeed(false); return }
+    loadFeed()
+    fetchActivePlacement().then(setPlacement).catch(() => {})
+  }, [user?.id]))
 
+  // Buzz window changes drive the Buzzing highlight + Campus Pulse only —
+  // the main feed itself stays reverse-chronological regardless of window.
   useEffect(() => {
-    loadActivity()
-    const interval = setInterval(loadActivity, ACTIVITY_REFRESH_MS)
-    return () => clearInterval(interval)
-  }, [loadActivity])
+    if (!user?.id) return
+    loadBuzzContext(buzzWindow)
+  }, [user?.id, buzzWindow])
+
+  async function loadFeed() {
+    setLoadingFeed(true)
+    try {
+      const posts = await fetchFeedPage({ limit: 30 })
+      setFeedPosts(posts)
+      const reactions = await fetchMyReactions(posts.map(p => p.id), user.id)
+      setMyReactions(reactions)
+    } catch {}
+    finally { setLoadingFeed(false) }
+  }
+
+  async function loadBuzzContext(windowId) {
+    try {
+      const [highlight, pulse] = await Promise.all([
+        fetchBuzzingHighlight(windowId),
+        fetchCampusPulse(windowId),
+      ])
+      setBuzzingHighlight(highlight)
+      setCampusPulse(pulse)
+    } catch {}
+  }
+
+  async function handleReact(postId, moodId) {
+    if (!user?.id) return
+    const prev = myReactions[postId] || null
+    setMyReactions(r => ({ ...r, [postId]: moodId }))
+    // Optimistic local count bump so the pill updates instantly.
+    const delta = (moodId ? 1 : 0) - (prev ? 1 : 0)
+    if (delta !== 0) {
+      setFeedPosts(posts => posts.map(p => p.id === postId ? { ...p, reaction_count: Math.max(0, p.reaction_count + delta) } : p))
+      setBuzzingHighlight(h => h && h.id === postId ? { ...h, reaction_count: Math.max(0, h.reaction_count + delta) } : h)
+    }
+    try {
+      if (moodId) await setReaction(postId, user.id, moodId)
+      else await clearReaction(postId, user.id)
+    } catch {
+      // Best-effort revert on failure
+      setMyReactions(r => ({ ...r, [postId]: prev }))
+      if (delta !== 0) {
+        setFeedPosts(posts => posts.map(p => p.id === postId ? { ...p, reaction_count: Math.max(0, p.reaction_count - delta) } : p))
+      }
+    }
+  }
+
+  const feedRenderItems = useMemo(
+    () => buildFeedRenderList(feedPosts, { buzzingHighlight, placement }),
+    [feedPosts, buzzingHighlight, placement],
+  )
 
   // Unread notification count for the bell badge, kept live via realtime so
   // it clears the moment a notification is read elsewhere and increments the
@@ -544,35 +594,56 @@ export default function HomeScreen({ navigation }) {
               </View>
             )}
 
-            {/* Live Activity */}
-            <View style={styles.sectionRow}>
-              <Text style={[styles.eyebrow, { marginBottom: 0 }]}>Live Activity</Text>
-              <View style={styles.livePulse} />
-            </View>
-            <Card style={{ padding: 0, marginTop: 10, marginBottom: 8 }}>
-              {loadingActivity ? (
-                <View style={styles.feedRow}>
-                  <Text style={styles.feedText}>Loading activity...</Text>
-                </View>
-              ) : activity.length === 0 ? (
-                <View style={styles.emptyFeed}>
-                  <ActivityIcon size={28} color="#9CA3AF" strokeWidth={1.6} />
-                  <Text style={styles.emptyFeedText}>
-                    Your Blueprint is quiet right now — activity will appear here as things happen.
+            {/* Home feed — composer entry, This Week's Buzz, Campus Pulse,
+                then reverse-chronological Post/Thread cards with a Buzzing
+                highlight / Ad card interleaved every ~5 posts. Replaces the
+                old static "Live Activity" list. Cards carry their own
+                16px side margin (feed-width design), so this wrapper
+                cancels the screen's 14px scroll padding. */}
+            <View style={{ marginHorizontal: -14 }}>
+              <View style={{ paddingHorizontal: spacing.md }}>
+                <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
+                <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
+                <CampusPulse pulse={campusPulse} />
+              </View>
+
+              <View style={{ marginTop: 22 }}>
+                {loadingFeed ? (
+                  <Text style={styles.feedStatusText}>Loading feed…</Text>
+                ) : feedRenderItems.length === 0 ? (
+                  <Text style={styles.feedStatusText}>
+                    No posts yet. Be the first to share a mood or a snapshot.
                   </Text>
-                </View>
-              ) : (
-                activity.map((item, i) => (
-                  <View key={item.id} style={[styles.feedRow, i < activity.length - 1 && styles.divider]}>
-                    <View style={[styles.feedDot, { backgroundColor: item.dot }]} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.feedText} numberOfLines={2}>{item.text}</Text>
-                      <Text style={styles.feedTime}>{timeAgo(item.at)}</Text>
-                    </View>
-                  </View>
-                ))
-              )}
-            </Card>
+                ) : (
+                  feedRenderItems.map(item => {
+                    if (item.kind === 'post') {
+                      return (
+                        <FeedPostCard
+                          key={item.key}
+                          post={item.post}
+                          myMood={myReactions[item.post.id] || null}
+                          onReact={handleReact}
+                        />
+                      )
+                    }
+                    if (item.kind === 'buzzing') {
+                      return (
+                        <BuzzingHighlightCard
+                          key={item.key}
+                          post={item.post}
+                          myMood={myReactions[item.post.id] || null}
+                          onReact={handleReact}
+                        />
+                      )
+                    }
+                    if (item.kind === 'ad') {
+                      return <AdCard key={item.key} placement={item.placement} />
+                    }
+                    return null
+                  })
+                )}
+              </View>
+            </View>
 
           </ScrollView>
           </View>
@@ -695,29 +766,20 @@ function __gs_styles(colors) {
     paddingHorizontal: 14, paddingVertical: 6,
   },
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.accentFg },
-  livePulse: {
-    width: 7, height: 7, borderRadius: 3.5,
-    backgroundColor: '#16A34A',
-  },
 
   // Trending Right Now — a bigger, serif section title (not the small
   // uppercase eyebrow used everywhere else) so it reads as Home's
-  // centerpiece heading, paired with a gold pulse dot in the same spot
-  // Live Activity uses its green one, just recoloured to match the brand
-  // gold accent instead of "live data" green.
+  // centerpiece heading, paired with a gold pulse dot.
   trendingTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
   trendingPulse: {
     width: 7, height: 7, borderRadius: 3.5,
     backgroundColor: colors.gold,
   },
 
-  // Activity feed
-  feedRow:  { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
-  divider:  { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  feedDot:  { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  feedText: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, lineHeight: 17, flex: 1 },
-  feedTime: { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 2 },
-  emptyFeed: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 24, gap: 10 },
-  emptyFeedText: { fontFamily: fonts.sans, fontSize: 14, color: '#9CA3AF', textAlign: 'center', lineHeight: 20 },
+  // Feed status (loading / empty)
+  feedStatusText: {
+    fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
+    textAlign: 'center', paddingVertical: 20, paddingHorizontal: spacing.md,
+  },
   })
 }

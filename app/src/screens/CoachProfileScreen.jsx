@@ -15,6 +15,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
+import SharePrompt from '../components/feed/SharePrompt'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { coachBookingUrl } from '../constants/site'
@@ -110,13 +111,15 @@ function openLink(type, value) {
 // Sits alongside the direct-contact links, not instead of them, since most
 // coaches in this listing are not yet registered platform users.
 
-function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
+function EnquiryModal({ visible, onClose, coach, userId, onSent, navigation }) {
   const { colors } = useTheme()
   const m = __gs_m(colors)
   const [message, setMessage]   = useState('')
   const [sending, setSending]   = useState(false)
   const [sent, setSent]         = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
+  const [sharePromptText, setSharePromptText] = useState('')
+  const [sharePromptDismissed, setSharePromptDismissed] = useState(false)
 
   async function submit() {
     if (!userId) {
@@ -135,6 +138,17 @@ function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
       if (error) throw error
       setSent(true)
       onSent?.()
+      // Best-effort: pick up the coach's own share-prompt copy, if they set
+      // one in their Studio profile settings. Silently falls back to the
+      // platform default when the coach isn't a linked platform user yet,
+      // or hasn't written one.
+      supabase
+        .from('coach_profiles')
+        .select('share_prompt_text')
+        .eq('coach_slug', coachSlug(coach.id))
+        .maybeSingle()
+        .then(({ data }) => setSharePromptText(data?.share_prompt_text || ''))
+        .catch(() => {})
     } catch {
       setErrorMsg('Could not send your enquiry. Please try again, or contact the coach directly below.')
     } finally {
@@ -146,6 +160,8 @@ function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
     setMessage('')
     setSent(false)
     setErrorMsg(null)
+    setSharePromptText('')
+    setSharePromptDismissed(false)
     onClose()
   }
 
@@ -174,6 +190,18 @@ function EnquiryModal({ visible, onClose, coach, userId, onSent }) {
               <Text style={m.sentText}>
                 Your enquiry has gone straight to {coach.name} and the UniBlueprint team. They'll follow up with you directly.
               </Text>
+              <SharePrompt
+                visible={!sharePromptDismissed}
+                text={sharePromptText}
+                fallbackText={`Just enquired with ${coach.name} — tell your feed about it!`}
+                prefill={{
+                  initialTab: 'thread',
+                  initialMood: 'buzzing',
+                  initialText: `Just reached out to ${coach.name} on UniBlueprint 🙌`,
+                }}
+                onShare={(prefill) => { handleClose(); navigation.navigate('Composer', prefill) }}
+                onDismiss={() => setSharePromptDismissed(true)}
+              />
               <TouchableOpacity style={m.doneBtn} activeOpacity={0.85} onPress={handleClose}>
                 <Text style={m.doneBtnText}>Done</Text>
               </TouchableOpacity>
@@ -900,6 +928,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         coach={coach}
         userId={user?.id}
         onSent={() => setHasEngaged(true)}
+        navigation={navigation}
       />
       <RateCoachModal
         visible={rateOpen}

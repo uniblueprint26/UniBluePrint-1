@@ -6,6 +6,7 @@ import { fonts, radius, spacing, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import BlueprintGrid from '../../components/ui/BlueprintGrid'
 import Button from '../../components/ui/Button'
+import SharePrompt from '../../components/feed/SharePrompt'
 
 // Generic confirmation screen for every Foundation Blueprint generator service —
 // built once here rather than duplicated per service, since the message is the
@@ -28,6 +29,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
   const insets = useSafeAreaInsets()
   const { serviceTitle, tier } = route.params || {}
   const isPremium = tier === 'premium'
+  const [promptDismissed, setPromptDismissed] = useState(false)
 
   const [phase, setPhase] = useState('loading') // 'loading' | 'done'
 
@@ -109,6 +111,19 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
         >
           <Text style={styles.secondaryBtnText}>Go to My Outputs</Text>
         </TouchableOpacity>
+
+        {phase === 'done' && (
+          <SharePrompt
+            visible={!promptDismissed}
+            prefill={{
+              initialTab: 'thread',
+              initialMood: 'delira',
+              initialText: `Just submitted my ${serviceTitle || 'Foundation Blueprint output'} 🎉`,
+            }}
+            onShare={(prefill) => navigation.navigate('Composer', prefill)}
+            onDismiss={() => setPromptDismissed(true)}
+          />
+        )}
       </Animated.View>
     </View>
   )
