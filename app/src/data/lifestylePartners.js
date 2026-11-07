@@ -181,6 +181,7 @@ export const PARTNERS = [
     services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
     howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
     hasContact: true,
+    website: 'https://alexleva.myportfolio.com/home-page',
     crossLink: { label: "Also a UniBlueprint Uni Coach, see Alex's Digital Marketing profile", coachId: 10 },
   },
   {
@@ -255,8 +256,9 @@ export const PARTNERS = [
       { label: 'pupil.longsleeve',         price: '€60.00', soldOut: true },
       { label: 'ryukpolo',                 price: '€50.00', soldOut: true },
     ],
-    howToStart: 'DM on Instagram or visit saiemsent.ie.',
+    howToStart: 'DM @saiemsent on Instagram or visit saiemsent.ie.',
     hasContact: true,
+    website: 'https://saiemsent.ie',
   },
   {
     id: 'elect',
@@ -364,8 +366,9 @@ export const PARTNERS = [
       { label: 'Property Listings', price: 'Free' },
       { label: 'Priority Request',  price: '€5' },
     ],
-    howToStart: 'Visit roomy.ie or DM on Instagram — see Get in Touch below.',
+    howToStart: 'Visit roomy.ie or DM @Roomy.ie on Instagram.',
     hasContact: true,
+    website: 'https://roomy.ie',
   },
   {
     id: 'royaltyproductions',
@@ -453,8 +456,9 @@ export const PARTNERS = [
     description: 'Creative web design and branding studio helping businesses, organisations, and entrepreneurs build strong, professional digital identities. Worked with small businesses, community organisations, churches, and entrepreneurs on everything from website design and redesigns to logos and complete brand identities.',
     services: ['Website Design & Development', 'Website Redesigns', 'E-commerce Design', 'UI/UX Design', 'Logo Design', 'Brand Identity & Visual Branding', 'Brand Style Guides', 'Website Maintenance'],
     pricingNote: 'Pricing upon enquiry — each project is quoted based on scope, requirements, and needs.',
-    howToStart: 'Book a call at calendly.com/oedesignns or DM on Instagram — see Get in Touch below.',
+    howToStart: 'Book a call at calendly.com/oedesignns or DM @poiema_dexigns on Instagram.',
     hasContact: true,
+    website: 'https://www.olaoluwaesho.com/',
   },
   {
     id: 'kelan',
@@ -531,6 +535,7 @@ export const PARTNERS = [
     hours: 'Mon–Fri 10am–7pm · Sat 11am–6pm · Closed Sundays',
     howToStart: 'Book through the main website, or contact by phone or email.',
     hasContact: true,
+    website: 'https://www.coded69studios.com',
   },
 
   // ── Live: Fashion ────────────────────────────────────────────────────────
@@ -678,6 +683,21 @@ export const PARTNERS = [
   { id: 'pkglam',       brand: 'The PK Glam',             initials: 'PK', initBg: '#D97706', filterKey: 'beauty', county: 'Kildare', category: 'Beauty', status: 'shell' },
 ]
 
+// ─── Shuffle helpers ──────────────────────────────────────────────────────────
+// Real, per-load randomisation for "The Collection" — previously PARTNERS was
+// always shown in the same fixed array order every time. Fisher-Yates, run
+// once per module load (i.e. once per app session/cold start), not on every
+// render, so the order stays stable while someone is actually browsing but is
+// genuinely different the next time the app opens.
+function shuffle(array) {
+  const copy = [...array]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
 // Every county still without a named partner above gets one anonymous
 // "coming soon" pin on the map — one per county, in this fixed order, so the
 // map reads as full without pretending to know who's actually going there.
@@ -691,3 +711,9 @@ export const MYSTERY_MAP_COUNTIES = [
   'Meath', 'Wicklow', 'Carlow', 'Laois', 'Offaly', 'Westmeath', 'Longford',
   'Roscommon', 'Leitrim', 'Cavan', 'Monaghan', 'Donegal',
 ]
+
+// Live partners only, shuffled once per app session — this is what "The
+// Collection" grid (LifestyleScreen) reads instead of PARTNERS directly, so
+// the mix of deals/showcases genuinely differs load to load rather than
+// always opening on the same handful of brands at the top of the array.
+export const SHUFFLED_LIVE_PARTNERS = shuffle(PARTNERS.filter(p => p.status === 'live'))

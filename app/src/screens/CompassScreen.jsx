@@ -20,11 +20,10 @@ import {
   Calculator, Sparkles, Search, ShieldCheck,
 } from 'lucide-react-native'
 
-import ScreenHeader from '../components/ui/ScreenHeader'
-import UBPLogo    from '../components/ui/UBPLogo'
+import PartnerBrandedHeader from '../components/partners/PartnerBrandedHeader'
+import { COURSE_COMPASS } from '../constants/partnerBrands'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 // iOS: no purchase CTAs or prices for the CourseCompass bundles (App Store
@@ -309,26 +308,20 @@ export default function CompassScreen({ navigation }) {
         contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Integrated header + hero ── */}
-        <ScreenHeader
-          variant="navy"
+        {/* ── Integrated header + hero — branded as CourseCompass's own
+            space (navy/sky/orange, Crimson Pro + Outfit), not UniBlueprint's
+            navy/cream, since it's their product we're handing off to. See
+            constants/partnerBrands.js — same reusable pattern queued for the
+            next partner integration ("Priority"). ── */}
+        <PartnerBrandedHeader
+          brand={COURSE_COMPASS}
           onBack={safeGoBack}
           backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="COURSE COMPASS"
           title="Find Your Ideal Path"
-          subtitle="AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points."
-          style={s.heroBlock}
-          titleStyle={s.heroTitle}
-        >
-          {/* Partnership attribution */}
-          <View style={s.attrRow}>
-            <View style={s.attrDot} />
-            <Text style={s.attrText}>
-              An independent platform by Stephen McKeon, integrated in partnership with UniBlueprint
-            </Text>
-          </View>
-        </ScreenHeader>
+          sub="AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points."
+          insetTop={insets.top}
+        />
 
         <View style={s.content}>
 

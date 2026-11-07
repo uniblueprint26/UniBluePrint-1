@@ -20,41 +20,36 @@ export { PARTNERS, MYSTERY_MAP_COUNTIES }
 
 const LIVE_PARTNER_COUNT = PARTNERS.filter(p => p.status === 'live').length
 
-// ─── Lifestyle hub — Round: restructured from one long scroll (Grid/Map
-// toggle + a buried Mental Health list + a Budgeting section) into 4
-// standalone destinations, each its own pushed screen. This hub is now just
-// the landing page: a hero, a "need to talk now" safety strip that never
-// makes crisis support wait behind a tap into Wellbeing, and one FeatureCard
-// per destination — same building block Campus Connect and Course Connect
-// use for their own "hub of standalone screens" layout, so this reads as
-// the same family of pattern rather than a bespoke one-off.
-const FEATURES = [
+// ─── Lifestyle hub ──────────────────────────────────────────────────────────
+// "The Collection" (curated-by-UniBlueprint deals, LifestyleFeaturedDeals)
+// is now the landing content — its own prominent card up top, not one of
+// four equal tiles — with Explore/Wellbeing/Budgeting demoted to a slim nav
+// row beneath it. Each still its own standalone pushed screen (same
+// "hub of standalone screens" pattern Campus Connect/Course Connect use),
+// not inlined here — avoids duplicating Explore's partner cards + gated
+// contact-detail flow (hooks/usePartnerContact.js) in a second place.
+const COLLECTION_FEATURE = {
+  key: 'featured', label: 'THE COLLECTION', Icon: ShoppingBag, color: '#FDF1DD',
+  headline: 'Curated by UniBlueprint',
+  sub: 'Real products from real partners: apparel, beauty sets, prints, and bakes, curated into one collection. No checkout, just a direct line to claim it.',
+  count: 'New', isNew: true,
+  screen: 'LifestyleFeaturedDeals',
+}
+
+const SECONDARY_FEATURES = [
   {
-    key: 'featured', label: 'THE COLLECTION', Icon: ShoppingBag, color: '#FDF1DD',
-    headline: 'Curated by UniBlueprint',
-    sub: 'Real products from real partners: apparel, beauty sets, prints, and bakes, curated into one collection. No checkout, just a direct line to claim it.',
-    count: 'New', isNew: true,
-    screen: 'LifestyleFeaturedDeals',
-  },
-  {
-    key: 'explore', label: 'EXPLORE', Icon: MapIcon, color: '#EFF6FF',
-    headline: 'Every partner, on the map',
-    sub: "Browse the full roster by category, or find who's near you on the Ireland map. Every confirmed deal and everyone still launching.",
-    count: `${LIVE_PARTNER_COUNT} live partners`,
+    key: 'explore', label: 'Explore', Icon: MapIcon,
+    sub: `${LIVE_PARTNER_COUNT} live partners`,
     screen: 'LifestylePartners',
   },
   {
-    key: 'wellbeing', label: 'WELLBEING', Icon: Heart, color: '#FEF2F2',
-    headline: 'Support when you need it',
-    sub: 'Crisis lines, counselling, student supports, and more, organised into real categories you can actually scan, not one long list.',
-    count: 'Always free',
+    key: 'wellbeing', label: 'Wellbeing', Icon: Heart,
+    sub: 'Always free',
     screen: 'LifestyleWellbeing',
   },
   {
-    key: 'budgeting', label: 'BUDGETING', Icon: PiggyBank, color: '#F0FDF4',
-    headline: 'Know where you stand',
-    sub: 'A quick snapshot of your balance and goals, plus a straight line into the full Budgeting tool when you need to go deeper.',
-    count: 'Live now',
+    key: 'budgeting', label: 'Budgeting', Icon: PiggyBank,
+    sub: 'Live now',
     screen: 'LifestyleBudgetingPreview',
   },
 ]
@@ -127,10 +122,28 @@ export default function LifestyleScreen({ navigation, route }) {
             </Text>
           </TouchableOpacity>
 
-          <View style={{ gap: 14, marginTop: spacing.lg }}>
-            {FEATURES.map(f => (
-              <FeatureCard key={f.key} feature={f} onPress={() => navigation.navigate(f.screen)} />
+          {/* Slim nav row — Explore / Wellbeing / Budgeting, demoted from
+              equal-sized tiles to compact shortcuts above the Collection. */}
+          <View style={styles.navRow}>
+            {SECONDARY_FEATURES.map(f => (
+              <TouchableOpacity
+                key={f.key}
+                style={styles.navRowItem}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate(f.screen)}
+              >
+                <View style={styles.navRowIcon}>
+                  <f.Icon size={16} color={colors.textPrimary} strokeWidth={1.8} />
+                </View>
+                <Text style={styles.navRowLabel}>{f.label}</Text>
+                <Text style={styles.navRowSub}>{f.sub}</Text>
+              </TouchableOpacity>
             ))}
+          </View>
+
+          {/* The Collection — landing content, its own prominent card. */}
+          <View style={{ marginTop: spacing.md }}>
+            <FeatureCard feature={COLLECTION_FEATURE} onPress={() => navigation.navigate(COLLECTION_FEATURE.screen)} />
           </View>
         </View>
       </ScrollView>
@@ -170,5 +183,20 @@ function __gs_styles(colors) {
   crisisTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.white },
   crisisSub:   { fontFamily: fonts.sans, fontSize: 11.5, color: 'rgba(255,255,255,0.85)', marginTop: 1 },
   crisisLink:  { fontFamily: fonts.sansBold, fontSize: 11.5, color: colors.white, textDecorationLine: 'underline' },
+
+  // Slim nav row — Explore / Wellbeing / Budgeting
+  navRow: { flexDirection: 'row', gap: 10, marginTop: spacing.lg },
+  navRowItem: {
+    flex: 1, backgroundColor: colors.surface, borderRadius: radius.card,
+    padding: 12, alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+  },
+  navRowIcon: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: 'rgba(30,58,95,0.06)',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 6,
+  },
+  navRowLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.textPrimary },
+  navRowSub:   { fontFamily: fonts.sans, fontSize: 9.5, color: colors.muted, marginTop: 1, textAlign: 'center' },
   })
 }

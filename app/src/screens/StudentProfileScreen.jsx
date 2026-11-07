@@ -6,6 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, GraduationCap, MapPin, AtSign, Link2, ThumbsUp, X, Check, MessageSquareQuote,
+  MessageCircle,
 } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -158,6 +159,82 @@ function AddEndorsementModal({
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
+
+// ── Their Posts ───────────────────────────────────────────────────────────────
+// Reads the real feed_posts table (see supabase/migrations/
+// 20261107090000_social_feed.sql) by this student's real user id
+// (student.id — same field already used for endorsements/startDirectChat
+// above, confirmed real, not mock data). Queried defensively (try/catch +
+// error check) so a missing table or zero rows both land on the same clean
+// "No posts yet" empty state rather than an error.
+function PostsSection({ userId, colors }) {
+  const [state, setState] = useState({ loading: true, posts: [] })
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      if (!userId) { if (!cancelled) setState({ loading: false, posts: [] }); return }
+      try {
+        const { data, error } = await supabase
+          .from('feed_posts')
+          .select('id, post_type, body, mood, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(10)
+        if (cancelled) return
+        setState({ loading: false, posts: error ? [] : (data || []) })
+      } catch {
+        if (!cancelled) setState({ loading: false, posts: [] })
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [userId])
+
+  const s = __gs_postsStyles(colors)
+
+  return (
+    <View style={{ paddingHorizontal: spacing.md, marginTop: spacing.lg }}>
+      <Text style={s.sectionLabel}>Their Posts</Text>
+      {state.loading ? (
+        <ActivityIndicator color={colors.textPrimary} style={{ marginVertical: 8 }} />
+      ) : state.posts.length === 0 ? (
+        <View style={s.emptyCard}>
+          <MessageCircle size={20} color={colors.light} strokeWidth={1.6} />
+          <Text style={s.emptyText}>No posts yet</Text>
+        </View>
+      ) : (
+        <View style={{ gap: 8 }}>
+          {state.posts.map(p => (
+            <View key={p.id} style={s.postCard}>
+              <Text style={s.postBody} numberOfLines={4}>{p.body}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  )
+}
+
+function __gs_postsStyles(colors) {
+  return StyleSheet.create({
+    sectionLabel: {
+      fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
+      textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
+    },
+    emptyCard: {
+      alignItems: 'center', gap: 8, paddingVertical: 24,
+      backgroundColor: colors.surface, borderRadius: radius.card,
+      borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    },
+    emptyText: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted },
+    postCard: {
+      backgroundColor: colors.surface, borderRadius: radius.card, padding: 12,
+      borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    },
+    postBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
+  })
+}
 
 export default function StudentProfileScreen({ route, navigation }) {
   const { colors } = useTheme()
@@ -501,6 +578,8 @@ export default function StudentProfileScreen({ route, navigation }) {
             </TouchableOpacity>
           )}
         </View>
+
+        <PostsSection userId={student.id} colors={colors} />
 
         <Button
           label={connecting ? 'Connecting…' : 'Connect'}

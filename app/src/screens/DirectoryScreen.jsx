@@ -118,6 +118,11 @@ function topTagsFromCandidates(candidates, limit) {
 }
 
 // ── StudentCard ───────────────────────────────────────────────────────────────
+// Adapted from Elevation's coach card (big avatar + name, a one-line
+// "about" row, pills, a footer button) but warmer and peer-to-peer, not
+// service-provider framing — no pricing/booking language, a friendly
+// "studying X at Y" line instead of a job title, and a plain "View Profile"
+// rather than anything that reads as hiring someone.
 
 function StudentCard({ student, searchQuery, onConnect, connecting, onViewProfile }) {
   const { colors } = useTheme()
@@ -539,10 +544,12 @@ function __gs_styles(colors) {
   },
 
   studentCard:  { padding: 18, marginBottom: 12 },
-  cardHead:     { flexDirection: 'row', gap: 12, marginBottom: 12, alignItems: 'flex-start' },
+  cardHead:     { flexDirection: 'row', gap: 14, marginBottom: 14, alignItems: 'center' },
+  avatarWrap:   { position: 'relative' },
   avatar: {
-    width: 46, height: 46, borderRadius: 23,
+    width: 52, height: 52, borderRadius: 26,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)',
   },
   avatarText: { fontFamily: fonts.serif, fontSize: 18, color: '#fff' },
   cardName:   { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },

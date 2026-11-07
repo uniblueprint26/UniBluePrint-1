@@ -12,7 +12,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.uniblueprint.app",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post."
+        "NSPhotoLibraryUsageDescription": "UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.",
+        "NSLocationWhenInUseUsageDescription": "UniBlueprint uses your location, only when you tap \"Find Near Me\", to show Lifestyle partners and coaches near you on the map."
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -83,7 +84,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F5F0E8"
       },
-      "package": "com.uniblueprint.app"
+      "package": "com.uniblueprint.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "REPLACE_WITH_REAL_ANDROID_GOOGLE_MAPS_API_KEY"
+        }
+      }
     },
     "web": {
       "bundler": "metro"
@@ -109,6 +119,12 @@
         "expo-notifications",
         {
           "color": "#1E3A5F"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "UniBlueprint uses your location, only when you tap \"Find Near Me\", to show Lifestyle partners and coaches near you on the map."
         }
       ],
       "@sentry/react-native"

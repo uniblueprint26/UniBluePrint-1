@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import {
-  MessageSquare, Users, Menu, CheckCircle,
+  MessageSquare, Users, Menu, CheckCircle, LayoutGrid,
   ChevronDown, ChevronUp,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
@@ -16,7 +16,7 @@ import QuickAccessGrid from '../components/home/QuickAccessGrid'
 import DestinationPickerModal from '../components/home/DestinationPickerModal'
 import SpotlightCarousel from '../components/home/SpotlightCarousel'
 import CondensedDashboard from '../components/home/CondensedDashboard'
-import SidebarRail from '../components/home/SidebarRail'
+import UBPLogo from '../components/ui/UBPLogo'
 import {
   ComposerEntryBar, BuzzStrip, CampusPulse,
   FeedPostCard, BuzzingHighlightCard, AdCard,
@@ -62,21 +62,46 @@ const ALL_SHORTCUTS = [
   { key: 'notifications', label: 'Notifications',        sub: 'Everything that needs your attention', Icon: Bell,    bg: '#FEF3C7', action: 'notifications' },
 ]
 
-// Sidebar rail nav items — matched 1:1 to SidebarDrawer's icon set (same
-// icons, same order): the rail and the wide hamburger drawer are meant to
-// read as one system, just icon-only vs. icon+label. No standalone
-// "Dashboard" entry — same as the drawer, the logomark above the rail
-// (tap to go home) covers that instead of a 9th icon.
-const NAV_ITEMS = [
-  { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
-  { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
-  { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
-  { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'campus_connect' },
-  { key: 'course',     label: 'Course\nConnect',       Icon: Globe,      action: 'course_connect' },
-  { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'compass' },
-  { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'budgeting' },
-  { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
+// Sidebar nav items — same 8 destinations as before (plus Dashboard),
+// now grouped into sections (a hairline divider + a tiny group label between
+// each) instead of one flat list, so the rail reads as organised rather than
+// a plain icon stack. No destination added, removed, or reordered relative
+// to the original flat NAV_ITEMS — grouping is presentation only.
+const NAV_GROUPS = [
+  {
+    label: null, // Dashboard sits alone, above the first divider
+    items: [
+      { key: 'dashboard', label: 'Dashboard', Icon: LayoutGrid, action: 'home' },
+    ],
+  },
+  {
+    label: 'Blueprints',
+    items: [
+      { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
+      { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
+      { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
+    ],
+  },
+  {
+    label: 'Connect',
+    items: [
+      { key: 'campus', label: 'Campus\nConnect', Icon: Building2, action: 'campus_connect' },
+      { key: 'course', label: 'Course\nConnect', Icon: Globe,     action: 'course_connect' },
+    ],
+  },
+  {
+    label: 'Tools',
+    items: [
+      { key: 'compass',   label: 'Compass',   Icon: Compass,    action: 'compass'   },
+      { key: 'budgeting', label: 'Budgeting', Icon: Calculator, action: 'budgeting' },
+      { key: 'adboard',   label: 'Ad Board',  Icon: Megaphone,  action: 'tab', tabName: 'AdBoard' },
+    ],
+  },
 ]
+
+// Flattened — handleNav and anything else that looked items up by key still
+// works unchanged against this.
+const NAV_ITEMS = NAV_GROUPS.flatMap(g => g.items)
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -412,14 +437,49 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.layout}>
 
         {/* ── SIDEBAR RAIL ──
-            The old narrow, icon-only nav rail — always visible by default,
-            desktop-web only (`showSidebar`, defined above). Distinct from
+            Desktop-web only (`showSidebar`, defined above) — distinct from
             (and rendered in addition to) the Quick Access overview toggle
             below and the wide icon+label drawer opened by the ☰ hamburger
-            (SidebarDrawer.jsx, unchanged) — a third, slim companion rail,
-            collapsible via its own handle. See SidebarRail.jsx. */}
+            (SidebarDrawer.jsx, unchanged). Grouped into sections (a hairline
+            divider + a tiny group label between each) instead of one flat
+            icon stack, same 8 destinations as before — grouping is
+            presentation only, nothing added/removed/reordered. */}
         {showSidebar && (
-          <SidebarRail items={NAV_ITEMS} activeKey={activeNavKey} onNavigate={handleNav} />
+          <View style={styles.sidebar}>
+            <View style={styles.sidebarLogoWrap}>
+              <UBPLogo height={30} color={colors.cream} />
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+              {NAV_GROUPS.map((group, gi) => (
+                <View key={group.label || 'top'} style={gi > 0 && styles.navGroupDivider}>
+                  {!!group.label && <Text style={styles.navGroupLabel}>{group.label}</Text>}
+                  {group.items.map(item => {
+                    const isActive = item.key === activeNavKey
+                    return (
+                      <TouchableOpacity
+                        key={item.key}
+                        style={styles.navItemOuter}
+                        activeOpacity={0.65}
+                        onPress={() => handleNav(item)}
+                      >
+                        {isActive && <View style={styles.navHighlight} />}
+                        {isActive && <View style={styles.navAccentBar} />}
+                        <item.Icon
+                          size={20}
+                          color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
+                          strokeWidth={isActive ? 2 : 1.6}
+                        />
+                        <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
+                          {item.label}
+                        </Text>
+                      </TouchableOpacity>
+                    )
+                  })}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
         )}
 
         {/* ── MAIN ── */}
@@ -667,6 +727,63 @@ function __gs_styles(colors) {
   return StyleSheet.create({
   screen:  { flex: 1, backgroundColor: colors.chromeBg },
   layout:  { flex: 1, flexDirection: 'row' },
+
+  // Sidebar
+  sidebar: {
+    width: 84,
+    backgroundColor: colors.navy,
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(245,240,232,0.09)',
+  },
+  sidebarLogoWrap: {
+    paddingTop: 16, paddingBottom: 16, paddingHorizontal: 10,
+    alignItems: 'center',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(245,240,232,0.09)',
+  },
+  // Grouped sections — a hairline divider + a tiny uppercase group label
+  // between each, instead of one flat run of icons.
+  navGroupDivider: {
+    marginTop: 10, paddingTop: 10,
+    borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.09)',
+  },
+  navGroupLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 7.5,
+    color: 'rgba(245,240,232,0.32)', letterSpacing: 0.6,
+    textTransform: 'uppercase', textAlign: 'center',
+    marginBottom: 2,
+  },
+  navItemOuter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 6,
+    position: 'relative',
+  },
+  navHighlight: {
+    position: 'absolute',
+    top: 4, left: 8, right: 5, bottom: 4,
+    backgroundColor: 'rgba(255,255,255,0.13)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  // A gold accent bar on the active item's leading edge — brand-matching,
+  // richer than the translucent box alone.
+  navAccentBar: {
+    position: 'absolute',
+    top: 10, bottom: 10, left: 0,
+    width: 3, borderRadius: 2,
+    backgroundColor: '#C9A24B',
+  },
+  navLabel: {
+    fontFamily: fonts.sans,
+    fontSize: 9,
+    color: 'rgba(245,240,232,0.5)',
+    marginTop: 5,
+    textAlign: 'center',
+    lineHeight: 12,
+  },
+  navLabelActive: { color: 'rgba(245,240,232,0.92)' },
 
   // Main
   main: { flex: 1, backgroundColor: colors.background },

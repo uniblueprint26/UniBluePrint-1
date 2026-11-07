@@ -9,6 +9,11 @@ import { DMSans_400Regular } from '@expo-google-fonts/dm-sans/400Regular'
 import { DMSans_500Medium } from '@expo-google-fonts/dm-sans/500Medium'
 import { DMSans_600SemiBold } from '@expo-google-fonts/dm-sans/600SemiBold'
 import { DMSans_700Bold } from '@expo-google-fonts/dm-sans/700Bold'
+// Partner-brand fonts — not UniBlueprint's own type, loaded globally so any
+// partner-branded screen (CourseCompass today, Priority later) can use them
+// without each screen managing its own font loading.
+import { CrimsonPro_600SemiBold, CrimsonPro_700Bold } from '@expo-google-fonts/crimson-pro'
+import { Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold } from '@expo-google-fonts/outfit'
 import { useFonts } from 'expo-font'
 import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -95,6 +100,11 @@ export default function App() {
     DMSans_500Medium,
     DMSans_600SemiBold,
     DMSans_700Bold,
+    CrimsonPro_600SemiBold,
+    CrimsonPro_700Bold,
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
   })
 
   const fontsReady = fontsLoaded || fontError
