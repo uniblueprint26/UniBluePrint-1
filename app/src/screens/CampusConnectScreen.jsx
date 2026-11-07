@@ -4,7 +4,7 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, Plus, Compass, X } from 'lucide-react-native'
+import { Search, Plus, Compass, X, Ticket, ChevronLeft } from 'lucide-react-native'
 
 import SectionHeader from '../components/ui/SectionHeader'
 import ScreenHeader from '../components/ui/ScreenHeader'
@@ -14,6 +14,7 @@ import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import CampusPulseCard from '../components/campusConnect/CampusPulseCard'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { priorityColors, priorityFonts } from '../constants/priorityTheme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { goToHome } from '../navigation/helpers'
@@ -29,6 +30,9 @@ import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
 // both used to keep their own bespoke inline sections further down this
 // screen (real posted routes/projects, filters, join flow) before they moved
 // onto the shared board-engine pattern, matching every other board here.
+
+const PRIORITY_GOLD = priorityColors.gold
+const PRIORITY_BG   = priorityColors.bg
 
 // Short, punchy headline per board — the FeatureCard equivalent of
 // COURSE_FEATURES' headline field (e.g. "Talk to everyone on your course").
@@ -371,6 +375,36 @@ export default function CampusConnectScreen({ navigation }) {
             <Text style={styles.emptyBoardsText}>No boards match “{search}”.</Text>
           )}
 
+          {/* Priority — UniBlueprint's events arm (House/Afrobeats/Folk
+              nights, ticketed in-app). Kept outside CAMPUS_BOARDS on
+              purpose: it carries its own brand (dark + gold, not UBP
+              navy/cream) and a real purchase flow, so it gets its own
+              full screen rather than an inline board like the ones above. */}
+          <TouchableOpacity
+            style={priorityCardStyles.card}
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('Priorities')}
+          >
+            <View style={priorityCardStyles.topRow}>
+              <View style={priorityCardStyles.iconBox}>
+                <Ticket size={20} color={PRIORITY_GOLD} strokeWidth={2} />
+              </View>
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Text style={priorityCardStyles.label}>PRIORITY EVENTS</Text>
+                <Text style={priorityCardStyles.count}>Preview · by UniBlueprint</Text>
+              </View>
+              <View style={priorityCardStyles.newBadge}><Text style={priorityCardStyles.newBadgeText}>NEW</Text></View>
+            </View>
+            <Text style={priorityCardStyles.headline}>House, Afrobeats and Folk nights, ticketed in-app</Text>
+            <Text style={priorityCardStyles.sub}>
+              UniBlueprint's events arm — campus nightlife and live music across Ireland.
+            </Text>
+            <View style={priorityCardStyles.cta}>
+              <Text style={priorityCardStyles.ctaText}>Open Priority</Text>
+              <ChevronLeft size={13} color={PRIORITY_BG} style={{ transform: [{ rotate: '180deg' }] }} />
+            </View>
+          </TouchableOpacity>
+
           <Button
             label="Post to Campus Board"
             icon={Plus}
@@ -393,6 +427,33 @@ export default function CampusConnectScreen({ navigation }) {
     </KeyboardAvoidingView>
   )
 }
+
+// ─── Priority entry card — its own brand, deliberately not UBP navy/cream ────
+
+const priorityCardStyles = StyleSheet.create({
+  card: {
+    marginTop: 14, borderRadius: 14, padding: 16,
+    backgroundColor: priorityColors.bg, borderWidth: 1, borderColor: priorityColors.borderStrong,
+    ...shadows.card,
+  },
+  topRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  iconBox: {
+    width: 46, height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0, backgroundColor: 'rgba(201,162,75,0.14)',
+  },
+  label: { fontFamily: priorityFonts.sansSemiBold, fontSize: 10, letterSpacing: 0.8, color: PRIORITY_GOLD, marginBottom: 4 },
+  count: { fontFamily: priorityFonts.sans, fontSize: 12, color: priorityColors.textMuted },
+  newBadge: { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: PRIORITY_GOLD, alignSelf: 'flex-start' },
+  newBadgeText: { fontFamily: priorityFonts.sansSemiBold, fontSize: 9, color: PRIORITY_BG, letterSpacing: 0.5 },
+  headline: { fontFamily: priorityFonts.serif, fontSize: 20, marginTop: 12, lineHeight: 27, color: priorityColors.textPrimary },
+  sub: { fontFamily: priorityFonts.sans, fontSize: 13, marginTop: 5, lineHeight: 19, color: priorityColors.textMuted },
+  cta: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+    borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: PRIORITY_GOLD,
+    alignSelf: 'flex-end', marginTop: 14,
+  },
+  ctaText: { fontFamily: priorityFonts.sansSemiBold, fontSize: 13, color: PRIORITY_BG },
+})
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
