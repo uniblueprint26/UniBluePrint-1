@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
-  Compass, GraduationCap, Map, Wrench, Package,
+  Compass, GraduationCap, Map, Wrench, Package, Archive, FolderOpen,
   ChevronLeft, ChevronRight, Sparkles, ExternalLink,
 } from 'lucide-react-native'
 
@@ -92,7 +92,11 @@ const CAREER_SERVICES = [
 // ─── Course Compass tools ─────────────────────────────────────────────────────
 
 const CC_TOOLS = [
-  { name: 'Course Compass',         icon: Compass,       url: 'https://coursecompass.ie/course-compass',          desc: 'Find the right CAO course for you' },
+  // Course Compass itself opens in-app, on a screen branded in CourseCompass's
+  // own identity (navy/sky/orange, Crimson Pro + Outfit) rather than UBP's
+  // navy/cream — see CompassScreen.jsx + src/constants/partnerBrands.js. The
+  // rest still hand off to coursecompass.ie directly, same as before.
+  { name: 'Course Compass',         icon: Compass,       url: 'https://coursecompass.ie/course-compass', screen: 'Compass', desc: 'Find the right CAO course for you' },
   { name: 'Subject Interest Test',  icon: Linkedin,      url: 'https://coursecompass.ie/subject-interest-test',   desc: 'Discover what subjects you excel in' },
   { name: 'Learning Style Test',    icon: GraduationCap, url: 'https://coursecompass.ie/learning-style-test',     desc: 'Understand how you learn best' },
   { name: 'PLC Compass',            icon: Map,           url: 'https://coursecompass.ie/plc-compass-test',        desc: 'Explore PLC pathway options' },
@@ -165,6 +169,34 @@ export default function FoundationScreen({ navigation }) {
       >
         <View style={styles.content}>
 
+          {/* "Your Library" archive shelf — Evidence Bank + My Outputs
+              promoted up here, above everything else, instead of the
+              Evidence Bank banner being the only entry point further down. */}
+          <View style={styles.shelfRow}>
+            <TouchableOpacity
+              style={styles.shelfCard}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('EvidenceBank')}
+            >
+              <View style={styles.shelfIcon}>
+                <Archive size={17} color={colors.navy} strokeWidth={1.7} />
+              </View>
+              <Text style={styles.shelfTitle}>Evidence Bank</Text>
+              <Text style={styles.shelfSub}>Your STAR stories, archived</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.shelfCard}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('MyOutputs')}
+            >
+              <View style={styles.shelfIcon}>
+                <FolderOpen size={17} color={colors.navy} strokeWidth={1.7} />
+              </View>
+              <Text style={styles.shelfTitle}>My Outputs</Text>
+              <Text style={styles.shelfSub}>Everything delivered to you</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Editorial confidence stats */}
           <View style={styles.foundationStatsGrid}>
             {FOUNDATION_STATS.map(({ stat, line }, i) => (
@@ -210,138 +242,160 @@ export default function FoundationScreen({ navigation }) {
             </View>
           </Card>
 
-          {/* Entry point for the shared evidence bank — Application Form
-              Assistance requires at least one story, and Interview
-              Preparation uses it too, so it's surfaced up front rather than
-              only discovered mid-form. */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('EvidenceBank')}
-            style={styles.evidenceBankBanner}
-            accessibilityRole="button"
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.evidenceBankTitle}>Your Evidence Bank</Text>
-              <Text style={styles.evidenceBankSubtitle}>Real STAR stories that power Application Form Assistance and Interview Prep</Text>
-            </View>
-            <ChevronRight size={20} color={colors.navy} />
-          </TouchableOpacity>
+          {/* ── The Index — file cards, one per service, each a small
+              folder-tab index number + stacked-paper shadow + both price
+              tiers shown side by side. Tap to expand the full description
+              and order CTA — same data and order flow as before, just
+              presented as an archive of files rather than a plain list. ── */}
+          <View style={styles.indexLabelWrap}>
+            <Text style={styles.servicesSubHeader}>The Index</Text>
+            <Text style={styles.indexHeadline}>Eight services, one library</Text>
+          </View>
+          <View style={{ gap: 22 }}>
+            {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, originalStd, trialStd, originalPrem, trialPrem, color }, i) => {
+              const expanded = selected === title
+              const rotation = i % 2 === 0 ? (i % 4 === 0 ? 1.1 : 0.9) : (i % 4 === 1 ? -1 : -1.2)
+              return (
+                <TouchableOpacity
+                  key={title}
+                  activeOpacity={0.9}
+                  onPress={() => setSelected(expanded ? null : title)}
+                >
+                  <View style={styles.fileCardWrap}>
+                    {/* Stacked-paper shadow card behind the real one */}
+                    <View style={[styles.fileCardBehind, { transform: [{ rotate: `${rotation}deg` }] }]} />
+                    <View style={[styles.fileCard, expanded && styles.fileCardActive]}>
+                      <View style={styles.fileTab}>
+                        <Text style={styles.fileTabText}>N°{String(i + 1).padStart(2, '0')}</Text>
+                      </View>
+                      <View style={styles.fiftyBadge}>
+                        <Text style={styles.fiftyBadgeText}>50% OFF</Text>
+                      </View>
 
-          <Text style={styles.servicesSubHeader}>Career Services</Text>
-          <View style={{ gap: 14 }}>
-            {CAREER_SERVICES.map(({ icon: Icon, title, tagline, description, originalStd, trialStd, originalPrem, trialPrem, color }) => (
-              <TouchableOpacity
-                key={title}
-                activeOpacity={0.88}
-                onPress={() => setSelected(selected === title ? null : title)}
-              >
-                <Card style={[styles.serviceCard, selected === title && styles.serviceCardActive]}>
-                  <View style={styles.fiftyBadge}>
-                    <Text style={styles.fiftyBadgeText}>50% OFF</Text>
-                  </View>
-                  <View style={styles.serviceCardTop}>
-                    <View style={[styles.serviceIcon, { backgroundColor: color }]}>
-                      <Icon size={20} color={colors.navy} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.serviceTitle}>{title}</Text>
-                      {tagline ? <Text style={styles.serviceTagline}>{tagline}</Text> : null}
-                    </View>
-                    <ChevronRight
-                      size={16} color={colors.light}
-                      style={{ transform: [{ rotate: selected === title ? '90deg' : '0deg' }] }}
-                    />
-                  </View>
-                  {selected === title && (
-                    <View style={styles.serviceExpanded}>
-                      <Text style={styles.serviceDesc}>{description}</Text>
-                      <View style={styles.pricingRow}>
-                        <View style={styles.priceBox}>
-                          <Text style={styles.priceBoxLabel}>Standard</Text>
-                          <View style={styles.priceStack}>
-                            <Text style={styles.priceOriginal}>{originalStd}</Text>
-                            <Text style={styles.priceTrial}>{trialStd}</Text>
-                          </View>
-                          <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
+                      <View style={styles.fileHeadRow}>
+                        <View style={[styles.serviceIcon, { backgroundColor: color }]}>
+                          <Icon size={18} color={colors.navy} />
                         </View>
-                        <View style={[styles.priceBox, styles.priceBoxPremium]}>
-                          <Text style={[styles.priceBoxLabel, { color: colors.cream }]}>Premium</Text>
-                          <View style={styles.priceStack}>
-                            <Text style={[styles.priceOriginal, { color: 'rgba(245,240,232,0.5)' }]}>{originalPrem}</Text>
-                            <Text style={[styles.priceTrial, { color: colors.cream }]}>{trialPrem}</Text>
-                          </View>
-                          <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
-                            {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
-                          </Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.fileTitle}>{title}</Text>
+                          {tagline ? <Text style={styles.fileTagline}>{tagline}</Text> : null}
+                        </View>
+                        <ChevronRight
+                          size={15} color={colors.light}
+                          style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
+                        />
+                      </View>
+
+                      {/* Both tiers, always visible, side by side */}
+                      <View style={styles.fileTierRow}>
+                        <View style={styles.tierTile}>
+                          <Text style={styles.tierPrice}>{trialStd}</Text>
+                          <Text style={styles.tierLabel}>Standard</Text>
+                        </View>
+                        <View style={[styles.tierTile, styles.tierTilePremium]}>
+                          <Text style={[styles.tierPrice, styles.tierPricePremium]}>{trialPrem}</Text>
+                          <Text style={[styles.tierLabel, styles.tierLabelPremium]}>Premium</Text>
                         </View>
                       </View>
-                      <Text style={styles.trialNote}>* September trial prices, 50% off standard rates</Text>
-                      <TouchableOpacity
-                        style={styles.orderBtn}
-                        activeOpacity={0.8}
-                        onPress={() => {
-                          // All 8 Foundation Blueprint services now have a real
-                          // in-app intake, on the CV Optimisation reference
-                          // pattern (QuestionFlow + Edge Function + Campus
-                          // Handler review). Mailto is kept only as a fallback
-                          // for any future service added before its builder
-                          // screen exists.
-                          const BUILDER_SCREEN_BY_TITLE = {
-                            'CV Optimisation': 'CvBuilder',
-                            'LinkedIn Optimisation': 'LinkedinBuilder',
-                            'Cover Letter Assistance': 'CoverLetterBuilder',
-                            'Application Form Assistance': 'ApplicationFormBuilder',
-                            'Interview Preparation': 'InterviewPrepBuilder',
-                            'Personal Statement': 'PersonalStatementBuilder',
-                            'Portfolio Building': 'PortfolioPlanBuilder',
-                            'Job Search Support': 'JobSearchSupportBuilder',
-                          }
-                          const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
-                          if (builderScreen) {
-                            navigation.navigate(builderScreen)
-                            return
-                          }
-                          Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
-                        }}
-                      >
-                        <Text style={styles.orderBtnText}>Order {title} →</Text>
-                      </TouchableOpacity>
+
+                      {expanded && (
+                        <View style={styles.serviceExpanded}>
+                          <Text style={styles.serviceDesc}>{description}</Text>
+                          <View style={styles.pricingRow}>
+                            <View style={styles.priceBox}>
+                              <Text style={styles.priceBoxLabel}>Standard</Text>
+                              <View style={styles.priceStack}>
+                                <Text style={styles.priceOriginal}>{originalStd}</Text>
+                                <Text style={styles.priceTrial}>{trialStd}</Text>
+                              </View>
+                              <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
+                            </View>
+                            <View style={[styles.priceBox, styles.priceBoxPremium]}>
+                              <Text style={[styles.priceBoxLabel, { color: colors.cream }]}>Premium</Text>
+                              <View style={styles.priceStack}>
+                                <Text style={[styles.priceOriginal, { color: 'rgba(245,240,232,0.5)' }]}>{originalPrem}</Text>
+                                <Text style={[styles.priceTrial, { color: colors.cream }]}>{trialPrem}</Text>
+                              </View>
+                              <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
+                                {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text style={styles.trialNote}>* September trial prices, 50% off standard rates</Text>
+                          <TouchableOpacity
+                            style={styles.orderBtn}
+                            activeOpacity={0.8}
+                            onPress={() => {
+                              // All 8 Foundation Blueprint services now have a real
+                              // in-app intake, on the CV Optimisation reference
+                              // pattern (QuestionFlow + Edge Function + Campus
+                              // Handler review). Mailto is kept only as a fallback
+                              // for any future service added before its builder
+                              // screen exists.
+                              const BUILDER_SCREEN_BY_TITLE = {
+                                'CV Optimisation': 'CvBuilder',
+                                'LinkedIn Optimisation': 'LinkedinBuilder',
+                                'Cover Letter Assistance': 'CoverLetterBuilder',
+                                'Application Form Assistance': 'ApplicationFormBuilder',
+                                'Interview Preparation': 'InterviewPrepBuilder',
+                                'Personal Statement': 'PersonalStatementBuilder',
+                                'Portfolio Building': 'PortfolioPlanBuilder',
+                                'Job Search Support': 'JobSearchSupportBuilder',
+                              }
+                              const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
+                              if (builderScreen) {
+                                navigation.navigate(builderScreen)
+                                return
+                              }
+                              Linking.openURL(`mailto:uniblueprintoperations@gmail.com?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
+                            }}
+                          >
+                            <Text style={styles.orderBtnText}>Order {title} →</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
                     </View>
-                  )}
-                </Card>
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          {/* ── Reference Desk — same premium file-card treatment as the
+              index above (white card, border, shadow, icon tile), not the
+              old muted/flat tool-row list. Course Compass opens in-app,
+              branded in CourseCompass's own identity; the rest hand off to
+              coursecompass.ie directly. ── */}
+          <View style={[styles.indexLabelWrap, { marginTop: spacing.xl }]}>
+            <Text style={styles.servicesSubHeader}>The Reference Desk</Text>
+            <Text style={styles.indexHeadline}>Powered by our partner, CourseCompass</Text>
+          </View>
+          <View style={{ gap: 10 }}>
+            {CC_TOOLS.map(({ name, icon: Icon, url, desc, screen }) => (
+              <TouchableOpacity
+                key={name}
+                style={styles.deskCard}
+                activeOpacity={0.85}
+                onPress={() => (screen ? navigation.navigate(screen) : Linking.openURL(url))}
+              >
+                <View style={styles.deskIcon}>
+                  <Icon size={18} color={colors.navy} strokeWidth={1.7} />
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={styles.deskTitle}>{name}</Text>
+                  <Text style={styles.deskSub} numberOfLines={1}>{desc}</Text>
+                </View>
+                {screen
+                  ? <ChevronRight size={15} color={colors.navy} strokeWidth={2} />
+                  : <ExternalLink size={13} color={colors.muted} />}
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={[styles.servicesSubHeader, { marginTop: spacing.xl }]}>CAO & College Applications</Text>
-          <Card style={styles.ccCard}>
-            <View style={styles.ccCardHeader}>
-              <Compass size={22} color={colors.navy} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.ccCardTitle}>Powered by CourseCompass</Text>
-                <Text style={styles.ccCardSub}>AI-powered CAO course matching for young people across Ireland</Text>
-              </View>
-            </View>
-            <Text style={styles.ccCardDesc}>
-              CAO Personal Statements, College Interview Preparation, Scholarship Applications, and Course Selection Guidance are all handled in partnership with CourseCompass, Ireland's leading CAO platform.
-            </Text>
-            <View style={styles.ccToolGrid}>
-              {CC_TOOLS.map(({ name, icon: Icon, url, desc }) => (
-                <TouchableOpacity key={name} style={styles.ccTool} activeOpacity={0.8} onPress={() => Linking.openURL(url)}>
-                  <View style={styles.ccToolIcon}><Icon size={16} color={colors.navy} /></View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.ccToolName}>{name}</Text>
-                    <Text style={styles.ccToolDesc} numberOfLines={1}>{desc}</Text>
-                  </View>
-                  <ExternalLink size={12} color={colors.muted} />
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TouchableOpacity style={styles.ccVisitBtn} activeOpacity={0.8} onPress={() => Linking.openURL('https://coursecompass.ie/course-compass')}>
-              <Compass size={15} color={colors.cream} />
-              <Text style={styles.ccVisitBtnText}>Visit Course Compass →</Text>
-            </TouchableOpacity>
-          </Card>
+          <TouchableOpacity style={[styles.ccVisitBtn, { marginTop: 4 }]} activeOpacity={0.8} onPress={() => Linking.openURL('https://coursecompass.ie/course-compass')}>
+            <Compass size={15} color={colors.cream} />
+            <Text style={styles.ccVisitBtnText}>Visit Course Compass →</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.primaryBtn}
@@ -413,15 +467,17 @@ const styles = StyleSheet.create({
   trialBanner:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.navy, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, marginTop: 14 },
   trialBannerText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
 
-  servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 12 },
+  servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 3 },
 
-  evidenceBankBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderRadius: radius.card, padding: 16, marginTop: spacing.lg,
-    borderWidth: 1, borderColor: colors.border,
+  // Archive shelf — Evidence Bank + My Outputs
+  shelfRow: { flexDirection: 'row', gap: 12, marginBottom: 10 },
+  shelfCard: {
+    flex: 1, backgroundColor: colors.white, borderRadius: radius.card, padding: 16,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card,
   },
-  evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
+  shelfIcon: { width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  shelfTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy },
+  shelfSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3, lineHeight: 15 },
 
   whyCard: { marginTop: spacing.lg, padding: 18 },
   whyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy },
@@ -429,15 +485,44 @@ const styles = StyleSheet.create({
   whyDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.navy, marginTop: 7, flexShrink: 0 },
   whyText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19 },
 
-  // Service cards
-  serviceCard:       { padding: 16 },
-  serviceCardActive: { borderWidth: 1.5, borderColor: colors.navy },
+  // "The Index" file cards — stacked-paper, folder-tab index number
+  indexLabelWrap: { marginBottom: 14 },
+  indexHeadline: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginTop: 1 },
+
+  fileCardWrap: { position: 'relative' },
+  fileCardBehind: {
+    position: 'absolute', top: 7, left: 8, right: -8, bottom: -7,
+    backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.06)',
+    borderRadius: radius.card,
+  },
+  fileCard: {
+    position: 'relative', backgroundColor: colors.white,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', borderRadius: radius.card,
+    padding: 16, paddingTop: 18, ...shadows.card,
+  },
+  fileCardActive: { borderWidth: 1.5, borderColor: colors.navy },
+  fileTab: {
+    position: 'absolute', top: -9, left: 16,
+    backgroundColor: colors.navy, borderRadius: 5,
+    paddingHorizontal: 9, paddingVertical: 3,
+  },
+  fileTabText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.cream, letterSpacing: 0.4 },
   fiftyBadge:        { position: 'absolute', top: -9, right: 14, backgroundColor: colors.navy, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3, ...shadows.card },
   fiftyBadgeText:    { fontFamily: fonts.sansSemiBold, fontSize: 9, color: colors.cream, letterSpacing: 0.3 },
-  serviceCardTop:    { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
-  serviceIcon:       { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  serviceTitle:      { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.navy },
-  serviceTagline:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, fontStyle: 'italic', lineHeight: 17 },
+  fileHeadRow:       { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: 6 },
+  serviceIcon:       { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  fileTitle:         { fontFamily: fonts.serif, fontSize: 17, color: colors.navy },
+  fileTagline:       { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
+
+  // Side-by-side price tiles — always visible, not stacked/expanded-only
+  fileTierRow: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  tierTile: { flex: 1, backgroundColor: colors.cream, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center' },
+  tierTilePremium: { backgroundColor: 'rgba(201,162,75,0.12)', borderWidth: 1, borderColor: 'rgba(201,162,75,0.4)' },
+  tierPrice: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
+  tierPricePremium: { color: '#A5813B' },
+  tierLabel: { fontFamily: fonts.sansSemiBold, fontSize: 8.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 },
+  tierLabelPremium: { color: '#A5813B' },
+
   serviceExpanded:   { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
   serviceDesc:       { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 14 },
 
@@ -454,18 +539,16 @@ const styles = StyleSheet.create({
   orderBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 44, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
   orderBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 
-  // Course Compass
-  ccCard:       { padding: 18, marginBottom: 4 },
-  ccCardHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
-  ccCardTitle:  { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  ccCardSub:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
-  ccCardDesc:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 16 },
-  ccToolGrid:   { gap: 10, marginBottom: 16 },
-  ccTool:       { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.cream, borderRadius: radius.button, padding: 12 },
-  ccToolIcon:   { width: 32, height: 32, borderRadius: 8, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
-  ccToolName:   { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  ccToolDesc:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
-  ccVisitBtn:   { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  // Reference Desk — same premium card treatment as the file index above
+  deskCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    borderRadius: radius.card, padding: 14, ...shadows.card,
+  },
+  deskIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  deskTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
+  deskSub: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.muted, marginTop: 1 },
+  ccVisitBtn:   { backgroundColor: colors.navy, borderRadius: radius.button, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14 },
   ccVisitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.cream },
 
   primaryBtn:     { backgroundColor: colors.navy, borderRadius: radius.button, height: 54, alignItems: 'center', justifyContent: 'center', marginTop: spacing.lg },

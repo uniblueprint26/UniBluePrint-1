@@ -13,13 +13,14 @@
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronLeft, ChevronRight, ExternalLink,
+  ChevronRight, ExternalLink,
   Compass, Wrench, GraduationCap, BookOpen,
   Lightbulb, Globe, FileText, MessageSquare, Star,
 } from 'lucide-react-native'
 
-import UBPLogo    from '../components/ui/UBPLogo'
-import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import PartnerBrandedHeader from '../components/partners/PartnerBrandedHeader'
+import { COURSE_COMPASS as brand } from '../constants/partnerBrands'
+import { spacing, radius } from '../constants/theme'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 // All tool names, descriptions, and URLs verified against coursecompass.ie.
@@ -117,7 +118,7 @@ function ToolCard({ tool }) {
       {/* Top row: icon + label */}
       <View style={s.toolTopRow}>
         <View style={[s.toolIconBox, { backgroundColor: tool.color }]}>
-          <tool.Icon size={20} color={colors.navy} strokeWidth={1.8} />
+          <tool.Icon size={20} color={brand.navy} strokeWidth={1.8} />
         </View>
         <Text style={s.toolLabel}>{tool.label}</Text>
       </View>
@@ -130,51 +131,32 @@ function ToolCard({ tool }) {
 
       {/* CTA */}
       <TouchableOpacity style={s.toolCta} onPress={open} activeOpacity={0.8}>
-        <ExternalLink size={13} color={colors.cream} strokeWidth={2} />
+        <ExternalLink size={13} color={brand.white} strokeWidth={2} />
         <Text style={s.toolCtaText}>Open on CourseCompass</Text>
-        <ChevronRight size={13} color={colors.cream} />
+        <ChevronRight size={13} color={brand.white} />
       </TouchableOpacity>
     </View>
   )
 }
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
+// Branded in CourseCompass's own identity (navy + sky-blue + orange, Crimson
+// Pro / Outfit), not UniBlueprint's navy/cream — see src/constants/partnerBrands.js
+// for why, and PartnerBrandedHeader for the reusable half of the pattern.
 
 export default function CompassScreen({ navigation }) {
   const insets = useSafeAreaInsets()
 
   return (
     <View style={s.screen}>
-
-      {/* ── Integrated header + hero ── */}
-      <View style={[s.heroBlock, { paddingTop: insets.top + 8 }]}>
-        <View style={s.navRow}>
-          <TouchableOpacity
-            style={s.backBtn}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={20} color={colors.cream} strokeWidth={2} />
-            <Text style={s.backBtnText}>Home</Text>
-          </TouchableOpacity>
-          <UBPLogo height={30} color={colors.cream} />
-          <View style={{ width: 70 }} />
-        </View>
-
-        <Text style={s.heroEyebrow}>COURSE COMPASS</Text>
-        <Text style={s.heroTitle}>Find Your Ideal Path</Text>
-        <Text style={s.heroSub}>
-          AI-powered course and career matching for every young person in Ireland. Match to CAO courses, PLCs, and apprenticeships based on who you are, not just your predicted points.
-        </Text>
-
-        {/* Partnership attribution */}
-        <View style={s.attrRow}>
-          <View style={s.attrDot} />
-          <Text style={s.attrText}>
-            An independent platform by Stephen McKeon, integrated in partnership with UniBlueprint
-          </Text>
-        </View>
-      </View>
+      <PartnerBrandedHeader
+        brand={brand}
+        insetTop={insets.top}
+        onBack={() => navigation.goBack()}
+        eyebrow="Course Compass"
+        title="Find Your Ideal Path"
+        sub={brand.tagline}
+      />
 
       {/* ── Scrollable content ── */}
       <ScrollView
@@ -191,7 +173,7 @@ export default function CompassScreen({ navigation }) {
           >
             <View style={s.bundleTop}>
               <View style={s.bundleIconBox}>
-                <Star size={18} color={colors.navy} strokeWidth={2} />
+                <Star size={18} color={brand.navy} strokeWidth={2} />
               </View>
               <View style={s.bundlePricePill}>
                 <Text style={s.bundlePriceText}>{BUNDLE.price}</Text>
@@ -203,7 +185,7 @@ export default function CompassScreen({ navigation }) {
 
             <View style={s.bundleCta}>
               <Text style={s.bundleCtaText}>Get the Bundle</Text>
-              <ChevronRight size={14} color={colors.navy} />
+              <ChevronRight size={14} color={brand.white} />
             </View>
           </TouchableOpacity>
 
@@ -233,105 +215,61 @@ export default function CompassScreen({ navigation }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-
-  // Hero
-  heroBlock: {
-    backgroundColor: colors.navy,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl + spacing.sm,
-  },
-  navRow: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', marginBottom: spacing.lg,
-  },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingVertical: 6, paddingRight: 10,
-  },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.cream },
-  heroEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
-  },
-  heroTitle: {
-    fontFamily: fonts.serif, fontSize: 30, color: colors.cream, lineHeight: 38, marginBottom: 10,
-  },
-  heroSub: {
-    fontFamily: fonts.sans, fontSize: 14,
-    color: 'rgba(245,240,232,0.72)', lineHeight: 22,
-  },
-
-  // Attribution
-  attrRow: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
-    marginTop: spacing.md,
-    paddingTop: spacing.sm + 2,
-    borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.12)',
-  },
-  attrDot: {
-    width: 5, height: 5, borderRadius: 99,
-    backgroundColor: 'rgba(245,240,232,0.35)',
-    marginTop: 5, flexShrink: 0,
-  },
-  attrText: {
-    fontFamily: fonts.sans, fontSize: 11,
-    color: 'rgba(245,240,232,0.45)', lineHeight: 16, flex: 1,
-  },
+  // CourseCompass's own cream, not UniBlueprint's — see partnerBrands.js.
+  screen: { flex: 1, backgroundColor: brand.cream },
 
   // Scroll content
   scroll: {},
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
 
-  // Bundle card (cream bg, navy accent, inverted from the tool cards)
+  // Bundle card — CourseCompass navy border/accent, their fonts
   bundleCard: {
-    backgroundColor: colors.cream,
+    backgroundColor: brand.cream,
     borderRadius: radius.card,
-    borderWidth: 2, borderColor: colors.navy,
+    borderWidth: 2, borderColor: brand.navy,
     padding: 18,
     marginBottom: spacing.xl,
-    ...shadows.card,
   },
   bundleTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
   bundleIconBox: {
     width: 40, height: 40, borderRadius: 10,
-    backgroundColor: colors.white,
+    backgroundColor: brand.white,
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)',
   },
   bundlePricePill: {
-    backgroundColor: colors.navy, borderRadius: radius.pill,
+    backgroundColor: brand.orange, borderRadius: radius.pill,
     paddingHorizontal: 12, paddingVertical: 5,
   },
-  bundlePriceText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  bundlePriceText: { fontFamily: brand.fonts.bodySemiBold, fontSize: 13, color: brand.navy },
   bundleName: {
-    fontFamily: fonts.serif, fontSize: 22, color: colors.navy, marginBottom: 8,
+    fontFamily: brand.fonts.headingBold, fontSize: 22, color: brand.navy, marginBottom: 8,
   },
   bundleIncludes: {
-    fontFamily: fonts.sans, fontSize: 12, color: colors.muted, lineHeight: 18, marginBottom: 16,
+    fontFamily: brand.fonts.body, fontSize: 12, color: brand.muted, lineHeight: 18, marginBottom: 16,
   },
   bundleCta: {
     flexDirection: 'row', alignItems: 'center',
     alignSelf: 'flex-start', gap: 4,
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: brand.navy, borderRadius: radius.button,
     paddingHorizontal: 16, paddingVertical: 10,
   },
-  bundleCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  bundleCtaText: { fontFamily: brand.fonts.bodySemiBold, fontSize: 13, color: brand.white },
 
   // Tools section header
   toolsHeader: { marginBottom: spacing.md },
   toolsEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4,
+    fontFamily: brand.fonts.bodySemiBold, fontSize: 11,
+    color: brand.sky, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4,
   },
-  toolsTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.navy },
+  toolsTitle: { fontFamily: brand.fonts.headingBold, fontSize: 24, color: brand.navy },
 
   // Individual tool card
   toolCard: {
-    backgroundColor: colors.white,
+    backgroundColor: brand.white,
     borderRadius: radius.card,
     padding: 16,
-    ...shadows.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
   },
   toolTopRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12,
@@ -341,24 +279,24 @@ const s = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   toolLabel: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10,
-    color: colors.muted, letterSpacing: 0.8,
+    fontFamily: brand.fonts.bodySemiBold, fontSize: 10,
+    color: brand.muted, letterSpacing: 0.8,
   },
   toolHeadline: {
-    fontFamily: fonts.serif, fontSize: 18, color: colors.navy,
+    fontFamily: brand.fonts.headingSemi, fontSize: 18, color: brand.navy,
     lineHeight: 24, marginBottom: 6,
   },
   toolSub: {
-    fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
+    fontFamily: brand.fonts.body, fontSize: 13, color: brand.muted,
     lineHeight: 19, marginBottom: 14,
   },
   toolCta: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.navy, borderRadius: radius.button,
+    backgroundColor: brand.sky, borderRadius: radius.button,
     paddingHorizontal: 14, paddingVertical: 9,
     alignSelf: 'flex-end',
   },
-  toolCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+  toolCtaText: { fontFamily: brand.fonts.bodySemiBold, fontSize: 13, color: brand.white },
 
   // Footer note
   footerNote: {
@@ -367,7 +305,7 @@ const s = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
   },
   footerNoteText: {
-    fontFamily: fonts.sans, fontSize: 11, color: colors.light,
+    fontFamily: brand.fonts.body, fontSize: 11, color: brand.muted,
     lineHeight: 17, textAlign: 'center',
   },
 })
