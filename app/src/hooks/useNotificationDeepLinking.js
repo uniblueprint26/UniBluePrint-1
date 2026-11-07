@@ -23,12 +23,34 @@
  * useNotificationDeepLinking() // call once near the app's root, no return value
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
 import { navigationRef } from '../navigation/navigationRef'
+
+// expo-notifications' own useLastNotificationResponse() calls the native
+// getLastNotificationResponse() synchronously inside a useLayoutEffect
+// (node_modules/expo-notifications/build/useLastNotificationResponse.js) —
+// on web that throws UnavailabilityError straight out of the effect, past
+// any try/catch, taking down the whole app (only the top-level
+// ErrorBoundary ever caught it — this is the "app just closes"/white-screen
+// report reproduced on web). An OS notification tap is a native-only
+// concept anyway (there's nothing to deep-link from on web), so this
+// mirrors the upstream hook's shape but skips the native-only calls there.
+function useLastNotificationResponseSafe() {
+  const [response, setResponse] = useState(undefined)
+  useLayoutEffect(() => {
+    if (Platform.OS === 'web') { setResponse(null); return }
+    setResponse(Notifications.getLastNotificationResponse() ?? null)
+    const subscription = Notifications.addNotificationResponseReceivedListener(r => setResponse(r))
+    const clearSub = Notifications.addNotificationResponseClearedListener(() => setResponse(null))
+    return () => { subscription.remove(); clearSub.remove() }
+  }, [])
+  return response
+}
 
 // navigationRef is attached to the app's single <NavigationContainer> (see
 // App.jsx) which is always already mounted above AppShell — but on a true
@@ -51,7 +73,7 @@ function waitForNavigationReady(maxAttempts = 20) {
 export function useNotificationDeepLinking() {
   const { user } = useAuth()
   const userId = user?.id
-  const lastNotificationResponse = Notifications.useLastNotificationResponse()
+  const lastNotificationResponse = useLastNotificationResponseSafe()
   // Dedupes within this mount — `lastNotificationResponse` is a stable
   // reference until a genuinely new tap arrives (see expo-notifications'
   // own determineNextResponse), but guarding on the notification's own id
