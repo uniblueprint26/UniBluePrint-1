@@ -160,6 +160,7 @@ export const PARTNERS = [
     description: 'LEVA Impact is a freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, from content creation and UGC coordination to AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
     services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
     howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
+    website: 'https://alexleva.myportfolio.com/home-page',
     contact: { instagram: 'leva.impact', tiktok: 'leva.media', phone: '0899662635', email: 'levaalex13@gmail.com', website: 'https://alexleva.myportfolio.com/home-page' },
     crossLink: { label: "Also a UniBlueprint Uni Coach, see Alex's Digital Marketing profile", coachId: 10 },
   },
@@ -218,6 +219,7 @@ export const PARTNERS = [
     status: 'live',
     description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures — bold graphics, unique silhouettes, and experimental details. Building a new visual identity for Irish fashion rooted in creativity, individuality, and self-expression.',
     howToStart: 'DM @saiemsent on Instagram or visit saiemsent.ie.',
+    website: 'https://saiemsent.ie',
     contact: { instagram: 'saiemsent', tiktok: 'saiemsent', website: 'https://saiemsent.ie' },
   },
   {
@@ -302,6 +304,7 @@ export const PARTNERS = [
       { label: 'Priority Request',  price: '€5' },
     ],
     howToStart: 'Visit roomy.ie or DM @Roomy.ie on Instagram.',
+    website: 'https://roomy.ie',
     contact: { instagram: 'Roomy.ie', phone: '+353899809654', email: 'admin@roomy.ie', website: 'https://roomy.ie' },
   },
   {
@@ -391,6 +394,7 @@ export const PARTNERS = [
     services: ['Website Design & Development', 'Website Redesigns', 'E-commerce Design', 'UI/UX Design', 'Logo Design', 'Brand Identity & Visual Branding', 'Brand Style Guides', 'Website Maintenance'],
     pricingNote: 'Pricing upon enquiry — each project is quoted based on scope, requirements, and needs.',
     howToStart: 'Book a call at calendly.com/oedesignns or DM @poiema_dexigns on Instagram.',
+    website: 'https://www.olaoluwaesho.com/',
     contact: { instagram: 'poiema_dexigns', email: 'oedesignns@gmail.com', phone: '+353834801235', website: 'https://www.olaoluwaesho.com/' },
   },
   {
@@ -467,6 +471,7 @@ export const PARTNERS = [
     pricingNote: 'Pricing and full services list available on the studio website.',
     hours: 'Mon–Fri 10am–7pm · Sat 11am–6pm · Closed Sundays',
     howToStart: 'Book through the main website, or contact by phone or email.',
+    website: 'https://www.coded69studios.com',
     contact: { instagram: 'coded69studios', phone: '0897011898', email: 'info@coded69studios.com', website: 'https://www.coded69studios.com' },
   },
 
@@ -521,6 +526,21 @@ export const PARTNERS = [
   { id: 'dylanpower',   brand: 'Dylan Power',             initials: 'DP', initBg: '#374151', filterKey: 'services', county: 'Cork', category: 'Sports Photographer · Cork', status: 'shell' },
 ]
 
+// ─── Shuffle helpers ──────────────────────────────────────────────────────────
+// Real, per-load randomisation for "The Collection" — previously PARTNERS was
+// always shown in the same fixed array order every time. Fisher-Yates, run
+// once per module load (i.e. once per app session/cold start), not on every
+// render, so the order stays stable while someone is actually browsing but is
+// genuinely different the next time the app opens.
+function shuffle(array) {
+  const copy = [...array]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
 // Every county still without a named partner above gets one anonymous
 // "coming soon" pin on the map — one per county, in this fixed order, so the
 // map reads as full without pretending to know who's actually going there.
@@ -531,3 +551,9 @@ export const MYSTERY_MAP_COUNTIES = [
   'Meath', 'Wicklow', 'Carlow', 'Laois', 'Offaly', 'Westmeath', 'Longford',
   'Roscommon', 'Leitrim', 'Cavan', 'Monaghan', 'Donegal',
 ]
+
+// Live partners only, shuffled once per app session — this is what "The
+// Collection" grid (LifestyleScreen) reads instead of PARTNERS directly, so
+// the mix of deals/showcases genuinely differs load to load rather than
+// always opening on the same handful of brands at the top of the array.
+export const SHUFFLED_LIVE_PARTNERS = shuffle(PARTNERS.filter(p => p.status === 'live'))

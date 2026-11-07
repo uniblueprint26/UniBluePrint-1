@@ -6,6 +6,7 @@ import {
   Heart, PiggyBank, Tag, ShoppingBag, ChevronRight,
   ChevronDown, ChevronUp, Phone, Mail, AtSign, Link2, Lock,
   Dumbbell, Sparkles, UtensilsCrossed, Wrench, Map as MapIcon, List as ListIcon,
+  Compass, ExternalLink, Shuffle,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
@@ -14,12 +15,22 @@ import PartnerMap from '../components/ui/PartnerMap'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
 import { COACHES } from './ElevationScreen'
-import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
+import { PARTNERS, MYSTERY_MAP_COUNTIES, SHUFFLED_LIVE_PARTNERS } from '../data/lifestylePartners'
 
 // Re-exported so existing imports elsewhere in the app (FounderPortalScreen,
 // PartnerMap) keep working — the actual data now lives in one shared module
 // so this screen and the map component don't import each other.
 export { PARTNERS, MYSTERY_MAP_COUNTIES }
+
+// Collection category chips — a lighter-weight grouping than the full
+// Explore filter pills, just enough to shop the curated grid by feel.
+const COLLECTION_FILTERS = [
+  { key: 'all',     label: 'All' },
+  { key: 'deals',   label: 'Deals' },
+  { key: 'fashion', label: 'Fashion' },
+  { key: 'food',    label: 'Food' },
+  { key: 'fitness', label: 'Fitness' },
+]
 
 // ─── Filter Pills ────────────────────────────────────────────────────────────
 // Labels widened to actually cover everyone grouped under them: "Beauty"
@@ -346,11 +357,59 @@ function PartnerCard({ partner, navigation, autoOpen }) {
   )
 }
 
+// ─── Collection card — shop-listing treatment: a floating price/deal tag
+// overlapping the brand's colour tile (standing in for product photography,
+// which we don't have for these partners), category badge, and either a
+// real "Visit their page" outbound link when the partner has a website, or
+// a fallback into the full Explore listing (contact/DM flow) when they
+// don't. ──────────────────────────────────────────────────────────────────────
+function CollectionCard({ partner, onViewDetails }) {
+  const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
+  const hasWebsite = !!partner.website
+
+  return (
+    <TouchableOpacity
+      style={styles.collectionCard}
+      activeOpacity={0.88}
+      onPress={() => (hasWebsite ? Linking.openURL(partner.website) : onViewDetails(partner.id))}
+    >
+      <View style={[styles.collectionImage, { backgroundColor: partner.initBg }]}>
+        <Text style={styles.collectionImageInitials}>{partner.initials}</Text>
+        <View style={styles.collectionCategoryTag}>
+          <Text style={styles.collectionCategoryTagText} numberOfLines={1}>{partner.category}</Text>
+        </View>
+      </View>
+
+      {/* Floating tag card, overlapping the image above */}
+      <View style={styles.collectionInfoCard}>
+        <Text style={styles.collectionBrand} numberOfLines={1}>{partner.brand}</Text>
+        {partner.deal ? (
+          <View style={[styles.collectionDealPill, { backgroundColor: `${accent}1A` }]}>
+            <Text style={[styles.collectionDealPillText, { color: accent }]} numberOfLines={1}>{partner.deal}</Text>
+          </View>
+        ) : (
+          <View style={styles.collectionVisitRow}>
+            <Text style={styles.collectionVisitText}>{hasWebsite ? 'Visit their page' : 'View details'}</Text>
+            <ExternalLink size={9} color={colors.navy} strokeWidth={2.5} />
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  )
+}
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function LifestyleScreen({ navigation, route }) {
   const routeHighlightId = route?.params?.highlightId
   const [mapHighlightId, setMapHighlightId] = useState(null)
   const highlightId = mapHighlightId || routeHighlightId
+
+  // "The Collection" is the landing view; Explore/Wellbeing/Budgeting are a
+  // slim nav row above it, not equal-sized tiles. A deep link that targets a
+  // specific partner (e.g. a cross-link from a coach profile) still jumps
+  // straight into Explore with that partner open, same as before.
+  const [activeSection, setActiveSection] = useState(routeHighlightId ? 'explore' : 'collection')
+  const [collectionFilter, setCollectionFilter] = useState('all')
 
   const [activeFilter, setActiveFilter] = useState(() => {
     if (!routeHighlightId) return 'all'
@@ -374,11 +433,20 @@ export default function LifestyleScreen({ navigation, route }) {
         .filter(g => g.items.length > 0)
     : [{ key: activeFilter, items: liveVisible }]
 
+  // Collection grid — the shuffled live roster, filtered by its own lighter
+  // category chips. "Deals" means "has a real deal attached", not a filterKey.
+  const collectionVisible = SHUFFLED_LIVE_PARTNERS.filter(p => {
+    if (collectionFilter === 'all')   return true
+    if (collectionFilter === 'deals') return !!p.deal
+    return p.filterKey === collectionFilter
+  })
+
   function handleViewListing(id) {
     const target = PARTNERS.find(p => p.id === id)
     setMapHighlightId(id)
     setActiveFilter(target ? target.filterKey : 'all')
     setViewMode('list')
+    setActiveSection('explore')
   }
 
   return (
@@ -395,7 +463,71 @@ export default function LifestyleScreen({ navigation, route }) {
           </Text>
         </View>
 
-        {/* ── Partner Listings ─────────────────────────────────────────────── */}
+        {/* ── Slim nav row: Explore / Wellbeing / Budgeting ────────────────── */}
+        <View style={styles.navRow}>
+          {[
+            { key: 'explore',   label: 'Explore',   Icon: Compass },
+            { key: 'wellbeing', label: 'Wellbeing',  Icon: Heart },
+            { key: 'budgeting', label: 'Budgeting',  Icon: PiggyBank },
+          ].map(({ key, label, Icon }) => (
+            <TouchableOpacity
+              key={key}
+              style={[styles.navItem, activeSection === key && styles.navItemActive]}
+              activeOpacity={0.8}
+              onPress={() => setActiveSection(activeSection === key ? 'collection' : key)}
+            >
+              <Icon size={15} color={activeSection === key ? colors.cream : colors.navy} strokeWidth={1.7} />
+              <Text style={[styles.navItemText, activeSection === key && styles.navItemTextActive]}>{label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* ── The Collection — the landing content, shown whenever none of
+            the nav row items above are active. ──────────────────────────── */}
+        {activeSection === 'collection' && (
+          <View style={styles.section}>
+            <Text style={styles.collectionEyebrow}>CURATED BY UNIBLUEPRINT</Text>
+            <SectionHeader title="The Collection" style={{ marginTop: 2 }} />
+            <Text style={styles.collectionSub}>Real products from real partners. No checkout, just a direct line to claim it.</Text>
+            <View style={styles.shuffleRow}>
+              <Shuffle size={12} color={colors.light} strokeWidth={2} />
+              <Text style={styles.shuffleText}>Freshly shuffled — a new mix every visit</Text>
+            </View>
+
+            {/* Category filter chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filterScroll}
+              contentContainerStyle={styles.filterContent}
+            >
+              {COLLECTION_FILTERS.map(f => (
+                <TouchableOpacity
+                  key={f.key}
+                  style={[styles.filterPill, collectionFilter === f.key && styles.filterPillActive]}
+                  onPress={() => setCollectionFilter(f.key)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.filterPillText, collectionFilter === f.key && styles.filterPillTextActive]}>
+                    {f.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <View style={styles.collectionGrid}>
+              {collectionVisible.map(p => (
+                <CollectionCard key={p.id} partner={p} onViewDetails={handleViewListing} />
+              ))}
+            </View>
+            {collectionVisible.length === 0 && (
+              <Text style={styles.emptyText}>No partners in this category yet.</Text>
+            )}
+          </View>
+        )}
+
+        {/* ── Partner Listings (Explore) ────────────────────────────────── */}
+        {activeSection === 'explore' && (
         <View style={styles.section}>
           <SectionHeader eyebrow="Confirmed Partners" title="Partner Listings" />
 
@@ -482,8 +614,10 @@ export default function LifestyleScreen({ navigation, route }) {
             </>
           )}
         </View>
+        )}
 
         {/* ── Mental Health & Wellbeing ─────────────────────────────────────── */}
+        {activeSection === 'wellbeing' && (
         <View style={styles.section}>
           <SectionHeader eyebrow="Wellbeing" title="Mental Health & Support" />
 
@@ -538,8 +672,10 @@ export default function LifestyleScreen({ navigation, route }) {
             ))}
           </View>
         </View>
+        )}
 
         {/* ── Budgeting Tools ───────────────────────────────────────────────── */}
+        {activeSection === 'budgeting' && (
         <View style={styles.section}>
           <SectionHeader eyebrow="Money & Finance" title="Budgeting Tools" />
           <View style={styles.supportList}>
@@ -566,6 +702,7 @@ export default function LifestyleScreen({ navigation, route }) {
             </Text>
           </Card>
         </View>
+        )}
 
       </ScrollView>
     </View>
@@ -589,6 +726,48 @@ const styles = StyleSheet.create({
   heroSub:     { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', marginTop: 10, lineHeight: 22 },
 
   section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
+
+  // Slim nav row — Explore / Wellbeing / Budgeting, demoted from equal tiles
+  navRow: {
+    flexDirection: 'row', gap: 8,
+    paddingHorizontal: spacing.md, marginTop: spacing.md,
+  },
+  navItem: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: colors.white, borderRadius: radius.button, paddingVertical: 10,
+    borderWidth: 1, borderColor: colors.border,
+  },
+  navItemActive: { backgroundColor: colors.navy, borderColor: colors.navy },
+  navItemText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.navy },
+  navItemTextActive: { color: colors.cream },
+
+  // The Collection
+  collectionEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: '#A5813B', letterSpacing: 1.2, textTransform: 'uppercase' },
+  collectionSub: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 6, lineHeight: 18, maxWidth: 320 },
+  shuffleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, marginBottom: 2 },
+  shuffleText: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.light },
+
+  collectionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 4 },
+  collectionCard: { width: '47%' },
+  collectionImage: {
+    width: '100%', aspectRatio: 0.85, borderRadius: 14, overflow: 'hidden',
+    alignItems: 'center', justifyContent: 'center', ...shadows.card,
+  },
+  collectionImageInitials: { fontFamily: fonts.serif, fontSize: 30, color: 'rgba(255,255,255,0.85)' },
+  collectionCategoryTag: {
+    position: 'absolute', top: 9, left: 9, maxWidth: '80%',
+    backgroundColor: 'rgba(11,22,35,0.5)', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3,
+  },
+  collectionCategoryTagText: { fontFamily: fonts.sansMedium, fontSize: 8.5, color: colors.cream },
+  collectionInfoCard: {
+    marginTop: -16, marginHorizontal: 10, backgroundColor: colors.white,
+    borderRadius: 10, padding: 9, ...shadows.elevated,
+  },
+  collectionBrand: { fontFamily: fonts.sansBold, fontSize: 12.5, color: colors.navy },
+  collectionDealPill: { alignSelf: 'flex-start', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, marginTop: 5 },
+  collectionDealPillText: { fontFamily: fonts.sansBold, fontSize: 10 },
+  collectionVisitRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 5 },
+  collectionVisitText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.navy },
 
   // Filter pills
   filterScroll:  { marginHorizontal: -spacing.md, marginBottom: spacing.md },
