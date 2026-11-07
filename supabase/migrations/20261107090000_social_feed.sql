@@ -45,7 +45,7 @@ create table public.feed_posts (
   check (
     (post_type = 'thread' and mood is not null and body is not null and char_length(body) > 0 and photo_url is null)
     or
-    (post_type = 'post' and photo_url is not null)
+    (post_type = 'post' and photo_url is not null and mood is null)
   )
 );
 
