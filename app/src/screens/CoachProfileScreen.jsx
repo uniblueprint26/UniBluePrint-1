@@ -4,14 +4,47 @@ import {
   Image, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { BlurView } from 'expo-blur'
 import {
-  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star,
+  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star, Lock,
 } from 'lucide-react-native'
 import { colors, fonts, spacing, radius, shadows } from '../constants/theme'
+import { WEBSITE_LINKS } from '../constants/site'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
+
+// ── Pricing & booking lock, for free (non-Pro) users ────────────────────────
+// Everything ABOVE pricing (photos, bio, services, gallery) stays fully
+// visible to free users, same as before. This wraps just the pricing/booking
+// block: the real content renders underneath, visible but blurred (so a free
+// user can see there's real structure there, not just a placeholder), with a
+// lock card + "Unlock with Elevation Pro" CTA on top. Pro users see the exact
+// same children with no wrapper at all.
+function ProBlurLock({ isPro, children, onUnlock }) {
+  if (isPro) return children
+  return (
+    <View style={styles.lockWrap}>
+      <View pointerEvents="none" style={styles.lockContent}>
+        {children}
+      </View>
+      <BlurView intensity={28} tint="light" style={StyleSheet.absoluteFill} />
+      <View style={styles.lockOverlay}>
+        <View style={styles.lockIconCircle}>
+          <Lock size={19} color="#C9A24B" strokeWidth={2} />
+        </View>
+        <Text style={styles.lockTitle}>See the real pricing</Text>
+        <Text style={styles.lockBody}>
+          Pro members see exact rates and book directly with every coach on Elevation.
+        </Text>
+        <TouchableOpacity style={styles.lockCta} activeOpacity={0.85} onPress={onUnlock}>
+          <Text style={styles.lockCtaText}>Unlock with Elevation Pro</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
+}
 
 // ── Link helper ───────────────────────────────────────────────────────────────
 
@@ -286,7 +319,7 @@ const m = StyleSheet.create({
 
 export default function CoachProfileScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
+  const { user, isPro } = useAuth()
   const { coach: baseCoach } = route.params
 
   // Live self-edited bio/photo, if this coach has a linked coach_profiles
@@ -458,34 +491,49 @@ export default function CoachProfileScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* ── Pricelist ── */}
-        {coach.pricelist && (
+        {/* ── Pricing & Booking — fully visible to free users, but blurred
+            with a lock overlay over the real numbers and the booking CTA;
+            Pro members see it exactly as before, un-blurred. ── */}
+        {!coach.shell && (coach.pricelist || coach.pricingNote) && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Pricing</Text>
-            <View style={styles.pricelistCard}>
-              {coach.pricelist.map((p, i) => (
-                <View
-                  key={p.label}
-                  style={[
-                    styles.pricelistRow,
-                    i < coach.pricelist.length - 1 && styles.pricelistDivider,
-                  ]}
+            <Text style={styles.sectionLabel}>Pricing &amp; Booking</Text>
+            <ProBlurLock isPro={isPro} onUnlock={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
+              <View>
+                {coach.pricelist && (
+                  <View style={styles.pricelistCard}>
+                    {coach.pricelist.map((p, i) => (
+                      <View
+                        key={p.label}
+                        style={[
+                          styles.pricelistRow,
+                          i < coach.pricelist.length - 1 && styles.pricelistDivider,
+                        ]}
+                      >
+                        <Text style={styles.pricelistLabel}>{p.label}</Text>
+                        <Text style={styles.pricelistPrice}>{p.price}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+                {coach.pricingNote && (
+                  <View style={styles.noteCard}>
+                    <Text style={styles.noteText}>{coach.pricingNote}</Text>
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={[styles.ctaBtn, { marginHorizontal: 0, marginTop: 14 }]}
+                  activeOpacity={0.8}
+                  onPress={() => setEnquiryOpen(true)}
                 >
-                  <Text style={styles.pricelistLabel}>{p.label}</Text>
-                  <Text style={styles.pricelistPrice}>{p.price}</Text>
-                </View>
-              ))}
-            </View>
-            {coach.pricingNote && (
-              <View style={styles.noteCard}>
-                <Text style={styles.noteText}>{coach.pricingNote}</Text>
+                  <Text style={styles.ctaBtnText}>Book / Enquire</Text>
+                </TouchableOpacity>
               </View>
-            )}
+            </ProBlurLock>
           </View>
         )}
 
-        {/* ── Pricing note (no pricelist) ── */}
-        {!coach.pricelist && coach.pricingNote && (
+        {/* Shell coaches (not yet onboarded) have no real pricing to gate */}
+        {coach.shell && coach.pricingNote && (
           <View style={styles.section}>
             <View style={styles.noteCard}>
               <Text style={styles.noteText}>{coach.pricingNote}</Text>
@@ -611,15 +659,21 @@ export default function CoachProfileScreen({ route, navigation }) {
         )}
 
         {/* ── CTA ── */}
+        {/* The primary "Book / Enquire" button already lives inside the
+            Pricing & Booking lock above for any coach with a pricelist or
+            pricingNote; it only needs repeating here for a coach with
+            neither (no pricing to gate, so nothing to blur-lock). */}
         {!coach.shell && (
           <View style={{ gap: 10 }}>
-            <TouchableOpacity
-              style={styles.ctaBtn}
-              activeOpacity={0.8}
-              onPress={() => setEnquiryOpen(true)}
-            >
-              <Text style={styles.ctaBtnText}>Book / Enquire</Text>
-            </TouchableOpacity>
+            {!coach.pricelist && !coach.pricingNote && (
+              <TouchableOpacity
+                style={styles.ctaBtn}
+                activeOpacity={0.8}
+                onPress={() => setEnquiryOpen(true)}
+              >
+                <Text style={styles.ctaBtnText}>Book / Enquire</Text>
+              </TouchableOpacity>
+            )}
             {coach.contact && (
               <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={handleEnquire}>
                 <Text style={styles.ctaSecondaryBtnText}>Or contact directly</Text>
@@ -825,4 +879,26 @@ const styles = StyleSheet.create({
   },
   ratedBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.navy },
   avatarImg: { width: 84, height: 84, borderRadius: 42 },
+
+  // Pricing & booking blur-lock (free users)
+  lockWrap: { position: 'relative', borderRadius: 14, overflow: 'hidden' },
+  lockContent: { opacity: 0.9 },
+  lockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(245,240,232,0.55)',
+    alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 20, paddingVertical: 24,
+  },
+  lockIconCircle: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: colors.navy,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+    shadowColor: colors.navy, shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: 4 }, elevation: 4,
+  },
+  lockTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.navy, marginBottom: 4, textAlign: 'center' },
+  lockBody: {
+    fontFamily: fonts.sans, fontSize: 12, color: colors.navy, opacity: 0.75,
+    textAlign: 'center', lineHeight: 17, marginBottom: 16, maxWidth: 260,
+  },
+  lockCta: { backgroundColor: '#C9A24B', borderRadius: 22, paddingHorizontal: 26, paddingVertical: 12 },
+  lockCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy },
 })
