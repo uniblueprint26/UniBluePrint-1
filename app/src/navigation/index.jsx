@@ -28,6 +28,7 @@ import ProfileScreen       from '../screens/ProfileScreen'
 import NotificationsScreen  from '../screens/NotificationsScreen'
 import CoachProfileScreen   from '../screens/CoachProfileScreen'
 import ChatRoomScreen       from '../screens/ChatRoomScreen'
+import ComposerScreen       from '../screens/ComposerScreen'
 
 // Foundation Blueprint generator intake — all 8 services on the same
 // QuestionFlow + *_documents-shaped table + submit_document_for_review +
@@ -95,6 +96,7 @@ function HomeStack() {
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
+      <Stack.Screen name="Composer"      component={ComposerScreen}     options={{ presentation: 'modal' }} />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
       <Stack.Screen name="CvBuilder"                component={CvBuilderScreen}                options={{ presentation: 'modal' }} />
       <Stack.Screen name="LinkedinBuilder"          component={LinkedinBuilderScreen}          options={{ presentation: 'modal' }} />
