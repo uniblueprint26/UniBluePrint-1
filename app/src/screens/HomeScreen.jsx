@@ -40,18 +40,46 @@ const ALL_SHORTCUTS = [
   { key: 'profile',    label: 'Profile',              sub: 'Your profile and settings',      Icon: User,          bg: '#FDF4FF', action: 'tab',       tabName: 'Profile' },
 ]
 
-// Sidebar nav items — corrected order per spec
-const NAV_ITEMS = [
-  { key: 'dashboard',  label: 'Dashboard',             Icon: LayoutGrid, action: 'home'      },
-  { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
-  { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
-  { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
-  { key: 'campus',     label: 'Campus\nConnect',       Icon: Building2,  action: 'campus_connect' },
-  { key: 'course',     label: 'Course\nConnect',       Icon: Globe,      action: 'course_connect' },
-  { key: 'compass',    label: 'Compass',               Icon: Compass,    action: 'compass' },
-  { key: 'budgeting',  label: 'Budgeting',             Icon: Calculator, action: 'budgeting' },
-  { key: 'adboard',    label: 'Ad Board',              Icon: Megaphone,  action: 'tab',       tabName: 'AdBoard' },
+// Sidebar nav items — same 8 destinations as before (plus Dashboard),
+// now grouped into sections (a hairline divider + a tiny group label between
+// each) instead of one flat list, so the rail reads as organised rather than
+// a plain icon stack. No destination added, removed, or reordered relative
+// to the original flat NAV_ITEMS — grouping is presentation only.
+const NAV_GROUPS = [
+  {
+    label: null, // Dashboard sits alone, above the first divider
+    items: [
+      { key: 'dashboard', label: 'Dashboard', Icon: LayoutGrid, action: 'home' },
+    ],
+  },
+  {
+    label: 'Blueprints',
+    items: [
+      { key: 'foundation', label: 'Foundation\nBlueprint', Icon: FileText,   action: 'foundation' },
+      { key: 'elevation',  label: 'Elevation\nBlueprint',  Icon: TrendingUp, action: 'elevation'  },
+      { key: 'lifestyle',  label: 'Lifestyle\nBlueprint',  Icon: Heart,      action: 'lifestyle'  },
+    ],
+  },
+  {
+    label: 'Connect',
+    items: [
+      { key: 'campus', label: 'Campus\nConnect', Icon: Building2, action: 'campus_connect' },
+      { key: 'course', label: 'Course\nConnect', Icon: Globe,     action: 'course_connect' },
+    ],
+  },
+  {
+    label: 'Tools',
+    items: [
+      { key: 'compass',   label: 'Compass',   Icon: Compass,    action: 'compass'   },
+      { key: 'budgeting', label: 'Budgeting', Icon: Calculator, action: 'budgeting' },
+      { key: 'adboard',   label: 'Ad Board',  Icon: Megaphone,  action: 'tab', tabName: 'AdBoard' },
+    ],
+  },
 ]
+
+// Flattened — handleNav and anything else that looked items up by key still
+// works unchanged against this.
+const NAV_ITEMS = NAV_GROUPS.flatMap(g => g.items)
 
 // Activity type dot colours
 const ACTIVITY_DOT = {
@@ -387,27 +415,33 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-            {NAV_ITEMS.map(item => {
-              const isActive = item.key === activeNavKey
-              return (
-                <TouchableOpacity
-                  key={item.key}
-                  style={styles.navItemOuter}
-                  activeOpacity={0.65}
-                  onPress={() => handleNav(item)}
-                >
-                  {isActive && <View style={styles.navHighlight} />}
-                  <item.Icon
-                    size={20}
-                    color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
-                    strokeWidth={isActive ? 2 : 1.6}
-                  />
-                  <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
+            {NAV_GROUPS.map((group, gi) => (
+              <View key={group.label || 'top'} style={gi > 0 && styles.navGroupDivider}>
+                {!!group.label && <Text style={styles.navGroupLabel}>{group.label}</Text>}
+                {group.items.map(item => {
+                  const isActive = item.key === activeNavKey
+                  return (
+                    <TouchableOpacity
+                      key={item.key}
+                      style={styles.navItemOuter}
+                      activeOpacity={0.65}
+                      onPress={() => handleNav(item)}
+                    >
+                      {isActive && <View style={styles.navHighlight} />}
+                      {isActive && <View style={styles.navAccentBar} />}
+                      <item.Icon
+                        size={20}
+                        color={isActive ? colors.cream : 'rgba(245,240,232,0.58)'}
+                        strokeWidth={isActive ? 2 : 1.6}
+                      />
+                      <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            ))}
           </ScrollView>
         </View>
 
@@ -569,7 +603,7 @@ const styles = StyleSheet.create({
 
   // Sidebar
   sidebar: {
-    width: 78,
+    width: 84,
     backgroundColor: colors.navy,
     borderRightWidth: 1,
     borderRightColor: 'rgba(245,240,232,0.09)',
@@ -579,20 +613,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1, borderBottomColor: 'rgba(245,240,232,0.09)',
   },
+  // Grouped sections — a hairline divider + a tiny uppercase group label
+  // between each, instead of one flat run of icons.
+  navGroupDivider: {
+    marginTop: 10, paddingTop: 10,
+    borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.09)',
+  },
+  navGroupLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 7.5,
+    color: 'rgba(245,240,232,0.32)', letterSpacing: 0.6,
+    textTransform: 'uppercase', textAlign: 'center',
+    marginBottom: 2,
+  },
   navItemOuter: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 17,
+    paddingVertical: 15,
     paddingHorizontal: 6,
     position: 'relative',
   },
   navHighlight: {
     position: 'absolute',
-    top: 5, left: 5, right: 5, bottom: 5,
+    top: 4, left: 8, right: 5, bottom: 4,
     backgroundColor: 'rgba(255,255,255,0.13)',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+  // A gold accent bar on the active item's leading edge — brand-matching,
+  // richer than the translucent box alone.
+  navAccentBar: {
+    position: 'absolute',
+    top: 10, bottom: 10, left: 0,
+    width: 3, borderRadius: 2,
+    backgroundColor: '#C9A24B',
   },
   navLabel: {
     fontFamily: fonts.sans,
