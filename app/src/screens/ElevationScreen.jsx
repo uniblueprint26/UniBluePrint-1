@@ -392,51 +392,78 @@ const GROUPS = [
 
 // ─── Coach Card ───────────────────────────────────────────────────────────────
 
-function CoachCard({ coach, navigation }) {
+function CoachCard({ coach, navigation, index = 0 }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   function handlePress() {
     navigation.navigate('CoachProfile', { coach })
   }
 
+  // Cosmetic catalogue index — "N°01", "N°02"... computed purely from this
+  // card's position in whichever list is currently rendering it (resets per
+  // group in the grouped "All" view, continuous in the flat filtered view).
+  // Display-only; never stored or sent anywhere.
+  const indexLabel = `N°${String(index + 1).padStart(2, '0')}`
+
   if (coach.shell) {
     return (
-      <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
-        <Card style={styles.coachCard}>
-          <View style={styles.coachTop}>
-            <View style={styles.coachAvatarWrap}>
-              <View style={[styles.coachAvatar, { backgroundColor: '#F5F0E8' }]}>
-                <User size={26} color={colors.light} />
+      <View style={styles.cardSlot}>
+        {/* A second, slightly rotated sheet behind the real card — gives the
+            list a stacked-dossier depth instead of flat rows. */}
+        <View style={[styles.cardSheet, styles.cardSheetShell]} />
+        <View style={[styles.indexTab, styles.indexTabShell]}>
+          <Text style={styles.indexTabText}>{indexLabel}</Text>
+        </View>
+        <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
+          <Card style={[styles.coachCard, styles.coachCardShell]}>
+            <View style={styles.coachTop}>
+              <View style={styles.coachAvatarWrap}>
+                <View style={[styles.coachAvatar, { backgroundColor: '#F5F0E8' }]}>
+                  <User size={26} color={colors.light} />
+                </View>
+              </View>
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={styles.coachName}>{coach.name}</Text>
+                <Text style={styles.coachCategory}>{coach.category}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                  <MapPin size={11} color={colors.muted} />
+                  <Text style={styles.coachLocation}>{coach.location}</Text>
+                </View>
+              </View>
+              <View style={styles.shellBadge}>
+                <Text style={styles.shellBadgeText}>Coming Soon</Text>
               </View>
             </View>
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={styles.coachName}>{coach.name}</Text>
-              <Text style={styles.coachCategory}>{coach.category}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                <MapPin size={11} color={colors.muted} />
-                <Text style={styles.coachLocation}>{coach.location}</Text>
+            <Text style={styles.shellMessage}>{coach.shellMessage}</Text>
+            <View style={styles.coachFooter}>
+              <View style={styles.footerPrice}>
+                <Text style={styles.fromLabel}>Starting from</Text>
+                <Text style={styles.fromPrice}>{coach.from}</Text>
+              </View>
+              <View style={styles.profileBtnMuted}>
+                <Text style={styles.profileBtnMutedText}>View Profile</Text>
               </View>
             </View>
-            <View style={styles.shellBadge}>
-              <Text style={styles.shellBadgeText}>Coming Soon</Text>
-            </View>
-          </View>
-          <Text style={styles.shellMessage}>{coach.shellMessage}</Text>
-          <View style={styles.coachFooter}>
-            <View style={styles.footerPrice}>
-              <Text style={styles.fromLabel}>Starting from</Text>
-              <Text style={styles.fromPrice}>{coach.from}</Text>
-            </View>
-            <View style={styles.profileBtnMuted}>
-              <Text style={styles.profileBtnMutedText}>View Profile</Text>
-            </View>
-          </View>
-        </Card>
-      </TouchableOpacity>
+          </Card>
+        </TouchableOpacity>
+      </View>
     )
   }
 
+  // Coaches with a real multi-entry pricelist (distinct from the single
+  // `from` string most coaches have) get the first two entries previewed as
+  // a side-by-side tile pair on the card itself — previously pricelist only
+  // ever showed on CoachProfileScreen. Presented as two plain options, not
+  // a "standard vs premium" split — pricelist ordering isn't actually
+  // tiered, so labelling one "premium" would misrepresent the data.
+  const pricePreview = Array.isArray(coach.pricelist) ? coach.pricelist.slice(0, 2) : null
+
   return (
+    <View style={styles.cardSlot}>
+      <View style={styles.cardSheet} />
+      <View style={styles.indexTab}>
+        <Text style={styles.indexTabText}>{indexLabel}</Text>
+      </View>
     <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
       <Card style={styles.coachCard}>
         {/* Header */}
@@ -482,9 +509,13 @@ function CoachCard({ coach, navigation }) {
           </View>
         </View>
 
-        {/* Tagline */}
+        {/* Tagline — a gold-accented pull-quote rather than a plain italic
+            caption, giving it more weight as the card's one editorial line. */}
         {coach.tagline && (
-          <Text style={styles.coachTagline}>{coach.tagline}</Text>
+          <View style={styles.taglineQuote}>
+            <View style={styles.taglineQuoteBar} />
+            <Text style={styles.taglineQuoteText}>{coach.tagline}</Text>
+          </View>
         )}
 
         {/* Bio, preview, 3 lines max */}
@@ -511,18 +542,36 @@ function CoachCard({ coach, navigation }) {
             so a longer fallback string (or a future long price string) wraps
             onto a second line instead of running behind the View Profile
             button — the fixed-width overlap bug this replaces. */}
-        <View style={styles.coachFooter}>
-          <View style={styles.footerPrice}>
-            <Text style={styles.fromLabel}>Starting from</Text>
-            <Text style={styles.fromPrice}>{coach.from}</Text>
+        {pricePreview ? (
+          <View style={styles.priceFooter}>
+            <View style={styles.priceTileRow}>
+              {pricePreview.map(p => (
+                <View key={p.label} style={styles.priceTile}>
+                  <Text style={styles.priceTileLabel} numberOfLines={1}>{p.label}</Text>
+                  <Text style={styles.priceTileValue}>{p.price}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={styles.profileBtnWide}>
+              <Text style={styles.profileBtnText}>View Profile</Text>
+              <ChevronRight size={13} color={colors.accentFg} strokeWidth={2.5} />
+            </View>
           </View>
-          <View style={styles.profileBtn}>
-            <Text style={styles.profileBtnText}>View Profile</Text>
-            <ChevronRight size={13} color={colors.accentFg} strokeWidth={2.5} />
+        ) : (
+          <View style={styles.coachFooter}>
+            <View style={styles.footerPrice}>
+              <Text style={styles.fromLabel}>Starting from</Text>
+              <Text style={styles.fromPrice}>{coach.from}</Text>
+            </View>
+            <View style={styles.profileBtn}>
+              <Text style={styles.profileBtnText}>View Profile</Text>
+              <ChevronRight size={13} color={colors.accentFg} strokeWidth={2.5} />
+            </View>
           </View>
-        </View>
+        )}
       </Card>
     </TouchableOpacity>
+    </View>
   )
 }
 
@@ -820,9 +869,9 @@ export default function ElevationScreen({ navigation }) {
                     {/* Academic banner inline before its group */}
                     {group.label === 'Academic Grinds' && academicBanner}
                     <GroupHeader label={group.label} count={groupCoaches.length} first={gi === 0} />
-                    <View style={{ gap: 12, marginBottom: 4 }}>
-                      {groupCoaches.map(coach => (
-                        <CoachCard key={coach.id} coach={coach} navigation={navigation} />
+                    <View style={{ gap: 22, marginBottom: 4 }}>
+                      {groupCoaches.map((coach, i) => (
+                        <CoachCard key={coach.id} coach={coach} navigation={navigation} index={i} />
                       ))}
                     </View>
                   </View>
@@ -830,9 +879,9 @@ export default function ElevationScreen({ navigation }) {
               })
             ) : (
               /* Flat filtered view */
-              <View style={{ gap: 12 }}>
-                {visible.map(coach => (
-                  <CoachCard key={coach.id} coach={coach} navigation={navigation} />
+              <View style={{ gap: 22 }}>
+                {visible.map((coach, i) => (
+                  <CoachCard key={coach.id} coach={coach} navigation={navigation} index={i} />
                 ))}
               </View>
             )}
@@ -921,8 +970,28 @@ function __gs_styles(colors) {
   groupCountBadge: { backgroundColor: 'rgba(30,58,95,0.08)', borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
   groupCountText:  { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
 
-  // Coach cards
+  // Coach cards — stacked-paper "catalogue" treatment: a slightly rotated
+  // sheet peeks out behind the real Card, and a small "N°0X" index tab pokes
+  // above it, so the list reads as a curated dossier rather than flat rows.
+  cardSlot:   { position: 'relative', paddingTop: 14 },
+  cardSheet: {
+    position: 'absolute', top: 20, left: 10, right: 10, bottom: -6,
+    backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.06)',
+    transform: [{ rotate: '-1.4deg' }],
+  },
+  cardSheetShell: { backgroundColor: 'rgba(30,58,95,0.03)', borderStyle: 'dashed' },
+  indexTab: {
+    position: 'absolute', top: 0, left: 18, zIndex: 1,
+    backgroundColor: colors.accentBg, borderRadius: 7,
+    paddingHorizontal: 10, paddingVertical: 4,
+    ...shadows.card,
+  },
+  indexTabShell: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
+  indexTabText: { fontFamily: fonts.sansBold, fontSize: 10.5, color: colors.accentFg, letterSpacing: 0.4 },
+
   coachCard:       { padding: 18, marginBottom: 0 },
+  coachCardShell:  { borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(30,58,95,0.14)' },
   coachTop:        { flexDirection: 'row', alignItems: 'flex-start' },
   coachAvatarWrap: { position: 'relative' },
   coachAvatar:     { width: 52, height: 52, borderRadius: radius.circle, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.08)' },
@@ -936,7 +1005,11 @@ function __gs_styles(colors) {
   coachTitle:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, lineHeight: 16, marginTop: 2 },
   coachCategory: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary, opacity: 0.65, marginTop: 2 },
   coachLocation: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  coachTagline:  { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, marginTop: 10, fontStyle: 'italic' },
+  // Tagline — a gold-accented pull-quote (real italic serif face) rather
+  // than a plain synthetic-italic caption.
+  taglineQuote:     { flexDirection: 'row', gap: 10, marginTop: 10 },
+  taglineQuoteBar:  { width: 2.5, borderRadius: 2, backgroundColor: colors.gold },
+  taglineQuoteText: { flex: 1, fontFamily: fonts.serifItalic, fontSize: 14.5, color: colors.textPrimary, lineHeight: 20 },
   coachBio:      { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 10 },
 
   mentorPill:     { backgroundColor: '#F0FDF4', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 2, marginTop: 5, alignSelf: 'flex-start' },
@@ -961,6 +1034,16 @@ function __gs_styles(colors) {
   profileBtnText:    { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
   profileBtnMuted:   { flexShrink: 0, backgroundColor: colors.surfaceAlt, borderRadius: radius.button, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)' },
   profileBtnMutedText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
+
+  // Price-tile footer — coaches with a real multi-entry pricelist preview
+  // the first two options side by side instead of the single "Starting
+  // from" line, plus a full-width View Profile button beneath.
+  priceFooter:    { marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
+  priceTileRow:   { flexDirection: 'row', gap: 8, marginBottom: 10 },
+  priceTile:      { flex: 1, backgroundColor: colors.surfaceAlt, borderRadius: radius.button, padding: 10, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)' },
+  priceTileLabel: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.muted },
+  priceTileValue: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary, marginTop: 2 },
+  profileBtnWide: { backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
 
   // Shell card
   shellBadge:     { backgroundColor: 'rgba(30,58,95,0.07)', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
