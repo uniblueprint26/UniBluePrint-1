@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import {
   MessageSquare, Users, Menu, CheckCircle, LayoutGrid,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, FileText,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
