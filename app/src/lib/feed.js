@@ -93,6 +93,23 @@ export async function fetchActivePlacement() {
   return data?.[0] || null
 }
 
+// "Suggested for you" feed card — reuses get_directory_profiles(), the one
+// sanctioned path to another user's Directory data (see DirectoryScreen.jsx):
+// it already excludes the caller and anyone in a mutual block relationship,
+// and only returns discoverable=true profiles, so this card can't leak
+// anything the Directory itself wouldn't show. A few random candidates are
+// picked client-side each call so the suggestions vary as the feed loops.
+export async function fetchSuggestedProfiles(limit = 4) {
+  const { data, error } = await supabase.rpc('get_directory_profiles')
+  if (error) throw error
+  const rows = data || []
+  for (let i = rows.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[rows[i], rows[j]] = [rows[j], rows[i]]
+  }
+  return rows.slice(0, limit)
+}
+
 export async function fetchMyReactions(postIds, userId) {
   if (!postIds?.length || !userId) return {}
   const { data, error } = await supabase
@@ -137,25 +154,31 @@ export async function createPost({ userId, photoUrl, caption }) {
 }
 
 // Build the render list for the main feed: reverse-chronological posts with
-// a Buzzing-highlight / Ad card spliced in every INTERLEAVE_EVERY posts.
-// When both exist they alternate (Buzzing, Ad, Buzzing, Ad, …); when only
-// one exists every slot uses it; when neither exists, the slot is simply
+// a Buzzing-highlight / Ad / Suggested-profiles card spliced in every
+// INTERLEAVE_EVERY posts. Whichever of the three exist take turns filling
+// that slot in order (Buzzing, Ad, Suggested, Buzzing, …); when only one or
+// two exist they share the rotation; when none exist, the slot is simply
 // skipped (no empty gap), per spec.
-export function buildFeedRenderList(posts, { buzzingHighlight, placement }) {
+export function buildFeedRenderList(posts, { buzzingHighlight, placement, suggestedProfiles } = {}) {
+  const slotKinds = []
+  if (buzzingHighlight) slotKinds.push('buzzing')
+  if (placement) slotKinds.push('ad')
+  if (suggestedProfiles?.length) slotKinds.push('suggested')
+
   const items = []
   let slotIndex = 0
   posts.forEach((post, i) => {
     items.push({ kind: 'post', key: `post-${post.id}`, post })
     const isSlot = (i + 1) % INTERLEAVE_EVERY === 0
-    if (!isSlot) return
-    const useBuzzing = buzzingHighlight && (!placement || slotIndex % 2 === 0)
-    const useAd = placement && (!buzzingHighlight || slotIndex % 2 === 1)
-    if (useBuzzing) {
+    if (!isSlot || slotKinds.length === 0) return
+    const kind = slotKinds[slotIndex % slotKinds.length]
+    slotIndex += 1
+    if (kind === 'buzzing') {
       items.push({ kind: 'buzzing', key: `buzzing-${i}-${buzzingHighlight.id}`, post: buzzingHighlight })
-      slotIndex += 1
-    } else if (useAd) {
+    } else if (kind === 'ad') {
       items.push({ kind: 'ad', key: `ad-${i}-${placement.id}`, placement })
-      slotIndex += 1
+    } else {
+      items.push({ kind: 'suggested', key: `suggested-${i}`, profiles: suggestedProfiles })
     }
   })
   return items

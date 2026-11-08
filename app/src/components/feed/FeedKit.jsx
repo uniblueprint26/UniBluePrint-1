@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import {
-  View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking,
+  View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
-import { Camera, Smile, ExternalLink } from 'lucide-react-native'
+import { Camera, Smile, ExternalLink, Users } from 'lucide-react-native'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import { MOODS, moodDef } from '../../constants/moods'
 import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS } from '../../lib/feed'
+import { avatarColorFor, initialsFor } from '../../screens/DirectoryScreen'
 
 // ── shared helpers ───────────────────────────────────────────────────────────
 
@@ -265,6 +266,46 @@ export function AdCard({ placement }) {
   )
 }
 
+// ── Suggested profiles card ──────────────────────────────────────────────────
+// Reuses DirectoryScreen's get_directory_profiles() candidates (already
+// discoverable/block-filtered) and its own avatarColorFor/initialsFor, so a
+// person renders identically here and in the Directory. Connect re-plays
+// DirectoryScreen's own "start a direct chat" flow via the handlers passed
+// down from HomeScreen.
+
+export function SuggestedProfilesCard({ profiles, connectingId, onConnect, onViewProfile }) {
+  if (!profiles?.length) return null
+  return (
+    <View style={[k.card, k.suggestedCard]}>
+      <View style={k.suggestedEyebrowRow}>
+        <Users size={13} color={colors.muted} strokeWidth={1.9} />
+        <Text style={k.suggestedEyebrow}>Suggested for you</Text>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={k.suggestedRow}>
+        {profiles.map(p => (
+          <View key={p.id} style={k.suggestedChip}>
+            <TouchableOpacity activeOpacity={0.75} onPress={() => onViewProfile?.(p)}>
+              <View style={[k.suggestedAvatar, { backgroundColor: avatarColorFor(p.id) }]}>
+                <Text style={k.suggestedAvatarText}>{initialsFor(p.full_name)}</Text>
+              </View>
+              <Text style={k.suggestedName} numberOfLines={1}>{p.full_name || 'UniBlueprint member'}</Text>
+              {!!p.course && <Text style={k.suggestedMeta} numberOfLines={1}>{p.course}</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={k.suggestedConnectBtn}
+              activeOpacity={0.85}
+              disabled={connectingId === p.id}
+              onPress={() => onConnect?.(p)}
+            >
+              <Text style={k.suggestedConnectText}>{connectingId === p.id ? 'Connecting…' : 'Connect'}</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  )
+}
+
 // ── Styles ───────────────────────────────────────────────────────────────────
 
 const k = StyleSheet.create({
@@ -383,4 +424,27 @@ const k = StyleSheet.create({
     paddingVertical: 10,
   },
   adCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.cream },
+
+  suggestedCard: { paddingVertical: spacing.md },
+  suggestedEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, marginBottom: 12 },
+  suggestedEyebrow: {
+    fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.8,
+  },
+  suggestedRow: { paddingHorizontal: spacing.md, gap: 12 },
+  suggestedChip: {
+    width: 128, alignItems: 'center', gap: 8,
+    backgroundColor: 'rgba(30,58,95,0.025)', borderRadius: radius.card,
+    borderWidth: 1, borderColor: 'rgba(30,58,95,0.06)',
+    paddingVertical: 14, paddingHorizontal: 8,
+  },
+  suggestedAvatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  suggestedAvatarText: { fontFamily: fonts.sansBold, fontSize: 14, color: colors.cream },
+  suggestedName: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, textAlign: 'center' },
+  suggestedMeta: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.muted, textAlign: 'center' },
+  suggestedConnectBtn: {
+    borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(30,58,95,0.16)',
+    paddingHorizontal: 14, paddingVertical: 6, marginTop: 2,
+  },
+  suggestedConnectText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.navy },
 })

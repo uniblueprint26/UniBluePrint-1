@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking, Alert,
   Platform, useWindowDimensions,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -19,12 +19,12 @@ import CondensedDashboard from '../components/home/CondensedDashboard'
 import UBPLogo from '../components/ui/UBPLogo'
 import {
   ComposerEntryBar, BuzzStrip, CampusPulse,
-  FeedPostCard, BuzzingHighlightCard, AdCard,
+  FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard,
 } from '../components/feed/FeedKit'
 import {
   fetchFeedPage, fetchBuzzingHighlight, fetchCampusPulse, fetchActivePlacement,
   fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
-  DEFAULT_BUZZ_WINDOW,
+  fetchSuggestedProfiles, DEFAULT_BUZZ_WINDOW,
 } from '../lib/feed'
 import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -32,6 +32,13 @@ import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { fetchSpotlightSlides } from '../lib/featuredContent'
+import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
+
+// How many times the (small, seeded) feed repeats itself as the user keeps
+// scrolling, so Home reads as an endless feed rather than stopping dead
+// after the real post count runs out. Each cycle re-rotates the Buzzing/Ad/
+// Suggested slot per buildFeedRenderList, so it isn't a literal dead repeat.
+const MAX_FEED_CYCLES = 40
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -289,6 +296,12 @@ export default function HomeScreen({ navigation }) {
   const [campusPulse, setCampusPulse]       = useState({ total: 0, counts: {} })
   const [placement, setPlacement]           = useState(null)
   const [myReactions, setMyReactions]       = useState({})
+  const [suggestedProfiles, setSuggestedProfiles] = useState([])
+  const [suggestedConnectingId, setSuggestedConnectingId] = useState(null)
+  // How many times the fetched posts have been looped into the render list —
+  // reset on every fresh load, then grows as the user scrolls past the end.
+  const [feedCycles, setFeedCycles]         = useState(1)
+  const feedCyclingRef = useRef(false)
 
   // Load the feed + the one-off placement on mount, and again whenever Home
   // regains focus (so a post made in the Composer shows up on return).
@@ -296,6 +309,7 @@ export default function HomeScreen({ navigation }) {
     if (!user?.id) { setLoadingFeed(false); return }
     loadFeed()
     fetchActivePlacement().then(setPlacement).catch(() => {})
+    fetchSuggestedProfiles(4).then(setSuggestedProfiles).catch(() => {})
   }, [user?.id]))
 
   // Buzz window changes drive the Buzzing highlight + Campus Pulse only —
@@ -307,6 +321,7 @@ export default function HomeScreen({ navigation }) {
 
   async function loadFeed() {
     setLoadingFeed(true)
+    setFeedCycles(1)
     try {
       const posts = await fetchFeedPage({ limit: 30 })
       setFeedPosts(posts)
@@ -314,6 +329,59 @@ export default function HomeScreen({ navigation }) {
       setMyReactions(reactions)
     } catch {}
     finally { setLoadingFeed(false) }
+  }
+
+  // Suggested profiles' Connect re-plays DirectoryScreen's own "start a
+  // direct chat" flow (same RPC/room-context lookup, same nav target), so a
+  // connect made from Home lands the person in the exact same place one made
+  // from the Directory would.
+  async function handleSuggestedConnect(profile) {
+    if (suggestedConnectingId) return
+    setSuggestedConnectingId(profile.id)
+    try {
+      const { roomId, blocked, error } = await startDirectChat(profile.id, profile.full_name)
+      if (blocked) {
+        Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
+        return
+      }
+      if (error || !roomId) throw error || new Error('No room id returned')
+      const { contextId } = await fetchRoomContextId(roomId)
+      if (!contextId) throw new Error('Could not resolve the new conversation.')
+      navigation.getParent()?.navigate('Messages', {
+        screen: 'ChatRoom',
+        params: {
+          contextType: 'direct',
+          contextId,
+          roomName:    profile.full_name || 'Chat',
+          subtitle:    null,
+          posterId:    profile.id,
+          posterName:  profile.full_name,
+        },
+      })
+    } catch {
+      Alert.alert('Something went wrong', 'Could not start the conversation. Please try again.')
+    } finally {
+      setSuggestedConnectingId(null)
+    }
+  }
+
+  function handleViewSuggestedProfile(profile) {
+    navigation.navigate('StudentProfile', { student: profile })
+  }
+
+  // Endless-feed illusion: once the main scroll gets within ~600px of the
+  // bottom, loop the same (small, seeded) post list around again rather
+  // than stopping dead. Guarded by a ref so one near-bottom dwell only
+  // triggers a single extra cycle, not one per scroll event.
+  function handleMainScroll(e) {
+    if (feedCyclingRef.current || feedPosts.length === 0) return
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent
+    const distanceFromBottom = contentSize.height - (contentOffset.y + layoutMeasurement.height)
+    if (distanceFromBottom < 600) {
+      feedCyclingRef.current = true
+      setFeedCycles(c => Math.min(c + 1, MAX_FEED_CYCLES))
+      setTimeout(() => { feedCyclingRef.current = false }, 400)
+    }
   }
 
   async function loadBuzzContext(windowId) {
@@ -349,10 +417,23 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  const feedRenderItems = useMemo(
-    () => buildFeedRenderList(feedPosts, { buzzingHighlight, placement }),
-    [feedPosts, buzzingHighlight, placement],
+  const baseFeedRenderItems = useMemo(
+    () => buildFeedRenderList(feedPosts, { buzzingHighlight, placement, suggestedProfiles }),
+    [feedPosts, buzzingHighlight, placement, suggestedProfiles],
   )
+
+  // Repeats the base render list feedCycles times so scrolling never just
+  // stops once the real (small, seeded) post count runs out — see
+  // handleMainScroll. Keys get a per-cycle suffix so React never confuses a
+  // later loop's cards with the first pass's.
+  const feedRenderItems = useMemo(() => {
+    if (feedCycles <= 1) return baseFeedRenderItems
+    const out = []
+    for (let c = 0; c < feedCycles; c++) {
+      for (const item of baseFeedRenderItems) out.push({ ...item, key: `${item.key}-c${c}` })
+    }
+    return out
+  }, [baseFeedRenderItems, feedCycles])
 
   // Unread notification count for the bell badge, kept live via realtime so
   // it clears the moment a notification is read elsewhere and increments the
@@ -565,6 +646,8 @@ export default function HomeScreen({ navigation }) {
             contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
             showsVerticalScrollIndicator={false}
             scrollEnabled={!editingQA}
+            onScroll={handleMainScroll}
+            scrollEventThrottle={200}
           >
             {/* Quick Access — sits first now (Phase 20): a student's own
                 shortcuts plus the collapsible account Overview are the
@@ -698,6 +781,17 @@ export default function HomeScreen({ navigation }) {
                     }
                     if (item.kind === 'ad') {
                       return <AdCard key={item.key} placement={item.placement} />
+                    }
+                    if (item.kind === 'suggested') {
+                      return (
+                        <SuggestedProfilesCard
+                          key={item.key}
+                          profiles={item.profiles}
+                          connectingId={suggestedConnectingId}
+                          onConnect={handleSuggestedConnect}
+                          onViewProfile={handleViewSuggestedProfile}
+                        />
+                      )
                     }
                     return null
                   })
