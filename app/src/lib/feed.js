@@ -139,6 +139,100 @@ export async function clearReaction(postId, userId) {
   if (error) throw error
 }
 
+// ── Single post lookup (CommentThreadScreen's header preview) ──────────────
+
+export async function fetchPostById(postId) {
+  const { data, error } = await supabase
+    .from('feed_posts')
+    .select('*')
+    .eq('id', postId)
+    .maybeSingle()
+  if (error) throw error
+  return data || null
+}
+
+// ── Comments ─────────────────────────────────────────────────────────────────
+// feed_comments.comment_count on the parent post is kept in sync server-side
+// (trg_feed_comment_count, mirroring trg_feed_reaction_count) — nothing here
+// needs to touch feed_posts directly.
+
+export async function fetchComments(postId) {
+  const { data, error } = await supabase
+    .from('feed_comments')
+    .select('*')
+    .eq('post_id', postId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
+export async function createComment({ postId, userId, body }) {
+  const { data, error } = await supabase
+    .from('feed_comments')
+    .insert({ post_id: postId, user_id: userId, body })
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteComment(commentId, userId) {
+  const { error } = await supabase
+    .from('feed_comments')
+    .delete()
+    .eq('id', commentId)
+    .eq('user_id', userId)
+  if (error) throw error
+}
+
+// ── Saved posts ──────────────────────────────────────────────────────────────
+// Private bookmarks (feed_saved_posts is own-rows-only, see the migration) —
+// the bookmark icon on a feed card, toggled, no public visibility.
+
+export async function fetchSavedPostIds(userId) {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('feed_saved_posts')
+    .select('post_id')
+    .eq('user_id', userId)
+  if (error) throw error
+  return (data || []).map(r => r.post_id)
+}
+
+export async function savePost(postId, userId) {
+  const { error } = await supabase
+    .from('feed_saved_posts')
+    .upsert({ post_id: postId, user_id: userId }, { onConflict: 'post_id,user_id' })
+  if (error) throw error
+}
+
+export async function unsavePost(postId, userId) {
+  const { error } = await supabase
+    .from('feed_saved_posts')
+    .delete()
+    .eq('post_id', postId)
+    .eq('user_id', userId)
+  if (error) throw error
+}
+
+// Saved Posts screen's own feed — the saved rows joined back to their full
+// feed_posts row, newest-saved first. feed_saved_posts' own RLS (own rows
+// only) already scopes this to the caller; feed_posts' "authenticated can
+// read all" policy lets the join resolve regardless of who authored each
+// post.
+export async function fetchSavedPostsWithData(userId) {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('feed_saved_posts')
+    .select('post_id, created_at, feed_posts(*)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || [])
+    .filter(row => row.feed_posts)
+    .map(row => ({ ...row.feed_posts, _savedAt: row.created_at }))
+}
+
 export async function createThread({ userId, mood, body }) {
   const { error } = await supabase.from('feed_posts').insert({
     user_id: userId, post_type: 'thread', mood, body,

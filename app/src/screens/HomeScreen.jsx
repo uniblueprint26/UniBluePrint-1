@@ -1,22 +1,19 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking, Alert,
-  Platform, useWindowDimensions,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, FlatList, Linking, Alert,
+  Platform, useWindowDimensions, Share, ActivityIndicator,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import {
   MessageSquare, Users, Menu, CheckCircle, LayoutGrid,
-  ChevronDown, ChevronUp, FileText,
+  FileText, Plus, X, CheckCircle2,
   Bell, Building2, Calculator, Compass, Globe, Heart, Megaphone, TrendingUp, User,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
-import QuickAccessGrid from '../components/home/QuickAccessGrid'
 import DestinationPickerModal from '../components/home/DestinationPickerModal'
-import SpotlightCarousel from '../components/home/SpotlightCarousel'
-import CondensedDashboard from '../components/home/CondensedDashboard'
 import UBPLogo from '../components/ui/UBPLogo'
 import {
   ComposerEntryBar, BuzzStrip, CampusPulse,
@@ -25,21 +22,21 @@ import {
 import {
   fetchFeedPage, fetchBuzzingHighlight, fetchCampusPulse, fetchActivePlacement,
   fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
-  fetchSuggestedProfiles, DEFAULT_BUZZ_WINDOW,
+  fetchSuggestedProfiles, fetchSavedPostIds, savePost, unsavePost, DEFAULT_BUZZ_WINDOW,
 } from '../lib/feed'
 import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { fetchSpotlightSlides } from '../lib/featuredContent'
 import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
 
-// How many times the (small, seeded) feed repeats itself as the user keeps
-// scrolling, so Home reads as an endless feed rather than stopping dead
-// after the real post count runs out. Each cycle re-rotates the Buzzing/Ad/
-// Suggested slot per buildFeedRenderList, so it isn't a literal dead repeat.
-const MAX_FEED_CYCLES = 40
+// How many posts a single feed page fetches — both the first load and every
+// onEndReached page after it. Real pagination via fetchFeedPage's `before`
+// cursor: when a page comes back shorter than this, there's nothing older
+// left and the list stops asking, showing a calm "you're all caught up"
+// footer instead of ever fabricating more content.
+const FEED_PAGE_SIZE = 20
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -71,10 +68,8 @@ const ALL_SHORTCUTS = [
 ]
 
 // Sidebar nav items — same 8 destinations as before (plus Dashboard),
-// now grouped into sections (a hairline divider + a tiny group label between
-// each) instead of one flat list, so the rail reads as organised rather than
-// a plain icon stack. No destination added, removed, or reordered relative
-// to the original flat NAV_ITEMS — grouping is presentation only.
+// grouped into sections (a hairline divider + a tiny group label between
+// each) instead of one flat list.
 const NAV_GROUPS = [
   {
     label: null, // Dashboard sits alone, above the first divider
@@ -127,6 +122,92 @@ function getGreetingWord(date = new Date()) {
   return 'Good night'
 }
 
+// ── Quick Access — slim horizontal row ──────────────────────────────────────
+// Phase 21: condensed from the old 2x2 drag-reorder grid (+ the Overview
+// toggle that used to live in its header) into one pinned strip above the
+// feed — a utility rail, not a second dashboard. Press-and-hold any chip to
+// reveal a remove "x"; a trailing "+" chip opens the same destination picker
+// the old grid used. No drag-reorder here — order is just whatever order the
+// shortcuts were added in; reordering four small chips in a single row
+// wasn't worth carrying the grid's gesture-handler machinery over for.
+
+function QuickAccessRow({ items, editing, onNavigate, onRemove, onAddPress, onLongPressToggle, colors }) {
+  const styles = qaStyles(colors)
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.row}
+    >
+      {items.map(item => {
+        const Icon = item.homeIcon || item.Icon
+        return (
+          <View key={item.key} style={styles.chipWrap}>
+            <TouchableOpacity
+              style={[styles.chip, { backgroundColor: item.bg }]}
+              activeOpacity={0.8}
+              onPress={() => { if (!editing) onNavigate(item) }}
+              onLongPress={onLongPressToggle}
+              delayLongPress={420}
+              accessibilityRole="button"
+              accessibilityLabel={item.homeLabel || item.label}
+            >
+              <Icon size={16} color={colors.navy} strokeWidth={1.8} />
+              <Text style={styles.chipLabel} numberOfLines={1}>{item.homeLabel || item.label}</Text>
+            </TouchableOpacity>
+            {editing && (
+              <TouchableOpacity
+                style={styles.removeBadge}
+                onPress={() => onRemove(item.key)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel={`Remove ${item.homeLabel || item.label} from Quick Access`}
+              >
+                <X size={10} color="#fff" strokeWidth={3} />
+              </TouchableOpacity>
+            )}
+          </View>
+        )
+      })}
+      {items.length < MAX_SHORTCUTS && !editing && (
+        <TouchableOpacity
+          style={styles.addChip}
+          onPress={onAddPress}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Add a Quick Access shortcut"
+        >
+          <Plus size={16} color={colors.textPrimary} strokeWidth={2} />
+        </TouchableOpacity>
+      )}
+    </ScrollView>
+  )
+}
+
+function qaStyles(colors) {
+  return StyleSheet.create({
+    row: { gap: 8, paddingRight: 4 },
+    chipWrap: { position: 'relative' },
+    chip: {
+      flexDirection: 'row', alignItems: 'center', gap: 7,
+      borderRadius: 20, paddingHorizontal: 13, paddingVertical: 9,
+      borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
+    },
+    chipLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, maxWidth: 140 },
+    removeBadge: {
+      position: 'absolute', top: -5, right: -5,
+      width: 17, height: 17, borderRadius: 9,
+      backgroundColor: '#DC2626', borderWidth: 1.5, borderColor: colors.background,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    addChip: {
+      width: 38, height: 38, borderRadius: 19,
+      borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.18)', borderStyle: 'dashed',
+      alignItems: 'center', justifyContent: 'center',
+      backgroundColor: 'rgba(30,58,95,0.03)',
+    },
+  })
+}
 
 // ── Home Screen ──────────────────────────────────────────────────────────────
 
@@ -146,7 +227,7 @@ export default function HomeScreen({ navigation }) {
   const showSidebar = Platform.OS === 'web' && windowWidth >= 900
   const {
     user, isAnyPortalEligible, isHandler, isFounder, isOperations, isBusiness, isFinance,
-    studioLabel, isComplimentaryPro, isPro, subscription, portalMode, setPortalMode,
+    studioLabel, isComplimentaryPro, portalMode, setPortalMode,
   } = useAuth()
 
   // Profile row — full_name (canonical source of truth) and this student's
@@ -187,45 +268,10 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  // ── Spotlight carousel — manually curated (featured_content), resolved to
-  // real, live data. See lib/featuredContent.js for how each slide is
-  // resolved and Task #13 notes for why this replaced the old "random
-  // deals" framing inside Live Activity. ──────────────────────────────────
-  const [spotlightSlides, setSpotlightSlides] = useState([])
-  useEffect(() => {
-    let cancelled = false
-    fetchSpotlightSlides().then(slides => {
-      if (cancelled) return
-      // Elevation ("Find a Coach" slides) is Pro-only (see ElevationScreen's
-      // own gating comment and docs/business/subscription-pricing-model.md)
-      // — a Free user still sees the coach teaser card (the slide itself is
-      // curated content, not a purchase), but never a real price pulled
-      // from Elevation, and the tap still lands on CoachProfileScreen's own
-      // Pro gate either way (defense in depth, not the only enforcement).
-      const filtered = isPro ? slides : slides.map(s => (
-        s.kicker === 'Find a Coach' ? { ...s, priceLabel: null } : s
-      ))
-      setSpotlightSlides(filtered)
-    })
-    return () => { cancelled = true }
-  }, [isPro])
-
-  function handleSpotlightPress(slide) {
-    if (!slide?.nav?.screen) return
-    navigation.navigate(slide.nav.screen, slide.nav.params)
-  }
-
   // ── Quick Access ────────────────────────────────────────────────────────
   const [shortcutKeys, setShortcutKeys] = useState(DEFAULT_SHORTCUTS)
   const [editingQA, setEditingQA]       = useState(false)
   const [pickerOpen, setPickerOpen]     = useState(false)
-
-  // Quick Access used to just duplicate a normal navigation hop (tap a
-  // shortcut, land on a screen the sidebar/tab bar already reaches). This
-  // gives its header a second, distinct job: expand/collapse a condensed,
-  // real-data account summary in place — see CondensedDashboard — without
-  // navigating anywhere. Independent of editingQA (drag-reorder mode).
-  const [dashboardExpanded, setDashboardExpanded] = useState(false)
 
   useEffect(() => {
     if (!profileRow) return
@@ -242,12 +288,10 @@ export default function HomeScreen({ navigation }) {
     } catch { /* best effort — local state already reflects the change */ }
   }
 
-  function enterEditMode() {
+  function toggleEditMode() {
+    if (editingQA) { setEditingQA(false); return }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {})
     setEditingQA(true)
-  }
-  function toggleEditMode() {
-    if (editingQA) { setEditingQA(false) } else { enterEditMode() }
   }
 
   function handlePick(key) {
@@ -259,53 +303,36 @@ export default function HomeScreen({ navigation }) {
   const shortcutItems = shortcutKeys.map(k => ALL_SHORTCUTS.find(s => s.key === k)).filter(Boolean)
   const pickerOptions = ALL_SHORTCUTS.filter(s => !shortcutKeys.includes(s.key))
 
-  // "Tap outside to exit edit mode" — a capture-phase responder on the whole
-  // screen swallows any touch that lands outside the measured Quick Access
-  // block while editing; touches inside it (cards, X, +, Done) fall through
-  // to their own handlers as normal. See gridBlockRef/measureGridBlock.
-  const gridBlockRef  = useRef(null)
-  const gridBoundsRef = useRef(null)
-  function measureGridBlock() {
-    requestAnimationFrame(() => {
-      gridBlockRef.current?.measureInWindow?.((x, y, width, height) => {
-        gridBoundsRef.current = { x, y, width, height }
-      })
-    })
-  }
-  useEffect(() => { if (editingQA) measureGridBlock() }, [editingQA, shortcutItems.length])
-
-  function handleCaptureCheck(evt) {
-    if (!editingQA) return false
-    const b = gridBoundsRef.current
-    const { pageX, pageY } = evt.nativeEvent
-    if (!b) return true
-    const inside = pageX >= b.x && pageX < b.x + b.width && pageY >= b.y && pageY < b.y + b.height
-    return !inside
-  }
-
   // Sidebar active key — reset to dashboard whenever this screen regains focus
   const [activeNavKey, setActiveNavKey] = useState('dashboard')
   useFocusEffect(useCallback(() => {
     setActiveNavKey('dashboard')
   }, []))
 
-  // Home feed state
+  // ── Home feed state ────────────────────────────────────────────────────
+  // feedPosts grows via real cursor pagination (fetchFeedPage's `before`),
+  // never by repeating what's already loaded — see FEED_PAGE_SIZE above and
+  // loadMoreFeed below. This replaces the old feedCycles/MAX_FEED_CYCLES
+  // re-looping mechanism, which grew the rendered list unboundedly inside a
+  // plain ScrollView and was the root cause of the out-of-memory crash after
+  // a minute or two of scrolling.
   const [feedPosts, setFeedPosts]           = useState([])
   const [loadingFeed, setLoadingFeed]       = useState(true)
+  const [loadingMore, setLoadingMore]       = useState(false)
+  const [hasMoreFeed, setHasMoreFeed]       = useState(true)
+  const loadingMoreRef = useRef(false)
   const [buzzWindow, setBuzzWindow]         = useState(DEFAULT_BUZZ_WINDOW)
   const [buzzingHighlight, setBuzzingHighlight] = useState(null)
   const [campusPulse, setCampusPulse]       = useState({ total: 0, counts: {} })
   const [placement, setPlacement]           = useState(null)
   const [myReactions, setMyReactions]       = useState({})
+  const [savedPostIds, setSavedPostIds]     = useState(() => new Set())
   const [suggestedProfiles, setSuggestedProfiles] = useState([])
   const [suggestedConnectingId, setSuggestedConnectingId] = useState(null)
-  // How many times the fetched posts have been looped into the render list —
-  // reset on every fresh load, then grows as the user scrolls past the end.
-  const [feedCycles, setFeedCycles]         = useState(1)
-  const feedCyclingRef = useRef(false)
 
   // Load the feed + the one-off placement on mount, and again whenever Home
-  // regains focus (so a post made in the Composer shows up on return).
+  // regains focus (so a post made in the Composer, a comment added, or a
+  // save toggled elsewhere shows up on return).
   useFocusEffect(useCallback(() => {
     if (!user?.id) { setLoadingFeed(false); return }
     loadFeed()
@@ -322,14 +349,46 @@ export default function HomeScreen({ navigation }) {
 
   async function loadFeed() {
     setLoadingFeed(true)
-    setFeedCycles(1)
+    setHasMoreFeed(true)
     try {
-      const posts = await fetchFeedPage({ limit: 30 })
+      const posts = await fetchFeedPage({ limit: FEED_PAGE_SIZE })
       setFeedPosts(posts)
-      const reactions = await fetchMyReactions(posts.map(p => p.id), user.id)
+      setHasMoreFeed(posts.length === FEED_PAGE_SIZE)
+      const [reactions, savedIds] = await Promise.all([
+        fetchMyReactions(posts.map(p => p.id), user.id),
+        fetchSavedPostIds(user.id),
+      ])
       setMyReactions(reactions)
+      setSavedPostIds(new Set(savedIds))
     } catch {}
     finally { setLoadingFeed(false) }
+  }
+
+  // Real onEndReached pagination — fetches posts strictly older than the
+  // oldest post currently loaded (feed_posts.created_at, via fetchFeedPage's
+  // `before`). Never re-shows anything already on screen.
+  async function loadMoreFeed() {
+    if (loadingMoreRef.current || !hasMoreFeed || loadingFeed || feedPosts.length === 0) return
+    loadingMoreRef.current = true
+    setLoadingMore(true)
+    try {
+      const oldest = feedPosts[feedPosts.length - 1]
+      const nextPosts = await fetchFeedPage({ before: oldest.created_at, limit: FEED_PAGE_SIZE })
+      if (nextPosts.length === 0) {
+        setHasMoreFeed(false)
+      } else {
+        setFeedPosts(prev => [...prev, ...nextPosts])
+        if (nextPosts.length < FEED_PAGE_SIZE) setHasMoreFeed(false)
+        const moreReactions = await fetchMyReactions(nextPosts.map(p => p.id), user.id)
+        setMyReactions(r => ({ ...r, ...moreReactions }))
+      }
+    } catch {
+      // Leave hasMoreFeed as-is — a transient failure shouldn't permanently
+      // show "you're all caught up"; the next onEndReached dwell retries.
+    } finally {
+      setLoadingMore(false)
+      loadingMoreRef.current = false
+    }
   }
 
   // Suggested profiles' Connect re-plays DirectoryScreen's own "start a
@@ -370,21 +429,6 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('StudentProfile', { student: profile })
   }
 
-  // Endless-feed illusion: once the main scroll gets within ~600px of the
-  // bottom, loop the same (small, seeded) post list around again rather
-  // than stopping dead. Guarded by a ref so one near-bottom dwell only
-  // triggers a single extra cycle, not one per scroll event.
-  function handleMainScroll(e) {
-    if (feedCyclingRef.current || feedPosts.length === 0) return
-    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent
-    const distanceFromBottom = contentSize.height - (contentOffset.y + layoutMeasurement.height)
-    if (distanceFromBottom < 600) {
-      feedCyclingRef.current = true
-      setFeedCycles(c => Math.min(c + 1, MAX_FEED_CYCLES))
-      setTimeout(() => { feedCyclingRef.current = false }, 400)
-    }
-  }
-
   async function loadBuzzContext(windowId) {
     try {
       const [highlight, pulse] = await Promise.all([
@@ -418,23 +462,42 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  const baseFeedRenderItems = useMemo(
+  function handleCommentPost(post) {
+    navigation.navigate('CommentThread', { postId: post.id })
+  }
+
+  async function handleSharePost(post) {
+    try {
+      const text = post.body || 'Check this out on UniBlueprint'
+      await Share.share({ message: `${text}\n\nShared from UniBlueprint` })
+    } catch { /* cancelled or unavailable — nothing to recover from */ }
+  }
+
+  async function handleToggleSave(postId) {
+    if (!user?.id) return
+    const isSaved = savedPostIds.has(postId)
+    setSavedPostIds(prev => {
+      const next = new Set(prev)
+      if (isSaved) next.delete(postId); else next.add(postId)
+      return next
+    })
+    try {
+      if (isSaved) await unsavePost(postId, user.id)
+      else await savePost(postId, user.id)
+    } catch {
+      // Best-effort revert on failure
+      setSavedPostIds(prev => {
+        const next = new Set(prev)
+        if (isSaved) next.add(postId); else next.delete(postId)
+        return next
+      })
+    }
+  }
+
+  const feedRenderItems = useMemo(
     () => buildFeedRenderList(feedPosts, { buzzingHighlight, placement, suggestedProfiles }),
     [feedPosts, buzzingHighlight, placement, suggestedProfiles],
   )
-
-  // Repeats the base render list feedCycles times so scrolling never just
-  // stops once the real (small, seeded) post count runs out — see
-  // handleMainScroll. Keys get a per-cycle suffix so React never confuses a
-  // later loop's cards with the first pass's.
-  const feedRenderItems = useMemo(() => {
-    if (feedCycles <= 1) return baseFeedRenderItems
-    const out = []
-    for (let c = 0; c < feedCycles; c++) {
-      for (const item of baseFeedRenderItems) out.push({ ...item, key: `${item.key}-c${c}` })
-    }
-    return out
-  }, [baseFeedRenderItems, feedCycles])
 
   // Unread notification count for the bell badge, kept live via realtime so
   // it clears the moment a notification is read elsewhere and increments the
@@ -509,19 +572,134 @@ export default function HomeScreen({ navigation }) {
     else if (item.action === 'external')       Linking.openURL(item.url)
   }
 
+  function renderFeedItem({ item }) {
+    if (item.kind === 'post') {
+      return (
+        <FeedPostCard
+          post={item.post}
+          myMood={myReactions[item.post.id] || null}
+          onReact={handleReact}
+          commentCount={item.post.comment_count || 0}
+          saved={savedPostIds.has(item.post.id)}
+          onComment={handleCommentPost}
+          onShare={handleSharePost}
+          onToggleSave={handleToggleSave}
+        />
+      )
+    }
+    if (item.kind === 'buzzing') {
+      return (
+        <BuzzingHighlightCard
+          post={item.post}
+          myMood={myReactions[item.post.id] || null}
+          onReact={handleReact}
+          commentCount={item.post.comment_count || 0}
+          saved={savedPostIds.has(item.post.id)}
+          onComment={handleCommentPost}
+          onShare={handleSharePost}
+          onToggleSave={handleToggleSave}
+        />
+      )
+    }
+    if (item.kind === 'ad') {
+      return <AdCard placement={item.placement} />
+    }
+    if (item.kind === 'suggested') {
+      return (
+        <SuggestedProfilesCard
+          profiles={item.profiles}
+          connectingId={suggestedConnectingId}
+          onConnect={handleSuggestedConnect}
+          onViewProfile={handleViewSuggestedProfile}
+        />
+      )
+    }
+    return null
+  }
+
+  // Header content above the virtualized feed list: Quick Access's slim
+  // row, the composer entry bar, This Week's Buzz, and Campus Pulse. All of
+  // this scrolls away with the feed (it's FlatList's ListHeaderComponent,
+  // not a fixed block), same as it did inside the old ScrollView.
+  //
+  // Built as a plain element (not a nested function component) and passed
+  // to ListHeaderComponent/ListFooterComponent as such: a function defined
+  // in the render body gets a new identity every render, and FlatList
+  // mounts/unmounts a ListHeaderComponent whose identity changes — which
+  // would reset the Quick Access row's own horizontal scroll position on
+  // every unrelated re-render (e.g. a single reaction tap). A plain element
+  // reconciles normally instead.
+  const feedListHeader = (
+    <View>
+      <View style={{ paddingHorizontal: spacing.md, paddingTop: 18 }}>
+        <View style={styles.sectionRow}>
+          <View>
+            <Text style={styles.eyebrow}>Quick Access</Text>
+            <Text style={styles.sectionCaption}>Your own shortcuts — press &amp; hold to edit</Text>
+          </View>
+          {editingQA && (
+            <TouchableOpacity
+              onPress={toggleEditMode}
+              style={styles.doneBtn}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel="Done editing Quick Access"
+            >
+              <Text style={styles.doneBtnText}>Done</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={{ marginBottom: 22 }}>
+          <QuickAccessRow
+            items={shortcutItems}
+            editing={editingQA}
+            onNavigate={handleNav}
+            onRemove={key => persistShortcuts(shortcutKeys.filter(k => k !== key))}
+            onAddPress={() => setPickerOpen(true)}
+            onLongPressToggle={toggleEditMode}
+            colors={colors}
+          />
+        </View>
+
+        <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
+      </View>
+
+      {/* BuzzStrip/CampusPulse carry their own spacing.md horizontal
+          padding internally already (see FeedKit.jsx), so they sit
+          directly here without an extra wrapper. */}
+      <View style={{ paddingHorizontal: spacing.md }}>
+        <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
+        <CampusPulse pulse={campusPulse} />
+      </View>
+
+      <View style={{ height: 22 }} />
+    </View>
+  )
+
+  let feedListFooter = null
+  if (loadingMore) {
+    feedListFooter = (
+      <View style={styles.feedFooterWrap}>
+        <ActivityIndicator color={colors.muted} size="small" />
+      </View>
+    )
+  } else if (!hasMoreFeed && feedPosts.length > 0) {
+    feedListFooter = (
+      <View style={styles.feedFooterWrap}>
+        <CheckCircle2 size={15} color={colors.light} strokeWidth={1.8} />
+        <Text style={styles.feedFooterText}>You're all caught up</Text>
+      </View>
+    )
+  }
+
   return (
-    <View
-      style={[styles.screen, { paddingTop: insets.top }]}
-      onStartShouldSetResponderCapture={handleCaptureCheck}
-      onResponderRelease={() => setEditingQA(false)}
-      onResponderTerminationRequest={() => true}
-    >
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.layout}>
 
         {/* ── SIDEBAR RAIL ──
             Desktop-web only (`showSidebar`, defined above) — distinct from
-            (and rendered in addition to) the Quick Access overview toggle
-            below and the wide icon+label drawer opened by the ☰ hamburger
+            the wide icon+label drawer opened by the ☰ hamburger
             (SidebarDrawer.jsx, unchanged). Grouped into sections (a hairline
             divider + a tiny group label between each) instead of one flat
             icon stack, same 8 destinations as before — grouping is
@@ -628,179 +806,36 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
-          {/* Wrapped in an extra plain View with flex:1 (not just the
-              ScrollView's own style) as a defensive measure against a
-              Fabric/New-Architecture initial-layout race: this screen
-              already had the documented style={{flex:1}} fix (see
-              `mainScroll` below), and it's unchanged — but that alone was
-              still reported to fail on a real device on a fresh cold open
-              elsewhere in the app (self-correcting after backgrounding),
-              which points at the native scroll-view frame committing before
-              Yoga finishes measuring the header sibling on the very first
-              paint. Forcing Yoga to resolve a concrete height for a plain
-              View first, then letting the ScrollView fill that
-              already-measured box, is the standard hardening for this class
-              of timing bug. Needs a real-device retest to confirm. */}
+          {/* A real virtualized FlatList, not a ScrollView re-looping a
+              fixed post array — see FEED_PAGE_SIZE/loadMoreFeed above. Wrapped
+              in an extra plain View with an explicit flex:1 as a defensive
+              measure against a Fabric/New-Architecture initial-layout race
+              (documented pattern already used elsewhere in this app — see
+              DirectoryScreen's own scrollView style comment). */}
           <View style={styles.mainScroll}>
-          <ScrollView
-            style={styles.mainScroll}
-            contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={!editingQA}
-            onScroll={handleMainScroll}
-            scrollEventThrottle={200}
-          >
-            {/* Quick Access — sits first now (Phase 20): a student's own
-                shortcuts plus the collapsible account Overview are the
-                "get things done" block, so they anchor the very top of
-                Home. Trending Right Now (below) is the "front page" visual
-                centerpiece — previously above Quick Access — now second,
-                since it's a bigger, slower-to-scan block that reads better
-                once the utility row is already out of the way. */}
-            <View
-              ref={gridBlockRef}
-              onLayout={measureGridBlock}
-              collapsable={false}
-            >
-              <View style={styles.sectionRow}>
-                <View>
-                  <Text style={styles.eyebrow}>Quick Access</Text>
-                  <Text style={styles.sectionCaption}>Your own shortcuts — pick any 4 · Press &amp; hold to edit</Text>
-                </View>
-                {editingQA ? (
-                  <TouchableOpacity
-                    onPress={() => setEditingQA(false)}
-                    style={styles.doneBtn}
-                    activeOpacity={0.75}
-                    accessibilityRole="button"
-                    accessibilityLabel="Done editing Quick Access"
-                  >
-                    <Text style={styles.doneBtnText}>Done</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => setDashboardExpanded(v => !v)}
-                    style={styles.overviewToggle}
-                    activeOpacity={0.75}
-                    accessibilityRole="button"
-                    accessibilityLabel={dashboardExpanded ? 'Hide dashboard overview' : 'Show dashboard overview'}
-                  >
-                    <Text style={styles.overviewToggleText}>
-                      {dashboardExpanded ? 'Hide overview' : 'Overview'}
-                    </Text>
-                    {dashboardExpanded
-                      ? <ChevronUp size={13} color={colors.textPrimary} strokeWidth={2} />
-                      : <ChevronDown size={13} color={colors.textPrimary} strokeWidth={2} />}
-                  </TouchableOpacity>
-                )}
+            {loadingFeed ? (
+              <View style={styles.centerWrap}>
+                <ActivityIndicator color={colors.textPrimary} />
               </View>
-
-              <CondensedDashboard
-                expanded={dashboardExpanded}
-                userId={user?.id}
-                unreadCount={unreadCount}
-                isComplimentaryPro={isComplimentaryPro}
-                isPro={isPro}
-                subscriptionTier={subscription?.tier}
-                navigation={navigation}
-              />
-
-              <View style={{ marginBottom: 24 }}>
-                <QuickAccessGrid
-                  items={shortcutItems}
-                  editing={editingQA}
-                  onNavigate={handleNav}
-                  onReorder={persistShortcuts}
-                  onRemove={key => persistShortcuts(shortcutKeys.filter(k => k !== key))}
-                  onAddPress={() => setPickerOpen(true)}
-                  onLongPressToggle={toggleEditMode}
-                />
-              </View>
-            </View>
-
-            {/* Trending Right Now — manually curated, real content (see
-                lib/featuredContent.js), renamed from "Spotlight" and
-                promoted to Home's visual centerpiece in Phase 20: a bigger,
-                letterboxed-photo carousel that rotates a capped 2-3 item
-                window per category rather than a small static strip. The
-                "trending" framing is honest about what it is — a curated
-                rotation, not a real engagement ranking — see
-                fetchSpotlightSlides() for how the rotation works. */}
-            {spotlightSlides.length > 0 && (
-              <View style={{ marginBottom: 24 }}>
-                <View style={[styles.sectionRow, { marginBottom: 10 }]}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <View style={styles.trendingPulse} />
-                    <Text style={styles.trendingTitle}>Featured this week</Text>
-                  </View>
-                </View>
-                <SpotlightCarousel slides={spotlightSlides} onSlidePress={handleSpotlightPress} />
-              </View>
-            )}
-
-            {/* Home feed — composer entry, This Week's Buzz, Campus Pulse,
-                then reverse-chronological Post/Thread cards with a Buzzing
-                highlight / Ad card interleaved every ~5 posts. Replaces the
-                old static "Live Activity" list. Cards carry their own
-                16px side margin (feed-width design), so this wrapper
-                cancels the screen's 14px scroll padding. */}
-            <View style={{ marginHorizontal: -14 }}>
-              <View style={{ paddingHorizontal: spacing.md }}>
-                <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
-                <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
-                <CampusPulse pulse={campusPulse} />
-              </View>
-
-              <View style={{ marginTop: 22 }}>
-                {loadingFeed ? (
-                  <Text style={styles.feedStatusText}>Loading feed…</Text>
-                ) : feedRenderItems.length === 0 ? (
+            ) : (
+              <FlatList
+                data={feedRenderItems}
+                keyExtractor={item => item.key}
+                renderItem={renderFeedItem}
+                ListHeaderComponent={feedListHeader}
+                ListFooterComponent={feedListFooter}
+                ListEmptyComponent={
                   <Text style={styles.feedStatusText}>
                     No posts yet. Be the first to share a mood or a snapshot.
                   </Text>
-                ) : (
-                  feedRenderItems.map(item => {
-                    if (item.kind === 'post') {
-                      return (
-                        <FeedPostCard
-                          key={item.key}
-                          post={item.post}
-                          myMood={myReactions[item.post.id] || null}
-                          onReact={handleReact}
-                        />
-                      )
-                    }
-                    if (item.kind === 'buzzing') {
-                      return (
-                        <BuzzingHighlightCard
-                          key={item.key}
-                          post={item.post}
-                          myMood={myReactions[item.post.id] || null}
-                          onReact={handleReact}
-                        />
-                      )
-                    }
-                    if (item.kind === 'ad') {
-                      return <AdCard key={item.key} placement={item.placement} />
-                    }
-                    if (item.kind === 'suggested') {
-                      return (
-                        <SuggestedProfilesCard
-                          key={item.key}
-                          profiles={item.profiles}
-                          connectingId={suggestedConnectingId}
-                          onConnect={handleSuggestedConnect}
-                          onViewProfile={handleViewSuggestedProfile}
-                        />
-                      )
-                    }
-                    return null
-                  })
-                )}
-              </View>
-            </View>
-
-          </ScrollView>
+                }
+                onEndReached={loadMoreFeed}
+                onEndReachedThreshold={0.4}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}
+                showsVerticalScrollIndicator={false}
+                removeClippedSubviews={Platform.OS !== 'web'}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -882,17 +917,13 @@ function __gs_styles(colors) {
 
   // Main
   main: { flex: 1, backgroundColor: colors.background },
-  // The header block below is a normal in-flow sibling ABOVE the
-  // ScrollView, not an absolutely-positioned overlay — so on a correctly
-  // measured screen it never needs to fight the ScrollView for space.
-  // The explicit zIndex/elevation here is defensive, not the primary fix:
-  // it guarantees the header still paints above scrolled content on
-  // Android even during the brief window before layout has fully
-  // resolved (first frame, safe-area insets arriving late, etc.), since
-  // Android can otherwise let an elevated descendant (e.g. the Live
-  // Activity Card's shadow) paint over a plain sibling. The real fix for
-  // "header floats/overlaps content" is on the ScrollView itself — see
-  // `mainScroll` below.
+  // The header block below is a normal in-flow sibling ABOVE the feed list,
+  // not an absolutely-positioned overlay — so on a correctly measured
+  // screen it never needs to fight the list for space. The explicit
+  // zIndex/elevation here is defensive, not the primary fix: it guarantees
+  // the header still paints above scrolled content on Android even during
+  // the brief window before layout has fully resolved (first frame,
+  // safe-area insets arriving late, etc.).
   mainTopBar: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 14, paddingVertical: 14,
@@ -930,24 +961,15 @@ function __gs_styles(colors) {
   },
 
   // THE fix for the header floating/overlapping content on native: a
-  // ScrollView's own `style` sizes its outer, clipped viewport — separate
-  // from `contentContainerStyle`, which only styles the inner scrollable
-  // content. Without an explicit flex (or fixed height) on `style`,
-  // native's Yoga layout has no constraint to size the ScrollView's own
-  // frame against, so it sizes the viewport to wrap its content instead of
-  // filling the remaining space below mainTopBar/portalSwitchRow — on a
-  // long dashboard that's taller than the screen, meaning the (unclipped)
-  // ScrollView frame extends up over the header, which paints first and
-  // so sits underneath. react-native-web's ScrollView happens to survive
-  // this same omission because it's really a `<div style="overflow-y:auto">`
-  // — CSS gives a scrollable flex item an automatic minimum size of 0
-  // (its content stays internally scrollable) even without a numeric
-  // flex-basis, so the exact same missing style silently looks correct
-  // in an Expo-web/Playwright check while still being broken on-device.
-  // Always pair contentContainerStyle with an explicit `style={{flex:1}}`
-  // (or equivalent) on every ScrollView sitting below a fixed header.
+  // FlatList's own `style` sizes its outer, clipped viewport — separate
+  // from `contentContainerStyle`. Without an explicit flex (or fixed
+  // height) on `style`, native's Yoga layout has no constraint to size the
+  // list's own frame against. Always pair contentContainerStyle with an
+  // explicit `style={{flex:1}}` (or equivalent) on every scrollable view
+  // sitting below a fixed header — see DirectoryScreen.jsx's own
+  // `scrollView` for the same note.
   mainScroll: { flex: 1 },
-  scroll: { paddingHorizontal: 14, paddingTop: 18 },
+  centerWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   eyebrow: {
     fontFamily: fonts.sansSemiBold,
@@ -967,31 +989,21 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     gap: 8, marginBottom: 10,
   },
-  overviewToggle: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: 14,
-    paddingHorizontal: 12, paddingVertical: 6,
-  },
-  overviewToggleText: { fontFamily: fonts.sansSemiBold, fontSize: 11.5, color: colors.textPrimary },
   doneBtn: {
     backgroundColor: colors.accentBg, borderRadius: 14,
     paddingHorizontal: 14, paddingVertical: 6,
   },
   doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.accentFg },
 
-  // Trending Right Now — a bigger, serif section title (not the small
-  // uppercase eyebrow used everywhere else) so it reads as Home's
-  // centerpiece heading, paired with a gold pulse dot.
-  trendingTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
-  trendingPulse: {
-    width: 7, height: 7, borderRadius: 3.5,
-    backgroundColor: colors.gold,
-  },
-
-  // Feed status (loading / empty)
+  // Feed status (loading / empty / "caught up")
   feedStatusText: {
     fontFamily: fonts.sans, fontSize: 13, color: colors.muted,
     textAlign: 'center', paddingVertical: 20, paddingHorizontal: spacing.md,
   },
+  feedFooterWrap: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 22,
+  },
+  feedFooterText: { fontFamily: fonts.sans, fontSize: 12, color: colors.light },
   })
 }

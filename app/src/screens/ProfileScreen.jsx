@@ -9,7 +9,7 @@ import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
   Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart, Eye,
-  Palette, Sun, Moon, Smartphone, Share2, MapPin,
+  Palette, Sun, Moon, Smartphone, Share2, MapPin, Bookmark,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -94,6 +94,7 @@ const ACCOUNT_LINKS = [
   { Icon: Briefcase, label: 'Account Type',    sub: null,                                action: 'accountType' },
   { Icon: Heart,     label: 'Interests',       sub: null,                                action: 'interests' },
   { Icon: Eye,      label: 'Directory Profile', sub: null,                              action: 'directoryProfile' },
+  { Icon: Bookmark, label: 'Saved Posts',     sub: 'Posts you’ve bookmarked from the feed', action: 'savedPosts' },
   { Icon: Bell,     label: 'Notifications',   sub: 'Push alerts and in-app reminders',  action: 'notifications' },
   { Icon: Palette,  label: 'Appearance',      sub: null,                                action: 'appearance' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
@@ -1345,10 +1346,12 @@ export default function ProfileScreen({ navigation }) {
                   else if (action === 'interests') setInterestsVisible(true)
                   else if (action === 'directoryProfile') setDirectoryProfileVisible(true)
                   else if (action === 'appearance') setAppearanceVisible(true)
-                  // NotificationsScreen lives in the Home stack, not this
-                  // Profile stack, so it needs a cross-stack navigate — this
-                  // row used to be a dead tap (screen: null).
+                  // NotificationsScreen/SavedPostsScreen both live in the
+                  // Home stack, not this Profile stack, so they need a
+                  // cross-stack navigate — same pattern as Notifications
+                  // below (that row used to be a dead tap, screen: null).
                   else if (action === 'notifications') navigation.getParent()?.navigate('Home', { screen: 'Notifications' })
+                  else if (action === 'savedPosts') navigation.getParent()?.navigate('Home', { screen: 'SavedPosts' })
                   else if (screen) navigation.navigate(screen)
                 }}
               >

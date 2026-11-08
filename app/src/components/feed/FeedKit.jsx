@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
-import { Camera, Smile, ExternalLink, Users } from 'lucide-react-native'
+import { Camera, Smile, ExternalLink, Users, MessageCircle, Send, Bookmark } from 'lucide-react-native'
 import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 import { MOODS, moodDef } from '../../constants/moods'
 import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS } from '../../lib/feed'
@@ -159,6 +159,70 @@ function ReactionPill({ myMood, count, onPress }) {
   )
 }
 
+// ── Engagement row (reaction pill, comment, share, save) ───────────────────
+// The reaction pill (a mood) IS the "Like" mechanic — never a second plain
+// heart alongside it. Comment/Send/Save are purely additive.
+//
+// Post (photo+caption) leans Instagram: icon-only Comment/Send, Save pushed
+// to the far right. Thread (mood+text) leans Twitter: everything stays in
+// one tight left-aligned run, Save included — per the founder's "instagramy
+// twitter vibe" direction, the two post shapes read a little differently
+// rather than forcing one identical engagement bar on both.
+
+function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const isPost = post.post_type === 'post'
+
+  function handlePick(moodId) {
+    setSheetOpen(false)
+    onReact(post.id, moodId === myMood ? null : moodId)
+  }
+
+  return (
+    <>
+      <View style={[k.engagementRow, isPost && { paddingTop: 12 }]}>
+        <ReactionPill myMood={myMood} count={post.reaction_count} onPress={() => setSheetOpen(true)} />
+        <TouchableOpacity
+          style={k.engageBtn}
+          onPress={() => onComment?.(post)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Comment, ${commentCount || 0}`}
+        >
+          <MessageCircle size={17} color={colors.muted} strokeWidth={1.8} />
+          {commentCount > 0 && <Text style={k.engageBtnText}>{commentCount}</Text>}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={k.engageBtn}
+          onPress={() => onShare?.(post)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Share"
+        >
+          <Send size={16} color={colors.muted} strokeWidth={1.8} />
+        </TouchableOpacity>
+        {isPost && <View style={{ flex: 1 }} />}
+        <TouchableOpacity
+          style={k.engageBtn}
+          onPress={() => onToggleSave?.(post.id)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={saved ? 'Remove from Saved Posts' : 'Save post'}
+          accessibilityState={{ selected: !!saved }}
+        >
+          <Bookmark
+            size={17}
+            color={saved ? colors.gold : colors.muted}
+            fill={saved ? colors.gold : 'transparent'}
+            strokeWidth={1.8}
+          />
+        </TouchableOpacity>
+      </View>
+      <MoodPickerSheet visible={sheetOpen} currentMood={myMood} onPick={handlePick} onClose={() => setSheetOpen(false)} />
+    </>
+  )
+}
+
 // ── Post header (avatar, name, mood badge, timestamp) ───────────────────────
 
 function PostHeader({ post }) {
@@ -186,14 +250,7 @@ function PostHeader({ post }) {
 
 // ── Main feed post card (Post or Thread) ────────────────────────────────────
 
-export function FeedPostCard({ post, myMood, onReact }) {
-  const [sheetOpen, setSheetOpen] = useState(false)
-
-  function handlePick(moodId) {
-    setSheetOpen(false)
-    onReact(post.id, moodId === myMood ? null : moodId)
-  }
-
+export function FeedPostCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
   return (
     <View style={k.card}>
       <View style={{ padding: spacing.md }}>
@@ -203,24 +260,23 @@ export function FeedPostCard({ post, myMood, onReact }) {
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
       )}
-      <View style={[k.engagementRow, post.post_type === 'post' && { paddingTop: 12 }]}>
-        <ReactionPill myMood={myMood} count={post.reaction_count} onPress={() => setSheetOpen(true)} />
-      </View>
-      <MoodPickerSheet visible={sheetOpen} currentMood={myMood} onPick={handlePick} onClose={() => setSheetOpen(false)} />
+      <EngagementRow
+        post={post}
+        myMood={myMood}
+        onReact={onReact}
+        commentCount={commentCount}
+        saved={saved}
+        onComment={onComment}
+        onShare={onShare}
+        onToggleSave={onToggleSave}
+      />
     </View>
   )
 }
 
 // ── Buzzing highlight card ───────────────────────────────────────────────────
 
-export function BuzzingHighlightCard({ post, myMood, onReact }) {
-  const [sheetOpen, setSheetOpen] = useState(false)
-
-  function handlePick(moodId) {
-    setSheetOpen(false)
-    onReact(post.id, moodId === myMood ? null : moodId)
-  }
-
+export function BuzzingHighlightCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
   return (
     <View style={[k.card, k.highlightCard]}>
       <View style={k.highlightBadge}>
@@ -233,10 +289,16 @@ export function BuzzingHighlightCard({ post, myMood, onReact }) {
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
       )}
-      <View style={[k.engagementRow, post.post_type === 'post' && { paddingTop: 12 }]}>
-        <ReactionPill myMood={myMood} count={post.reaction_count} onPress={() => setSheetOpen(true)} />
-      </View>
-      <MoodPickerSheet visible={sheetOpen} currentMood={myMood} onPick={handlePick} onClose={() => setSheetOpen(false)} />
+      <EngagementRow
+        post={post}
+        myMood={myMood}
+        onReact={onReact}
+        commentCount={commentCount}
+        saved={saved}
+        onComment={onComment}
+        onShare={onShare}
+        onToggleSave={onToggleSave}
+      />
     </View>
   )
 }
@@ -400,6 +462,9 @@ const k = StyleSheet.create({
   },
   reactPillEmoji: { fontSize: 14 },
   reactPillText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted },
+
+  engageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, padding: 4 },
+  engageBtnText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
 
   highlightCard: { borderColor: 'rgba(194,87,43,0.3)', borderWidth: 1.5 },
   highlightBadge: {
