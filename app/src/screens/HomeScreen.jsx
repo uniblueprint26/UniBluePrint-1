@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics'
 import {
   MessageSquare, Users, Menu, CheckCircle, LayoutGrid,
   ChevronDown, ChevronUp, FileText,
+  Bell, Building2, Calculator, Compass, Globe, Heart, Megaphone, TrendingUp, User,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
