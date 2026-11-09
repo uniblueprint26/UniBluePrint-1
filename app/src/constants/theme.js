@@ -42,9 +42,10 @@ export const lightColors = {
 
   // Semantic roles (mode-aware) — prefer these in any screen/component
   // that's been migrated to useTheme() over the brand swatches above.
-  background: '#F5F0E8',   // page background
+  background: '#F7F2EA',   // page background
   surface: '#FFFFFF',      // card/sheet background
-  surfaceAlt: '#F5F0E8',   // secondary surface, e.g. nested sections
+  surfaceSunk: '#ECE4D5',  // recessed surface (story-rail ring base)
+  surfaceAlt: '#F7F2EA',   // secondary surface, e.g. nested sections
   chromeBg: '#1E3A5F',     // "always navy" bars — TopBar, drawer, dark-variant ScreenHeader
   chromeFg: '#F5F0E8',     // text/icons on chromeBg
   accentBg: '#1E3A5F',     // primary button / active-state fill
@@ -52,8 +53,13 @@ export const lightColors = {
   textPrimary: '#1E3A5F',  // headings/body ink on background/surface
   textSecondary: '#6B7280', // muted/secondary text
   textTertiary: '#9CA3AF', // placeholders, disabled, least-emphasis text
-  divider: 'rgba(30,58,95,0.12)',
+  divider: 'rgba(30,58,95,0.09)',
   overlay: 'rgba(11,22,35,0.5)', // modal/sheet backdrop
+  // Rare "little detail" gold accent — timestamps only, never a workhorse
+  // UI color. Mode-aware (separate from the brand-invariant `gold` swatch
+  // above) because dark mode needs a lighter, more-yellow value to read
+  // against navy than light mode needs against cream.
+  goldText: '#B4923A',
 }
 
 export const darkColors = {
@@ -106,18 +112,27 @@ export const darkColors = {
   // rare "premium highlight" accent (badges, index tabs, special moments)
   // rather than the default interactive color — see `colors.gold` used
   // directly for that, not accentBg.
+  //
+  // textPrimary/chromeFg/accentFg lightened to `#FBF6E8` (2026-11-09,
+  // mockup sign-off after several rounds: too dark/muddy, then too close
+  // to white — this is the settled value, closer to white while staying
+  // clearly cream, not the plain `#F5F0E8` brand swatch).
   background: '#1E3A5F',
   surface: '#2B4A74',
+  surfaceSunk: '#17304C',
   surfaceAlt: '#1E3A5F',
   chromeBg: '#2B4A74',
-  chromeFg: '#F5F0E8',
-  accentBg: '#F5F0E8',
+  chromeFg: '#FBF6E8',
+  accentBg: '#FBF6E8',
   accentFg: '#1E3A5F',
-  textPrimary: '#F5F0E8',
+  textPrimary: '#FBF6E8',
   textSecondary: '#C4BCA8',
   textTertiary: '#A89F8A',
-  divider: 'rgba(245,240,232,0.14)',
+  divider: 'rgba(251,246,232,0.2)',
   overlay: 'rgba(0,0,0,0.65)',
+  // See light mode's `goldText` — dark mode's version, more yellow than
+  // orange per founder feedback, lightened to clear contrast on navy.
+  goldText: '#E0C06C',
 }
 
 // getColors(mode) — the one place that resolves a 'light' | 'dark' mode to

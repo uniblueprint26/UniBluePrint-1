@@ -229,7 +229,7 @@ function ReactionPill({ myMood, count, onPress, colors, k }) {
       onPress={onPress}
       activeOpacity={0.8}
     >
-      {def ? <Text style={k.reactPillEmoji}>{def.emoji}</Text> : <Smile size={17} color={colors.muted} strokeWidth={1.8} />}
+      {def ? <Text style={k.reactPillEmoji}>{def.emoji}</Text> : <Smile size={17} color={colors.textPrimary} strokeWidth={1.8} />}
       {count > 0 && (
         <Text style={[k.reactPillText, def ? { color: def.color } : null]}>{count}</Text>
       )}
@@ -267,7 +267,7 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
           accessibilityRole="button"
           accessibilityLabel={`Comment, ${commentCount || 0}`}
         >
-          <MessageCircle size={18} color={colors.muted} strokeWidth={1.8} />
+          <MessageCircle size={18} color={colors.textPrimary} strokeWidth={1.8} />
           {commentCount > 0 && <Text style={k.engageBtnText}>{commentCount}</Text>}
         </TouchableOpacity>
         <TouchableOpacity
@@ -277,7 +277,7 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
           accessibilityRole="button"
           accessibilityLabel="Share"
         >
-          <Send size={17} color={colors.muted} strokeWidth={1.8} />
+          <Send size={17} color={colors.textPrimary} strokeWidth={1.8} />
         </TouchableOpacity>
         {isPost && <View style={{ flex: 1 }} />}
         <TouchableOpacity
@@ -290,8 +290,8 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
         >
           <Bookmark
             size={18}
-            color={saved ? colors.gold : colors.muted}
-            fill={saved ? colors.gold : 'transparent'}
+            color={saved ? colors.goldText : colors.textPrimary}
+            fill={saved ? colors.goldText : 'transparent'}
             strokeWidth={1.8}
           />
         </TouchableOpacity>
@@ -334,12 +334,9 @@ export function FeedPostCard({ post, myMood, onReact, commentCount, saved, onCom
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
-    <View style={k.card}>
-      <Sheen isDark={isDark} radius={radius.card} />
-      <View style={{ padding: spacing.md }}>
-        <PostHeader post={post} colors={colors} k={k} />
-        {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
-      </View>
+    <View style={k.postRow}>
+      <PostHeader post={post} colors={colors} k={k} />
+      {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
       )}
@@ -365,15 +362,12 @@ export function BuzzingHighlightCard({ post, myMood, onReact, commentCount, save
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
-    <View style={[k.card, k.highlightCard]}>
-      <Sheen isDark={isDark} radius={radius.card} />
+    <View style={[k.postRow, k.highlightRow]}>
       <View style={k.highlightBadge}>
         <Text style={k.highlightBadgeText}>🔥 Buzzing</Text>
       </View>
-      <View style={{ padding: spacing.md }}>
-        <PostHeader post={post} colors={colors} k={k} />
-        {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
-      </View>
+      <PostHeader post={post} colors={colors} k={k} />
+      {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
       )}
@@ -551,6 +545,14 @@ function getStyles(colors, isDark) {
     overflow: 'hidden',
     ...cardShadow,
   },
+  // Borderless, X/Threads-style feed row — a hairline divider is the only
+  // separation between posts, no surface/shadow/radius box. The photo
+  // breaks out of this row's own horizontal padding to bleed full-width
+  // (see `photo` below).
+  postRow: {
+    paddingHorizontal: spacing.md, paddingTop: 15, paddingBottom: 14,
+    borderBottomWidth: 1, borderBottomColor: colors.divider,
+  },
   cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   avatar: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   avatarText: { fontFamily: fonts.sansBold, fontSize: 12, color: colors.navy },
@@ -558,10 +560,15 @@ function getStyles(colors, isDark) {
   name: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
   moodBadge: { borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
   moodBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5 },
-  timestamp: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, flexShrink: 0 },
+  // Gold is otherwise retired as a workhorse color — this is the one
+  // "little detail" moment it's reserved for.
+  timestamp: { fontFamily: fonts.sans, fontSize: 11, color: colors.goldText, flexShrink: 0 },
   bodyText: { fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, lineHeight: 22, marginTop: 12 },
-  photo: { width: '100%', height: 260, backgroundColor: colors.surfaceAlt },
-  engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: spacing.md, paddingBottom: 14 },
+  photo: {
+    height: 260, backgroundColor: colors.surfaceAlt, marginTop: 12,
+    marginHorizontal: -spacing.md,
+  },
+  engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: 12 },
 
   reactPill: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
@@ -569,18 +576,18 @@ function getStyles(colors, isDark) {
     paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.surfaceAlt,
   },
   reactPillEmoji: { fontSize: 15 },
-  reactPillText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.muted },
+  reactPillText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   engageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, padding: 4 },
-  engageBtnText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.muted },
+  engageBtnText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
 
-  highlightCard: { backgroundColor: isDark ? 'rgba(194,87,43,0.14)' : 'rgba(194,87,43,0.05)' },
+  highlightRow: { backgroundColor: isDark ? 'rgba(224,192,108,0.08)' : 'rgba(180,146,58,0.05)' },
   highlightBadge: {
     position: 'absolute', top: 12, right: 12, zIndex: 1,
-    backgroundColor: isDark ? 'rgba(194,87,43,0.25)' : 'rgba(194,87,43,0.12)', borderRadius: 10,
+    backgroundColor: isDark ? 'rgba(224,192,108,0.2)' : 'rgba(180,146,58,0.12)', borderRadius: 10,
     paddingHorizontal: 9, paddingVertical: 4,
   },
-  highlightBadgeText: { fontFamily: fonts.sansBold, fontSize: 10.5, color: '#C2572B' },
+  highlightBadgeText: { fontFamily: fonts.sansBold, fontSize: 10.5, color: colors.goldText },
 
   adCard: { backgroundColor: colors.surfaceAlt },
   adLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: spacing.md, paddingBottom: 6 },

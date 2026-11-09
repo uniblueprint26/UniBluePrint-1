@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
   Menu, CheckCircle2,
-  Bell, Building2, Calculator, Compass, Globe, Heart, Megaphone, FileText, TrendingUp, User, LayoutGrid,
+  Bell, Building2, Calculator, Compass, Globe, Heart, BookOpen, FileText, TrendingUp, User, LayoutGrid,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
@@ -23,7 +23,7 @@ import {
   fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
   fetchSuggestedProfiles, fetchSavedPostIds, savePost, unsavePost, DEFAULT_BUZZ_WINDOW,
 } from '../lib/feed'
-import { fonts, spacing } from '../constants/theme'
+import { fonts, spacing, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { openMenu } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
@@ -47,14 +47,14 @@ const FEED_PAGE_SIZE = 20
 // block, since a plain gold ring on every single one would stop reading as
 // "special" by the third pillar — gold stays reserved for the brand stories.
 const PILLARS = [
-  { key: 'foundation', label: 'Foundation', Icon: FileText,   action: 'foundation',     grad: ['#60A5FA', '#1D4ED8'] },
-  { key: 'elevation',  label: 'Elevation',   Icon: TrendingUp, action: 'elevation',      grad: ['#4ADE80', '#15803D'] },
-  { key: 'lifestyle',  label: 'Lifestyle',   Icon: Heart,      action: 'lifestyle',      grad: ['#F0ABFC', '#A21CAF'] },
-  { key: 'campus',     label: 'Campus',      Icon: Building2,  action: 'campus_connect', grad: ['#FDBA74', '#C2410C'] },
-  { key: 'course',     label: 'Course',      Icon: Globe,      action: 'course_connect', grad: ['#93C5FD', '#1E3A8A'] },
-  { key: 'compass',    label: 'Compass',     Icon: Compass,    action: 'compass',        grad: ['#D4D4D8', '#52525B'] },
-  { key: 'budgeting',  label: 'Budgeting',   Icon: Calculator, action: 'budgeting',      grad: ['#86EFAC', '#047857'] },
-  { key: 'adboard',    label: 'Ad Board',    Icon: Megaphone,  action: 'tab', tabName: 'AdBoard', grad: ['#FCA5A5', '#B91C1C'] },
+  { key: 'foundation', label: 'Foundation', Icon: FileText,   action: 'foundation' },
+  { key: 'elevation',  label: 'Elevation',   Icon: TrendingUp, action: 'elevation' },
+  { key: 'lifestyle',  label: 'Lifestyle',   Icon: Heart,      action: 'lifestyle' },
+  { key: 'campus',     label: 'Campus',      Icon: Building2,  action: 'campus_connect' },
+  { key: 'course',     label: 'Course',      Icon: Globe,      action: 'course_connect' },
+  { key: 'compass',    label: 'Compass',     Icon: Compass,    action: 'compass' },
+  { key: 'budgeting',  label: 'Budgeting',   Icon: Calculator, action: 'budgeting' },
+  { key: 'adboard',    label: 'Ad Board',    Icon: BookOpen,  action: 'tab', tabName: 'AdBoard' },
 ]
 
 // A handful of live Lifestyle partners with real photos on file, shown
@@ -99,7 +99,7 @@ const NAV_GROUPS = [
     items: [
       { key: 'compass',   label: 'Compass',   Icon: Compass,    action: 'compass'   },
       { key: 'budgeting', label: 'Budgeting', Icon: Calculator, action: 'budgeting' },
-      { key: 'adboard',   label: 'Ad Board',  Icon: Megaphone,  action: 'tab', tabName: 'AdBoard' },
+      { key: 'adboard',   label: 'Ad Board',  Icon: BookOpen,  action: 'tab', tabName: 'AdBoard' },
     ],
   },
 ]
@@ -137,8 +137,13 @@ function getGreetingWord(date = new Date()) {
 // the same gold "special" ring FeedKit's avatars use — brands are the one
 // place on this rail that genuinely earns the premium gold treatment.
 
-function StoryRail({ navigation, onNavigate, colors }) {
-  const styles = storyStyles(colors)
+function StoryRail({ navigation, onNavigate, colors, isDark }) {
+  const styles = storyStyles(colors, isDark)
+  // One consistent navy/cream ring for every pillar — no per-pillar
+  // rainbow gradient. Brand story rings (below) keep their own gold
+  // AvatarRing treatment; that's the one place on this rail gold still
+  // earns its "genuinely special" keep.
+  const pillarGrad = [colors.surface, colors.surfaceSunk || colors.surfaceAlt]
   function openBrand(partnerId) {
     navigation.navigate('Lifestyle', { highlightId: partnerId })
   }
@@ -157,8 +162,8 @@ function StoryRail({ navigation, onNavigate, colors }) {
           accessibilityRole="button"
           accessibilityLabel={item.label}
         >
-          <LinearGradient colors={item.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.pillarRing}>
-            <item.Icon size={22} color="#FFFFFF" strokeWidth={1.9} />
+          <LinearGradient colors={pillarGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.pillarRing}>
+            <item.Icon size={22} color={colors.textPrimary} strokeWidth={1.9} />
           </LinearGradient>
           <Text style={styles.ringLabel} numberOfLines={1}>{item.label}</Text>
         </TouchableOpacity>
@@ -182,13 +187,14 @@ function StoryRail({ navigation, onNavigate, colors }) {
   )
 }
 
-function storyStyles(colors) {
+function storyStyles(colors, isDark) {
   return StyleSheet.create({
     row: { gap: 14, paddingRight: 4 },
     ringWrap: { alignItems: 'center', width: 64 },
     pillarRing: {
       width: 60, height: 60, borderRadius: 30,
       alignItems: 'center', justifyContent: 'center',
+      ...(isDark ? shadows.glowDark : shadows.glow),
     },
     brandImage: { width: 60, height: 60 },
     ringLabel: { fontFamily: fonts.sansMedium, fontSize: 10.5, color: colors.textSecondary, marginTop: 6, textAlign: 'center' },
@@ -198,7 +204,7 @@ function storyStyles(colors) {
 // ── Home Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   // The full-navigation sidebar rail below is a desktop-web-only
@@ -578,7 +584,7 @@ export default function HomeScreen({ navigation }) {
     <View>
       <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.xl }}>
         <View style={{ marginBottom: 24 }}>
-          <StoryRail navigation={navigation} onNavigate={handleNav} colors={colors} />
+          <StoryRail navigation={navigation} onNavigate={handleNav} colors={colors} isDark={isDark} />
         </View>
 
         <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
