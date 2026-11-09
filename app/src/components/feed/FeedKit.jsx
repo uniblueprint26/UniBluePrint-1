@@ -126,14 +126,23 @@ export function BuzzStrip({ selected, onSelect }) {
   )
 }
 
-// ── Campus Pulse ─────────────────────────────────────────────────────────────
+// ── Mood Pulse ───────────────────────────────────────────────────────────────
+// Named "Mood Pulse" (not "Campus Pulse") deliberately — Campus Connect
+// already has its own real "Campus Pulse" feature (a weekly rotating prompt
+// + replies, see components/campusConnect/CampusPulseCard.jsx), a wholly
+// different thing. This widget aggregates mood tags across Thread posts
+// app-wide, not scoped to campus specifically, so neither the name nor the
+// data pretends otherwise. Reused with a `title` override per screen
+// ("Campus Mood" / "Course Mood") so it reads as that screen's own flavour
+// of the same signal rather than one more "Pulse"-branded thing.
+//
 // Given its own quiet card rather than floating loose on the page — the six
 // mood colors are a real, useful signal, but showing them all at full
 // strength with nothing containing them was competing with the navy/cream
 // identity. A composed card reads as "here's a considered data point," not
 // a stray rainbow strip.
 
-export function CampusPulse({ pulse }) {
+export function MoodPulse({ pulse, title = 'Mood Pulse' }) {
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   const total = pulse?.total || 0
@@ -141,7 +150,7 @@ export function CampusPulse({ pulse }) {
 
   return (
     <View style={k.pulseWrap}>
-      <Text style={k.buzzEyebrow}>Campus Pulse</Text>
+      <Text style={k.buzzEyebrow}>{title}</Text>
       <View style={k.pulseCard}>
         {hasEnoughData ? (
           <>

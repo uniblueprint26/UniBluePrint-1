@@ -14,12 +14,12 @@ import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import UBPLogo from '../components/ui/UBPLogo'
 import {
-  ComposerEntryBar, BuzzStrip, CampusPulse,
+  ComposerEntryBar, BuzzStrip,
   FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard, AvatarRing,
 } from '../components/feed/FeedKit'
 import { SHUFFLED_LIVE_PARTNERS } from '../data/lifestylePartners'
 import {
-  fetchFeedPage, fetchBuzzingHighlight, fetchCampusPulse, fetchActivePlacement,
+  fetchFeedPage, fetchBuzzingHighlight, fetchActivePlacement,
   fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
   fetchSuggestedProfiles, fetchSavedPostIds, savePost, unsavePost, DEFAULT_BUZZ_WINDOW,
 } from '../lib/feed'
@@ -273,7 +273,6 @@ export default function HomeScreen({ navigation }) {
   const loadingMoreRef = useRef(false)
   const [buzzWindow, setBuzzWindow]         = useState(DEFAULT_BUZZ_WINDOW)
   const [buzzingHighlight, setBuzzingHighlight] = useState(null)
-  const [campusPulse, setCampusPulse]       = useState({ total: 0, counts: {} })
   const [placement, setPlacement]           = useState(null)
   const [myReactions, setMyReactions]       = useState({})
   const [savedPostIds, setSavedPostIds]     = useState(() => new Set())
@@ -381,12 +380,8 @@ export default function HomeScreen({ navigation }) {
 
   async function loadBuzzContext(windowId) {
     try {
-      const [highlight, pulse] = await Promise.all([
-        fetchBuzzingHighlight(windowId),
-        fetchCampusPulse(windowId),
-      ])
+      const highlight = await fetchBuzzingHighlight(windowId)
       setBuzzingHighlight(highlight)
-      setCampusPulse(pulse)
     } catch {}
   }
 
@@ -581,20 +576,21 @@ export default function HomeScreen({ navigation }) {
   // reconciles normally instead.
   const feedListHeader = (
     <View>
-      <View style={{ paddingHorizontal: spacing.md, paddingTop: 18 }}>
-        <View style={{ marginBottom: 22 }}>
+      <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.xl }}>
+        <View style={{ marginBottom: 24 }}>
           <StoryRail navigation={navigation} onNavigate={handleNav} colors={colors} />
         </View>
 
         <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
       </View>
 
-      {/* BuzzStrip/CampusPulse carry their own spacing.md horizontal
-          padding internally already (see FeedKit.jsx), so they sit
-          directly here without an extra wrapper. */}
+      {/* BuzzStrip carries its own spacing.md horizontal padding internally
+          already (see FeedKit.jsx), so it sits directly here without an
+          extra wrapper. The old Campus Pulse mood bar that used to live
+          here moved to Campus Connect/Course Connect as "Campus Mood"/
+          "Course Mood" — see FeedKit's MoodPulse. */}
       <View style={{ paddingHorizontal: spacing.md }}>
         <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
-        <CampusPulse pulse={campusPulse} />
       </View>
 
       <View style={{ height: 22 }} />
@@ -844,7 +840,11 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 14, paddingVertical: 14,
     backgroundColor: colors.surface,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
+    // Was a hardcoded light-mode-only navy rgba — invisible against a dark
+    // surface, which is why the header had no visible edge in dark mode.
+    // colors.divider is theme-aware (cream-tinted in dark, navy-tinted in
+    // light) so the header reads as its own distinct zone in both.
+    borderBottomWidth: 1, borderBottomColor: colors.divider,
     zIndex: 10, elevation: 10,
   },
   topTitle:    { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, lineHeight: 27 },
@@ -853,7 +853,7 @@ function __gs_styles(colors) {
   portalSwitchRow: {
     paddingHorizontal: 14, paddingVertical: 10,
     backgroundColor: colors.surface,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
+    borderBottomWidth: 1, borderBottomColor: colors.divider,
     alignItems: 'flex-start',
     zIndex: 9, elevation: 9,
   },

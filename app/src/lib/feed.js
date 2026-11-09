@@ -69,7 +69,7 @@ export async function fetchBuzzingHighlight(windowId) {
   return top
 }
 
-export async function fetchCampusPulse(windowId) {
+export async function fetchMoodPulse(windowId) {
   const since = windowStartDate(windowId).toISOString()
   const { data, error } = await supabase
     .from('feed_posts')

@@ -60,8 +60,17 @@ export const darkColors = {
   navy: '#1E3A5F',
   cream: '#F5F0E8',
   white: '#FFFFFF',
-  muted: '#B6C3D3',
-  light: '#8FA0B5',
+  // Warmed from a cool blue-grey to a cream-tinted warm grey (2026-11-09,
+  // founder premium-pass feedback: "cream should have a bigger impact in
+  // dark mode"). These two are the most-used colors on the screen after
+  // navy/cream themselves — captions, labels, inactive icons — so a blue-
+  // grey here was quietly fighting the navy/cream identity everywhere at
+  // once, even while textPrimary/chromeFg were correctly cream. Contrast
+  // re-verified against both background and surface, matching or slightly
+  // beating the old blue-grey values' own ratios (~4.3-4.4:1 against navy
+  // for `light`, ~6:1/4.8:1 against navy/surface for `muted`).
+  muted: '#C4BCA8',
+  light: '#A89F8A',
   border: 'rgba(245,240,232,0.14)',
   success: '#4ADE80',
   destructive: '#FCA5A5',
@@ -105,8 +114,8 @@ export const darkColors = {
   accentBg: '#F5F0E8',
   accentFg: '#1E3A5F',
   textPrimary: '#F5F0E8',
-  textSecondary: '#B6C3D3',
-  textTertiary: '#8FA0B5',
+  textSecondary: '#C4BCA8',
+  textTertiary: '#A89F8A',
   divider: 'rgba(245,240,232,0.14)',
   overlay: 'rgba(0,0,0,0.65)',
 }

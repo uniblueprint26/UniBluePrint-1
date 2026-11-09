@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, TextInput,
   StyleSheet, KeyboardAvoidingView, Platform,
@@ -12,6 +12,8 @@ import UBPLogo from '../components/ui/UBPLogo'
 import Button from '../components/ui/Button'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import CampusPulseCard from '../components/campusConnect/CampusPulseCard'
+import { MoodPulse } from '../components/feed/FeedKit'
+import { fetchMoodPulse, DEFAULT_BUZZ_WINDOW } from '../lib/feed'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { priorityColors, priorityFonts } from '../constants/priorityTheme'
@@ -254,6 +256,17 @@ export default function CampusConnectScreen({ navigation }) {
   // ── Post to Board picker ────────────────────────────────────────────────────
   const [pickerOpen, setPickerOpen] = useState(false)
 
+  // ── Mood Pulse (moved here from Home, 2026-11-09) ───────────────────────
+  // Distinct from CampusPulseCard above — this is the mood-distribution bar
+  // (aggregated from Thread posts' mood tags), not the weekly prompt
+  // module. Fixed to the default window rather than its own filter chips;
+  // the Today/Week/Month/Year toggle still lives on Home where it also
+  // drives the Buzzing highlight.
+  const [moodPulse, setMoodPulse] = useState({ total: 0, counts: {} })
+  useEffect(() => {
+    fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(setMoodPulse).catch(() => {})
+  }, [])
+
   // ── Board showcase (14 boards, one card treatment) ─────────────────────────
   const boardTiles = useMemo(() => buildBoardTiles(BOARDS_DATA), [])
   const filteredBoardTiles = useMemo(() => {
@@ -350,6 +363,14 @@ export default function CampusConnectScreen({ navigation }) {
               lives on the Campus Events board area. See CampusPulseCard.jsx
               and supabase/migrations/20261015140000_campus_pulse.sql. ── */}
           <CampusPulseCard navigation={navigation} />
+
+          {/* ── Campus Mood — the mood-distribution bar (see FeedKit's
+              MoodPulse) moved here from Home. Different from Campus Pulse
+              above: that's a weekly prompt + replies, this is a read-only
+              aggregate of mood tags across Thread posts. */}
+          <View style={{ marginBottom: spacing.md }}>
+            <MoodPulse pulse={moodPulse} title="Campus Mood" />
+          </View>
 
           {/* Search — filters the board showcase below by name or topic */}
           <View style={styles.searchWrap}>

@@ -20,6 +20,8 @@ import UBPLogo from '../components/ui/UBPLogo'
 import Button from '../components/ui/Button'
 import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
 import InterestsModal from '../components/profile/InterestsModal'
+import { MoodPulse } from '../components/feed/FeedKit'
+import { fetchMoodPulse, DEFAULT_BUZZ_WINDOW } from '../lib/feed'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
@@ -396,6 +398,15 @@ export default function CourseConnectScreen({ navigation }) {
   const safeGoBack = useSafeGoBack(navigation)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [interestsModalOpen, setInterestsModalOpen] = useState(false)
+
+  // ── Course Mood (moved here from Home alongside Campus's own copy,
+  // 2026-11-09) — same underlying mood-distribution aggregate FeedKit's
+  // MoodPulse already powers on Campus Connect, just titled for this
+  // screen. Fixed to the default window, same reasoning as Campus Connect.
+  const [moodPulse, setMoodPulse] = useState({ total: 0, counts: {} })
+  useEffect(() => {
+    fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(setMoodPulse).catch(() => {})
+  }, [])
   const { userType, label: userTypeLabel } = useUserType()
   const { interests } = useInterests()
   const path = PATH_CONTENT[userType] || PATH_CONTENT[USER_TYPE_STUDENT]
@@ -598,6 +609,13 @@ export default function CourseConnectScreen({ navigation }) {
               </Text>
             </View>
           </TouchableOpacity>
+
+          {/* ── Course Mood — Course Connect's own copy of the mood-
+              distribution bar (see FeedKit's MoodPulse); Campus Connect
+              has the same widget titled "Campus Mood". ── */}
+          <View style={{ marginTop: spacing.md }}>
+            <MoodPulse pulse={moodPulse} title="Course Mood" />
+          </View>
 
           {/* ── "Viewing as" note — demoted deliberately. This screen is no
               longer organised BY path (that's the whole point of the
