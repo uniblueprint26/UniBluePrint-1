@@ -80,22 +80,29 @@ export const darkColors = {
   // share one lighter navy step so cards and "always navy" chrome (TopBar,
   // drawer) read as one consistent elevated tone against the deeper navy
   // page; surfaceAlt mirrors light mode's own convention of equalling the
-  // page background rather than introducing a third tone. accentBg flips
-  // to the brand gold (navy page, steel-navy accent disappeared into it;
-  // gold is the one color that doesn't) with navy accentFg text, matching
-  // how gold is already used for "premium" moments everywhere else in the
-  // app. textSecondary/textTertiary/muted/light/destructive were nudged
-  // lighter than a literal cream-at-opacity would give, specifically to
-  // keep clearing WCAG AA 4.5:1 against this lighter navy (a near-black
-  // background forgives more than the actual brand navy does) — verified
-  // with a relative-luminance contrast check, not eyeballed; see the
-  // founder-approved preview at claude.ai/artifact/KYtzjKVrcyCap74hzCTUME.
+  // page background rather than introducing a third tone. textSecondary/
+  // textTertiary/muted/light/destructive were nudged lighter than a literal
+  // cream-at-opacity would give, specifically to keep clearing WCAG AA
+  // 4.5:1 against this lighter navy (a near-black background forgives more
+  // than the actual brand navy does) — verified with a relative-luminance
+  // contrast check, not eyeballed; see the founder-approved preview at
+  // claude.ai/artifact/KYtzjKVrcyCap74hzCTUME.
+  //
+  // accentBg revised (2026-11-09, founder premium-pass feedback): cream,
+  // not gold. Navy+gold-as-workhorse-button-color read as diluting the
+  // navy/cream identity the founder wants dominant — a solid cream fill
+  // still clears contrast against navy (same reasoning gold originally
+  // solved: navy-on-navy disappears) while keeping the whole dark-mode
+  // palette to just navy + cream. Gold stays in the palette as a genuinely
+  // rare "premium highlight" accent (badges, index tabs, special moments)
+  // rather than the default interactive color — see `colors.gold` used
+  // directly for that, not accentBg.
   background: '#1E3A5F',
   surface: '#2B4A74',
   surfaceAlt: '#1E3A5F',
   chromeBg: '#2B4A74',
   chromeFg: '#F5F0E8',
-  accentBg: '#C9A24B',
+  accentBg: '#F5F0E8',
   accentFg: '#1E3A5F',
   textPrimary: '#F5F0E8',
   textSecondary: '#B6C3D3',
@@ -140,6 +147,40 @@ export const shadows = {
     shadowRadius: 20,
     elevation: 6,
   },
+  // Soft, large-blur, low-opacity "floating glass" shadow — for elements
+  // that should read as elevated above the page (composer bar, primary
+  // buttons, story rings), not bordered stickers sitting on it. Use instead
+  // of `card` wherever a border was previously doing the separation job —
+  // relying on both a shadow AND a border at once is what was reading
+  // "blocky" rather than premium.
+  glow: {
+    shadowColor: '#1E3A5F',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 28,
+    elevation: 10,
+  },
+  // Dark-mode counterpart of `glow` — a navy shadow barely shows against an
+  // already-dark background, so this leans on a deeper, higher-contrast
+  // shadow color (near-black) instead of just turning opacity down to zero.
+  glowDark: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.45,
+    shadowRadius: 24,
+    elevation: 10,
+  },
+}
+
+// Top-to-bottom gradient stops for the subtle "glossy" highlight sheen
+// overlaid on elevated surfaces (cards, buttons, the composer bar, story
+// rings) — a thin band of light catching the top edge, like a real glossy
+// surface, rather than a flat painted color. Pass to expo-linear-gradient's
+// `colors` prop. Picked per mode since a light sheen needs more opacity to
+// read against navy than it does against white/cream.
+export const sheen = {
+  light: ['rgba(255,255,255,0.55)', 'rgba(255,255,255,0)'],
+  dark: ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)'],
 }
 
 export const radius = {
