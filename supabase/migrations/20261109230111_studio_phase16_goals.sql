@@ -1,0 +1,6 @@
+-- No-op (accidental empty apply -- the real schema is in the immediately
+-- following 20261109230156_studio_phase16_goals_v2.sql). Kept as a local
+-- stub so this migration file set matches what list_migrations shows was
+-- actually applied, rather than adding to this repo's existing drift
+-- (see task #49/#67's dedicated review) -- not deleted, not backfilled
+-- with content it never ran.

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel, FaqSection,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StudioField as Field, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, RequestPanel, GoalsPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_INPUT, studioButton, tint, isZeroish,
   PeriodToggle, TrendLineChart, GlanceCard, ShareableStatCard, getStatusColor,
@@ -20,6 +20,7 @@ import {
   getFinanceCommissionSummary, getFinancePartnerPayoutSummary, getPartnerTierAdminList,
   getMoneyRequests, createMoneyRequest, decideMoneyRequest,
   getIsTeamLead, getTeamTasks, getTeamRoster, listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  listStudioGoals, createStudioGoal, updateStudioGoal,
   weekOverWeekChangePct, percentileRank, findRising,
 } from '../../lib/studioMetrics'
 
@@ -178,6 +179,7 @@ export default function FinanceDashboardPage() {
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
   const [requests, setRequests] = useState([])
+  const [goals, setGoals] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -186,7 +188,7 @@ export default function FinanceDashboardPage() {
       const [
         revRes, oneTimeRes, byTierRes, marginRes, commRes, payoutRes,
         coachPayoutRes, pendingCoachPayoutRes, failureRes, cohortRes, compareRes,
-        clientsRes, requestsRes, leadRes, tasksRes, membersRes, crossHubRes,
+        clientsRes, requestsRes, leadRes, tasksRes, membersRes, crossHubRes, goalsRes,
       ] = await Promise.all([
         getFinanceRevenueSnapshot(range),
         getFinanceOneTimePayments(range),
@@ -205,6 +207,7 @@ export default function FinanceDashboardPage() {
         getTeamTasks('finance'),
         getTeamRoster('finance'),
         listStudioRequests('finance'),
+        listStudioGoals('finance'),
       ])
 
       setRevenue(revRes.value || EMPTY_REVENUE)
@@ -224,6 +227,7 @@ export default function FinanceDashboardPage() {
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setRequests(crossHubRes.value || [])
+      setGoals(goalsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -319,6 +323,26 @@ export default function FinanceDashboardPage() {
     }
   }
 
+  // ── Monthly goals (Studio Phase 16) ─────────────────────────────────────
+  async function addGoal(fields) {
+    try {
+      await createStudioGoal('finance', fields)
+      const r = await listStudioGoals('finance')
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not set that goal.')
+    }
+  }
+  async function updateGoalProgress(id, fields) {
+    try {
+      await updateStudioGoal(id, fields)
+      const r = await listStudioGoals('finance')
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that goal.')
+    }
+  }
+
   // ── Client Register / Tier Scorecard / A/B Calculator state ───────────
   const [selectedClientKey, setSelectedClientKey] = useState('')
   const selectedClient = clients.find(c => `${c.entity_type}:${c.entity_id}` === selectedClientKey) || null
@@ -391,6 +415,7 @@ export default function FinanceDashboardPage() {
     { id: 'fn-pricing', label: 'A/B Revenue Model' },
     { id: 'fn-requests', label: 'Money Requests' },
     { id: 'fn-crosshub', label: 'Requests' },
+    { id: 'fn-goals', label: 'Goals' },
     { id: 'fn-faq', label: 'FAQ' },
   ]
 
@@ -937,6 +962,24 @@ export default function FinanceDashboardPage() {
             onCreate={createCrossHubRequest}
             onApprove={approveCrossHubRequest}
             onDeny={denyCrossHubRequest}
+            accentColor={HUB_ACCENTS.finance}
+          />
+        </Card>
+
+        {/* ══ GOALS ═══════════════════════════════════════════════════════
+            Studio Phase 16 -- monthly goals a Finance lead sets/tracks for
+            the team (task #41). Read-only for a non-lead (same isLead used
+            for the negotiated-rate column above). */}
+        <Card id="fn-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Goals"
+            caption="This month's goals for Finance, set and tracked by a team lead. Real studio_goals rows." />
+          <GoalsPanel
+            team="finance"
+            goals={goals}
+            loading={loading}
+            isLead={isLead}
+            onCreate={addGoal}
+            onUpdateProgress={updateGoalProgress}
             accentColor={HUB_ACCENTS.finance}
           />
         </Card>

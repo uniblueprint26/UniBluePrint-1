@@ -432,6 +432,53 @@ export async function getAllPendingStudioRequests() {
   return { trackable: true, value: data || [] }
 }
 
+// ── Monthly goals (Studio Phase 16) -- a hub LEAD sets/tracks a goal for
+// their team this month; any team member can read it. Backs task #41's
+// "Leaders: monthly goals" and the Extras backlog's "goals" item, the same
+// feature serving both asks. See supabase/migrations/
+// 20261109230156_studio_phase16_goals_v2.sql and the shared GoalsPanel
+// Studio component every hub page renders this through. ──
+
+export async function listStudioGoals(team) {
+  const { data, error } = await supabase.rpc('list_studio_goals', { _team: team })
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
+export async function createStudioGoal(team, fields) {
+  const { data, error } = await supabase.rpc('create_studio_goal', {
+    _team: team,
+    _title: fields.title,
+    _month: fields.month,
+    _description: fields.description || null,
+    _target_value: fields.targetValue ?? null,
+    _target_unit: fields.targetUnit || null,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function updateStudioGoal(id, fields) {
+  const { error } = await supabase.rpc('update_studio_goal', {
+    _id: id,
+    _current_value: fields.currentValue ?? null,
+    _status: fields.status || null,
+    _title: fields.title || null,
+    _description: fields.description || null,
+    _target_value: fields.targetValue ?? null,
+    _target_unit: fields.targetUnit || null,
+    _clear_current_value: !!fields.clearCurrentValue,
+  })
+  if (error) throw error
+}
+
+/** Company-wide rollup of every hub's goals, any team/month -- founder/admin/co_director only. Reused by both the Co-Director Hub and Founder Dashboard, same way getAllPendingStudioRequests() already is. */
+export async function getAllStudioGoals() {
+  const { data, error } = await supabase.rpc('get_all_studio_goals')
+  if (error) throw error
+  return { trackable: true, value: data || [] }
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // Tech Hub (Studio Phase 3) -- health overview snapshots (advisor findings
 // + deployed Edge Functions, both Management-API-only data captured as

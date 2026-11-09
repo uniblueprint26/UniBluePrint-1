@@ -26,6 +26,7 @@ export { default as ActivityHeatmap } from './ActivityHeatmap'
 // if something else used it, not to remove the file outright.
 export { default as TaskBoard } from './TaskBoard'
 export { default as RequestPanel } from './RequestPanel'
+export { default as GoalsPanel } from './GoalsPanel'
 export { default as FaqSection } from './FaqSection'
 export { StudioCard, SectionTitle, EmptyNote, StudioField, Eyebrow } from './StudioPrimitives'
 export { SkeletonBlock, ChartSkeleton, ListSkeleton, TableSkeleton, StatStripSkeleton } from './Skeleton'

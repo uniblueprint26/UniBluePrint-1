@@ -17,6 +17,7 @@ import {
   getCoDirectorPendingDecisions,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest, getAllPendingStudioRequests,
+  getAllStudioGoals,
   listStudioGreetings, createStudioGreeting, setStudioGreetingActive, deleteStudioGreeting,
 } from '../../lib/studioMetrics'
 import {
@@ -265,6 +266,7 @@ export default function FounderDashboardPage() {
   const [members, setMembers] = useState([])
   const [requests, setRequests] = useState([])
   const [allPendingRequests, setAllPendingRequests] = useState([])
+  const [allGoals, setAllGoals] = useState([])
 
   // ── New: Team Greetings (Studio Phase 12) -- the founder's own place to
   //    write the real personalized greeting messages (confirmed in the
@@ -283,7 +285,7 @@ export default function FounderDashboardPage() {
         enquiriesRes, ratingsRes, campusesRes, retentionRes,
         revRes, marginRes, contractsRes, advisorRes,
         pipelineRes, coachRes, funnelRes, handlerRes, decisionsRes,
-        tasksRes, membersRes, requestsRes, allPendingRes,
+        tasksRes, membersRes, requestsRes, allPendingRes, allGoalsRes,
       ] = await Promise.all([
         supabase.rpc('get_founder_topline', { _range: range }),
         supabase.rpc('get_feature_engagement', { _range: range }),
@@ -306,6 +308,7 @@ export default function FounderDashboardPage() {
         getTeamRoster('founder'),
         listStudioRequests('founder'),
         getAllPendingStudioRequests(),
+        getAllStudioGoals(),
       ])
 
       const firstError = [toplineRes, engagementRes, signupsRes, partnersRes, enquiriesRes, ratingsRes, campusesRes, retentionRes]
@@ -340,6 +343,7 @@ export default function FounderDashboardPage() {
       setMembers(membersRes.value || [])
       setRequests(requestsRes.value || [])
       setAllPendingRequests(allPendingRes.value || [])
+      setAllGoals(allGoalsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -519,6 +523,7 @@ export default function FounderDashboardPage() {
     { id: 'fh-greetings', label: 'Team Greetings' },
     { id: 'fh-all-requests', label: 'Cross-Hub Requests' },
     { id: 'fh-requests', label: 'Requests' },
+    { id: 'fh-all-goals', label: 'Goals, Company-Wide' },
     { id: 'fh-faq', label: 'FAQ' },
   ]
 
@@ -949,6 +954,36 @@ export default function FounderDashboardPage() {
             onDeny={denyRequest}
             accentColor={HUB_ACCENTS.founder}
           />
+        </Card>
+
+        {/* ══ GOALS, COMPANY-WIDE ═════════════════════════════════════════
+            Studio Phase 16 -- every hub's monthly goals, any team, via
+            get_all_studio_goals(). Read-only here -- a goal is only ever
+            created/updated from its own hub's page, by that hub's lead. */}
+        <Card id="fh-all-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New -- across every hub" title="Goals, company-wide"
+            caption="Every hub's monthly goals, any team, newest month first -- set from each hub's own Goals panel by that hub's lead." />
+          {allGoals.length === 0 ? (
+            <EmptyNote>No goals set yet, any hub.</EmptyNote>
+          ) : (
+            <div className="studio-table-wrap">
+              <table className="studio-table studio-table--top">
+                <thead><tr><th>Hub</th><th>Goal</th><th>Month</th><th>Progress</th><th>Status</th><th>Updated</th></tr></thead>
+                <tbody>
+                  {allGoals.map(g => (
+                    <tr key={g.id}>
+                      <td><HubBadge hub={g.team} label={HUB_LABELS[g.team] || g.team} /></td>
+                      <td style={{ minWidth: '160px', maxWidth: '320px', whiteSpace: 'normal' }}>{g.title}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(g.month).toLocaleDateString('en-IE', { month: 'long', year: 'numeric' })}</td>
+                      <td style={{ color: GREY }}>{g.target_value != null ? `${g.current_value ?? 0} / ${g.target_value} ${g.target_unit || ''}` : '—'}</td>
+                      <td style={{ textTransform: 'capitalize' }}>{g.status.replace('_', ' ')}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{fmtDateTime(g.updated_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
 
         <FaqSection id="fh-faq" hubKey="founder" accentColor={HUB_ACCENTS.founder} />

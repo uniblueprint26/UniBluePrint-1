@@ -20,10 +20,11 @@ import {
   getHandlerQueueSnapshot, getHandlerTicketsByWeek, getHandlerTicketsResolvedComparison,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  listStudioGoals, createStudioGoal, updateStudioGoal, getIsTeamLead,
   getTaskDueDateDensity, getTeamActivityHeatmap,
 } from '../../lib/studioMetrics'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel, FaqSection,
+  StudioShell, StudioCard as Card, SectionTitle, StatStrip, ComparisonWidget, TaskBoard, RequestPanel, GoalsPanel, FaqSection,
   NAVY, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
 } from '../../components/studio'
@@ -86,6 +87,8 @@ export default function HandlerQueuePage() {
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
   const [requests, setRequests] = useState([])
+  const [goals, setGoals] = useState([])
+  const [isLead, setIsLead] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -95,9 +98,10 @@ export default function HandlerQueuePage() {
         fetchPremiumQueue(), fetchStandardQueue(), fetchMyActiveAssignments(user.id), fetchHandlerNotifications(user.id),
         getHandlerQueueSnapshot(), getHandlerTicketsByWeek(), getHandlerTicketsResolvedComparison(comparisonWindow),
         getTeamTasks('handler'), getTeamRoster('handler'), listStudioRequests('handler'),
+        listStudioGoals('handler'), getIsTeamLead('handler'),
       ]
       if (isOperations) tasksToRun.push(fetchOperationsQueue())
-      const [p, s, m, n, snapRes, weekRes, compRes, tasksRes, membersRes, requestsRes, e] = await Promise.all(tasksToRun)
+      const [p, s, m, n, snapRes, weekRes, compRes, tasksRes, membersRes, requestsRes, goalsRes, leadRes, e] = await Promise.all(tasksToRun)
       setPremium(p)
       setStandard(s)
       setMine(m)
@@ -108,6 +112,8 @@ export default function HandlerQueuePage() {
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setRequests(requestsRes.value || [])
+      setGoals(goalsRes.value || [])
+      setIsLead(!!leadRes.value)
       if (isOperations) setEscalated(e || [])
     } catch (err) {
       setError(err.message || 'Could not load the queue.')
@@ -165,6 +171,26 @@ export default function HandlerQueuePage() {
       setRequests(r.value || [])
     } catch (err) {
       setError(err.message || 'Could not deny that request.')
+    }
+  }
+
+  // ── Monthly goals (Studio Phase 16) ─────────────────────────────────────
+  async function addGoal(fields) {
+    try {
+      await createStudioGoal('handler', fields)
+      const r = await listStudioGoals('handler')
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not set that goal.')
+    }
+  }
+  async function updateGoalProgress(id, fields) {
+    try {
+      await updateStudioGoal(id, fields)
+      const r = await listStudioGoals('handler')
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that goal.')
     }
   }
 
@@ -235,6 +261,7 @@ export default function HandlerQueuePage() {
     { id: 'hh-tasks', label: 'Handler Team Tasks' },
     { id: 'hh-activity', label: 'Calendar & Activity' },
     { id: 'hh-requests', label: 'Requests' },
+    { id: 'hh-goals', label: 'Goals' },
     { id: 'hh-faq', label: 'FAQ' },
   ]
 
@@ -495,6 +522,23 @@ export default function HandlerQueuePage() {
             onCreate={createRequest}
             onApprove={approveRequest}
             onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.handler}
+          />
+        </Card>
+
+        {/* ══ GOALS ═══════════════════════════════════════════════════════
+            Studio Phase 16 -- monthly goals a Handler lead sets/tracks for
+            the team (task #41). Read-only for a non-lead. */}
+        <Card id="hh-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Goals"
+            caption="This month's goals for the Handler team, set and tracked by a team lead. Real studio_goals rows." />
+          <GoalsPanel
+            team="handler"
+            goals={goals}
+            loading={loading}
+            isLead={isLead}
+            onCreate={addGoal}
+            onUpdateProgress={updateGoalProgress}
             accentColor={HUB_ACCENTS.handler}
           />
         </Card>

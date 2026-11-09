@@ -18,6 +18,7 @@ import {
   getCoDirectorPendingDecisions,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest, getAllPendingStudioRequests,
+  getAllStudioGoals,
 } from '../../lib/studioMetrics'
 
 // Co-Director Hub (Studio Phase 6) -- for Daniel (Co-Director), genuine
@@ -114,6 +115,7 @@ export default function CoDirectorDashboardPage() {
   const [members, setMembers] = useState([])
   const [requests, setRequests] = useState([])
   const [allPendingRequests, setAllPendingRequests] = useState([])
+  const [allGoals, setAllGoals] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -122,7 +124,7 @@ export default function CoDirectorDashboardPage() {
       const [
         revRes, marginRes, contractsRes, advisorRes,
         pipelineRes, coachRes, funnelRes, decisionsRes,
-        tasksRes, membersRes, requestsRes, allPendingRes,
+        tasksRes, membersRes, requestsRes, allPendingRes, allGoalsRes,
       ] = await Promise.all([
         getFinanceRevenueSnapshot('month'),
         getFinanceMarginSummary('month'),
@@ -136,6 +138,7 @@ export default function CoDirectorDashboardPage() {
         getTeamRoster('co_director'),
         listStudioRequests('co_director'),
         getAllPendingStudioRequests(),
+        getAllStudioGoals(),
       ])
       setRevenue(revRes.value || EMPTY_REVENUE)
       setMargin(marginRes.value || EMPTY_MARGIN)
@@ -149,6 +152,7 @@ export default function CoDirectorDashboardPage() {
       setMembers(membersRes.value || [])
       setRequests(requestsRes.value || [])
       setAllPendingRequests(allPendingRes.value || [])
+      setAllGoals(allGoalsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load the rollup data.')
     } finally {
@@ -246,6 +250,7 @@ export default function CoDirectorDashboardPage() {
     { id: 'cd-priorities', label: 'Co-Director Priorities' },
     { id: 'cd-all-requests', label: 'Cross-Hub Requests' },
     { id: 'cd-requests', label: 'Requests' },
+    { id: 'cd-all-goals', label: 'Goals, Company-Wide' },
     { id: 'cd-faq', label: 'FAQ' },
   ]
 
@@ -515,6 +520,37 @@ export default function CoDirectorDashboardPage() {
             onDeny={denyRequest}
             accentColor={HUB_ACCENTS.co_director}
           />
+        </Card>
+
+        {/* ══ GOALS, COMPANY-WIDE ═════════════════════════════════════════
+            Studio Phase 16 -- every hub's monthly goals, any team, via
+            get_all_studio_goals() -- the studio_goals counterpart to
+            cd-all-requests above, read-only here (a goal is only ever
+            created/updated from its own hub's page, by that hub's lead). */}
+        <Card id="cd-all-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New -- across every hub" title="Goals, company-wide"
+            caption="Every hub's monthly goals, any team, newest month first -- set from each hub's own Goals panel by that hub's lead." />
+          {allGoals.length === 0 ? (
+            <EmptyNote>No goals set yet, any hub.</EmptyNote>
+          ) : (
+            <div className="studio-table-wrap">
+              <table className="studio-table studio-table--top">
+                <thead><tr><th>Hub</th><th>Goal</th><th>Month</th><th>Progress</th><th>Status</th><th>Updated</th></tr></thead>
+                <tbody>
+                  {allGoals.map(g => (
+                    <tr key={g.id}>
+                      <td><HubBadge hub={g.team} label={HUB_LABELS[g.team] || g.team} /></td>
+                      <td style={{ minWidth: '160px', maxWidth: '320px', whiteSpace: 'normal' }}>{g.title}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(g.month).toLocaleDateString('en-IE', { month: 'long', year: 'numeric' })}</td>
+                      <td style={{ color: GREY }}>{g.target_value != null ? `${g.current_value ?? 0} / ${g.target_value} ${g.target_unit || ''}` : '—'}</td>
+                      <td style={{ textTransform: 'capitalize' }}>{g.status.replace('_', ' ')}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{fmtDateTime(g.updated_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
 
         <FaqSection id="cd-faq" hubKey="co_director" accentColor={HUB_ACCENTS.co_director} />
