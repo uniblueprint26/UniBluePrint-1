@@ -404,7 +404,9 @@ function __gs_styles(colors) {
   },
   negotiatedHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   negotiatedRate: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldDeep },
-  negotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
+  // negotiatedBox's background is a fixed pale amber in both modes —
+  // needs a fixed dark text color, not textPrimary (cream in dark mode).
+  negotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
   negotiatedEffective: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 6 },
 
   unlinkedCard: { marginTop: 10 },

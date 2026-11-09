@@ -178,7 +178,11 @@ function __gs_styles(colors) {
     backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  infoText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, lineHeight: 18 },
+  // infoCard's background is a fixed pale blue in both modes (not
+  // mode-aware) — this text needs a fixed dark color too, not textPrimary,
+  // which flips to near-white cream in dark mode and becomes nearly
+  // unreadable against the still-pale fixed background.
+  infoText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.navy, lineHeight: 18 },
   emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 30, lineHeight: 19, paddingHorizontal: 10 },
 
   specCard: {},

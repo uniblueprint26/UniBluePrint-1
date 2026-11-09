@@ -1210,7 +1210,9 @@ function __gs_styles(colors) {
   tierNegotiatedBox: { marginTop: 12, padding: 12, borderRadius: radius.button, backgroundColor: '#FFFBEB' },
   tierNegotiatedHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   tierNegotiatedRate: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldDeep },
-  tierNegotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
+  // tierNegotiatedBox's background is a fixed pale amber in both modes —
+  // needs a fixed dark text color, not textPrimary (cream in dark mode).
+  tierNegotiatedRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, fontStyle: 'italic', marginTop: 6, lineHeight: 17 },
   tierErrorRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
     backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button, padding: 14,

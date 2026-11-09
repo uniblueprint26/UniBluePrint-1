@@ -60,7 +60,10 @@ export default function VerifyEmailScreen({ route, navigation }) {
 
       <View style={styles.body}>
         <View style={styles.iconWrap}>
-          <Mail size={40} color={colors.textPrimary} />
+          {/* iconWrap's background is a fixed pale blue in both modes —
+              needs a fixed dark icon color, not textPrimary (cream in dark
+              mode, invisible against this still-pale background). */}
+          <Mail size={40} color={colors.navy} />
         </View>
 
         <Text style={styles.title}>Check your inbox.</Text>

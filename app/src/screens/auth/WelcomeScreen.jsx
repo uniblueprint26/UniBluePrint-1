@@ -90,7 +90,12 @@ export default function WelcomeScreen({ navigation }) {
         {SLIDES.map(({ icon: Icon, color, eyebrow, title, sub }, i) => (
           <View key={i} style={[styles.slide, { width }]}>
             <View style={[styles.iconWrap, { backgroundColor: color }]}>
-              <Icon size={40} color={colors.textPrimary} />
+              {/* `color` is a fixed pale pastel swatch, not mode-aware — the
+                  icon needs a fixed dark color too, not textPrimary, which
+                  flips to near-white cream in dark mode and disappears
+                  against it (same bug class fixed on ProfileScreen's
+                  Explore list). */}
+              <Icon size={40} color={colors.navy} />
             </View>
             <Text style={styles.slideEyebrow}>{eyebrow}</Text>
             <Text style={styles.slideTitle}>{title}</Text>

@@ -707,7 +707,9 @@ function __gs_styles(colors) {
   currentRateBox: { backgroundColor: '#FFFBEB', borderRadius: radius.button, padding: 12, marginBottom: 10 },
   currentRateHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   currentRateValue: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldDeep },
-  currentRateRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.textPrimary, fontStyle: 'italic', marginTop: 5, lineHeight: 17 },
+  // currentRateBox's background is a fixed pale amber in both modes —
+  // needs a fixed dark text color, not textPrimary (cream in dark mode).
+  currentRateRationale: { fontFamily: fonts.sans, fontSize: 12, color: colors.navy, fontStyle: 'italic', marginTop: 5, lineHeight: 17 },
 
   rateInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
   ratePctInput: {

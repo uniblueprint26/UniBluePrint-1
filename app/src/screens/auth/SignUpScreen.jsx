@@ -1377,7 +1377,9 @@ function __gs_styles(colors) {
     padding: 14, marginTop: spacing.md,
     borderWidth: 1, borderColor: 'rgba(30,58,95,0.10)',
   },
-  infoText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
+  // infoCard's background is a fixed pale blue in both modes — needs a
+  // fixed dark text color, not textPrimary (cream in dark mode).
+  infoText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
 
   // Situation selector
   situationList: { gap: 10, marginTop: spacing.lg },
@@ -1430,7 +1432,9 @@ function __gs_styles(colors) {
   tradeCategoryBadge: { flexShrink: 0, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, alignItems: 'center', minWidth: 52 },
   tradeCraft:         { backgroundColor: '#EFF6FF' },
   tradeConsortium:    { backgroundColor: '#F0FDF4' },
-  tradeCategoryText:  { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textPrimary },
+  // tradeCraft/tradeConsortium are both fixed pale backgrounds — this text
+  // needs a fixed dark color too, not textPrimary.
+  tradeCategoryText:  { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.navy },
 
   // Step 3 shared sections
   sectionDivider:  { height: 1, backgroundColor: 'rgba(30,58,95,0.08)', marginVertical: spacing.xl },
