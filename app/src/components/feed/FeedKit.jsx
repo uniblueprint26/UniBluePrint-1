@@ -116,6 +116,9 @@ export function BuzzStrip({ selected, onSelect }) {
               onPress={() => onSelect(w.id)}
               style={[k.buzzChip, active && k.buzzChipActive]}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`${w.label} buzz window`}
+              accessibilityState={{ selected: active }}
             >
               <Text style={[k.buzzChipText, active && k.buzzChipTextActive]}>{w.label}</Text>
             </TouchableOpacity>
@@ -228,6 +231,8 @@ function ReactionPill({ myMood, count, onPress, colors, k }) {
       style={[k.reactPill, def ? { backgroundColor: def.bg } : null]}
       onPress={onPress}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={def ? `Reacted ${def.label}, ${count || 0}` : `React with a mood, ${count || 0}`}
     >
       {def ? <Text style={k.reactPillEmoji}>{def.emoji}</Text> : <Smile size={17} color={colors.textPrimary} strokeWidth={1.8} />}
       {count > 0 && (
