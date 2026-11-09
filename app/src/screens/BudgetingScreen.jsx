@@ -31,7 +31,11 @@ import { useInvestmentAccess } from '../hooks/useInvestmentAccess'
 import { supabase } from '../lib/supabase'
 import { COACHES } from './ElevationScreen'
 
-const BUDGET_STORAGE_KEY = 'ub_budget_v1'
+// Keyed per-user (not a flat device-wide key) — otherwise the next person
+// to sign in on a shared phone would load, and silently overwrite, the
+// previous account's income/expenses. Matches the pattern already used for
+// GOALS_SEEDED_KEY_PREFIX below.
+const BUDGET_STORAGE_KEY_PREFIX = 'ub_budget_v1_'
 
 // ─── Goal icons — chosen at creation in the Add Goal form, stored as a key
 // string on the row and mapped back to a Lucide icon here for rendering.
@@ -714,10 +718,15 @@ function BudgetTab({ navigation }) {
   const [addToGoal,    setAddToGoal]    = useState(null)  // goal object, or null when closed
   const [addGoalOpen,  setAddGoalOpen]  = useState(false)
 
-  // Load any previously saved budget the first time this tab mounts.
+  // Load any previously saved budget the first time this tab mounts — keyed
+  // per-user so a different account signing in on the same device never
+  // loads (or later overwrites) someone else's income/expenses. Re-runs if
+  // the signed-in user changes while this tab stays mounted.
   useEffect(() => {
+    if (!user?.id) { setLoaded(false); return }
     let cancelled = false
-    AsyncStorage.getItem(BUDGET_STORAGE_KEY).then(raw => {
+    setLoaded(false)
+    AsyncStorage.getItem(BUDGET_STORAGE_KEY_PREFIX + user.id).then(raw => {
       if (cancelled || !raw) { setLoaded(true); return }
       try {
         const saved = JSON.parse(raw)
@@ -737,15 +746,15 @@ function BudgetTab({ navigation }) {
       setLoaded(true)
     }).catch(() => setLoaded(true))
     return () => { cancelled = true }
-  }, [])
+  }, [user?.id])
 
   // Auto-save on every change, once the initial load has finished — this is
   // what "we track this, save anytime" means: there's no save button because
   // it's always saved.
   useEffect(() => {
-    if (!loaded) return
-    AsyncStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify({ period, mode, userType: appliedUserType, income, expenses })).catch(() => {})
-  }, [loaded, period, mode, appliedUserType, income, expenses])
+    if (!loaded || !user?.id) return
+    AsyncStorage.setItem(BUDGET_STORAGE_KEY_PREFIX + user.id, JSON.stringify({ period, mode, userType: appliedUserType, income, expenses })).catch(() => {})
+  }, [loaded, user?.id, period, mode, appliedUserType, income, expenses])
 
   // Keep income categories in step with the account-wide user type (Student /
   // Apprentice / Gap Year / Worker — changed only in Settings > Account
