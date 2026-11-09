@@ -162,11 +162,11 @@ export default function PriorityCheckoutScreen({ route, navigation }) {
             <View style={styles.orderRow}>
               <Text style={styles.orderRowLabel}>{tier.label}</Text>
               <View style={styles.qtyRow}>
-                <TouchableOpacity onPress={dec} style={styles.qtyBtn} activeOpacity={0.8}>
+                <TouchableOpacity onPress={dec} style={styles.qtyBtn} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Decrease quantity">
                   <Minus size={13} color={pc.textPrimary} strokeWidth={2.4} />
                 </TouchableOpacity>
                 <Text style={styles.qtyValue}>{qty}</Text>
-                <TouchableOpacity onPress={inc} style={styles.qtyBtn} activeOpacity={0.8}>
+                <TouchableOpacity onPress={inc} style={styles.qtyBtn} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Increase quantity">
                   <Plus size={13} color={pc.textPrimary} strokeWidth={2.4} />
                 </TouchableOpacity>
               </View>

@@ -233,6 +233,8 @@ export default function OperationsPortalScreen({ navigation }) {
               activeOpacity={0.85}
               onPress={openTicketLookup}
               disabled={!ticketLookupId.trim()}
+              accessibilityRole="button"
+              accessibilityLabel="Look up submission"
             >
               <ArrowRight size={16} color={colors.accentFg} />
             </TouchableOpacity>

@@ -149,11 +149,11 @@ export default function PriorityEventScreen({ route, navigation }) {
 
           <Text style={styles.sectionLabel}>QUANTITY</Text>
           <View style={styles.qtyRow}>
-            <TouchableOpacity onPress={dec} style={styles.qtyBtn} activeOpacity={0.8}>
+            <TouchableOpacity onPress={dec} style={styles.qtyBtn} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Decrease quantity">
               <Minus size={16} color={pc.textPrimary} strokeWidth={2.4} />
             </TouchableOpacity>
             <Text style={styles.qtyValue}>{qty}</Text>
-            <TouchableOpacity onPress={inc} style={styles.qtyBtn} activeOpacity={0.8}>
+            <TouchableOpacity onPress={inc} style={styles.qtyBtn} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Increase quantity">
               <Plus size={16} color={pc.textPrimary} strokeWidth={2.4} />
             </TouchableOpacity>
             <Text style={styles.qtyHint}>Up to 8 tickets per order</Text>

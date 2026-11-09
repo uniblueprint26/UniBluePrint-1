@@ -1134,7 +1134,7 @@ export default function BoardDetailScreen({ navigation, route }) {
               onChangeText={setSolutionDraft}
               multiline
             />
-            <TouchableOpacity style={styles.solutionSendBtn} activeOpacity={0.8} onPress={postSolution} disabled={solutionSaving}>
+            <TouchableOpacity style={styles.solutionSendBtn} activeOpacity={0.8} onPress={postSolution} disabled={solutionSaving} accessibilityRole="button" accessibilityLabel="Post solution">
               <Send size={16} color={colors.accentFg} />
             </TouchableOpacity>
           </View>

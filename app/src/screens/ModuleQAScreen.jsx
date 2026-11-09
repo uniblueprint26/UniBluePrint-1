@@ -357,7 +357,7 @@ export default function ModuleQAScreen({ navigation, route }) {
               onChangeText={setAnswerDraft}
               multiline
             />
-            <TouchableOpacity style={styles.solutionSendBtn} activeOpacity={0.8} onPress={postAnswer} disabled={answerSaving}>
+            <TouchableOpacity style={styles.solutionSendBtn} activeOpacity={0.8} onPress={postAnswer} disabled={answerSaving} accessibilityRole="button" accessibilityLabel="Post answer">
               <Send size={16} color={colors.accentFg} />
             </TouchableOpacity>
           </View>
