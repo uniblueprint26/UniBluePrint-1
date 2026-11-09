@@ -1318,7 +1318,11 @@ export default function ProfileScreen({ navigation }) {
               >
                 <Card style={styles.linkCard}>
                   <View style={[styles.linkIcon, { backgroundColor: link.color }]}>
-                    <link.Icon size={20} color={colors.textPrimary} strokeWidth={1.8} />
+                    {/* link.color is a fixed pale pastel swatch in both modes
+                        (not mode-aware) — the icon needs a fixed dark color
+                        too, not textPrimary, which flips to a near-white
+                        cream in dark mode and disappears against it. */}
+                    <link.Icon size={20} color={colors.navy} strokeWidth={1.8} />
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={[styles.linkEyebrow, { color: colors.textSecondary }]}>{link.eyebrow}</Text>
