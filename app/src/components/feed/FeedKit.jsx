@@ -39,7 +39,7 @@ function avatarBgFor(seed) {
 // workhorse color. Renders the gradient as a slightly larger circle behind
 // the real avatar, with a small gap so the ring actually reads as a ring
 // rather than a glow bleeding into the avatar itself.
-function AvatarRing({ size, children }) {
+export function AvatarRing({ size, children }) {
   const ringSize = size + 5
   return (
     <View style={{ width: ringSize, height: ringSize, alignItems: 'center', justifyContent: 'center' }}>

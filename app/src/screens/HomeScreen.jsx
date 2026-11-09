@@ -1,24 +1,23 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, FlatList, Linking, Alert,
-  Platform, useWindowDimensions, Share, ActivityIndicator,
+  Platform, useWindowDimensions, Share, ActivityIndicator, Image,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import * as Haptics from 'expo-haptics'
+import { LinearGradient } from 'expo-linear-gradient'
 import {
-  MessageSquare, Users, Menu, CheckCircle, LayoutGrid,
-  FileText, Plus, X, CheckCircle2,
-  Bell, Building2, Calculator, Compass, Globe, Heart, Megaphone, TrendingUp, User,
+  Menu, CheckCircle2,
+  Bell, Building2, Calculator, Compass, Globe, Heart, Megaphone, FileText, TrendingUp, User, LayoutGrid,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
-import DestinationPickerModal from '../components/home/DestinationPickerModal'
 import UBPLogo from '../components/ui/UBPLogo'
 import {
   ComposerEntryBar, BuzzStrip, CampusPulse,
-  FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard,
+  FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard, AvatarRing,
 } from '../components/feed/FeedKit'
+import { SHUFFLED_LIVE_PARTNERS } from '../data/lifestylePartners'
 import {
   fetchFeedPage, fetchBuzzingHighlight, fetchCampusPulse, fetchActivePlacement,
   fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
@@ -40,32 +39,35 @@ const FEED_PAGE_SIZE = 20
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const DEFAULT_SHORTCUTS = ['foundation', 'my_outputs', 'find_coach', 'campus']
-const MAX_SHORTCUTS = 4
-
-// Every destination the Quick Access "+" picker can offer. `label` is the
-// canonical name shown in the picker; `homeLabel`/`homeSub`/`homeIcon` let a
-// destination present differently as a Quick Access card (e.g. Foundation
-// Blueprint shows as "Submit a Service" there) without being a separate,
-// confusing entry in the picker itself.
-const ALL_SHORTCUTS = [
-  { key: 'foundation',    label: 'Foundation Blueprint', sub: 'CVs, cover letters, statements', Icon: FileText,      bg: '#EFF6FF', action: 'foundation',
-    homeLabel: 'Submit a Service', homeSub: 'Order a Foundation Blueprint service' },
-  { key: 'elevation',     label: 'Elevation Blueprint',  sub: 'Coaching and mentorship',        Icon: TrendingUp,    bg: '#F0FDF4', action: 'elevation' },
-  { key: 'lifestyle',     label: 'Lifestyle Blueprint',  sub: 'Deals and mental health',        Icon: Heart,         bg: '#FDF4FF', action: 'lifestyle' },
-  { key: 'campus',        label: 'Campus Connect',       sub: 'Boards, events, carpooling',     Icon: MessageSquare, bg: '#FFF7ED', action: 'campus_connect',
-    homeLabel: 'Campus Board', homeSub: 'See what campus is talking about' },
-  { key: 'course',        label: 'Course Connect',       sub: 'Notes and study groups',         Icon: Globe,         bg: '#F0F9FF', action: 'course_connect' },
-  { key: 'compass',       label: 'Course Compass',       sub: 'Course guidance tools',          Icon: Compass,       bg: '#F5F0E8', action: 'compass' },
-  { key: 'budgeting',     label: 'Budgeting',            sub: 'Budget tools and SUSI guide',    Icon: Calculator,    bg: '#F0FDF4', action: 'budgeting' },
-  { key: 'adboard',       label: 'Ad Board',             sub: 'Weekly magazine, blog, and marketplace', Icon: Megaphone, bg: '#FFF7ED', action: 'tab', tabName: 'AdBoard' },
-  { key: 'my_outputs',    label: 'My Outputs',           sub: 'Your completed documents',       Icon: CheckCircle,   bg: '#ECFDF5', action: 'my_outputs' },
-  { key: 'find_coach',    label: 'Find a Coach',         sub: 'Book time with a coach',         Icon: Users,         bg: '#EFF6FF', action: 'elevation' },
-  { key: 'messages',      label: 'Messages',             sub: 'Direct messages',                Icon: MessageSquare, bg: '#F0F9FF', action: 'tab', tabName: 'Messages' },
-  { key: 'directory',     label: 'Directory',            sub: 'People directory',               Icon: Users,         bg: '#EFF6FF', action: 'tab', tabName: 'Directory' },
-  { key: 'profile',       label: 'Profile',              sub: 'Your profile and settings',      Icon: User,          bg: '#FDF4FF', action: 'tab', tabName: 'Profile' },
-  { key: 'notifications', label: 'Notifications',        sub: 'Everything that needs your attention', Icon: Bell,    bg: '#FEF3C7', action: 'notifications' },
+// The 8 app pillars as story rings — fixed, not user-customisable (replaces
+// the old editable Quick Access shortcuts entirely). Same action/tabName
+// shape handleNav already understands, same destinations as NAV_GROUPS'
+// Blueprints/Connect/Tools sections below, just one more presentation of
+// them. `grad` is this pillar's own two-stop gradient for its ring/color
+// block, since a plain gold ring on every single one would stop reading as
+// "special" by the third pillar — gold stays reserved for the brand stories.
+const PILLARS = [
+  { key: 'foundation', label: 'Foundation', Icon: FileText,   action: 'foundation',     grad: ['#60A5FA', '#1D4ED8'] },
+  { key: 'elevation',  label: 'Elevation',   Icon: TrendingUp, action: 'elevation',      grad: ['#4ADE80', '#15803D'] },
+  { key: 'lifestyle',  label: 'Lifestyle',   Icon: Heart,      action: 'lifestyle',      grad: ['#F0ABFC', '#A21CAF'] },
+  { key: 'campus',     label: 'Campus',      Icon: Building2,  action: 'campus_connect', grad: ['#FDBA74', '#C2410C'] },
+  { key: 'course',     label: 'Course',      Icon: Globe,      action: 'course_connect', grad: ['#93C5FD', '#1E3A8A'] },
+  { key: 'compass',    label: 'Compass',     Icon: Compass,    action: 'compass',        grad: ['#D4D4D8', '#52525B'] },
+  { key: 'budgeting',  label: 'Budgeting',   Icon: Calculator, action: 'budgeting',      grad: ['#86EFAC', '#047857'] },
+  { key: 'adboard',    label: 'Ad Board',    Icon: Megaphone,  action: 'tab', tabName: 'AdBoard', grad: ['#FCA5A5', '#B91C1C'] },
 ]
+
+// A handful of live Lifestyle partners with real photos on file, shown
+// alongside the pillars so the story rail isn't just internal nav — mirrors
+// how real story rails mix people/brands. Picked from the same shuffled
+// live-partner order "The Collection" uses, filtered to ones with an actual
+// hero/logo image (no generic-placeholder rings). Tapping one forwards to
+// Lifestyle's existing highlightId deep-link (see LifestyleScreen.jsx),
+// same path Elevation's coach cross-links already use — nothing new wired.
+const BRAND_STORIES = SHUFFLED_LIVE_PARTNERS
+  .filter(p => p.hero || p.logo)
+  .slice(0, 6)
+  .map(p => ({ key: p.id, label: p.brand, image: p.hero || p.logo, partnerId: p.id }))
 
 // Sidebar nav items — same 8 destinations as before (plus Dashboard),
 // grouped into sections (a hairline divider + a tiny group label between
@@ -122,90 +124,74 @@ function getGreetingWord(date = new Date()) {
   return 'Good night'
 }
 
-// ── Quick Access — slim horizontal row ──────────────────────────────────────
-// Phase 21: condensed from the old 2x2 drag-reorder grid (+ the Overview
-// toggle that used to live in its header) into one pinned strip above the
-// feed — a utility rail, not a second dashboard. Press-and-hold any chip to
-// reveal a remove "x"; a trailing "+" chip opens the same destination picker
-// the old grid used. No drag-reorder here — order is just whatever order the
-// shortcuts were added in; reordering four small chips in a single row
-// wasn't worth carrying the grid's gesture-handler machinery over for.
+// ── Story rail — pillar + brand story rings ─────────────────────────────────
+// Replaces the old editable Quick Access row entirely. Fixed set (the 8 app
+// pillars, always, plus a few featured partner brands) rather than a
+// per-user customisable shortcut list — this is instant nav + a taste of
+// what's on the platform, not a second dashboard.
+//
+// A pillar with no photo gets a bold gradient color-block + icon instead of
+// a flat tinted square — every ring has real visual weight whether or not a
+// photo exists behind it, the same answer used for Elevation's coaches
+// without a headshot. A brand ring shows the partner's actual photo inside
+// the same gold "special" ring FeedKit's avatars use — brands are the one
+// place on this rail that genuinely earns the premium gold treatment.
 
-function QuickAccessRow({ items, editing, onNavigate, onRemove, onAddPress, onLongPressToggle, colors }) {
-  const styles = qaStyles(colors)
+function StoryRail({ navigation, onNavigate, colors }) {
+  const styles = storyStyles(colors)
+  function openBrand(partnerId) {
+    navigation.navigate('Lifestyle', { highlightId: partnerId })
+  }
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
     >
-      {items.map(item => {
-        const Icon = item.homeIcon || item.Icon
-        return (
-          <View key={item.key} style={styles.chipWrap}>
-            <TouchableOpacity
-              style={[styles.chip, { backgroundColor: item.bg }]}
-              activeOpacity={0.8}
-              onPress={() => { if (!editing) onNavigate(item) }}
-              onLongPress={onLongPressToggle}
-              delayLongPress={420}
-              accessibilityRole="button"
-              accessibilityLabel={item.homeLabel || item.label}
-            >
-              <Icon size={16} color={colors.navy} strokeWidth={1.8} />
-              <Text style={styles.chipLabel} numberOfLines={1}>{item.homeLabel || item.label}</Text>
-            </TouchableOpacity>
-            {editing && (
-              <TouchableOpacity
-                style={styles.removeBadge}
-                onPress={() => onRemove(item.key)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                accessibilityRole="button"
-                accessibilityLabel={`Remove ${item.homeLabel || item.label} from Quick Access`}
-              >
-                <X size={10} color="#fff" strokeWidth={3} />
-              </TouchableOpacity>
-            )}
-          </View>
-        )
-      })}
-      {items.length < MAX_SHORTCUTS && !editing && (
+      {PILLARS.map(item => (
         <TouchableOpacity
-          style={styles.addChip}
-          onPress={onAddPress}
-          activeOpacity={0.8}
+          key={item.key}
+          style={styles.ringWrap}
+          activeOpacity={0.85}
+          onPress={() => onNavigate(item)}
           accessibilityRole="button"
-          accessibilityLabel="Add a Quick Access shortcut"
+          accessibilityLabel={item.label}
         >
-          <Plus size={16} color={colors.textPrimary} strokeWidth={2} />
+          <LinearGradient colors={item.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.pillarRing}>
+            <item.Icon size={22} color="#FFFFFF" strokeWidth={1.9} />
+          </LinearGradient>
+          <Text style={styles.ringLabel} numberOfLines={1}>{item.label}</Text>
         </TouchableOpacity>
-      )}
+      ))}
+      {BRAND_STORIES.map(item => (
+        <TouchableOpacity
+          key={item.key}
+          style={styles.ringWrap}
+          activeOpacity={0.85}
+          onPress={() => openBrand(item.partnerId)}
+          accessibilityRole="button"
+          accessibilityLabel={item.label}
+        >
+          <AvatarRing size={60}>
+            <Image source={item.image} style={styles.brandImage} resizeMode="cover" />
+          </AvatarRing>
+          <Text style={styles.ringLabel} numberOfLines={1}>{item.label}</Text>
+        </TouchableOpacity>
+      ))}
     </ScrollView>
   )
 }
 
-function qaStyles(colors) {
+function storyStyles(colors) {
   return StyleSheet.create({
-    row: { gap: 8, paddingRight: 4 },
-    chipWrap: { position: 'relative' },
-    chip: {
-      flexDirection: 'row', alignItems: 'center', gap: 7,
-      borderRadius: 20, paddingHorizontal: 13, paddingVertical: 9,
-      borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    },
-    chipLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, maxWidth: 140 },
-    removeBadge: {
-      position: 'absolute', top: -5, right: -5,
-      width: 17, height: 17, borderRadius: 9,
-      backgroundColor: '#DC2626', borderWidth: 1.5, borderColor: colors.background,
+    row: { gap: 14, paddingRight: 4 },
+    ringWrap: { alignItems: 'center', width: 64 },
+    pillarRing: {
+      width: 60, height: 60, borderRadius: 30,
       alignItems: 'center', justifyContent: 'center',
     },
-    addChip: {
-      width: 38, height: 38, borderRadius: 19,
-      borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.18)', borderStyle: 'dashed',
-      alignItems: 'center', justifyContent: 'center',
-      backgroundColor: 'rgba(30,58,95,0.03)',
-    },
+    brandImage: { width: 60, height: 60 },
+    ringLabel: { fontFamily: fonts.sansMedium, fontSize: 10.5, color: colors.textSecondary, marginTop: 6, textAlign: 'center' },
   })
 }
 
@@ -230,13 +216,12 @@ export default function HomeScreen({ navigation }) {
     studioLabel, isComplimentaryPro, portalMode, setPortalMode,
   } = useAuth()
 
-  // Profile row — full_name (canonical source of truth) and this student's
-  // persisted Quick Access selection.
+  // Profile row — full_name (canonical source of truth).
   const [profileRow, setProfileRow] = useState(null)
   useEffect(() => {
     if (!user?.id) return
     let cancelled = false
-    supabase.from('profiles').select('full_name, quick_access_preferences').eq('id', user.id).maybeSingle()
+    supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
       .then(({ data }) => { if (!cancelled) setProfileRow(data || null) })
       .catch(() => {})
     return () => { cancelled = true }
@@ -267,41 +252,6 @@ export default function HomeScreen({ navigation }) {
       navigation.popTo(landing)
     }
   }
-
-  // ── Quick Access ────────────────────────────────────────────────────────
-  const [shortcutKeys, setShortcutKeys] = useState(DEFAULT_SHORTCUTS)
-  const [editingQA, setEditingQA]       = useState(false)
-  const [pickerOpen, setPickerOpen]     = useState(false)
-
-  useEffect(() => {
-    if (!profileRow) return
-    const stored = Array.isArray(profileRow.quick_access_preferences) ? profileRow.quick_access_preferences : null
-    const valid = (stored || []).filter(k => ALL_SHORTCUTS.some(s => s.key === k)).slice(0, MAX_SHORTCUTS)
-    setShortcutKeys(valid.length > 0 ? valid : DEFAULT_SHORTCUTS)
-  }, [profileRow])
-
-  async function persistShortcuts(keys) {
-    setShortcutKeys(keys)
-    if (!user?.id) return
-    try {
-      await supabase.from('profiles').update({ quick_access_preferences: keys }).eq('id', user.id)
-    } catch { /* best effort — local state already reflects the change */ }
-  }
-
-  function toggleEditMode() {
-    if (editingQA) { setEditingQA(false); return }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {})
-    setEditingQA(true)
-  }
-
-  function handlePick(key) {
-    setPickerOpen(false)
-    if (shortcutKeys.length >= MAX_SHORTCUTS || shortcutKeys.includes(key)) return
-    persistShortcuts([...shortcutKeys, key])
-  }
-
-  const shortcutItems = shortcutKeys.map(k => ALL_SHORTCUTS.find(s => s.key === k)).filter(Boolean)
-  const pickerOptions = ALL_SHORTCUTS.filter(s => !shortcutKeys.includes(s.key))
 
   // Sidebar active key — reset to dashboard whenever this screen regains focus
   const [activeNavKey, setActiveNavKey] = useState('dashboard')
@@ -632,34 +582,8 @@ export default function HomeScreen({ navigation }) {
   const feedListHeader = (
     <View>
       <View style={{ paddingHorizontal: spacing.md, paddingTop: 18 }}>
-        <View style={styles.sectionRow}>
-          <View>
-            <Text style={styles.eyebrow}>Quick Access</Text>
-            <Text style={styles.sectionCaption}>Your own shortcuts — press &amp; hold to edit</Text>
-          </View>
-          {editingQA && (
-            <TouchableOpacity
-              onPress={toggleEditMode}
-              style={styles.doneBtn}
-              activeOpacity={0.75}
-              accessibilityRole="button"
-              accessibilityLabel="Done editing Quick Access"
-            >
-              <Text style={styles.doneBtnText}>Done</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
         <View style={{ marginBottom: 22 }}>
-          <QuickAccessRow
-            items={shortcutItems}
-            editing={editingQA}
-            onNavigate={handleNav}
-            onRemove={key => persistShortcuts(shortcutKeys.filter(k => k !== key))}
-            onAddPress={() => setPickerOpen(true)}
-            onLongPressToggle={toggleEditMode}
-            colors={colors}
-          />
+          <StoryRail navigation={navigation} onNavigate={handleNav} colors={colors} />
         </View>
 
         <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
@@ -839,14 +763,6 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </View>
-
-      <DestinationPickerModal
-        visible={pickerOpen}
-        options={pickerOptions}
-        slotsLeft={MAX_SHORTCUTS - shortcutKeys.length}
-        onPick={handlePick}
-        onClose={() => setPickerOpen(false)}
-      />
     </View>
   )
 }
@@ -971,29 +887,6 @@ function __gs_styles(colors) {
   mainScroll: { flex: 1 },
   centerWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
-  eyebrow: {
-    fontFamily: fonts.sansSemiBold,
-    fontSize: 10,
-    color: colors.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  sectionCaption: {
-    fontFamily: fonts.sans,
-    fontSize: 10.5,
-    color: colors.light,
-    marginTop: 2,
-  },
-
-  sectionRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    gap: 8, marginBottom: 10,
-  },
-  doneBtn: {
-    backgroundColor: colors.accentBg, borderRadius: 14,
-    paddingHorizontal: 14, paddingVertical: 6,
-  },
-  doneBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.accentFg },
 
   // Feed status (loading / empty / "caught up")
   feedStatusText: {
