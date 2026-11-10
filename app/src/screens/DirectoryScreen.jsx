@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, FlatList, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, X, Menu, GraduationCap } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
@@ -368,6 +368,18 @@ export default function DirectoryScreen({ navigation }) {
     }
   }
 
+  function renderStudentCard({ item }) {
+    return (
+      <StudentCard
+        student={item}
+        searchQuery={search}
+        onConnect={handleConnect}
+        onViewProfile={handleViewProfile}
+        connecting={connectingId === item.id}
+      />
+    )
+  }
+
   return (
     <View style={styles.screen}>
       <View style={[styles.topBar, { paddingTop: insets.top + 14 }]}>
@@ -438,25 +450,35 @@ export default function DirectoryScreen({ navigation }) {
         ))}
       </ScrollView>
 
-      <ScrollView
+      {/* FlatList, not a ScrollView+map — the Directory's candidate list has
+          no server-side cap (get_directory_profiles() returns every
+          discoverable profile at once, by design, since ranking/search/tag
+          filtering all happen client-side over the full set). A ScrollView
+          mounts every card's full native view tree regardless of visibility,
+          which is the same unpaginated-render risk that caused the Home
+          feed's OOM crash before its rebuild — FlatList only renders what's
+          near-visible, so the card count stays bounded by viewport, not by
+          however many people are in the Directory. */}
+      <FlatList
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-      >
-        {candidatesLoading ? (
-          <View style={styles.loadingWrap}>
-            <ActivityIndicator color={colors.textPrimary} />
-          </View>
-        ) : candidatesError ? (
-          <View style={styles.resultMeta}>
-            <Text style={styles.noResultSub}>
-              Could not load the Directory right now. Please try again shortly.
-            </Text>
-          </View>
-        ) : (
-          <>
-            {/* Result count + search context */}
+        data={candidatesLoading || candidatesError ? [] : filtered}
+        keyExtractor={s => s.id}
+        renderItem={renderStudentCard}
+        ListHeaderComponent={
+          candidatesLoading ? (
+            <View style={styles.loadingWrap}>
+              <ActivityIndicator color={colors.textPrimary} />
+            </View>
+          ) : candidatesError ? (
+            <View style={styles.resultMeta}>
+              <Text style={styles.noResultSub}>
+                Could not load the Directory right now. Please try again shortly.
+              </Text>
+            </View>
+          ) : (
             <View style={styles.resultMeta}>
               <Text style={styles.resultCount}>
                 {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
@@ -472,20 +494,9 @@ export default function DirectoryScreen({ navigation }) {
                 </Text>
               )}
             </View>
-
-            {filtered.map(s => (
-              <StudentCard
-                key={s.id}
-                student={s}
-                searchQuery={search}
-                onConnect={handleConnect}
-                onViewProfile={handleViewProfile}
-                connecting={connectingId === s.id}
-              />
-            ))}
-          </>
-        )}
-      </ScrollView>
+          )
+        }
+      />
     </View>
   )
 }
