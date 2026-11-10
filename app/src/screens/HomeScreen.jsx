@@ -523,7 +523,21 @@ export default function HomeScreen({ navigation }) {
     else if (item.action === 'external')       Linking.openURL(item.url)
   }
 
-  function renderFeedItem({ item }) {
+  // useCallback here doesn't by itself stop FeedPostCard/BuzzingHighlightCard
+  // from re-rendering — that's what their own React.memo comparator
+  // (FeedKit.jsx) does, and it works regardless of this function's identity,
+  // since React's reconciler matches each rendered element by its component
+  // type + props, not by which function call produced that JSX. This
+  // useCallback only reduces how often FlatList itself sees a new
+  // `renderItem` prop. Its dependency array is deliberately the real,
+  // complete list of everything the function closes over — including
+  // handleReact/handleCommentPost/handleSharePost/handleToggleSave/
+  // handleSuggestedConnect, none of which are memoized — so this still
+  // changes identity on most renders. That's correct, not a bug: a shorter
+  // dependency list would be a classic stale-closure risk for no real
+  // benefit, since the actual performance win already comes from the cards'
+  // own memoization, not from this wrapper being stable.
+  const renderFeedItem = useCallback(({ item }) => {
     if (item.kind === 'post') {
       return (
         <FeedPostCard
@@ -566,7 +580,11 @@ export default function HomeScreen({ navigation }) {
       )
     }
     return null
-  }
+  }, [
+    myReactions, savedPostIds, suggestedConnectingId,
+    handleReact, handleCommentPost, handleSharePost, handleToggleSave,
+    handleSuggestedConnect, handleViewSuggestedProfile,
+  ])
 
   // Header content above the virtualized feed list: Quick Access's slim
   // row, the composer entry bar, This Week's Buzz, and Campus Pulse. All of

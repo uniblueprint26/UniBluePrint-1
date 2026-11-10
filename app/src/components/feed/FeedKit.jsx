@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
@@ -333,9 +333,46 @@ function PostHeader({ post, colors, k }) {
   )
 }
 
+// ── Memoization comparator (shared by FeedPostCard/BuzzingHighlightCard) ───
+// Deliberately omits onReact/onComment/onShare/onToggleSave: HomeScreen
+// recreates all four on every render (they're plain function declarations,
+// not useCallback-wrapped), so comparing them would make this memoization a
+// no-op. That's safe to ignore, not just convenient, because of how
+// HomeScreen's handlers are written:
+//   - handleReact/handleToggleSave mutate state only through React's
+//     functional setState form (`setMyReactions(r => ...)`, `setFeedPosts(
+//     posts => ...)`, `setSavedPostIds(prev => ...)`), which always applies
+//     against the LATEST state at call time, never a closure snapshot — so a
+//     stale closure can't write stale data.
+//   - Their one direct (non-functional) reads — `myReactions[postId]` in
+//     handleReact, `savedPostIds.has(postId)` in handleToggleSave — are keyed
+//     by THIS card's own post id. The only way that specific value could
+//     differ between the stale closure and current state is if THIS post's
+//     own myMood/saved status changed — and that's exactly the condition the
+//     comparator below checks, which forces a fresh render (and a fresh
+//     closure) before that could happen. A stale closure only exists while
+//     this post's own myMood/saved value hasn't moved, so the read is always
+//     current when it matters.
+//   - handleCommentPost/handleSharePost read no per-post mutable state at
+//     all, so staleness isn't a concern for them either.
+// `post` is compared by reference, not deep-equality: HomeScreen's
+// handleReact updates feedPosts via `posts.map(p => p.id === postId ? {
+// ...p, reaction_count } : p)`, which hands back the exact same object
+// reference for every post that wasn't the one just reacted to — so
+// reference equality already correctly detects "this post's own data
+// changed" without a manual field-by-field diff.
+function arePostCardPropsEqual(prevProps, nextProps) {
+  return (
+    prevProps.post === nextProps.post &&
+    prevProps.myMood === nextProps.myMood &&
+    prevProps.commentCount === nextProps.commentCount &&
+    prevProps.saved === nextProps.saved
+  )
+}
+
 // ── Main feed post card (Post or Thread) ────────────────────────────────────
 
-export function FeedPostCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
+export const FeedPostCard = memo(function FeedPostCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
@@ -359,11 +396,11 @@ export function FeedPostCard({ post, myMood, onReact, commentCount, saved, onCom
       />
     </View>
   )
-}
+}, arePostCardPropsEqual)
 
 // ── Buzzing highlight card ───────────────────────────────────────────────────
 
-export function BuzzingHighlightCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
+export const BuzzingHighlightCard = memo(function BuzzingHighlightCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
@@ -390,7 +427,7 @@ export function BuzzingHighlightCard({ post, myMood, onReact, commentCount, save
       />
     </View>
   )
-}
+}, arePostCardPropsEqual)
 
 // ── Promoted placement ("Ad") card ───────────────────────────────────────────
 
