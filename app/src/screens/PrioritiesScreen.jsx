@@ -64,7 +64,7 @@ function EventCard({ event, onPress }) {
           <Text style={styles.cardMetaText} numberOfLines={1}>{event.venue} · {event.city}</Text>
         </View>
         <View style={styles.cardFooterRow}>
-          <Text style={styles.cardPrice}>From €{fromPrice}</Text>
+          <Text style={styles.cardPrice}>From €{fromPrice.toFixed(2)}</Text>
           <View style={styles.cardCta}>
             <Ticket size={12} color={pc.bg} strokeWidth={2.4} />
             <Text style={styles.cardCtaText}>Get tickets</Text>
