@@ -19,16 +19,18 @@
 // `silver1`/`silver2`/`silver3` below are the verified real chrome palette.
 // `black`/`surfaceDeep`/`fg`/`muted` are the verified real base tokens.
 //
-// KNOWN GAP, not fixed here: `bg`/`surface`/`card`/`cardAlt`/`gold`/
-// `goldLight`/`goldDeep`/`cream`/`textPrimary` etc. below are the ORIGINAL
-// (pre-correction) tokens already live in PrioritiesScreen.jsx,
-// PriorityEventScreen.jsx and PriorityCheckoutScreen.jsx today, which use
-// gold as a primary/workhorse accent (flagship gradient, CTA buttons, price
-// text, icon circles) — that doesn't match the now-confirmed real identity.
-// Left untouched here rather than silently re-skinning three live demo
-// screens without being asked; re-pointing them at the verified chrome
-// tokens above is a real follow-up task, not a drive-by edit. Similarly,
-// `priorityFonts.serif` below is still DM Serif Display, not Playfair
+// FIXED 2026-11-12: `priorityColors` below used to hold the original
+// placeholder (pre-correction) gold-as-primary-accent tokens, used as the
+// workhorse accent across PrioritiesScreen.jsx, PriorityEventScreen.jsx and
+// PriorityCheckoutScreen.jsx (flagship gradient, CTA buttons, price text,
+// active states) — that didn't match the real identity above. It's now
+// DERIVED from `priorityChrome` below, so all three screens pick up the
+// real black+chrome/silver identity with no changes to the screens
+// themselves. `gold`/`goldLight`/`goldDeep` keep their original key names
+// (to avoid a three-file mechanical rename in the same pass) but hold
+// silver tones now, not gold — renaming those keys to `accent`/
+// `accentLight`/`accentDeep` is a real but purely cosmetic follow-up.
+// Similarly, `priorityFonts.serif` below is still DM Serif Display, not Playfair
 // Display — Playfair Display isn't loaded as a font anywhere in this app
 // yet (would need adding via @expo-google-fonts), so the export is left as
 // the font that's actually available rather than pointing at one that
@@ -46,37 +48,9 @@
 //     ticketed through the UBP app itself, with tiered pricing
 //     (Super Early Bird → 1st Release → Final Release).
 
-export const priorityColors = {
-  bg:        '#0B0B10',
-  surface:   '#15151D',
-  card:      '#1B1B24',
-  cardAlt:   '#20202B',
-  border:    'rgba(245,240,232,0.10)',
-  borderStrong: 'rgba(201,162,75,0.35)',
-
-  gold:      '#C9A24B',
-  goldLight: '#E4C77E',
-  goldDeep:  '#A5813B',
-
-  cream:     '#F5F0E8',
-  textPrimary: '#F5F0E8',
-  textMuted:   '#9A9FAE',
-  textFaint:   '#6B707E',
-
-  success:   '#4ADE80',
-  successBg: 'rgba(74,222,128,0.14)',
-  danger:    '#F87171',
-
-  house:      '#8B5CF6',
-  afrobeats:  '#E8692B',
-  folk:       '#4C8A63',
-}
-
 // Verified real chrome/silver identity, confirmed directly from the
 // "Priority Inventory" artifact's own markup (see the correction note
-// above) — not yet wired into any live screen. Use these, not the gold
-// family above, whenever building something new that should actually match
-// Priority's real brand rather than the original placeholder guess.
+// above). `priorityColors` below is now derived from this.
 export const priorityChrome = {
   black:      '#070707',
   surfaceDeep:'#121212',
@@ -93,10 +67,37 @@ export const priorityChrome = {
 
   // The one legitimate gold use: a small "in collaboration with
   // UniBlueprint" credit, applied to the word "UniBlueprint" only — never
-  // to anything that reads as Priority's own brand.
+  // to anything that reads as Priority's own brand. None of the 3 live
+  // Priority screens show this credit today, so none of them use this.
   ubpCollabGold: '#C9A24B',
   ubpNavy:       '#1E3A5F',
   ubpCream:      '#F5F0E8',
+}
+
+export const priorityColors = {
+  bg:        priorityChrome.black,
+  surface:   priorityChrome.surfaceDeep,
+  card:      priorityChrome.surfaceTint,
+  cardAlt:   '#232323',
+  border:    priorityChrome.border,
+  borderStrong: 'rgba(185,185,180,0.32)',
+
+  gold:      priorityChrome.silver1,
+  goldLight: priorityChrome.silver2,
+  goldDeep:  priorityChrome.silver3,
+
+  cream:     priorityChrome.fg,
+  textPrimary: priorityChrome.fg,
+  textMuted:   priorityChrome.muted,
+  textFaint:   '#6E6E69',
+
+  success:   '#4ADE80',
+  successBg: 'rgba(74,222,128,0.14)',
+  danger:    priorityChrome.danger,
+
+  house:      '#8B5CF6',
+  afrobeats:  '#E8692B',
+  folk:       '#4C8A63',
 }
 
 export const priorityGenres = {

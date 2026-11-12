@@ -460,7 +460,7 @@ const priorityCardStyles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'flex-start' },
   iconBox: {
     width: 46, height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0, backgroundColor: 'rgba(201,162,75,0.14)',
+    flexShrink: 0, backgroundColor: 'rgba(185,185,180,0.14)',
   },
   label: { fontFamily: priorityFonts.sansSemiBold, fontSize: 10, letterSpacing: 0.8, color: PRIORITY_GOLD, marginBottom: 4 },
   count: { fontFamily: priorityFonts.sans, fontSize: 12, color: priorityColors.textMuted },

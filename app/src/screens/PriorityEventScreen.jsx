@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   body: { padding: 20 },
   demoBanner: {
     paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, marginBottom: 16,
-    backgroundColor: 'rgba(201,162,75,0.12)', borderWidth: 1, borderColor: pc.borderStrong,
+    backgroundColor: 'rgba(185,185,180,0.12)', borderWidth: 1, borderColor: pc.borderStrong,
   },
   demoBannerText: { fontFamily: pf.sansMedium, fontSize: 12, color: pc.goldLight, lineHeight: 17 },
 
