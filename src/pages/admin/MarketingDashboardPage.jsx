@@ -5,7 +5,7 @@ import {
   Inbox, HeartHandshake, ToggleLeft, ToggleRight, Save,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, GoalsPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   GlanceCard, ShareableStatCard, tint,
 } from '../../components/studio'
@@ -15,6 +15,7 @@ import {
   getMarketingFeaturedContent, setMarketingFeaturedContentActive, updateMarketingFeaturedContentDetails,
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
+  getIsTeamLead, listStudioGoals, createStudioGoal, updateStudioGoal,
 } from '../../lib/studioMetrics'
 
 // Marketing Hub (Studio Phase 5) -- for Alex, Elizabeth, Ethan and Fabz, the
@@ -111,13 +112,15 @@ export default function MarketingDashboardPage() {
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
   const [requests, setRequests] = useState([])
+  const [isLead, setIsLead] = useState(false)
+  const [goals, setGoals] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
       const [
-        funnelRes, byPartnerRes, compareRes, signupsRes, signupsMonthRes, featuredRes, tasksRes, membersRes, requestsRes,
+        funnelRes, byPartnerRes, compareRes, signupsRes, signupsMonthRes, featuredRes, tasksRes, membersRes, requestsRes, leadRes, goalsRes,
       ] = await Promise.all([
         getMarketingEngagementFunnel(),
         getMarketingEngagementByPartner(),
@@ -128,6 +131,8 @@ export default function MarketingDashboardPage() {
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
         listStudioRequests(TEAM),
+        getIsTeamLead(TEAM),
+        listStudioGoals(TEAM),
       ])
       setFunnel(funnelRes.value || null)
       setByPartner(byPartnerRes.value || [])
@@ -142,6 +147,8 @@ export default function MarketingDashboardPage() {
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setRequests(requestsRes.value || [])
+      setIsLead(!!leadRes.value)
+      setGoals(goalsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -246,6 +253,26 @@ export default function MarketingDashboardPage() {
     }
   }
 
+  // ── Monthly goals (Studio Phase 16) ─────────────────────────────────────
+  async function addGoal(fields) {
+    try {
+      await createStudioGoal(TEAM, fields)
+      const r = await listStudioGoals(TEAM)
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not set that goal.')
+    }
+  }
+  async function updateGoalProgress(id, fields) {
+    try {
+      await updateStudioGoal(id, fields)
+      const r = await listStudioGoals(TEAM)
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that goal.')
+    }
+  }
+
   // ── Derived ───────────────────────────────────────────────────────────────
   const tasksByStatus = useMemo(() => {
     const counts = { todo: 0, in_progress: 0, done: 0 }
@@ -268,6 +295,7 @@ export default function MarketingDashboardPage() {
     { id: 'mh-comparison', label: 'Comparison' },
     { id: 'mh-tasks', label: 'Content & Campaign Task Board' },
     { id: 'mh-requests', label: 'Requests' },
+    { id: 'mh-goals', label: 'Goals' },
     { id: 'mh-faq', label: 'FAQ' },
   ]
 
@@ -548,6 +576,23 @@ export default function MarketingDashboardPage() {
             onCreate={createRequest}
             onApprove={approveRequest}
             onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.marketing}
+          />
+        </Card>
+
+        {/* ══ GOALS ═══════════════════════════════════════════════════════
+            Studio Phase 16 -- monthly goals a Marketing lead sets/tracks
+            for the team (task #41). Read-only for a non-lead. */}
+        <Card id="mh-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Goals"
+            caption="This month's goals for Marketing, set and tracked by a team lead. Real studio_goals rows." />
+          <GoalsPanel
+            team={TEAM}
+            goals={goals}
+            loading={loading}
+            isLead={isLead}
+            onCreate={addGoal}
+            onUpdateProgress={updateGoalProgress}
             accentColor={HUB_ACCENTS.marketing}
           />
         </Card>

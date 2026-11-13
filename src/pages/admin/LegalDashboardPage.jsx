@@ -5,7 +5,7 @@ import {
   AlertTriangle, CheckCircle2, Users, Inbox, Mail,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, GoalsPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   SURFACE_TINT, BORDER, STUDIO_SELECT_SM,
   TrendLineChart, GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
@@ -17,6 +17,7 @@ import {
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
   getTaskDueDateDensity, getTeamActivityHeatmap,
+  getIsTeamLead, listStudioGoals, createStudioGoal, updateStudioGoal,
 } from '../../lib/studioMetrics'
 
 // Legal Hub (Studio Phase 2) -- for Rachel and Basmail, built on the same
@@ -76,12 +77,14 @@ export default function LegalDashboardPage() {
   const [comparisonWindow, setComparisonWindow] = useState('week')
   const [comparison, setComparison] = useState(null)
   const [resolvedTrend, setResolvedTrend] = useState([])
+  const [isLead, setIsLead] = useState(false)
+  const [goals, setGoals] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [contractsRes, gdprRes, ackRes, tasksRes, membersRes, compareRes, trendRes, requestsRes] = await Promise.all([
+      const [contractsRes, gdprRes, ackRes, tasksRes, membersRes, compareRes, trendRes, requestsRes, leadRes, goalsRes] = await Promise.all([
         getLegalContracts(),
         getLegalGdprRequests(),
         getLegalAcknowledgementCoverage(),
@@ -90,6 +93,8 @@ export default function LegalDashboardPage() {
         getLegalContractsResolvedComparison(comparisonWindow),
         getLegalContractsResolvedTrend(8),
         listStudioRequests(TEAM),
+        getIsTeamLead(TEAM),
+        listStudioGoals(TEAM),
       ])
       setContracts(contractsRes.value || [])
       setGdprRequests(gdprRes.value || [])
@@ -99,6 +104,8 @@ export default function LegalDashboardPage() {
       setComparison(compareRes.value || null)
       setResolvedTrend(trendRes.value || [])
       setRequests(requestsRes.value || [])
+      setIsLead(!!leadRes.value)
+      setGoals(goalsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -171,6 +178,26 @@ export default function LegalDashboardPage() {
       setError(err.message || 'Could not approve that request.')
     }
   }
+  // ── Monthly goals (Studio Phase 16) ─────────────────────────────────────
+  async function addGoal(fields) {
+    try {
+      await createStudioGoal(TEAM, fields)
+      const r = await listStudioGoals(TEAM)
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not set that goal.')
+    }
+  }
+  async function updateGoalProgress(id, fields) {
+    try {
+      await updateStudioGoal(id, fields)
+      const r = await listStudioGoals(TEAM)
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that goal.')
+    }
+  }
+
   async function denyRequest(id, note) {
     try {
       await denyStudioRequest(id, note)
@@ -218,6 +245,7 @@ export default function LegalDashboardPage() {
     { id: 'lg-folders', label: 'Individual Folders' },
     { id: 'lg-activity', label: 'Calendar & Activity' },
     { id: 'lg-requests', label: 'Requests' },
+    { id: 'lg-goals', label: 'Goals' },
     { id: 'lg-faq', label: 'FAQ' },
   ]
 
@@ -553,6 +581,23 @@ export default function LegalDashboardPage() {
             onCreate={createRequest}
             onApprove={approveRequest}
             onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.legal}
+          />
+        </Card>
+
+        {/* ══ GOALS ═══════════════════════════════════════════════════════
+            Studio Phase 16 -- monthly goals a Legal lead sets/tracks for
+            the team (task #41). Read-only for a non-lead. */}
+        <Card id="lg-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Goals"
+            caption="This month's goals for Legal, set and tracked by a team lead. Real studio_goals rows." />
+          <GoalsPanel
+            team={TEAM}
+            goals={goals}
+            loading={loading}
+            isLead={isLead}
+            onCreate={addGoal}
+            onUpdateProgress={updateGoalProgress}
             accentColor={HUB_ACCENTS.legal}
           />
         </Card>

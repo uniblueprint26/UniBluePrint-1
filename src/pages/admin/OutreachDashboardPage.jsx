@@ -5,7 +5,7 @@ import {
   PhoneCall, HeartHandshake, Handshake, Megaphone,
 } from 'lucide-react'
 import {
-  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, FaqSection,
+  StudioShell, StudioCard as Card, SectionTitle, EmptyNote, StatStrip, MetricBarChart, ComparisonWidget, StatusDot, TaskBoard, RequestPanel, GoalsPanel, FaqSection,
   NAVY, CREAM, GREY, MUTED, GREEN, AMBER, RED, HUB_ACCENTS, FONT_SERIF, FONT_SANS,
   StudioField, STUDIO_INPUT, STUDIO_SELECT_SM, studioButton, tint,
   GlanceCard, ShareableStatCard, MiniCalendar, ActivityHeatmap, getStatusColor,
@@ -18,6 +18,7 @@ import {
   getTeamTasks, getTeamRoster, createTeamTask, setTeamTaskStatus,
   listStudioRequests, createStudioRequest, approveStudioRequest, denyStudioRequest,
   getTaskDueDateDensity, getTeamActivityHeatmap,
+  getIsTeamLead, listStudioGoals, createStudioGoal, updateStudioGoal,
 } from '../../lib/studioMetrics'
 
 // Outreach Hub (Studio Phase 4) -- for Sienna, Ethan, Fabz and James, the
@@ -109,6 +110,8 @@ export default function OutreachDashboardPage() {
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
   const [requests, setRequests] = useState([])
+  const [isLead, setIsLead] = useState(false)
+  const [goals, setGoals] = useState([])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -116,7 +119,7 @@ export default function OutreachDashboardPage() {
     try {
       const [
         pipelineRes, coachRes, partnerRes, growthRes, followRes,
-        contactsRes, compareRes, tasksRes, membersRes, requestsRes,
+        contactsRes, compareRes, tasksRes, membersRes, requestsRes, leadRes, goalsRes,
       ] = await Promise.all([
         getOutreachInboundPipeline(),
         getOutreachCoachRecruitmentSnapshot(),
@@ -128,6 +131,8 @@ export default function OutreachDashboardPage() {
         getTeamTasks(TEAM),
         getTeamRoster(TEAM),
         listStudioRequests(TEAM),
+        getIsTeamLead(TEAM),
+        listStudioGoals(TEAM),
       ])
       setPipeline(pipelineRes.value || [])
       setCoachSnapshot(coachRes.value || null)
@@ -139,6 +144,8 @@ export default function OutreachDashboardPage() {
       setTasks(tasksRes.value || [])
       setMembers(membersRes.value || [])
       setRequests(requestsRes.value || [])
+      setIsLead(!!leadRes.value)
+      setGoals(goalsRes.value || [])
     } catch (err) {
       setError(err.message || 'Could not load dashboard data.')
     } finally {
@@ -242,6 +249,26 @@ export default function OutreachDashboardPage() {
     }
   }
 
+  // ── Monthly goals (Studio Phase 16) ─────────────────────────────────────
+  async function addGoal(fields) {
+    try {
+      await createStudioGoal(TEAM, fields)
+      const r = await listStudioGoals(TEAM)
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not set that goal.')
+    }
+  }
+  async function updateGoalProgress(id, fields) {
+    try {
+      await updateStudioGoal(id, fields)
+      const r = await listStudioGoals(TEAM)
+      setGoals(r.value || [])
+    } catch (err) {
+      setError(err.message || 'Could not update that goal.')
+    }
+  }
+
   // ── Derived ───────────────────────────────────────────────────────────────
   const contactsByStatus = useMemo(() => {
     const counts = { contacted: 0, responded: 0, declined: 0, signed: 0 }
@@ -264,6 +291,7 @@ export default function OutreachDashboardPage() {
     { id: 'oh-tasks', label: 'Campaign Task Board' },
     { id: 'oh-activity', label: 'Calendar & Activity' },
     { id: 'oh-requests', label: 'Requests' },
+    { id: 'oh-goals', label: 'Goals' },
     { id: 'oh-faq', label: 'FAQ' },
   ]
 
@@ -611,6 +639,23 @@ export default function OutreachDashboardPage() {
             onCreate={createRequest}
             onApprove={approveRequest}
             onDeny={denyRequest}
+            accentColor={HUB_ACCENTS.outreach}
+          />
+        </Card>
+
+        {/* ══ GOALS ═══════════════════════════════════════════════════════
+            Studio Phase 16 -- monthly goals an Outreach lead sets/tracks
+            for the team (task #41). Read-only for a non-lead. */}
+        <Card id="oh-goals" style={{ marginTop: 'var(--studio-gap)' }}>
+          <SectionTitle eyebrow="New" title="Goals"
+            caption="This month's goals for Outreach, set and tracked by a team lead. Real studio_goals rows." />
+          <GoalsPanel
+            team={TEAM}
+            goals={goals}
+            loading={loading}
+            isLead={isLead}
+            onCreate={addGoal}
+            onUpdateProgress={updateGoalProgress}
             accentColor={HUB_ACCENTS.outreach}
           />
         </Card>
