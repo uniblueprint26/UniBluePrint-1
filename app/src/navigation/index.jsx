@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
-import { Platform, View } from 'react-native'
+import { Platform, View, Pressable, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -266,6 +266,42 @@ function MainTabs() {
   )
 }
 
+// Shell v2 (2026-11-13) tab bar rule: every slot (icon + label) is
+// structurally identical. The active slot gets a flat filled rounded-rect
+// behind icon+label — no elevation, no shadow, no dot, nothing that lifts it
+// off the bar. React Navigation's tabBarButton hands back the already-built
+// icon+label pair as `children`; this just wraps that pair in the fill when
+// `accessibilityState.selected` is true, so the one rule applies identically
+// to every tab without touching tabBarIcon/tabBarLabel at all.
+function TabBarPillButton({ children, onPress, onLongPress, accessibilityState, accessibilityLabel, testID, style }) {
+  const { colors: themeColors } = useTheme()
+  const focused = !!accessibilityState?.selected
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      accessibilityRole="button"
+      accessibilityState={accessibilityState}
+      accessibilityLabel={accessibilityLabel}
+      testID={testID}
+      style={[style, tabPillStyles.touchArea]}
+    >
+      <View style={[tabPillStyles.pill, focused && { backgroundColor: themeColors.tabFill }]}>
+        {children}
+      </View>
+    </Pressable>
+  )
+}
+
+const tabPillStyles = StyleSheet.create({
+  touchArea: { alignItems: 'center', justifyContent: 'center' },
+  pill: {
+    alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 14, paddingVertical: 6,
+    borderRadius: 14,
+  },
+})
+
 function MainTabsInner() {
   // L4: the tab bar used hard-coded heights (88/68) that ignore the actual
   // safe-area inset, so labels clip on Android/web where insets.bottom
@@ -290,6 +326,7 @@ function MainTabsInner() {
         tabBarActiveTintColor:   themeColors.accentBg,
         tabBarInactiveTintColor: themeColors.textTertiary,
         tabBarLabelStyle: { fontFamily: fonts.sansMedium, fontSize: 11, marginTop: 2 },
+        tabBarButton: TabBarPillButton,
       }}
     >
       <Tab.Screen

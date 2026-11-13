@@ -87,7 +87,7 @@ export function ComposerEntryBar({ name, onPress }) {
       </AvatarRing>
       <View style={{ flex: 1 }}>
         <Text style={k.composerPlaceholder}>Share your mood or a snapshot…</Text>
-        <Text style={k.composerSub}>Mood Board, Thread, or Photo</Text>
+        <Text style={k.composerSub}>Thread, Post, or Clip</Text>
       </View>
       <View style={k.composerIconWrap}>
         <Smile size={15} color={colors.gold} strokeWidth={1.9} />

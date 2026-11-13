@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, GraduationCap, MapPin, AtSign, Link2, ThumbsUp, X, Check, MessageSquareQuote,
-  MessageCircle,
+  MessageCircle, Play,
 } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -193,9 +193,27 @@ function PostsSection({ userId, colors }) {
 
   const s = __gs_postsStyles(colors)
 
+  // Shell v2 (2026-11-13, founder-locked): Clip gets its own standalone
+  // count, never folded into Posts — counted here straight from post_type
+  // rather than inferred, so a future 'clip' row (see ComposerScreen.jsx's
+  // backend note — the enum value doesn't exist in the database yet) shows
+  // up the moment it can be saved, with no further change to this screen.
+  const clipsCount = state.posts.filter(p => p.post_type === 'clip').length
+  const postsCount = state.posts.length - clipsCount
+
   return (
     <View style={{ paddingHorizontal: spacing.md, marginTop: spacing.lg }}>
-      <Text style={s.sectionLabel}>Their Posts</Text>
+      <View style={s.statsHeaderRow}>
+        <Text style={s.sectionLabel}>Their Posts</Text>
+        {!state.loading && state.posts.length > 0 && (
+          <View style={s.statPairRow}>
+            <Text style={s.statPair}><Text style={s.statPairNum}>{postsCount}</Text> Posts</Text>
+            <View style={s.statPairDivider} />
+            <Play size={10} color={colors.muted} strokeWidth={2} style={{ marginRight: 3 }} />
+            <Text style={s.statPair}><Text style={s.statPairNum}>{clipsCount}</Text> Clips</Text>
+          </View>
+        )}
+      </View>
       {state.loading ? (
         <ActivityIndicator color={colors.textPrimary} style={{ marginVertical: 8 }} />
       ) : state.posts.length === 0 ? (
@@ -207,7 +225,13 @@ function PostsSection({ userId, colors }) {
         <View style={{ gap: 8 }}>
           {state.posts.map(p => (
             <View key={p.id} style={s.postCard}>
-              <Text style={s.postBody} numberOfLines={4}>{p.body}</Text>
+              {p.post_type === 'clip' && (
+                <View style={s.clipTag}>
+                  <Play size={10} color={colors.accentFg} strokeWidth={2} />
+                  <Text style={s.clipTagText}>Clip</Text>
+                </View>
+              )}
+              <Text style={s.postBody} numberOfLines={4}>{p.body || (p.post_type === 'clip' ? 'Clip' : '')}</Text>
             </View>
           ))}
         </View>
@@ -218,9 +242,22 @@ function PostsSection({ userId, colors }) {
 
 function __gs_postsStyles(colors) {
   return StyleSheet.create({
+    statsHeaderRow: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      marginBottom: 10,
+    },
     sectionLabel: {
       fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
-      textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
+      textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 0,
+    },
+    // Posts and Clips are two separate numbers, side by side — never a
+    // single merged count. See the Shell v2 note above PostsSection.
+    statPairRow: { flexDirection: 'row', alignItems: 'center' },
+    statPair: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted },
+    statPairNum: { fontFamily: fonts.sansSemiBold, color: colors.textPrimary },
+    statPairDivider: {
+      width: 1, height: 10, backgroundColor: colors.border,
+      marginHorizontal: 8,
     },
     emptyCard: {
       alignItems: 'center', gap: 8, paddingVertical: 24,
@@ -233,6 +270,13 @@ function __gs_postsStyles(colors) {
       borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
     },
     postBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
+    clipTag: {
+      flexDirection: 'row', alignItems: 'center', gap: 4,
+      alignSelf: 'flex-start', backgroundColor: colors.accentBg,
+      borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3,
+      marginBottom: 6,
+    },
+    clipTagText: { fontFamily: fonts.sansSemiBold, fontSize: 9.5, color: colors.accentFg, textTransform: 'uppercase', letterSpacing: 0.4 },
   })
 }
 

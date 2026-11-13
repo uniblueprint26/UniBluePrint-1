@@ -60,6 +60,11 @@ export const lightColors = {
   // above) because dark mode needs a lighter, more-yellow value to read
   // against navy than light mode needs against cream.
   goldText: '#B4923A',
+  // Shell v2 tab bar (2026-11-13): the flat fill behind an active bottom-tab
+  // slot (icon+label together) — no elevation, no dot, just this wash. A
+  // navy-tinted wash in light mode; see darkColors for the cream-tinted
+  // counterpart.
+  tabFill: 'rgba(30,58,95,0.09)',
 }
 
 export const darkColors = {
@@ -133,6 +138,8 @@ export const darkColors = {
   // See light mode's `goldText` — dark mode's version, more yellow than
   // orange per founder feedback, lightened to clear contrast on navy.
   goldText: '#E0C06C',
+  // See light mode's `tabFill` — cream-tinted wash against the dark bar.
+  tabFill: 'rgba(251,246,232,0.16)',
 }
 
 // getColors(mode) — the one place that resolves a 'light' | 'dark' mode to
