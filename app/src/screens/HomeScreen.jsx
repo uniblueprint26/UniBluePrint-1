@@ -8,11 +8,13 @@ import { LinearGradient } from 'expo-linear-gradient'
 import {
   Menu, CheckCircle2,
   Bell, Building2, Calculator, Compass, Globe, Heart, BookOpen, FileText, TrendingUp, User, LayoutGrid,
+  Tag, Newspaper,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import UBPLogo from '../components/ui/UBPLogo'
+import TodayDigestCard from '../components/ui/TodayDigestCard'
 import {
   ComposerEntryBar, BuzzStrip,
   FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard, AvatarRing,
@@ -122,6 +124,20 @@ function getGreetingWord(date = new Date()) {
   if (h >= 12 && h < 17) return 'Good afternoon'
   if (h >= 17 && h < 23) return 'Good evening'
   return 'Good night'
+}
+
+// "Mon 16 Nov" — eyebrow date for Today's Digest (Irish day-month order).
+function formatEyebrowDate(d = new Date()) {
+  const day   = d.toLocaleDateString('en-IE', { weekday: 'short' })
+  const month = d.toLocaleDateString('en-IE', { month: 'short' })
+  return `${day} ${d.getDate()} ${month}`
+}
+
+function isSameLocalDay(dateStr, ref = new Date()) {
+  const d = new Date(dateStr)
+  return d.getFullYear() === ref.getFullYear()
+    && d.getMonth() === ref.getMonth()
+    && d.getDate() === ref.getDate()
 }
 
 // ── Story rail — pillar + brand story rings ─────────────────────────────────
@@ -506,6 +522,48 @@ export default function HomeScreen({ navigation }) {
     }
   }, [user?.id])
 
+  // Live deal count for Today's Digest — the same 'deals' table and active
+  // flag the Ad Board reads, so the number always matches what's live there.
+  const [activeDealsCount, setActiveDealsCount] = useState(0)
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    supabase.from('deals').select('id', { count: 'exact', head: true }).eq('active', true)
+      .then(({ count }) => { if (!cancelled) setActiveDealsCount(count || 0) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  // Today's Digest — real counts only: unread notifications (the bell's own
+  // count), live Ad Board deals, and feed posts made today among the posts
+  // already loaded (shown as "N+" when the first page is all from today and
+  // more are still unloaded). No timetable/events facts: the app has no
+  // data source for those yet.
+  const postsToday = feedPosts.filter(p => p.created_at && isSameLocalDay(p.created_at)).length
+  const postsTodayLabel = postsToday > 0 && postsToday === feedPosts.length && hasMoreFeed
+    ? `${postsToday}+` : String(postsToday)
+  const digestFacts = [
+    unreadCount > 0 ? `${unreadCount} unread` : null,
+    activeDealsCount > 0 ? `${activeDealsCount} ${activeDealsCount === 1 ? 'deal' : 'deals'} live` : null,
+  ].filter(Boolean)
+  const digestTitle = digestFacts.length > 0 ? digestFacts.join(' · ') : "You're all caught up"
+  const digestStats = [
+    {
+      key: 'unread', label: 'Unread', value: unreadCount, Icon: Bell,
+      onPress: () => navigation.navigate('Notifications'),
+      accessibilityLabel: `${unreadCount} unread notifications`,
+    },
+    {
+      key: 'deals', label: 'Deals live', value: activeDealsCount, Icon: Tag,
+      onPress: () => navigation.getParent()?.navigate('AdBoard'),
+      accessibilityLabel: `${activeDealsCount} deals live on the Ad Board`,
+    },
+    {
+      key: 'posts', label: 'Posts today', value: postsTodayLabel, Icon: Newspaper,
+      accessibilityLabel: `${postsTodayLabel} feed posts today`,
+    },
+  ]
+
   function handleNav(item) {
     if (!item) return
     if (item.action === 'home') { setActiveNavKey('dashboard'); return }
@@ -600,7 +658,18 @@ export default function HomeScreen({ navigation }) {
   // reconciles normally instead.
   const feedListHeader = (
     <View>
-      <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.xl }}>
+      <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.md }}>
+        {/* Today's Digest — compact, sits above the story rail. The top
+            padding above it dropped from xl to md so the rail and composer
+            only move down by roughly the card's own height. */}
+        <View style={{ marginBottom: 18 }}>
+          <TodayDigestCard
+            eyebrow={`Today · ${formatEyebrowDate()}`}
+            title={digestTitle}
+            stats={digestStats}
+          />
+        </View>
+
         <View style={{ marginBottom: 24 }}>
           <StoryRail navigation={navigation} onNavigate={handleNav} colors={colors} isDark={isDark} />
         </View>
