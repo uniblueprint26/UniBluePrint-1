@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Camera, Smile, ExternalLink, Users, MessageCircle, Send, Bookmark } from 'lucide-react-native'
+import { Camera, Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play } from 'lucide-react-native'
 import { fonts, radius, spacing, shadows, sheen } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { MOODS, moodDef } from '../../constants/moods'
@@ -370,7 +370,27 @@ function arePostCardPropsEqual(prevProps, nextProps) {
   )
 }
 
-// ── Main feed post card (Post or Thread) ────────────────────────────────────
+// No in-app video player is installed, so a Clip renders as a poster tile
+// that opens the video itself.
+function ClipTile({ post, k, colors }) {
+  if (post.post_type !== 'clip' || !post.video_url) return null
+  return (
+    <TouchableOpacity
+      style={[k.photo, k.clipTile]}
+      onPress={() => Linking.openURL(post.video_url).catch(() => {})}
+      activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel="Play clip"
+    >
+      <View style={k.clipPlay}>
+        <Play size={26} color={colors.cream} fill={colors.cream} strokeWidth={1.6} />
+      </View>
+      <Text style={k.clipLabel}>Clip</Text>
+    </TouchableOpacity>
+  )
+}
+
+// ── Main feed post card (Post, Thread or Clip) ──────────────────────────────
 
 export const FeedPostCard = memo(function FeedPostCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
   const { colors, isDark } = useTheme()
@@ -382,6 +402,7 @@ export const FeedPostCard = memo(function FeedPostCard({ post, myMood, onReact, 
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
       )}
+      <ClipTile post={post} k={k} colors={colors} />
       <EngagementRow
         post={post}
         myMood={myMood}
@@ -413,6 +434,7 @@ export const BuzzingHighlightCard = memo(function BuzzingHighlightCard({ post, m
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
       )}
+      <ClipTile post={post} k={k} colors={colors} />
       <EngagementRow
         post={post}
         myMood={myMood}
@@ -609,6 +631,19 @@ function getStyles(colors, isDark) {
   photo: {
     height: 260, backgroundColor: colors.surfaceAlt, marginTop: 12,
     marginHorizontal: -spacing.md,
+  },
+  clipTile: {
+    backgroundColor: '#0F1720', alignItems: 'center', justifyContent: 'center',
+  },
+  clipPlay: {
+    width: 60, height: 60, borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    alignItems: 'center', justifyContent: 'center', paddingLeft: 3,
+  },
+  clipLabel: {
+    position: 'absolute', top: 12, left: spacing.md + 12,
+    fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 0.6,
+    color: 'rgba(245,240,232,0.85)', textTransform: 'uppercase',
   },
   engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: 12 },
 

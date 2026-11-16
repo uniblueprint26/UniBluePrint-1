@@ -28,15 +28,8 @@ import { supabase } from '../lib/supabase'
 //                   bar's "+" slot, not "New Thread" or three different
 //                   screen names depending on entry point.
 //
-// Backend note: public.feed_post_type currently only has 'post' | 'thread'
-// (see supabase/migrations/20261108000440_social_feed.sql) — there is no
-// 'clip' enum value, video_url column, or feed-clips storage bucket yet.
-// This screen's Clip tab is built end-to-end at the app layer per the locked
-// design, but submitting a Clip will fail against the live database until a
-// migration adds that enum value + column + check-constraint branch (and,
-// ideally, its own storage bucket rather than reusing feed-photos below).
-// That migration is out of scope for this worktree (app/-only build) — flag
-// it before shipping Clip to real users.
+// Clips upload to the feed-clips bucket and save as post_type 'clip' with
+// video_url (supabase/migrations/20261116233209_feed_clips.sql).
 //
 // "Mood Board" names the mood-picker UI only, never the Thread post type
 // itself (that distinction is locked by spec — keep it in code/comments).
@@ -48,6 +41,7 @@ import { supabase } from '../lib/supabase'
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10MB, per the Snapshot/Post dropzone copy
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024 // 50MB — a short clip, not a full video upload
+const CLIP_TYPES = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' }
 const MAX_DIM = 1600
 const MAX_CLIP_SECONDS = 60
 
@@ -170,24 +164,19 @@ export default function ComposerScreen({ navigation, route }) {
     return publicUrl
   }
 
-  // Reuses the feed-photos bucket (no video resizing/compression step —
-  // expo-image-manipulator doesn't handle video, and there's no server-side
-  // transcoding here either). A dedicated feed-clips bucket would be the
-  // right long-term home; reusing feed-photos avoids a storage migration for
-  // this app-only build. See the file header note on the missing 'clip'
-  // enum/column this still needs server-side before it can actually save.
   async function uploadVideo() {
     const response = await fetch(localVideoUri)
     const blob = await response.blob()
     if (blob.size > MAX_VIDEO_BYTES) {
       throw new Error('Clip is over 50 MB. Please choose a shorter clip.')
     }
-    const storagePath = `${user.id}/${Date.now()}.mp4`
+    const contentType = CLIP_TYPES[blob.type] ? blob.type : 'video/mp4'
+    const storagePath = `${user.id}/${Date.now()}.${CLIP_TYPES[contentType]}`
     const { error: uploadErr } = await supabase.storage
-      .from('feed-photos')
-      .upload(storagePath, blob, { contentType: 'video/mp4', upsert: false })
+      .from('feed-clips')
+      .upload(storagePath, blob, { contentType, upsert: false })
     if (uploadErr) throw uploadErr
-    const { data: { publicUrl } } = supabase.storage.from('feed-photos').getPublicUrl(storagePath)
+    const { data: { publicUrl } } = supabase.storage.from('feed-clips').getPublicUrl(storagePath)
     return publicUrl
   }
 
@@ -215,11 +204,6 @@ export default function ComposerScreen({ navigation, route }) {
         if (error) throw error
       } else {
         const videoUrl = await uploadVideo()
-        // post_type: 'clip' / video_url — not yet a valid enum value or
-        // column server-side (see the file header note). This call is wired
-        // correctly for the day that migration lands; until then it will
-        // surface the generic "Could not post" error below rather than
-        // silently losing the person's clip.
         const { error } = await supabase.from('feed_posts').insert({
           user_id: user.id,
           post_type: 'clip',
