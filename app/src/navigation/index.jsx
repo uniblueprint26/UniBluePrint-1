@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { Home, Megaphone, MessageSquare, Users, User } from 'lucide-react-native'
+import { Home, Tag, Plus, MessageSquare, User } from 'lucide-react-native'
 import { Platform, View, Pressable, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState, useEffect } from 'react'
@@ -302,6 +302,9 @@ const tabPillStyles = StyleSheet.create({
   },
 })
 
+// Never rendered: the Post tab's press is intercepted above.
+function PostTabPlaceholder() { return null }
+
 function MainTabsInner() {
   // L4: the tab bar used hard-coded heights (88/68) that ignore the actual
   // safe-area inset, so labels clip on Android/web where insets.bottom
@@ -337,17 +340,33 @@ function MainTabsInner() {
       <Tab.Screen
         name="AdBoard"
         component={AdBoardStack}
-        options={{ tabBarIcon: ({ color }) => <Megaphone size={22} color={color} />, tabBarLabel: 'Ad Board' }}
+        options={{ tabBarIcon: ({ color }) => <Tag size={22} color={color} />, tabBarLabel: 'Ad Board' }}
+      />
+      {/* Post is a bare "+", no circle. It never becomes the active tab: it
+          opens the composer on top of wherever you are. */}
+      <Tab.Screen
+        name="Post"
+        component={PostTabPlaceholder}
+        options={{ tabBarIcon: ({ color }) => <Plus size={30} color={color} strokeWidth={2.1} />, tabBarLabel: 'Post' }}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            e.preventDefault()
+            navigation.navigate('Home', { screen: 'Composer' })
+          },
+        })}
       />
       <Tab.Screen
         name="Messages"
         component={MessagesStack}
         options={{ tabBarIcon: ({ color }) => <MessageSquare size={22} color={color} />, tabBarLabel: 'Messages' }}
       />
+      {/* Directory is no longer a tab (founder decision 2026-11-17): people live
+          in Messages > Discover. The route stays registered, hidden from the bar,
+          so existing links to it keep working. */}
       <Tab.Screen
         name="Directory"
         component={DirectoryStack}
-        options={{ tabBarIcon: ({ color }) => <Users size={22} color={color} />, tabBarLabel: 'Directory' }}
+        options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }}
       />
       <Tab.Screen
         name="Profile"

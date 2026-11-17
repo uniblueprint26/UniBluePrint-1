@@ -35,3 +35,21 @@ export function goToHome(navigation) {
 export function openMenu(navigation) {
   navigation?.dispatch?.(DrawerActions.openDrawer())
 }
+
+// Opens a screen that lives in the Home stack (Notifications, Calendar,
+// Explore, Composer...) from anywhere: from inside the Home stack it pushes
+// directly, from any other tab it hops to Home and opens it there. Silently
+// does nothing if that screen is not registered yet, so a header button
+// never crashes while a feature is still being built.
+export function openInHomeStack(navigation, screen, params) {
+  if (!navigation) return
+  try {
+    const state = navigation.getState?.()
+    if (state?.routeNames?.includes('HomeMain')) {
+      if (state.routeNames.includes(screen)) navigation.navigate(screen, params)
+      return
+    }
+    const parent = navigation.getParent?.()
+    ;(parent || navigation).navigate('Home', { screen, params })
+  } catch {}
+}
