@@ -173,7 +173,7 @@ export default function ExploreScreen({ navigation }) {
           </View>
         ))}
 
-        {q && groups.length === 0 && (
+        {!!q && groups.length === 0 && (
           <View style={s.noMatch}>
             <Text style={[s.noMatchTitle, { color: colors.textPrimary }]}>Nothing matches</Text>
             <Text style={[s.noMatchText, { color: colors.textSecondary }]}>Try a different word, like "discounts" or "budget".</Text>
