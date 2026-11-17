@@ -289,6 +289,7 @@ export default function StudentProfileScreen({ route, navigation }) {
   const { student } = route.params || {}
 
   const [connecting, setConnecting] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
 
   // Endorsement counts (everyone's, aggregated) + which tags the viewer has
   // already given this person — both read fresh on mount/focus rather than
@@ -400,33 +401,54 @@ export default function StudentProfileScreen({ route, navigation }) {
     }
   }
 
+  // No one can message a student until they accept, so Connect sends a request.
+  // If they already accepted (either direction), it opens the chat instead.
   async function handleConnect() {
-    if (connecting || !student?.id) return
+    if (connecting || !student?.id || !user?.id) return
     setConnecting(true)
     try {
-      const { roomId, blocked, error } = await startDirectChat(student.id, student.full_name)
-      if (blocked) {
-        Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
+      const { data: existing } = await supabase
+        .from('connection_requests')
+        .select('id, status, requester_id')
+        .or(`and(requester_id.eq.${user.id},recipient_id.eq.${student.id}),and(requester_id.eq.${student.id},recipient_id.eq.${user.id})`)
+        .limit(1)
+      const row = existing?.[0]
+
+      if (row?.status === 'accepted') {
+        const { roomId, blocked, error } = await startDirectChat(student.id, student.full_name)
+        if (blocked) {
+          Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
+          return
+        }
+        if (error || !roomId) throw error || new Error('No room id returned')
+        const { contextId } = await fetchRoomContextId(roomId)
+        if (!contextId) throw new Error('Could not resolve the new conversation.')
+        navigation.getParent()?.navigate('Messages', {
+          screen: 'ChatRoom',
+          params: {
+            contextType: 'direct',
+            contextId,
+            roomName:    student.full_name || 'Chat',
+            subtitle:    null,
+            posterId:    student.id,
+            posterName:  student.full_name,
+          },
+        })
         return
       }
-      if (error || !roomId) throw error || new Error('No room id returned')
 
-      const { contextId } = await fetchRoomContextId(roomId)
-      if (!contextId) throw new Error('Could not resolve the new conversation.')
+      if (row?.status === 'pending') {
+        setRequestSent(true)
+        return
+      }
 
-      navigation.getParent()?.navigate('Messages', {
-        screen: 'ChatRoom',
-        params: {
-          contextType: 'direct',
-          contextId,
-          roomName:    student.full_name || 'Chat',
-          subtitle:    null,
-          posterId:    student.id,
-          posterName:  student.full_name,
-        },
-      })
+      const { error } = await supabase
+        .from('connection_requests')
+        .insert({ requester_id: user.id, recipient_id: student.id, status: 'pending' })
+      if (error) throw error
+      setRequestSent(true)
     } catch {
-      Alert.alert('Something went wrong', 'Could not start the conversation. Please try again.')
+      Alert.alert('Something went wrong', 'Could not send the request. Please try again.')
     } finally {
       setConnecting(false)
     }
@@ -626,11 +648,11 @@ export default function StudentProfileScreen({ route, navigation }) {
         <PostsSection userId={student.id} colors={colors} />
 
         <Button
-          label={connecting ? 'Connecting…' : 'Connect'}
+          label={requestSent ? 'Request sent' : connecting ? 'Sending…' : 'Message request'}
           onPress={handleConnect}
           variant="primary"
           loading={connecting}
-          disabled={connecting}
+          disabled={connecting || requestSent}
           style={{ marginHorizontal: spacing.md }}
         />
       </ScrollView>
