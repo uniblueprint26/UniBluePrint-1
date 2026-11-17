@@ -72,6 +72,9 @@ import EvidenceBankScreen             from '../screens/foundation/EvidenceBankSc
 import ApplicationTrackerScreen       from '../screens/foundation/ApplicationTrackerScreen'
 import GenerationSubmittedScreen      from '../screens/foundation/GenerationSubmittedScreen'
 import CompassScreen        from '../screens/CompassScreen'
+import MyBlueprintScreen    from '../screens/MyBlueprintScreen'
+import ExploreScreen        from '../screens/ExploreScreen'
+import ExploreListScreen    from '../screens/ExploreListScreen'
 
 // Priority — UniBlueprint's events arm (demo build for Ross)
 import PrioritiesScreen        from '../screens/PrioritiesScreen'
@@ -151,6 +154,9 @@ function HomeStack() {
       <Stack.Screen name="LifestyleBudgetingPreview" component={LifestyleBudgetingPreviewScreen} />
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
+      <Stack.Screen name="MyBlueprint"   component={MyBlueprintScreen}  />
+      <Stack.Screen name="Explore"       component={ExploreScreen}      />
+      <Stack.Screen name="ExploreList"   component={ExploreListScreen}  />
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="CoachBooking"  component={CoachBookingScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />

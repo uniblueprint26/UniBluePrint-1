@@ -8,7 +8,7 @@ import { useTheme } from '../../context/ThemeContext'
 // Deliberately reveals nothing beyond what's already visible on the
 // card/pin (name, county, category) — it's the partner's specific deal
 // (pricing, how-to-start) that's still pending, not their identity.
-export default function ComingSoonSheet({ visible, onClose }) {
+export default function ComingSoonSheet({ visible, onClose, title = 'Coming Soon', message = 'This partner is launching soon. Stay tuned.' }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   return (
@@ -25,8 +25,8 @@ export default function ComingSoonSheet({ visible, onClose }) {
           >
             <X size={16} color={colors.muted} />
           </TouchableOpacity>
-          <Text style={styles.title}>Coming Soon</Text>
-          <Text style={styles.body}>This partner is launching soon. Stay tuned.</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.body}>{message}</Text>
           <TouchableOpacity style={styles.doneBtn} onPress={onClose} activeOpacity={0.85}>
             <Text style={styles.doneBtnText}>Got it</Text>
           </TouchableOpacity>
@@ -63,7 +63,7 @@ function __gs_styles(colors) {
   },
   title: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, marginTop: 8 },
   body: {
-    fontFamily: fonts.sans, fontSize: 14, color: '#6B7280',
+    fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary,
     textAlign: 'center', marginTop: 10, lineHeight: 20, maxWidth: 280,
   },
   doneBtn: {
