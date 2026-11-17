@@ -3,11 +3,12 @@ import {
   View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Camera, Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play } from 'lucide-react-native'
+import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Plus, Video, Image as ImageIcon, Flame } from 'lucide-react-native'
 import { fonts, radius, spacing, shadows, sheen } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { MOODS, moodDef } from '../../constants/moods'
 import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS } from '../../lib/feed'
+import { PILLARS, AUDIENCES } from '../../constants/pillars'
 import { avatarColorFor, initialsFor } from '../../screens/DirectoryScreen'
 
 // ── shared helpers ───────────────────────────────────────────────────────────
@@ -25,13 +26,6 @@ function initialsOf(name) {
   if (!name) return '?'
   const parts = name.trim().split(/\s+/)
   return (parts[0]?.[0] || '').toUpperCase() + (parts[1]?.[0] || '').toUpperCase()
-}
-
-const AVATAR_BG = ['#FFF7ED', '#F0F9FF', '#FDF4FF', '#F0FDF4', '#EFF6FF', '#FEF2F2']
-function avatarBgFor(seed) {
-  let hash = 0
-  for (const ch of seed || '') hash = (hash * 31 + ch.charCodeAt(0)) % AVATAR_BG.length
-  return AVATAR_BG[Math.abs(hash)]
 }
 
 // A thin gradient "ring" behind an avatar circle — the one place gold earns
@@ -73,28 +67,17 @@ function Sheen({ isDark, radius: r }) {
 }
 
 // ── Composer entry bar ───────────────────────────────────────────────────────
-// Two distinct affordances (mood + photo), not one blended placeholder line
-// — reads as "two things you can do here" rather than a generic text field.
+// One quiet line: your initial, a prompt, and a plain "+" at the right. No
+// camera or smiley buttons; the Composer itself offers every post type.
 
 export function ComposerEntryBar({ name, onPress }) {
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
-    <TouchableOpacity style={k.composerBar} onPress={onPress} activeOpacity={0.88} accessibilityRole="button" accessibilityLabel="Start a new post">
-      <Sheen isDark={isDark} radius={radius.pill} />
-      <AvatarRing size={38}>
-        <View style={k.composerAvatar}><Text style={k.composerAvatarText}>{initialsOf(name)}</Text></View>
-      </AvatarRing>
-      <View style={{ flex: 1 }}>
-        <Text style={k.composerPlaceholder}>Share your mood or a snapshot…</Text>
-        <Text style={k.composerSub}>Thread, Post, or Clip</Text>
-      </View>
-      <View style={k.composerIconWrap}>
-        <Smile size={15} color={colors.gold} strokeWidth={1.9} />
-      </View>
-      <View style={k.composerIconWrap}>
-        <Camera size={15} color={colors.textPrimary} strokeWidth={1.9} />
-      </View>
+    <TouchableOpacity style={k.composerBar} onPress={onPress} activeOpacity={0.88} accessibilityRole="button" accessibilityLabel="Share something with campus">
+      <View style={k.composerAvatar}><Text style={k.composerAvatarText}>{initialsOf(name).slice(0, 1) || 'Y'}</Text></View>
+      <Text style={k.composerPlaceholder} numberOfLines={1}>Share something with campus</Text>
+      <Plus size={24} color={colors.textPrimary} strokeWidth={1.9} />
     </TouchableOpacity>
   )
 }
@@ -106,7 +89,7 @@ export function BuzzStrip({ selected, onSelect }) {
   const k = getStyles(colors, isDark)
   return (
     <View style={k.buzzRow}>
-      <Text style={k.buzzEyebrow}>This Week's Buzz</Text>
+      <Text style={k.buzzEyebrow}>This week's buzz</Text>
       <View style={k.buzzChipsRow}>
         {BUZZ_WINDOWS.map(w => {
           const active = w.id === selected
@@ -133,7 +116,7 @@ export function BuzzStrip({ selected, onSelect }) {
 // Named "Mood Pulse" (not "Campus Pulse") deliberately — Campus Connect
 // already has its own real "Campus Pulse" feature (a weekly rotating prompt
 // + replies, see components/campusConnect/CampusPulseCard.jsx), a wholly
-// different thing. This widget aggregates mood tags across Thread posts
+// different thing. This widget aggregates mood tags across Mood Board posts
 // app-wide, not scoped to campus specifically, so neither the name nor the
 // data pretends otherwise. Reused with a `title` override per screen
 // ("Campus Mood" / "Course Mood") so it reads as that screen's own flavour
@@ -243,18 +226,12 @@ function ReactionPill({ myMood, count, onPress, colors, k }) {
 }
 
 // ── Engagement row (reaction pill, comment, share, save) ───────────────────
-// The reaction pill (a mood) IS the "Like" mechanic — never a second plain
-// heart alongside it. Comment/Send/Save are purely additive.
-//
-// Post (photo+caption) leans Instagram: icon-only Comment/Send, Save pushed
-// to the far right. Thread (mood+text) leans Twitter: everything stays in
-// one tight left-aligned run, Save included — per the founder's "instagramy
-// twitter vibe" direction, the two post shapes read a little differently
-// rather than forcing one identical engagement bar on both.
+// The reaction pill (a mood) IS the "Like" mechanic, never a second plain
+// heart alongside it. Comment and Share sit beside it; Save is pushed to the
+// far right.
 
 function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave, colors, k }) {
   const [sheetOpen, setSheetOpen] = useState(false)
-  const isPost = post.post_type === 'post'
 
   function handlePick(moodId) {
     setSheetOpen(false)
@@ -263,7 +240,7 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
 
   return (
     <>
-      <View style={[k.engagementRow, isPost && { paddingTop: 12 }]}>
+      <View style={k.engagementRow}>
         <ReactionPill myMood={myMood} count={post.reaction_count} onPress={() => setSheetOpen(true)} colors={colors} k={k} />
         <TouchableOpacity
           style={k.engageBtn}
@@ -272,7 +249,7 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
           accessibilityRole="button"
           accessibilityLabel={`Comment, ${commentCount || 0}`}
         >
-          <MessageCircle size={18} color={colors.textPrimary} strokeWidth={1.8} />
+          <MessageCircle size={19} color={colors.textSecondary} strokeWidth={1.8} />
           {commentCount > 0 && <Text style={k.engageBtnText}>{commentCount}</Text>}
         </TouchableOpacity>
         <TouchableOpacity
@@ -282,9 +259,9 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
           accessibilityRole="button"
           accessibilityLabel="Share"
         >
-          <Send size={17} color={colors.textPrimary} strokeWidth={1.8} />
+          <Send size={18} color={colors.textSecondary} strokeWidth={1.8} />
         </TouchableOpacity>
-        {isPost && <View style={{ flex: 1 }} />}
+        <View style={{ flex: 1 }} />
         <TouchableOpacity
           style={k.engageBtn}
           onPress={() => onToggleSave?.(post.id)}
@@ -294,9 +271,9 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
           accessibilityState={{ selected: !!saved }}
         >
           <Bookmark
-            size={18}
-            color={saved ? colors.goldText : colors.textPrimary}
-            fill={saved ? colors.goldText : 'transparent'}
+            size={19}
+            color={saved ? colors.textPrimary : colors.textSecondary}
+            fill={saved ? colors.textPrimary : 'transparent'}
             strokeWidth={1.8}
           />
         </TouchableOpacity>
@@ -306,29 +283,83 @@ function EngagementRow({ post, myMood, onReact, commentCount, saved, onComment, 
   )
 }
 
-// ── Post header (avatar, name, mood badge, timestamp) ───────────────────────
+// ── Chips ────────────────────────────────────────────────────────────────────
 
-function PostHeader({ post, colors, k }) {
+function Chip({ icon, label, color, k, colors, tinted }) {
+  return (
+    <View style={[k.chip, tinted && color ? { backgroundColor: color + '1F', borderColor: color + '55' } : null]}>
+      {icon}
+      <Text style={k.chipText} numberOfLines={1}>{label}</Text>
+    </View>
+  )
+}
+
+// Where this post goes. Missing audience means Campus Connect.
+function AudienceChip({ audience, k, colors }) {
+  const key = AUDIENCES[audience] ? audience : 'campus'
+  const def = AUDIENCES[key]
+  if (def.pillar) {
+    const p = PILLARS[def.pillar]
+    const Icon = p.Icon
+    return <Chip tinted color={p.color} label={def.label} k={k} colors={colors} icon={<Icon size={15} color={p.color} strokeWidth={1.8} />} />
+  }
+  return <Chip label={def.label} k={k} colors={colors} icon={<Users size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
+}
+
+// Post type tag for the two shapes that are not a Mood Board.
+function TypeChip({ post, k, colors }) {
+  if (post.post_type === 'clip') {
+    return <Chip label="Clip" k={k} colors={colors} icon={<Video size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
+  }
+  if (post.post_type === 'post') {
+    return <Chip label="Post" k={k} colors={colors} icon={<ImageIcon size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
+  }
+  return null
+}
+
+// UBP-written content has no author. Real student posts never get the tag.
+function isFromUBP(post) {
+  return !post.user_id
+}
+
+function PostChips({ post, highlight, colors, k }) {
   const mood = post.mood ? moodDef(post.mood) : null
-  const name = post.author_name || 'UniBlueprint member'
+  return (
+    <View style={k.chipsRow}>
+      {highlight && (
+        <Chip label="Buzzing" k={k} colors={colors} icon={<Flame size={14} color={colors.textPrimary} strokeWidth={1.9} />} />
+      )}
+      {mood && (
+        <View style={[k.chip, { backgroundColor: mood.bg, borderColor: 'transparent' }]}>
+          <Text style={k.chipEmoji}>{mood.emoji}</Text>
+          <Text style={k.chipText} numberOfLines={1}>{mood.label}</Text>
+        </View>
+      )}
+      <AudienceChip audience={post.audience} k={k} colors={colors} />
+      <TypeChip post={post} k={k} colors={colors} />
+    </View>
+  )
+}
+
+// ── Post header (avatar, name, handle, timestamp) ───────────────────────────
+
+function PostHeader({ post, k }) {
+  const ubp = isFromUBP(post)
+  const name = post.author_name || (ubp ? 'UniBlueprint' : 'UniBlueprint member')
+  const handle = post.author_handle ? `@${String(post.author_handle).replace(/^@/, '')}` : null
   return (
     <View style={k.cardHeaderRow}>
-      <AvatarRing size={38}>
-        <View style={[k.avatar, { backgroundColor: avatarBgFor(post.user_id) }]}>
-          <Text style={k.avatarText}>{initialsOf(name)}</Text>
-        </View>
-      </AvatarRing>
-      <View style={{ flex: 1, minWidth: 0 }}>
-        <View style={k.nameMoodRow}>
-          <Text style={k.name} numberOfLines={1}>{name}</Text>
-          {mood && (
-            <View style={[k.moodBadge, { backgroundColor: mood.bg }]}>
-              <Text style={[k.moodBadgeText, { color: mood.color }]}>{mood.emoji} {mood.label}</Text>
-            </View>
-          )}
-        </View>
+      <View style={[k.avatar, { backgroundColor: ubp ? '#1E3A5F' : avatarColorFor(post.user_id || name) }]}>
+        <Text style={k.avatarText}>{ubp && !post.author_name ? 'UBP' : initialsOf(name)}</Text>
       </View>
-      <Text style={k.timestamp}>{timeAgo(post.created_at)}</Text>
+      <View style={k.nameRow}>
+        <Text style={k.name} numberOfLines={1}>{name}</Text>
+        {!!handle && <Text style={k.handle} numberOfLines={1}>{handle}</Text>}
+        <Text style={k.timestamp}>{timeAgo(post.created_at)}</Text>
+      </View>
+      {ubp && (
+        <View style={k.ubpTag}><Text style={k.ubpTagText}>From UBP</Text></View>
+      )}
     </View>
   )
 }
@@ -383,21 +414,23 @@ function ClipTile({ post, k, colors }) {
       accessibilityLabel="Play clip"
     >
       <View style={k.clipPlay}>
-        <Play size={26} color={colors.cream} fill={colors.cream} strokeWidth={1.6} />
+        <Play size={26} color="#FBF6E8" fill="#FBF6E8" strokeWidth={1.6} />
       </View>
-      <Text style={k.clipLabel}>Clip</Text>
     </TouchableOpacity>
   )
 }
 
-// ── Main feed post card (Post, Thread or Clip) ──────────────────────────────
+// ── The expanded post card (Mood Board, Post or Clip) ───────────────────────
+// Avatar, name and time; a row of chips (mood, where it goes, post type); the
+// words; a photo or clip; then the engagement row.
 
-export const FeedPostCard = memo(function FeedPostCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
+function PostCardBody({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave, highlight }) {
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
-    <View style={k.postRow}>
-      <PostHeader post={post} colors={colors} k={k} />
+    <View style={k.postCard}>
+      <PostHeader post={post} k={k} />
+      <PostChips post={post} highlight={highlight} colors={colors} k={k} />
       {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
       {post.post_type === 'post' && !!post.photo_url && (
         <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
@@ -417,38 +450,17 @@ export const FeedPostCard = memo(function FeedPostCard({ post, myMood, onReact, 
       />
     </View>
   )
+}
+
+export const FeedPostCard = memo(function FeedPostCard(props) {
+  return <PostCardBody {...props} />
 }, arePostCardPropsEqual)
 
 // ── Buzzing highlight card ───────────────────────────────────────────────────
+// Same card, with a "Buzzing" chip at the front of the chip row.
 
-export const BuzzingHighlightCard = memo(function BuzzingHighlightCard({ post, myMood, onReact, commentCount, saved, onComment, onShare, onToggleSave }) {
-  const { colors, isDark } = useTheme()
-  const k = getStyles(colors, isDark)
-  return (
-    <View style={[k.postRow, k.highlightRow]}>
-      <View style={k.highlightBadge}>
-        <Text style={k.highlightBadgeText}>🔥 Buzzing</Text>
-      </View>
-      <PostHeader post={post} colors={colors} k={k} />
-      {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
-      {post.post_type === 'post' && !!post.photo_url && (
-        <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
-      )}
-      <ClipTile post={post} k={k} colors={colors} />
-      <EngagementRow
-        post={post}
-        myMood={myMood}
-        onReact={onReact}
-        commentCount={commentCount}
-        saved={saved}
-        onComment={onComment}
-        onShare={onShare}
-        onToggleSave={onToggleSave}
-        colors={colors}
-        k={k}
-      />
-    </View>
-  )
+export const BuzzingHighlightCard = memo(function BuzzingHighlightCard(props) {
+  return <PostCardBody {...props} highlight />
 }, arePostCardPropsEqual)
 
 // ── Promoted placement ("Ad") card ───────────────────────────────────────────
@@ -534,30 +546,25 @@ function getStyles(colors, isDark) {
   const cardShadow = isDark ? shadows.glowDark : shadows.glow
   return StyleSheet.create({
   composerBar: {
-    backgroundColor: colors.surface, borderRadius: radius.pill,
-    overflow: 'hidden',
-    paddingVertical: 12, paddingHorizontal: 12, paddingLeft: 10,
+    backgroundColor: colors.surface, borderRadius: radius.pill + 8,
+    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+    paddingVertical: 11, paddingLeft: 11, paddingRight: 16,
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    ...cardShadow,
   },
   composerAvatar: {
-    width: 38, height: 38, borderRadius: 19, backgroundColor: colors.navy,
+    width: 36, height: 36, borderRadius: 18, backgroundColor: colors.navy,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    borderWidth: isDark ? 1 : 0, borderColor: colors.border,
   },
   composerAvatarText: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.cream },
-  composerPlaceholder: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
-  composerSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 1 },
-  composerIconWrap: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: colors.surfaceAlt,
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-  },
+  composerPlaceholder: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.textSecondary },
 
-  buzzRow: { marginTop: 22 },
+  buzzRow: { marginTop: 8 },
   buzzEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
+    textTransform: 'uppercase', letterSpacing: 0.9, marginBottom: 12,
   },
-  buzzChipsRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  buzzChipsRow: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
   buzzChip: {
     borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 7,
     backgroundColor: colors.surfaceAlt,
@@ -609,28 +616,40 @@ function getStyles(colors, isDark) {
     overflow: 'hidden',
     ...cardShadow,
   },
-  // Borderless, X/Threads-style feed row — a hairline divider is the only
-  // separation between posts, no surface/shadow/radius box. The photo
-  // breaks out of this row's own horizontal padding to bleed full-width
-  // (see `photo` below).
-  postRow: {
-    paddingHorizontal: spacing.md, paddingTop: 15, paddingBottom: 14,
-    borderBottomWidth: 1, borderBottomColor: colors.divider,
+  postCard: {
+    marginHorizontal: spacing.md, marginBottom: 16,
+    backgroundColor: colors.surface, borderRadius: 18,
+    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+    padding: 16,
+    ...cardShadow,
   },
-  cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  avatarText: { fontFamily: fonts.sansBold, fontSize: 12, color: colors.navy },
-  nameMoodRow: { flexDirection: 'row', alignItems: 'center', gap: 7, flexWrap: 'wrap' },
-  name: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
-  moodBadge: { borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
-  moodBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5 },
-  // Gold is otherwise retired as a workhorse color — this is the one
-  // "little detail" moment it's reserved for.
-  timestamp: { fontFamily: fonts.sans, fontSize: 11, color: colors.goldText, flexShrink: 0 },
-  bodyText: { fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, lineHeight: 22, marginTop: 12 },
+  cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  avatarText: { fontFamily: fonts.sansBold, fontSize: 14, color: '#FBF6E8' },
+  nameRow: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'baseline', gap: 6 },
+  name: { fontFamily: fonts.sansBold, fontSize: 15.5, color: colors.textPrimary, flexShrink: 1 },
+  handle: { fontFamily: fonts.sans, fontSize: 13, color: colors.textSecondary, flexShrink: 2 },
+  timestamp: { fontFamily: fonts.sans, fontSize: 13, color: colors.textSecondary, flexShrink: 0 },
+
+  ubpTag: {
+    borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border,
+    paddingHorizontal: 9, paddingVertical: 3, flexShrink: 0,
+  },
+  ubpTagText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textSecondary },
+
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt, paddingHorizontal: 11, paddingVertical: 6,
+  },
+  chipEmoji: { fontSize: 13 },
+  chipText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary },
+
+  bodyText: { fontFamily: fonts.sans, fontSize: 16, color: colors.textPrimary, lineHeight: 24, marginTop: 14 },
   photo: {
-    height: 260, backgroundColor: colors.surfaceAlt, marginTop: 12,
-    marginHorizontal: -spacing.md,
+    height: 220, backgroundColor: colors.surfaceAlt, marginTop: 14,
+    borderRadius: 12, overflow: 'hidden',
   },
   clipTile: {
     backgroundColor: '#0F1720', alignItems: 'center', justifyContent: 'center',
@@ -640,31 +659,19 @@ function getStyles(colors, isDark) {
     backgroundColor: 'rgba(255,255,255,0.16)',
     alignItems: 'center', justifyContent: 'center', paddingLeft: 3,
   },
-  clipLabel: {
-    position: 'absolute', top: 12, left: spacing.md + 12,
-    fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 0.6,
-    color: 'rgba(245,240,232,0.85)', textTransform: 'uppercase',
-  },
-  engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: 12 },
+  engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 14 },
 
   reactPill: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     borderRadius: radius.pill,
-    paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: 12, paddingVertical: 7, backgroundColor: colors.surfaceAlt,
+    borderWidth: 1, borderColor: colors.border,
   },
   reactPillEmoji: { fontSize: 15 },
   reactPillText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
   engageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, padding: 4 },
-  engageBtnText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
-
-  highlightRow: { backgroundColor: isDark ? 'rgba(224,192,108,0.08)' : 'rgba(180,146,58,0.05)' },
-  highlightBadge: {
-    position: 'absolute', top: 12, right: 12, zIndex: 1,
-    backgroundColor: isDark ? 'rgba(224,192,108,0.2)' : 'rgba(180,146,58,0.12)', borderRadius: 10,
-    paddingHorizontal: 9, paddingVertical: 4,
-  },
-  highlightBadgeText: { fontFamily: fonts.sansBold, fontSize: 10.5, color: colors.goldText },
+  engageBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textSecondary },
 
   adCard: { backgroundColor: colors.surfaceAlt },
   adLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: spacing.md, paddingBottom: 6 },
