@@ -1,333 +1,311 @@
 /**
- * AdBoardScreen — the Ad Board's own landing page: the live ad list itself,
- * plus clear entry points out to the Blog, the Marketplace, and this week's
- * Weekly Blueprint magazine. Blog and Marketplace are dedicated standalone
- * screens (BlogScreen / MarketplaceScreen), not scrolled sections nested in
- * this page — tapping either pushes into its own screen. The Weekly
- * Blueprint magazine (WeeklyBlueprintScreen) is reached the same way, via
- * "Open This Week's Issue", rather than this page doubling as the flip-book
- * reader itself.
+ * AdBoardScreen — the Ad Board: one calm list of listings.
+ *
+ * Filter chips (Deals, Jobs, Rides, Lost and found, Tutors, Notes) each read
+ * their own set of existing tables through lib/adBoard.js. Tapping a card
+ * opens the same contact flows as before (partner contact card, a paid ad's
+ * own link, or a detail card that can message the poster or open the file).
+ * "Post a listing" opens the existing post flows for each source, and paid
+ * ads still go through PostAdModal and its checkout unchanged.
+ *
+ * The old editorial pages (The Weekly Blueprint, Blog, Marketplace) are not
+ * part of this view any more. They stay reachable from the quiet row at the
+ * bottom of the list.
  */
-import { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { LinearGradient } from 'expo-linear-gradient'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
-  Plus, ChevronRight, Megaphone, Menu, BookOpen, ShoppingBag, Sparkles,
-  Star, GraduationCap, Building2, Wallet, Flag,
-} from 'lucide-react-native'
-import UBPLogo from '../components/ui/UBPLogo'
-import Card from '../components/ui/Card'
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Alert, Platform,
+  RefreshControl, ActivityIndicator,
+} from 'react-native'
+import { useFocusEffect } from '@react-navigation/native'
+import { setStatusBarStyle } from 'expo-status-bar'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Plus, Tag, BookOpen, ShoppingBag, Newspaper, AlertCircle } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import EmptyState from '../components/ui/EmptyState'
+import FilterChips from '../components/ads/FilterChips'
+import FeaturedDealCard from '../components/ads/FeaturedDealCard'
+import ListingCard from '../components/ads/ListingCard'
+import ListingDetailModal from '../components/ads/ListingDetailModal'
+import PostListingSheet from '../components/ads/PostListingSheet'
 import PostAdModal from '../components/ads/PostAdModal'
 import PartnerContactModal from '../components/ads/PartnerContactModal'
+import { useAdTokens } from '../components/ads/adTheme'
+import { AD_BOARD_KINDS, fetchListings } from '../lib/adBoard'
 import { supabase } from '../lib/supabase'
-import { fonts, spacing, radius } from '../constants/theme'
-import { useTheme } from '../context/ThemeContext'
-import { goToHome, openMenu } from '../navigation/helpers'
-import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
+import { fonts } from '../constants/theme'
 import { useAuth } from '../context/AuthContext'
-import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
-import { POSTS as BLOG_POSTS } from '../data/blogPosts'
 
-// Same reasons/flow as the rest of Campus Connect's Report action
-// (BoardDetailScreen), reused here rather than reinvented.
 const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
-
-// A representative slice of the magazine's real, fixed 13-section table of
-// contents (see WeeklyBlueprintScreen's own TOC entries) — enough to read as
-// a genuine content teaser on the hub card without trying to list all 13.
-const TEASER_SECTIONS = [
-  { label: 'Deals & Discounts', Icon: Star },
-  { label: 'Coach Spotlights',  Icon: GraduationCap },
-  { label: 'Lifestyle Edit',    Icon: Sparkles },
-  { label: 'Campus Connect',    Icon: Building2 },
-  { label: 'Money Moves',       Icon: Wallet },
-]
-
-function shade(hex, percent) {
-  const num = parseInt(hex.replace('#', ''), 16)
-  const amt = Math.round(2.55 * percent)
-  const r = Math.max(0, Math.min(255, (num >> 16) + amt))
-  const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amt))
-  const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amt))
-  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`
+const EMPTY_COPY = {
+  deals:  { title: 'No deals yet', subtitle: 'Partner deals and student listings will show up here.' },
+  jobs:   { title: 'No jobs yet', subtitle: 'Part-time work, internships and volunteering will show up here.' },
+  rides:  { title: 'No rides yet', subtitle: 'Heading somewhere with a spare seat? Post a route.' },
+  lost:   { title: 'Nothing lost or found', subtitle: 'Lost something, or found something? Post it here.' },
+  tutors: { title: 'No tutors yet', subtitle: 'Offer tutoring, or ask for help with a subject.' },
+  notes:  { title: 'No notes yet', subtitle: 'Share your notes to help other students.' },
 }
 
 export default function AdBoardScreen({ navigation }) {
-  const { colors } = useTheme()
-  const styles = __gs_styles(colors)
-  // Cream hero under the status bar — the global light icons are invisible
-  // here without this (L3).
-  useLightBackgroundStatusBar()
+  const t = useAdTokens()
+  const { colors, isDark } = t
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
-  const [modalVisible, setModalVisible] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [liveBoardAds, setLiveBoardAds] = useState([])
-  const [issue, setIssue] = useState(null)
-  const [contactAd, setContactAd] = useState(null)
 
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      const [liveAdsRes, issueRes] = await Promise.allSettled([
-        supabase.from('ads').select('*').eq('active', true).overlaps('boards', ['cross-ireland', 'campus', 'course']),
-        supabase.rpc('get_current_weekly_issue'),
-      ])
-      if (cancelled) return
-      setLiveBoardAds((liveAdsRes.status === 'fulfilled' ? liveAdsRes.value.data : null) || [])
-      setIssue((issueRes.status === 'fulfilled' ? issueRes.value.data?.[0] : null) || null)
-      setLoading(false)
+  const [kind, setKind] = useState('deals')
+  const [data, setData] = useState({})          // kind -> { items, failed }
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [postOpen, setPostOpen] = useState(false)
+  const [adOpen, setAdOpen] = useState(false)
+  const [detail, setDetail] = useState(null)
+  const [contactAd, setContactAd] = useState(null)
+  const reqId = useRef(0)
+
+  // The header and page are the surface colour, so the status bar icons
+  // follow the theme (dark icons on light, light icons on dark).
+  useFocusEffect(useCallback(() => {
+    setStatusBarStyle(isDark ? 'light' : 'dark')
+    return () => setStatusBarStyle('light')
+  }, [isDark]))
+
+  const load = useCallback(async (k, { silent } = {}) => {
+    const id = ++reqId.current
+    if (!silent) setLoading(true)
+    let result
+    try {
+      result = await fetchListings(k)
+    } catch {
+      result = { items: [], failed: true }
     }
-    load()
-    return () => { cancelled = true }
+    if (id !== reqId.current) return
+    setData(prev => ({ ...prev, [k]: result }))
+    setLoading(false)
+    setRefreshing(false)
   }, [])
 
-  // Only ads posted by a student through the app (liveBoardAds, from the
-  // `ads` table) are reportable user-generated content — curated partner
-  // ads are our own content and don't carry a real `ads` row id.
-  const ads = [
-    ...CURATED_ADS.map(a => ({ ...a, _live: false })),
-    ...liveBoardAds.map(a => ({ ...a, _live: true })),
-  ]
+  useEffect(() => { load(kind) }, [kind, load])
 
-  function reportAd(ad) {
-    Alert.alert('Report this ad', 'What best describes the issue?', [
+  function onRefresh() {
+    setRefreshing(true)
+    load(kind, { silent: true })
+  }
+
+  const current = data[kind]
+  const items = current?.items || []
+  const hero = kind === 'deals' ? items.find(i => i.source === 'deals' && i.percent) : null
+  const list = hero ? items.filter(i => i !== hero) : items
+
+  // ── Taps ────────────────────────────────────────────────────────────────
+  function openLink(url) {
+    if (!url) return
+    if (Platform.OS === 'web') window.open(url, '_blank')
+    else Linking.openURL(url)
+  }
+
+  function openItem(item) {
+    if (item.action === 'link') return openLink(item.link)
+    if (item.action === 'partner') {
+      return setContactAd({
+        id: item.id,
+        brand: item.partner?.name || item.title,
+        title: item.title,
+        description: item.description,
+        partnerSlug: item.partner?.slug || null,
+        hasContact: !!item.partner?.slug,
+      })
+    }
+    setDetail(item)
+  }
+
+  function openBoard(item) {
+    const b = item.board
+    if (!b) return
+    setDetail(null)
+    navigation.navigate('BoardDetail', { boardKey: b.key, ...(b.registry !== 'campus' ? { registry: b.registry } : {}) })
+  }
+
+  function messagePoster(item) {
+    const b = item.board
+    setDetail(null)
+    navigation.navigate('ChatRoom', {
+      contextType: 'board',
+      contextId: `${b?.key || item.source}-${item.id}`,
+      roomName: item.title,
+      subtitle: b?.title || 'Ad Board',
+      posterId: item.ownerId,
+      posterName: item.posterName,
+    })
+  }
+
+  async function openFile(item) {
+    // Same download count as the Shared Notes board.
+    await supabase.rpc('increment_shared_note_downloads', { note_id: item.id })
+    openLink(item.fileUrl)
+  }
+
+  function report(item) {
+    Alert.alert('Report this listing', 'What best describes the issue?', [
       ...REPORT_REASONS.map(reason => ({
         text: reason,
         onPress: async () => {
           const { error } = await supabase.from('operations_flags').insert({
-            flagged_by: user.id, target_type: 'ads', target_id: ad.id, reason,
+            flagged_by: user?.id, target_type: item.source, target_id: item.id, reason,
           })
-          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.')
+          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks. The UniBlueprint team will take a look.')
         },
       })),
       { text: 'Cancel', style: 'cancel' },
     ])
   }
 
+  function pickPost(option) {
+    setPostOpen(false)
+    if (option.paid) { setAdOpen(true); return }
+    const { boardKey, registry } = option.route
+    navigation.navigate('BoardDetail', { boardKey, openPostForm: true, ...(registry ? { registry } : {}) })
+  }
+
+  const accentBtn = { backgroundColor: t.accent }
+
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <View style={styles.topBar}>
-        <UBPLogo height={26} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
-        <View style={{ flex: 1 }} />
-        <TouchableOpacity
-          onPress={() => openMenu(navigation)}
-          style={styles.menuBtn}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Open menu"
-        >
-          <Menu size={19} color={colors.chromeFg} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.postBtn} activeOpacity={0.8} onPress={() => setModalVisible(true)}>
-          <Plus size={14} color={colors.chromeBg} strokeWidth={2.5} />
-          <Text style={styles.postBtnText}>Post an Ad</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} />
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
+      <PageTitle
+        title="Ad Board"
+        color={t.accent}
+        right={(
+          <TouchableOpacity
+            style={[s.postBtn, accentBtn]}
+            activeOpacity={0.85}
+            onPress={() => setPostOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Post a listing"
+          >
+            <Plus size={16} color={t.accentInk} strokeWidth={2.6} />
+            <Text style={[s.postBtnText, { color: t.accentInk }]}>Post a listing</Text>
+          </TouchableOpacity>
+        )}
+      />
 
-        {/* ── The Weekly Blueprint — magazine banner + real content teaser ── */}
-        <TouchableOpacity activeOpacity={0.92} onPress={() => navigation.navigate('WeeklyBlueprint')}>
-          <Card style={styles.magazineCard}>
-            <LinearGradient
-              colors={[shade(colors.chromeBg, -12), colors.chromeBg, shade(colors.chromeBg, 10)]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.magazineBanner}
-            >
-              <View style={styles.magazineBadge}>
-                <Text style={styles.magazineBadgeText}>{issue ? `ISSUE ${issue.issue_number}` : 'THIS WEEK'}</Text>
-              </View>
-              <Text style={styles.magazineBannerTitle}>The Weekly Blueprint</Text>
-              <View style={styles.magazineRule} />
-              <Text style={styles.magazineBannerTheme} numberOfLines={2}>
-                {issue?.theme || 'The structure behind your success.'}
-              </Text>
-            </LinearGradient>
+      <FilterChips kinds={AD_BOARD_KINDS} value={kind} onChange={setKind} />
 
-            <View style={styles.magazineInfo}>
-              <Text style={styles.magazineKicker}>WHAT'S INSIDE THIS WEEK</Text>
-              <View style={styles.teaserRow}>
-                {TEASER_SECTIONS.map(s => (
-                  <View key={s.label} style={styles.teaserChip}>
-                    <s.Icon size={12} color={colors.textPrimary} strokeWidth={2} />
-                    <Text style={styles.teaserChipText}>{s.label}</Text>
-                  </View>
-                ))}
-              </View>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[s.content, { paddingBottom: insets.bottom + 32 }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.accent} colors={[t.accent]} />}
+      >
+        {loading && !current ? (
+          <Skeleton />
+        ) : current?.failed ? (
+          <View style={s.notice}>
+            <AlertCircle size={28} color={colors.textSecondary} strokeWidth={1.5} />
+            <Text style={[s.noticeTitle, { color: colors.textPrimary }]}>Could not load the board</Text>
+            <Text style={[s.noticeSub, { color: colors.textSecondary }]}>Check your connection and try again.</Text>
+            <TouchableOpacity style={[s.retry, accentBtn]} activeOpacity={0.85} onPress={() => load(kind)}>
+              <Text style={[s.retryText, { color: t.accentInk }]}>Try again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : items.length === 0 ? (
+          <EmptyState
+            icon={Tag}
+            title={EMPTY_COPY[kind].title}
+            subtitle={EMPTY_COPY[kind].subtitle}
+            ctaLabel="Post a listing"
+            onCtaPress={() => setPostOpen(true)}
+          />
+        ) : (
+          <View style={s.list}>
+            {hero && <FeaturedDealCard deal={hero} onPress={() => openItem(hero)} />}
+            {list.map(item => <ListingCard key={item.key} item={item} onPress={() => openItem(item)} />)}
+            {loading && <ActivityIndicator color={t.accent} style={{ marginTop: 8 }} />}
+          </View>
+        )}
 
-              <View style={styles.magazineFooter}>
-                <View style={styles.magazineCta}>
-                  <Text style={styles.magazineCtaText}>Open This Week's Issue</Text>
-                  <ChevronRight size={15} color={colors.accentFg} />
-                </View>
-                <Text style={styles.magazineFooterNote}>This week's 26-page drop + a note from the team</Text>
-              </View>
+        {!(loading && !current) && (
+          <View style={s.more}>
+            <Text style={[s.moreLabel, { color: colors.textSecondary }]}>More from the Ad Board</Text>
+            <View style={s.moreRow}>
+              <MoreLink Icon={Newspaper} label="Weekly Blueprint" onPress={() => navigation.navigate('WeeklyBlueprint')} />
+              <MoreLink Icon={BookOpen} label="Blog" onPress={() => navigation.navigate('Blog')} />
+              <MoreLink Icon={ShoppingBag} label="Marketplace" onPress={() => navigation.navigate('Marketplace')} />
             </View>
-          </Card>
-        </TouchableOpacity>
-
-        {/* ── Entry points: Blog / Marketplace ────────────────────────────── */}
-        <View style={styles.entryRow}>
-          <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => navigation.navigate('Blog')}>
-            <Card style={styles.entryCard}>
-              <View style={[styles.entryIconWrap, { backgroundColor: '#F5F0E8' }]}>
-                <BookOpen size={20} color={colors.navy} strokeWidth={1.8} />
-              </View>
-              <Text style={styles.entryTitle}>Blog</Text>
-              <Text style={styles.entrySub}>Real Irish education news and guides</Text>
-              <View style={styles.entryFooter}>
-                <Text style={styles.entryFooterText}>{BLOG_POSTS.length} articles</Text>
-                <ChevronRight size={14} color={colors.light} />
-              </View>
-            </Card>
-          </TouchableOpacity>
-          <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => navigation.navigate('Marketplace')}>
-            <Card style={styles.entryCard}>
-              <View style={[styles.entryIconWrap, { backgroundColor: '#F5F3FF' }]}>
-                <ShoppingBag size={20} color="#6D28D9" strokeWidth={1.8} />
-              </View>
-              <Text style={styles.entryTitle}>Marketplace</Text>
-              <Text style={styles.entrySub}>Offer a skill, or buy and sell with students</Text>
-              <View style={styles.entryFooter}>
-                <Text style={styles.entryFooterText}>Skills · Buy & Sell</Text>
-                <ChevronRight size={14} color={colors.light} />
-              </View>
-            </Card>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── The Ad Board itself — live ads ──────────────────────────────── */}
-        <Text style={styles.sectionKicker}>THIS WEEK'S AD BOARD</Text>
-        <Text style={styles.sectionHeading}>Real deals, real students</Text>
-        <Text style={styles.sectionSub}>Curated partners and student-posted ads from across Ireland.</Text>
-
-        <Card style={{ marginTop: 14, padding: 6 }}>
-          {loading ? (
-            <Text style={styles.emptyNote}>Loading the Ad Board...</Text>
-          ) : ads.length === 0 ? (
-            <Text style={styles.emptyNote}>No ads live right now — be the first to post one.</Text>
-          ) : ads.map((ad, i) => {
-            const cat = ad.category ? CATEGORY[ad.category] : null
-            return (
-              <TouchableOpacity
-                key={ad.id}
-                style={[styles.adRow, i === ads.length - 1 && { borderBottomWidth: 0 }]}
-                activeOpacity={0.8}
-                onPress={() => {
-                  // A live-ad's own booking link opens directly, same as
-                  // before. Everything else — every curated partner, plus
-                  // any live ad without one — opens the branded contact
-                  // card instead of the old system Alert.alert() popup.
-                  const url = ad.link || ad.target_url
-                  if (url) return Linking.openURL(url)
-                  setContactAd(ad)
-                }}
-              >
-                <View style={[styles.adIcon, { backgroundColor: cat?.bg || '#F5F0E8' }]}>
-                  {cat ? <cat.Icon size={16} color={cat.color} strokeWidth={1.8} /> : <Megaphone size={16} color={colors.navy} strokeWidth={1.8} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.adBrand}>{ad.brand || ad.title}</Text>
-                  <Text style={styles.adTitle} numberOfLines={1}>{ad.title}</Text>
-                </View>
-                {ad._live && (
-                  <TouchableOpacity
-                    style={styles.adReportBtn}
-                    activeOpacity={0.7}
-                    onPress={(e) => { e.stopPropagation(); reportAd(ad) }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Report ad"
-                  >
-                    <Flag size={13} color={colors.muted} strokeWidth={2} />
-                  </TouchableOpacity>
-                )}
-                <ChevronRight size={14} color={colors.light} />
-              </TouchableOpacity>
-            )
-          })}
-        </Card>
-
-        <TouchableOpacity style={styles.advertiseCta} activeOpacity={0.85} onPress={() => setModalVisible(true)}>
-          <Sparkles size={14} color={colors.accentFg} strokeWidth={2} />
-          <Text style={styles.advertiseCtaText}>Advertise With Us</Text>
-        </TouchableOpacity>
-
+          </View>
+        )}
       </ScrollView>
 
-      <PostAdModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+      <PostListingSheet visible={postOpen} onClose={() => setPostOpen(false)} onPick={pickPost} />
+      <PostAdModal visible={adOpen} onClose={() => { setAdOpen(false); load(kind, { silent: true }) }} />
       <PartnerContactModal ad={contactAd} visible={!!contactAd} onClose={() => setContactAd(null)} />
+      <ListingDetailModal
+        item={detail}
+        visible={!!detail}
+        isOwn={!!detail && !!user?.id && detail.ownerId === user.id}
+        onClose={() => setDetail(null)}
+        onMessage={messagePoster}
+        onOpenLink={openLink}
+        onOpenFile={openFile}
+        onOpenBoard={openBoard}
+        onReport={report}
+      />
     </View>
   )
 }
 
-function __gs_styles(colors) {
-  return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-
-  topBar: {
-    backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingTop: 12, paddingBottom: 14,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-  },
-  menuBtn: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.chromeFg, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.chromeBg },
-
-  // Magazine card — full-width gradient banner on top (readable at any
-  // width, unlike the old 92px cover column it replaced) with a real
-  // content teaser below, so the hub's hero card reads as the biggest,
-  // most inviting thing on the page rather than a cramped sliver.
-  magazineCard: { padding: 0, overflow: 'hidden', marginBottom: spacing.md },
-  magazineBanner: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 20 },
-  magazineBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,162,75,0.22)', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 4 },
-  magazineBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
-  magazineBannerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, marginTop: 10, lineHeight: 30 },
-  magazineRule: { width: 34, height: 2, backgroundColor: colors.gold, borderRadius: 1, marginTop: 10, marginBottom: 10 },
-  magazineBannerTheme: { fontFamily: fonts.sans, fontSize: 12.5, color: 'rgba(245,240,232,0.78)', lineHeight: 18 },
-
-  magazineInfo: { padding: 16 },
-  magazineKicker: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted, letterSpacing: 0.8, textTransform: 'uppercase' },
-
-  teaserRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 10 },
-  teaserChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: 'rgba(30,58,95,0.06)', borderRadius: radius.pill,
-    paddingHorizontal: 9, paddingVertical: 6,
-  },
-  teaserChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
-
-  magazineFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginTop: 14 },
-  magazineCta: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.accentBg, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10 },
-  magazineCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.accentFg },
-  magazineFooterNote: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, fontStyle: 'italic' },
-
-  // Entry cards (Blog / Marketplace)
-  entryRow: { flexDirection: 'row', gap: 12, marginBottom: spacing.lg },
-  entryCard: { padding: 16 },
-  entryIconWrap: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  entryTitle: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, marginTop: 10 },
-  entrySub: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16, minHeight: 32 },
-  entryFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
-  entryFooterText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.light },
-
-  sectionKicker: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 1, textTransform: 'uppercase' },
-  sectionHeading: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginTop: 6 },
-  sectionSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
-
-  emptyNote: { fontFamily: fonts.sans, fontSize: 13, color: colors.light, fontStyle: 'italic', padding: 14 },
-  adRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  adIcon: { width: 36, height: 36, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  adBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  adTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary, marginTop: 2 },
-  adReportBtn: { padding: 4, marginRight: 2 },
-
-  advertiseCta: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
-    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 14, marginTop: 16,
-  },
-  advertiseCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
-  })
+function MoreLink({ Icon, label, onPress }) {
+  const t = useAdTokens()
+  return (
+    <TouchableOpacity
+      style={[s.moreLink, { borderColor: t.colors.border, backgroundColor: t.colors.surface }]}
+      activeOpacity={0.8}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <Icon size={14} color={t.colors.textSecondary} strokeWidth={1.8} />
+      <Text style={[s.moreLinkText, { color: t.colors.textPrimary }]}>{label}</Text>
+    </TouchableOpacity>
+  )
 }
+
+// Honest loading: grey cards in the shape of the real ones.
+function Skeleton() {
+  const { colors } = useAdTokens()
+  const block = { backgroundColor: colors.tabFill, borderRadius: 8 }
+  return (
+    <View style={s.list} accessibilityLabel="Loading listings">
+      {[0, 1, 2, 3, 4].map(i => (
+        <View key={i} style={[s.skel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={[block, { width: 52, height: 52, borderRadius: 14 }]} />
+          <View style={{ flex: 1, gap: 8 }}>
+            <View style={[block, { width: '35%', height: 10 }]} />
+            <View style={[block, { width: '80%', height: 14 }]} />
+            <View style={[block, { width: '55%', height: 10 }]} />
+          </View>
+        </View>
+      ))}
+    </View>
+  )
+}
+
+const s = StyleSheet.create({
+  screen: { flex: 1 },
+  postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 42, paddingHorizontal: 14, borderRadius: 21, marginBottom: 2 },
+  postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
+  content: { paddingHorizontal: 16, paddingTop: 4 },
+  list: { gap: 12 },
+  skel: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 18, borderWidth: StyleSheet.hairlineWidth },
+  notice: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 32, gap: 8 },
+  noticeTitle: { fontFamily: fonts.serif, fontSize: 22, marginTop: 8, textAlign: 'center' },
+  noticeSub: { fontFamily: fonts.sans, fontSize: 14, textAlign: 'center' },
+  retry: { marginTop: 12, height: 44, paddingHorizontal: 24, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  retryText: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
+  more: { marginTop: 32, alignItems: 'center', gap: 10 },
+  moreLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 0.4 },
+  moreRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  moreLink: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 12, borderRadius: 18, borderWidth: 1 },
+  moreLinkText: { fontFamily: fonts.sansMedium, fontSize: 13 },
+})
