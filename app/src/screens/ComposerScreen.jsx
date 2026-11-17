@@ -1,41 +1,48 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput,
-  Image, Alert, ActivityIndicator, Platform, KeyboardAvoidingView,
+  Image, Alert, ActivityIndicator, Platform, KeyboardAvoidingView, Modal, Pressable,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
-import { X, Camera, RefreshCw, Video, Play } from 'lucide-react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { X, Camera, RefreshCw, Video, Play, ChevronLeft } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { MOODS } from '../constants/moods'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { createThread, createPost, createClip, AUDIENCE_KEYS } from '../lib/feed'
+import AudiencePicker, { AudienceChip } from '../components/feed/AudiencePicker'
+import PostTypeTiles from '../components/feed/PostTypeTiles'
+import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 
-// Composer — one screen, three tabs, all writing to public.feed_posts.
+// Composer — two steps, all writing to public.feed_posts.
 //
-//   "Thread" tab  → post_type = 'thread': pick a mood in the Mood Board
-//                   picker below, write a short text post.
-//   "Post" tab    → post_type = 'post': a photo (required) + optional
-//                   caption, Instagram-style.
-//   "Clip" tab    → post_type = 'clip': a short video (required) + optional
-//                   caption. Shell v2 (2026-11-13, founder-locked): Clip is a
-//                   4th composer type living in this same "create" entry
-//                   point — never a separate standalone surface/tab of its
-//                   own. The header stays "Post" no matter which of the
-//                   three types is picked — same locked naming as the tab
-//                   bar's "+" slot, not "New Thread" or three different
-//                   screen names depending on entry point.
+//   Step 1 "Post sheet" → pick what to make (Mood Board, Post, Clip or Live)
+//                   and where it goes (Campus Connect, Course Connect or
+//                   Friends only), then Continue. The last audience is
+//                   remembered per user in AsyncStorage.
+//   Step 2 compose  → the existing compose UI for the chosen type:
+//     Mood Board → post_type = 'thread': pick a mood, write a short text post.
+//     Post       → post_type = 'post': a photo (required) + optional caption.
+//     Clip       → post_type = 'clip': a short video (required) + optional
+//                  caption.
+//     Live       → opens the LiveCapture route when it is registered,
+//                  otherwise a "coming soon" sheet. Nothing is faked.
+//   A small audience chip at the top of step 2 changes the audience.
+//
+// The header says "Post" on both steps. Every insert carries `audience`
+// ('campus' | 'course' | 'friends'). The word "Thread" is never shown to a
+// user: the Mood Board type is stored as post_type 'thread'.
 //
 // Clips upload to the feed-clips bucket and save as post_type 'clip' with
 // video_url (supabase/migrations/20261116233209_feed_clips.sql).
 //
-// "Mood Board" names the mood-picker UI only, never the Thread post type
-// itself (that distinction is locked by spec — keep it in code/comments).
-//
 // route.params (all optional) support the contextual share-prompt flow:
-//   initialTab   — 'thread' | 'post' | 'clip' (default 'thread')
+//   initialTab   — 'thread' (Mood Board) | 'post' | 'clip'. When set, the
+//                  Post sheet is skipped and step 2 opens directly.
 //   initialText  — pre-filled body text
 //   initialMood  — pre-selected mood id (thread tab only)
 
@@ -44,6 +51,19 @@ const MAX_VIDEO_BYTES = 50 * 1024 * 1024 // 50MB — a short clip, not a full vi
 const CLIP_TYPES = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' }
 const MAX_DIM = 1600
 const MAX_CLIP_SECONDS = 60
+const AUDIENCE_KEY_PREFIX = 'ubp_post_audience_'
+
+// Is a LiveCapture screen registered anywhere above this one?
+function hasRoute(navigation, name) {
+  let nav = navigation
+  for (let i = 0; nav && i < 5; i += 1) {
+    try {
+      if (nav.getState?.()?.routeNames?.includes(name)) return true
+    } catch {}
+    nav = nav.getParent?.()
+  }
+  return false
+}
 
 function initialsOf(name) {
   if (!name) return '?'
@@ -60,9 +80,12 @@ export default function ComposerScreen({ navigation, route }) {
   const initials = initialsOf(fullName)
 
   const initialTabParam = route?.params?.initialTab
-  const [tab, setTab] = useState(
-    initialTabParam === 'post' ? 'post' : initialTabParam === 'clip' ? 'clip' : 'thread',
-  )
+  const hasInitialTab = ['thread', 'post', 'clip'].includes(initialTabParam)
+  const [step, setStep] = useState(hasInitialTab ? 'compose' : 'pick')
+  const [tab, setTab] = useState(hasInitialTab ? initialTabParam : 'thread')
+  const [audience, setAudience] = useState('campus')
+  const [audienceSheetOpen, setAudienceSheetOpen] = useState(false)
+  const [liveSoonOpen, setLiveSoonOpen] = useState(false)
   const [mood, setMood] = useState(route?.params?.initialMood || 'flying_it')
   const [threadText, setThreadText] = useState(route?.params?.initialText || '')
   const [caption, setCaption] = useState(initialTabParam === 'post' ? (route?.params?.initialText || '') : '')
@@ -76,11 +99,43 @@ export default function ComposerScreen({ navigation, route }) {
   const isThread = tab === 'thread'
   const isPost   = tab === 'post'
   const isClip   = tab === 'clip'
+  const isLive   = tab === 'live'
   const canPost = isThread
     ? threadText.trim().length > 0
     : isPost
       ? !!localPhotoUri
       : !!localVideoUri
+
+  // Remember the last audience per user. Reads once; falls back to campus.
+  useEffect(() => {
+    if (!user?.id) return undefined
+    let cancelled = false
+    AsyncStorage.getItem(AUDIENCE_KEY_PREFIX + user.id)
+      .then(v => { if (!cancelled && AUDIENCE_KEYS.includes(v)) setAudience(v) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  function chooseAudience(key) {
+    setAudience(key)
+    if (user?.id) AsyncStorage.setItem(AUDIENCE_KEY_PREFIX + user.id, key).catch(() => {})
+  }
+
+  function onContinue() {
+    if (isLive) {
+      if (hasRoute(navigation, 'LiveCapture')) {
+        try { navigation.navigate('LiveCapture', { audience }); return } catch {}
+      }
+      setLiveSoonOpen(true)
+      return
+    }
+    setErrorMsg(null)
+    setStep('compose')
+  }
+
+  function onBack() {
+    if (step === 'compose') { setStep('pick'); setErrorMsg(null) } else navigation.goBack()
+  }
 
   async function pickPhoto() {
     if (Platform.OS !== 'web') {
@@ -186,31 +241,13 @@ export default function ComposerScreen({ navigation, route }) {
     setErrorMsg(null)
     try {
       if (isThread) {
-        const { error } = await supabase.from('feed_posts').insert({
-          user_id: user.id,
-          post_type: 'thread',
-          mood,
-          body: threadText.trim(),
-        })
-        if (error) throw error
+        await createThread({ userId: user.id, mood, body: threadText.trim(), audience })
       } else if (isPost) {
         const photoUrl = await uploadPhoto()
-        const { error } = await supabase.from('feed_posts').insert({
-          user_id: user.id,
-          post_type: 'post',
-          photo_url: photoUrl,
-          body: caption.trim() || null,
-        })
-        if (error) throw error
+        await createPost({ userId: user.id, photoUrl, caption: caption.trim(), audience })
       } else {
         const videoUrl = await uploadVideo()
-        const { error } = await supabase.from('feed_posts').insert({
-          user_id: user.id,
-          post_type: 'clip',
-          video_url: videoUrl,
-          body: clipCaption.trim() || null,
-        })
-        if (error) throw error
+        await createClip({ userId: user.id, videoUrl, caption: clipCaption.trim(), audience })
       }
       navigation.goBack()
     } catch (e) {
@@ -220,6 +257,50 @@ export default function ComposerScreen({ navigation, route }) {
     }
   }
 
+  if (step === 'pick') {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.surface }}>
+        <View style={{ paddingTop: insets.top }}>
+          <View style={s.sheetHandle} />
+          <View style={s.sheetHeader}>
+            <Text style={s.sheetTitle}>Post</Text>
+            <TouchableOpacity
+              style={s.closeBtn}
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
+              <X size={14} color={colors.textPrimary} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <PostTypeTiles value={tab} onChange={setTab} />
+
+          <Text style={s.pickLabel}>Post to</Text>
+          <AudiencePicker value={audience} onChange={chooseAudience} />
+        </ScrollView>
+
+        <View style={[s.continueBar, { paddingBottom: insets.bottom + 16 }]}>
+          <TouchableOpacity style={s.postBtn} onPress={onContinue} activeOpacity={0.85} accessibilityRole="button">
+            <Text style={s.postBtnText}>Continue</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ComingSoonSheet
+          visible={liveSoonOpen}
+          onClose={() => setLiveSoonOpen(false)}
+          title="Live is coming soon"
+          message="Two-minute Live captures are on their way. For now, share a Mood Board, a Post or a Clip."
+        />
+      </View>
+    )
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.background }}
@@ -227,6 +308,14 @@ export default function ComposerScreen({ navigation, route }) {
     >
       <View style={{ paddingTop: insets.top }}>
         <View style={s.header}>
+          <TouchableOpacity
+            style={s.closeBtn}
+            onPress={onBack}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+          >
+            <ChevronLeft size={16} color={colors.textPrimary} strokeWidth={2} />
+          </TouchableOpacity>
           <Text style={s.headerTitle}>Post</Text>
           <TouchableOpacity
             style={s.closeBtn}
@@ -242,37 +331,14 @@ export default function ComposerScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 28 }} keyboardShouldPersistTaps="handled">
         <View style={s.postingAs}>
           <View style={s.avatar}><Text style={s.avatarText}>{initials}</Text></View>
-          <Text style={s.postingAsText}>Posting as {fullName}</Text>
-        </View>
-
-        <View style={s.tabs}>
-          <TouchableOpacity
-            style={[s.tabBtn, isThread && s.tabBtnActive]}
-            onPress={() => setTab('thread')}
-            activeOpacity={0.8}
-          >
-            <Text style={[s.tabLabel, isThread && s.tabLabelActive]}>Thread</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[s.tabBtn, isPost && s.tabBtnActive]}
-            onPress={() => setTab('post')}
-            activeOpacity={0.8}
-          >
-            <Text style={[s.tabLabel, isPost && s.tabLabelActive]}>Post</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[s.tabBtn, isClip && s.tabBtnActive]}
-            onPress={() => setTab('clip')}
-            activeOpacity={0.8}
-          >
-            <Text style={[s.tabLabel, isClip && s.tabLabelActive]}>Clip</Text>
-          </TouchableOpacity>
+          <Text style={s.postingAsText} numberOfLines={1}>{fullName}</Text>
+          <AudienceChip value={audience} onPress={() => setAudienceSheetOpen(true)} />
         </View>
 
         <View style={s.body}>
           {isThread ? (
             <>
-              <Text style={s.sectionLabel}>Mood Board — pick a mood</Text>
+              <Text style={s.sectionLabel}>Pick a mood</Text>
               <View style={s.moodGrid}>
                 {MOODS.map(m => {
                   const selected = m.id === mood
@@ -391,6 +457,19 @@ export default function ComposerScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal visible={audienceSheetOpen} transparent animationType="fade" onRequestClose={() => setAudienceSheetOpen(false)}>
+        <Pressable style={s.backdrop} onPress={() => setAudienceSheetOpen(false)}>
+          <Pressable style={[s.audienceSheet, { paddingBottom: insets.bottom + 24 }]} onPress={e => e.stopPropagation?.()}>
+            <View style={s.sheetHandleInline} />
+            <Text style={s.audienceSheetTitle}>Post to</Text>
+            <AudiencePicker
+              value={audience}
+              onChange={key => { chooseAudience(key); setAudienceSheetOpen(false) }}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </KeyboardAvoidingView>
   )
 }
@@ -409,29 +488,46 @@ function composerStyles(colors) {
       backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center',
     },
 
+    sheetHandle: {
+      alignSelf: 'center', width: 40, height: 4, borderRadius: 2,
+      backgroundColor: colors.border, marginTop: 10,
+    },
+    sheetHeader: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: 22, paddingTop: 14, paddingBottom: 22,
+    },
+    sheetTitle: { fontFamily: fonts.serif, fontSize: 32, color: colors.textPrimary },
+    pickLabel: {
+      fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.textSecondary,
+      textTransform: 'uppercase', letterSpacing: 1, marginTop: 34, marginBottom: 14,
+    },
+    continueBar: {
+      paddingHorizontal: 22, paddingTop: 14,
+      borderTopWidth: 1, borderTopColor: colors.divider, backgroundColor: colors.surface,
+    },
+    backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+    audienceSheet: {
+      backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+      paddingHorizontal: 22, paddingTop: 12,
+    },
+    sheetHandleInline: {
+      alignSelf: 'center', width: 40, height: 4, borderRadius: 2,
+      backgroundColor: colors.border, marginBottom: 16,
+    },
+    audienceSheetTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary, marginBottom: 16 },
+
     postingAs: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
-      paddingHorizontal: spacing.md, paddingTop: spacing.sm, paddingBottom: 2,
+      paddingHorizontal: spacing.md, paddingTop: 16, paddingBottom: 4,
     },
     avatar: {
       width: 22, height: 22, borderRadius: 11,
       backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center',
     },
     avatarText: { fontFamily: fonts.sansBold, fontSize: 9.5, color: colors.accentFg },
-    postingAsText: { fontFamily: fonts.sans, fontSize: 12, color: colors.textSecondary },
+    postingAsText: { flex: 1, fontFamily: fonts.sans, fontSize: 12, color: colors.textSecondary },
 
-    tabs: {
-      marginHorizontal: spacing.md, marginTop: 14,
-      backgroundColor: colors.surface, borderRadius: radius.pill, padding: 4,
-      flexDirection: 'row', gap: 4,
-      borderWidth: 1, borderColor: colors.border,
-    },
-    tabBtn: { flex: 1, borderRadius: 20, paddingVertical: 10, alignItems: 'center' },
-    tabBtnActive: { backgroundColor: colors.accentBg },
-    tabLabel: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.textSecondary },
-    tabLabelActive: { color: colors.accentFg },
-
-    body: { paddingHorizontal: spacing.md, paddingTop: 18 },
+    body: { paddingHorizontal: spacing.md, paddingTop: 20 },
     sectionLabel: {
       fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textSecondary,
       textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
