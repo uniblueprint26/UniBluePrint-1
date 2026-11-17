@@ -233,18 +233,39 @@ export async function fetchSavedPostsWithData(userId) {
     .map(row => ({ ...row.feed_posts, _savedAt: row.created_at }))
 }
 
-export async function createThread({ userId, mood, body }) {
+// Who can see a post. Matches feed_posts.audience (text, default 'campus'):
+// campus = students at the same institution, course = everyone in Ireland,
+// friends = mutual follows only. The database enforces the rules; the app
+// just always says which one was chosen.
+export const AUDIENCE_KEYS = ['campus', 'course', 'friends']
+
+function cleanAudience(audience) {
+  return AUDIENCE_KEYS.includes(audience) ? audience : 'campus'
+}
+
+// The one place a feed_posts row is inserted. `fields` carries the
+// type-specific columns (mood/body, photo_url/body, video_url/body).
+export async function createFeedPost({ userId, postType, audience, ...fields }) {
   const { error } = await supabase.from('feed_posts').insert({
-    user_id: userId, post_type: 'thread', mood, body,
+    user_id: userId,
+    post_type: postType,
+    audience: cleanAudience(audience),
+    ...fields,
   })
   if (error) throw error
 }
 
-export async function createPost({ userId, photoUrl, caption }) {
-  const { error } = await supabase.from('feed_posts').insert({
-    user_id: userId, post_type: 'post', photo_url: photoUrl, body: caption || null,
-  })
-  if (error) throw error
+// Mood Board is post_type 'thread' in the database.
+export async function createThread({ userId, mood, body, audience }) {
+  await createFeedPost({ userId, postType: 'thread', audience, mood, body })
+}
+
+export async function createPost({ userId, photoUrl, caption, audience }) {
+  await createFeedPost({ userId, postType: 'post', audience, photo_url: photoUrl, body: caption || null })
+}
+
+export async function createClip({ userId, videoUrl, caption, audience }) {
+  await createFeedPost({ userId, postType: 'clip', audience, video_url: videoUrl, body: caption || null })
 }
 
 // Build the render list for the main feed: reverse-chronological posts with
