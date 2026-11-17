@@ -1,85 +1,74 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import {
-  Bell, FileText, Calendar, Star, Megaphone,
-  Clock, AlertTriangle, Sun, CreditCard, Archive, Repeat,
-  MessageCircle, MessagesSquare, UserCheck, Mail, CheckCheck,
-  TrendingUp, CalendarClock, Tag,
-} from 'lucide-react-native'
-import Card from '../components/ui/Card'
-import ScreenHeader, { HeaderIconButton } from '../components/ui/ScreenHeader'
-import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { Bell, Users, BookOpen, Wallet } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import LiveWindowCard from '../components/live/LiveWindowCard'
+import { useLiveWindow, tryOpenLive } from '../components/live/useLiveWindow'
+import { GroupCard, RowDivider } from '../components/explore/ExploreParts'
+import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
-// ── Notification category config ────────────────────────────────────────────
-// Keys match public.notifications.category values. 'welcome' and the four
-// generic legacy keys (document/session/update/announcement) are kept for
-// backward compatibility with existing rows; everything else maps to a
-// category introduced by the portals/operations schema.
+// ── Notification categories ─────────────────────────────────────────────────
+// public.notifications.category holds many fine-grained keys (welcome,
+// chat_message, subscription, ...). For display they fold into four colour
+// coded groups: Social, Academic, Financial and System. Anything unknown is
+// System.
 
-function getTypeConfig(colors) {
+const CATEGORY_OF = {
+  chat_message: 'social', board_reply: 'social', coach_enquiry: 'social',
+  document: 'academic', session: 'academic', coach_booking: 'academic',
+  foundation_blueprint: 'academic', job_application_reminder: 'academic',
+  checkin_reminder: 'academic', weekly_summary: 'academic',
+  subscription: 'financial', wallet: 'financial', partner_deal: 'financial',
+}
+
+const GOLD = '#B4923A'
+
+function getGroupConfig(colors) {
   return {
-  welcome:            { Icon: Star,          color: '#15803D', bg: colors.successBg },
-  document:           { Icon: FileText,      color: '#1d4ed8', bg: colors.infoBg },
-  session:            { Icon: Calendar,      color: '#15803D', bg: colors.successBg },
-  update:             { Icon: Star,          color: colors.warning, bg: colors.warningBg },
-  announcement:       { Icon: Megaphone,     color: colors.newBadge, bg: '#F5F3FF' },
-  checkin_reminder:   { Icon: Clock,         color: '#1d4ed8', bg: colors.infoBg },
-  ghost_handler:      { Icon: AlertTriangle, color: colors.warning, bg: colors.warningBg },
-  sunday_flock:       { Icon: Sun,           color: colors.warning, bg: colors.warningBg },
-  ticket_reassigned:  { Icon: Repeat,        color: colors.newBadge, bg: '#F5F3FF' },
-  subscription:       { Icon: CreditCard,    color: '#15803D', bg: colors.successBg },
-  wallet:             { Icon: Archive,       color: colors.warning, bg: colors.warningBg },
-  foundation_blueprint: { Icon: FileText,    color: '#1d4ed8', bg: colors.infoBg },
-  coach_booking:      { Icon: UserCheck,     color: '#15803D', bg: colors.successBg },
-  chat_message:       { Icon: MessageCircle, color: '#1d4ed8', bg: colors.infoBg },
-  board_reply:        { Icon: MessagesSquare, color: colors.newBadge, bg: '#F5F3FF' },
-  coach_enquiry:      { Icon: Mail,          color: '#1d4ed8', bg: colors.infoBg },
-  // Pro-only "Weekly Blueprint Report" (subscription-pricing-model.md §1.2)
-  // — generated every Monday by generate_weekly_blueprint_reports(), see
-  // 20261015130000_weekly_blueprint_report.sql.
-  weekly_summary:     { Icon: TrendingUp,    color: colors.newBadge, bg: '#F5F3FF' },
-  // Application Tracker's deadline reminder (within 3 days, once per
-  // application) — see handle_application_deadline_reminders() in
-  // 20261015140000_job_application_tracker.sql.
-  job_application_reminder: { Icon: CalendarClock, color: colors.warning, bg: colors.warningBg },
-  // A followed Lifestyle Blueprint partner posted a new deal — see
-  // notify_followers_of_new_deal() in
-  // 20261015140500_partner_follow_notifications.sql.
-  partner_deal:       { Icon: Tag,            color: '#B45309', bg: '#FEF3C7' },
+    social:    { label: 'SOCIAL',    Icon: Users,    color: colors.newBadge,      tile: 'rgba(124,58,237,0.12)' },
+    academic:  { label: 'ACADEMIC',  Icon: BookOpen, color: colors.textPrimary,   tile: colors.tabFill },
+    financial: { label: 'FINANCIAL', Icon: Wallet,   color: GOLD,                 tile: 'rgba(180,146,58,0.16)' },
+    system:    { label: 'SYSTEM',    Icon: Bell,     color: colors.textSecondary, tile: colors.tabFill },
   }
+}
+
+function groupOf(category) {
+  return CATEGORY_OF[category] || 'system'
+}
+
+function isToday(dateStr) {
+  const d = new Date(dateStr)
+  const n = new Date()
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate()
 }
 
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
   if (diff < 60)     return 'Just now'
-  if (diff < 3600)   return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400)  return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 3600)   return `${Math.floor(diff / 60)} min`
+  if (diff < 86400 && isToday(dateStr)) return `${Math.floor(diff / 3600)} h`
   if (diff < 172800) return 'Yesterday'
-  return `${Math.floor(diff / 86400)}d ago`
+  if (diff < 7 * 86400) return new Date(dateStr).toLocaleDateString('en-IE', { weekday: 'short' })
+  return new Date(dateStr).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' })
 }
 
 // ── Notification row ─────────────────────────────────────────────────────────
 
-function NotifRow({ notif, isLast, onPress }) {
+function NotifRow({ notif, onPress }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
-  const TYPE_CONFIG = getTypeConfig(colors)
-  const cfg = TYPE_CONFIG[notif.category] || TYPE_CONFIG.update
+  const cfg = getGroupConfig(colors)[groupOf(notif.category)]
   return (
-    <TouchableOpacity
-      style={[styles.notifRow, !isLast && styles.notifDivider]}
-      activeOpacity={0.75}
-      onPress={() => onPress(notif)}
-    >
-      <View style={[styles.notifIcon, { backgroundColor: cfg.bg }]}>
-        <cfg.Icon size={16} color={cfg.color} strokeWidth={1.8} />
+    <TouchableOpacity style={styles.notifRow} activeOpacity={0.75} onPress={() => onPress(notif)}>
+      <View style={[styles.notifIcon, { backgroundColor: cfg.tile }]}>
+        <cfg.Icon size={17} color={cfg.color} strokeWidth={1.8} />
       </View>
       <View style={styles.notifContent}>
         <Text style={[styles.notifTitle, !notif.read && styles.notifTitleUnread]} numberOfLines={2}>
@@ -88,10 +77,32 @@ function NotifRow({ notif, isLast, onPress }) {
         {notif.message ? (
           <Text style={styles.notifBody} numberOfLines={2}>{notif.message}</Text>
         ) : null}
-        <Text style={styles.notifTime}>{timeAgo(notif.created_at)}</Text>
+        <Text style={[styles.notifCategory, { color: cfg.color }]}>{cfg.label}</Text>
       </View>
-      {!notif.read && <View style={styles.unreadDot} />}
+      <View style={styles.notifSide}>
+        <Text style={styles.notifTime}>{timeAgo(notif.created_at)}</Text>
+        {!notif.read && <View style={styles.unreadDot} />}
+      </View>
     </TouchableOpacity>
+  )
+}
+
+function Group({ title, items, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  if (items.length === 0) return null
+  return (
+    <View style={styles.group}>
+      <Text style={styles.groupTitle}>{title}</Text>
+      <GroupCard>
+        {items.map((n, i) => (
+          <View key={n.id}>
+            {i > 0 && <RowDivider inset={64} />}
+            <NotifRow notif={n} onPress={onPress} />
+          </View>
+        ))}
+      </GroupCard>
+    </View>
   )
 }
 
@@ -113,17 +124,16 @@ function EmptyState() {
   )
 }
 
-// ── Screen ────────────────────────────────────────────────────────────────────
-
 export default function NotificationsScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
-  const safeGoBack = useSafeGoBack(navigation)
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [liveSoon, setLiveSoon] = useState(false)
+  const live = useLiveWindow(notifications)
 
   async function fetchNotifications() {
     if (!user?.id) { setLoading(false); return }
@@ -141,8 +151,9 @@ export default function NotificationsScreen({ navigation }) {
   useFocusEffect(useCallback(() => { fetchNotifications() }, [user?.id]))
 
   // Realtime: new notifications (check-in reminders, Ghost Handler welfare
-  // checks, Sunday flock, ticket reassignment, subscription changes) appear
-  // the moment they're inserted, not just on next screen focus.
+  // checks, Sunday flock, ticket reassignment, subscription changes, a Live
+  // window opening) appear the moment they're inserted, not just on next
+  // screen focus.
   useEffect(() => {
     if (!user?.id) return
     const channel = supabase
@@ -164,7 +175,8 @@ export default function NotificationsScreen({ navigation }) {
     await goToRelatedEntity(navigation, notif, user?.id)
   }
 
-  const hasUnread = notifications.some(n => !n.read)
+  const unreadCount = notifications.filter(n => !n.read).length
+  const hasUnread = unreadCount > 0
 
   async function markAllRead() {
     if (!user?.id || !hasUnread) return
@@ -177,24 +189,18 @@ export default function NotificationsScreen({ navigation }) {
     fetchNotifications()
   }
 
+  function goLive() {
+    if (!tryOpenLive(navigation)) setLiveSoon(true)
+  }
+
+  const { today, earlier } = useMemo(() => ({
+    today: notifications.filter(n => isToday(n.created_at)),
+    earlier: notifications.filter(n => !isToday(n.created_at)),
+  }), [notifications])
+
   return (
     <View style={styles.screen}>
-      <ScreenHeader
-        compact
-        variant="navy"
-        onBack={safeGoBack}
-        backLabel=""
-        title="Notifications"
-        titleStyle={styles.topTitle}
-        rightAccessory={hasUnread && (
-          <HeaderIconButton
-            icon={CheckCheck}
-            color={colors.chromeFg}
-            onPress={markAllRead}
-            accessibilityLabel="Mark all as read"
-          />
-        )}
-      />
+      <AppHeader navigation={navigation} showBack unreadCount={unreadCount} />
 
       <ScrollView
         style={styles.scrollView}
@@ -202,25 +208,45 @@ export default function NotificationsScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />}
       >
+        <PageTitle
+          title="Notifications"
+          style={styles.pageTitle}
+          right={hasUnread ? (
+            <TouchableOpacity onPress={markAllRead} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Mark all as read" style={styles.markAll}>
+              <Text style={styles.markAllText}>Mark all read</Text>
+            </TouchableOpacity>
+          ) : null}
+        />
+
+        {live.open && (
+          <LiveWindowCard
+            secondsLeft={live.secondsLeft}
+            totalSeconds={live.totalSeconds}
+            onGoLive={goLive}
+            style={styles.liveCard}
+          />
+        )}
+
         {loading ? (
           <View style={styles.loadingWrap}>
             <ActivityIndicator color={colors.textPrimary} size="small" />
           </View>
         ) : notifications.length > 0 ? (
-          <Card style={styles.notifList}>
-            {notifications.map((notif, i) => (
-              <NotifRow
-                key={notif.id}
-                notif={notif}
-                isLast={i === notifications.length - 1}
-                onPress={handlePress}
-              />
-            ))}
-          </Card>
+          <>
+            <Group title="Today" items={today} onPress={handlePress} />
+            <Group title="Earlier" items={earlier} onPress={handlePress} />
+          </>
         ) : (
           <EmptyState />
         )}
       </ScrollView>
+
+      <ComingSoonSheet
+        visible={liveSoon}
+        onClose={() => setLiveSoon(false)}
+        title="Live is coming soon"
+        message="Two minute captures are on their way. We will let you know when you can go Live."
+      />
     </View>
   )
 }
@@ -231,53 +257,39 @@ function __gs_styles(colors) {
   return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
 
-  topTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.chromeFg },
-
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed header on native.
   scrollView: { flex: 1 },
-  scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
+  scroll: { paddingHorizontal: 16 },
+  pageTitle: { paddingHorizontal: 2, paddingTop: 18, paddingBottom: 4 },
+  markAll: { paddingVertical: 8, paddingLeft: 8 },
+  markAllText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+  liveCard: { marginTop: 16 },
   loadingWrap: { alignItems: 'center', paddingVertical: 48 },
 
-  notifList: { padding: 0 },
-  notifRow: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
-    paddingVertical: 14, paddingHorizontal: 16,
-  },
-  notifDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.07)' },
+  group: { marginTop: 26 },
+  groupTitle: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 28, color: colors.textPrimary, marginBottom: 10, paddingHorizontal: 2 },
 
-  notifIcon: {
-    width: 40, height: 40, borderRadius: 10,
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
-  },
-  notifContent: { flex: 1 },
-  notifTitle:   { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary, lineHeight: 20 },
+  notifRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 14, paddingHorizontal: 14 },
+  notifIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  notifContent: { flex: 1, minWidth: 0 },
+  notifTitle: { fontFamily: fonts.sans, fontSize: 14.5, color: colors.textPrimary, lineHeight: 20 },
   notifTitleUnread: { fontFamily: fonts.sansSemiBold },
-  notifBody:    { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 18 },
-  notifTime:    { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 4 },
+  notifBody: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
+  notifCategory: { fontFamily: fonts.sansBold, fontSize: 10, letterSpacing: 0.8, marginTop: 5 },
+  notifSide: { alignItems: 'flex-end', gap: 8, paddingTop: 2 },
+  notifTime: { fontFamily: fonts.sans, fontSize: 12, color: colors.textSecondary },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5484D' },
 
-  unreadDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: '#F59E0B', flexShrink: 0, marginTop: 6,
-  },
-
-  emptyWrap: {
-    alignItems: 'center', paddingHorizontal: 32, paddingTop: 48,
-  },
+  emptyWrap: { alignItems: 'center', paddingHorizontal: 32, paddingTop: 48 },
   emptyIconBox: {
     width: 76, height: 76, borderRadius: 20,
     backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 24,
-    ...shadows.card,
+    borderWidth: 1, borderColor: colors.border,
   },
-  emptyTitle: {
-    fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary,
-    marginBottom: 12, textAlign: 'center',
-  },
-  emptySub: {
-    fontFamily: fonts.sans, fontSize: 14, color: colors.muted,
-    lineHeight: 22, textAlign: 'center',
-  },
+  emptyTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, marginBottom: 12, textAlign: 'center' },
+  emptySub: { fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, lineHeight: 22, textAlign: 'center' },
   })
 }
