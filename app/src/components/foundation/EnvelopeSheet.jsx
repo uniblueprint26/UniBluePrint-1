@@ -215,7 +215,7 @@ export default function EnvelopeSheet({
 
                 {isIOS ? (
                   <Text style={[s.iosNote, { color: paper.letterText2 }]}>
-                    {service.title} is ordered and paid for on uniblueprint.ie, not in the app.
+                    {service.title} is not available to order in the iPhone app. Orders you already have show under Outputs.
                   </Text>
                 ) : (
                   <View style={s.tiers}>

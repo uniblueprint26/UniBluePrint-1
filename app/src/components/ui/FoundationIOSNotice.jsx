@@ -52,14 +52,14 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
       />
       <View style={[styles.body, { paddingBottom: insets.bottom + 40 }]}>
         <Text style={styles.message}>
-          {serviceTitle} is ordered and paid for on uniblueprint.ie, not in the app.
+          {serviceTitle} is not available to order in the iPhone app.
         </Text>
         <View style={styles.badge}>
           <UserCheck size={14} color={colors.textPrimary} strokeWidth={2} />
           <Text style={styles.badgeText}>Reviewed by a real Campus Handler, never AI-only</Text>
         </View>
         <Text style={styles.sub}>
-          Visit {websiteDisplay} on your phone or computer to order {serviceTitle} and track it from there.
+          If you already have an order, you can follow it under Outputs.
         </Text>
       </View>
     </View>
