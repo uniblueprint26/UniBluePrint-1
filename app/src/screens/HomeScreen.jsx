@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   CheckCircle2, Bell, Building2, Calculator, Compass, Globe, Heart, BookOpen, FileText, TrendingUp, LayoutGrid,
-  Tag, Newspaper, SlidersHorizontal,
+  Tag, Newspaper, SlidersHorizontal, Target, CalendarDays, Wallet,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
@@ -16,11 +16,15 @@ import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import TodayDigestCard from '../components/ui/TodayDigestCard'
 import StoryRail from '../components/home/StoryRail'
 import NextUpRow from '../components/home/NextUpRow'
+import { routeExists } from '../components/home/routeExists'
+import { useGoalSummary, useBudgetLeft } from '../components/home/personalStats'
+import { openInHomeStack } from '../navigation/helpers'
+import { formatNumber } from '../utils/formatNumber'
 import GoalsGrid from '../components/home/GoalsGrid'
 import EditHomeSheet from '../components/home/EditHomeSheet'
 import { useHomeLayout, splitLayout, POSTS_BEFORE_INLINE } from '../components/home/homeLayout'
 import {
-  ComposerEntryBar, BuzzStrip,
+  BuzzStrip,
   FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard,
 } from '../components/feed/FeedKit'
 import {
@@ -465,6 +469,36 @@ export default function HomeScreen({ navigation }) {
     },
   ]
 
+  // Second row of the digest: personal numbers, each one real or left out.
+  // Goals read from the same user_goals data as the Your goals grid. Calendar
+  // has no data source yet, so it shows a dash (never an invented event) and a
+  // quiet link to the timetable once that screen is registered. Budget left
+  // only appears for a monthly budget saved in Budgeting.
+  const goalSummary = useGoalSummary(user?.id)
+  const budgetLeft = useBudgetLeft(user?.id)
+  const calendarReady = routeExists(navigation, 'Calendar')
+  const personalStats = [
+    goalSummary ? {
+      key: 'goals', label: 'Goals', Icon: Target,
+      value: goalSummary.total > 0 ? `${goalSummary.done} of ${goalSummary.total}` : 'None yet',
+      accessibilityLabel: goalSummary.total > 0
+        ? `${goalSummary.done} of ${goalSummary.total} goals done`
+        : 'No goals set yet',
+    } : null,
+    {
+      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: '–',
+      caption: calendarReady ? 'Add your timetable' : undefined,
+      onPress: calendarReady ? () => openInHomeStack(navigation, 'Calendar') : undefined,
+      accessibilityLabel: calendarReady ? 'No events yet. Add your timetable' : 'No events yet',
+    },
+    budgetLeft !== null ? {
+      key: 'budget', label: 'Budget left', Icon: Wallet,
+      value: `${budgetLeft < 0 ? '-' : ''}€${formatNumber(Math.abs(budgetLeft), { decimals: 0 })}`,
+      onPress: routeExists(navigation, 'Budgeting') ? () => navigation.navigate('Budgeting') : undefined,
+      accessibilityLabel: `${budgetLeft < 0 ? 'Over budget by' : 'Budget left this month:'} €${formatNumber(Math.abs(budgetLeft), { decimals: 0 })}`,
+    } : null,
+  ].filter(Boolean)
+
   function handleNav(item) {
     if (!item) return
     if (item.action === 'home') { setActiveNavKey('dashboard'); return }
@@ -576,7 +610,7 @@ export default function HomeScreen({ navigation }) {
           <TodayDigestCard
             eyebrow={`Today · ${formatEyebrowDate()}`}
             title={digestTitle}
-            stats={digestStats}
+            stats={[...digestStats, ...personalStats]}
           />
         </View>
       )
@@ -629,16 +663,12 @@ export default function HomeScreen({ navigation }) {
       {postsOn && (
         <>
           <View style={{ paddingHorizontal: spacing.md }}>
-            <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
-          </View>
-
-          <View style={{ paddingHorizontal: spacing.md, marginTop: 30 }}>
             <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
           </View>
 
           {emptyFeed && (
             <Text style={styles.feedStatusText}>
-              No posts yet. Be the first to share a mood or a snapshot.
+              No posts yet. Tap + to share the first one.
             </Text>
           )}
           <View style={{ height: 14 }} />

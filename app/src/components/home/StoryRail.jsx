@@ -1,23 +1,13 @@
+import { Wallet } from 'lucide-react-native'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { PILLARS, PILLAR_ORDER } from '../../constants/pillars'
+import { routeExists } from './routeExists'
 
-// The row of rings under the page title: your Live ring first, then the five
-// pillars. Icons, colours and routes all come from PILLARS, so a pillar looks
+// The row of rings under the page title: your Live ring first, then Budget
+// (gold, because it is money), then the five pillars. Icons, colours and routes all come from PILLARS, so a pillar looks
 // the same here as everywhere else in the app.
-
-// True when `name` is registered on this navigator or any parent of it.
-function routeExists(navigation, name) {
-  let nav = navigation
-  while (nav) {
-    try {
-      if (nav.getState?.()?.routeNames?.includes(name)) return true
-    } catch {}
-    nav = nav.getParent?.()
-  }
-  return false
-}
 
 // The Foundation and Compass colours are navy, which vanishes on the dark
 // page, so in dark mode those two fall back to the theme's text colour.
@@ -41,8 +31,8 @@ const GAP = 4
 export default function StoryRail({ navigation, name }) {
   const { colors, isDark } = useTheme()
   const { width } = useWindowDimensions()
-  // Six items share the row at phone width: size them to fit, never wider than 66.
-  const item = Math.max(52, Math.min(66, Math.floor((width - SIDE * 2 - GAP * 5) / 6)))
+  // Seven items: size them to fit, never narrower than 52 (the row then scrolls) or wider than 66.
+  const item = Math.max(52, Math.min(66, Math.floor((width - SIDE * 2 - GAP * 6) / 7)))
   const ring = Math.min(62, item - 2)
   const s = getStyles(colors, item, ring)
   const initial = (name || 'You').trim().charAt(0).toUpperCase() || 'Y'
@@ -51,6 +41,13 @@ export default function StoryRail({ navigation, name }) {
     // Live Capture is built separately: only open it once it is registered.
     if (routeExists(navigation, 'LiveCapture')) navigation.navigate('LiveCapture')
   }
+
+  function openBudget() {
+    // Opens Budgeting once it is registered on this stack, otherwise does nothing.
+    if (routeExists(navigation, 'Budgeting')) navigation.navigate('Budgeting')
+  }
+  // The one place gold is allowed on Home: it is money.
+  const gold = colors.goldText || '#B4923A'
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.row}>
@@ -68,6 +65,19 @@ export default function StoryRail({ navigation, name }) {
           </View>
         </View>
         <Text style={s.label}>Live</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={s.item}
+        activeOpacity={0.8}
+        onPress={openBudget}
+        accessibilityRole="button"
+        accessibilityLabel="Budget"
+      >
+        <View style={[s.ring, { borderColor: gold, backgroundColor: isDark ? colors.surface : gold + '14' }]}>
+          <Wallet size={Math.round(ring * 0.4)} color={gold} strokeWidth={1.7} />
+        </View>
+        <Text style={s.label}>Budget</Text>
       </TouchableOpacity>
 
       {PILLAR_ORDER.filter(k => k !== 'compass').map(key => {

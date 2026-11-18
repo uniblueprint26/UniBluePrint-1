@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Which sections Home shows, in what order. Saved per user on this device.
-// Posts includes the composer bar. A section that comes after Posts is shown
+// A section that comes after Posts is shown
 // inside the feed, after the first few posts; a section before Posts sits
-// above the composer.
+// above the feed.
 
 export const HOME_SECTIONS = [
-  { key: 'digest', label: "Today's Digest", hint: 'Unread, deals and posts today' },
+  { key: 'digest', label: "Today's Digest", hint: 'Unread, deals, goals and posts today' },
   { key: 'nextUp', label: 'Next up', hint: 'Your next event. Only shows when you have one' },
-  { key: 'posts',  label: 'Posts', hint: 'Share box and your feed' },
+  { key: 'posts',  label: 'Posts', hint: 'Your feed' },
   { key: 'goals',  label: 'Your goals', hint: 'Shows after your first few posts' },
 ]
 

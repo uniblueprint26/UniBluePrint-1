@@ -8,6 +8,7 @@ import { FileText, Plus, Check, ChevronRight, Bell } from 'lucide-react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
+import { publishGoals } from './personalStats'
 import { openInHomeStack } from '../../navigation/helpers'
 import { CAREER_SERVICES } from '../../screens/FoundationScreen'
 import { REMIND_OPTIONS, syncGoalReminder, cancelGoalReminder } from './goalReminders'
@@ -60,6 +61,7 @@ function stripRemind(fields) {
 // make a goal ('foundation', with service_key).
 function useGoals(userId) {
   const [goals, setGoals] = useState([])
+  const [ready, setReady] = useState(false)
   const localMode = useRef(false)
 
   const readLocal = useCallback(async () => {
@@ -95,6 +97,7 @@ function useGoals(userId) {
       }
       if (cancelled) return
       setGoals(rows)
+      setReady(true)
       // Keep local reminders in step with what is saved (phones only).
       rows.forEach(g => { if (g.remind_ok && g.remind_every) syncGoalReminder(g) })
     })()
@@ -175,6 +178,9 @@ function useGoals(userId) {
       } catch { setGoals(prevGoals) }
     }
   }, [goals, userId, writeLocal])
+
+  // Tell Today's Digest what changed so its goals count stays in step.
+  useEffect(() => { if (userId && ready) publishGoals(goals) }, [goals, userId, ready])
 
   return { goals, add, update, toggle, remove }
 }

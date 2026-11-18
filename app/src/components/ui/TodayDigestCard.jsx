@@ -11,8 +11,8 @@ import { useTheme } from '../../context/ThemeContext'
  * as a system object rather than a feed post, and its grid takes however
  * many real facts the app has for the student that day.
  *
- * Compact on purpose: it sits above the story rail and composer entry bar,
- * so up to 3 stats share one row rather than stacking into a 2x2 block.
+ * Calm on purpose: stats sit three to a row, in at most two rows. A short
+ * last row is padded with empty cells so the columns still line up.
  *
  * Data-honest: pass only stats that are real right now (no placeholder
  * facts). A stat with `onPress` becomes a tappable cell.
@@ -23,7 +23,8 @@ import { useTheme } from '../../context/ThemeContext'
  * Props:
  *  - eyebrow:  short uppercase label, e.g. "Today · Mon 16 Nov"
  *  - title:    serif one-line summary, e.g. "3 unread · 2 deals live"
- *  - stats:    [{ key, label, value, Icon, onPress?, accessibilityLabel? }]
+ *  - stats:    [{ key, label, value, Icon, caption?, onPress?, accessibilityLabel? }]
+ *              Up to 6, three to a row. `caption` is a small quiet line under the value.
  */
 export default function TodayDigestCard({ eyebrow, title, stats = [] }) {
   const { colors, isDark } = useTheme()
@@ -33,11 +34,15 @@ export default function TodayDigestCard({ eyebrow, title, stats = [] }) {
     (s) => s && s.value !== null && s.value !== undefined && s.value !== ''
   )
 
-  // Up to 3 stats fit one row; 4 lay out as 2x2 like the mockup.
-  const perRow = visibleStats.length <= 3 ? Math.max(visibleStats.length, 1) : 2
+  // Three to a row, at most two rows. A short row is padded so columns align.
+  const PER_ROW = 3
+  const shown = visibleStats.slice(0, PER_ROW * 2)
+  const perRow = shown.length > PER_ROW ? PER_ROW : Math.max(shown.length, 1)
   const rows = []
-  for (let i = 0; i < visibleStats.length; i += perRow) {
-    rows.push(visibleStats.slice(i, i + perRow))
+  for (let i = 0; i < shown.length; i += perRow) {
+    const row = shown.slice(i, i + perRow)
+    while (row.length < perRow) row.push({ key: `pad-${i}-${row.length}`, pad: true })
+    rows.push(row)
   }
 
   return (
@@ -69,6 +74,7 @@ export default function TodayDigestCard({ eyebrow, title, stats = [] }) {
               style={[styles.gridRow, ri < rows.length - 1 && styles.gridRowBorder]}
             >
               {row.map((stat, ci) => {
+                if (stat.pad) return <View key={stat.key} style={styles.cell} />
                 const cellStyle = [styles.cell, ci < row.length - 1 && styles.cellBorderRight]
                 const content = (
                   <>
@@ -79,6 +85,7 @@ export default function TodayDigestCard({ eyebrow, title, stats = [] }) {
                       <Text style={styles.cellLabel} numberOfLines={1}>{stat.label}</Text>
                     </View>
                     <Text style={styles.cellValue} numberOfLines={1}>{stat.value}</Text>
+                    {!!stat.caption && <Text style={styles.cellCaption} numberOfLines={1}>{stat.caption}</Text>}
                   </>
                 )
                 return stat.onPress ? (
@@ -124,8 +131,8 @@ function getStyles(colors, isDark) {
     },
     top: {
       paddingHorizontal: 14,
-      paddingTop: 11,
-      paddingBottom: 10,
+      paddingTop: 14,
+      paddingBottom: 14,
     },
     topHeader: {
       flexDirection: 'row',
@@ -166,8 +173,9 @@ function getStyles(colors, isDark) {
     },
     cell: {
       flex: 1,
-      paddingVertical: 9,
+      paddingVertical: 14,
       paddingHorizontal: 14,
+      minHeight: 62,
     },
     cellBorderRight: {
       borderRightWidth: 1,
@@ -191,6 +199,12 @@ function getStyles(colors, isDark) {
       fontFamily: fonts.serif,
       fontSize: 18,
       color: colors.textPrimary,
+    },
+    cellCaption: {
+      fontFamily: fonts.sans,
+      fontSize: 10.5,
+      color: colors.textSecondary,
+      marginTop: 2,
     },
   })
 }
