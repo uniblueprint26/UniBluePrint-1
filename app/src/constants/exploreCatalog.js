@@ -5,6 +5,8 @@ import {
   CheckCheck, Trophy, Award,
   Radio, Zap, LayoutGrid,
 } from 'lucide-react-native'
+import { COURSE_COMPASS } from './partnerBrands'
+import { priorityChrome } from './priorityTheme'
 
 // The Explore catalog: one place that says what exists in the app (or is on
 // the way). Each row has a `status` of 'live' or 'soon'. Live rows either
@@ -83,19 +85,34 @@ export const EXPLORE_KINDS = {
 }
 
 // Partners shown in Explore ("Our partners") and as the strip on My Blueprint.
-// `mark` says how to draw the tile, see components/explore/PartnerMark.jsx.
+// Each partner wears its OWN brand, not UBP's: Course Compass uses the real
+// coursecompass.ie navy, sky and orange with Crimson Pro and Outfit
+// (constants/partnerBrands.js), Priority is black with a silver chrome serif
+// "P" (constants/priorityTheme.js), Kobo is dark teal with a mint "K".
+// `mark` says how the tile is drawn, see components/explore/ExploreParts.jsx.
 export const PARTNERS = [
   {
     key: 'course-compass', name: 'Course Compass', blurb: 'Find the course that fits you',
-    bg: '#1B2D6A', fg: '#FFFFFF', mark: 'compass', action: { route: 'Compass' }, cta: 'Open',
+    mark: 'compass', featured: true, action: { route: 'Compass' }, cta: 'Open',
+    bg: COURSE_COMPASS.navy, fg: COURSE_COMPASS.cream, accent: COURSE_COMPASS.sky,
+    ctaBg: COURSE_COMPASS.orange, ctaFg: COURSE_COMPASS.navy,
+    markBg: 'rgba(61,169,224,0.16)',
+    gradient: [COURSE_COMPASS.navy, '#17304F'],
+    darkGradient: ['#17304F', '#0E2038'], darkRing: 'rgba(61,169,224,0.45)',
+    nameFont: COURSE_COMPASS.fonts.headingBold, bodyFont: COURSE_COMPASS.fonts.body, ctaFont: COURSE_COMPASS.fonts.bodySemiBold,
   },
   {
     key: 'priority', name: 'Priority', blurb: 'Student events and nights out',
-    bg: '#000000', fg: '#C9CDD2', mark: 'P', action: { route: 'Priorities' }, cta: 'Open',
+    mark: 'priority', action: { route: 'Priorities' }, cta: 'Open',
+    bg: priorityChrome.black, fg: priorityChrome.fg, accent: priorityChrome.silver1,
+    ctaBg: priorityChrome.silver1, ctaFg: priorityChrome.black, ring: priorityChrome.border,
+    nameFont: 'DMSerifDisplay_400Regular', bodyFont: 'DMSans_400Regular', ctaFont: 'DMSans_600SemiBold',
   },
   {
     key: 'kobo', name: 'Kobo', blurb: 'Send money home',
-    bg: '#1B403C', fg: '#ABDFC7', mark: 'K', action: { sheet: 'kobo' }, cta: 'Soon', soon: true,
+    mark: 'K', action: { sheet: 'kobo' }, cta: 'Soon', soon: true,
+    bg: '#1B403C', fg: '#ABDFC7', accent: '#ABDFC7',
+    ctaBg: 'rgba(171,223,199,0.16)', ctaFg: '#ABDFC7',
     soonText: 'Sending money home with Kobo is on its way. We will let you know when it is ready.',
   },
 ]

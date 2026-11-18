@@ -5,10 +5,11 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { ChevronDown, ExternalLink, Check, Library, WifiOff, X } from 'lucide-react-native'
+import { ChevronDown, ExternalLink, Mail, Check, Library, WifiOff, X } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import EmptyState from '../components/ui/EmptyState'
 import { GroupCard, RowDivider } from '../components/explore/ExploreParts'
+import { useSocieties } from '../components/explore/societies'
 import { EXPLORE_KINDS } from '../constants/exploreCatalog'
 import { fonts, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -19,14 +20,21 @@ const TICKS_KEY_PREFIX = 'ubp_freshers_ticks_'
 
 function openUrl(url) {
   if (!url) return
-  const href = /^https?:\/\//i.test(url) ? url : `https://${url}`
+  const href = /^(https?|mailto):/i.test(url) ? url : `https://${url}`
   Linking.openURL(href).catch(() => {})
 }
 
 // Generic list for the Explore "From UBP" lists: scholarships, discounts,
 // support, societies, volunteering and the freshers checklist. Reads
 // published rows of one `kind` from the explore_content table.
-export default function ExploreListScreen({ navigation, route }) {
+export default function ExploreListScreen(props) {
+  // Societies read two tables and merge them, so they get their own screen body.
+  return props.route?.params?.kind === 'societies'
+    ? <SocietiesListScreen {...props} />
+    : <GenericListScreen {...props} />
+}
+
+function GenericListScreen({ navigation, route }) {
   const { colors } = useTheme()
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -114,6 +122,119 @@ export default function ExploreListScreen({ navigation, route }) {
       </ScrollView>
 
       <SuggestSheet visible={suggestOpen} kind={kind} userId={user?.id} onClose={() => setSuggestOpen(false)} />
+    </View>
+  )
+}
+
+// Societies directory: signed-up societies (clubs_societies) and UBP seeded
+// ones (explore_content) merged into one list, de-duped by name.
+function SocietiesListScreen({ navigation }) {
+  const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
+  const { user } = useAuth()
+  const { items, status, reload } = useSocieties()
+  const [suggestOpen, setSuggestOpen] = useState(false)
+  const meta = EXPLORE_KINDS.societies
+
+  return (
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} showBack />
+      <ScrollView
+        contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <PageTitle title={meta.title} subtitle={meta.subtitle} style={s.title} />
+
+        {status === 'loading' && (
+          <View style={s.center}><ActivityIndicator color={colors.textPrimary} /></View>
+        )}
+
+        {status === 'error' && (
+          <EmptyState
+            icon={WifiOff}
+            title="Could not load this"
+            subtitle="Check your connection and try again."
+            ctaLabel="Try again"
+            onCtaPress={reload}
+          />
+        )}
+
+        {status === 'ready' && items.length === 0 && (
+          <EmptyState icon={Library} title={meta.emptyTitle} subtitle={meta.empty} />
+        )}
+
+        {status === 'ready' && items.length > 0 && (
+          <View style={s.listWrap}>
+            <Text style={[s.countLine, { color: colors.textSecondary }]}>
+              {items.length} {items.length === 1 ? 'society' : 'societies'}
+            </Text>
+            <GroupCard>
+              {items.map((it, i) => (
+                <View key={it.id}>
+                  {i > 0 && <RowDivider inset={16} />}
+                  <SocietyRow item={it} />
+                </View>
+              ))}
+            </GroupCard>
+          </View>
+        )}
+
+        {status !== 'loading' && (
+          <TouchableOpacity
+            onPress={() => setSuggestOpen(true)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            style={s.suggestBtn}
+          >
+            <Text style={[s.suggestText, { color: colors.textSecondary }]}>Suggest one</Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+
+      <SuggestSheet visible={suggestOpen} kind="societies" userId={user?.id} onClose={() => setSuggestOpen(false)} />
+    </View>
+  )
+}
+
+function SocietyRow({ item }) {
+  const { colors } = useTheme()
+  const [open, setOpen] = useState(false)
+  const hasBody = !!item.description
+  const isMail = !!item.url && /^mailto:/i.test(item.url)
+  const LinkIcon = isMail ? Mail : ExternalLink
+
+  return (
+    <View style={s.contentRow}>
+      <TouchableOpacity
+        activeOpacity={hasBody ? 0.75 : 1}
+        onPress={hasBody ? () => setOpen(o => !o) : undefined}
+        accessibilityRole={hasBody ? 'button' : undefined}
+        accessibilityLabel={item.name}
+        accessibilityState={hasBody ? { expanded: open } : undefined}
+        style={s.contentHead}
+      >
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={[s.contentTitle, { color: colors.textPrimary }]}>{item.name}</Text>
+          {!!item.institution && <Text style={[s.contentSub, { color: colors.textSecondary }]}>{item.institution}</Text>}
+        </View>
+        {hasBody && (
+          <ChevronDown size={18} color={colors.textTertiary} strokeWidth={1.8} style={open ? { transform: [{ rotate: '180deg' }] } : null} />
+        )}
+      </TouchableOpacity>
+      {(item.example || item.ubp || item.tags.length > 0) && (
+        <View style={s.tagRow}>
+          {item.example && <Tag label="Example" ubp />}
+          {!item.example && item.ubp && <Tag label="From UBP" ubp />}
+          {item.tags.map(t => <Tag key={t} label={t} />)}
+        </View>
+      )}
+      {hasBody && open && <Text style={[s.body, s.societyBody, { color: colors.textPrimary }]}>{item.description}</Text>}
+      {!!item.url && (
+        <TouchableOpacity onPress={() => openUrl(item.url)} activeOpacity={0.75} style={[s.linkBtn, s.societyLink]} accessibilityRole="link" accessibilityLabel={`${isMail ? 'Email' : 'Open link for'} ${item.name}`}>
+          <Text style={[s.linkText, { color: colors.textPrimary }]}>{isMail ? 'Email them' : 'Open link'}</Text>
+          <LinkIcon size={14} color={colors.textPrimary} strokeWidth={2} />
+        </TouchableOpacity>
+      )}
     </View>
   )
 }
@@ -354,6 +475,9 @@ const s = StyleSheet.create({
   title: { paddingHorizontal: 2, paddingTop: 18 },
   center: { paddingVertical: 56, alignItems: 'center' },
   listWrap: { marginTop: 18 },
+  countLine: { fontFamily: fonts.sansMedium, fontSize: 13, paddingHorizontal: 2, marginBottom: 10 },
+  societyBody: { marginTop: 10 },
+  societyLink: { marginTop: 8 },
 
   contentRow: { paddingVertical: 14, paddingHorizontal: 16 },
   contentHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },

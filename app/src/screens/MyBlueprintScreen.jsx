@@ -189,7 +189,7 @@ const s = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { paddingHorizontal: 16 },
   title: { paddingHorizontal: 2, paddingTop: 18 },
-  block: { marginTop: 26 },
+  block: { marginTop: 32 },
 
   dayCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 16 },
   dayIcon: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
@@ -199,10 +199,10 @@ const s = StyleSheet.create({
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   linkText: { fontFamily: fonts.sansSemiBold, fontSize: 13 },
 
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  pillar: { width: '31.4%', flexGrow: 1, borderRadius: 16, padding: 12, minHeight: 86, justifyContent: 'space-between' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  pillar: { width: '30.5%', flexGrow: 1, borderRadius: 16, padding: 14, minHeight: 108, justifyContent: 'flex-start' },
   pillarIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  pillarLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, lineHeight: 17, marginTop: 10 },
+  pillarLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, lineHeight: 17, marginTop: 12 },
 
   toolRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, paddingHorizontal: 14, minHeight: 60 },
   toolIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
@@ -210,7 +210,7 @@ const s = StyleSheet.create({
   soonTag: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
   soonText: { fontFamily: fonts.sansBold, fontSize: 10, letterSpacing: 0.8 },
 
-  partnerStrip: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 18, paddingHorizontal: 8 },
+  partnerStrip: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 22, paddingHorizontal: 8 },
   partner: { alignItems: 'center', gap: 8, flex: 1 },
-  partnerName: { fontFamily: fonts.sansSemiBold, fontSize: 12.5 },
+  partnerName: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, textAlign: 'center' },
 })
