@@ -2,26 +2,22 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Check, ChevronDown, Users } from 'lucide-react-native'
 import { fonts, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
-import { AUDIENCES, PILLARS } from '../../constants/pillars'
+import { AUDIENCES, PILLARS, AUDIENCE_ORDER, DEFAULT_AUDIENCE, audienceBlurb } from '../../constants/pillars'
+import { useUserType } from '../../hooks/useUserType'
 
-// Where a post goes. Campus Connect, Course Connect and Friends only, taken
+// Where a post goes. Course Connect (first, the default), Campus Connect and
+// Friends only, taken
 // from AUDIENCES so labels never drift. Used as three stacked rows on the Post
 // sheet (AudiencePicker) and as a small tappable chip in the compose step
 // (AudienceChip).
 
-export const AUDIENCE_ORDER = ['campus', 'course', 'friends']
-
-// "People you follow back" is the honest wording for mutual follows; the
-// shared constant is shorter.
-export function audienceBlurb(key) {
-  return key === 'friends' ? 'People you follow back' : AUDIENCES[key].blurb
-}
+export { AUDIENCE_ORDER, audienceBlurb }
 
 // The audience's own icon in its own colour: the pillar's for campus and
 // course (building, Irish flag), a users icon for Friends only.
 export function AudienceGlyph({ audience, size = 20, color }) {
   const { colors } = useTheme()
-  const a = AUDIENCES[audience] || AUDIENCES.campus
+  const a = AUDIENCES[audience] || AUDIENCES[DEFAULT_AUDIENCE]
   if (a.pillar) {
     const { Icon, color: pillarColor } = PILLARS[a.pillar]
     return <Icon size={size} color={color || pillarColor} strokeWidth={1.8} />
@@ -39,6 +35,7 @@ function glyphWash(audience, colors) {
 export default function AudiencePicker({ value, onChange }) {
   const { colors } = useTheme()
   const s = styles(colors)
+  const { userType } = useUserType()
   return (
     <View style={s.list} accessibilityRole="radiogroup">
       {AUDIENCE_ORDER.map(key => {
@@ -51,14 +48,14 @@ export default function AudiencePicker({ value, onChange }) {
             activeOpacity={0.8}
             accessibilityRole="radio"
             accessibilityState={{ selected }}
-            accessibilityLabel={`${AUDIENCES[key].label}, ${audienceBlurb(key)}`}
+            accessibilityLabel={`${AUDIENCES[key].label}, ${audienceBlurb(key, userType)}`}
           >
             <View style={[s.glyph, { backgroundColor: glyphWash(key, colors) }]}>
               <AudienceGlyph audience={key} size={20} />
             </View>
             <View style={s.text}>
               <Text style={s.label}>{AUDIENCES[key].label}</Text>
-              <Text style={s.blurb}>{audienceBlurb(key)}</Text>
+              <Text style={s.blurb}>{audienceBlurb(key, userType)}</Text>
             </View>
             <View style={[s.radio, selected && s.radioOn]}>
               {selected && <Check size={13} color={colors.accentFg} strokeWidth={3} />}
@@ -73,7 +70,7 @@ export default function AudiencePicker({ value, onChange }) {
 export function AudienceChip({ value, onPress }) {
   const { colors } = useTheme()
   const s = styles(colors)
-  const a = AUDIENCES[value] || AUDIENCES.campus
+  const a = AUDIENCES[value] || AUDIENCES[DEFAULT_AUDIENCE]
   return (
     <TouchableOpacity
       style={s.chip}
