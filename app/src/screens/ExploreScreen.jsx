@@ -4,10 +4,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, ChevronRight, X } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
-import { SectionTitle, GroupCard, RowDivider, PartnerMark, pillarTone } from '../components/explore/ExploreParts'
+import { SectionTitle, GroupCard, RowDivider, PartnerCard, pillarTone } from '../components/explore/ExploreParts'
+import { useSocieties } from '../components/explore/societies'
 import { PILLARS, PILLAR_ORDER } from '../constants/pillars'
 import { EXPLORE_GROUPS, PARTNERS, countLabel } from '../constants/exploreCatalog'
-import { fonts, shadows } from '../constants/theme'
+import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 
@@ -40,6 +41,7 @@ export default function ExploreScreen({ navigation }) {
   const { colors, isDark } = useTheme()
   const insets = useSafeAreaInsets()
   const counts = useKindCounts()
+  const societies = useSocieties()
   const [query, setQuery] = useState('')
   const [sheet, setSheet] = useState(null)
 
@@ -65,8 +67,6 @@ export default function ExploreScreen({ navigation }) {
     if (p.action.route) navigation.navigate(p.action.route)
     else setSheet({ name: p.name, soonText: p.soonText })
   }
-
-  const cardShadow = isDark ? { borderWidth: 1, borderColor: colors.border } : shadows.card
 
   return (
     <View style={[s.screen, { backgroundColor: colors.background }]}>
@@ -110,24 +110,7 @@ export default function ExploreScreen({ navigation }) {
               style={s.partnerScroll}
             >
               {PARTNERS.map(p => (
-                <TouchableOpacity
-                  key={p.key}
-                  activeOpacity={0.85}
-                  onPress={() => openPartner(p)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${p.name}. ${p.blurb}`}
-                  style={[s.partnerCard, { backgroundColor: colors.surface }, cardShadow]}
-                >
-                  <View style={s.partnerTop}>
-                    <PartnerMark partner={p} size={44} />
-                    <View style={[s.cta, { backgroundColor: colors.tabFill }]}>
-                      <Text style={[s.ctaText, { color: p.soon ? colors.textSecondary : colors.textPrimary }]}>{p.cta}</Text>
-                      {!p.soon && <ChevronRight size={14} color={colors.textPrimary} strokeWidth={2.2} />}
-                    </View>
-                  </View>
-                  <Text style={[s.partnerName, { color: colors.textPrimary }]}>{p.name}</Text>
-                  <Text style={[s.partnerBlurb, { color: colors.textSecondary }]} numberOfLines={2}>{p.blurb}</Text>
-                </TouchableOpacity>
+                <PartnerCard key={p.key} partner={p} onPress={() => openPartner(p)} />
               ))}
             </ScrollView>
 
@@ -166,7 +149,14 @@ export default function ExploreScreen({ navigation }) {
               {g.rows.map((row, i) => (
                 <View key={row.key}>
                   {i > 0 && <RowDivider />}
-                  <CatalogRow row={row} count={row.kind ? counts[row.kind] : 0} onPress={() => openRow(row)} />
+                  <CatalogRow
+                    row={row}
+                    count={row.key === 'societies' ? societies.items.length : (row.kind ? counts[row.kind] : 0)}
+                    onPress={() => openRow(row)}
+                  />
+                  {row.key === 'societies' && !q && societies.status === 'ready' && societies.items.length > 0 && (
+                    <SocietiesPreview items={societies.items} onOpen={() => openRow(row)} />
+                  )}
                 </View>
               ))}
             </GroupCard>
@@ -210,7 +200,6 @@ function CatalogRow({ row, count, onPress }) {
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={[s.rowName, { color: soon ? colors.textSecondary : colors.textPrimary, fontFamily: soon ? fonts.sansMedium : fonts.sansSemiBold }]} numberOfLines={1}>{row.name}</Text>
-        {!soon && row.fromUbp && <Text style={[s.rowSub, { color: colors.textSecondary }]}>From UBP</Text>}
       </View>
       {soon ? (
         <View style={[s.soonTag, { backgroundColor: colors.tabFill }]}>
@@ -226,11 +215,50 @@ function CatalogRow({ row, count, onPress }) {
   )
 }
 
+// A short sideways peek at the first six societies, under the Societies row.
+function SocietiesPreview({ items, onOpen }) {
+  const { colors } = useTheme()
+  const first = items.slice(0, 6)
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={s.prevRow}
+      style={s.prevScroll}
+    >
+      {first.map(it => {
+        const line = it.institution || it.tags[0] || ''
+        return (
+          <TouchableOpacity
+            key={it.id}
+            activeOpacity={0.8}
+            onPress={onOpen}
+            accessibilityRole="button"
+            accessibilityLabel={`${it.name}${line ? `, ${line}` : ''}`}
+            style={[s.prevCard, { backgroundColor: colors.background, borderColor: colors.border }]}
+          >
+            <View style={[s.prevInitial, { backgroundColor: colors.tabFill }]}>
+              <Text style={[s.prevInitialText, { color: colors.textPrimary }]}>{it.name.charAt(0).toUpperCase()}</Text>
+            </View>
+            <Text style={[s.prevName, { color: colors.textPrimary }]} numberOfLines={2}>{it.name}</Text>
+            <Text style={[s.prevLine, { color: colors.textSecondary }]} numberOfLines={1}>{line || ' '}</Text>
+            {it.example && (
+              <View style={[s.prevTag, { backgroundColor: colors.tabFill }]}>
+                <Text style={[s.prevTagText, { color: colors.textSecondary }]}>Example</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        )
+      })}
+    </ScrollView>
+  )
+}
+
 const s = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { paddingHorizontal: 16 },
   title: { paddingHorizontal: 2, paddingTop: 18 },
-  block: { marginTop: 28 },
+  block: { marginTop: 32 },
 
   search: {
     flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12,
@@ -240,12 +268,6 @@ const s = StyleSheet.create({
 
   partnerScroll: { marginHorizontal: -16 },
   partnerRow: { paddingHorizontal: 16, gap: 12, paddingVertical: 4 },
-  partnerCard: { width: 244, borderRadius: 16, padding: 16 },
-  partnerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cta: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 12, height: 28, borderRadius: 14 },
-  ctaText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5 },
-  partnerName: { fontFamily: fonts.serif, fontSize: 20, marginTop: 14 },
-  partnerBlurb: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 18, marginTop: 3, minHeight: 36 },
 
   pillarRow: { flexDirection: 'row', justifyContent: 'space-between' },
   pillarItem: { width: 56, alignItems: 'center', gap: 6 },
@@ -255,7 +277,16 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, paddingHorizontal: 14, minHeight: 56 },
   rowIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   rowName: { fontSize: 15 },
-  rowSub: { fontFamily: fonts.sans, fontSize: 11.5, marginTop: 1 },
+
+  prevScroll: { marginBottom: 14 },
+  prevRow: { paddingHorizontal: 14, gap: 10 },
+  prevCard: { width: 148, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, padding: 12 },
+  prevInitial: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  prevInitialText: { fontFamily: fonts.serif, fontSize: 16 },
+  prevName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, lineHeight: 18, marginTop: 10, minHeight: 36 },
+  prevLine: { fontFamily: fonts.sans, fontSize: 12, marginTop: 2 },
+  prevTag: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, marginTop: 8 },
+  prevTagText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5 },
   rowStatus: { fontFamily: fonts.sans, fontSize: 13 },
   soonTag: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
   soonText: { fontFamily: fonts.sansBold, fontSize: 10, letterSpacing: 0.8 },
