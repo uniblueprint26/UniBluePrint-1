@@ -1,24 +1,21 @@
 import { Modal, View, Text, TouchableOpacity, ScrollView, Pressable, StyleSheet } from 'react-native'
-import { X, ChevronRight, GraduationCap, ShoppingBag, Car, Search, Briefcase, FileText, Megaphone } from 'lucide-react-native'
+import { X, GraduationCap, ShoppingBag, Briefcase, Megaphone } from 'lucide-react-native'
 import { fonts, shadows } from '../../constants/theme'
-import { PILLARS } from '../../constants/pillars'
+import BasketShape from './BasketShape'
 import { useAdTokens } from './adTheme'
 
-// The "Post a listing" entry. Each row opens the existing post flow for that
-// board (BoardDetail with openPostForm), so the same form, campus gate,
-// carpool safety terms and paid-skill checkout all apply as they do today.
-// The paid ad row opens the existing Post an Ad flow unchanged.
+// The "Post a listing" entry. Each basket opens the existing post flow for
+// that board (BoardDetail with openPostForm), so the same form, gate and paid
+// skill checkout all apply as they do today. "Advertise with us" opens the
+// existing paid Post an Ad flow, unchanged.
 export const POST_OPTIONS = [
-  { key: 'tutor',  Icon: GraduationCap, visual: 'tutor', title: 'Tutoring or a skill', blurb: 'Offer a skill, or ask for help.', route: { boardKey: 'skills', registry: 'marketplace' } },
-  { key: 'sale',   Icon: ShoppingBag,   visual: 'sale',  title: 'Something to sell',   blurb: 'Sell an item, or say what you want.', route: { boardKey: 'buysell', registry: 'marketplace' } },
-  { key: 'ride',   Icon: Car,           visual: 'ride',  title: 'A ride',              blurb: 'Offer seats on a route.', route: { boardKey: 'carpool' }, pillar: 'campus' },
-  { key: 'lost',   Icon: Search,        visual: 'lost',  title: 'Lost or found',       blurb: 'Lost something, or found it.', route: { boardKey: 'lost-found' }, pillar: 'campus' },
-  { key: 'job',    Icon: Briefcase,     visual: 'job',   title: 'A job or opportunity', blurb: 'Part-time work, internships and more.', route: { boardKey: 'opportunities' }, pillar: 'campus' },
-  { key: 'notes',  Icon: FileText,      visual: 'notes', title: 'Notes',               blurb: 'Share notes with other students.', route: { boardKey: 'notes', registry: 'course' }, pillar: 'course' },
-  { key: 'ad',     Icon: Megaphone,     visual: 'ad',    title: 'Advertise with us',   blurb: 'A paid ad. Your first each month is free.', paid: true },
+  { key: 'tutor', Icon: GraduationCap, visual: 'tutor', title: 'Tutoring',          blurb: 'Offer a skill, or ask for help.', route: { boardKey: 'skills', registry: 'marketplace' } },
+  { key: 'sale',  Icon: ShoppingBag,   visual: 'sale',  title: 'Sell something',    blurb: 'Sell an item, or say what you want.', route: { boardKey: 'buysell', registry: 'marketplace' } },
+  { key: 'job',   Icon: Briefcase,     visual: 'job',   title: 'Job',               blurb: 'Part-time work, internships and more.', route: { boardKey: 'opportunities' } },
+  { key: 'ad',    Icon: Megaphone,     visual: 'ad',    title: 'Advertise with us', blurb: 'A paid ad. Your first each month is free.', paid: true },
 ]
 
-export default function PostListingSheet({ visible, onClose, onPick }) {
+export default function PostListingSheet({ visible, onClose, onPick, onCampusConnect }) {
   const t = useAdTokens()
   const { colors } = t
   return (
@@ -36,32 +33,30 @@ export default function PostListingSheet({ visible, onClose, onPick }) {
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
-            {POST_OPTIONS.map(o => {
-              const v = t.visual(o.visual)
-              const p = o.pillar ? PILLARS[o.pillar] : null
-              return (
-                <TouchableOpacity
-                  key={o.key}
-                  activeOpacity={0.8}
-                  onPress={() => onPick(o)}
-                  style={[s.row, { borderBottomColor: colors.divider }]}
-                  accessibilityRole="button"
-                  accessibilityLabel={o.title}
-                >
-                  <View style={[s.tile, { backgroundColor: v.bg }]}>
-                    <o.Icon size={22} color={v.fg} strokeWidth={1.8} />
-                  </View>
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={[s.rowTitle, { color: colors.textPrimary }]}>{o.title}</Text>
-                    <Text style={[s.rowBlurb, { color: colors.textSecondary }]}>
-                      {o.blurb}{p ? ` Posts to ${p.label}.` : ''}
-                    </Text>
-                  </View>
-                  <ChevronRight size={18} color={colors.textTertiary} />
-                </TouchableOpacity>
-              )
-            })}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+            <View style={s.grid}>
+              {POST_OPTIONS.map(o => (
+                <View key={o.key} style={s.cell}>
+                  <BasketShape
+                    visual={o.visual}
+                    Icon={o.Icon}
+                    title={o.title}
+                    line={o.blurb}
+                    compact
+                    onPress={() => onPick(o)}
+                  />
+                </View>
+              ))}
+            </View>
+
+            {!!onCampusConnect && (
+              <TouchableOpacity onPress={onCampusConnect} activeOpacity={0.7} style={s.quiet} accessibilityRole="link">
+                <Text style={[s.quietText, { color: colors.textSecondary }]}>
+                  {'Looking for rides or lost property? '}
+                  <Text style={[s.quietLink, { color: colors.textPrimary }]}>{'Find them in Campus\u00A0Connect.'}</Text>
+                </Text>
+              </TouchableOpacity>
+            )}
           </ScrollView>
         </Pressable>
       </Pressable>
@@ -71,14 +66,16 @@ export default function PostListingSheet({ visible, onClose, onPick }) {
 
 const s = StyleSheet.create({
   backdrop: { flex: 1, justifyContent: 'flex-end' },
-  sheet: { borderTopLeftRadius: 26, borderTopRightRadius: 26, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 28, maxHeight: '88%' },
+  sheet: { borderTopLeftRadius: 26, borderTopRightRadius: 26, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 28, maxHeight: '90%' },
   grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, marginBottom: 14 },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 6 },
+  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 14 },
   title: { fontFamily: fonts.serif, fontSize: 26 },
   sub: { fontFamily: fonts.sans, fontSize: 14, marginTop: 2 },
   close: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
-  tile: { width: 46, height: 46, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16 },
-  rowBlurb: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 18, marginTop: 2 },
+  scroll: { paddingBottom: 8 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
+  cell: { width: '47.5%', flexGrow: 1, flexDirection: 'column' },
+  quiet: { marginTop: 22, paddingVertical: 6, alignItems: 'center' },
+  quietText: { fontFamily: fonts.sans, fontSize: 13, textAlign: 'center', lineHeight: 19 },
+  quietLink: { fontFamily: fonts.sansMedium, textDecorationLine: 'underline' },
 })

@@ -1,47 +1,27 @@
 /**
  * adBoard.js — the data side of the Ad Board.
  *
- * Every chip on the board (Deals, Jobs, Rides, Lost and found, Tutors, Notes)
- * is read from tables that already exist, and each row is normalised into one
- * "listing" shape so the card never needs to know which table it came from.
+ * The Marketplace baskets (Deals, Jobs, Tutors, Buy and sell) are read from
+ * tables that already exist, and each row is normalised into one "listing"
+ * shape so a card never needs to know which table it came from.
  *
- *   Deals          deals (+ partners for name/logo), ads (paid ads),
- *                  marketplace_listings (buy and sell), student_ads (not
- *                  tutoring), marketplace_skills (not tutoring)
- *   Jobs           opportunities
- *   Rides          carpool_routes
- *   Lost and found lost_found_posts
- *   Tutors         marketplace_skills (Tutoring & Academic), student_ads
- *                  (Tutoring)
- *   Notes          shared_notes
+ *   deals        deals (+ partners for name, logo and pillar), ads (paid ads)
+ *   jobs         opportunities
+ *   tutors       marketplace_skills (Tutoring & Academic)
+ *   marketplace  marketplace_listings (buy and sell), marketplace_skills
+ *                (everything except tutoring)
  *
- * Where a table only has some of the fields a card wants, the listing simply
- * leaves the rest out. Nothing here invents data.
+ * Ride shares, Lost and found and Notes are Campus Connect features and are
+ * not read here. Where a table only has some of the fields a card wants, the
+ * listing simply leaves the rest out. Nothing here invents data.
  *
- * Origin tags: `origin` is 'ubp' for rows UBP wrote itself (seeded or curated),
- * 'campus' or 'course' for rows that really live on a Campus Connect or
- * Course Connect board and are shown here with that pillar's label, and null
- * for ordinary Ad Board content.
+ * `origin` is 'ubp' for rows UBP wrote itself (seeded or curated), else null.
+ * Cards show "From UBP" for those and "Posted by a student" on Jobs otherwise.
  */
 import { supabase } from './supabase'
+import { UBP_CARDS, EXAMPLE_TUTORS } from '../constants/adBoardContent'
 
-export const AD_BOARD_KINDS = [
-  { key: 'deals',  label: 'Deals' },
-  { key: 'jobs',   label: 'Jobs' },
-  { key: 'rides',  label: 'Rides' },
-  { key: 'lost',   label: 'Lost and found' },
-  { key: 'tutors', label: 'Tutors' },
-  { key: 'notes',  label: 'Notes' },
-]
-
-// Tables whose rows are a Campus Connect or Course Connect board post that
-// happens to surface on a different chip. These get the pillar label.
-// (Rides, Jobs and Lost and found are the board's own chips, so they are not
-// labelled. Add the table here to label them too.)
-const ORIGIN_BY_SOURCE = {
-  student_ads: 'campus',
-  shared_notes: 'course',
-}
+export const AD_BOARD_KINDS = ['deals', 'jobs', 'tutors', 'marketplace']
 
 const LIMIT = 40
 const TUTORING_CATEGORY = 'Tutoring & Academic'
@@ -89,18 +69,6 @@ function shortDate(dateStr) {
   return d.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
-function dayWord(dateStr) {
-  if (!dateStr) return ''
-  const d = new Date(dateStr.length <= 10 ? `${dateStr}T12:00:00` : dateStr)
-  if (isNaN(d)) return ''
-  const today = new Date(); today.setHours(0, 0, 0, 0)
-  const that = new Date(d); that.setHours(0, 0, 0, 0)
-  const days = Math.round((today - that) / 86400000)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  return shortDate(dateStr)
-}
-
 function untilText(dateStr) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
@@ -141,7 +109,7 @@ function base(source, row, extra) {
     id: row.id,
     source,
     createdAt: row.created_at,
-    origin: ORIGIN_BY_SOURCE[source] || (isFromUbp(row) ? 'ubp' : null),
+    origin: isFromUbp(row) ? 'ubp' : null,
     reviewed: isReviewed(row),
     ownerId: row.user_id || null,
     posterName: row.poster_name || null,
@@ -155,25 +123,37 @@ function base(source, row, extra) {
 
 // ── Per-source normalisers ───────────────────────────────────────────────────
 
+// The partner's pillar, only when the partners table says so.
+function pillarLabel(partner) {
+  const p = String(partner?.pillar || '').toLowerCase()
+  if (p === 'lifestyle') return 'Lifestyle'
+  if (p === 'elevation') return 'Elevation'
+  return null
+}
+
 function fromDeal(row) {
   const partner = row.partners || null
   if (partner && partner.active === false) return null
   if (row.valid_until && new Date(row.valid_until) < new Date()) return null
   const name = partner?.name || null
+  const pillar = pillarLabel(partner)
   return base('deals', row, {
     kind: 'deals',
     visual: 'deal',
-    typeLabel: 'Partner deal',
+    typeLabel: pillar || 'Partner deal',
     title: row.title,
-    meta: compact([name, untilText(row.valid_until)]),
+    from: name,
+    meta: compact([untilText(row.valid_until)]),
     // Deals are curated by the UBP team, so they always carry the tag.
     origin: 'ubp',
     percent: row.discount_percent || null,
+    price: row.discount_percent ? { main: `${row.discount_percent}%`, sub: 'off' } : null,
     description: row.description || null,
     partner: partner ? { name, logoUrl: partner.logo_url || null, slug: partner.partner_slug || null } : null,
     action: 'partner',
     details: compact([
       name ? { label: 'Partner', value: name } : null,
+      pillar ? { label: 'Part of', value: pillar } : null,
       row.valid_until ? { label: 'Valid until', value: shortDate(row.valid_until) } : null,
     ]),
   })
@@ -185,6 +165,7 @@ function fromAd(row) {
     visual: 'ad',
     typeLabel: 'Ad',
     title: row.title,
+    from: row.brand || null,
     meta: compact([clip(row.description, 90)]),
     // A paid ad with no poster is one UBP placed itself.
     origin: row.user_id ? null : 'ubp',
@@ -199,7 +180,7 @@ function fromAd(row) {
 
 function fromMarketplaceListing(row) {
   return base('marketplace_listings', row, {
-    kind: 'deals',
+    kind: 'marketplace',
     visual: 'sale',
     typeLabel: row.listing_type === 'Wanted' ? 'Wanted' : 'For sale',
     title: row.title,
@@ -227,7 +208,8 @@ function fromSkill(row, kind) {
     visual: tutoring ? 'tutor' : 'skill',
     typeLabel,
     title: row.title,
-    meta: compact([tutoring ? null : row.category, row.poster_name, timeAgo(row.created_at)]),
+    from: row.poster_name || null,
+    meta: compact([tutoring ? null : row.category, timeAgo(row.created_at)]),
     price: priceFrom(row.rate_amount, rateSub(row.rate_type)),
     description: row.description,
     contact: row.contact_method,
@@ -240,110 +222,27 @@ function fromSkill(row, kind) {
   })
 }
 
-function fromStudentAd(row, kind) {
-  const tutoring = row.ad_type === 'Tutoring'
-  return base('student_ads', row, {
-    kind,
-    visual: tutoring ? 'tutor' : 'sale',
-    typeLabel: row.ad_type || 'Student ad',
-    title: row.title,
-    meta: compact([row.poster_name, timeAgo(row.created_at)]),
-    price: priceFrom(row.price, null),
-    description: row.description,
-    contact: row.contact_method,
-    board: { key: 'ads', registry: 'campus', title: 'Student Ads' },
-    action: 'detail',
-  })
-}
-
+// Jobs: who it is from, the job type, and whether UBP or a student posted it.
 function fromOpportunity(row) {
   const when = row.deadline ? `Deadline ${shortDate(row.deadline)}` : null
+  const byUbp = isFromUbp(row)
   return base('opportunities', row, {
     kind: 'jobs',
     visual: 'job',
-    typeLabel: row.opportunity_type === 'Part-time job' ? 'Job' : (row.opportunity_type || 'Job'),
+    typeLabel: row.opportunity_type || 'Job',
     title: row.title,
-    meta: compact([row.organisation, when || timeAgo(row.created_at)]),
+    from: row.organisation || row.poster_name || null,
+    meta: compact([when || timeAgo(row.created_at)]),
+    byStudent: !byUbp,
     description: row.description,
     link: row.link || null,
-    board: { key: 'opportunities', registry: 'campus', title: 'Opportunities' },
+    // noLink: used to label a message, never as a link into Campus Connect.
+    board: { key: 'opportunities', registry: 'campus', title: 'Opportunities', noLink: true },
     action: 'detail',
     details: compact([
-      row.organisation ? { label: 'Organisation', value: row.organisation } : null,
+      row.organisation ? { label: 'From', value: row.organisation } : null,
       row.opportunity_type ? { label: 'Type', value: row.opportunity_type } : null,
       row.deadline ? { label: 'Deadline', value: shortDate(row.deadline) } : null,
-    ]),
-  })
-}
-
-function daysText(days) {
-  if (!Array.isArray(days) || days.length === 0) return ''
-  if (days.length === 5 && ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].every(d => days.includes(d))) return 'Mon to Fri'
-  if (days.length === 7) return 'Every day'
-  return days.join(', ')
-}
-
-function fromRoute(row) {
-  const seats = row.seats_available
-  const when = compact([daysText(row.days), row.departure_time]).join(' ')
-  const free = row.contribution === 'No'
-  return base('carpool_routes', row, {
-    kind: 'rides',
-    visual: 'ride',
-    typeLabel: 'Ride share',
-    title: `${row.from_location} to ${row.to_location}`,
-    meta: compact([when, seats != null ? `${seats} seat${seats === 1 ? '' : 's'} left` : null, row.contribution === 'Yes' ? 'Fuel share' : null]),
-    price: free ? { main: 'Free', sub: 'per seat' } : null,
-    description: row.notes || null,
-    contact: row.contact_preference,
-    board: { key: 'carpool', registry: 'campus', title: 'Carpooling' },
-    action: 'detail',
-    details: compact([
-      { label: 'From', value: row.from_location },
-      { label: 'To', value: row.to_location },
-      when ? { label: 'When', value: when } : null,
-      seats != null ? { label: 'Seats', value: String(seats) } : null,
-      row.contribution ? { label: 'Fuel contribution', value: row.contribution } : null,
-    ]),
-  })
-}
-
-function fromLostFound(row) {
-  const found = row.status === 'Found'
-  return base('lost_found_posts', row, {
-    kind: 'lost',
-    visual: 'lost',
-    typeLabel: found ? 'Found' : 'Lost',
-    title: clip(row.item_description, 60),
-    meta: compact([row.location, dayWord(row.date_occurred) || timeAgo(row.created_at)]),
-    description: row.item_description,
-    contact: row.contact_method,
-    board: { key: 'lost-found', registry: 'campus', title: 'Lost and Found' },
-    action: 'detail',
-    details: compact([
-      row.location ? { label: found ? 'Found at' : 'Last seen', value: row.location } : null,
-      row.date_occurred ? { label: 'Date', value: shortDate(row.date_occurred) } : null,
-    ]),
-  })
-}
-
-function fromNote(row) {
-  return base('shared_notes', row, {
-    kind: 'notes',
-    visual: 'notes',
-    typeLabel: 'Notes',
-    title: row.title,
-    meta: compact([row.course, row.year]),
-    description: null,
-    fileUrl: row.file_url,
-    board: { key: 'notes', registry: 'course', title: 'Shared Notes' },
-    action: 'detail',
-    details: compact([
-      row.subject ? { label: 'Subject', value: row.subject } : null,
-      row.course ? { label: 'Course', value: row.course } : null,
-      row.year ? { label: 'Year', value: row.year } : null,
-      row.institution ? { label: 'Institution', value: row.institution } : null,
-      { label: 'Downloads', value: String(row.download_count || 0) },
     ]),
   })
 }
@@ -359,40 +258,32 @@ async function read(table, select, filter) {
 }
 
 const SOURCES = {
-  deals: async () => (await read('deals', '*, partners(name, logo_url, partner_slug, active)', q => q.eq('active', true))).map(fromDeal).filter(Boolean),
+  // partners(*) so a pillar column on partners is picked up if it exists.
+  deals: async () => (await read('deals', '*, partners(*)', q => q.eq('active', true))).map(fromDeal).filter(Boolean),
   ads: async () => (await read('ads', '*', q => q.eq('active', true).overlaps('boards', ['cross-ireland', 'campus', 'course']))).map(fromAd),
   listings: async () => (await read('marketplace_listings', '*', q => q.eq('status', 'active'))).map(fromMarketplaceListing),
   skillsOther: async () => (await read('marketplace_skills', '*', q => q.eq('status', 'active')))
-    .filter(r => r.category !== TUTORING_CATEGORY).map(r => fromSkill(r, 'deals')),
+    .filter(r => r.category !== TUTORING_CATEGORY).map(r => fromSkill(r, 'marketplace')),
   skillsTutoring: async () => (await read('marketplace_skills', '*', q => q.eq('status', 'active')))
     .filter(r => r.category === TUTORING_CATEGORY).map(r => fromSkill(r, 'tutors')),
-  studentAdsOther: async () => (await read('student_ads', '*', q => q.eq('status', 'active')))
-    .filter(r => r.ad_type !== 'Tutoring').map(r => fromStudentAd(r, 'deals')),
-  studentAdsTutoring: async () => (await read('student_ads', '*', q => q.eq('status', 'active')))
-    .filter(r => r.ad_type === 'Tutoring').map(r => fromStudentAd(r, 'tutors')),
   jobs: async () => {
     const today = new Date().toISOString().slice(0, 10)
     return (await read('opportunities', '*')).filter(r => !r.deadline || r.deadline >= today).map(fromOpportunity)
   },
-  rides: async () => (await read('carpool_routes', '*', q => q.eq('active', true))).map(fromRoute),
-  lost: async () => (await read('lost_found_posts', '*')).map(fromLostFound),
-  notes: async () => (await read('shared_notes', '*')).map(fromNote),
 }
 
 const SOURCES_BY_KIND = {
-  deals: ['deals', 'ads', 'listings', 'studentAdsOther', 'skillsOther'],
+  deals: ['deals', 'ads'],
   jobs: ['jobs'],
-  rides: ['rides'],
-  lost: ['lost'],
-  tutors: ['skillsTutoring', 'studentAdsTutoring'],
-  notes: ['notes'],
+  tutors: ['skillsTutoring'],
+  marketplace: ['listings', 'skillsOther'],
 }
 
 /**
  * fetchListings(kind) → { items, failed }
- * `items` is newest first, except that on Deals the partner deals and paid
- * ads come before student listings. `failed` is true only when every source
- * for the chip errored, so the screen can say so instead of showing "empty".
+ * `items` is newest first, except that on Deals the partner deals come before
+ * paid ads. `failed` is true only when every source for the basket errored, so
+ * the screen can say so instead of showing "empty".
  */
 export async function fetchListings(kind) {
   const names = SOURCES_BY_KIND[kind] || []
@@ -401,10 +292,69 @@ export async function fetchListings(kind) {
   const items = ok.flatMap(r => r.value)
   items.sort((a, b) => {
     if (kind === 'deals') {
-      const rank = x => (x.source === 'deals' ? 0 : x.source === 'ads' ? 1 : 2)
+      const rank = x => (x.source === 'deals' ? 0 : 1)
       if (rank(a) !== rank(b)) return rank(a) - rank(b)
     }
     return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
   })
   return { items, failed: names.length > 0 && ok.length === 0 }
+}
+
+/**
+ * fetchCurrentIssue() → { number, theme } | null
+ * The current Weekly Blueprint issue, for the magazine card. Any failure
+ * returns null and the card uses its fixed headline.
+ */
+export async function fetchCurrentIssue() {
+  try {
+    const { data, error } = await supabase.rpc('get_current_weekly_issue')
+    if (error) return null
+    const row = data?.[0]
+    if (!row) return null
+    return { number: row.issue_number ?? null, theme: row.theme || null }
+  } catch {
+    return null
+  }
+}
+
+// ── Hand-written cards (not stored in the database) ──────────────────────────
+
+/** A "Posted by UBP" card, shaped like a listing so ListingCard can draw it. */
+export function ubpCardToItem(card) {
+  return {
+    key: card.id,
+    id: card.id,
+    source: 'ubp',
+    visual: card.visual,
+    typeLabel: card.typeLabel,
+    title: card.title,
+    meta: [card.blurb],
+    hint: card.opens,
+    origin: 'ubp',
+    tagLabel: 'POSTED BY UBP',
+    card,
+  }
+}
+
+/** The UBP cards for the From UBP basket, or a basket's own starter cards. */
+export function ubpItems(starterFor) {
+  const cards = starterFor ? UBP_CARDS.filter(c => c.starterFor === starterFor) : UBP_CARDS
+  return cards.map(ubpCardToItem)
+}
+
+/** Example tutors, clearly labelled, to fill a list up to 3. Never stored. */
+export function exampleTutorItems(realCount) {
+  const n = Math.max(0, 3 - realCount)
+  return EXAMPLE_TUTORS.slice(0, n).map(e => ({
+    key: e.id,
+    id: e.id,
+    source: 'example',
+    visual: 'tutor',
+    typeLabel: e.subject,
+    title: e.title,
+    meta: [e.blurb],
+    price: { main: `€${e.rate}`, sub: e.rateSub },
+    example: true,
+    exampleLabel: 'EXAMPLE, NOT A REAL TUTOR',
+  }))
 }

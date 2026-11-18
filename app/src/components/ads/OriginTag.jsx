@@ -3,27 +3,34 @@ import { Check } from 'lucide-react-native'
 import { fonts } from '../../constants/theme'
 import { useAdTokens } from './adTheme'
 
-// The small "From UBP" pill.
-export function UbpTag() {
+// Small pills that say who a listing is from. Seeded content UBP wrote carries
+// "From UBP" (or "Posted by UBP" on the UBP basket); real student content
+// never does.
+export function UbpTag({ label = 'FROM UBP' }) {
   const t = useAdTokens()
   return (
     <View style={[s.pill, { backgroundColor: t.accentTint }]}>
-      <Text style={[s.pillText, { color: t.accentText }]}>FROM UBP</Text>
+      <Text style={[s.pillText, { color: t.accentText }]}>{label}</Text>
     </View>
   )
 }
 
-// "Campus Connect" / "Course Connect" label with that pillar's icon and colour.
-export function PillarLabel({ origin, extra }) {
+// Quiet, neutral pill: "Posted by a student".
+export function QuietTag({ label }) {
   const t = useAdTokens()
-  const p = t.pillar(origin)
-  if (!p) return null
-  const Icon = p.Icon
   return (
-    <View style={s.pillar}>
-      <Icon size={12} color={p.iconColor} strokeWidth={2} />
-      <Text style={[s.pillarText, { color: p.textColor }]}>{p.label}</Text>
-      {!!extra && <Text style={[s.dim, { color: t.colors.textSecondary }]}>{`· ${extra}`}</Text>}
+    <View style={[s.pill, { backgroundColor: t.colors.tabFill }]}>
+      <Text style={[s.pillText, { color: t.colors.textSecondary }]}>{label}</Text>
+    </View>
+  )
+}
+
+// Obvious but calm: used on example cards that are not real listings.
+export function ExampleTag({ label }) {
+  const t = useAdTokens()
+  return (
+    <View style={[s.pill, s.exampleBorder, { borderColor: t.colors.textSecondary }]}>
+      <Text style={[s.pillText, { color: t.colors.textPrimary }]}>{label}</Text>
     </View>
   )
 }
@@ -39,11 +46,9 @@ export function ReviewedMark() {
 }
 
 const s = StyleSheet.create({
-  pill: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 },
+  pill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 7 },
   pillText: { fontFamily: fonts.sansBold, fontSize: 10, letterSpacing: 0.5 },
-  pillar: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  pillarText: { fontFamily: fonts.sansSemiBold, fontSize: 12 },
-  dim: { fontFamily: fonts.sans, fontSize: 12 },
+  exampleBorder: { borderWidth: 1, borderStyle: 'dashed' },
   reviewed: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   reviewedText: { fontFamily: fonts.sansSemiBold, fontSize: 12 },
 })
