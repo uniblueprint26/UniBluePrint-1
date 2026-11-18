@@ -7,10 +7,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { X, Camera, RefreshCw, Video, Play, ChevronLeft } from 'lucide-react-native'
+import { X, Camera, RefreshCw, Video, Play, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { MOODS } from '../constants/moods'
+import { MOOD_GROUPS, COMPOSER_MOODS, MOODS_VISIBLE_PER_GROUP, moodDef } from '../constants/moods'
+import { DEFAULT_AUDIENCE } from '../constants/pillars'
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { createThread, createPost, createClip, AUDIENCE_KEYS } from '../lib/feed'
@@ -21,11 +23,13 @@ import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 // Composer — two steps, all writing to public.feed_posts.
 //
 //   Step 1 "Post sheet" → pick what to make (Mood Board, Post, Clip or Live)
-//                   and where it goes (Campus Connect, Course Connect or
-//                   Friends only), then Continue. The last audience is
+//                   and where it goes (Course Connect, Campus Connect or
+//                   Friends only), then Continue. Course Connect is listed
+//                   first and is the default. The last audience is
 //                   remembered per user in AsyncStorage.
 //   Step 2 compose  → the existing compose UI for the chosen type:
-//     Mood Board → post_type = 'thread': pick a mood, write a short text post.
+//     Mood Board → post_type = 'thread': pick a mood (grouped good, in
+//                  between, not great), write a short text post.
 //     Post       → post_type = 'post': a photo (required) + optional caption.
 //     Clip       → post_type = 'clip': a short video (required) + optional
 //                  caption.
@@ -36,6 +40,10 @@ import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 // The header says "Post" on both steps. Every insert carries `audience`
 // ('campus' | 'course' | 'friends'). The word "Thread" is never shown to a
 // user: the Mood Board type is stored as post_type 'thread'.
+//
+// Anything typed (Mood Board text and both captions) goes through
+// lib/moderation.js checkText before it is submitted; the database repeats a
+// shorter check (20261118121000_feed_text_guard.sql).
 //
 // Clips upload to the feed-clips bucket and save as post_type 'clip' with
 // video_url (supabase/migrations/20261116233209_feed_clips.sql).
@@ -83,10 +91,12 @@ export default function ComposerScreen({ navigation, route }) {
   const hasInitialTab = ['thread', 'post', 'clip'].includes(initialTabParam)
   const [step, setStep] = useState(hasInitialTab ? 'compose' : 'pick')
   const [tab, setTab] = useState(hasInitialTab ? initialTabParam : 'thread')
-  const [audience, setAudience] = useState('campus')
+  const [audience, setAudience] = useState(DEFAULT_AUDIENCE)
+  const [moreMoods, setMoreMoods] = useState(false)
   const [audienceSheetOpen, setAudienceSheetOpen] = useState(false)
   const [liveSoonOpen, setLiveSoonOpen] = useState(false)
-  const [mood, setMood] = useState(route?.params?.initialMood || 'flying_it')
+  const initialMood = COMPOSER_MOODS.some(m => m.id === route?.params?.initialMood) ? route.params.initialMood : 'flying_it'
+  const [mood, setMood] = useState(initialMood)
   const [threadText, setThreadText] = useState(route?.params?.initialText || '')
   const [caption, setCaption] = useState(initialTabParam === 'post' ? (route?.params?.initialText || '') : '')
   const [clipCaption, setClipCaption] = useState('')
@@ -95,7 +105,7 @@ export default function ComposerScreen({ navigation, route }) {
   const [posting, setPosting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
 
-  const activeMood = MOODS.find(m => m.id === mood) || MOODS[0]
+  const activeMood = moodDef(mood) || COMPOSER_MOODS[0]
   const isThread = tab === 'thread'
   const isPost   = tab === 'post'
   const isClip   = tab === 'clip'
@@ -106,7 +116,8 @@ export default function ComposerScreen({ navigation, route }) {
       ? !!localPhotoUri
       : !!localVideoUri
 
-  // Remember the last audience per user. Reads once; falls back to campus.
+  // Remember the last audience per user. Reads once; a first-time user stays on
+  // Course Connect.
   useEffect(() => {
     if (!user?.id) return undefined
     let cancelled = false
@@ -237,6 +248,11 @@ export default function ComposerScreen({ navigation, route }) {
 
   async function submit() {
     if (!canPost || posting) return
+    const text = isThread ? threadText : isPost ? caption : clipCaption
+    if (!checkText(text).ok) {
+      setErrorMsg(GUIDELINES_MESSAGE)
+      return
+    }
     setPosting(true)
     setErrorMsg(null)
     try {
@@ -251,7 +267,8 @@ export default function ComposerScreen({ navigation, route }) {
       }
       navigation.goBack()
     } catch (e) {
-      setErrorMsg(e?.message || 'Could not post. Please try again.')
+      // The database repeats the guideline check; show the same calm line.
+      setErrorMsg(/feed_text_guard/.test(e?.message || '') ? GUIDELINES_MESSAGE : (e?.message || 'Could not post. Please try again.'))
     } finally {
       setPosting(false)
     }
@@ -339,27 +356,56 @@ export default function ComposerScreen({ navigation, route }) {
           {isThread ? (
             <>
               <Text style={s.sectionLabel}>Pick a mood</Text>
-              <View style={s.moodGrid}>
-                {MOODS.map(m => {
-                  const selected = m.id === mood
-                  return (
-                    <TouchableOpacity
-                      key={m.id}
-                      style={[
-                        s.moodChip,
-                        selected
-                          ? { backgroundColor: m.bg, borderColor: m.color }
-                          : { backgroundColor: colors.surface, borderColor: colors.border },
-                      ]}
-                      onPress={() => setMood(m.id)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={s.moodEmoji}>{m.emoji}</Text>
-                      <Text style={[s.moodLabel, { color: selected ? m.color : colors.textPrimary }]}>{m.label}</Text>
-                    </TouchableOpacity>
-                  )
-                })}
-              </View>
+              {MOOD_GROUPS.map(group => {
+                const hasMore = group.moods.length > MOODS_VISIBLE_PER_GROUP
+                const selectedHidden = group.moods.slice(MOODS_VISIBLE_PER_GROUP).some(m => m.id === mood)
+                const shown = hasMore && !moreMoods && !selectedHidden
+                  ? group.moods.slice(0, MOODS_VISIBLE_PER_GROUP)
+                  : group.moods
+                return (
+                  <View key={group.key} style={s.moodGroup}>
+                    {!!group.title && <Text style={s.moodGroupTitle}>{group.title}</Text>}
+                    <View style={s.moodGrid}>
+                      {shown.map(m => {
+                        const selected = m.id === mood
+                        return (
+                          <TouchableOpacity
+                            key={m.id}
+                            style={[
+                              s.moodChip,
+                              selected
+                                ? { backgroundColor: m.bg, borderColor: m.color }
+                                : { backgroundColor: colors.surface, borderColor: colors.border },
+                            ]}
+                            onPress={() => setMood(m.id)}
+                            activeOpacity={0.8}
+                            accessibilityRole="radio"
+                            accessibilityState={{ selected }}
+                            accessibilityLabel={m.label}
+                          >
+                            <Text style={s.moodEmoji}>{m.emoji}</Text>
+                            <Text style={[s.moodLabel, { color: colors.textPrimary }]} numberOfLines={1}>{m.label}</Text>
+                          </TouchableOpacity>
+                        )
+                      })}
+                    </View>
+                  </View>
+                )
+              })}
+              {MOOD_GROUPS.some(g => g.moods.length > MOODS_VISIBLE_PER_GROUP) && (
+                <TouchableOpacity
+                  style={s.moreBtn}
+                  onPress={() => setMoreMoods(v => !v)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={moreMoods ? 'Show fewer words' : 'Show more words'}
+                >
+                  <Text style={s.moreBtnText}>{moreMoods ? 'Fewer words' : 'More words'}</Text>
+                  {moreMoods
+                    ? <ChevronUp size={14} color={colors.textSecondary} strokeWidth={2} />
+                    : <ChevronDown size={14} color={colors.textSecondary} strokeWidth={2} />}
+                </TouchableOpacity>
+              )}
 
               <Text style={s.sectionLabel}>Share what's on your mind</Text>
               <TextInput
@@ -367,7 +413,7 @@ export default function ComposerScreen({ navigation, route }) {
                 numberOfLines={4}
                 maxLength={280}
                 value={threadText}
-                onChangeText={setThreadText}
+                onChangeText={t => { setThreadText(t); if (errorMsg === GUIDELINES_MESSAGE) setErrorMsg(null) }}
                 placeholder={`What's got you feeling ${activeMood.label.toLowerCase()} today?`}
                 placeholderTextColor={colors.textTertiary}
                 style={s.textArea}
@@ -398,7 +444,7 @@ export default function ComposerScreen({ navigation, route }) {
                 numberOfLines={3}
                 maxLength={500}
                 value={caption}
-                onChangeText={setCaption}
+                onChangeText={t => { setCaption(t); if (errorMsg === GUIDELINES_MESSAGE) setErrorMsg(null) }}
                 placeholder="Write a caption…"
                 placeholderTextColor={colors.textTertiary}
                 style={s.textArea}
@@ -433,7 +479,7 @@ export default function ComposerScreen({ navigation, route }) {
                 numberOfLines={3}
                 maxLength={500}
                 value={clipCaption}
-                onChangeText={setClipCaption}
+                onChangeText={t => { setClipCaption(t); if (errorMsg === GUIDELINES_MESSAGE) setErrorMsg(null) }}
                 placeholder="Write a caption…"
                 placeholderTextColor={colors.textTertiary}
                 style={s.textArea}
@@ -533,14 +579,23 @@ function composerStyles(colors) {
       textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
     },
 
-    moodGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 18 },
+    moodGroup: { marginBottom: 14 },
+    moodGroupTitle: {
+      fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textSecondary, marginBottom: 8,
+    },
+    moodGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    moreBtn: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+      alignSelf: 'center', paddingVertical: 8, paddingHorizontal: 14, marginBottom: 14,
+    },
+    moreBtnText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textSecondary },
     moodChip: {
-      width: '31%', borderRadius: 12, borderWidth: 1.5,
+      width: '31.2%', borderRadius: 12, borderWidth: 1.5,
       paddingVertical: 11, paddingHorizontal: 4,
       alignItems: 'center', gap: 4,
     },
     moodEmoji: { fontSize: 20, lineHeight: 22 },
-    moodLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, textAlign: 'center' },
+    moodLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, textAlign: 'center' },
 
     textArea: {
       borderWidth: 1, borderColor: colors.border, borderRadius: 12,

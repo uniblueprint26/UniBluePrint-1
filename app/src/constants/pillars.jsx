@@ -17,10 +17,34 @@ export const PILLARS = {
 
 export const PILLAR_ORDER = ['foundation', 'elevation', 'lifestyle', 'campus', 'course', 'compass']
 
-// Where a post goes. Founder decision: Campus Connect = your campus only,
-// Course Connect = public across Ireland, Friends only = people you follow.
+// Where a post goes. Founder decisions: Course Connect is always first and the
+// default (public across Ireland, everyone on the same course of life). Campus
+// Connect is your own community in the same situation. Friends only is mutual
+// follows. Key order here IS the display order.
+//
+// The pillar name "Campus Connect" never changes. Only its helper text adapts to
+// who the person is (see audienceBlurb), because not everyone is at college.
 export const AUDIENCES = {
-  campus:  { key: 'campus',  label: 'Campus Connect', blurb: 'Your campus only',       pillar: 'campus' },
-  course:  { key: 'course',  label: 'Course Connect', blurb: 'Public across Ireland',  pillar: 'course' },
-  friends: { key: 'friends', label: 'Friends only',   blurb: 'People you follow' },
+  course:  { key: 'course',  label: 'Course Connect', blurb: 'Everyone across Ireland, on the same course of life', pillar: 'course' },
+  campus:  { key: 'campus',  label: 'Campus Connect', blurb: 'People like you',        pillar: 'campus' },
+  friends: { key: 'friends', label: 'Friends only',   blurb: 'People you follow back' },
+}
+
+export const AUDIENCE_ORDER = Object.keys(AUDIENCES)
+export const DEFAULT_AUDIENCE = AUDIENCE_ORDER[0] // 'course'
+
+// Helper text for Campus Connect by profiles.user_type (constants/userTypes.js).
+// Anything else (gap year, 5th/6th year, unknown, not loaded yet) gets the safe
+// fallback "People like you".
+const CAMPUS_BLURB_BY_USER_TYPE = {
+  student:    'Your campus',
+  apprentice: 'Your trade, apprentices like you',
+  worker:     'Your industry, people in the same kind of work',
+}
+
+export function audienceBlurb(key, userType) {
+  const a = AUDIENCES[key]
+  if (!a) return ''
+  if (key === 'campus') return CAMPUS_BLURB_BY_USER_TYPE[userType] || a.blurb
+  return a.blurb
 }

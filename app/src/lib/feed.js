@@ -233,14 +233,14 @@ export async function fetchSavedPostsWithData(userId) {
     .map(row => ({ ...row.feed_posts, _savedAt: row.created_at }))
 }
 
-// Who can see a post. Matches feed_posts.audience (text, default 'campus'):
-// campus = students at the same institution, course = everyone in Ireland,
-// friends = mutual follows only. The database enforces the rules; the app
+// Who can see a post. Matches feed_posts.audience (text, default 'course'):
+// course = everyone in Ireland (the default), campus = your own community
+// (campus, trade or industry), friends = mutual follows only. The database enforces the rules; the app
 // just always says which one was chosen.
-export const AUDIENCE_KEYS = ['campus', 'course', 'friends']
+export const AUDIENCE_KEYS = ['course', 'campus', 'friends']
 
 function cleanAudience(audience) {
-  return AUDIENCE_KEYS.includes(audience) ? audience : 'campus'
+  return AUDIENCE_KEYS.includes(audience) ? audience : 'course'
 }
 
 // The one place a feed_posts row is inserted. `fields` carries the
