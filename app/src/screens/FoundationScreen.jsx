@@ -11,6 +11,7 @@ import {
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import EnvelopeTile from '../components/foundation/EnvelopeTile'
 import EnvelopeSheet from '../components/foundation/EnvelopeSheet'
+import { SERVICE_LETTERS } from '../components/foundation/serviceLetters'
 import { useWeekendDeliveryCopy } from '../hooks/useWeekendDeliveryCopy'
 import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -41,7 +42,7 @@ export const CAREER_SERVICES = [
     icon: FileText,
     title: 'CV Optimisation',
     tagline: 'A CV that opens doors, not one that gets ignored',
-    description: 'Your CV is the first thing every employer sees. UniBlueprint builds you a professional, tailored CV, structured correctly, worded powerfully, and formatted to pass applicant tracking systems. Every output is reviewed by a trained Campus Handler before it reaches you.',
+    description: 'A CV written for your industry and the role you want, built from your own experience. It uses a clean structure and plain text so automatic screening (ATS) can read it. Every output is reviewed by a trained Campus Handler before it reaches you.',
     priceStd: '€10',
     pricePrem: '€15',
     color: '#EFF6FF',
@@ -50,7 +51,7 @@ export const CAREER_SERVICES = [
     icon: Briefcase,
     title: 'Portfolio Building',
     tagline: 'Show your work, not just tell it',
-    description: 'Employers and clients want to see proof, not just a list of skills. UniBlueprint helps you put together a portfolio that actually showcases your projects, work samples, and results, structured clearly and built to make an impression.',
+    description: 'A clear plan for the portfolio that suits your field: where to show your work, what to include and how to present it, built around what you already have. It is a plan for you to follow, reviewed by a trained Campus Handler.',
     priceStd: '€10',
     pricePrem: '€15',
     color: '#FEF9C3',
@@ -59,7 +60,7 @@ export const CAREER_SERVICES = [
     icon: Linkedin,
     title: 'LinkedIn Optimisation',
     tagline: 'Turn your LinkedIn from invisible to irresistible',
-    description: 'Recruiters search LinkedIn every day. UniBlueprint optimises your entire profile: headline, about section, experience, skills, and featured section, so you show up in searches and make the right impression.',
+    description: 'Profile text written for your target industry: a headline, an About section, your experience, skills to add and ideas for what to feature. Reviewed by a trained Campus Handler.',
     priceStd: '€10',
     pricePrem: '€15',
     color: '#EEF2FF',
@@ -68,7 +69,7 @@ export const CAREER_SERVICES = [
     icon: FileText,
     title: 'Cover Letter Assistance',
     tagline: 'A cover letter that actually gets read',
-    description: 'Most cover letters are ignored because they are generic. UniBlueprint writes you a tailored, compelling cover letter for a specific role or company, one that adds to your CV rather than repeating it.',
+    description: 'A cover letter written for one role at one company, from your own strongest point. It adds to your CV instead of repeating it. Reviewed by a trained Campus Handler.',
     priceStd: '€10',
     pricePrem: '€15',
     color: '#F0FDF4',
@@ -77,7 +78,7 @@ export const CAREER_SERVICES = [
     icon: PenLine,
     title: 'Personal Statement',
     tagline: 'Tell your story in a way that actually lands',
-    description: 'A personal statement is where you make the case for yourself in your own words, not a bullet point. UniBlueprint helps you write one that is specific, honest, and structured to stand out, whether it is for a CAO application, a postgraduate course, or a scholarship.',
+    description: 'A personal statement for UCAS, a CAO mature application or a postgraduate course, written for your course and institution in your own voice. Reviewed by a trained Campus Handler.',
     priceStd: '€10',
     pricePrem: '€15',
     color: '#F0F9FF',
@@ -90,7 +91,7 @@ export const CAREER_SERVICES = [
     icon: Award,
     title: 'Application Form Assistance',
     tagline: 'Answer every question with confidence and clarity',
-    description: 'Competency questions, situational questions, motivation questions: UniBlueprint gives you structured, polished answers using the STAR method that demonstrate exactly what employers are looking for.',
+    description: 'Drafted answers to your application form questions, built from your own saved Evidence Bank stories and shaped for what each question tests. Reviewed by a trained Campus Handler.',
     priceStd: 'From €10',
     pricePrem: 'From €15',
     color: '#FFF7ED',
@@ -99,7 +100,7 @@ export const CAREER_SERVICES = [
     icon: MessageSquare,
     title: 'Interview Preparation',
     tagline: 'Walk in prepared. Walk out confident.',
-    description: 'UniBlueprint prepares you for the exact interview you are facing: predicted questions, model STAR answers, company research, and what to ask at the end. Premium includes a live mock interview with a Campus Handler.',
+    description: 'A prep pack for the exact interview you are facing: likely questions, model answers built from your own stories, and things to research about the company. Reviewed by a trained Campus Handler.',
     priceStd: 'From €10',
     pricePrem: 'From €15',
     color: '#FDF4FF',
@@ -108,7 +109,7 @@ export const CAREER_SERVICES = [
     icon: Search,
     title: 'Job Search Support',
     tagline: 'Stop applying blindly. Start searching strategically.',
-    description: 'UniBlueprint builds you a personalised job search strategy: the right platforms, the right search terms, the right outreach approach, and a realistic action plan based on your field, year, and goals.',
+    description: 'A job search plan for your field and situation: the channels to use, real Irish platforms that fit, and a 7 day action plan to start on. Reviewed by a trained Campus Handler.',
     priceStd: '€8',
     pricePrem: '€11',
     color: '#F0F9FF',
@@ -380,7 +381,7 @@ export default function FoundationScreen({ navigation }) {
       {selected ? (
         <EnvelopeSheet
           key={selected.title}
-          service={{ ...selected, Icon: selected.icon }}
+          service={{ ...selected, Icon: selected.icon, letter: SERVICE_LETTERS[selected.title] }}
           status={sheet.status}
           isIOS={IS_IOS}
           weekend={isWeekendWindow}

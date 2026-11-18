@@ -6,6 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Polygon, Line } from 'react-native-svg'
 import { X, Zap } from 'lucide-react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { fonts } from '../../constants/theme'
 import { envelopePaper, FLAP_DEPTH } from './envelopePaper'
 import { STATUS_TEXT } from './EnvelopeTile'
@@ -34,7 +35,7 @@ export default function EnvelopeSheet({
   const E = Math.round(W * 0.52)
   const Fh = Math.round(E * FLAP_DEPTH)
   const tuck = Math.round(E * 0.3) // how much of the letter stays inside the envelope pocket
-  const L = Math.max(320, Math.min(500, winH - insets.top - insets.bottom - 56 - 56 - Math.round(E * 0.7)))
+  const L = Math.max(340, Math.min(600, winH - insets.top - insets.bottom - 56 - 56 - Math.round(E * 0.7)))
   const envTop = L - tuck
   const stageH = envTop + E
   const letterW = W - 28
@@ -88,7 +89,13 @@ export default function EnvelopeSheet({
   const titleOpacity = flap.interpolate({ inputRange: [0, 0.35], outputRange: [1, 0], extrapolate: 'clamp' })
   const contentOpacity = letter.interpolate({ inputRange: [0.45, 1], outputRange: [0, 1], extrapolate: 'clamp' })
 
-  const { Icon } = service
+  const { Icon, letter: copy } = service
+  const steps = copy
+    ? [
+        ...copy.steps,
+        `${copy.receive} ${weekend ? 'Standard is within 48 hours. Premium is by the end of Monday.' : 'Standard is within 48 hours. Premium is within 24 hours.'}`,
+      ]
+    : []
   const statusColor = status === 'delivered' ? (isDark ? '#7FD6A3' : '#2E8F5B') : colors.textSecondary
 
   return (
@@ -121,19 +128,86 @@ export default function EnvelopeSheet({
                   <View style={[s.iconChip, { backgroundColor: paper.sealBg }]}>
                     <Icon size={18} color={paper.sealFg} strokeWidth={1.9} />
                   </View>
-                  {status ? (
-                    <View style={s.statusRow}>
-                      <View style={[s.dot, { backgroundColor: statusColor }]} />
-                      <Text style={[s.statusText, { color: statusColor }]}>{STATUS_TEXT[status]}</Text>
-                    </View>
-                  ) : null}
+                  <Text style={[s.title, { color: colors.textPrimary }]} numberOfLines={2}>{service.title}</Text>
                 </View>
-                <Text style={[s.title, { color: colors.textPrimary }]}>{service.title}</Text>
-                <Text style={[s.tagline, { color: paper.letterText2 }]}>{service.tagline}</Text>
+                {status ? (
+                  <View style={s.statusRow}>
+                    <View style={[s.dot, { backgroundColor: statusColor }]} />
+                    <Text style={[s.statusText, { color: statusColor }]}>{STATUS_TEXT[status]}</Text>
+                  </View>
+                ) : null}
 
-                <ScrollView style={s.descScroll} showsVerticalScrollIndicator={false}>
-                  <Text style={[s.desc, { color: colors.textPrimary }]}>{service.description}</Text>
+                <View style={s.descWrap}>
+                <ScrollView
+                  style={s.descScroll}
+                  contentContainerStyle={s.descContent}
+                  showsVerticalScrollIndicator
+                  indicatorStyle={isDark ? 'white' : 'black'}
+                >
+                  {copy ? (
+                    <>
+                      <Text style={[s.promise, { color: colors.textPrimary }]}>{copy.promise}</Text>
+                      {copy.note ? <Text style={[s.note, { color: paper.letterText2 }]}>{copy.note}</Text> : null}
+
+                      <Text style={[s.heading, { color: paper.letterText2 }]}>WHAT YOU GET</Text>
+                      {copy.get.map(item => (
+                        <View key={item} style={s.bulletRow}>
+                          <View style={[s.bullet, { backgroundColor: paper.letterText2 }]} />
+                          <Text style={[s.body, { color: colors.textPrimary }]}>{item}</Text>
+                        </View>
+                      ))}
+
+                      {copy.ats ? (
+                        <View style={[s.atsBox, { borderColor: paper.edge }]}>
+                          <Text style={[s.atsTitle, { color: colors.textPrimary }]}>{copy.ats.title}</Text>
+                          {copy.ats.intro.map(p => (
+                            <Text key={p} style={[s.body, s.atsPara, { color: colors.textPrimary }]}>{p}</Text>
+                          ))}
+                          <Text style={[s.atsSub, { color: paper.letterText2 }]}>{copy.ats.howTitle}</Text>
+                          {copy.ats.how.map(item => (
+                            <View key={item} style={s.bulletRow}>
+                              <View style={[s.bullet, { backgroundColor: paper.letterText2 }]} />
+                              <Text style={[s.body, { color: colors.textPrimary }]}>{item}</Text>
+                            </View>
+                          ))}
+                          <Text style={[s.body, s.atsPara, { color: paper.letterText2, marginTop: 10 }]}>{copy.ats.outro}</Text>
+                        </View>
+                      ) : null}
+
+                      <Text style={[s.heading, { color: paper.letterText2 }]}>HOW IT WORKS</Text>
+                      {steps.map((text, i) => (
+                        <View key={i} style={s.bulletRow}>
+                          <View style={[s.stepNum, { borderColor: paper.letterText2 }]}>
+                            <Text style={[s.stepNumText, { color: colors.textPrimary }]}>{i + 1}</Text>
+                          </View>
+                          <Text style={[s.body, { color: colors.textPrimary }]}>{text}</Text>
+                        </View>
+                      ))}
+
+                      <Text style={[s.heading, { color: paper.letterText2 }]}>WHY IT IS DIFFERENT</Text>
+                      {copy.different.map(item => {
+                        const cut = item.indexOf('. ')
+                        const lead = cut > 0 ? item.slice(0, cut + 1) : item
+                        const rest = cut > 0 ? item.slice(cut + 1) : ''
+                        return (
+                          <View key={item} style={s.bulletRow}>
+                            <View style={[s.bullet, { backgroundColor: paper.letterText2 }]} />
+                            <Text style={[s.body, { color: colors.textPrimary }]}>
+                              <Text style={s.lead}>{lead}</Text>{rest}
+                            </Text>
+                          </View>
+                        )
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      <Text style={[s.promise, { color: colors.textPrimary }]}>{service.tagline}</Text>
+                      <Text style={[s.body, { color: colors.textPrimary, marginTop: 10 }]}>{service.description}</Text>
+                    </>
+                  )}
                 </ScrollView>
+                <LinearGradient pointerEvents="none" colors={[paper.letter + '00', paper.letter]} style={s.fade} />
+                </View>
 
                 {isIOS ? (
                   <Text style={[s.iosNote, { color: paper.letterText2 }]}>
@@ -155,7 +229,7 @@ export default function EnvelopeSheet({
                       </View>
                       <View style={s.tierValueRow}>
                         <Text style={[s.tierPrice, { color: colors.textPrimary }]}>{service.pricePrem}</Text>
-                        <Text style={[s.tierTime, { color: paper.letterText2 }]}>{weekend ? 'Monday' : 'Same day'}</Text>
+                        <Text style={[s.tierTime, { color: paper.letterText2 }]}>{weekend ? 'Monday' : '24hr'}</Text>
                       </View>
                     </View>
                   </View>
@@ -233,24 +307,38 @@ const s = StyleSheet.create({
     paddingHorizontal: 18, paddingTop: 16,
     shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.18, shadowRadius: 12, elevation: 3,
   },
-  letterTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  letterTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   iconChip: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
   dot: { width: 7, height: 7, borderRadius: 4 },
   statusText: { fontFamily: fonts.sansSemiBold, fontSize: 12 },
-  title: { fontFamily: fonts.serif, fontSize: 24, lineHeight: 29, marginTop: 12 },
-  tagline: { fontFamily: fonts.sansMedium, fontSize: 13, lineHeight: 18, marginTop: 4 },
-  descScroll: { flex: 1, marginTop: 12 },
-  desc: { fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 20 },
-  tiers: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  tier: { flex: 1, borderWidth: 1, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10 },
+  title: { flex: 1, fontFamily: fonts.serif, fontSize: 22, lineHeight: 26 },
+  descWrap: { flex: 1, marginTop: 10 },
+  descScroll: { flex: 1 },
+  fade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 22 },
+  descContent: { paddingBottom: 8, paddingRight: 4 },
+  promise: { fontFamily: fonts.sansMedium, fontSize: 14, lineHeight: 20 },
+  note: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 18, marginTop: 8 },
+  heading: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1, marginTop: 22, marginBottom: 10 },
+  bulletRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 9 },
+  bullet: { width: 4, height: 4, borderRadius: 2, marginTop: 9 },
+  body: { flex: 1, fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 20 },
+  lead: { fontFamily: fonts.sansSemiBold },
+  stepNum: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginTop: 0 },
+  stepNumText: { fontFamily: fonts.sansSemiBold, fontSize: 11 },
+  atsBox: { borderWidth: 1, borderRadius: 12, padding: 14, marginTop: 14 },
+  atsTitle: { fontFamily: fonts.serif, fontSize: 17, lineHeight: 22, marginBottom: 8 },
+  atsPara: { flex: 0, marginBottom: 8 },
+  atsSub: { fontFamily: fonts.sansSemiBold, fontSize: 13, marginTop: 6, marginBottom: 8 },
+  tiers: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  tier: { flex: 1, borderWidth: 1, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 10 },
   tierLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   tierLabel: { fontFamily: fonts.sansMedium, fontSize: 11 },
-  tierValueRow: { marginTop: 2 },
+  tierValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 1 },
   tierPrice: { fontFamily: fonts.sansSemiBold, fontSize: 16 },
-  tierTime: { fontFamily: fonts.sans, fontSize: 11.5, marginTop: 1 },
+  tierTime: { fontFamily: fonts.sans, fontSize: 11.5 },
   iosNote: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 18, marginTop: 12 },
-  cta: { height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
+  cta: { height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
   ctaText: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
   secondary: { alignItems: 'center', justifyContent: 'center', paddingTop: 10, paddingBottom: 2 },
   secondaryText: { fontFamily: fonts.sansMedium, fontSize: 13 },
