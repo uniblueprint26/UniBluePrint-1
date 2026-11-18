@@ -35,6 +35,16 @@ export function ExampleTag({ label }) {
   )
 }
 
+// A plain chip: an industry, or a type such as "Placement".
+export function Chip({ label }) {
+  const t = useAdTokens()
+  return (
+    <View style={[s.chip, { backgroundColor: t.colors.tabFill }]}>
+      <Text style={[s.chipText, { color: t.colors.textPrimary }]} numberOfLines={1}>{label}</Text>
+    </View>
+  )
+}
+
 export function ReviewedMark() {
   const t = useAdTokens()
   return (
@@ -48,6 +58,8 @@ export function ReviewedMark() {
 const s = StyleSheet.create({
   pill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 7 },
   pillText: { fontFamily: fonts.sansBold, fontSize: 10, letterSpacing: 0.5 },
+  chip: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 9, maxWidth: '100%' },
+  chipText: { fontFamily: fonts.sansSemiBold, fontSize: 12 },
   exampleBorder: { borderWidth: 1, borderStyle: 'dashed' },
   reviewed: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   reviewedText: { fontFamily: fonts.sansSemiBold, fontSize: 12 },

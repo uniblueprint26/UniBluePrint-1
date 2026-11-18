@@ -28,7 +28,7 @@ import useListingActions from '../components/ads/useListingActions'
 import AdBoardBasketScreen from './AdBoardBasketScreen'
 import { useAdTokens } from '../components/ads/adTheme'
 import { AD_BOARD_KINDS, fetchListings, fetchCurrentIssue } from '../lib/adBoard'
-import { BASKETS, UBP_CARDS } from '../constants/adBoardContent'
+import { BASKETS, UBP_CARDS, UBP_PLACEMENTS } from '../constants/adBoardContent'
 import { fonts } from '../constants/theme'
 
 export default function AdBoardScreen({ navigation }) {
@@ -77,15 +77,17 @@ export default function AdBoardScreen({ navigation }) {
 
   function countLabel(b) {
     if (b.key === 'ubp') return UBP_CARDS.length
-    if (failed) return null
-    const n = counts[b.key]
+    // The pinned UBP internships are always in Jobs, so they always count.
+    const pinned = b.key === 'jobs' ? UBP_PLACEMENTS.length : 0
+    if (failed) return pinned || null
+    const n = (counts[b.key] || 0) + pinned
     return n > 0 ? n : null
   }
 
   return (
     <View style={[s.screen, { backgroundColor: colors.background }]}>
       <AppHeader navigation={navigation} />
-      <PageTitle title="Ad Board" color={t.accent} />
+      <PageTitle title="Ad Board" />
 
       <ScrollView
         style={{ flex: 1 }}

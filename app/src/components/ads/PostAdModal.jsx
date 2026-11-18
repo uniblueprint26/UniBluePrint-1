@@ -23,8 +23,8 @@ import { confirmAsync } from '../../utils/confirmAlert'
 function __gs_BOARDS(colors) {
   return [
   { key: 'cross-ireland', label: 'Cross-Ireland',  Icon: Globe,       color: colors.navy },
-  { key: 'campus',        label: 'Campus Connect',  Icon: Building2,   color: '#B45309'   },
-  { key: 'course',        label: 'Course Connect',  Icon: Globe,       color: '#0369A1'   },
+  { key: 'campus',        label: 'Campus Connect',  Icon: Building2,   color: '#C96A42'   },
+  { key: 'course',        label: 'Course Connect',  Icon: Globe,       color: '#4FA3AC'   },
   { key: 'marketplace',   label: 'Marketplace',     Icon: ShoppingBag, color: '#6D28D9'   },
   ]
 }

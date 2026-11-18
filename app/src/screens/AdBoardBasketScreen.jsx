@@ -13,15 +13,16 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Plus, WifiOff, Sparkles, PackageOpen } from 'lucide-react-native'
+import { Plus, WifiOff, Sparkles, PackageOpen, Pin } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import ListingCard from '../components/ads/ListingCard'
+import PinnedJobCard from '../components/ads/PinnedJobCard'
 import TrialHero from '../components/ads/TrialHero'
 import Notice from '../components/ads/Notice'
 import useListingActions from '../components/ads/useListingActions'
 import { useAdTokens } from '../components/ads/adTheme'
-import { fetchListings, ubpItems, exampleTutorItems } from '../lib/adBoard'
-import { BASKET_BY_KEY, EXAMPLE_TUTOR_NOTE } from '../constants/adBoardContent'
+import { fetchListings, ubpItems, pinnedJobItems, exampleTutorItems } from '../lib/adBoard'
+import { BASKET_BY_KEY, EXAMPLE_TUTOR_NOTE, PLACEMENTS_INTRO } from '../constants/adBoardContent'
 import { fonts } from '../constants/theme'
 
 export default function AdBoardBasketScreen({ navigation, route, basketKey, onClose }) {
@@ -50,7 +51,7 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
 
   useEffect(() => { load() }, [load])
 
-  const { openItem, openUbpCard, openPost, modals } = useListingActions(navigation, { onAdClosed: () => load({ silent: true }) })
+  const { openItem, openUbpCard, openPost, openLink, modals } = useListingActions(navigation, { onAdClosed: () => load({ silent: true }) })
 
   // In the overlay the back button closes the basket instead of popping a stack.
   const headerNav = useMemo(() => {
@@ -65,21 +66,39 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
   let lead = null
   let list = real
   let tail = null
+  let pinned = null
+  let afterList = null
 
   if (key === 'deals') {
     lead = <TrialHero />
     tail = (
-      <Notice Icon={Sparkles} title="More deals coming soon." sub="Partner offers from Lifestyle and Elevation will appear here." />
+      <Notice Icon={Sparkles} title="More deals coming soon." sub="More Lifestyle partner offers will appear here." />
     )
-  } else if (key === 'jobs' && real.length === 0) {
-    list = ubpItems('jobs')
-    tail = <Notice Icon={PackageOpen} title="Be the first to post here" sub="Part-time work, internships and volunteering from students and employers." ctaLabel="Post a job" onCta={openPost} />
-  } else if (key === 'tutors') {
-    const examples = exampleTutorItems(real.length)
-    list = [...real, ...examples]
-    if (examples.length > 0) {
-      lead = <Notice Icon={PackageOpen} title="Examples, not real tutors" sub={EXAMPLE_TUTOR_NOTE} ctaLabel="Post yours" onCta={openPost} />
+  } else if (key === 'jobs') {
+    // The UBP internships sit above any real jobs, under a small Pinned label.
+    pinned = (
+      <View style={s.pinned}>
+        <View style={s.pinRow}>
+          <Pin size={14} color={colors.textPrimary} strokeWidth={2.2} />
+          <Text style={[s.pinLabel, { color: colors.textPrimary }]}>Pinned</Text>
+        </View>
+        <Text style={[s.intro, { color: colors.textSecondary }]}>{PLACEMENTS_INTRO}</Text>
+        {pinnedJobItems().map(item => (
+          <PinnedJobCard key={item.key} item={item} onApply={i => openLink(i.applyUrl)} />
+        ))}
+      </View>
+    )
+    if (real.length === 0) {
+      tail = <Notice Icon={PackageOpen} title="Be the first to post here" sub="Part-time work, internships and volunteering from students and employers." ctaLabel="Post a job" onCta={openPost} />
     }
+  } else if (key === 'tutors') {
+    // Real tutors first, then the examples. The examples always show.
+    afterList = (
+      <View style={s.examples}>
+        <Notice Icon={PackageOpen} title="Example tutors" sub={EXAMPLE_TUTOR_NOTE} ctaLabel="Post yours" onCta={openPost} />
+        {exampleTutorItems().map(item => <ListingCard key={item.key} item={item} />)}
+      </View>
+    )
   } else if (key === 'marketplace' && real.length === 0) {
     list = ubpItems('marketplace')
     tail = <Notice Icon={PackageOpen} title="Be the first to post here" sub="Sell an item, or offer a skill, and it will show up in this basket." ctaLabel="Post a listing" onCta={openPost} />
@@ -100,7 +119,6 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
       <PageTitle
         title={basket.label}
         subtitle={basket.line}
-        color={t.accent}
         right={key === 'ubp' ? null : (
           <TouchableOpacity
             style={[s.postBtn, { backgroundColor: t.accent }]}
@@ -132,9 +150,14 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
           />
         )}
         {lead}
+        {pinned}
+        {key === 'jobs' && real.length > 0 && !loading && (
+          <Text style={[s.pinLabel, { color: colors.textPrimary }]}>More jobs</Text>
+        )}
         {loading ? <Skeleton /> : list.map(item => (
           <ListingCard key={item.key} item={item} onPress={() => tap(item)} />
         ))}
+        {!loading && afterList}
         {!loading && tail}
       </ScrollView>
 
@@ -167,6 +190,10 @@ const s = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingTop: 8, gap: 14 },
   postBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 40, paddingHorizontal: 14, borderRadius: 20, marginBottom: 2 },
   postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
+  pinned: { gap: 14 },
+  pinRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pinLabel: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  examples: { gap: 14 },
   intro: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 21 },
   skel: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth },
 })

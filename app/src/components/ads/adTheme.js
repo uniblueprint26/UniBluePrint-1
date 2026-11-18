@@ -2,29 +2,27 @@
  * Shared look for the Ad Board: the accent, and the colour of each listing
  * type's icon tile. Everything flips with the theme through useTheme().
  *
- * The Ad Board accent (#C98A1D) is only 2.7:1 against the light page, so it
- * is used for large display text (the page title), and for fills carrying
- * dark ink. Small amber text uses `accentText`, which is darkened in light
- * mode and lightened in dark mode to stay readable.
+ * There is no gold on the Ad Board (founder decision). The accent is the
+ * normal app navy in light mode and the app cream in dark mode, which is the
+ * theme's own accentBg / textPrimary pair. Deals use the Lifestyle colour.
  */
 import {
-  Tag, Briefcase, GraduationCap, FileText, ShoppingBag, Megaphone, Sparkles, Newspaper, Package,
+  Heart, Briefcase, GraduationCap, FileText, ShoppingBag, Megaphone, Sparkles, Newspaper, Package,
 } from 'lucide-react-native'
 import { useTheme } from '../../context/ThemeContext'
 
-export const AD_ACCENT = '#C98A1D'
-const AD_INK = '#2B1D05'
+const NAVY = '#1E3A5F'
 
 const VISUALS = {
-  deal:  { Icon: Tag,           color: '#C98A1D' },
-  ad:    { Icon: Megaphone,     color: '#C98A1D' },
+  deal:  { Icon: Heart,         color: '#D9596B' },   // Lifestyle
+  ad:    { Icon: Megaphone,     color: NAVY },
   sale:  { Icon: ShoppingBag,   color: '#B0674A' },
   skill: { Icon: Sparkles,      color: '#6B4FA3' },
   job:   { Icon: Briefcase,     color: '#4A6FA5' },
   tutor: { Icon: GraduationCap, color: '#6B4FA3' },
   cv:    { Icon: FileText,      color: '#3C6EA8' },
   weekly:{ Icon: Newspaper,     color: '#3C6EA8' },
-  ubp:   { Icon: Package,       color: '#C98A1D' },
+  ubp:   { Icon: Package,       color: NAVY },
 }
 
 function hexToRgb(hex) {
@@ -51,10 +49,10 @@ export function useAdTokens() {
   return {
     colors,
     isDark,
-    accent: AD_ACCENT,
-    accentInk: AD_INK,
-    accentText: isDark ? '#F0C060' : '#8A5A0B',
-    accentTint: isDark ? 'rgba(240,192,96,0.16)' : 'rgba(201,138,29,0.14)',
+    accent: colors.accentBg,
+    accentInk: colors.accentFg,
+    accentText: colors.textPrimary,
+    accentTint: colors.tabFill,
     reviewed: isDark ? colors.success : '#147A3A',
     cardBorder: isDark ? { borderWidth: 1, borderColor: colors.border } : null,
     tint,

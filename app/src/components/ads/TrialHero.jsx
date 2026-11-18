@@ -6,9 +6,10 @@ import { useAdTokens } from './adTheme'
 
 // The biggest deal on the Ad Board: everything is free during the trial, and
 // every service is half price. The standard prices are shown struck through.
+// Deals are Lifestyle, so the card wears the Lifestyle rose.
 export default function TrialHero() {
   const t = useAdTokens()
-  const grad = t.isDark ? ['#9C6209', '#704205'] : ['#9C6209', '#7A4A07']
+  const grad = t.isDark ? ['#A8404F', '#7E2F3F'] : ['#B8434F', '#923042']
   return (
     <LinearGradient
       colors={grad}

@@ -215,7 +215,7 @@ function __gs_styles(colors) {
   brand: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, lineHeight: 24 },
   title: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 3, lineHeight: 17 },
 
-  rule: { width: 34, height: 2, backgroundColor: colors.gold, borderRadius: 1, marginTop: 16, marginBottom: 14 },
+  rule: { width: 34, height: 2, backgroundColor: colors.border, borderRadius: 1, marginTop: 16, marginBottom: 14 },
 
   description: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
 
