@@ -5,7 +5,7 @@
  * tables that already exist, and each row is normalised into one "listing"
  * shape so a card never needs to know which table it came from.
  *
- *   deals        deals (+ partners for name, logo and pillar), ads (paid ads)
+ *   deals        deals (+ partners for name and logo). Lifestyle partners only.
  *   jobs         opportunities
  *   tutors       marketplace_skills (Tutoring & Academic)
  *   marketplace  marketplace_listings (buy and sell), marketplace_skills
@@ -19,7 +19,7 @@
  * Cards show "From UBP" for those and "Posted by a student" on Jobs otherwise.
  */
 import { supabase } from './supabase'
-import { UBP_CARDS, EXAMPLE_TUTORS } from '../constants/adBoardContent'
+import { UBP_CARDS, UBP_PLACEMENTS, EXAMPLE_TUTORS, PLACEMENT_URL } from '../constants/adBoardContent'
 
 export const AD_BOARD_KINDS = ['deals', 'jobs', 'tutors', 'marketplace']
 
@@ -123,24 +123,24 @@ function base(source, row, extra) {
 
 // ── Per-source normalisers ───────────────────────────────────────────────────
 
-// The partner's pillar, only when the partners table says so.
-function pillarLabel(partner) {
+// Deals on the Ad Board are Lifestyle deals. The partners table has no pillar
+// column today and every partner in it is a Lifestyle partner, so a deal counts
+// as Lifestyle unless the partner row says it belongs to another pillar.
+function isLifestylePartner(partner) {
   const p = String(partner?.pillar || '').toLowerCase()
-  if (p === 'lifestyle') return 'Lifestyle'
-  if (p === 'elevation') return 'Elevation'
-  return null
+  return !p || p === 'lifestyle'
 }
 
 function fromDeal(row) {
   const partner = row.partners || null
   if (partner && partner.active === false) return null
+  if (!isLifestylePartner(partner)) return null
   if (row.valid_until && new Date(row.valid_until) < new Date()) return null
   const name = partner?.name || null
-  const pillar = pillarLabel(partner)
   return base('deals', row, {
     kind: 'deals',
     visual: 'deal',
-    typeLabel: pillar || 'Partner deal',
+    typeLabel: 'Lifestyle',
     title: row.title,
     from: name,
     meta: compact([untilText(row.valid_until)]),
@@ -153,28 +153,9 @@ function fromDeal(row) {
     action: 'partner',
     details: compact([
       name ? { label: 'Partner', value: name } : null,
-      pillar ? { label: 'Part of', value: pillar } : null,
+      { label: 'Part of', value: 'Lifestyle' },
       row.valid_until ? { label: 'Valid until', value: shortDate(row.valid_until) } : null,
     ]),
-  })
-}
-
-function fromAd(row) {
-  return base('ads', row, {
-    kind: 'deals',
-    visual: 'ad',
-    typeLabel: 'Ad',
-    title: row.title,
-    from: row.brand || null,
-    meta: compact([clip(row.description, 90)]),
-    // A paid ad with no poster is one UBP placed itself.
-    origin: row.user_id ? null : 'ubp',
-    description: row.description || null,
-    link: row.target_url || row.link || null,
-    // Ads UBP placed itself open the link or the partner card. Ads a student
-    // paid for open the detail card (with a Report option).
-    action: row.user_id ? 'detail' : (row.target_url || row.link ? 'link' : 'partner'),
-    partner: { name: row.brand || row.title, slug: null },
   })
 }
 
@@ -260,7 +241,6 @@ async function read(table, select, filter) {
 const SOURCES = {
   // partners(*) so a pillar column on partners is picked up if it exists.
   deals: async () => (await read('deals', '*, partners(*)', q => q.eq('active', true))).map(fromDeal).filter(Boolean),
-  ads: async () => (await read('ads', '*', q => q.eq('active', true).overlaps('boards', ['cross-ireland', 'campus', 'course']))).map(fromAd),
   listings: async () => (await read('marketplace_listings', '*', q => q.eq('status', 'active'))).map(fromMarketplaceListing),
   skillsOther: async () => (await read('marketplace_skills', '*', q => q.eq('status', 'active')))
     .filter(r => r.category !== TUTORING_CATEGORY).map(r => fromSkill(r, 'marketplace')),
@@ -273,7 +253,7 @@ const SOURCES = {
 }
 
 const SOURCES_BY_KIND = {
-  deals: ['deals', 'ads'],
+  deals: ['deals'],
   jobs: ['jobs'],
   tutors: ['skillsTutoring'],
   marketplace: ['listings', 'skillsOther'],
@@ -281,8 +261,7 @@ const SOURCES_BY_KIND = {
 
 /**
  * fetchListings(kind) → { items, failed }
- * `items` is newest first, except that on Deals the partner deals come before
- * paid ads. `failed` is true only when every source for the basket errored, so
+ * `items` is newest first. `failed` is true only when every source for the basket errored, so
  * the screen can say so instead of showing "empty".
  */
 export async function fetchListings(kind) {
@@ -291,10 +270,6 @@ export async function fetchListings(kind) {
   const ok = results.filter(r => r.status === 'fulfilled')
   const items = ok.flatMap(r => r.value)
   items.sort((a, b) => {
-    if (kind === 'deals') {
-      const rank = x => (x.source === 'deals' ? 0 : 1)
-      if (rank(a) !== rank(b)) return rank(a) - rank(b)
-    }
     return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
   })
   return { items, failed: names.length > 0 && ok.length === 0 }
@@ -342,19 +317,37 @@ export function ubpItems(starterFor) {
   return cards.map(ubpCardToItem)
 }
 
-/** Example tutors, clearly labelled, to fill a list up to 3. Never stored. */
-export function exampleTutorItems(realCount) {
-  const n = Math.max(0, 3 - realCount)
-  return EXAMPLE_TUTORS.slice(0, n).map(e => ({
+/** The UBP internships, pinned at the top of Jobs. Fixed, never stored. */
+export function pinnedJobItems() {
+  return UBP_PLACEMENTS.map(p => ({
+    key: p.id,
+    id: p.id,
+    source: 'ubp-placement',
+    visual: 'job',
+    typeLabel: 'Placement',
+    team: p.team,
+    title: p.title,
+    summary: p.summary,
+    origin: 'ubp',
+    tagLabel: 'POSTED BY UBP',
+    applyUrl: PLACEMENT_URL,
+    pinned: true,
+  }))
+}
+
+/** Example tutors, clearly labelled. Always shown after the real ones. Never stored. */
+export function exampleTutorItems() {
+  return EXAMPLE_TUTORS.map(e => ({
     key: e.id,
     id: e.id,
     source: 'example',
     visual: 'tutor',
-    typeLabel: e.subject,
-    title: e.title,
+    chip: e.industry,
+    typeLabel: e.industry,
+    title: e.subject,
     meta: [e.blurb],
-    price: { main: `€${e.rate}`, sub: e.rateSub },
+    price: { main: '€?', tag: 'EXAMPLE' },
     example: true,
-    exampleLabel: 'EXAMPLE, NOT A REAL TUTOR',
+    exampleLine: 'Example, not a real tutor',
   }))
 }
