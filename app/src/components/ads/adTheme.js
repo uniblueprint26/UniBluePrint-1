@@ -8,10 +8,9 @@
  * mode and lightened in dark mode to stay readable.
  */
 import {
-  Tag, Briefcase, Car, Search, GraduationCap, FileText, ShoppingBag, Megaphone, Sparkles,
+  Tag, Briefcase, GraduationCap, FileText, ShoppingBag, Megaphone, Sparkles, Newspaper, Package,
 } from 'lucide-react-native'
 import { useTheme } from '../../context/ThemeContext'
-import { PILLARS } from '../../constants/pillars'
 
 export const AD_ACCENT = '#C98A1D'
 const AD_INK = '#2B1D05'
@@ -22,10 +21,10 @@ const VISUALS = {
   sale:  { Icon: ShoppingBag,   color: '#B0674A' },
   skill: { Icon: Sparkles,      color: '#6B4FA3' },
   job:   { Icon: Briefcase,     color: '#4A6FA5' },
-  ride:  { Icon: Car,           color: '#A8703A' },
-  lost:  { Icon: Search,        color: '#2F8F77' },
   tutor: { Icon: GraduationCap, color: '#6B4FA3' },
-  notes: { Icon: FileText,      color: '#5F7482' },
+  cv:    { Icon: FileText,      color: '#3C6EA8' },
+  weekly:{ Icon: Newspaper,     color: '#3C6EA8' },
+  ubp:   { Icon: Package,       color: '#C98A1D' },
 }
 
 function hexToRgb(hex) {
@@ -59,24 +58,23 @@ export function useAdTokens() {
     reviewed: isDark ? colors.success : '#147A3A',
     cardBorder: isDark ? { borderWidth: 1, borderColor: colors.border } : null,
     tint,
+    // Solid folder colours for a basket tile of the given visual type: a very
+    // light wash of the type colour over the card surface, with a matching edge.
+    folder(key) {
+      const v = VISUALS[key] || VISUALS.deal
+      return {
+        Icon: v.Icon,
+        fill: mix(v.color, colors.surface, isDark ? 0.8 : 0.9),
+        edge: mix(v.color, colors.surface, isDark ? 0.62 : 0.72),
+        fg: isDark ? mix(v.color, '#FFFFFF', 0.45) : v.color,
+        chip: mix(v.color, colors.surface, isDark ? 0.55 : 0.8),
+      }
+    },
     // Tile for a listing's visual type.
     visual(key) {
       const v = VISUALS[key] || VISUALS.deal
-      return { Icon: v.Icon, ...tint(v.color) }
-    },
-    // Tile + label colours for a Campus Connect / Course Connect label.
-    pillar(originKey) {
-      const p = PILLARS[originKey]
-      if (!p) return null
-      const t = tint(p.color)
-      return {
-        ...p,
-        tileBg: t.bg,
-        iconColor: t.fg,
-        // Pillar colours are mid-tones; the text version is darkened (light)
-        // or lightened (dark) so small labels still read.
-        textColor: isDark ? mix(p.color, '#FFFFFF', 0.45) : mix(p.color, '#000000', 0.38),
-      }
+      // `text` is the type colour for small labels: darkened in light mode.
+      return { Icon: v.Icon, ...tint(v.color), text: isDark ? mix(v.color, '#FFFFFF', 0.45) : mix(v.color, '#000000', 0.3) }
     },
   }
 }

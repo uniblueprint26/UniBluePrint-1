@@ -1,22 +1,21 @@
 import { Modal, View, Text, TouchableOpacity, ScrollView, Pressable, StyleSheet } from 'react-native'
-import { X, MessageSquare, ExternalLink, Download, Flag, ChevronRight } from 'lucide-react-native'
+import { X, MessageSquare, ExternalLink, Flag, ChevronRight } from 'lucide-react-native'
 import { fonts, shadows } from '../../constants/theme'
 import { useAdTokens } from './adTheme'
-import { UbpTag, PillarLabel, ReviewedMark } from './OriginTag'
+import { UbpTag, QuietTag, ReviewedMark } from './OriginTag'
 
 // The detail and contact step for student listings: what it is, the facts we
-// have, and how to get in touch (message the poster in-app, open a link, or
-// open the file). Partner deals and paid ads still open the partner contact
-// card or their own link, exactly as before.
-export default function ListingDetailModal({ item, visible, isOwn, onClose, onMessage, onOpenLink, onOpenFile, onOpenBoard, onReport }) {
+// have, and how to get in touch (message the poster in-app or open a link).
+// Partner deals and paid ads still open the partner contact card or their own
+// link, exactly as before.
+export default function ListingDetailModal({ item, visible, isOwn, onClose, onMessage, onOpenLink, onOpenBoard, onReport }) {
   const t = useAdTokens()
   const { colors } = t
   if (!item) return null
-  const pillar = item.origin === 'campus' || item.origin === 'course'
   const v = t.visual(item.visual)
-  const Tile = pillar ? t.pillar(item.origin).Icon : v.Icon
-  const tileBg = pillar ? t.pillar(item.origin).tileBg : v.bg
-  const tileFg = pillar ? t.pillar(item.origin).iconColor : v.fg
+  const Tile = v.Icon
+  const tileBg = v.bg
+  const tileFg = v.fg
 
   const primary = { backgroundColor: t.accent }
   const primaryText = { color: t.accentInk }
@@ -31,10 +30,8 @@ export default function ListingDetailModal({ item, visible, isOwn, onClose, onMe
               <View style={[s.tile, { backgroundColor: tileBg }]}><Tile size={26} color={tileFg} strokeWidth={1.8} /></View>
               <View style={{ flex: 1, minWidth: 0 }}>
                 <View style={s.tags}>
-                  {pillar
-                    ? <PillarLabel origin={item.origin} extra={item.typeLabel} />
-                    : <Text style={[s.type, { color: colors.textSecondary }]}>{item.typeLabel}</Text>}
-                  {item.origin === 'ubp' && <UbpTag />}
+                  <Text style={[s.type, { color: colors.textSecondary }]}>{item.typeLabel}</Text>
+                  {item.origin === 'ubp' ? <UbpTag /> : item.byStudent ? <QuietTag label="POSTED BY A STUDENT" /> : null}
                   {item.reviewed && <ReviewedMark />}
                 </View>
               </View>
@@ -71,19 +68,13 @@ export default function ListingDetailModal({ item, visible, isOwn, onClose, onMe
             {!!item.posterName && <Text style={[s.posted, { color: colors.textSecondary }]}>Posted by {item.posterName}</Text>}
 
             <View style={s.actions}>
-              {!!item.fileUrl && (
-                <TouchableOpacity style={[s.btn, primary]} activeOpacity={0.85} onPress={() => onOpenFile(item)}>
-                  <Download size={16} color={t.accentInk} strokeWidth={2} />
-                  <Text style={[s.btnText, primaryText]}>Open the file</Text>
-                </TouchableOpacity>
-              )}
               {!!item.link && (
                 <TouchableOpacity style={[s.btn, primary]} activeOpacity={0.85} onPress={() => onOpenLink(item.link)}>
                   <ExternalLink size={16} color={t.accentInk} strokeWidth={2} />
                   <Text style={[s.btnText, primaryText]}>Open the link</Text>
                 </TouchableOpacity>
               )}
-              {!isOwn && item.source !== 'shared_notes' && item.source !== 'ads' && (
+              {!isOwn && item.source !== 'ads' && (
                 <TouchableOpacity
                   style={[s.btn, item.link ? s.btnOutline : primary, item.link && { borderColor: colors.border }]}
                   activeOpacity={0.85}
@@ -93,7 +84,7 @@ export default function ListingDetailModal({ item, visible, isOwn, onClose, onMe
                   <Text style={[s.btnText, { color: item.link ? colors.textPrimary : t.accentInk }]}>Message</Text>
                 </TouchableOpacity>
               )}
-              {!!item.board && (
+              {!!item.board && !item.board.noLink && (
                 <TouchableOpacity style={s.linkRow} activeOpacity={0.8} onPress={() => onOpenBoard(item)}>
                   <Text style={[s.linkText, { color: colors.textPrimary }]}>See all on {item.board.title}</Text>
                   <ChevronRight size={16} color={colors.textSecondary} />
