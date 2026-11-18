@@ -83,7 +83,7 @@ const PATH_CONTENT = {
   },
   [USER_TYPE_WORKER]: {
     banner: 'As a Worker, Industry Discussions and the career-facing boards below are built for you, not just people still in college.',
-    sub: 'Industry threads, career discussions, and a peer network for young people in work, not just people still in college.',
+    sub: 'Industry discussions, career chats, and a peer network for young people in work, not just people still in college.',
     academicEyebrow: 'CAREER SUPPORT',
     academicTitle: 'Built for how you actually work',
     toolsSub: "Practical tools and peer resources, useful whether you're studying part-time or just in the field.",
@@ -172,7 +172,7 @@ const COURSE_FEATURES = [
   {
     key: 'industry', label: 'INDUSTRY DISCUSSIONS', Icon: Briefcase, color: '#FEF9C3',
     headline: 'Talk to people already in your field',
-    sub: 'Industry-specific threads for young people exploring careers, on any route in. Ask, listen, and connect with those ahead of you.',
+    sub: 'Industry-specific discussions for young people exploring careers, on any route in. Ask, listen, and connect with those ahead of you.',
     count: 'Live now',
   },
   {
@@ -711,7 +711,7 @@ export default function CourseConnectScreen({ navigation }) {
             <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.lg }} />
           ) : popularCourses.length === 0 ? (
             <Text style={styles.popularEmptyText}>
-              Nothing posted yet — be the first to start a Course Board thread for your course, trade, or workplace.
+              Nothing posted yet. Be the first to start a Course Board discussion for your course, trade, or workplace.
             </Text>
           ) : (
             <PopularCourseGrid items={popularCourses} onPress={openPopularCourse} />
@@ -728,7 +728,7 @@ export default function CourseConnectScreen({ navigation }) {
           <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
             title="Examples shown below — Module Q&A is live"
-            subtitle="These preview threads are illustrative. Tap through to ask a real question or browse live answers."
+            subtitle="These previews are illustrative. Tap through to ask a real question or browse live answers."
           />
           <View style={{ gap: 10 }}>
             {DISCUSSIONS.map((d, i) => (
