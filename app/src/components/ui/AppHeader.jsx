@@ -1,14 +1,15 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, CalendarDays, Bell, ChevronLeft } from 'lucide-react-native'
+import { Search, CalendarDays, Wallet, Bell, ChevronLeft } from 'lucide-react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { goToHome, openInHomeStack } from '../../navigation/helpers'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // The one top bar for every main screen (founder decision 2026-11-17):
-// "UniBlueprint" in the middle, Search on the left, Calendar and Notifications
-// on the right. The screen's own name is NOT shown here: render it as a large
+// "UniBlueprint" in the middle, Search on the left, Calendar, Budget and
+// Notifications on the right (the Budget wallet opens Budgeting when that route
+// exists, otherwise it does nothing). Live is not in the header. The screen's own name is NOT shown here: render it as a large
 // serif title in the page with <PageTitle> so the wordmark never gets replaced.
 //
 // `showBack` swaps Search for a back chevron on pushed screens.
@@ -18,24 +19,33 @@ export default function AppHeader({
   showBack = false,
   onSearch,
   onCalendar,
+  onBudget,
   onBell,
   style,
 }) {
   const insets = useSafeAreaInsets()
   const { colors } = useTheme()
   const safeGoBack = useSafeGoBack(navigation)
+  const { width } = useWindowDimensions()
+  // Three icons sit on the right, so the sides must stay equal to keep the
+  // wordmark truly centred. Phone widths get a slightly tighter button so the
+  // wordmark never truncates at 360px.
+  const btn = width >= 380 ? 40 : 36
+  const side = btn * 3
+  const wordSize = width >= 380 ? 22 : 20
 
   const search = onSearch || (() => openInHomeStack(navigation, 'Explore'))
   const calendar = onCalendar || (() => openInHomeStack(navigation, 'Calendar'))
+  const budget = onBudget || (() => openInHomeStack(navigation, 'Budgeting'))
   const bell = onBell || (() => openInHomeStack(navigation, 'Notifications'))
 
   return (
     <View style={[s.bar, { paddingTop: insets.top + 6, backgroundColor: colors.surface, borderBottomColor: colors.border }, style]}>
-      <View style={s.side}>
+      <View style={[s.side, { width: side }]}>
         {showBack ? (
-          <IconBtn label="Go back" onPress={safeGoBack}><ChevronLeft size={24} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
+          <IconBtn btn={btn} label="Go back" onPress={safeGoBack}><ChevronLeft size={24} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
         ) : (
-          <IconBtn label="Search" onPress={search}><Search size={22} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
+          <IconBtn btn={btn} label="Search" onPress={search}><Search size={20} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
         )}
       </View>
 
@@ -46,13 +56,14 @@ export default function AppHeader({
         accessibilityRole="button"
         accessibilityLabel="UniBlueprint, go to Home"
       >
-        <Text style={[s.wordmark, { color: colors.textPrimary }]} numberOfLines={1}>UniBlueprint</Text>
+        <Text style={[s.wordmark, { color: colors.textPrimary, fontSize: wordSize }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>UniBlueprint</Text>
       </TouchableOpacity>
 
-      <View style={[s.side, s.right]}>
-        <IconBtn label="Calendar" onPress={calendar}><CalendarDays size={22} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
-        <IconBtn label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'} onPress={bell}>
-          <Bell size={22} color={colors.textPrimary} strokeWidth={1.8} />
+      <View style={[s.side, s.right, { width: side }]}>
+        <IconBtn btn={btn} label="Calendar" onPress={calendar}><CalendarDays size={20} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
+        <IconBtn btn={btn} label="Budget" onPress={budget}><Wallet size={20} color={colors.textPrimary} strokeWidth={1.8} /></IconBtn>
+        <IconBtn btn={btn} label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'} onPress={bell}>
+          <Bell size={20} color={colors.textPrimary} strokeWidth={1.8} />
           {unreadCount > 0 && <View style={[s.dot, { borderColor: colors.surface }]} />}
         </IconBtn>
       </View>
@@ -60,10 +71,10 @@ export default function AppHeader({
   )
 }
 
-function IconBtn({ children, onPress, label }) {
+function IconBtn({ children, onPress, label, btn = 40 }) {
   return (
     <TouchableOpacity
-      style={s.btn}
+      style={[s.btn, { width: btn, height: btn }]}
       onPress={onPress}
       activeOpacity={0.7}
       accessibilityRole="button"
@@ -91,16 +102,16 @@ export function PageTitle({ title, subtitle, color, right, style }) {
 const s = StyleSheet.create({
   bar: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 8, paddingBottom: 8,
+    paddingHorizontal: 6, paddingBottom: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  side: { width: 92, flexDirection: 'row', alignItems: 'center' },
+  side: { flexDirection: 'row', alignItems: 'center' },
   right: { justifyContent: 'flex-end' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 44 },
   wordmark: { fontFamily: fonts.serif, fontSize: 22, letterSpacing: -0.2, includeFontPadding: false },
   btn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   dot: {
-    position: 'absolute', top: 10, right: 10, width: 9, height: 9, borderRadius: 5,
+    position: 'absolute', top: 7, right: 7, width: 9, height: 9, borderRadius: 5,
     backgroundColor: '#E5484D', borderWidth: 1.5,
   },
   titleRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 12, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },

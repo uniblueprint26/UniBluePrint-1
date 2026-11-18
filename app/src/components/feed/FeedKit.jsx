@@ -1,15 +1,16 @@
-import { memo, useState } from 'react'
+import { memo, useState, useRef, useEffect } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Plus, Video, Image as ImageIcon, Flame } from 'lucide-react-native'
+import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Plus, Video, Image as ImageIcon, Flame, WifiOff, RotateCcw } from 'lucide-react-native'
 import { fonts, radius, spacing, shadows, sheen } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { MOODS, moodDef } from '../../constants/moods'
 import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS } from '../../lib/feed'
 import { PILLARS, AUDIENCES } from '../../constants/pillars'
 import { avatarColorFor, initialsFor } from '../../screens/DirectoryScreen'
+import UbpLoader from '../brand/UbpLoader'
 
 // ── shared helpers ───────────────────────────────────────────────────────────
 
@@ -74,9 +75,9 @@ export function ComposerEntryBar({ name, onPress }) {
   const { colors, isDark } = useTheme()
   const k = getStyles(colors, isDark)
   return (
-    <TouchableOpacity style={k.composerBar} onPress={onPress} activeOpacity={0.88} accessibilityRole="button" accessibilityLabel="Share something with campus">
+    <TouchableOpacity style={k.composerBar} onPress={onPress} activeOpacity={0.88} accessibilityRole="button" accessibilityLabel="Share something">
       <View style={k.composerAvatar}><Text style={k.composerAvatarText}>{initialsOf(name).slice(0, 1) || 'Y'}</Text></View>
-      <Text style={k.composerPlaceholder} numberOfLines={1}>Share something with campus</Text>
+      <Text style={k.composerPlaceholder} numberOfLines={1}>Share something</Text>
       <Plus size={24} color={colors.textPrimary} strokeWidth={1.9} />
     </TouchableOpacity>
   )
@@ -294,9 +295,10 @@ function Chip({ icon, label, color, k, colors, tinted }) {
   )
 }
 
-// Where this post goes. Missing audience means Campus Connect.
+// Where this post goes. Missing audience means Course Connect (the default,
+// public across Ireland).
 function AudienceChip({ audience, k, colors }) {
-  const key = AUDIENCES[audience] ? audience : 'campus'
+  const key = AUDIENCES[audience] ? audience : 'course'
   const def = AUDIENCES[key]
   if (def.pillar) {
     const p = PILLARS[def.pillar]
@@ -401,21 +403,96 @@ function arePostCardPropsEqual(prevProps, nextProps) {
   )
 }
 
-// No in-app video player is installed, so a Clip renders as a poster tile
-// that opens the video itself.
+// No in-app video player is installed, so a Clip renders as a tile that opens
+// the video itself. The tile shows the clip's cover image when the post has one
+// (cover_url, or thumbnail_url), otherwise a branded dark tile with the UBP
+// mark. While the cover loads or the clip is opening it shows the UBP loader,
+// and if the clip cannot be opened (no connection, or the link fails) it shows
+// an error with Try again.
+//
+// Connectivity: there is no network-info package installed, so the tile only
+// knows the connection is down on web (navigator.onLine). On a phone it finds
+// out when opening the clip fails.
+const OPENING_MIN_MS = 900
+
+function isOffline() {
+  try {
+    return typeof navigator !== 'undefined' && navigator.onLine === false
+  } catch { return false }
+}
+
 function ClipTile({ post, k, colors }) {
+  const cover = post.cover_url || post.thumbnail_url || null
+  const [coverState, setCoverState] = useState(cover ? 'loading' : 'none') // loading | ready | failed | none
+  const [phase, setPhase] = useState('idle') // idle | opening | error
+  const [errorKind, setErrorKind] = useState('failed') // offline | failed
+  const timer = useRef(null)
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
+
   if (post.post_type !== 'clip' || !post.video_url) return null
+
+  async function open() {
+    if (phase === 'opening') return
+    if (isOffline()) { setErrorKind('offline'); setPhase('error'); return }
+    setPhase('opening')
+    const started = Date.now()
+    let ok = true
+    try { await Linking.openURL(post.video_url) } catch { ok = false }
+    const wait = Math.max(0, OPENING_MIN_MS - (Date.now() - started))
+    timer.current = setTimeout(() => {
+      if (ok) { setPhase('idle') } else { setErrorKind(isOffline() ? 'offline' : 'failed'); setPhase('error') }
+    }, wait)
+  }
+
+  const showCover = !!cover && coverState !== 'failed'
+  const coverLoading = showCover && coverState === 'loading'
+
   return (
     <TouchableOpacity
       style={[k.photo, k.clipTile]}
-      onPress={() => Linking.openURL(post.video_url).catch(() => {})}
+      onPress={open}
       activeOpacity={0.85}
       accessibilityRole="button"
-      accessibilityLabel="Play clip"
+      accessibilityLabel={phase === 'error' ? 'Clip could not load. Try again' : 'Play clip'}
     >
-      <View style={k.clipPlay}>
-        <Play size={26} color="#FBF6E8" fill="#FBF6E8" strokeWidth={1.6} />
-      </View>
+      {showCover && (
+        <Image
+          source={{ uri: cover }}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          onLoad={() => setCoverState('ready')}
+          onError={() => setCoverState('failed')}
+        />
+      )}
+      {showCover && coverState === 'ready' && <View style={k.clipScrim} pointerEvents="none" />}
+      {!showCover && phase === 'idle' && (
+        <View style={k.clipBrand} pointerEvents="none">
+          <Text style={k.clipBrandText}>UBP</Text>
+          <View style={k.clipBrandLine} />
+        </View>
+      )}
+
+      {phase === 'idle' && !coverLoading && (
+        <View style={k.clipPlay}>
+          <Play size={26} color="#FBF6E8" fill="#FBF6E8" strokeWidth={1.6} />
+        </View>
+      )}
+      {(phase === 'opening' || (phase === 'idle' && coverLoading)) && (
+        <View style={[StyleSheet.absoluteFill, k.clipOverlay]} pointerEvents="none">
+          <UbpLoader size={30} label={phase === 'opening' ? 'Opening clip' : undefined} />
+        </View>
+      )}
+      {phase === 'error' && (
+        <View style={[StyleSheet.absoluteFill, k.clipOverlay, k.clipError]}>
+          <WifiOff size={24} color="#FBF6E8" strokeWidth={1.7} />
+          <Text style={k.clipErrorTitle}>{errorKind === 'offline' ? 'No connection' : "Couldn't load this clip"}</Text>
+          <Text style={k.clipErrorSub}>{errorKind === 'offline' ? 'Check your connection and try again.' : 'Please try again in a moment.'}</Text>
+          <View style={k.clipRetry}>
+            <RotateCcw size={14} color="#0F1720" strokeWidth={2.2} />
+            <Text style={k.clipRetryText}>Try again</Text>
+          </View>
+        </View>
+      )}
     </TouchableOpacity>
   )
 }
@@ -654,6 +731,19 @@ function getStyles(colors, isDark) {
   clipTile: {
     backgroundColor: '#0F1720', alignItems: 'center', justifyContent: 'center',
   },
+  clipScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(9,14,22,0.28)' },
+  clipBrand: { position: 'absolute', left: 16, bottom: 14, alignItems: 'flex-start', opacity: 0.55 },
+  clipBrandText: { fontFamily: fonts.serif, fontSize: 24, color: '#F5F0E8', includeFontPadding: false },
+  clipBrandLine: { width: 44, height: 2, backgroundColor: '#F5F0E8', marginTop: 4 },
+  clipOverlay: { alignItems: 'center', justifyContent: 'center' },
+  clipError: { backgroundColor: 'rgba(9,14,22,0.82)', gap: 6, paddingHorizontal: 24 },
+  clipErrorTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: '#FBF6E8', marginTop: 6 },
+  clipErrorSub: { fontFamily: fonts.sans, fontSize: 13, color: 'rgba(251,246,232,0.75)', textAlign: 'center' },
+  clipRetry: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10,
+    backgroundColor: '#FBF6E8', borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8,
+  },
+  clipRetryText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: '#0F1720' },
   clipPlay: {
     width: 60, height: 60, borderRadius: 30,
     backgroundColor: 'rgba(255,255,255,0.16)',

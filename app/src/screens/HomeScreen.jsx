@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   CheckCircle2, Bell, Building2, Calculator, Compass, Globe, Heart, BookOpen, FileText, TrendingUp, LayoutGrid,
-  Tag, Newspaper,
+  Tag, Newspaper, SlidersHorizontal,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
@@ -17,6 +17,8 @@ import TodayDigestCard from '../components/ui/TodayDigestCard'
 import StoryRail from '../components/home/StoryRail'
 import NextUpRow from '../components/home/NextUpRow'
 import GoalsGrid from '../components/home/GoalsGrid'
+import EditHomeSheet from '../components/home/EditHomeSheet'
+import { useHomeLayout, splitLayout, POSTS_BEFORE_INLINE } from '../components/home/homeLayout'
 import {
   ComposerEntryBar, BuzzStrip,
   FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard,
@@ -344,10 +346,26 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  const feedRenderItems = useMemo(
-    () => buildFeedRenderList(feedPosts, { buzzingHighlight, placement, suggestedProfiles }),
-    [feedPosts, buzzingHighlight, placement, suggestedProfiles],
-  )
+  // Home layout (which sections show, in what order), saved per user.
+  const { layout, setLayout } = useHomeLayout(user?.id)
+  const [editOpen, setEditOpen] = useState(false)
+  const { postsOn, above: aboveKeys, inline: inlineKeys } = useMemo(() => splitLayout(layout), [layout])
+
+  // Sections that sit after Posts are dropped into the feed after the first
+  // few posts, so Your goals is never the first thing you see.
+  const feedRenderItems = useMemo(() => {
+    const base = postsOn
+      ? buildFeedRenderList(feedPosts, { buzzingHighlight, placement, suggestedProfiles })
+      : []
+    if (inlineKeys.length === 0) return base
+    let seen = 0
+    let at = base.length
+    for (let i = 0; i < base.length; i++) {
+      if (base[i].kind === 'post' && ++seen === POSTS_BEFORE_INLINE) { at = i + 1; break }
+    }
+    const inline = inlineKeys.map(key => ({ kind: 'section', key: `section-${key}`, section: key }))
+    return [...base.slice(0, at), ...inline, ...base.slice(at)]
+  }, [feedPosts, buzzingHighlight, placement, suggestedProfiles, postsOn, inlineKeys])
 
   // Unread notification count for the bell badge, kept live via realtime so
   // it clears the moment a notification is read elsewhere and increments the
@@ -507,6 +525,13 @@ export default function HomeScreen({ navigation }) {
         />
       )
     }
+    if (item.kind === 'section') {
+      return (
+        <View style={{ marginVertical: 18 }}>
+          {renderSection(item.section)}
+        </View>
+      )
+    }
     if (item.kind === 'ad') {
       return <AdCard placement={item.placement} />
     }
@@ -522,7 +547,7 @@ export default function HomeScreen({ navigation }) {
     }
     return null
   }, [
-    myReactions, savedPostIds, suggestedConnectingId,
+    myReactions, savedPostIds, suggestedConnectingId, digestTitle, digestStats, user?.id, firstName,
     handleReact, handleCommentPost, handleSharePost, handleToggleSave,
     handleSuggestedConnect, handleViewSuggestedProfile,
   ])
@@ -542,44 +567,90 @@ export default function HomeScreen({ navigation }) {
   // No Next up event yet: the Calendar feature supplies one later. Never fake it.
   const nextUp = null
 
+  // One Home section. Digest, Next up and Your goals are drawn here so they can
+  // sit above the feed or inside it, wherever the layout puts them.
+  function renderSection(key) {
+    if (key === 'digest') {
+      return (
+        <View style={{ paddingHorizontal: spacing.md }}>
+          <TodayDigestCard
+            eyebrow={`Today · ${formatEyebrowDate()}`}
+            title={digestTitle}
+            stats={digestStats}
+          />
+        </View>
+      )
+    }
+    if (key === 'nextUp') {
+      if (!nextUp) return null
+      return (
+        <View style={{ paddingHorizontal: spacing.md }}>
+          <NextUpRow nextUp={nextUp} navigation={navigation} />
+        </View>
+      )
+    }
+    if (key === 'goals') return <GoalsGrid navigation={navigation} userId={user?.id} name={firstName} />
+    return null
+  }
+
+  const emptyFeed = postsOn && !loadingFeed && feedPosts.length === 0
+
   const feedListHeader = (
     <View>
       <PageTitle
         title="Home"
-        right={isComplimentaryPro ? <ActiveMemberBadge style={{ marginBottom: 6 }} /> : null}
+        right={(
+          <View style={styles.titleRight}>
+            {isComplimentaryPro ? <ActiveMemberBadge /> : null}
+            <TouchableOpacity
+              style={styles.editHome}
+              activeOpacity={0.7}
+              onPress={() => setEditOpen(true)}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Edit Home"
+            >
+              <SlidersHorizontal size={15} color={colors.textSecondary} strokeWidth={1.9} />
+              <Text style={styles.editHomeText}>Edit Home</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       />
 
       <View style={{ paddingTop: 14, paddingBottom: 26 }}>
         <StoryRail navigation={navigation} name={firstName} />
       </View>
 
-      <View style={{ paddingHorizontal: spacing.md }}>
-        <TodayDigestCard
-          eyebrow={`Today · ${formatEyebrowDate()}`}
-          title={digestTitle}
-          stats={digestStats}
-        />
-        <NextUpRow nextUp={nextUp} navigation={navigation} style={{ marginTop: 12 }} />
+      {aboveKeys.map(key => {
+        const node = renderSection(key)
+        return node ? <View key={key} style={{ marginBottom: 26 }}>{node}</View> : null
+      })}
 
-        <View style={{ marginTop: 26 }}>
-          <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
-        </View>
-      </View>
+      {postsOn && (
+        <>
+          <View style={{ paddingHorizontal: spacing.md }}>
+            <ComposerEntryBar name={firstName} onPress={() => navigation.navigate('Composer')} />
+          </View>
 
-      <View style={{ marginTop: 34 }}>
-        <GoalsGrid navigation={navigation} userId={user?.id} />
-      </View>
+          <View style={{ paddingHorizontal: spacing.md, marginTop: 30 }}>
+            <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
+          </View>
 
-      <View style={{ paddingHorizontal: spacing.md, marginTop: 30 }}>
-        <BuzzStrip selected={buzzWindow} onSelect={setBuzzWindow} />
-      </View>
-
-      <View style={{ height: 14 }} />
+          {emptyFeed && (
+            <Text style={styles.feedStatusText}>
+              No posts yet. Be the first to share a mood or a snapshot.
+            </Text>
+          )}
+          <View style={{ height: 14 }} />
+        </>
+      )}
     </View>
   )
 
   let feedListFooter = null
-  if (loadingMore) {
+  if (!postsOn) {
+    feedListFooter = null
+  } else if (loadingMore) {
     feedListFooter = (
       <View style={styles.feedFooterWrap}>
         <ActivityIndicator color={colors.muted} size="small" />
@@ -680,11 +751,6 @@ export default function HomeScreen({ navigation }) {
                 renderItem={renderFeedItem}
                 ListHeaderComponent={feedListHeader}
                 ListFooterComponent={feedListFooter}
-                ListEmptyComponent={
-                  <Text style={styles.feedStatusText}>
-                    No posts yet. Be the first to share a mood or a snapshot.
-                  </Text>
-                }
                 onEndReached={loadMoreFeed}
                 onEndReachedThreshold={0.4}
                 contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}
@@ -695,6 +761,8 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </View>
+
+      <EditHomeSheet visible={editOpen} layout={layout} onChange={setLayout} onClose={() => setEditOpen(false)} />
     </View>
   )
 }
@@ -783,6 +851,10 @@ function __gs_styles(colors) {
   // `scrollView` for the same note.
   mainScroll: { flex: 1 },
   centerWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+
+  titleRight: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 },
+  editHome: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 4 },
+  editHomeText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textSecondary },
 
 
   // Feed status (loading / empty / "caught up")

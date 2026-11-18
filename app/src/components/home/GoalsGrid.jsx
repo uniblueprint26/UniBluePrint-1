@@ -1,21 +1,28 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Pressable,
-  KeyboardAvoidingView, Platform, Alert,
+  KeyboardAvoidingView, Platform, Alert, Switch, ScrollView,
 } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { FileText, Plus, Check, ChevronRight } from 'lucide-react-native'
+import { FileText, Plus, Check, ChevronRight, Bell } from 'lucide-react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import { openInHomeStack } from '../../navigation/helpers'
 import { CAREER_SERVICES } from '../../screens/FoundationScreen'
+import { REMIND_OPTIONS, syncGoalReminder, cancelGoalReminder } from './goalReminders'
 
 // "Your goals": one closed folder per Foundation Blueprint service (the real
 // list, read from FoundationScreen), then your own goals, then an "Add your
-// own" tile. Your own goals live in public.user_goals; if that table can't be
-// reached they fall back to AsyncStorage keyed per user so the feature still
-// works.
+// own" tile. Goals live in public.user_goals; if that table can't be reached
+// they fall back to AsyncStorage keyed per user so the feature still works.
+//
+// Adding a goal (your own, or a Foundation tile) also asks how often to remind
+// you, what the reminder should say, and whether we may send notifications for
+// it. Those answers are saved as remind_every ('daily' | 'weekly' | 'monthly' |
+// null), remind_message (up to 140 characters) and remind_ok (boolean), in
+// user_goals or in the AsyncStorage fallback, and honoured by a local
+// notification (see goalReminders.js).
 
 // Short tile names for the service titles in FoundationScreen.
 const SHORT_TITLES = {
@@ -41,7 +48,17 @@ const storageKey = userId => `ubp_user_goals_${userId}`
 
 // ── data: user_goals with an AsyncStorage fallback ──────────────────────────
 
-function useCustomGoals(userId) {
+const REMIND_FIELDS = ['remind_every', 'remind_message', 'remind_ok']
+
+function stripRemind(fields) {
+  const out = { ...fields }
+  REMIND_FIELDS.forEach(f => delete out[f])
+  return out
+}
+
+// Goals for this user: your own ('custom') and Foundation services you chose to
+// make a goal ('foundation', with service_key).
+function useGoals(userId) {
   const [goals, setGoals] = useState([])
   const localMode = useRef(false)
 
@@ -61,43 +78,68 @@ function useCustomGoals(userId) {
     if (!userId) { setGoals([]); return }
     let cancelled = false
     ;(async () => {
+      let rows
       try {
         const { data, error } = await supabase
           .from('user_goals')
           .select('*')
           .eq('user_id', userId)
-          .eq('source', 'custom')
+          .in('source', ['custom', 'foundation'])
           .order('created_at', { ascending: true })
         if (error) throw error
         localMode.current = false
-        if (!cancelled) setGoals(data || [])
+        rows = data || []
       } catch {
         localMode.current = true
-        const local = await readLocal()
-        if (!cancelled) setGoals(local)
+        rows = await readLocal()
       }
+      if (cancelled) return
+      setGoals(rows)
+      // Keep local reminders in step with what is saved (phones only).
+      rows.forEach(g => { if (g.remind_ok && g.remind_every) syncGoalReminder(g) })
     })()
     return () => { cancelled = true }
   }, [userId, readLocal])
 
-  const add = useCallback(async title => {
-    const row = {
-      id: `local-${Date.now()}`, user_id: userId, title, source: 'custom',
-      service_key: null, done: false, created_at: new Date().toISOString(),
-    }
+  // fields: { title, source, service_key, remind_every, remind_message, remind_ok }
+  const add = useCallback(async fields => {
+    const base = { user_id: userId, source: 'custom', service_key: null, ...fields }
+    let saved = null
     if (!localMode.current) {
       try {
-        const { data, error } = await supabase
-          .from('user_goals')
-          .insert({ user_id: userId, title, source: 'custom' })
-          .select('*')
-          .single()
-        if (error) throw error
-        setGoals(prev => [...prev, data])
-        return
+        let res = await supabase.from('user_goals').insert(base).select('*').single()
+        // The reminder columns arrive with a database update. If they are not
+        // there yet, save the goal without them rather than lose it.
+        if (res.error) res = await supabase.from('user_goals').insert(stripRemind(base)).select('*').single()
+        if (res.error) throw res.error
+        saved = { ...base, ...res.data }
       } catch { localMode.current = true }
     }
-    setGoals(prev => { const next = [...prev, row]; writeLocal(next); return next })
+    if (!saved) {
+      saved = { id: `local-${Date.now()}`, done: false, created_at: new Date().toISOString(), ...base }
+      setGoals(prev => { const next = [...prev, saved]; writeLocal(next); return next })
+    } else {
+      setGoals(prev => [...prev, saved])
+    }
+    syncGoalReminder(saved)
+    return saved
+  }, [userId, writeLocal])
+
+  // Change a goal's reminder choices (or title).
+  const update = useCallback(async (goal, patch) => {
+    const merged = { ...goal, ...patch }
+    setGoals(prev => {
+      const next = prev.map(g => g.id === goal.id ? merged : g)
+      if (localMode.current) writeLocal(next)
+      return next
+    })
+    if (!localMode.current && !String(goal.id).startsWith('local-')) {
+      try {
+        const { error } = await supabase.from('user_goals').update(patch).eq('id', goal.id).eq('user_id', userId)
+        if (error) throw error
+      } catch { /* kept on screen; saved for real once the database has the columns */ }
+    }
+    syncGoalReminder(merged)
   }, [userId, writeLocal])
 
   const toggle = useCallback(async goal => {
@@ -107,6 +149,7 @@ function useCustomGoals(userId) {
       if (localMode.current) writeLocal(next)
       return next
     })
+    syncGoalReminder({ ...goal, done })
     if (!localMode.current && !String(goal.id).startsWith('local-')) {
       try {
         const { error } = await supabase.from('user_goals').update({ done }).eq('id', goal.id).eq('user_id', userId)
@@ -124,6 +167,7 @@ function useCustomGoals(userId) {
       if (localMode.current) writeLocal(next)
       return next
     })
+    cancelGoalReminder(goal.id)
     if (!localMode.current && !String(goal.id).startsWith('local-')) {
       try {
         const { error } = await supabase.from('user_goals').delete().eq('id', goal.id).eq('user_id', userId)
@@ -132,12 +176,12 @@ function useCustomGoals(userId) {
     }
   }, [goals, userId, writeLocal])
 
-  return { goals, add, toggle, remove }
+  return { goals, add, update, toggle, remove }
 }
 
 // ── folder tile ──────────────────────────────────────────────────────────────
 
-function FolderTile({ title, width, done, onPress, onLongPress, checkable, label, colors, s }) {
+function FolderTile({ title, width, done, onPress, onLongPress, checkable, added, reminding, label, colors, s }) {
   return (
     <TouchableOpacity
       style={[s.tileWrap, { width }, done && { opacity: 0.6 }]}
@@ -154,11 +198,19 @@ function FolderTile({ title, width, done, onPress, onLongPress, checkable, label
           <View style={s.iconChip}>
             <FileText size={15} color={colors.textPrimary} strokeWidth={1.8} />
           </View>
-          {checkable && (
-            <View style={[s.tick, done && s.tickDone]}>
-              {done && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
-            </View>
-          )}
+          <View style={s.topRight}>
+            {reminding && <Bell size={13} color={colors.textSecondary} strokeWidth={2} />}
+            {checkable && (
+              <View style={[s.tick, done && s.tickDone]}>
+                {done && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
+              </View>
+            )}
+            {added && !checkable && (
+              <View style={[s.tick, s.tickDone]}>
+                <Check size={12} color={colors.accentFg} strokeWidth={3} />
+              </View>
+            )}
+          </View>
         </View>
         <Text style={[s.tileTitle, done && s.tileTitleDone]} numberOfLines={2}>{title}</Text>
       </View>
@@ -168,24 +220,170 @@ function FolderTile({ title, width, done, onPress, onLongPress, checkable, label
 
 // ── the section ──────────────────────────────────────────────────────────────
 
-export default function GoalsGrid({ navigation, userId }) {
+function GoalSheet({ target, name, onClose, onSave, onOpenFoundation, onRemove, colors, s }) {
+  const goal = target?.goal || null
+  const isFoundation = target?.kind === 'foundation'
+  const [title, setTitle] = useState('')
+  const [every, setEvery] = useState('weekly')
+  const [message, setMessage] = useState('')
+  const [ok, setOk] = useState(false)
+
+  // Reset the form each time the sheet opens on a different goal.
+  useEffect(() => {
+    if (!target) return
+    const g = target.goal
+    setTitle(g?.title || target.title || '')
+    setEvery(g ? (g.remind_every || 'never') : 'weekly')
+    setMessage(g?.remind_message || '')
+    setOk(!!g?.remind_ok)
+  }, [target])
+
+  if (!target) return null
+  const editing = !!goal
+  const reminding = every !== 'never'
+  const canSave = title.trim().length > 0
+
+  function save() {
+    if (!canSave) return
+    onSave({
+      title: title.trim(),
+      remind_every: reminding ? every : null,
+      remind_message: reminding && message.trim() ? message.trim() : null,
+      remind_ok: reminding && ok,
+    })
+  }
+
+  const heading = isFoundation
+    ? (editing ? `Your ${target.title} goal` : `Make ${target.title} a goal`)
+    : (editing ? 'Edit your goal' : 'Add your own goal')
+
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={s.backdrop} onPress={onClose}>
+          <Pressable style={s.sheet} onPress={() => {}}>
+            <View style={s.grabber} />
+            <ScrollView style={{ maxHeight: 620 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+              <Text style={s.sheetTitle}>{heading}</Text>
+              {isFoundation ? (
+                <TouchableOpacity onPress={onOpenFoundation} hitSlop={8} accessibilityRole="button" accessibilityLabel={`Open ${target.title} in Foundation Blueprint`}>
+                  <Text style={s.sheetLink}>{`Open ${target.title} in Foundation`}</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={s.sheetHint}>Something you want to get done this term.</Text>
+              )}
+
+              {!isFoundation && (
+                <TextInput
+                  style={s.input}
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder="For example: Finish my dissertation outline"
+                  placeholderTextColor={colors.textTertiary}
+                  maxLength={80}
+                  autoFocus={!editing}
+                  returnKeyType="done"
+                  accessibilityLabel="Goal"
+                />
+              )}
+
+              <Text style={s.fieldLabel}>{name ? `${name}, how often would you like a reminder?` : 'How often would you like a reminder?'}</Text>
+              <View style={s.chipRow}>
+                {REMIND_OPTIONS.map(o => {
+                  const active = every === o.key
+                  return (
+                    <TouchableOpacity
+                      key={o.key}
+                      style={[s.chip, active && s.chipActive]}
+                      activeOpacity={0.8}
+                      onPress={() => setEvery(o.key)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: active }}
+                      accessibilityLabel={`Remind me ${o.label.toLowerCase()}`}
+                    >
+                      <Text style={[s.chipText, active && s.chipTextActive]}>{o.label}</Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+
+              {reminding && (
+                <>
+                  <Text style={s.fieldLabel}>What should the reminder say? <Text style={s.optional}>Optional</Text></Text>
+                  <TextInput
+                    style={[s.input, s.inputMulti]}
+                    value={message}
+                    onChangeText={setMessage}
+                    placeholder="For example: Ten minutes on this today. You've got it."
+                    placeholderTextColor={colors.textTertiary}
+                    maxLength={140}
+                    multiline
+                    accessibilityLabel="What should the reminder say"
+                  />
+                  <Text style={s.counter}>{message.length}/140</Text>
+
+                  <View style={s.okRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.okTitle}>OK to send me notifications for this</Text>
+                      <Text style={s.okSub}>We only message you about this goal. You can change this any time.</Text>
+                    </View>
+                    <Switch
+                      value={ok}
+                      onValueChange={setOk}
+                      trackColor={{ false: colors.border, true: "#3F9B6B" }}
+                      activeThumbColor="#FFFFFF"
+                      thumbColor="#FFFFFF"
+                      accessibilityLabel="OK to send me notifications for this goal"
+                    />
+                  </View>
+                  {!ok && <Text style={s.okNote}>Switch this on and we will send the reminder. Otherwise it stays off.</Text>}
+                </>
+              )}
+
+              <TouchableOpacity
+                style={[s.saveBtn, !canSave && { opacity: 0.4 }]}
+                activeOpacity={0.85}
+                disabled={!canSave}
+                onPress={save}
+                accessibilityRole="button"
+                accessibilityLabel="Save goal"
+              >
+                <Text style={s.saveText}>{editing ? 'Save changes' : 'Save goal'}</Text>
+              </TouchableOpacity>
+              {editing && isFoundation && (
+                <TouchableOpacity style={s.removeBtn} onPress={onRemove} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove this goal">
+                  <Text style={s.removeText}>Remove this goal</Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
+export default function GoalsGrid({ navigation, userId, name }) {
   const { colors, isDark } = useTheme()
   const s = getStyles(colors, isDark)
-  const { goals, add, toggle, remove } = useCustomGoals(userId)
+  const { goals, add, update, toggle, remove } = useGoals(userId)
   const [gridWidth, setGridWidth] = useState(0)
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [draft, setDraft] = useState('')
+  const [target, setTarget] = useState(null) // { kind: 'custom' | 'foundation', title?, key?, goal? }
 
   const tileWidth = gridWidth > 0 ? Math.floor((gridWidth - GAP * (COLS - 1)) / COLS) : 100
 
-  function openFoundation() { navigation.navigate('Foundation') }
+  const customGoals = goals.filter(g => g.source !== 'foundation')
+  const foundationGoal = key => goals.find(g => g.source === 'foundation' && g.service_key === key)
 
-  async function save() {
-    const title = draft.trim()
-    if (!title) return
-    setSheetOpen(false)
-    setDraft('')
-    await add(title)
+  async function handleSave(fields) {
+    const t = target
+    setTarget(null)
+    if (t.goal) { await update(t.goal, fields); return }
+    if (t.kind === 'foundation') {
+      await add({ ...fields, title: t.title, source: 'foundation', service_key: t.key })
+    } else {
+      await add({ ...fields, source: 'custom' })
+    }
   }
 
   function confirmRemove(goal) {
@@ -202,18 +400,28 @@ export default function GoalsGrid({ navigation, userId }) {
       <Text style={s.sub}>Recommended by UBP</Text>
 
       <View style={s.grid} onLayout={e => setGridWidth(e.nativeEvent.layout.width)}>
-        {FOUNDATION_TILES.map(t => (
+        {FOUNDATION_TILES.map(t => {
+          const g = foundationGoal(t.key)
+          return (
+            <FolderTile
+              key={t.key} title={t.title} width={tileWidth} added={!!g} reminding={!!g?.remind_ok && !!g?.remind_every}
+              label={g ? `${t.title}, one of your goals. Tap to change the reminder.` : `${t.title}. Tap to make it a goal.`}
+              onPress={() => setTarget({ kind: 'foundation', title: t.title, key: t.key, goal: g || null })}
+              colors={colors} s={s}
+            />
+          )
+        })}
+        {customGoals.map(g => (
           <FolderTile
-            key={t.key} title={t.title} width={tileWidth}
-            label={`${t.title}, open Foundation Blueprint`}
-            onPress={openFoundation} colors={colors} s={s}
-          />
-        ))}
-        {goals.map(g => (
-          <FolderTile
-            key={g.id} title={g.title} width={tileWidth} done={g.done} checkable
-            label={`${g.title}, ${g.done ? 'done' : 'not done'}. Tap to change. Hold to remove.`}
-            onPress={() => toggle(g)} onLongPress={() => confirmRemove(g)} colors={colors} s={s}
+            key={g.id} title={g.title} width={tileWidth} done={g.done} checkable reminding={!!g.remind_ok && !!g.remind_every}
+            label={`${g.title}, ${g.done ? 'done' : 'not done'}. Tap to change. Hold to edit or remove.`}
+            onPress={() => toggle(g)}
+            onLongPress={() => (Platform.OS === 'web' ? setTarget({ kind: 'custom', goal: g }) : Alert.alert(g.title, undefined, [
+              { text: 'Edit reminder', onPress: () => setTarget({ kind: 'custom', goal: g }) },
+              { text: 'Remove', style: 'destructive', onPress: () => confirmRemove(g) },
+              { text: 'Cancel', style: 'cancel' },
+            ]))}
+            colors={colors} s={s}
           />
         ))}
       </View>
@@ -221,7 +429,7 @@ export default function GoalsGrid({ navigation, userId }) {
       <TouchableOpacity
         style={s.addTile}
         activeOpacity={0.8}
-        onPress={() => setSheetOpen(true)}
+        onPress={() => setTarget({ kind: 'custom' })}
         accessibilityRole="button"
         accessibilityLabel="Add your own goal"
       >
@@ -240,39 +448,16 @@ export default function GoalsGrid({ navigation, userId }) {
         <ChevronRight size={15} color={colors.textSecondary} strokeWidth={2} />
       </TouchableOpacity>
 
-      <Modal visible={sheetOpen} transparent animationType="fade" onRequestClose={() => setSheetOpen(false)}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <Pressable style={s.backdrop} onPress={() => setSheetOpen(false)}>
-            <Pressable style={s.sheet} onPress={() => {}}>
-              <View style={s.grabber} />
-              <Text style={s.sheetTitle}>Add your own goal</Text>
-              <Text style={s.sheetHint}>Something you want to get done this term.</Text>
-              <TextInput
-                style={s.input}
-                value={draft}
-                onChangeText={setDraft}
-                placeholder="For example: Finish my dissertation outline"
-                placeholderTextColor={colors.textTertiary}
-                maxLength={80}
-                autoFocus
-                returnKeyType="done"
-                onSubmitEditing={save}
-                accessibilityLabel="Goal"
-              />
-              <TouchableOpacity
-                style={[s.saveBtn, !draft.trim() && { opacity: 0.4 }]}
-                activeOpacity={0.85}
-                disabled={!draft.trim()}
-                onPress={save}
-                accessibilityRole="button"
-                accessibilityLabel="Save goal"
-              >
-                <Text style={s.saveText}>Save</Text>
-              </TouchableOpacity>
-            </Pressable>
-          </Pressable>
-        </KeyboardAvoidingView>
-      </Modal>
+      <GoalSheet
+        target={target}
+        name={name}
+        colors={colors}
+        s={s}
+        onClose={() => setTarget(null)}
+        onSave={handleSave}
+        onOpenFoundation={() => { setTarget(null); navigation.navigate('Foundation') }}
+        onRemove={() => { const g = target?.goal; setTarget(null); if (g) remove(g) }}
+      />
     </View>
   )
 }
@@ -301,6 +486,7 @@ function getStyles(colors, isDark) {
       paddingHorizontal: 11, paddingTop: 11, paddingBottom: 10, justifyContent: 'space-between',
     },
     topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    topRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     tick: {
       width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: colors.textSecondary,
       alignItems: 'center', justifyContent: 'center',
@@ -337,6 +523,29 @@ function getStyles(colors, isDark) {
       borderWidth: 1, borderColor: colors.border,
       paddingHorizontal: 14, paddingVertical: 13,
     },
+    sheetLink: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textSecondary, textDecorationLine: 'underline', marginTop: 4, marginBottom: 6 },
+    fieldLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary, marginTop: 22, marginBottom: 10 },
+    optional: { fontFamily: fonts.sans, fontSize: 12, color: colors.textSecondary },
+    chipRow: { flexDirection: 'row', gap: 8 },
+    chip: {
+      flex: 1, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+      backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border,
+    },
+    chipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+    chipText: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
+    chipTextActive: { color: colors.accentFg },
+    inputMulti: { minHeight: 68, textAlignVertical: 'top' },
+    counter: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.textSecondary, textAlign: 'right', marginTop: 6 },
+    okRow: {
+      flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 14,
+      backgroundColor: colors.background, borderRadius: 12, borderWidth: 1, borderColor: colors.border,
+      paddingHorizontal: 14, paddingVertical: 12,
+    },
+    okTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+    okSub: { fontFamily: fonts.sans, fontSize: 12, lineHeight: 16, color: colors.textSecondary, marginTop: 3 },
+    okNote: { fontFamily: fonts.sans, fontSize: 12, color: colors.textSecondary, marginTop: 8 },
+    removeBtn: { alignSelf: 'center', paddingVertical: 14 },
+    removeText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textSecondary },
     saveBtn: {
       marginTop: 16, backgroundColor: colors.accentBg, borderRadius: 14,
       alignItems: 'center', justifyContent: 'center', height: 50,
