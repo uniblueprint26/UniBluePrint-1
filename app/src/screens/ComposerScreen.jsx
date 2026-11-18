@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { X, Camera, RefreshCw, Video, Play, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { MOOD_GROUPS, COMPOSER_MOODS, MOODS_VISIBLE_PER_GROUP, moodDef } from '../constants/moods'
+import { MOOD_GROUPS, COMPOSER_MOODS, moodDef } from '../constants/moods'
 import { DEFAULT_AUDIENCE } from '../constants/pillars'
 import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useAuth } from '../context/AuthContext'
@@ -28,8 +28,9 @@ import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 //                   first and is the default. The last audience is
 //                   remembered per user in AsyncStorage.
 //   Step 2 compose  → the existing compose UI for the chosen type:
-//     Mood Board → post_type = 'thread': pick a mood (grouped good, in
-//                  between, not great), write a short text post.
+//     Mood Board → post_type = 'thread': pick a mood (six groups, the first
+//                  open and the rest under "More feelings"), write a short
+//                  text post.
 //     Post       → post_type = 'post': a photo (required) + optional caption.
 //     Clip       → post_type = 'clip': a short video (required) + optional
 //                  caption.
@@ -356,17 +357,14 @@ export default function ComposerScreen({ navigation, route }) {
           {isThread ? (
             <>
               <Text style={s.sectionLabel}>Pick a mood</Text>
-              {MOOD_GROUPS.map(group => {
-                const hasMore = group.moods.length > MOODS_VISIBLE_PER_GROUP
-                const selectedHidden = group.moods.slice(MOODS_VISIBLE_PER_GROUP).some(m => m.id === mood)
-                const shown = hasMore && !moreMoods && !selectedHidden
-                  ? group.moods.slice(0, MOODS_VISIBLE_PER_GROUP)
-                  : group.moods
+              {MOOD_GROUPS.map((group, gi) => {
+                const open = gi === 0 || moreMoods || group.moods.some(m => m.id === mood)
+                if (!open) return null
                 return (
                   <View key={group.key} style={s.moodGroup}>
                     {!!group.title && <Text style={s.moodGroupTitle}>{group.title}</Text>}
                     <View style={s.moodGrid}>
-                      {shown.map(m => {
+                      {group.moods.map(m => {
                         const selected = m.id === mood
                         return (
                           <TouchableOpacity
@@ -392,15 +390,16 @@ export default function ComposerScreen({ navigation, route }) {
                   </View>
                 )
               })}
-              {MOOD_GROUPS.some(g => g.moods.length > MOODS_VISIBLE_PER_GROUP) && (
+              {MOOD_GROUPS.length > 1 && (
                 <TouchableOpacity
                   style={s.moreBtn}
                   onPress={() => setMoreMoods(v => !v)}
                   activeOpacity={0.7}
                   accessibilityRole="button"
-                  accessibilityLabel={moreMoods ? 'Show fewer words' : 'Show more words'}
+                  accessibilityState={{ expanded: moreMoods }}
+                  accessibilityLabel={moreMoods ? 'Show fewer feelings' : 'Show more feelings'}
                 >
-                  <Text style={s.moreBtnText}>{moreMoods ? 'Fewer words' : 'More words'}</Text>
+                  <Text style={s.moreBtnText}>{moreMoods ? 'Fewer feelings' : 'More feelings'}</Text>
                   {moreMoods
                     ? <ChevronUp size={14} color={colors.textSecondary} strokeWidth={2} />
                     : <ChevronDown size={14} color={colors.textSecondary} strokeWidth={2} />}
@@ -579,9 +578,9 @@ function composerStyles(colors) {
       textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
     },
 
-    moodGroup: { marginBottom: 14 },
+    moodGroup: { marginBottom: 20 },
     moodGroupTitle: {
-      fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textSecondary, marginBottom: 8,
+      fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 10,
     },
     moodGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
     moreBtn: {
