@@ -35,6 +35,7 @@ import LifestyleFeaturedDealsScreen from '../screens/LifestyleFeaturedDealsScree
 import LifestyleWellbeingScreen from '../screens/LifestyleWellbeingScreen'
 import LifestyleBudgetingPreviewScreen from '../screens/LifestyleBudgetingPreviewScreen'
 import AdBoardScreen       from '../screens/AdBoardScreen'
+import AdBoardBasketScreen from '../screens/AdBoardBasketScreen'
 import WeeklyBlueprintScreen from '../screens/WeeklyBlueprintScreen'
 import BlogScreen          from '../screens/BlogScreen'
 import MarketplaceScreen   from '../screens/MarketplaceScreen'
@@ -204,6 +205,7 @@ function AdBoardStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="AdBoardMain"  component={AdBoardScreen} />
+      <Stack.Screen name="AdBoardBasket" component={AdBoardBasketScreen} />
       <Stack.Screen name="WeeklyBlueprint" component={WeeklyBlueprintScreen} />
       <Stack.Screen name="Blog"         component={BlogScreen} />
       <Stack.Screen name="Marketplace"  component={MarketplaceScreen} />
