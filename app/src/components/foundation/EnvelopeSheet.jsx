@@ -5,7 +5,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Polygon, Line } from 'react-native-svg'
-import { X, Zap } from 'lucide-react-native'
+import { X, Zap, ExternalLink } from 'lucide-react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { fonts } from '../../constants/theme'
 import { envelopePaper, FLAP_DEPTH } from './envelopePaper'
@@ -90,9 +90,13 @@ export default function EnvelopeSheet({
   const contentOpacity = letter.interpolate({ inputRange: [0.45, 1], outputRange: [0, 1], extrapolate: 'clamp' })
 
   const { Icon, letter: copy } = service
+  // Android and web answer the questions on the website. iOS keeps the
+  // neutral wording that never points to the website as a place to buy.
+  const firstStep = copy ? (!isIOS && copy.webStep) || copy.steps[0] : null
   const steps = copy
     ? [
-        ...copy.steps,
+        firstStep,
+        ...copy.steps.slice(1),
         `${copy.receive} ${weekend ? 'Standard is within 48 hours. Premium is by the end of Monday.' : 'Standard is within 48 hours. Premium is within 24 hours.'}`,
       ]
     : []
@@ -242,8 +246,14 @@ export default function EnvelopeSheet({
                     onPress={primary.onPress}
                     accessibilityRole="button"
                   >
-                    <Text style={[s.ctaText, { color: colors.accentFg }]}>{primary.label}</Text>
+                    <View style={s.ctaInner}>
+                      <Text style={[s.ctaText, { color: colors.accentFg }]}>{primary.label}</Text>
+                      {primary.external ? <ExternalLink size={15} color={colors.accentFg} strokeWidth={2} /> : null}
+                    </View>
                   </TouchableOpacity>
+                ) : null}
+                {primary?.helper ? (
+                  <Text style={[s.helper, { color: paper.letterText2 }]}>{primary.helper}</Text>
                 ) : null}
                 {secondary ? (
                   <TouchableOpacity style={s.secondary} activeOpacity={0.7} onPress={secondary.onPress} accessibilityRole="button">
@@ -339,6 +349,8 @@ const s = StyleSheet.create({
   tierTime: { fontFamily: fonts.sans, fontSize: 11.5 },
   iosNote: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 18, marginTop: 12 },
   cta: { height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
+  ctaInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  helper: { fontFamily: fonts.sans, fontSize: 12, lineHeight: 17, textAlign: 'center', marginTop: 8 },
   ctaText: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
   secondary: { alignItems: 'center', justifyContent: 'center', paddingTop: 10, paddingBottom: 2 },
   secondaryText: { fontFamily: fonts.sansMedium, fontSize: 13 },

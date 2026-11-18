@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, ActivityIndicator, Linking, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import Svg, { Circle as SvgCircle } from 'react-native-svg'
@@ -16,6 +16,7 @@ import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { foundationHandoffUrl } from '../constants/site'
 
 // ─── Career Readiness ───────────────────────────────────────────────────────
 // Tracks real progress across the 8 Foundation Blueprint builders (CV,
@@ -216,7 +217,10 @@ export default function CareerReadinessScreen({ navigation }) {
   // plain same-stack navigations, not a cross-tab jump.
   function openBuilder(b) {
     if (b.status === 'not_started') {
-      navigation.navigate(b.screen)
+      // Foundation services are completed on the website. iOS keeps the
+      // in-app screen, which shows the neutral note (no link, App Store 3.1.1).
+      if (Platform.OS === 'ios') navigation.navigate(b.screen)
+      else Linking.openURL(foundationHandoffUrl(b.fullLabel)).catch(() => {})
       return
     }
     if (b.status === 'delivered' && b.row) {

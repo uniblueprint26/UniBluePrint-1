@@ -17,11 +17,17 @@ export const WEBSITE_LINKS = {
 
 // Foundation Blueprint's own builder pages — same 8 services as the app's
 // Foundation builder screens, mirrored on the website (src/pages/
-// foundation/*PageJsx). Used on iOS only: Foundation is pay-per-service
-// digital content (App Store 3.1.1), so the app hides the whole in-app
-// order/submit path there and points here instead, same call as the Pro
-// subscription in PricingScreen. Keep this map's keys in sync with
-// FoundationScreen.jsx's BUILDER_SCREEN_BY_TITLE (same service titles).
+// foundation/*PageJsx). Foundation services are completed on the website, not
+// in the app builders.
+//   Android and web: the order button opens the service's page here
+//     (see foundationHandoffUrl below).
+//   iOS: Foundation is pay-per-service digital content (App Store 3.1.1) and
+//     Apple prohibits external purchase links and calls to action outside the
+//     US storefront without an entitlement. So on iOS this map is only used
+//     for plain, non-tappable display text (FoundationIOSNotice). Never open
+//     these URLs from an iOS code path.
+// Keep this map's keys in sync with FoundationScreen.jsx's BUILDER_BY_TITLE
+// (same service titles).
 export const FOUNDATION_WEBSITE_LINKS = {
   'CV Optimisation':               `${SITE_URL}/foundation/cv-builder`,
   'LinkedIn Optimisation':         `${SITE_URL}/foundation/linkedin-optimisation`,
@@ -31,6 +37,13 @@ export const FOUNDATION_WEBSITE_LINKS = {
   'Personal Statement':            `${SITE_URL}/foundation/personal-statement`,
   'Portfolio Building':            `${SITE_URL}/foundation/portfolio-building`,
   'Job Search Support':            `${SITE_URL}/foundation/job-search-support`,
+}
+
+// Where the Android and web order button for a Foundation service goes: the
+// service's website builder page, or the contact page if the title has no page
+// yet (never the pricing page). Not for iOS.
+export function foundationHandoffUrl(title) {
+  return FOUNDATION_WEBSITE_LINKS[title] || WEBSITE_LINKS.contact
 }
 
 // Elevation Blueprint — the website's coach-booking landing page (src/pages/

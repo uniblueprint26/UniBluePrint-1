@@ -12,6 +12,9 @@
 //   get       "What you get": 3 to 4 plain bullets
 //   steps     the first two steps of "How it works" (you answer, a draft is
 //             built and a real person checks it)
+//   webStep   step 1 for Android and web, where the questions are answered on
+//             uniblueprint.ie. iOS never uses it: iOS copy must not point to the
+//             website as a place to buy, so it keeps `steps[0]`
 //   receive   the third step, without the timing (the sheet adds the
 //             Standard and Premium times, and the weekend rule)
 //   different "Why it is different": personal, industry specific, never a
@@ -49,6 +52,7 @@ export const SERVICE_LETTERS = {
       'You answer questions about your education, experience, skills, and the industry and role you want. You can add the job ad and your current CV.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie about your education, experience, skills, and the industry and role you want. You can add the job ad and your current CV.',
     receive: 'Your CV arrives in Outputs, ready to copy or share.',
     different: [
       'Personal to you. Every line comes from what you told us. We never invent an employer, a date, a number or a skill.',
@@ -70,6 +74,7 @@ export const SERVICE_LETTERS = {
       'You tell us your field, the work you want to show, what you already have online and what the portfolio is for.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie about your field, the work you want to show, what you already have online and what the portfolio is for.',
     receive: 'Your plan arrives in Outputs, ready to copy or share.',
     different: [
       'Personal to you. It builds on what you already have online instead of starting you from zero.',
@@ -90,6 +95,7 @@ export const SERVICE_LETTERS = {
       'You answer questions about how you want to be introduced, your target industry and role, your skills and experience, and who you want to reach.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie about how you want to be introduced, your target industry and role, your skills and experience, and who you want to reach.',
     receive: 'Your profile text arrives in Outputs. You copy it into LinkedIn yourself.',
     different: [
       'Personal to you. It is written from your own facts. No invented results and no job titles you do not have.',
@@ -110,6 +116,7 @@ export const SERVICE_LETTERS = {
       'You tell us the role and company, your strongest point and why this company. You can paste in the job ad.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie about the role and company, your strongest point and why this company. You can paste in the job ad.',
     receive: 'Your letter arrives in Outputs, ready to copy or share.',
     different: [
       'Personal to you. It goes deep on one or two things from your background, not a summary of your whole CV.',
@@ -130,6 +137,7 @@ export const SERVICE_LETTERS = {
       'You choose your pathway, then tell us the course, the institution, why you want it and what you have done.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie. You choose your pathway, then tell us the course, the institution, why you want it and what you have done.',
     receive: 'Your statement arrives in Outputs, ready to copy or share.',
     different: [
       'Personal to you. It is built from your real story. A lower grade or a gap is only mentioned if you tell us about it.',
@@ -151,6 +159,7 @@ export const SERVICE_LETTERS = {
       'You paste in the questions exactly as they appear on the form. You can add the company and role.',
       'A draft answer is built for each question from your Evidence Bank stories. A trained Campus Handler then reviews and checks it. It is never AI only.',
     ],
+    webStep: 'You answer questions on uniblueprint.ie. You paste in the form questions exactly as they appear. You can add the company and role.',
     receive: 'Your answers arrive in Outputs, ready to copy or share.',
     different: [
       'Personal to you. Every answer traces back to a story you wrote. Nothing is invented.',
@@ -171,6 +180,7 @@ export const SERVICE_LETTERS = {
       'You tell us the role, the company if you know it, the interview type, your background and anything you are unsure about.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie about the role, the company if you know it, the interview type, your background and anything you are unsure about.',
     receive: 'Your pack arrives in Outputs, ready to read before the interview.',
     different: [
       'Personal to you. Answers come only from your real stories. If you have no story for a question, you get coaching on where to find one, not an invented answer.',
@@ -191,6 +201,7 @@ export const SERVICE_LETTERS = {
       'You answer questions about your field, who you are (student, apprentice, young worker or 5th or 6th year), the opportunity you want, and how your search has gone so far.',
       REVIEW_STEP,
     ],
+    webStep: 'You answer questions on uniblueprint.ie about your field, who you are (student, apprentice, young worker or 5th or 6th year), the opportunity you want, and how your search has gone so far.',
     receive: 'Your plan arrives in Outputs, ready to copy or share.',
     different: [
       'Personal to you. It starts from where you are: just starting, applying with no interviews, or getting interviews with no offers.',

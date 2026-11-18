@@ -19,13 +19,17 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useUserType } from '../hooks/useUserType'
 import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
+import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
 
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
 // (a CV, a cover letter, etc.) — App Store 3.1.1 — so no price, "Order"
 // button or in-app submit path renders here on iOS, same decision and same
 // conservative no-tappable-link pattern as PricingScreen's Pro/Premium
-// gating (Platform.OS === 'ios'). Android and web are unchanged. Elevation
+// gating (Platform.OS === 'ios'). On Android and web the order button hands
+// the person to the service's page on uniblueprint.ie, where the questions
+// are answered and the order is placed; the in-app builder screens stay
+// registered but no button here opens them. Elevation
 // Blueprint (ElevationScreen.jsx) is different: coaching sessions are a
 // real-world service, exempt under 3.1.3(e), so that one links out instead
 // of hiding — see CoachProfileScreen.jsx and constants/site.js.
@@ -146,8 +150,11 @@ const CC_TOOLS = [
 ]
 
 // ─── Where each service starts, and where its progress is tracked ─────────────
-// `table` is the document table the service's builder writes to; the same
-// mapping Career Readiness uses to read real progress from `submissions`.
+// `table` is the document table the service's output is stored in; the same
+// mapping Career Readiness uses to read real progress from `submissions`, so a
+// service ordered on the website shows its status here. `screen` is the
+// in-app builder route: kept registered for deep links, but no button in
+// Foundation opens it any more.
 const BUILDER_BY_TITLE = {
   'CV Optimisation':             { screen: 'CvBuilder',               table: 'cv_documents' },
   'LinkedIn Optimisation':       { screen: 'LinkedinBuilder',         table: 'linkedin_documents' },
@@ -211,23 +218,32 @@ export default function FoundationScreen({ navigation }) {
 
   const tileWidth = gridWidth > 0 ? Math.floor((gridWidth - GAP) / 2) : 160
 
-  function startBuilder(title) {
-    const builder = BUILDER_BY_TITLE[title]
+  // Android and web only. Never called on iOS, where Apple does not allow an
+  // external purchase link (see IS_IOS above). A service with no website page
+  // falls back to the contact page, never to pricing.
+  function continueOnWebsite(title) {
     setSelected(null)
-    if (builder) {
-      navigation.navigate(builder.screen)
-      return
+    Linking.openURL(foundationHandoffUrl(title)).catch(() => {})
+  }
+
+  function orderAction(title) {
+    if (IS_IOS) return null
+    const hasPage = !!FOUNDATION_WEBSITE_LINKS[title]
+    return {
+      label: hasPage ? 'Continue on uniblueprint.ie' : 'Contact us to order',
+      external: true,
+      helper: hasPage
+        ? 'You will sign in with the same account and finish your order there. It shows up here when it is ready.'
+        : 'Tell us which service you want and we will help you order it.',
+      onPress: () => continueOnWebsite(title),
     }
-    // Kept only as a fallback for any future service added before its builder
-    // screen exists.
-    Linking.openURL(`mailto:orders@uniblueprint.ie?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
   }
 
   function sheetActions(service) {
     const { status, row } = progressFor(service.title)
     // iOS: no order path in the app (App Store 3.1.1), only for a service the
     // user has not started. Viewing progress or a delivered document is fine.
-    const order = IS_IOS ? null : { label: 'Order this service', onPress: () => startBuilder(service.title) }
+    const order = orderAction(service.title)
     if (status === 'delivered' && row) {
       return {
         status,
