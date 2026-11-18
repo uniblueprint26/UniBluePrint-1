@@ -1,22 +1,24 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
   Compass, GraduationCap, Map, Wrench, Package, Archive, FolderOpen,
-  ChevronLeft, ChevronRight, ExternalLink, Sparkles, UserCheck, Zap, Target,
+  ChevronRight, ExternalLink, Target, ClipboardList,
 } from 'lucide-react-native'
 
-import Card from '../components/ui/Card'
-import ScreenHeader from '../components/ui/ScreenHeader'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import EnvelopeTile from '../components/foundation/EnvelopeTile'
+import EnvelopeSheet from '../components/foundation/EnvelopeSheet'
 import { useWeekendDeliveryCopy } from '../hooks/useWeekendDeliveryCopy'
-import UBPLogo from '../components/ui/UBPLogo'
-import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { useUserType } from '../hooks/useUserType'
 import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
+
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
 // (a CV, a cover letter, etc.) — App Store 3.1.1 — so no price, "Order"
@@ -142,389 +144,253 @@ const CC_TOOLS = [
   { name: '5th & 6th Year Bundle',  icon: Package,       url: 'https://coursecompass.ie/bundles/senior-cycle',    desc: 'Full senior cycle guidance suite' },
 ]
 
-// ─── Trust points ─────────────────────────────────────────────────────────────
-// Consolidates what used to be a separate 4-card stats grid plus a
-// standalone "why us" card into a single compact section — same message,
-// far less scroll before the actual service list.
-const TRUST_POINTS = [
-  {
-    icon: Sparkles,
-    title: 'Real research, not a generic prompt',
-    line: '7 months building around what Irish recruiters and ATS systems actually screen for, service by service.',
-  },
-  {
-    icon: UserCheck,
-    title: 'Checked by a real Campus Handler',
-    line: 'Every submission is reviewed line by line by a trained person before it ever reaches you, not just AI output.',
-  },
-  {
-    icon: Award,
-    title: '30+ verified strengths',
-    line: 'Matched against the same framework employers use to hire worldwide.',
-  },
-]
+// ─── Where each service starts, and where its progress is tracked ─────────────
+// `table` is the document table the service's builder writes to; the same
+// mapping Career Readiness uses to read real progress from `submissions`.
+const BUILDER_BY_TITLE = {
+  'CV Optimisation':             { screen: 'CvBuilder',               table: 'cv_documents' },
+  'LinkedIn Optimisation':       { screen: 'LinkedinBuilder',         table: 'linkedin_documents' },
+  'Cover Letter Assistance':     { screen: 'CoverLetterBuilder',      table: 'cover_letters' },
+  'Application Form Assistance': { screen: 'ApplicationFormBuilder',  table: 'application_forms' },
+  'Interview Preparation':       { screen: 'InterviewPrepBuilder',    table: 'interview_prep_packs' },
+  'Personal Statement':          { screen: 'PersonalStatementBuilder', table: 'personal_statements' },
+  'Portfolio Building':          { screen: 'PortfolioPlanBuilder',    table: 'portfolio_plans' },
+  'Job Search Support':          { screen: 'JobSearchSupportBuilder', table: 'job_search_sessions' },
+}
+const DOCUMENT_TABLES = Object.values(BUILDER_BY_TITLE).map(b => b.table)
+
+const GAP = 14
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function FoundationScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
   const [selected, setSelected] = useState(null)
+  const [gridWidth, setGridWidth] = useState(0)
+  const [rows, setRows] = useState([])
   // From 11pm Saturday to 8am Monday the team is closed for the weekend, so
   // Premium's turnaround copy switches to Monday delivery and reverts
   // automatically once the window ends.
   const { isWeekendWindow } = useWeekendDeliveryCopy()
-  const safeGoBack = useSafeGoBack(navigation)
   // CAO-relevant services (e.g. Personal Statement) lead the list for
   // Leaving Cert users; every other user type sees CAREER_SERVICES' own
   // order, unchanged. See orderCareerServicesForUserType() above.
   const { userType } = useUserType()
   const orderedCareerServices = orderCareerServicesForUserType(userType)
 
+  // Real progress only: the latest submission per service, read from the same
+  // `submissions` table Career Readiness and My Outputs use. No row means
+  // nothing is shown on that envelope.
+  const loadProgress = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('document_table, document_id, stage, delivered_at, submitted_at')
+        .eq('user_id', user.id)
+        .in('document_table', DOCUMENT_TABLES)
+        .order('submitted_at', { ascending: false })
+      if (!error && Array.isArray(data)) setRows(data)
+    } catch { /* leave envelopes without a status */ }
+  }, [user?.id])
+  useFocusEffect(useCallback(() => { loadProgress() }, [loadProgress]))
+
+  function progressFor(title) {
+    const table = BUILDER_BY_TITLE[title]?.table
+    const mine = rows.filter(r => r.document_table === table)
+    if (mine.length === 0) return { status: null, row: null }
+    // A delivered document is never downgraded by a newer pending one.
+    const delivered = mine.find(r => r.stage === 'delivered')
+    if (delivered) return { status: 'delivered', row: delivered }
+    return { status: 'in_progress', row: mine[0] }
+  }
+
+  const tileWidth = gridWidth > 0 ? Math.floor((gridWidth - GAP) / 2) : 160
+
+  function startBuilder(title) {
+    const builder = BUILDER_BY_TITLE[title]
+    setSelected(null)
+    if (builder) {
+      navigation.navigate(builder.screen)
+      return
+    }
+    // Kept only as a fallback for any future service added before its builder
+    // screen exists.
+    Linking.openURL(`mailto:orders@uniblueprint.ie?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
+  }
+
+  function sheetActions(service) {
+    const { status, row } = progressFor(service.title)
+    // iOS: no order path in the app (App Store 3.1.1), only for a service the
+    // user has not started. Viewing progress or a delivered document is fine.
+    const order = IS_IOS ? null : { label: 'Order this service', onPress: () => startBuilder(service.title) }
+    if (status === 'delivered' && row) {
+      return {
+        status,
+        primary: {
+          label: 'Open your document',
+          onPress: () => {
+            setSelected(null)
+            navigation.navigate('OutputDetail', {
+              documentTable: row.document_table,
+              documentId: row.document_id,
+              serviceName: service.title,
+              deliveredAt: row.delivered_at,
+            })
+          },
+        },
+        secondary: order ? { label: 'Order another', onPress: order.onPress } : null,
+      }
+    }
+    if (status === 'in_progress') {
+      return {
+        status,
+        primary: { label: 'See where it is', onPress: () => { setSelected(null); navigation.navigate('MyOutputs') } },
+        secondary: order ? { label: 'Order another', onPress: order.onPress } : null,
+      }
+    }
+    return { status: null, primary: order, secondary: null }
+  }
+
+  const sheet = selected ? sheetActions(selected) : null
+
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
 
-      {/* ── Scrollable content ──
-          The navy hero block below is the FIRST CHILD of the ScrollView,
-          not a fixed sibling above it — same pattern as Campus Connect and
-          Lifestyle, the two screens that never showed this bug. Root cause
-          (confirmed by comparing every screen in this family): a fixed
-          sibling View above a flex:1 ScrollView, where that sibling's own
-          height depends on wrapped multi-line Text (heroSub here), needs a
-          real Yoga/Fabric text-measurement pass before its height is known.
-          On a genuine cold start under the New Architecture that pass can
-          resolve after the ScrollView sibling has already committed its
-          frame sized against the header's stale/interim height, so content
-          renders under or over the header — self-correcting on any later
-          layout pass (background/foreground), which is exactly the
-          previously-reported symptom. Three earlier attempts
-          (`style={{flex:1}}` on the ScrollView, then an extra wrapping View
-          around it) only ever touched the ScrollView side and left the
-          actual unreliable element — the header sibling's height — in
-          place, which is why the bug kept coming back. Making the header
-          scroll with the page removes the fixed-sibling/flex-sizing
-          relationship entirely, so there is nothing left to race. */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Integrated header + hero (single navy block) ── */}
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
-          eyebrow="FOUNDATION BLUEPRINT"
-          title="Professional Documents"
-          subtitle="Built on real research into what Irish employers and ATS systems actually screen for, not a generic template. Every submission is checked by a real Campus Handler before it reaches you."
-          style={styles.heroBlock}
-          titleStyle={styles.heroTitle}
-        />
+        <PageTitle title="Foundation" subtitle="Your career documents, checked by a real person." />
 
         <View style={styles.content}>
-
-          {/* "Your Library" archive shelf — Evidence Bank + My Outputs
-              promoted up here, above everything else, instead of the
-              Evidence Bank banner being the only entry point further down. */}
-          <View style={styles.shelfRow}>
+          {/* Evidence Bank and Outputs, the two places your work is kept. */}
+          <View style={styles.topRow}>
             <TouchableOpacity
-              style={styles.shelfCard}
+              style={styles.topCard}
               activeOpacity={0.85}
               onPress={() => navigation.navigate('EvidenceBank')}
+              accessibilityRole="button"
+              accessibilityLabel="Evidence Bank"
             >
-              <View style={styles.shelfIcon}>
-                <Archive size={17} color={colors.navy} strokeWidth={1.7} />
+              <View style={styles.topIcon}>
+                <Archive size={20} color={colors.textPrimary} strokeWidth={1.7} />
               </View>
-              <Text style={styles.shelfTitle}>Evidence Bank</Text>
-              <Text style={styles.shelfSub}>Your STAR stories, archived</Text>
+              <Text style={styles.topTitle}>Evidence Bank</Text>
+              <Text style={styles.topSub}>Your saved evidence</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.shelfCard}
+              style={styles.topCard}
               activeOpacity={0.85}
               onPress={() => navigation.navigate('MyOutputs')}
+              accessibilityRole="button"
+              accessibilityLabel="Outputs"
             >
-              <View style={styles.shelfIcon}>
-                <FolderOpen size={17} color={colors.navy} strokeWidth={1.7} />
+              <View style={styles.topIcon}>
+                <FolderOpen size={20} color={colors.textPrimary} strokeWidth={1.7} />
               </View>
-              <Text style={styles.shelfTitle}>My Outputs</Text>
-              <Text style={styles.shelfSub}>Everything delivered to you</Text>
+              <Text style={styles.topTitle}>Outputs</Text>
+              <Text style={styles.topSub}>Finished documents</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Service tiers — the decision every request starts with, so it
-              now leads the page instead of surfacing after several sections
-              of supporting context. */}
-          <View style={styles.tierBanner}>
-            <View style={styles.tierBannerHeader}>
-              <Text style={styles.tierBannerTitle}>Choose your turnaround</Text>
-            </View>
-            <View style={styles.tierRow}>
-              <View style={styles.tierBox}>
-                <Text style={styles.tierLabel}>Standard</Text>
-                <Text style={styles.tierValue}>48hr</Text>
-                <Text style={styles.tierSub}>Full Campus Handler review</Text>
-              </View>
-              <View style={styles.tierSep} />
-              <View style={styles.tierBox}>
-                <View style={styles.tierPremiumLabelRow}>
-                  <Zap size={11} color={colors.gold} fill={colors.gold} />
-                  <Text style={styles.tierLabel}>Premium</Text>
-                </View>
-                <Text style={styles.tierValue}>{isWeekendWindow ? 'Monday' : 'Same day'}</Text>
-                <Text style={styles.tierSub}>Priority + revisions included</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Consolidated trust section — what used to be a 4-card stats
-              grid plus a separate "why us" card, now one compact block. */}
-          <Card style={styles.trustCard}>
-            {TRUST_POINTS.map(({ icon: Icon, title, line }, i) => (
-              <View key={title} style={[styles.trustRow, i > 0 && styles.trustRowBorder]}>
-                <View style={styles.trustIconWrap}>
-                  <Icon size={17} color={colors.textPrimary} strokeWidth={2} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.trustTitle}>{title}</Text>
-                  <Text style={styles.trustLine}>{line}</Text>
-                </View>
-              </View>
+          {/* The Foundation Blueprints: one sealed envelope per service. */}
+          <Text style={styles.sectionTitle}>Foundation Blueprints</Text>
+          <Text style={styles.sectionSub}>Tap an envelope to open it.</Text>
+          <View style={styles.grid} onLayout={e => setGridWidth(e.nativeEvent.layout.width)}>
+            {orderedCareerServices.map(service => (
+              <EnvelopeTile
+                key={service.title}
+                title={service.title}
+                Icon={service.icon}
+                status={progressFor(service.title).status}
+                width={tileWidth}
+                onPress={() => setSelected(service)}
+                colors={colors}
+                isDark={isDark}
+              />
             ))}
-          </Card>
-
-          {/* Entry point for the shared evidence bank — Application Form
-              Assistance requires at least one story, and Interview
-              Preparation uses it too, so it's surfaced right before the
-              service list rather than only discovered mid-form. */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('EvidenceBank')}
-            style={styles.evidenceBankBanner}
-            accessibilityRole="button"
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.evidenceBankTitle}>Your Evidence Bank</Text>
-              <Text style={styles.evidenceBankSubtitle}>Save your best real-life examples once, in STAR format — Application Form Assistance and Interview Prep both pull answers straight from them instead of starting blank</Text>
-            </View>
-            <ChevronRight size={20} color={colors.textPrimary} />
-          </TouchableOpacity>
-
-          {/* Entry point for Career Readiness — the gamified, all-8-builders
-              progress view (rings + XP). Surfaced here, right beside the
-              Evidence Bank entry, since this is the one screen every
-              Foundation Blueprint builder feeds into. */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('CareerReadiness')}
-            style={styles.readinessBanner}
-            accessibilityRole="button"
-          >
-            <View style={styles.readinessIconWrap}>
-              <Target size={18} color={colors.accentFg} strokeWidth={2} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.readinessTitle}>Career Readiness</Text>
-              <Text style={styles.readinessSubtitle}>See your progress across all 8 builders as rings and XP — start one, finish one, watch it fill in.</Text>
-            </View>
-            <ChevronRight size={20} color={colors.accentFg} />
-          </TouchableOpacity>
-
-          {/* Entry point for the Application Tracker — placed right beside
-              My Outputs' own entry points (Home dashboard, Career
-              Readiness) rather than as a new top-level nav section. Unlike
-              a generic to-do list, a tracked application can link straight
-              to the exact delivered document (CV, cover letter, etc.) from
-              My Outputs that was actually used for it. */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('ApplicationTracker')}
-            style={styles.evidenceBankBanner}
-            accessibilityRole="button"
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.evidenceBankTitle}>Application Tracker</Text>
-              <Text style={styles.evidenceBankSubtitle}>Track every application you've sent, link it to the document you used, and get a reminder before each deadline</Text>
-            </View>
-            <ChevronRight size={20} color={colors.textPrimary} />
-          </TouchableOpacity>
-
-          {/* ── The Index — file cards, one per service, each a small
-              folder-tab index number + stacked-paper shadow + both real
-              price tiers shown side by side. Tap to expand the full
-              description and order CTA — same data and order flow as
-              before, just presented as an archive of files rather than a
-              plain list. ── */}
-          <View style={styles.indexLabelWrap}>
-            <Text style={styles.servicesSubHeader}>The Index</Text>
-            <Text style={styles.indexHeadline}>Eight services, one library</Text>
           </View>
-          <View style={{ gap: 22 }}>
-            {orderedCareerServices.map(({ icon: Icon, title, tagline, description, priceStd, pricePrem, color }, i) => {
-              const expanded = selected === title
-              const rotation = i % 2 === 0 ? (i % 4 === 0 ? 1.1 : 0.9) : (i % 4 === 1 ? -1 : -1.2)
-              return (
-                <TouchableOpacity
-                  key={title}
-                  activeOpacity={0.9}
-                  onPress={() => setSelected(expanded ? null : title)}
-                >
-                  <View style={styles.fileCardWrap}>
-                    {/* Stacked-paper shadow card behind the real one */}
-                    <View style={[styles.fileCardBehind, { transform: [{ rotate: `${rotation}deg` }] }]} />
-                    <View style={[styles.fileCard, expanded && styles.fileCardActive]}>
-                      <View style={styles.fileTab}>
-                        <Text style={styles.fileTabText}>N°{String(i + 1).padStart(2, '0')}</Text>
-                      </View>
+          <Text style={styles.note}>Every document is checked by a real Campus Handler before it reaches you.</Text>
 
-                      <View style={styles.fileHeadRow}>
-                        <View style={[styles.serviceIcon, { backgroundColor: color }]}>
-                          <Icon size={18} color={colors.navy} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.fileTitle}>{title}</Text>
-                          {tagline ? <Text style={styles.fileTagline}>{tagline}</Text> : null}
-                        </View>
-                        <ChevronRight
-                          size={15} color={colors.light}
-                          style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
-                        />
-                      </View>
-
-                      {/* Both tiers, always visible, side by side — hidden
-                          on iOS along with the expanded pricing below, same
-                          3.1.1/3.1.3 reasoning as before. */}
-                      {!IS_IOS && (
-                        <View style={styles.fileTierRow}>
-                          <View style={styles.tierTile}>
-                            <Text style={styles.tierPrice}>{priceStd}</Text>
-                            <Text style={styles.tierLabel}>Standard</Text>
-                          </View>
-                          <View style={[styles.tierTile, styles.tierTilePremium]}>
-                            <Text style={[styles.tierPrice, styles.tierPricePremium]}>{pricePrem}</Text>
-                            <Text style={[styles.tierLabel, styles.tierLabelPremium]}>Premium</Text>
-                          </View>
-                        </View>
-                      )}
-
-                      {expanded && (
-                        <View style={styles.serviceExpanded}>
-                          <Text style={styles.serviceDesc}>{description}</Text>
-                          {IS_IOS ? (
-                            // No price, no "Order" CTA, no in-app submit path —
-                            // just a neutral pointer to the website, same as
-                            // PricingScreen's iosManageNote. Not a tappable
-                            // Linking.openURL either, deliberately: this is a
-                            // paid digital document, so we stay on the
-                            // conservative side of 3.1.1/3.1.3 rather than
-                            // offer anything that reads as an external purchase
-                            // link from inside the purchase flow itself.
-                            <Text style={styles.iosOrderNote}>
-                              {title} is ordered and paid for on uniblueprint.ie, not in the app.
-                            </Text>
-                          ) : (
-                            <>
-                          <View style={styles.pricingRow}>
-                            <View style={styles.priceBox}>
-                              <Text style={styles.priceBoxLabel}>Standard</Text>
-                              <Text style={styles.priceTrial}>{priceStd}</Text>
-                              <Text style={styles.priceBoxSub}>Core service · 48hr</Text>
-                            </View>
-                            <View style={[styles.priceBox, styles.priceBoxPremium]}>
-                              <Text style={[styles.priceBoxLabel, { color: colors.accentFg }]}>Premium</Text>
-                              <Text style={[styles.priceTrial, { color: colors.accentFg }]}>{pricePrem}</Text>
-                              <Text style={[styles.priceBoxSub, { color: 'rgba(245,240,232,0.6)' }]}>
-                                {isWeekendWindow ? 'Priority + revisions, delivered by end of day Monday' : 'Priority + revisions · Same day'}
-                              </Text>
-                            </View>
-                          </View>
-                          <TouchableOpacity
-                            style={styles.orderBtn}
-                            activeOpacity={0.8}
-                            onPress={() => {
-                              // All 8 Foundation Blueprint services now have a real
-                              // in-app intake, on the CV Optimisation reference
-                              // pattern (QuestionFlow + Edge Function + Campus
-                              // Handler review). Mailto is kept only as a fallback
-                              // for any future service added before its builder
-                              // screen exists.
-                              const BUILDER_SCREEN_BY_TITLE = {
-                                'CV Optimisation': 'CvBuilder',
-                                'LinkedIn Optimisation': 'LinkedinBuilder',
-                                'Cover Letter Assistance': 'CoverLetterBuilder',
-                                'Application Form Assistance': 'ApplicationFormBuilder',
-                                'Interview Preparation': 'InterviewPrepBuilder',
-                                'Personal Statement': 'PersonalStatementBuilder',
-                                'Portfolio Building': 'PortfolioPlanBuilder',
-                                'Job Search Support': 'JobSearchSupportBuilder',
-                              }
-                              const builderScreen = BUILDER_SCREEN_BY_TITLE[title]
-                              if (builderScreen) {
-                                navigation.navigate(builderScreen)
-                                return
-                              }
-                              Linking.openURL(`mailto:orders@uniblueprint.ie?subject=${encodeURIComponent(`Order request: ${title}`)}&body=${encodeURIComponent(`Hi UniBlueprint,\n\nI'd like to order: ${title}\n\nHere's a bit about what I need:\n`)}`)
-                            }}
-                          >
-                            <Text style={styles.orderBtnText}>Order {title} →</Text>
-                          </TouchableOpacity>
-                            </>
-                          )}
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )
-            })}
+          {/* Also in Foundation */}
+          <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>Keep going</Text>
+          <View style={styles.list}>
+            <TouchableOpacity style={styles.rowCard} activeOpacity={0.85} onPress={() => navigation.navigate('CareerReadiness')} accessibilityRole="button">
+              <View style={styles.rowIcon}><Target size={18} color={colors.textPrimary} strokeWidth={1.8} /></View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Career Readiness</Text>
+                <Text style={styles.rowSub}>See your progress across all eight Blueprints.</Text>
+              </View>
+              <ChevronRight size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rowCard} activeOpacity={0.85} onPress={() => navigation.navigate('ApplicationTracker')} accessibilityRole="button">
+              <View style={styles.rowIcon}><ClipboardList size={18} color={colors.textPrimary} strokeWidth={1.8} /></View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Application Tracker</Text>
+                <Text style={styles.rowSub}>Track what you have sent.</Text>
+              </View>
+              <ChevronRight size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
           </View>
 
-          {/* ── Reference Desk — same premium file-card treatment as the
-              index above (white card, border, shadow, icon tile), not the
-              old muted/flat tool-row list. Course Compass opens in-app,
-              branded in CourseCompass's own identity; the rest hand off to
-              coursecompass.ie directly. ── */}
-          <View style={[styles.indexLabelWrap, { marginTop: spacing.xl }]}>
-            <Text style={styles.servicesSubHeader}>The Reference Desk</Text>
-            <Text style={styles.indexHeadline}>Powered by our partner, CourseCompass</Text>
-          </View>
-          <View style={{ gap: 10 }}>
+          {/* Reference Desk. Course Compass opens in-app, branded in
+              CourseCompass's own identity; the rest hand off to
+              coursecompass.ie directly. */}
+          <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>Reference Desk</Text>
+          <Text style={styles.sectionSub}>Powered by our partner, CourseCompass</Text>
+          <View style={styles.list}>
             {CC_TOOLS.map(({ name, icon: Icon, url, desc, screen }) => (
               <TouchableOpacity
                 key={name}
-                style={styles.deskCard}
+                style={styles.rowCard}
                 activeOpacity={0.85}
                 onPress={() => (screen ? navigation.navigate(screen) : Linking.openURL(url))}
+                accessibilityRole="button"
               >
-                <View style={styles.deskIcon}>
-                  <Icon size={18} color={colors.navy} strokeWidth={1.7} />
-                </View>
-                <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={styles.deskTitle}>{name}</Text>
-                  <Text style={styles.deskSub} numberOfLines={1}>{desc}</Text>
+                <View style={styles.rowIcon}><Icon size={18} color={colors.textPrimary} strokeWidth={1.7} /></View>
+                <View style={styles.rowText}>
+                  <Text style={styles.rowTitle}>{name}</Text>
+                  <Text style={styles.rowSub} numberOfLines={1}>{desc}</Text>
                 </View>
                 {screen
-                  ? <ChevronRight size={15} color={colors.navy} strokeWidth={2} />
-                  : <ExternalLink size={13} color={colors.muted} />}
+                  ? <ChevronRight size={16} color={colors.textSecondary} />
+                  : <ExternalLink size={14} color={colors.textSecondary} />}
               </TouchableOpacity>
             ))}
           </View>
 
-
-          {/* Fallback contact — each service above already has its own
-              Order button, so this is deliberately secondary now: it's
-              for anything not covered by the list, not the main CTA. */}
+          {/* Fallback contact for anything the services above do not cover. */}
           <TouchableOpacity
-            style={styles.secondaryBtn}
-            activeOpacity={0.8}
+            style={styles.contact}
+            activeOpacity={0.7}
             onPress={() => Linking.openURL('mailto:support@uniblueprint.ie?subject=' + encodeURIComponent('Foundation Blueprint request'))}
+            accessibilityRole="button"
           >
-            <Text style={styles.secondaryBtnText}>Something else in mind? Get in touch</Text>
+            <Text style={styles.contactText}>Something else in mind? Get in touch</Text>
           </TouchableOpacity>
-
         </View>
       </ScrollView>
+
+      {selected ? (
+        <EnvelopeSheet
+          key={selected.title}
+          service={{ ...selected, Icon: selected.icon }}
+          status={sheet.status}
+          isIOS={IS_IOS}
+          weekend={isWeekendWindow}
+          primary={sheet.primary}
+          secondary={sheet.secondary}
+          onClose={() => setSelected(null)}
+          colors={colors}
+          isDark={isDark}
+        />
+      ) : null}
     </View>
   )
 }
@@ -533,153 +399,42 @@ export default function FoundationScreen({ navigation }) {
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
+    screen: { flex: 1, backgroundColor: colors.background },
+    scrollView: { flex: 1 },
+    content: { paddingHorizontal: 16, paddingTop: spacing.md },
 
-  // Integrated header + hero
-  heroBlock: {
-    backgroundColor: colors.chromeBg,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl + spacing.sm,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 6, marginBottom: 10 },
+    topRow: { flexDirection: 'row', gap: 12 },
+    topCard: {
+      flex: 1, minHeight: 136, backgroundColor: colors.surface, borderRadius: 16, padding: 16,
+      borderWidth: 1, borderColor: colors.border, justifyContent: 'flex-end',
+    },
+    topIcon: {
+      position: 'absolute', top: 16, left: 16, width: 38, height: 38, borderRadius: 12,
+      backgroundColor: colors.tabFill, alignItems: 'center', justifyContent: 'center',
+    },
+    topTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
+    topSub: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textSecondary, marginTop: 3 },
 
-  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
-  // fills the space below the fixed navy header on every platform — without
-  // it, RN can size the ScrollView to its own content instead of the
-  // available viewport, which is what let the header float over content.
-  scrollView: { flex: 1 },
-  scroll:   { },
-  content:  { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
+    sectionTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, marginTop: spacing.xl },
+    sectionSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.textSecondary, marginTop: 4, marginBottom: 2 },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP, marginTop: spacing.md },
+    note: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 18, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.lg, paddingHorizontal: 12 },
 
-  // Service tier banner — moved to the top of the page (previously a plain
-  // pill row that appeared after a full stats grid). Same navy block
-  // language as the hero and the Course Compass "visit" button.
-  tierBanner: {
-    backgroundColor: colors.chromeBg, borderRadius: radius.card,
-    padding: 18, marginBottom: 14, ...shadows.card,
-  },
-  tierBannerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  tierBannerTitle:  { fontFamily: fonts.serif, fontSize: 17, color: colors.chromeFg },
-  tierRow:  { flexDirection: 'row', alignItems: 'stretch' },
-  tierBox:  { flex: 1, alignItems: 'center' },
-  tierPremiumLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  tierLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.55)', textTransform: 'uppercase', letterSpacing: 0.8 },
-  tierValue: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, marginTop: 5 },
-  tierSub:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.55)', marginTop: 4, textAlign: 'center', lineHeight: 15 },
-  tierSep:   { width: 1, alignSelf: 'stretch', backgroundColor: 'rgba(245,240,232,0.18)', marginHorizontal: 10 },
+    list: { gap: 10, marginTop: spacing.md },
+    rowCard: {
+      flexDirection: 'row', alignItems: 'center', gap: 12,
+      backgroundColor: colors.surface, borderRadius: 14, padding: 14,
+      borderWidth: 1, borderColor: colors.border,
+    },
+    rowIcon: {
+      width: 38, height: 38, borderRadius: 12, backgroundColor: colors.tabFill,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    rowText: { flex: 1, minWidth: 0 },
+    rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary },
+    rowSub: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 17, color: colors.textSecondary, marginTop: 2 },
 
-  // Consolidated trust section — replaces what used to be a 4-card stats
-  // grid plus a separate "why us" card.
-  trustCard: { marginBottom: spacing.sm, padding: 6 },
-  trustRow:  { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 12, paddingHorizontal: 8 },
-  trustRowBorder: { borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
-  trustIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  trustTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
-  trustLine:  { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 },
-
-  servicesSubHeader: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: spacing.lg, marginBottom: 3 },
-
-  evidenceBankBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, marginTop: spacing.sm,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  evidenceBankTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
-  evidenceBankSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
-
-  // Archive shelf — Evidence Bank + My Outputs
-  shelfRow: { flexDirection: 'row', gap: 12, marginBottom: 10 },
-  shelfCard: {
-    flex: 1, backgroundColor: colors.white, borderRadius: radius.card, padding: 16,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card,
-  },
-  shelfIcon: { width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  shelfTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.navy },
-  shelfSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 3, lineHeight: 15 },
-
-  readinessBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.accentBg, borderRadius: radius.card, padding: 16, marginTop: 12,
-  },
-  readinessIconWrap: {
-    width: 36, height: 36, borderRadius: radius.circle, backgroundColor: 'rgba(245,240,232,0.14)',
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-  },
-  readinessTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg },
-  readinessSubtitle: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(245,240,232,0.7)', marginTop: 3, lineHeight: 17 },
-
-  // "The Index" file cards — stacked-paper, folder-tab index number
-  indexLabelWrap: { marginBottom: 14 },
-  indexHeadline: { fontFamily: fonts.serif, fontSize: 18, color: colors.navy, marginTop: 1 },
-
-  fileCardWrap: { position: 'relative' },
-  fileCardBehind: {
-    position: 'absolute', top: 7, left: 8, right: -8, bottom: -7,
-    backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.06)',
-    borderRadius: radius.card,
-  },
-  fileCard: {
-    position: 'relative', backgroundColor: colors.white,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', borderRadius: radius.card,
-    padding: 16, paddingTop: 18, ...shadows.card,
-  },
-  fileCardActive: { borderWidth: 1.5, borderColor: colors.navy },
-  fileTab: {
-    position: 'absolute', top: -9, left: 16,
-    backgroundColor: colors.navy, borderRadius: 5,
-    paddingHorizontal: 9, paddingVertical: 3,
-  },
-  fileTabText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.cream, letterSpacing: 0.4 },
-  fileHeadRow:       { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: 6 },
-  serviceIcon:       { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  fileTitle:         { fontFamily: fonts.serif, fontSize: 17, color: colors.navy },
-  fileTagline:       { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
-
-  // Side-by-side price tiles — always visible, not stacked/expanded-only
-  fileTierRow: { flexDirection: 'row', gap: 8, marginTop: 14 },
-  tierTile: { flex: 1, backgroundColor: colors.cream, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center' },
-  tierTilePremium: { backgroundColor: 'rgba(201,162,75,0.12)', borderWidth: 1, borderColor: 'rgba(201,162,75,0.4)' },
-  tierPrice: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.navy },
-  tierPricePremium: { color: '#A5813B' },
-  tierLabel: { fontFamily: fonts.sansSemiBold, fontSize: 8.5, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 },
-  tierLabelPremium: { color: '#A5813B' },
-
-  serviceExpanded:   { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
-  serviceDesc:       { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginBottom: 14 },
-  // iOS-only neutral status copy in place of price + Order CTA — same
-  // non-tappable styling family as PricingScreen's iosManageNote.
-  iosOrderNote:      { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.muted, textAlign: 'center', paddingVertical: 4 },
-
-  pricingRow:      { flexDirection: 'row', gap: 10 },
-  priceBox:        { flex: 1, backgroundColor: colors.background, borderRadius: radius.button, padding: 14, alignItems: 'center' },
-  priceBoxPremium: { backgroundColor: colors.accentBg },
-  priceBoxLabel:   { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  priceTrial:      { fontFamily: fonts.serif, fontSize: 22, color: colors.textPrimary },
-  priceBoxSub:     { fontFamily: fonts.sans, fontSize: 10, color: colors.muted, marginTop: 4, textAlign: 'center' },
-
-  // One consistent CTA across all 8 service cards — same height, radius,
-  // weight and shadow regardless of which service it's for.
-  orderBtn:     { backgroundColor: colors.accentBg, borderRadius: radius.button, height: 46, alignItems: 'center', justifyContent: 'center', marginTop: 12, ...shadows.card },
-  orderBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.accentFg, letterSpacing: 0.2 },
-
-  // Reference Desk — same premium card treatment as the file index above
-  deskCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.white, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    borderRadius: radius.card, padding: 14, ...shadows.card,
-  },
-  deskIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  deskTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.navy },
-  deskSub: { fontFamily: fonts.sans, fontSize: 10.5, color: colors.muted, marginTop: 1 },
-
-  // Deliberately secondary — every service card above already has its own
-  // Order button, so this fallback contact no longer needs to read as the
-  // page's primary action.
-  secondaryBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: colors.surface, borderRadius: radius.button, height: 50,
-    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)', marginTop: spacing.lg,
-  },
-  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+    contact: { alignItems: 'center', paddingVertical: spacing.lg, marginTop: spacing.sm },
+    contactText: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textSecondary },
   })
 }
