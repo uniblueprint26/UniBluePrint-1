@@ -61,43 +61,43 @@ import {
 // note further down for why that distinction now matters more, not less.
 const PATH_CONTENT = {
   [USER_TYPE_STUDENT]: {
-    banner: "Course Connect is built around your course and college — boards, notes, and tools all scoped to what you're studying.",
-    sub: 'Notes, study groups, exam resources, and course tools, built around your course and your college.',
-    academicEyebrow: 'ACADEMIC SUPPORT',
-    academicTitle: 'Built for how you actually study',
-    toolsSub: 'Practical tools and relevant notes for your course.',
+    banner: 'Course Connect is the course of life: a nationwide network of people on the same journey, getting better together.',
+    sub: 'Meet people across Ireland on the same journey as you. Share notes, study together, and get started with confidence.',
+    academicEyebrow: 'STUDY SUPPORT',
+    academicTitle: 'Built for studying and getting started',
+    toolsSub: 'Practical tools and shared notes to help you get started.',
   },
   [USER_TYPE_APPRENTICE]: {
-    banner: 'As an Apprentice, the boards and tools below adapt to your trade and training provider, not just to college courses.',
-    sub: 'Discussion boards, shared resources, and a network of people on the same trade, apprentice to apprentice, not bolted onto a college portal.',
-    academicEyebrow: 'COURSE & TRADE SUPPORT',
-    academicTitle: 'Built for how you actually train',
-    toolsSub: "Practical tools and peer resources for your apprenticeship, whatever stage you're at.",
+    banner: "As an apprentice, you're on the same course as everyone here: learning your trade and working toward a common goal.",
+    sub: 'Meet apprentices and tradespeople across Ireland learning on the job and working toward the same goal. Ask, share, and get better together.',
+    academicEyebrow: 'TRADE SUPPORT',
+    academicTitle: 'Built for learning the trade',
+    toolsSub: "Practical tools and peer advice for learning on the job, whatever stage you're at.",
   },
   [USER_TYPE_GAP_YEAR]: {
-    banner: 'On a Gap Year, Course Connect shows you what every path actually looks like, from people already on college, trade, and work routes.',
-    sub: 'Weighing up college, an apprenticeship, or work? Talk to people already on every path before you commit to yours.',
+    banner: 'On a gap year, Course Connect shows you where every path leads, from people already studying, training, and working.',
+    sub: 'Working out what comes next? Talk to people already on every path across Ireland, all heading toward something better.',
     academicEyebrow: 'SUPPORT FOR YOUR NEXT STEP',
-    academicTitle: 'Built for wherever you land next',
+    academicTitle: 'Built for your next step',
     toolsSub: 'Tools and resources that work whichever way you end up going next.',
   },
   [USER_TYPE_WORKER]: {
-    banner: 'As a Worker, Industry Discussions and the career-facing boards below are built for you, not just people still in college.',
-    sub: 'Industry discussions, career chats, and a peer network for young people in work, not just people still in college.',
-    academicEyebrow: 'CAREER SUPPORT',
-    academicTitle: 'Built for how you actually work',
-    toolsSub: "Practical tools and peer resources, useful whether you're studying part-time or just in the field.",
+    banner: 'As a worker, Course Connect connects you with people across Ireland working to progress and get better, wherever you are.',
+    sub: 'Industry discussions, career chats, and a peer network for people in work, all moving forward together.',
+    academicEyebrow: 'WORK SUPPORT',
+    academicTitle: 'Built for working and moving up',
+    toolsSub: 'Practical tools and peer advice for getting ahead at work, whatever your industry.',
   },
   // Still in 5th/6th year: the decision ahead of them is which course, not
   // how to study on one yet. Framed around CAO research and hearing from
   // people already on a path, not "your course and your college" like
   // USER_TYPE_STUDENT above — they don't have either of those yet.
   [USER_TYPE_LEAVING_CERT]: {
-    banner: "Still deciding on a course? Course Connect lets you hear from current students, apprentices, and workers on the courses, trades, and jobs you're actually weighing up, before you apply.",
-    sub: "Researching your CAO choices? Talk to people already doing the course, trade, or job you're considering, and get a straight answer before you commit to it.",
-    academicEyebrow: 'CAO PREP',
-    academicTitle: 'Built for the decision ahead of you',
-    toolsSub: "Tools and resources to help you choose a course with your eyes open, not just a prospectus. Foundation Blueprint's Personal Statement service covers your CAO personal statement once you're ready to apply.",
+    banner: "Still deciding what's next? Course Connect lets you hear from students, apprentices, and workers already on the paths you're weighing up, before you choose.",
+    sub: "Thinking about what comes next? Talk to people already studying, training, or working in what you're considering, and get a straight answer first.",
+    academicEyebrow: 'NEXT STEPS',
+    academicTitle: 'Built for working out what is next',
+    toolsSub: "Tools and resources to help you choose your next step with your eyes open. Foundation Blueprint's Personal Statement service covers your CAO personal statement once you're ready to apply.",
   },
 }
 
@@ -116,7 +116,7 @@ const COURSE_FEATURES = [
   {
     key: 'course_boards', label: 'COURSE BOARDS', Icon: GraduationCap, color: '#EFF6FF',
     headline: 'Talk to everyone on your path',
-    sub: 'Discussion boards scoped to your course, programme, or workplace, not your campus — open to everyone on it, anywhere in Ireland.',
+    sub: 'Discussion boards scoped to your course, programme, or workplace, not your campus. Open to everyone on it, anywhere in Ireland.',
     count: 'Live now',
     preview: [
       { text: 'Computer Science, UCD · Anyone doing the optional AI module next year?', meta: 'CS' },
@@ -601,8 +601,8 @@ export default function CourseConnectScreen({ navigation }) {
               </Text>
               <Text style={styles.interestsBannerText}>
                 {interests.length
-                  ? `Matched on ${interests.slice(0, 3).join(', ')}${interests.length > 3 ? ', and more' : ''} — students, apprentices, gap year, and working people alike.`
-                  : "Add what you're into so we can connect you with people who share it, not just your course."}
+                  ? `Matched on ${interests.slice(0, 3).join(', ')}${interests.length > 3 ? ', and more' : ''}. Students, apprentices, gap year, and working people alike.`
+                  : "Add what you're into so we can connect you with people who share it, wherever they are."}
               </Text>
               <Text style={styles.interestsBannerChange}>
                 {interests.length ? 'Edit your interests →' : 'Add your interests →'}
@@ -661,7 +661,7 @@ export default function CourseConnectScreen({ navigation }) {
               <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.md }} />
             ) : popularNotes.length === 0 ? (
               <Text style={styles.popularEmptyText}>
-                No notes shared yet — be the first to upload one in Notes Exchange.
+                No notes shared yet. Be the first to upload one in Notes Exchange.
               </Text>
             ) : (
               <View style={{ gap: 10, marginTop: spacing.sm }}>
@@ -702,7 +702,7 @@ export default function CourseConnectScreen({ navigation }) {
               them — nothing here is grouped by user_type. ── */}
           <SectionHeader eyebrow="Popular Right Now" title="What's Busiest on Course Connect" style={{ marginTop: spacing.xl }} />
           <Text style={styles.popularIntro}>
-            Not sorted by stage or path — this is what people are actually posting about
+            Not sorted by stage or path. This is what people are actually posting about
             right now, across every course, trade, and workplace in Ireland. Ranked by
             real activity in the last {POPULARITY_WINDOW_DAYS} days.
           </Text>
@@ -727,7 +727,7 @@ export default function CourseConnectScreen({ navigation }) {
           {/* ── Course Discussions ── */}
           <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
           <MockContentBanner
-            title="Examples shown below — Module Q&A is live"
+            title="Examples shown below. Module Q&A is live"
             subtitle="These previews are illustrative. Tap through to ask a real question or browse live answers."
           />
           <View style={{ gap: 10 }}>
