@@ -1,19 +1,20 @@
 import {
-  GraduationCap, Calculator, CalendarX, Users, StickyNote, Handshake,
-  Tag, ShieldCheck, Leaf, MapPin, Lock, Bus, Search,
-  Wallet, Briefcase, Sparkles, Send,
-  CheckCheck, Trophy, Award,
-  Radio, Zap, LayoutGrid,
+  GraduationCap, Users, StickyNote,
+  Tag, ShieldCheck, Leaf, Search,
+  Wallet, Briefcase, CheckCheck,
 } from 'lucide-react-native'
 import { COURSE_COMPASS } from './partnerBrands'
 import { priorityChrome } from './priorityTheme'
 
-// The Explore catalog: one place that says what exists in the app (or is on
-// the way). Each row has a `status` of 'live' or 'soon'. Live rows either
-// open a route (`route`) or a generic list from the explore_content table
-// (`kind`, opened on the ExploreList screen). `unit` is the word shown next
-// to the item count when it is known ("24 listings"). `fromUbp` marks lists
-// UBP seeded itself.
+// The Explore catalog: one place that says what exists in the app. Every row
+// is live and opens something that works today, one of three ways:
+//   `kind`          a generic list from the explore_content table, opened on
+//                   the ExploreList screen
+//   `route`         a screen in the Home stack, with optional `params`
+//   `adBoardBasket` a basket of the Ad Board Marketplace ('tutors', 'jobs')
+// Nothing here is a placeholder: if a feature is not built, it is not listed.
+// `unit` is the word shown next to the item count when it is known
+// ("24 listings"). `fromUbp` marks lists UBP seeded itself.
 //
 // Budgeting uses gold because it is money; nothing else here does.
 
@@ -22,54 +23,35 @@ export const EXPLORE_GROUPS = [
     key: 'study',
     title: 'Study',
     rows: [
-      { key: 'scholarships', name: 'Scholarships', Icon: GraduationCap, status: 'live', kind: 'scholarships', fromUbp: true, unit: ['listing', 'listings'] },
-      { key: 'grade-calculator', name: 'Grade calculator', Icon: Calculator, status: 'soon' },
-      { key: 'exam-clash', name: 'Exam clash checker', Icon: CalendarX, status: 'soon' },
-      { key: 'peer-tutoring', name: 'Peer tutoring', Icon: Users, status: 'soon' },
-      { key: 'lecture-notes', name: 'Lecture notes', Icon: StickyNote, status: 'soon' },
-      { key: 'course-swap', name: 'Course swap', Icon: Handshake, status: 'soon' },
+      { key: 'scholarships', name: 'Scholarships', Icon: GraduationCap, kind: 'scholarships', fromUbp: true, unit: ['listing', 'listings'] },
+      { key: 'peer-tutoring', name: 'Peer tutoring', Icon: Users, adBoardBasket: 'tutors' },
+      { key: 'lecture-notes', name: 'Lecture notes', Icon: StickyNote, route: 'BoardDetail', params: { boardKey: 'notes', registry: 'course' } },
     ],
   },
   {
     key: 'campus-life',
     title: 'Campus life',
     rows: [
-      { key: 'discounts', name: 'Student discounts', Icon: Tag, status: 'live', kind: 'discounts', fromUbp: true, unit: ['offer', 'offers'] },
-      { key: 'support', name: 'Support services', Icon: ShieldCheck, status: 'live', kind: 'support', fromUbp: true, unit: ['service', 'services'] },
-      { key: 'societies', name: 'Societies directory', Icon: Users, status: 'live', kind: 'societies', fromUbp: true, unit: ['society', 'societies'] },
-      { key: 'volunteering', name: 'Volunteering', Icon: Leaf, status: 'live', kind: 'volunteering', fromUbp: true, unit: ['role', 'roles'] },
-      { key: 'busy-spots', name: 'Busy spots', Icon: MapPin, status: 'soon' },
-      { key: 'printers-lockers', name: 'Printers and lockers', Icon: Lock, status: 'soon' },
-      { key: 'night-bus', name: 'Night bus', Icon: Bus, status: 'soon' },
-      { key: 'lost-found', name: 'Lost and found', Icon: Search, status: 'soon' },
+      { key: 'discounts', name: 'Student discounts', Icon: Tag, kind: 'discounts', fromUbp: true, unit: ['offer', 'offers'] },
+      { key: 'support', name: 'Support services', Icon: ShieldCheck, kind: 'support', fromUbp: true, unit: ['service', 'services'] },
+      { key: 'societies', name: 'Societies directory', Icon: Users, kind: 'societies', fromUbp: true, unit: ['society', 'societies'] },
+      { key: 'volunteering', name: 'Volunteering', Icon: Leaf, kind: 'volunteering', fromUbp: true, unit: ['role', 'roles'] },
+      { key: 'lost-found', name: 'Lost and found', Icon: Search, route: 'BoardDetail', params: { boardKey: 'lost-found' } },
     ],
   },
   {
     key: 'money-career',
     title: 'Money and career',
     rows: [
-      { key: 'budgeting', name: 'Budgeting', Icon: Wallet, status: 'live', route: 'Budgeting', money: true },
-      { key: 'jobs-board', name: 'Jobs board', Icon: Briefcase, status: 'soon' },
-      { key: 'internships', name: 'Internships', Icon: Sparkles, status: 'soon' },
-      { key: 'split-bill', name: 'Split the bill', Icon: Send, status: 'soon' },
+      { key: 'budgeting', name: 'Budgeting', Icon: Wallet, route: 'Budgeting', money: true },
+      { key: 'jobs-board', name: 'Jobs board', Icon: Briefcase, adBoardBasket: 'jobs' },
     ],
   },
   {
     key: 'milestones',
     title: 'Milestones',
     rows: [
-      { key: 'freshers', name: 'Freshers guide', Icon: CheckCheck, status: 'live', kind: 'freshers', fromUbp: true, statusText: 'Checklist' },
-      { key: 'graduation', name: 'Graduation countdown', Icon: Trophy, status: 'soon' },
-      { key: 'alumni', name: 'Alumni', Icon: Award, status: 'soon' },
-    ],
-  },
-  {
-    key: 'fun',
-    title: 'Just for fun',
-    rows: [
-      { key: 'radio', name: 'Campus Radio', Icon: Radio, status: 'soon' },
-      { key: 'trivia', name: 'Trivia night', Icon: Zap, status: 'soon' },
-      { key: 'bingo', name: 'Campus Bingo', Icon: LayoutGrid, status: 'soon' },
+      { key: 'freshers', name: 'Freshers guide', Icon: CheckCheck, kind: 'freshers', fromUbp: true, statusText: 'Checklist' },
     ],
   },
 ]
@@ -88,7 +70,7 @@ export const EXPLORE_KINDS = {
 // Each partner wears its OWN brand, not UBP's: Course Compass uses the real
 // coursecompass.ie navy, sky and orange with Crimson Pro and Outfit
 // (constants/partnerBrands.js), Priority is black with a silver chrome serif
-// "P" (constants/priorityTheme.js), Kobo is dark teal with a mint "K".
+// "P" (constants/priorityTheme.js).
 // `mark` says how the tile is drawn, see components/explore/ExploreParts.jsx.
 export const PARTNERS = [
   {
@@ -107,13 +89,6 @@ export const PARTNERS = [
     bg: priorityChrome.black, fg: priorityChrome.fg, accent: priorityChrome.silver1,
     ctaBg: priorityChrome.silver1, ctaFg: priorityChrome.black, ring: priorityChrome.border,
     nameFont: 'DMSerifDisplay_400Regular', bodyFont: 'DMSans_400Regular', ctaFont: 'DMSans_600SemiBold',
-  },
-  {
-    key: 'kobo', name: 'Kobo', blurb: 'Send money home',
-    mark: 'K', action: { sheet: 'kobo' }, cta: 'Soon', soon: true,
-    bg: '#1B403C', fg: '#ABDFC7', accent: '#ABDFC7',
-    ctaBg: 'rgba(171,223,199,0.16)', ctaFg: '#ABDFC7',
-    soonText: 'Sending money home with Kobo is on its way. We will let you know when it is ready.',
   },
 ]
 

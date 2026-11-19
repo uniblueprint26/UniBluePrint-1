@@ -35,9 +35,8 @@ export function RowDivider({ inset = 64 }) {
 }
 
 // The partner tile in each partner's own look: Course Compass (navy tile, sky
-// compass), Priority (black circle, thin silver ring, italic silver serif P),
-// Kobo (dark teal, mint K). `partner` comes from PARTNERS in
-// constants/exploreCatalog.js.
+// compass), Priority (black circle, thin silver ring, italic silver serif P).
+// `partner` comes from PARTNERS in constants/exploreCatalog.js.
 export function PartnerMark({ partner, size = 44, bg }) {
   if (partner.mark === 'priority') {
     return (
@@ -92,7 +91,7 @@ export function PartnerCard({ partner: p, onPress }) {
       activeOpacity={0.88}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${p.name}. ${p.blurb}${p.soon ? '. Coming soon' : ''}`}
+      accessibilityLabel={`${p.name}. ${p.blurb}`}
       style={cardStyle}
     >
       {!!grad && (
@@ -107,7 +106,7 @@ export function PartnerCard({ partner: p, onPress }) {
         <PartnerMark partner={p} size={featured ? 52 : 44} bg={p.markBg} />
         <View style={[s.pCta, { backgroundColor: p.ctaBg }]}>
           <Text style={[s.pCtaText, { color: p.ctaFg, fontFamily: p.ctaFont || fonts.sansSemiBold }]}>{p.cta}</Text>
-          {!p.soon && <ChevronRight size={14} color={p.ctaFg} strokeWidth={2.4} />}
+          <ChevronRight size={14} color={p.ctaFg} strokeWidth={2.4} />
         </View>
       </View>
       <View style={{ flex: 1 }} />

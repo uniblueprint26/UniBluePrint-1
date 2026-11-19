@@ -3,7 +3,6 @@ import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet } from 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, ChevronRight, X } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
-import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import { SectionTitle, GroupCard, RowDivider, PartnerCard, pillarTone } from '../components/explore/ExploreParts'
 import { useSocieties } from '../components/explore/societies'
 import { PILLARS } from '../constants/pillars'
@@ -45,7 +44,6 @@ export default function ExploreScreen({ navigation }) {
   const pillarKeys = usePillarOrder()
   const societies = useSocieties()
   const [query, setQuery] = useState('')
-  const [sheet, setSheet] = useState(null)
 
   const q = query.trim().toLowerCase()
   const groups = useMemo(() => {
@@ -56,18 +54,23 @@ export default function ExploreScreen({ navigation }) {
   }, [q])
 
   function openRow(row) {
-    if (row.status === 'soon') {
-      setSheet({ name: row.name, soonText: `${row.name} is coming soon. We will let you know when it is ready.` })
-    } else if (row.kind) {
+    if (row.kind) {
       navigation.navigate('ExploreList', { kind: row.kind })
+    } else if (row.adBoardBasket) {
+      // The Ad Board is another tab. initial: false keeps its main page under
+      // the basket, so Back lands there and not on nothing.
+      navigation.getParent()?.navigate('AdBoard', {
+        screen: 'AdBoardBasket',
+        params: { basket: row.adBoardBasket },
+        initial: false,
+      })
     } else if (row.route) {
-      navigation.navigate(row.route)
+      navigation.navigate(row.route, row.params)
     }
   }
 
   function openPartner(p) {
-    if (p.action.route) navigation.navigate(p.action.route)
-    else setSheet({ name: p.name, soonText: p.soonText })
+    navigation.navigate(p.action.route)
   }
 
   return (
@@ -172,47 +175,31 @@ export default function ExploreScreen({ navigation }) {
           </View>
         )}
       </ScrollView>
-
-      <ComingSoonSheet
-        visible={!!sheet}
-        onClose={() => setSheet(null)}
-        title={sheet?.name || 'Coming soon'}
-        message={sheet?.soonText || ''}
-      />
     </View>
   )
 }
 
 function CatalogRow({ row, count, onPress }) {
   const { colors } = useTheme()
-  const soon = row.status === 'soon'
-  const iconColor = row.money ? GOLD : soon ? colors.textTertiary : colors.textPrimary
+  const iconColor = row.money ? GOLD : colors.textPrimary
   const tile = row.money ? 'rgba(180,146,58,0.16)' : colors.tabFill
-  const right = soon ? null : (row.statusText || countLabel(count, row.unit))
+  const right = row.statusText || countLabel(count, row.unit)
   return (
     <TouchableOpacity
-      activeOpacity={soon ? 0.7 : 0.75}
+      activeOpacity={0.75}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={soon ? `${row.name}, coming soon` : row.name}
+      accessibilityLabel={row.name}
       style={s.row}
     >
       <View style={[s.rowIcon, { backgroundColor: tile }]}>
         <row.Icon size={18} color={iconColor} strokeWidth={1.7} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={[s.rowName, { color: soon ? colors.textSecondary : colors.textPrimary, fontFamily: soon ? fonts.sansMedium : fonts.sansSemiBold }]} numberOfLines={1}>{row.name}</Text>
+        <Text style={[s.rowName, { color: colors.textPrimary, fontFamily: fonts.sansSemiBold }]} numberOfLines={1}>{row.name}</Text>
       </View>
-      {soon ? (
-        <View style={[s.soonTag, { backgroundColor: colors.tabFill }]}>
-          <Text style={[s.soonText, { color: colors.textSecondary }]}>SOON</Text>
-        </View>
-      ) : (
-        <>
-          {!!right && <Text style={[s.rowStatus, { color: colors.textSecondary }]}>{right}</Text>}
-          <ChevronRight size={18} color={colors.textTertiary} strokeWidth={1.8} />
-        </>
-      )}
+      {!!right && <Text style={[s.rowStatus, { color: colors.textSecondary }]}>{right}</Text>}
+      <ChevronRight size={18} color={colors.textTertiary} strokeWidth={1.8} />
     </TouchableOpacity>
   )
 }
@@ -290,8 +277,6 @@ const s = StyleSheet.create({
   prevTag: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, marginTop: 8 },
   prevTagText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5 },
   rowStatus: { fontFamily: fonts.sans, fontSize: 13 },
-  soonTag: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
-  soonText: { fontFamily: fonts.sansBold, fontSize: 10, letterSpacing: 0.8 },
 
   noMatch: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 },
   noMatchTitle: { fontFamily: fonts.serif, fontSize: 22 },
