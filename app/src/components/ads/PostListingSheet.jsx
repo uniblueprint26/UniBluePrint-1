@@ -3,6 +3,7 @@ import { X, GraduationCap, ShoppingBag, Briefcase, Megaphone } from 'lucide-reac
 import { fonts, shadows } from '../../constants/theme'
 import BasketShape from './BasketShape'
 import { useAdTokens } from './adTheme'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 // The "Post a listing" entry. Each basket opens the existing post flow for
 // that board (BoardDetail with openPostForm), so the same form, gate and paid
@@ -14,6 +15,13 @@ export const POST_OPTIONS = [
   { key: 'job',   Icon: Briefcase,     visual: 'job',   title: 'Job',               blurb: 'Part-time work, internships and more.', route: { boardKey: 'opportunities' } },
   { key: 'ad',    Icon: Megaphone,     visual: 'ad',    title: 'Advertise with us', blurb: 'A paid ad. Your first each month is free.', paid: true },
 ]
+
+// On iOS and Android (neutral billing) there is no talk of paid ads, and a skill
+// can only be asked for, not offered, because offering one is a paid listing.
+const NATIVE_BLURBS = {
+  tutor: 'Ask for help with a subject.',
+  ad: 'Tell students about your business. One free ad each month.',
+}
 
 export default function PostListingSheet({ visible, onClose, onPick, onCampusConnect }) {
   const t = useAdTokens()
@@ -41,7 +49,7 @@ export default function PostListingSheet({ visible, onClose, onPick, onCampusCon
                     visual={o.visual}
                     Icon={o.Icon}
                     title={o.title}
-                    line={o.blurb}
+                    line={NATIVE_NEUTRAL_BILLING && NATIVE_BLURBS[o.key] ? NATIVE_BLURBS[o.key] : o.blurb}
                     compact
                     onPress={() => onPick(o)}
                   />

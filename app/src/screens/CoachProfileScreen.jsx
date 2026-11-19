@@ -21,21 +21,21 @@ import SharePrompt from '../components/feed/SharePrompt'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { coachBookingUrl } from '../constants/site'
+import { NATIVE_NEUTRAL_BILLING, isRealWorldCoach } from '../constants/platformPolicy'
 import { useProAccess } from '../hooks/useProAccess'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { fetchActiveIntroCallOffer, introCallLabel } from '../lib/introCallOffers'
 import { formatEuro } from '../lib/coachPricing'
 
-// iOS: coaching sessions are a real-world service (App Store 3.1.3(e),
-// "goods and services outside the app"), not digital content — so "Book a
-// Coach" sends iOS users to the website's booking page (Linking.openURL)
-// instead of the in-app CoachBookingScreen flow. This is the opposite call
-// to Foundation Blueprint's (FoundationScreen.jsx/the builder screens,
-// which hide their purchase path entirely on iOS) because that's digital
-// content under 3.1.1 — same underlying rule, two different outcomes.
-// Android keeps the existing in-app flow unchanged; there's no Apple
-// constraint driving this on Android, and nothing about it is broken.
-const IS_IOS = Platform.OS === 'ios'
+// iOS and Android (neutral billing, see constants/platformPolicy.js): in
+// person coaching is a real-world service (App Store 3.1.3(e), "goods and
+// services outside the app"), not digital content, so "Book a Coach" sends the
+// person to the website's booking page (Linking.openURL) instead of the in-app
+// CoachBookingScreen flow. That is only done for coaches that are clearly
+// delivered in person (isRealWorldCoach). For online, digital or unclear
+// coaching there is no booking link and no price list on native, and the
+// person can still send a message. Web keeps the in-app booking flow.
+const NATIVE_BOOKING_LINK = NATIVE_NEUTRAL_BILLING
 
 // ── Photo gallery ────────────────────────────────────────────────────────────
 //
@@ -114,9 +114,11 @@ function ProBlurLock({ isPro, children, onUnlock, styles }) {
         <Text style={styles.lockBody}>
           Pro members see exact rates and book directly with every coach on Elevation.
         </Text>
-        <TouchableOpacity style={styles.lockCta} activeOpacity={0.85} onPress={onUnlock}>
-          <Text style={styles.lockCtaText}>Unlock with Elevation Pro</Text>
-        </TouchableOpacity>
+        {!NATIVE_NEUTRAL_BILLING && (
+          <TouchableOpacity style={styles.lockCta} activeOpacity={0.85} onPress={onUnlock}>
+            <Text style={styles.lockCtaText}>Unlock with Elevation Pro</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   )
@@ -538,6 +540,10 @@ export default function CoachProfileScreen({ route, navigation }) {
   // plus, when active, their own self-set intro call offer as one more row
   // — never replacing anything already there. A coach with no pricelist at
   // all but an active intro call still gets a (single-row) Pricing section.
+  // Neutral billing on iOS and Android: prices and the booking link are only
+  // shown for coaches that are clearly delivered in person.
+  const showPricing = !NATIVE_NEUTRAL_BILLING || isRealWorldCoach(coach)
+  const showBooking = showPricing
   const introRow = introOffer
     ? { label: introCallLabel(introOffer), price: introOffer.price_cents > 0 ? formatEuro(introOffer.price_cents) : 'Free' }
     : null
@@ -751,7 +757,7 @@ export default function CoachProfileScreen({ route, navigation }) {
             above) — fully visible to free users, but blurred with a lock
             overlay over the real numbers and the booking CTA; Pro members
             see it exactly as before, un-blurred. ── */}
-        {!coach.shell && displayPricelist && displayPricelist.length > 0 && (
+        {!coach.shell && displayPricelist && displayPricelist.length > 0 && showPricing && (
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Pricing &amp; Booking</Text>
             <ProBlurLock styles={styles} isPro={hasProAccess} onUnlock={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
@@ -783,7 +789,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         )}
 
         {/* ── Pricing note (no pricelist/intro call) ── */}
-        {!(displayPricelist && displayPricelist.length > 0) && coach.pricingNote && (
+        {!(displayPricelist && displayPricelist.length > 0) && coach.pricingNote && showPricing && (
           <View style={styles.section}>
             <View style={styles.noteCard}>
               <Text style={styles.noteText}>{coach.pricingNote}</Text>
@@ -915,19 +921,21 @@ export default function CoachProfileScreen({ route, navigation }) {
             regardless of whether they have a pricelist to gate. */}
         {!coach.shell && (
           <View style={{ gap: 10 }}>
-            <Button
-              label={IS_IOS ? 'Book a Coach on uniblueprint.ie' : 'Book a Coach'}
-              icon={IS_IOS ? ExternalLink : CalendarClock}
-              onPress={() => {
-                if (IS_IOS) {
-                  Linking.openURL(coachBookingUrl(coach))
-                  return
-                }
-                navigation.navigate('CoachBooking', { coach })
-              }}
-              variant="primary"
-              style={styles.ctaBtn}
-            />
+            {showBooking && (
+              <Button
+                label={NATIVE_BOOKING_LINK ? 'Book a Coach on uniblueprint.ie' : 'Book a Coach'}
+                icon={NATIVE_BOOKING_LINK ? ExternalLink : CalendarClock}
+                onPress={() => {
+                  if (NATIVE_BOOKING_LINK) {
+                    Linking.openURL(coachBookingUrl(coach))
+                    return
+                  }
+                  navigation.navigate('CoachBooking', { coach })
+                }}
+                variant="primary"
+                style={styles.ctaBtn}
+              />
+            )}
             <TouchableOpacity
               style={styles.ctaSecondaryBtn}
               activeOpacity={0.75}

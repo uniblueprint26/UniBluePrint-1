@@ -4,6 +4,7 @@ import { CreditCard, AlertCircle } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 // The real payment step for Foundation Blueprint (task #95), reused by all
 // 8 builder screens: `const checkoutRef = useRef(null)`, render
@@ -98,6 +99,12 @@ const FoundationCheckoutModal = forwardRef(function FoundationCheckoutModal(_pro
 
   async function run(params) {
     paramsRef.current = params
+    // Neutral billing: a store build never opens a payment page. This is a
+    // backstop, the screens that start a purchase are already hidden on native.
+    if (NATIVE_NEUTRAL_BILLING) {
+      setState(s => ({ ...s, visible: true, phase: 'error', error: 'This is not available in the app.' }))
+      return
+    }
     setState({ visible: true, phase: 'creating', error: null, amountCents: null })
     try {
       const { data, error } = await supabase.functions.invoke('create-foundation-checkout-session', {

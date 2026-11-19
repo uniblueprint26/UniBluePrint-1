@@ -25,11 +25,13 @@ import { COURSE_COMPASS } from '../constants/partnerBrands'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
-// iOS: no purchase CTAs or prices for the CourseCompass bundles (App Store
-// 3.1.1) — the bundles section is hidden entirely for v1 (D1). Web/Android
-// are unchanged, and the free/individual tool links below are unaffected.
-const IS_IOS = Platform.OS === 'ios'
+// iOS and Android (neutral billing): no purchase CTAs or prices for the
+// CourseCompass bundles (App Store 3.1.1, Google Play Billing), so the bundles
+// section is hidden entirely. Web is unchanged, and the free/individual tool
+// links below are unaffected. IS_IOS keeps its old name but now means neutral billing.
+const IS_IOS = NATIVE_NEUTRAL_BILLING
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 // All tool names, descriptions, and URLs verified against coursecompass.ie.

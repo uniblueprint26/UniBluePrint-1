@@ -21,6 +21,7 @@
 import { supabase } from './supabase'
 import { UBP_CARDS, UBP_PLACEMENTS, EXAMPLE_TUTORS, PLACEMENT_URL } from '../constants/adBoardContent'
 import { isFoundationEnabledNow } from '../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 export const AD_BOARD_KINDS = ['deals', 'jobs', 'tutors', 'marketplace']
 
@@ -316,7 +317,8 @@ export function ubpCardToItem(card) {
 export function ubpItems(starterFor) {
   const all = starterFor ? UBP_CARDS.filter(c => c.starterFor === starterFor) : UBP_CARDS
   // A card that opens Foundation is left out while Foundation is closed on iOS and Android.
-  const cards = isFoundationEnabledNow() ? all : all.filter(c => c.action?.route !== 'Foundation')
+  const cards = (isFoundationEnabledNow() ? all : all.filter(c => c.action?.route !== 'Foundation'))
+    .filter(c => !(NATIVE_NEUTRAL_BILLING && c.hideOnNeutralBilling))
   return cards.map(ubpCardToItem)
 }
 

@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { foundationHandoffUrl } from '../constants/site'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 // ─── Career Readiness ───────────────────────────────────────────────────────
 // Tracks real progress across the 8 Foundation Blueprint builders (CV,
@@ -217,9 +218,9 @@ export default function CareerReadinessScreen({ navigation }) {
   // plain same-stack navigations, not a cross-tab jump.
   function openBuilder(b) {
     if (b.status === 'not_started') {
-      // Foundation services are completed on the website. iOS keeps the
-      // in-app screen, which shows the neutral note (no link, App Store 3.1.1).
-      if (Platform.OS === 'ios') navigation.navigate(b.screen)
+      // Foundation services are completed on the website. iOS and Android keep the
+      // in-app screen, which shows the neutral note (no link, neutral billing).
+      if (NATIVE_NEUTRAL_BILLING) navigation.navigate(b.screen)
       else Linking.openURL(foundationHandoffUrl(b.fullLabel)).catch(() => {})
       return
     }
