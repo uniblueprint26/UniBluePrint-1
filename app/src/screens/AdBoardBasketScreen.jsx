@@ -18,6 +18,8 @@ import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import ListingCard from '../components/ads/ListingCard'
 import PinnedJobCard from '../components/ads/PinnedJobCard'
 import TrialHero from '../components/ads/TrialHero'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import Notice from '../components/ads/Notice'
 import useListingActions from '../components/ads/useListingActions'
 import { useAdTokens } from '../components/ads/adTheme'
@@ -29,6 +31,7 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
   const t = useAdTokens()
   const { colors } = t
   const insets = useSafeAreaInsets()
+  useFoundationEnabled() // re-render when the flag arrives, so From UBP cards are right
   const key = basketKey || route?.params?.basket || 'deals'
   const basket = BASKET_BY_KEY[key] || BASKET_BY_KEY.deals
 
@@ -70,7 +73,8 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
   let afterList = null
 
   if (key === 'deals') {
-    lead = <TrialHero />
+    // The trial banner shows Pro prices, so it is web only (neutral billing on iOS and Android).
+    lead = NATIVE_NEUTRAL_BILLING ? null : <TrialHero />
     tail = (
       <Notice Icon={Sparkles} title="More deals coming soon." sub="More Lifestyle partner offers will appear here." />
     )

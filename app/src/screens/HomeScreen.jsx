@@ -37,6 +37,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
+import { useBlockedIds } from '../lib/reporting'
 
 // How many posts a single feed page fetches — both the first load and every
 // onEndReached page after it. Real pagination via fetchFeedPage's `before`
@@ -357,9 +358,12 @@ export default function HomeScreen({ navigation }) {
 
   // Sections that sit after Posts are dropped into the feed after the first
   // few posts, so Your goals is never the first thing you see.
+  // People you have blocked never show up in the feed.
+  const blockedIds = useBlockedIds(user?.id)
   const feedRenderItems = useMemo(() => {
+    const notBlocked = p => !p?.user_id || !blockedIds.has(p.user_id)
     const base = postsOn
-      ? buildFeedRenderList(feedPosts, { buzzingHighlight, placement, suggestedProfiles })
+      ? buildFeedRenderList(feedPosts.filter(notBlocked), { buzzingHighlight: notBlocked(buzzingHighlight) ? buzzingHighlight : null, placement, suggestedProfiles })
       : []
     if (inlineKeys.length === 0) return base
     let seen = 0
@@ -369,7 +373,7 @@ export default function HomeScreen({ navigation }) {
     }
     const inline = inlineKeys.map(key => ({ kind: 'section', key: `section-${key}`, section: key }))
     return [...base.slice(0, at), ...inline, ...base.slice(at)]
-  }, [feedPosts, buzzingHighlight, placement, suggestedProfiles, postsOn, inlineKeys])
+  }, [feedPosts, buzzingHighlight, placement, suggestedProfiles, postsOn, inlineKeys, blockedIds])
 
   // Unread notification count for the bell badge, kept live via realtime so
   // it clears the moment a notification is read elsewhere and increments the

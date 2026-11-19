@@ -434,8 +434,8 @@ export function AuthProvider({ children }) {
   // Empty means the person hasn't set any yet.
   const interests = Array.isArray(profile?.interests) ? profile.interests : []
 
-  // Date of birth, collected at sign-up (SignUpScreen) and enforced 16+ at
-  // the database level (profiles_date_of_birth_age_gate migration). null
+  // Date of birth, collected at sign-up (SignUpScreen) and enforced 18+ at
+  // the database level (profiles_date_of_birth_age_gate and min_age_18 migrations). null
   // for any existing user created before this field existed, or anyone
   // who hasn't supplied one yet — prefer useInvestmentAccess() over reading
   // this directly, so "unknown" always fails closed rather than being

@@ -27,14 +27,16 @@ import Notice from '../components/ads/Notice'
 import useListingActions from '../components/ads/useListingActions'
 import AdBoardBasketScreen from './AdBoardBasketScreen'
 import { useAdTokens } from '../components/ads/adTheme'
-import { AD_BOARD_KINDS, fetchListings, fetchCurrentIssue } from '../lib/adBoard'
-import { BASKETS, UBP_CARDS, UBP_PLACEMENTS } from '../constants/adBoardContent'
+import { AD_BOARD_KINDS, fetchListings, fetchCurrentIssue, ubpItems } from '../lib/adBoard'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { BASKETS, UBP_PLACEMENTS } from '../constants/adBoardContent'
 import { fonts } from '../constants/theme'
 
 export default function AdBoardScreen({ navigation }) {
   const t = useAdTokens()
   const { colors, isDark } = t
   const insets = useSafeAreaInsets()
+  useFoundationEnabled() // re-render when the flag arrives, so the From UBP count is right
 
   const [counts, setCounts] = useState({})        // basket key -> number
   const [failed, setFailed] = useState(false)
@@ -76,7 +78,7 @@ export default function AdBoardScreen({ navigation }) {
   }
 
   function countLabel(b) {
-    if (b.key === 'ubp') return UBP_CARDS.length
+    if (b.key === 'ubp') return ubpItems().length
     // The pinned UBP internships are always in Jobs, so they always count.
     const pinned = b.key === 'jobs' ? UBP_PLACEMENTS.length : 0
     if (failed) return pinned || null

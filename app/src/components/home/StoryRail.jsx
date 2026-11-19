@@ -2,7 +2,8 @@ import { Wallet } from 'lucide-react-native'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
-import { PILLARS, PILLAR_ORDER } from '../../constants/pillars'
+import { PILLARS } from '../../constants/pillars'
+import { usePillarOrder } from '../../hooks/usePillarOrder'
 import { routeExists } from './routeExists'
 
 // The row of rings under the page title: your Live ring first, then Budget
@@ -31,8 +32,11 @@ const GAP = 4
 export default function StoryRail({ navigation, name }) {
   const { colors, isDark } = useTheme()
   const { width } = useWindowDimensions()
-  // Seven items: size them to fit, never narrower than 52 (the row then scrolls) or wider than 66.
-  const item = Math.max(52, Math.min(66, Math.floor((width - SIDE * 2 - GAP * 6) / 7)))
+  // Foundation is left out while it is closed on iOS and Android.
+  const pillarKeys = usePillarOrder(['compass'])
+  const count = pillarKeys.length + 2 // Live and Budget come first
+  // Size the items to fit, never narrower than 52 (the row then scrolls) or wider than 66.
+  const item = Math.max(52, Math.min(66, Math.floor((width - SIDE * 2 - GAP * (count - 1)) / count)))
   const ring = Math.min(62, item - 2)
   const s = getStyles(colors, item, ring)
   const initial = (name || 'You').trim().charAt(0).toUpperCase() || 'Y'
@@ -80,7 +84,7 @@ export default function StoryRail({ navigation, name }) {
         <Text style={s.label}>Budget</Text>
       </TouchableOpacity>
 
-      {PILLAR_ORDER.filter(k => k !== 'compass').map(key => {
+      {pillarKeys.map(key => {
         const p = PILLARS[key]
         const c = ringColor(p, colors, isDark)
         const Icon = p.Icon

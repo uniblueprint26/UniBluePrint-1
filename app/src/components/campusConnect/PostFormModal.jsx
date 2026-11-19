@@ -22,6 +22,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useProAccess } from '../../hooks/useProAccess'
 import { MARKETPLACE_SKILL_PRICE_CENTS, formatEuro } from '../../constants/boardListingPricing'
 import { confirmAsync } from '../../utils/confirmAlert'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -37,6 +38,9 @@ const DEFAULT_PAYMENT_GATES = {
     listingKind: 'marketplace_skill',
     priceCents: MARKETPLACE_SKILL_PRICE_CENTS,
     shouldCharge: v => v.listing_type === 'Offering a skill',
+    // Neutral billing: on iOS and Android a paid listing cannot be bought, so
+    // these options are not offered there. Free requests still can be posted.
+    nativeHiddenOptions: { listing_type: ['Offering a skill'] },
     confirmMessage: (amountCents, isPro) =>
       `Offering a skill costs ${formatEuro(amountCents)}${isPro ? ' (Pro rate)' : ''} to list. ("Looking for a skill" posts stay free.)`,
   },
@@ -183,9 +187,13 @@ export default function PostFormModal({
   const { user } = useAuth()
   const { isPro } = useProAccess()
   const checkoutRef = useRef(null)
-  const activeFields = fields || board?.fields || []
+  const baseFields = fields || board?.fields || []
   const table = tableOverride || board?.table
   const effectivePaymentGate = paymentGate || DEFAULT_PAYMENT_GATES[table] || null
+  const hiddenOptions = NATIVE_NEUTRAL_BILLING ? effectivePaymentGate?.nativeHiddenOptions : null
+  const activeFields = hiddenOptions
+    ? baseFields.map(fl => (hiddenOptions[fl.key] ? { ...fl, options: (fl.options || []).filter(o => !hiddenOptions[fl.key].includes(o)) } : fl))
+    : baseFields
 
   const initial = {}
   activeFields.forEach(field => {

@@ -19,6 +19,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useProAccess } from '../../hooks/useProAccess'
 import { AD_BOARD_PRICE_CENTS, formatEuro, ordinal } from '../../constants/boardListingPricing'
 import { confirmAsync } from '../../utils/confirmAlert'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 function __gs_BOARDS(colors) {
   return [
@@ -75,6 +76,13 @@ export default function PostAdModal({ visible, onClose }) {
         .eq('user_id', user.id)
         .gte('created_at', startOfMonth.toISOString())
       const nth = (count || 0) + 1
+
+      if (nth > 1 && NATIVE_NEUTRAL_BILLING) {
+        // Neutral billing: no price and no payment page on iOS and Android.
+        Alert.alert('Free ad used', 'You have used your free ad for this month. You can post another next month.')
+        setSubmitting(false)
+        return
+      }
 
       if (nth > 1) {
         const amountCents = isPro ? AD_BOARD_PRICE_CENTS.pro : AD_BOARD_PRICE_CENTS.free
@@ -186,8 +194,9 @@ export default function PostAdModal({ visible, onClose }) {
             </TouchableOpacity>
             <Text style={m.submitNote}>Ads are reviewed by the UniBlueprint team before going live. We'll be in touch within 24 hours.</Text>
             <Text style={m.submitNote}>
-              Your first ad each calendar month is free. After that it's {formatEuro(AD_BOARD_PRICE_CENTS.free)} per ad
-              ({formatEuro(AD_BOARD_PRICE_CENTS.pro)} for Pro).
+              {NATIVE_NEUTRAL_BILLING
+                ? 'You can post one free ad each calendar month.'
+                : `Your first ad each calendar month is free. After that it's ${formatEuro(AD_BOARD_PRICE_CENTS.free)} per ad (${formatEuro(AD_BOARD_PRICE_CENTS.pro)} for Pro).`}
             </Text>
           </ScrollView>
         </View>

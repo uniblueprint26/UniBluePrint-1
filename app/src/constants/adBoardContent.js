@@ -122,5 +122,6 @@ export const UBP_CARDS = [
     opens: 'Opens Post a listing',
     action: { type: 'post' },
     starterFor: 'marketplace',
+    hideOnNeutralBilling: true, // offering a skill is a paid listing
   },
 ]

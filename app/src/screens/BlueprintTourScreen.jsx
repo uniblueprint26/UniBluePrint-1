@@ -12,6 +12,8 @@ import {
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 // ── Static, representative content only ─────────────────────────────────────
 //
@@ -26,6 +28,9 @@ import { useAuth } from '../context/AuthContext'
 // account, so the tour renders identically for every account, empty or not,
 // online or off.
 
+// The first two tiles are Foundation. They are left out while Foundation is
+// closed on iOS and Android.
+const FOUNDATION_TILE_LABELS = ['Submit a Service', 'My Outputs']
 const SAMPLE_TILES = [
   { Icon: FileText,      label: 'Submit a Service', sub: 'Order a Foundation Blueprint service' },
   { Icon: CheckCircle,   label: 'My Outputs',       sub: 'Your completed documents' },
@@ -33,13 +38,14 @@ const SAMPLE_TILES = [
   { Icon: MessageSquare, label: 'Campus Board',     sub: 'See what campus is talking about' },
 ]
 
-function __gs_STEPS(colors) {
-  return [
+function __gs_STEPS(colors, foundationOpen) {
+  const tiles = foundationOpen ? SAMPLE_TILES : SAMPLE_TILES.filter(t => !FOUNDATION_TILE_LABELS.includes(t.label))
+  const all = [
   {
     key: 'welcome', accent: colors.navy, Icon: null,
     title: 'Welcome to UniBlueprint', tagline: null,
     body: "A quick, guided tour of everything UniBlueprint offers, using sample screens so nothing here depends on your account. It takes a couple of minutes, and shows you the whole app before you land on your real dashboard.",
-    mock: { kind: 'quickAccess', tiles: SAMPLE_TILES },
+    mock: { kind: 'quickAccess', tiles },
   },
   {
     key: 'foundation', accent: '#2563EB', Icon: FileText,
@@ -71,14 +77,16 @@ function __gs_STEPS(colors) {
   {
     key: 'elevation-detail', accent: '#16A34A', Icon: Compass,
     title: 'A coach profile, up close', tagline: 'Sample profile',
-    body: "Every coach page shows real pricing, a full bio, and their services, then two ways to reach them: book time directly, or send a quick message. Pricing and booking happen between you and the coach, not through UniBlueprint.",
+    body: NATIVE_NEUTRAL_BILLING
+      ? "Every coach page shows a full bio and their services, then a quick way to send them a message."
+      : "Every coach page shows real pricing, a full bio, and their services, then two ways to reach them: book time directly, or send a quick message. Pricing and booking happen between you and the coach, not through UniBlueprint.",
     mock: {
       kind: 'profile',
       name: 'Sample Coach',
       category: 'Personal Training',
-      price: 'From €45/session',
+      price: NATIVE_NEUTRAL_BILLING ? null : 'From €45/session',
       bio: "A short paragraph about the coach's training style and experience appears here, pulled from their real profile.",
-      ctaPrimary: 'Book a Coach',
+      ctaPrimary: NATIVE_NEUTRAL_BILLING ? null : 'Book a Coach',
       ctaSecondary: 'Send a Quick Message',
     },
   },
@@ -167,6 +175,7 @@ function __gs_STEPS(colors) {
     mock: null,
   },
   ]
+  return foundationOpen ? all : all.filter(st => !st.key.startsWith('foundation'))
 }
 
 export const TOUR_SEEN_KEY_PREFIX = 'btb_tour_seen_'
@@ -233,16 +242,20 @@ function ProfileMock({ name, category, price, bio, ctaPrimary, ctaSecondary, acc
             <Text style={mock.profileCategory}>{category}</Text>
           </View>
         </View>
-        <View style={mock.profilePriceChip}>
-          <Text style={mock.profilePriceText}>{price}</Text>
-        </View>
+        {!!price && (
+          <View style={mock.profilePriceChip}>
+            <Text style={mock.profilePriceText}>{price}</Text>
+          </View>
+        )}
       </View>
       <Text style={mock.profileBio} numberOfLines={3}>{bio}</Text>
       <View style={{ gap: 8, marginTop: 12 }}>
-        <View style={[mock.profileCtaPrimary, { backgroundColor: accent }]}>
-          <CalendarClock size={13} color={colors.white} strokeWidth={2} />
-          <Text style={mock.profileCtaPrimaryText}>{ctaPrimary}</Text>
-        </View>
+        {!!ctaPrimary && (
+          <View style={[mock.profileCtaPrimary, { backgroundColor: accent }]}>
+            <CalendarClock size={13} color={colors.white} strokeWidth={2} />
+            <Text style={mock.profileCtaPrimaryText}>{ctaPrimary}</Text>
+          </View>
+        )}
         <View style={mock.profileCtaSecondary}>
           <Send size={12} color={colors.textPrimary} strokeWidth={2} />
           <Text style={mock.profileCtaSecondaryText}>{ctaSecondary}</Text>
@@ -297,7 +310,8 @@ export default function BlueprintTourScreen({ mode = 'first-launch', onFinish })
   const { colors } = useTheme()
   const mock = __gs_mock(colors)
   const styles = __gs_styles(colors)
-  const STEPS = __gs_STEPS(colors)
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const STEPS = __gs_STEPS(colors, foundationOpen)
   const insets = useSafeAreaInsets()
   const { width } = useWindowDimensions()
   const { user } = useAuth()

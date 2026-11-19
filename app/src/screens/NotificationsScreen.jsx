@@ -13,6 +13,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 // ── Notification categories ─────────────────────────────────────────────────
 // public.notifications.category holds many fine-grained keys (welcome,
@@ -37,6 +38,14 @@ function getGroupConfig(colors) {
     financial: { label: 'FINANCIAL', Icon: Wallet,   color: GOLD,                 tile: 'rgba(180,146,58,0.16)' },
     system:    { label: 'SYSTEM',    Icon: Bell,     color: colors.textSecondary, tile: colors.tabFill },
   }
+}
+
+// Notifications that open Foundation. They are hidden while Foundation is
+// closed on iOS and Android.
+const FOUNDATION_CATEGORIES = new Set(['foundation_blueprint', 'job_application_reminder'])
+const FOUNDATION_ENTITIES = new Set(['submission', 'job_application'])
+function isFoundationNotification(n) {
+  return FOUNDATION_CATEGORIES.has(n.category) || FOUNDATION_ENTITIES.has(n.related_entity_type)
 }
 
 function groupOf(category) {
@@ -129,7 +138,12 @@ export default function NotificationsScreen({ navigation }) {
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
-  const [notifications, setNotifications] = useState([])
+  const [allNotifications, setNotifications] = useState([])
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const notifications = useMemo(
+    () => (foundationOpen ? allNotifications : allNotifications.filter(n => !isFoundationNotification(n))),
+    [allNotifications, foundationOpen],
+  )
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [liveSoon, setLiveSoon] = useState(false)

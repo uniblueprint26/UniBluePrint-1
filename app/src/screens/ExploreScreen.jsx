@@ -6,7 +6,8 @@ import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import { SectionTitle, GroupCard, RowDivider, PartnerCard, pillarTone } from '../components/explore/ExploreParts'
 import { useSocieties } from '../components/explore/societies'
-import { PILLARS, PILLAR_ORDER } from '../constants/pillars'
+import { PILLARS } from '../constants/pillars'
+import { usePillarOrder } from '../hooks/usePillarOrder'
 import { EXPLORE_GROUPS, PARTNERS, countLabel } from '../constants/exploreCatalog'
 import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -41,6 +42,7 @@ export default function ExploreScreen({ navigation }) {
   const { colors, isDark } = useTheme()
   const insets = useSafeAreaInsets()
   const counts = useKindCounts()
+  const pillarKeys = usePillarOrder()
   const societies = useSocieties()
   const [query, setQuery] = useState('')
   const [sheet, setSheet] = useState(null)
@@ -118,7 +120,7 @@ export default function ExploreScreen({ navigation }) {
             <View style={s.block}>
               <SectionTitle>Pillars</SectionTitle>
               <View style={s.pillarRow}>
-                {PILLAR_ORDER.map(key => {
+                {pillarKeys.map(key => {
                   const p = PILLARS[key]
                   const tone = pillarTone(p.color, isDark)
                   return (

@@ -12,6 +12,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { getPost, calcReadTime, formatDate } from '../data/blogPosts'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 function Section({ section, index }) {
   const { colors } = useTheme()
@@ -43,6 +44,7 @@ export default function ArticleScreen({ navigation, route }) {
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation, 'Blog')
   const { slug } = route.params ?? {}
+  useFoundationEnabled() // the article text depends on it
   const post = getPost(slug)
 
   if (!post) {

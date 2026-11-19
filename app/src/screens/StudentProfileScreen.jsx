@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronLeft, GraduationCap, MapPin, AtSign, Link2, ThumbsUp, X, Check, MessageSquareQuote,
-  MessageCircle, Play,
+  MessageCircle, Play, Flag,
 } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -21,6 +21,8 @@ import {
 import { userTypeLabel } from '../constants/userTypes'
 import { STATUS_STYLES, avatarColorFor, initialsFor } from './DirectoryScreen'
 import Button from '../components/ui/Button'
+import ReportButton from '../components/safety/ReportButton'
+import { useReport } from '../components/safety/ReportProvider'
 
 // ── A student's full Directory profile ──────────────────────────────────────
 //
@@ -167,7 +169,7 @@ function AddEndorsementModal({
 // above, confirmed real, not mock data). Queried defensively (try/catch +
 // error check) so a missing table or zero rows both land on the same clean
 // "No posts yet" empty state rather than an error.
-function PostsSection({ userId, colors }) {
+function PostsSection({ userId, userName, colors }) {
   const [state, setState] = useState({ loading: true, posts: [] })
 
   useEffect(() => {
@@ -232,6 +234,15 @@ function PostsSection({ userId, colors }) {
                 </View>
               )}
               <Text style={s.postBody} numberOfLines={4}>{p.body || (p.post_type === 'clip' ? 'Clip' : '')}</Text>
+              <View style={{ alignItems: 'flex-end' }}>
+                <ReportButton
+                  size={13}
+                  target={{
+                    contentType: 'feed_post', contentId: p.id, reportedUserId: userId, userName,
+                    noun: p.post_type === 'clip' ? 'clip' : p.post_type === 'post' ? 'post' : 'mood board',
+                  }}
+                />
+              </View>
             </View>
           ))}
         </View>
@@ -286,6 +297,7 @@ export default function StudentProfileScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const safeGoBack = useSafeGoBack(navigation)
+  const { openReport } = useReport()
   const { student } = route.params || {}
 
   const [connecting, setConnecting] = useState(false)
@@ -489,6 +501,22 @@ export default function StudentProfileScreen({ route, navigation }) {
             <Text style={styles.backBtnText}>Back</Text>
           </TouchableOpacity>
 
+          {student.id !== user?.id && (
+            <TouchableOpacity
+              style={[styles.reportBtn, { top: insets.top + 12 }]}
+              onPress={() => openReport({
+                contentType: 'profile', contentId: student.id, reportedUserId: student.id,
+                userName: student.full_name, noun: 'profile',
+              })}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Report or block this person"
+            >
+              <Flag size={14} color={colors.chromeFg} strokeWidth={1.9} />
+              <Text style={styles.reportBtnText}>Report or block</Text>
+            </TouchableOpacity>
+          )}
+
           <View style={[styles.avatar, { backgroundColor: avatarColorFor(student.id) }]}>
             <Text style={styles.avatarText}>{initialsFor(student.full_name)}</Text>
           </View>
@@ -626,7 +654,12 @@ export default function StudentProfileScreen({ route, navigation }) {
                 {customEndorsements.map(e => (
                   <View key={e.id} style={styles.customEndorseCard}>
                     <MessageSquareQuote size={14} color={colors.muted} strokeWidth={1.8} />
-                    <Text style={styles.customEndorseText}>{e.custom_text}</Text>
+                    <Text style={[styles.customEndorseText, { flex: 1 }]}>{e.custom_text}</Text>
+                    <ReportButton
+                      size={13}
+                      target={{ contentType: 'endorsement', contentId: e.id, noun: 'comment' }}
+                      label="Report this comment"
+                    />
                   </View>
                 ))}
               </View>
@@ -645,7 +678,7 @@ export default function StudentProfileScreen({ route, navigation }) {
           )}
         </View>
 
-        <PostsSection userId={student.id} colors={colors} />
+        <PostsSection userId={student.id} userName={student.full_name} colors={colors} />
 
         <Button
           label={requestSent ? 'Request sent' : connecting ? 'Sending…' : 'Message request'}
@@ -690,6 +723,13 @@ function __gs_styles(colors) {
     alignSelf: 'flex-start', marginBottom: 20,
   },
   backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
+  reportBtn: {
+    position: 'absolute', right: spacing.md, zIndex: 2,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14,
+    backgroundColor: 'rgba(245,240,232,0.14)',
+  },
+  reportBtnText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.chromeFg },
 
   avatar: {
     width: 76, height: 76, borderRadius: 38,

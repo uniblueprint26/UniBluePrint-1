@@ -6,7 +6,7 @@
  * (BudgetingScreen, via hooks/useInvestmentAccess.js) on
  * MIN_INVESTMENT_AGE. Both read the same `date_of_birth` concept — see
  * the profiles_date_of_birth_age_gate migration for the database-level
- * backstop on the 16+ side.
+ * backstop on the sign-up age.
  */
 
 /**

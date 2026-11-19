@@ -7,6 +7,7 @@ import {
 import UBPLogo from '../components/ui/UBPLogo'
 import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 // The drawer's 8 destinations, in the exact order specified. Everything
 // except Ad Board is a screen pushed inside HomeStack, so getting there
@@ -97,6 +98,8 @@ function DrawerRow({ item, isActive, onPress }) {
 export default function SidebarDrawer({ state, navigation }) {
   const insets = useSafeAreaInsets()
   const { colors } = useTheme()
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const items = ITEMS.filter(i => foundationOpen || i.key !== 'foundation')
   const mainTabsRoute = state.routes.find(r => r.name === 'MainTabs')
   const activeRouteName = getActiveRouteName(mainTabsRoute?.state)
   const activeKey = ROUTE_TO_KEY[activeRouteName] ?? null
@@ -113,7 +116,7 @@ export default function SidebarDrawer({ state, navigation }) {
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.rows}>
-        {ITEMS.map(item => (
+        {items.map(item => (
           <DrawerRow
             key={item.key}
             item={item}

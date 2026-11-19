@@ -31,6 +31,8 @@ import { searchInstitutions } from '../data/institutions'
 import { searchTrades, searchProviders } from '../data/apprenticeships'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
 
 // Read from the one place the real build/version number lives (app.json's
@@ -891,13 +893,15 @@ const dp = StyleSheet.create({
 // will see nothing here until the real submission flow is live end-to-end.
 function HandlerRatingPrompt({ userId }) {
   const { colors } = useTheme()
+  // Foundation requests are closed on iOS and Android until the remote flag is on.
+  const { enabled: foundationOpen } = useFoundationEnabled()
   const [pending, setPending] = useState([])
   const [stars, setStars]     = useState(0)
   const [comment, setComment] = useState('')
   const [saving, setSaving]   = useState(false)
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId || !foundationOpen) return
     let cancelled = false
     ;(async () => {
       const [subsRes, ratingsRes] = await Promise.all([
@@ -914,9 +918,9 @@ function HandlerRatingPrompt({ userId }) {
       setPending((subsRes.data || []).filter(s => !ratedIds.has(s.id)))
     })()
     return () => { cancelled = true }
-  }, [userId])
+  }, [userId, foundationOpen])
 
-  if (pending.length === 0) return null
+  if (!foundationOpen || pending.length === 0) return null
   const current = pending[0]
 
   async function submit() {
@@ -1280,8 +1284,8 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.membershipEyebrow}>CURRENT PLAN</Text>
               <Text style={[styles.membershipTitle, { color: colors.chromeFg }]}>{membershipLabel}</Text>
             </View>
-            {/* iOS: no purchase CTA in the app (App Store 3.1.1) — plan status only (D1). */}
-            {!isPro && !isComplimentaryPro && Platform.OS !== 'ios' && (
+            {/* iOS and Android: no purchase CTA in the app (neutral billing), plan status only. */}
+            {!isPro && !isComplimentaryPro && !NATIVE_NEUTRAL_BILLING && (
               <TouchableOpacity
                 style={[styles.upgradeBtn, { backgroundColor: colors.chromeFg }]}
                 activeOpacity={0.8}
@@ -1294,7 +1298,7 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.membershipSub}>
             {isPro || isComplimentaryPro
               ? 'Thanks for being a member. Manage or change your plan on the UniBlueprint website.'
-              : Platform.OS === 'ios'
+              : NATIVE_NEUTRAL_BILLING
                 ? 'Manage your plan on uniblueprint.ie.'
                 : 'Upgrade to unlock priority coach access and premium document services. Plans and payment are handled securely on the UniBlueprint website, never in the app.'}
           </Text>

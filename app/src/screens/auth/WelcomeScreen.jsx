@@ -9,11 +9,14 @@ import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../../hooks/useStatusBarStyle'
 import UBPLogo from '../../components/ui/UBPLogo'
+import { useFoundationEnabled } from '../../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 const { width } = Dimensions.get('window')
 
-const SLIDES = [
+const ALL_SLIDES = [
   {
+    key: 'foundation',
     icon: FileText,
     color: '#EFF6FF',
     eyebrow: 'FOUNDATION BLUEPRINT',
@@ -25,7 +28,10 @@ const SLIDES = [
     color: '#F0FDF4',
     eyebrow: 'ELEVATION BLUEPRINT',
     title: 'Coaches who\nget you.',
-    sub: 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more. Starting from €25.',
+    // No price on iOS and Android (neutral billing).
+    sub: NATIVE_NEUTRAL_BILLING
+      ? 'Find verified coaches in fitness, career, branding, nutrition, trading, creative skills and more.'
+      : 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more. Starting from €25.',
   },
   {
     icon: Users,
@@ -56,6 +62,9 @@ export default function WelcomeScreen({ navigation }) {
   // Cream screen — the global light icons are invisible here without this
   // (L3).
   useLightBackgroundStatusBar()
+  // The Foundation slide is left out while Foundation is closed on iOS and Android.
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const SLIDES = foundationOpen ? ALL_SLIDES : ALL_SLIDES.filter(sl => sl.key !== 'foundation')
   const [slide, setSlide] = useState(0)
   const scrollRef = useRef(null)
   const insets = useSafeAreaInsets()

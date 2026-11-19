@@ -27,6 +27,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { goToHome } from '../navigation/helpers'
 import { useUserType } from '../hooks/useUserType'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { useInterests } from '../hooks/useInterests'
 import { supabase } from '../lib/supabase'
 import {
@@ -393,6 +394,7 @@ const CROSS_IRELAND_FEATURES = [
 
 export default function CourseConnectScreen({ navigation }) {
   const { colors } = useTheme()
+  const { enabled: foundationOpen } = useFoundationEnabled()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)
@@ -645,7 +647,7 @@ export default function CourseConnectScreen({ navigation }) {
           <View style={styles.academicSection}>
             <Text style={styles.academicEyebrow}>{path.academicEyebrow}</Text>
             <Text style={styles.academicTitle}>{path.academicTitle}</Text>
-            <Text style={styles.academicSub}>{path.toolsSub}</Text>
+            <Text style={styles.academicSub}>{foundationOpen ? path.toolsSub : path.toolsSub.replace(/ Foundation Blueprint's Personal Statement service[^.]*\./, '')}</Text>
 
             <Text style={[styles.academicSubLabel, { marginTop: spacing.lg }]}>COURSE TOOLS</Text>
             <Text style={styles.academicSubSub}>Practical tools for your studies or training. Exact tool set being confirmed.</Text>

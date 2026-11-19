@@ -4,6 +4,7 @@ import { CreditCard, AlertCircle } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 // The real payment step for Ad Board ads and Marketplace "Providing
 // Services" listings (pricing doc §1.6/§1.7). Same shape as
@@ -115,6 +116,10 @@ const BoardListingCheckoutModal = forwardRef(function BoardListingCheckoutModal(
         resolverRef.current = null
         return
       }
+
+      // Neutral billing: a store build never opens a payment page. The free
+      // listing path above is the only one that completes on native.
+      if (NATIVE_NEUTRAL_BILLING) throw new Error('This listing is not available in the app.')
 
       paymentIdRef.current = data.payment_id
       setState(s => ({ ...s, phase: 'awaiting_payment', amountCents: data.amount_cents ?? null }))

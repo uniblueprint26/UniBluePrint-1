@@ -31,13 +31,10 @@ import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { supabase } from '../lib/supabase'
+import ReportButton from '../components/safety/ReportButton'
+import { useReport } from '../components/safety/ReportProvider'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-// Same reporting pattern as BoardDetailScreen's report() — operations_flags'
-// RLS insert policy and notify_ops_on_flag() trigger already work for any
-// target_type, so 'chat_room' needs no schema changes of its own.
-const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 function formatChatTime(dateStr) {
   if (!dateStr) return ''
@@ -56,6 +53,7 @@ export default function ChatRoomScreen({ navigation, route }) {
   const { contextType, contextId, roomName, subtitle, posterId, posterName } = route.params ?? {}
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const { openReport } = useReport()
   const safeGoBack = useSafeGoBack(navigation)
 
   const userId          = user?.id
@@ -110,25 +108,10 @@ export default function ChatRoomScreen({ navigation, route }) {
   function handleReport() {
     setMoreVisible(false)
     if (!roomId) return
-    Alert.alert(
-      'Report this room',
-      'What best describes the issue?',
-      [
-        ...REPORT_REASONS.map(reason => ({
-          text: reason,
-          onPress: async () => {
-            const { error: flagErr } = await supabase.from('operations_flags').insert({
-              flagged_by: userId, target_type: 'chat_room', target_id: roomId, reason,
-            })
-            Alert.alert(
-              flagErr ? 'Something went wrong' : 'Reported',
-              flagErr ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.'
-            )
-          },
-        })),
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    )
+    // Wait for this sheet to finish closing before the report sheet opens.
+    setTimeout(() => openReport({
+      contentType: 'chat_room', contentId: roomId, reportedUserId: posterId || null, userName: posterName, noun: 'chat',
+    }), 350)
   }
 
   async function handleBlock() {
@@ -254,10 +237,28 @@ export default function ChatRoomScreen({ navigation, route }) {
             {msg.showName && (
               <Text style={s.senderName}>{msg.author_name}</Text>
             )}
-            <View style={[s.bubble, msg.isOwn ? s.bubbleOwn : s.bubbleOther]}>
-              <Text style={[s.bubbleText, msg.isOwn ? s.bubbleTextOwn : s.bubbleTextOther]}>
-                {msg.content}
-              </Text>
+            <View style={s.bubbleRow}>
+              <TouchableOpacity
+                activeOpacity={msg.isOwn ? 1 : 0.85}
+                delayLongPress={350}
+                onLongPress={msg.isOwn ? undefined : () => openReport({
+                  contentType: 'chat_message', contentId: msg.id, reportedUserId: msg.user_id, userName: msg.author_name, noun: 'message',
+                })}
+                style={s.bubbleTouch}
+              >
+                <View style={[s.bubble, msg.isOwn ? s.bubbleOwn : s.bubbleOther]}>
+                  <Text style={[s.bubbleText, msg.isOwn ? s.bubbleTextOwn : s.bubbleTextOther]}>
+                    {msg.content}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              {!msg.isOwn && (
+                <ReportButton
+                  size={13}
+                  target={{ contentType: 'chat_message', contentId: msg.id, reportedUserId: msg.user_id, userName: msg.author_name, noun: 'message' }}
+                  label="Report this message"
+                />
+              )}
             </View>
             {msg.showTime && (
               <Text style={[s.bubbleTime, msg.isOwn ? s.bubbleTimeOwn : {}]}>
@@ -384,6 +385,8 @@ function __gs_s(colors) {
     color: colors.muted, marginBottom: 3, marginLeft: 4,
   },
 
+  bubbleRow:   { flexDirection: 'row', alignItems: 'center', gap: 2, maxWidth: '100%' },
+  bubbleTouch: { flexShrink: 1 },
   bubble:      { borderRadius: 14, paddingHorizontal: 13, paddingVertical: 9, maxWidth: '100%' },
   bubbleOwn:   { backgroundColor: colors.accentBg, borderBottomRightRadius: 4 },
   bubbleOther: { backgroundColor: colors.surface, borderBottomLeftRadius: 4, ...shadows.card },

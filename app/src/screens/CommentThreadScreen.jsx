@@ -13,6 +13,8 @@ import { useAuth } from '../context/AuthContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { moodDef } from '../constants/moods'
 import { timeAgo } from '../components/feed/FeedKit'
+import ReportButton from '../components/safety/ReportButton'
+import { useBlockedIds } from '../lib/reporting'
 import { fetchPostById, fetchComments, createComment, deleteComment } from '../lib/feed'
 
 function initialsOf(name) {
@@ -58,6 +60,14 @@ function PostPreview({ post, colors }) {
           </View>
           <Text style={styles.timestamp}>{timeAgo(post.created_at)}</Text>
         </View>
+        {!!post.user_id && (
+          <ReportButton
+            target={{
+              contentType: 'feed_post', contentId: post.id, reportedUserId: post.user_id, userName: post.author_name,
+              noun: post.post_type === 'clip' ? 'clip' : post.post_type === 'post' ? 'post' : 'mood board',
+            }}
+          />
+        )}
       </View>
       {!!post.body && <Text style={styles.bodyText}>{post.body}</Text>}
       {post.post_type === 'post' && !!post.photo_url && (
@@ -104,6 +114,13 @@ function CommentRow({ comment, isOwn, onDelete, colors }) {
         </View>
         <View style={styles.metaRow}>
           <Text style={styles.timestamp}>{timeAgo(comment.created_at)}</Text>
+          {!isOwn && !!comment.user_id && (
+            <ReportButton
+              size={12}
+              target={{ contentType: 'comment', contentId: comment.id, reportedUserId: comment.user_id, userName: comment.author_name, noun: 'comment' }}
+              label="Report this comment"
+            />
+          )}
           {isOwn && (
             <TouchableOpacity
               onPress={() => onDelete(comment.id)}
@@ -146,6 +163,7 @@ export default function CommentThreadScreen({ navigation, route }) {
   const safeGoBack = useSafeGoBack(navigation)
   const { user } = useAuth()
   const postId = route?.params?.postId
+  const blocked = useBlockedIds(user?.id)
 
   const [post, setPost] = useState(null)
   const [comments, setComments] = useState([])
@@ -215,9 +233,9 @@ export default function CommentThreadScreen({ navigation, route }) {
         </View>
       ) : (
         <FlatList
-          data={comments}
+          data={comments.filter(c => !blocked.has(c.user_id))}
           keyExtractor={c => c.id}
-          ListHeaderComponent={<PostPreview post={post} colors={colors} />}
+          ListHeaderComponent={<PostPreview post={post && blocked.has(post.user_id) ? null : post} colors={colors} />}
           renderItem={({ item }) => (
             <CommentRow comment={item} isOwn={item.user_id === user?.id} onDelete={handleDelete} colors={colors} />
           )}

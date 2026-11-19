@@ -20,6 +20,7 @@ import { supabase } from '../lib/supabase'
 import { useUserType } from '../hooks/useUserType'
 import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
 import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
@@ -33,7 +34,10 @@ import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/sit
 // Blueprint (ElevationScreen.jsx) is different: coaching sessions are a
 // real-world service, exempt under 3.1.3(e), so that one links out instead
 // of hiding — see CoachProfileScreen.jsx and constants/site.js.
-const IS_IOS = Platform.OS === 'ios'
+// Update: neutral billing now covers Android as well (constants/platformPolicy.js),
+// so on iOS and Android there is no order button here and no link to the website.
+// IS_IOS keeps its old name but now means neutral billing.
+const IS_IOS = NATIVE_NEUTRAL_BILLING
 
 // ─── Career services ──────────────────────────────────────────────────────────
 // Exported (same pattern as ElevationScreen's COACHES) so other real-data

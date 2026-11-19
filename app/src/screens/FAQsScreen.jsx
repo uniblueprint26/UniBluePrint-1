@@ -8,6 +8,7 @@ import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 const FAQS = [
   {
@@ -49,8 +50,18 @@ const FAQS = [
   },
 ]
 
+// Questions about Foundation and its Campus Handlers. Left out while Foundation
+// is closed on iOS and Android.
+const FOUNDATION_FAQS = new Set(['How do Foundation Blueprint services work?', 'What is a Campus Handler?'])
+const FIRST_FAQ_WITHOUT_FOUNDATION =
+  'Yes. UniBlueprint is free to join. Campus boards, Course Connect and Lifestyle deals are available to all members.'
+
 export default function FAQsScreen({ navigation }) {
   const { colors } = useTheme()
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const faqs = foundationOpen
+    ? FAQS
+    : FAQS.filter(f => !FOUNDATION_FAQS.has(f.q)).map((f, i) => (i === 0 ? { ...f, a: FIRST_FAQ_WITHOUT_FOUNDATION } : f))
   const styles = getStyles(colors)
   const [open, setOpen] = useState(null)
   const insets = useSafeAreaInsets()
@@ -74,7 +85,7 @@ export default function FAQsScreen({ navigation }) {
 
       <View style={styles.body}>
         <View style={{ gap: 10 }}>
-          {FAQS.map(({ q, a, link }, i) => (
+          {faqs.map(({ q, a, link }, i) => (
             <TouchableOpacity
               key={i}
               activeOpacity={0.85}

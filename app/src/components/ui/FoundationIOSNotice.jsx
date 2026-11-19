@@ -6,6 +6,7 @@ import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { FOUNDATION_WEBSITE_LINKS } from '../../constants/site'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 
 // iOS only (App Store 3.1.1, D1 — the same decision PricingScreen already
 // applies to the Pro/Premium subscription): every Foundation Blueprint
@@ -24,7 +25,8 @@ import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 // CoachProfileScreen.jsx and constants/site.js's coachBookingUrl(). Those
 // two are not inconsistent; they're the same rule applied to two different
 // kinds of service.
-export const IS_IOS = Platform.OS === 'ios'
+// (Now iOS and Android: IS_IOS keeps its old name but means neutral billing.)
+export const IS_IOS = NATIVE_NEUTRAL_BILLING
 
 export default function FoundationIOSNotice({ navigation, serviceTitle }) {
   const { colors } = useTheme()
@@ -52,7 +54,7 @@ export default function FoundationIOSNotice({ navigation, serviceTitle }) {
       />
       <View style={[styles.body, { paddingBottom: insets.bottom + 40 }]}>
         <Text style={styles.message}>
-          {serviceTitle} is not available to order in the iPhone app.
+          {serviceTitle} is not available to order in the app.
         </Text>
         <View style={styles.badge}>
           <UserCheck size={14} color={colors.textPrimary} strokeWidth={2} />

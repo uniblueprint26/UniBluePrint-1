@@ -15,6 +15,8 @@ import { useTheme } from '../context/ThemeContext'
 import { usePushRegistration } from '../hooks/usePushRegistration'
 import { useNotificationDeepLinking } from '../hooks/useNotificationDeepLinking'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { foundationGated } from './foundationGate'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
 import TabCoachMark from '../components/onboarding/TabCoachMark'
@@ -111,6 +113,27 @@ import SignUpScreen         from '../screens/auth/SignUpScreen'
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen'
 import VerifyEmailScreen    from '../screens/auth/VerifyEmailScreen'
 
+// Foundation is closed on iOS and Android until app_flags.foundation_enabled
+// is on. Each Foundation screen is wrapped once, here, so a deep link or a
+// notification tap sends the person Home instead of opening it.
+const Gated = {
+  FoundationScreen: foundationGated(FoundationScreen),
+  MyOutputsScreen: foundationGated(MyOutputsScreen),
+  OutputDetailScreen: foundationGated(OutputDetailScreen),
+  CareerReadinessScreen: foundationGated(CareerReadinessScreen),
+  CvBuilderScreen: foundationGated(CvBuilderScreen),
+  LinkedinBuilderScreen: foundationGated(LinkedinBuilderScreen),
+  CoverLetterBuilderScreen: foundationGated(CoverLetterBuilderScreen),
+  ApplicationFormBuilderScreen: foundationGated(ApplicationFormBuilderScreen),
+  InterviewPrepBuilderScreen: foundationGated(InterviewPrepBuilderScreen),
+  PersonalStatementBuilderScreen: foundationGated(PersonalStatementBuilderScreen),
+  PortfolioPlanBuilderScreen: foundationGated(PortfolioPlanBuilderScreen),
+  JobSearchSupportBuilderScreen: foundationGated(JobSearchSupportBuilderScreen),
+  EvidenceBankScreen: foundationGated(EvidenceBankScreen),
+  ApplicationTrackerScreen: foundationGated(ApplicationTrackerScreen),
+  GenerationSubmittedScreen: foundationGated(GenerationSubmittedScreen),
+}
+
 const Tab    = createBottomTabNavigator()
 const Stack  = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
@@ -140,7 +163,7 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="HomeMain"      component={HomeScreen}         />
-      <Stack.Screen name="Foundation"    component={FoundationScreen}    />
+      <Stack.Screen name="Foundation"    component={Gated.FoundationScreen}    />
       <Stack.Screen name="Elevation"     component={ElevationScreen}     />
       <Stack.Screen name="CampusConnect" component={CampusConnectScreen} />
       <Stack.Screen name="BoardDetail"   component={BoardDetailScreen}   />
@@ -165,23 +188,23 @@ function HomeStack() {
       <Stack.Screen name="CommentThread" component={CommentThreadScreen} />
       <Stack.Screen name="SavedPosts"    component={SavedPostsScreen}    />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
-      <Stack.Screen name="MyOutputs"     component={MyOutputsScreen}    />
-      <Stack.Screen name="OutputDetail" component={OutputDetailScreen} />
-      <Stack.Screen name="CareerReadiness" component={CareerReadinessScreen} />
+      <Stack.Screen name="MyOutputs"     component={Gated.MyOutputsScreen}    />
+      <Stack.Screen name="OutputDetail" component={Gated.OutputDetailScreen} />
+      <Stack.Screen name="CareerReadiness" component={Gated.CareerReadinessScreen} />
       <Stack.Screen name="Priorities"        component={PrioritiesScreen}       />
       <Stack.Screen name="PriorityEvent"     component={PriorityEventScreen}    />
       <Stack.Screen name="PriorityCheckout"  component={PriorityCheckoutScreen} />
-      <Stack.Screen name="CvBuilder"                component={CvBuilderScreen}                options={{ presentation: 'modal' }} />
-      <Stack.Screen name="LinkedinBuilder"          component={LinkedinBuilderScreen}          options={{ presentation: 'modal' }} />
-      <Stack.Screen name="CoverLetterBuilder"       component={CoverLetterBuilderScreen}       options={{ presentation: 'modal' }} />
-      <Stack.Screen name="ApplicationFormBuilder"   component={ApplicationFormBuilderScreen}   options={{ presentation: 'modal' }} />
-      <Stack.Screen name="InterviewPrepBuilder"     component={InterviewPrepBuilderScreen}     options={{ presentation: 'modal' }} />
-      <Stack.Screen name="PersonalStatementBuilder" component={PersonalStatementBuilderScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="PortfolioPlanBuilder"     component={PortfolioPlanBuilderScreen}     options={{ presentation: 'modal' }} />
-      <Stack.Screen name="JobSearchSupportBuilder"  component={JobSearchSupportBuilderScreen}  options={{ presentation: 'modal' }} />
-      <Stack.Screen name="EvidenceBank"              component={EvidenceBankScreen}             options={{ presentation: 'modal' }} />
-      <Stack.Screen name="ApplicationTracker"        component={ApplicationTrackerScreen}       options={{ presentation: 'modal' }} />
-      <Stack.Screen name="GenerationSubmitted"      component={GenerationSubmittedScreen}      options={{ presentation: 'modal', gestureEnabled: false }} />
+      <Stack.Screen name="CvBuilder"                component={Gated.CvBuilderScreen}                options={{ presentation: 'modal' }} />
+      <Stack.Screen name="LinkedinBuilder"          component={Gated.LinkedinBuilderScreen}          options={{ presentation: 'modal' }} />
+      <Stack.Screen name="CoverLetterBuilder"       component={Gated.CoverLetterBuilderScreen}       options={{ presentation: 'modal' }} />
+      <Stack.Screen name="ApplicationFormBuilder"   component={Gated.ApplicationFormBuilderScreen}   options={{ presentation: 'modal' }} />
+      <Stack.Screen name="InterviewPrepBuilder"     component={Gated.InterviewPrepBuilderScreen}     options={{ presentation: 'modal' }} />
+      <Stack.Screen name="PersonalStatementBuilder" component={Gated.PersonalStatementBuilderScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="PortfolioPlanBuilder"     component={Gated.PortfolioPlanBuilderScreen}     options={{ presentation: 'modal' }} />
+      <Stack.Screen name="JobSearchSupportBuilder"  component={Gated.JobSearchSupportBuilderScreen}  options={{ presentation: 'modal' }} />
+      <Stack.Screen name="EvidenceBank"              component={Gated.EvidenceBankScreen}             options={{ presentation: 'modal' }} />
+      <Stack.Screen name="ApplicationTracker"        component={Gated.ApplicationTrackerScreen}       options={{ presentation: 'modal' }} />
+      <Stack.Screen name="GenerationSubmitted"      component={Gated.GenerationSubmittedScreen}      options={{ presentation: 'modal', gestureEnabled: false }} />
 
       {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
       <Stack.Screen name="StudioQueue"      component={StudioQueueScreen}   />
@@ -412,6 +435,7 @@ function AppShell() {
   useNotificationDeepLinking()
 
   const { user } = useAuth()
+  const { enabled: foundationOpen } = useFoundationEnabled()
   const [showCoachMark, setShowCoachMark] = useState(false)
 
   // Same "only once AppShell has actually mounted" reasoning as the push
@@ -456,7 +480,8 @@ function AppShell() {
       >
         <Drawer.Screen name="MainTabs" component={MainTabs} />
       </Drawer.Navigator>
-      {showCoachMark && <TabCoachMark onDismiss={dismissCoachMark} />}
+      {/* The callout is about Foundation and Elevation, so it waits until Foundation is open. */}
+      {showCoachMark && foundationOpen && <TabCoachMark onDismiss={dismissCoachMark} />}
     </View>
   )
 }

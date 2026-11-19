@@ -5,6 +5,10 @@
 
 export const SITE_URL = 'https://uniblueprint.ie'
 
+// Where people write to about content or people that worry them. Shown under
+// Privacy and data. Reports sent from inside the app also reach this team.
+export const MODERATION_EMAIL = 'desmond@uniblueprint.ie'
+
 export const WEBSITE_LINKS = {
   terms:         `${SITE_URL}/terms`,
   privacy:       `${SITE_URL}/privacy`,

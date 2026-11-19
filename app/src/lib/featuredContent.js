@@ -4,6 +4,7 @@ import { CAREER_SERVICES } from '../screens/FoundationScreen'
 import { PARTNERS } from '../data/lifestylePartners'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { COURSE_BOARDS } from '../constants/courseConnectBoards'
+import { isFoundationEnabledNow } from '../hooks/useAppFlags'
 
 // ─── Home dashboard "Trending Right Now" carousel — resolving real, live
 // content (renamed from "Spotlight" in Phase 20) ───────────────────────────
@@ -143,7 +144,8 @@ function initialsOf(name) {
 }
 
 const RESOLVERS = {
-  foundation_service: async row => foundationService(row),
+  // Left out while Foundation is closed on iOS and Android.
+  foundation_service: async row => (isFoundationEnabledNow() ? foundationService(row) : null),
   coach,
   lifestyle_partner: lifestylePartner,
   campus_board: row => board(row, 'campus_board'),

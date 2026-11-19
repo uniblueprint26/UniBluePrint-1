@@ -215,7 +215,7 @@ export default function EnvelopeSheet({
 
                 {isIOS ? (
                   <Text style={[s.iosNote, { color: paper.letterText2 }]}>
-                    {service.title} is not available to order in the iPhone app. Orders you already have show under Outputs.
+                    {service.title} is not available to order in the app. Orders you already have show under Outputs.
                   </Text>
                 ) : (
                   <View style={s.tiers}>

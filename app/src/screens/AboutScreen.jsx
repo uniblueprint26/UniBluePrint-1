@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { UserCheck, MapPin, Heart, ArrowRight } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -75,6 +76,9 @@ const TIMELINE = [
 export default function AboutScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { colors } = useTheme()
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  // The first point is about Foundation, so it waits until Foundation is open.
+  const differentiators = foundationOpen ? DIFFERENTIATORS : DIFFERENTIATORS.slice(1)
   const safeGoBack = useSafeGoBack(navigation)
   return (
     <ScrollView
@@ -156,7 +160,7 @@ export default function AboutScreen({ navigation }) {
         <Text style={[styles.sectionEyebrow, { color: colors.textTertiary, marginTop: spacing.xl }]}>WHAT MAKES US DIFFERENT</Text>
         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Built differently, on purpose.</Text>
         <View style={{ gap: 12, marginTop: spacing.md }}>
-          {DIFFERENTIATORS.map(d => (
+          {differentiators.map(d => (
             <Card key={d.title} style={styles.diffCard}>
               <View style={[styles.diffIconWrap, { backgroundColor: colors.surfaceAlt }]}>
                 <d.Icon size={20} color={colors.textPrimary} strokeWidth={1.7} />

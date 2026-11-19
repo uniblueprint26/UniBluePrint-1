@@ -3,14 +3,26 @@ import { Crown } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { WEBSITE_LINKS } from '../../constants/site'
+import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
 import Button from './Button'
 
-// iOS: no purchase CTAs, prices or upgrade steering for a plan the user
-// doesn't already have (App Store 3.1.1, task #56/D1 — same rule
-// PricingScreen.jsx and WeeklyBlueprintScreen's Deal Room page already
-// follow). Android and web get a real "Upgrade to Pro" button that opens
-// uniblueprint.ie/pricing; iOS gets neutral status text only.
-const IS_IOS = Platform.OS === 'ios'
+// iOS and Android (neutral billing, see constants/platformPolicy.js): no
+// purchase CTAs, prices or upgrade steering for a plan the user doesn't already
+// have (App Store 3.1.1 and Google Play Billing). The web build gets a real
+// "Upgrade to Pro" button that opens uniblueprint.ie/pricing; native gets
+// neutral status text only, and any sentence that says "upgrade" is dropped
+// from the message.
+const NEUTRAL = NATIVE_NEUTRAL_BILLING
+
+// Keeps the sentences that do not tell the person to upgrade or buy.
+function neutralMessage(message) {
+  const kept = String(message || '')
+    .split(/(?<=[.!?])\s+/)
+    .filter(sentence => !/upgrade|get pro|buy|subscribe/i.test(sentence))
+    .join(' ')
+    .trim()
+  return kept || 'This is part of UniBlueprint Pro.'
+}
 
 /**
  * ProUpgradeGate — the shared "this is a Pro feature" paywall card, used
@@ -42,8 +54,8 @@ export default function ProUpgradeGate({
         <Crown size={30} color={colors.gold} strokeWidth={1.5} />
       </View>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
-      {!IS_IOS ? (
+      <Text style={styles.message}>{NEUTRAL ? neutralMessage(message) : message}</Text>
+      {!NEUTRAL ? (
         <Button
           label={ctaLabel}
           onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}
