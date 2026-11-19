@@ -19,11 +19,16 @@ export function foundationGated(Screen) {
 
     useEffect(() => {
       if (!blocked) return
-      try {
-        navigation.reset({ index: 0, routes: [{ name: 'HomeMain' }] })
-      } catch {
-        try { navigation.goBack() } catch {}
-      }
+      // A short wait: on a cold deep link this runs while the navigator is still
+      // setting up its first state, and a reset sent that early is dropped.
+      const timer = setTimeout(() => {
+        try {
+          navigation.reset({ index: 0, routes: [{ name: 'HomeMain' }] })
+        } catch {
+          try { navigation.goBack() } catch {}
+        }
+      }, 120)
+      return () => clearTimeout(timer)
     }, [blocked, navigation])
 
     if (loading) return <GateWait />
