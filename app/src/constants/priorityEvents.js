@@ -82,7 +82,16 @@ export function formatEventDate(iso) {
 }
 
 export function formatEventTime(iso) {
-  return fmt(iso, { hour: 'numeric', minute: '2-digit', hour12: true }).replace(' ', '').toLowerCase()
+  // en-GB gives "6:23 pm" (en-IE gives "p.m."). Drop the space: "6:23pm".
+  if (!iso) return ''
+  const opts = { hour: 'numeric', minute: '2-digit', hour12: true }
+  let out
+  try {
+    out = new Date(iso).toLocaleString('en-GB', { ...opts, timeZone: 'Europe/Dublin' })
+  } catch {
+    out = new Date(iso).toLocaleString('en-GB', opts)
+  }
+  return out.replace(/\s/g, '').toLowerCase()
 }
 
 export function formatPriceCents(cents) {

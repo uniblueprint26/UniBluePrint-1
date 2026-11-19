@@ -71,9 +71,10 @@ export function formatEventDate(iso) {
 
 export function formatTime(iso) {
   if (!iso) return ''
-  return new Intl.DateTimeFormat('en-IE', {
+  // en-GB gives "6:23 pm" (en-IE gives "p.m."). Drop the space: "6:23pm".
+  return new Intl.DateTimeFormat('en-GB', {
     hour: 'numeric', minute: '2-digit', hour12: true, timeZone: TZ,
-  }).format(new Date(iso)).replace(' ', '').toLowerCase()
+  }).format(new Date(iso)).replace(/\s/g, '').toLowerCase()
 }
 
 export function formatPrice(cents) {
