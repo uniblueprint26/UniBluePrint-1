@@ -34,7 +34,7 @@ export const AUDIENCE_ORDER = Object.keys(AUDIENCES)
 export const DEFAULT_AUDIENCE = AUDIENCE_ORDER[0] // 'course'
 
 // Helper text for Campus Connect by profiles.user_type (constants/userTypes.js).
-// Anything else (gap year, 5th/6th year, unknown, not loaded yet) gets the safe
+// Anything else (gap year, unknown, not loaded yet) gets the safe
 // fallback "People like you".
 const CAMPUS_BLURB_BY_USER_TYPE = {
   student:    'Your campus',

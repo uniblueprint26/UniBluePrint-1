@@ -32,7 +32,6 @@ import { useInterests } from '../hooks/useInterests'
 import { supabase } from '../lib/supabase'
 import {
   USER_TYPE_STUDENT, USER_TYPE_APPRENTICE, USER_TYPE_GAP_YEAR, USER_TYPE_WORKER,
-  USER_TYPE_LEAVING_CERT,
 } from '../constants/userTypes'
 
 // ─── Reframe, round 3: interests + real popularity, not stages ─────────────
@@ -88,17 +87,6 @@ const PATH_CONTENT = {
     academicEyebrow: 'WORK SUPPORT',
     academicTitle: 'Built for working and moving up',
     toolsSub: 'Practical tools and peer advice for getting ahead at work, whatever your industry.',
-  },
-  // Still in 5th/6th year: the decision ahead of them is which course, not
-  // how to study on one yet. Framed around CAO research and hearing from
-  // people already on a path, not "your course and your college" like
-  // USER_TYPE_STUDENT above — they don't have either of those yet.
-  [USER_TYPE_LEAVING_CERT]: {
-    banner: "Still deciding what's next? Course Connect lets you hear from students, apprentices, and workers already on the paths you're weighing up, before you choose.",
-    sub: "Thinking about what comes next? Talk to people already studying, training, or working in what you're considering, and get a straight answer first.",
-    academicEyebrow: 'NEXT STEPS',
-    academicTitle: 'Built for working out what is next',
-    toolsSub: "Tools and resources to help you choose your next step with your eyes open. Foundation Blueprint's Personal Statement service covers your CAO personal statement once you're ready to apply.",
   },
 }
 
@@ -413,7 +401,6 @@ export default function CourseConnectScreen({ navigation }) {
   const { interests } = useInterests()
   const path = PATH_CONTENT[userType] || PATH_CONTENT[USER_TYPE_STUDENT]
   const isStudent = userType === USER_TYPE_STUDENT
-  const isLeavingCert = userType === USER_TYPE_LEAVING_CERT
 
   // ── Real popularity signal #1: Course Tools tile order ──────────────────
   // Recent-activity counts (last POPULARITY_WINDOW_DAYS days) per feature's
@@ -543,13 +530,9 @@ export default function CourseConnectScreen({ navigation }) {
           {/*
             Stats: real Irish HE figures, not platform usage metrics.
             Source: HEA.ie Annual Report 2022/23 and CAO.ie course listings.
-            The CAO-courses-covered figure is shown to Student AND Leaving
-            Cert users — both are genuinely weighing up CAO courses, the
-            Leaving Cert cohort arguably more so since they haven't applied
-            yet. The Irish-HE-population figure below stays Student-only:
-            it describes people already enrolled, which a Leaving Cert user
-            isn't yet. See the PATH_CONTENT comment above for why every
-            other userType sees three unsourced, pathway-neutral stats
+            The CAO-courses-covered and Irish-HE-population figures are shown
+            to Student users only. See the PATH_CONTENT comment above for why
+            every other userType sees unsourced, pathway-neutral stats
             instead.
 
             Decided 11 Oct 2026: rounded down to safe, defensible lower-bound
@@ -562,7 +545,7 @@ export default function CourseConnectScreen({ navigation }) {
               <Text style={styles.heroStatLabel}>Counties{'\n'}Across Ireland</Text>
             </View>
             <View style={styles.heroStatDivider} />
-            {(isStudent || isLeavingCert) ? (
+            {isStudent ? (
               <View style={styles.heroStatItem}>
                 <Text style={styles.heroStatNumber}>1,000+</Text>
                 <Text style={styles.heroStatLabel}>CAO Courses{'\n'}Covered</Text>

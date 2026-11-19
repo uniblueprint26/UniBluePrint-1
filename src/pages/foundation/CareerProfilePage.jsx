@@ -52,7 +52,7 @@ const initialProfile = {
 
 // Mirrors the sign-up pathway question so a user is never asked it twice.
 const PATHWAYS = [
-  'Secondary school / Sixth Form', 'PLC / Further Education', 'Apprenticeship',
+  'PLC / Further Education', 'Apprenticeship',
   'University / College', 'Gap year', 'Recent graduate', 'Working — early career',
 ]
 
@@ -411,6 +411,8 @@ export default function CareerProfilePage() {
               <FormField id="pathway" label="Your pathway">
                 <FormSelect id="pathway" value={form.pathway} onChange={set('pathway')}>
                   <option value="">Select…</option>
+                  {/* A profile saved before the school option was removed keeps showing its value. */}
+                  {form.pathway && !PATHWAYS.includes(form.pathway) && <option value={form.pathway}>{form.pathway}</option>}
                   {PATHWAYS.map((path) => <option key={path} value={path}>{path}</option>)}
                 </FormSelect>
               </FormField>

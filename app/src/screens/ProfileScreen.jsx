@@ -127,7 +127,7 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
   const [saving,    setSaving]    = useState(false)
 
   // Which extra section applies, same two shapes SignUpScreen's step 3
-  // collects — a Worker/Gap Year/Leaving Cert account gets neither.
+  // collects — a Worker/Gap Year account gets neither.
   const showInstitutionFields    = userType === USER_TYPE_STUDENT
   const showApprenticeshipFields = userType === USER_TYPE_APPRENTICE
 

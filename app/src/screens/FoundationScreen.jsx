@@ -17,8 +17,6 @@ import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { useUserType } from '../hooks/useUserType'
-import { USER_TYPE_LEAVING_CERT } from '../constants/userTypes'
 import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
@@ -90,10 +88,6 @@ export const CAREER_SERVICES = [
     priceStd: '€10',
     pricePrem: '€15',
     color: '#F0F9FF',
-    // CAO-relevant for Leaving Cert users (CAO personal statement) — drives
-    // the Leaving-Cert-only reorder below, nothing else. See
-    // orderCareerServicesForUserType().
-    caoRelevant: true,
   },
   {
     icon: Award,
@@ -123,20 +117,6 @@ export const CAREER_SERVICES = [
     color: '#F0F9FF',
   },
 ]
-
-// Every service stays visible and tappable for every user type — this never
-// filters or hides anything, it only changes display order, and only for
-// Leaving Cert. Everyone else keeps CAREER_SERVICES' own order untouched.
-// A stable sort (one comparator, driven off each service's own
-// `caoRelevant` flag above) partitions caoRelevant services to the front
-// while preserving relative order within each group — so a new CAO-relevant
-// service only needs the flag set on it, not a parallel list to maintain.
-function orderCareerServicesForUserType(userType) {
-  if (userType !== USER_TYPE_LEAVING_CERT) return CAREER_SERVICES
-  return [...CAREER_SERVICES].sort(
-    (a, b) => (b.caoRelevant === true) - (a.caoRelevant === true)
-  )
-}
 
 // ─── Course Compass tools ─────────────────────────────────────────────────────
 
@@ -187,12 +167,6 @@ export default function FoundationScreen({ navigation }) {
   // Premium's turnaround copy switches to Monday delivery and reverts
   // automatically once the window ends.
   const { isWeekendWindow } = useWeekendDeliveryCopy()
-  // CAO-relevant services (e.g. Personal Statement) lead the list for
-  // Leaving Cert users; every other user type sees CAREER_SERVICES' own
-  // order, unchanged. See orderCareerServicesForUserType() above.
-  const { userType } = useUserType()
-  const orderedCareerServices = orderCareerServicesForUserType(userType)
-
   // Real progress only: the latest submission per service, read from the same
   // `submissions` table Career Readiness and My Outputs use. No row means
   // nothing is shown on that envelope.
@@ -324,7 +298,7 @@ export default function FoundationScreen({ navigation }) {
           <Text style={styles.sectionTitle}>Foundation Blueprints</Text>
           <Text style={styles.sectionSub}>Tap an envelope to open it.</Text>
           <View style={styles.grid} onLayout={e => setGridWidth(e.nativeEvent.layout.width)}>
-            {orderedCareerServices.map(service => (
+            {CAREER_SERVICES.map(service => (
               <EnvelopeTile
                 key={service.title}
                 title={service.title}
