@@ -11,6 +11,7 @@ import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS } from '../../lib/feed'
 import { PILLARS, AUDIENCES } from '../../constants/pillars'
 import { avatarColorFor, initialsFor } from '../../screens/DirectoryScreen'
 import UbpLoader from '../brand/UbpLoader'
+import ReportButton from '../safety/ReportButton'
 
 // ── shared helpers ───────────────────────────────────────────────────────────
 
@@ -361,6 +362,17 @@ function PostHeader({ post, k }) {
       </View>
       {ubp && (
         <View style={k.ubpTag}><Text style={k.ubpTagText}>From UBP</Text></View>
+      )}
+      {!ubp && (
+        <ReportButton
+          target={{
+            contentType: 'feed_post',
+            contentId: post.id,
+            reportedUserId: post.user_id,
+            userName: post.author_name,
+            noun: post.post_type === 'clip' ? 'clip' : post.post_type === 'post' ? 'post' : 'mood board',
+          }}
+        />
       )}
     </View>
   )

@@ -5,6 +5,7 @@ import Card from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
 import Avatar from '../directory/Avatar'
 import FollowButton from '../directory/FollowButton'
+import ReportButton from '../safety/ReportButton'
 import { courseLine, sameCourse } from '../directory/helpers'
 import { fonts, spacing } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
@@ -63,6 +64,12 @@ function RequestCard({ request, person, busy, onAccept, onDecline, onOpenProfile
         >
           <Text style={[s.actionText, { color: colors.textPrimary }]}>Decline</Text>
         </TouchableOpacity>
+        <ReportButton
+          size={18}
+          style={s.reportBtn}
+          target={{ contentType: 'message_request', contentId: request.id, reportedUserId: request.requester_id, userName: name, noun: 'request' }}
+          label={`Report or block ${name}`}
+        />
       </View>
     </Card>
   )
@@ -189,6 +196,7 @@ const s = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 10, marginTop: 14 },
   action: { flex: 1, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   actionText: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  reportBtn: { alignSelf: 'center', paddingHorizontal: 6 },
 
   section: { marginTop: 12, marginHorizontal: -spacing.md },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md, marginBottom: 12 },

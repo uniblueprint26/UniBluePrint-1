@@ -25,6 +25,7 @@ import { linking } from './src/navigation/linking'
 import { navigationRef } from './src/navigation/navigationRef'
 import LoadingScreen from './src/components/ui/LoadingScreen'
 import ErrorBoundary from './src/components/ErrorBoundary'
+import ReportProvider from './src/components/safety/ReportProvider'
 import { refreshAppFlags } from './src/hooks/useAppFlags'
 
 // Keep the native splash (a plain image, no custom fonts involved) on
@@ -171,13 +172,13 @@ export default function App() {
 function AppChrome() {
   const { colors } = useTheme()
   return (
-    <>
+    <ReportProvider>
       {/* chromeBg is a dark navy (light mode) / near-black (dark mode) in
           both palettes, so light status bar icons are correct either way. */}
       <StatusBar style="light" backgroundColor={colors.chromeBg} />
       <NavigationContainer ref={navigationRef} linking={linking} fallback={null}>
         <RootNavigator />
       </NavigationContainer>
-    </>
+    </ReportProvider>
   )
 }

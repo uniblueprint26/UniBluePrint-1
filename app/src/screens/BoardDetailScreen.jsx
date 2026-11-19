@@ -42,6 +42,7 @@ import {
 
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
+import { useReport } from '../components/safety/ReportProvider'
 import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
 import { getBoard, formatCarpoolDays, readBoardRows } from '../constants/campusBoards'
@@ -71,7 +72,6 @@ const RATING_CATEGORIES = [
   ['value_for_money', 'Value for Money'],
 ]
 
-const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 const CARPOOL_TERMS_VERSION = 'v1'
 
@@ -109,6 +109,7 @@ export default function BoardDetailScreen({ navigation, route }) {
   const safeGoBack = useSafeGoBack(navigation, backFallbackRoute)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const { openReport } = useReport()
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -302,19 +303,15 @@ export default function BoardDetailScreen({ navigation, route }) {
     ])
   }
 
+  // Report (and block the poster) through the shared sheet.
   function report(item, targetType) {
-    Alert.alert('Report this post', 'What best describes the issue?', [
-      ...REPORT_REASONS.map(reason => ({
-        text: reason,
-        onPress: async () => {
-          const { error } = await supabase.from('operations_flags').insert({
-            flagged_by: user.id, target_type: targetType || board.table, target_id: item.id, reason,
-          })
-          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.')
-        },
-      })),
-      { text: 'Cancel', style: 'cancel' },
-    ])
+    openReport({
+      contentType: targetType || board.table || board.key,
+      contentId: item.id,
+      reportedUserId: item.user_id ?? item.created_by ?? null,
+      userName: item.poster_name || null,
+      noun: 'post',
+    })
   }
 
   function openChat(item, roomName, subtitle) {

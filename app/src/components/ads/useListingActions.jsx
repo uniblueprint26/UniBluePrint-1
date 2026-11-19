@@ -1,14 +1,12 @@
 import { useState, useCallback } from 'react'
-import { Linking, Alert, Platform } from 'react-native'
-import { supabase } from '../../lib/supabase'
+import { Linking, Platform } from 'react-native'
 import { useAuth } from '../../context/AuthContext'
+import { useReport } from '../safety/ReportProvider'
 import { openInHomeStack } from '../../navigation/helpers'
 import PostListingSheet from './PostListingSheet'
 import PostAdModal from './PostAdModal'
 import PartnerContactModal from './PartnerContactModal'
 import ListingDetailModal from './ListingDetailModal'
-
-const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 /**
  * useListingActions — everything a tap on the Ad Board can do, shared by the
@@ -20,6 +18,7 @@ const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Othe
  */
 export default function useListingActions(navigation, { onAdClosed } = {}) {
   const { user } = useAuth()
+  const { openReport } = useReport()
   const [postOpen, setPostOpen] = useState(false)
   const [adOpen, setAdOpen] = useState(false)
   const [detail, setDetail] = useState(null)
@@ -77,19 +76,17 @@ export default function useListingActions(navigation, { onAdClosed } = {}) {
     })
   }
 
+  // Report (and block the poster) through the shared sheet. The detail card
+  // closes first so the two sheets never sit on top of each other.
   function report(item) {
-    Alert.alert('Report this listing', 'What best describes the issue?', [
-      ...REPORT_REASONS.map(reason => ({
-        text: reason,
-        onPress: async () => {
-          const { error } = await supabase.from('operations_flags').insert({
-            flagged_by: user?.id, target_type: item.source, target_id: item.id, reason,
-          })
-          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks. The UniBlueprint team will take a look.')
-        },
-      })),
-      { text: 'Cancel', style: 'cancel' },
-    ])
+    setDetail(null)
+    setTimeout(() => openReport({
+      contentType: item.source || 'ad_listing',
+      contentId: item.id,
+      reportedUserId: item.ownerId || null,
+      userName: item.posterName || null,
+      noun: 'listing',
+    }), 350)
   }
 
   function pickPost(option) {

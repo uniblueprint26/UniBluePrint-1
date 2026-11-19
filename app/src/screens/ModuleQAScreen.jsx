@@ -23,10 +23,10 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useReport } from '../components/safety/ReportProvider'
 
 // Same reasons/flow as the rest of the app's Report action (BoardDetailScreen),
 // reused here rather than reinvented.
-const REPORT_REASONS = ['Inappropriate content', 'Spam', 'Safety concern', 'Other']
 
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
@@ -43,6 +43,7 @@ export default function ModuleQAScreen({ navigation, route }) {
   const f = __gs_f(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const { openReport } = useReport()
   const safeGoBack = useSafeGoBack(navigation, 'CourseConnect')
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
   const openAsk = route?.params?.openAsk
@@ -166,19 +167,15 @@ export default function ModuleQAScreen({ navigation, route }) {
     }
   }
 
+  // Report (and block the person) through the shared sheet.
   function report(item, targetType) {
-    Alert.alert('Report this content', 'What best describes the issue?', [
-      ...REPORT_REASONS.map(reason => ({
-        text: reason,
-        onPress: async () => {
-          const { error } = await supabase.from('operations_flags').insert({
-            flagged_by: user.id, target_type: targetType, target_id: item.id, reason,
-          })
-          Alert.alert(error ? 'Something went wrong' : 'Reported', error ? 'Please try again.' : 'Thanks — the UniBlueprint team will take a look.')
-        },
-      })),
-      { text: 'Cancel', style: 'cancel' },
-    ])
+    openReport({
+      contentType: targetType,
+      contentId: item.id,
+      reportedUserId: item.user_id ?? null,
+      userName: item.poster_name || item.author_name || null,
+      noun: targetType === 'module_answers' ? 'answer' : 'question',
+    })
   }
 
   async function toggleVote(answer) {

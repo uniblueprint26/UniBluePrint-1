@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react-native'
 import Card from '../ui/Card'
 import Avatar from './Avatar'
 import FollowButton from './FollowButton'
+import ReportButton from '../safety/ReportButton'
 import { courseLine, sharedInterests, sameCourse } from './helpers'
 import { fonts, spacing } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
@@ -40,6 +41,10 @@ function PersonCard({ person, viewerInterests, query, follows, onOpenProfile }) 
           </View>
         </TouchableOpacity>
         <FollowButton following={follows.isFollowing(person.id)} onPress={() => follows.toggleFollow(person.id)} name={name} />
+        <ReportButton
+          target={{ contentType: 'profile', contentId: person.id, reportedUserId: person.id, userName: name, noun: 'profile' }}
+          label={`Report or block ${name}`}
+        />
       </View>
       {chips.length > 0 && (
         <View style={s.chipRow}>

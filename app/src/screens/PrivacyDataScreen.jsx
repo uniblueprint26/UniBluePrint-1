@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, ActivityIndicator, Alert, Share } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Download, Trash2, ExternalLink, Clock } from 'lucide-react-native'
+import { Download, Trash2, ExternalLink, Clock, ShieldAlert } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { WEBSITE_LINKS } from '../constants/site'
+import { WEBSITE_LINKS, MODERATION_EMAIL } from '../constants/site'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
@@ -139,6 +139,23 @@ export default function PrivacyDataScreen({ navigation }) {
           <Text style={styles.policyLinkText}>Read the full Privacy Policy</Text>
           <ExternalLink size={14} color={colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>
+
+        <Card style={styles.actionCard}>
+          <View style={styles.actionIconWrap}><ShieldAlert size={16} color={colors.textPrimary} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.actionTitle}>Contact moderation</Text>
+            <Text style={styles.actionSub}>{`Worried about a post, message or person? Use Report in the app, or email ${MODERATION_EMAIL}.`}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            activeOpacity={0.85}
+            onPress={() => Linking.openURL(`mailto:${MODERATION_EMAIL}?subject=${encodeURIComponent('UniBlueprint moderation')}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`Email moderation at ${MODERATION_EMAIL}`}
+          >
+            <Text style={styles.actionBtnText}>Email</Text>
+          </TouchableOpacity>
+        </Card>
 
         <Card style={styles.actionCard}>
           <View style={styles.actionIconWrap}><Download size={16} color={colors.textPrimary} /></View>
