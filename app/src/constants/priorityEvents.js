@@ -1,131 +1,95 @@
-// ─── Priority Events — FAKE DEMO DATA ──────────────────────────────────────
-// Every event, venue, lineup name, date and price below is invented for a
-// product demo (for Ross). None of this is a real booking, a confirmed
-// venue, or a real artist — do not treat it as a live listing. Cities are
-// real Irish locations (matching Priority's actual genre pools — House in
-// Sligo/Galway, Afrobeats in Dublin, Folk nationwide); venue names are
-// plausible but made up, not the name of a real room, so this can never be
-// mistaken for an actual booked night at a real venue.
+// ─── Priority events: where they come from ─────────────────────────────────
+// Priority events are real rows in `priority_events` and `priority_ticket_tiers`
+// (migration 20261119120000_priority_ticketing.sql), added by staff. The app
+// holds no event data of its own. Everything invented that used to live in this
+// file (fake venues, dates, prices) has been removed.
 //
-// Pricing on the flagship event mirrors the real tier structure already
-// agreed in planning (Super Early Bird → 1st Release → Final Release,
-// roughly €12–€19) — everything else uses plausible, invented prices.
+// Tickets are for real world events, so the app does not sell them. "Get
+// tickets" opens the event page on the website (uniblueprint.ie/priority/<slug>),
+// where checkout happens. This is the exception to NATIVE_NEUTRAL_BILLING in
+// constants/platformPolicy.js: tickets are not a digital good, so they are not
+// hidden on iOS or Android. They are still never bought in the app.
 
-export const PRIORITY_EVENTS = [
-  {
-    id: 'nyr-launch',
-    title: "New Year's Refreshers",
-    genre: 'house',
-    flagship: true,
-    dateLabel: 'Sat 9 Jan 2027',
-    doorsLabel: 'Doors 9:00pm · 18+',
-    city: 'Sligo',
-    venue: 'The Harbourmaster',
-    address: 'Harbour Road, Sligo',
-    blurb: "Priority's first big launch of the year — the house night that started it all, back for New Year's Refreshers. The proven baseline, done bigger.",
-    lineup: ['Resident DJ crew', 'Guest selector TBA'],
-    tiers: [
-      { id: 'seb', label: 'Super Early Bird', price: 12, note: 'Limited release' },
-      { id: 'r1',  label: '1st Release',      price: 16, note: '' },
-      { id: 'r2',  label: 'Final Release',    price: 19, note: 'On the door price' },
-    ],
-  },
-  {
-    id: 'afterglow-galway',
-    title: 'Afterglow Sessions',
-    genre: 'house',
-    dateLabel: 'Fri 23 Jan 2027',
-    doorsLabel: 'Doors 10:00pm · 18+',
-    city: 'Galway',
-    venue: 'Latchford Social Club',
-    address: 'Lower Dominick Street, Galway',
-    blurb: 'A late, dark room session for the house crowd who stay till close. Priority\'s Galway regular.',
-    lineup: ['Resident DJ crew'],
-    tiers: [
-      { id: 'early', label: 'Early Bird', price: 10, note: '' },
-      { id: 'door',  label: 'Standard',   price: 14, note: '' },
-    ],
-  },
-  {
-    id: 'golden-hour-dublin',
-    title: 'Golden Hour',
-    genre: 'afrobeats',
-    dateLabel: 'Sat 7 Feb 2027',
-    doorsLabel: 'Doors 10:30pm · 18+',
-    city: 'Dublin',
-    venue: 'The Tropic Room',
-    address: 'Anne Street area, Dublin 2',
-    blurb: "Priority's push into Afrobeats and Amapiano — Dublin's newest Saturday social, built with the city's own student promoters.",
-    lineup: ['Guest DJ selector', 'Live MC'],
-    tiers: [
-      { id: 'early', label: 'Early Bird', price: 13, note: '' },
-      { id: 'door',  label: 'Standard',   price: 18, note: '' },
-    ],
-  },
-  {
-    id: 'folk-fire-athlone',
-    title: 'Folk & Fire',
-    genre: 'folk',
-    dateLabel: 'Thu 19 Feb 2027',
-    doorsLabel: 'Doors 8:00pm · All ages',
-    city: 'Athlone',
-    venue: "The Lockhouse",
-    address: 'Grace Road, Athlone',
-    blurb: "An acoustic evening built around Priority's folk roster — a low-cost pilot night, warm room, real musicianship.",
-    lineup: ['Headline trio', 'Support act'],
-    tiers: [
-      { id: 'door', label: 'Standard', price: 9, note: '' },
-    ],
-  },
-  {
-    id: 'harbour-lights-cork',
-    title: 'Harbour Lights',
-    genre: 'house',
-    dateLabel: 'Fri 6 Mar 2027',
-    doorsLabel: 'Doors 10:00pm · 18+',
-    city: 'Cork',
-    venue: 'Rooftop 48',
-    address: 'South Mall, Cork',
-    blurb: "Priority's first Cork date — a rooftop warm-up into a late set, testing the market ahead of a bigger run.",
-    lineup: ['Resident DJ crew'],
-    tiers: [
-      { id: 'early', label: 'Early Bird', price: 11, note: '' },
-      { id: 'door',  label: 'Standard',   price: 15, note: '' },
-    ],
-  },
-  {
-    id: 'border-sessions-derry',
-    title: 'Border Sessions',
-    genre: 'afrobeats',
-    dateLabel: 'Sat 20 Mar 2027',
-    doorsLabel: 'Doors 9:30pm · 18+',
-    city: 'Derry',
-    venue: 'The North Wing',
-    address: "Foyle Street, Derry",
-    blurb: 'A cross-border date for the Donegal/Derry student catchment — Priority\'s newest region, same formula as Sligo.',
-    lineup: ['Guest DJ selector'],
-    tiers: [
-      { id: 'early', label: 'Early Bird', price: 10, note: '' },
-      { id: 'door',  label: 'Standard',   price: 14, note: '' },
-    ],
-  },
-  {
-    id: 'folk-fire-mayo',
-    title: 'Fireside Sessions',
-    genre: 'folk',
-    dateLabel: 'Fri 2 Apr 2027',
-    doorsLabel: 'Doors 7:30pm · All ages',
-    city: 'Westport',
-    venue: "Clew Bay House",
-    address: 'The Octagon, Westport, Co. Mayo',
-    blurb: "A small-room folk night close to home for Priority's own touring roster — quiet, acoustic, ticketed low to fill the room.",
-    lineup: ['Headline trio', 'Local support'],
-    tiers: [
-      { id: 'door', label: 'Standard', price: 8, note: '' },
-    ],
-  },
+import { SITE_URL } from './site'
+import { supabase } from '../lib/supabase'
+
+export const PRIORITY_URLS = {
+  events: `${SITE_URL}/priority`,
+  tickets: `${SITE_URL}/priority/tickets`,
+  event: slug => `${SITE_URL}/priority/${encodeURIComponent(slug)}`,
+}
+
+// Genre filter chips. These match the genres Priority runs. An event with a
+// genre not listed here still shows under All.
+export const PRIORITY_FILTERS = [
+  { key: 'all',       label: 'All' },
+  { key: 'house',     label: 'House' },
+  { key: 'afrobeats', label: 'Afrobeats' },
+  { key: 'folk',      label: 'Folk' },
 ]
 
-export function findPriorityEvent(id) {
-  return PRIORITY_EVENTS.find(e => e.id === id) || null
+const EVENT_COLUMNS =
+  'id, slug, title, genre, city, venue, address, starts_at, doors_at, age_min, blurb, lineup, image_url, status'
+
+// Events on sale or sold out that have not started yet. Open to everyone
+// (row level security allows an anonymous read of public events).
+export async function fetchPriorityEvents() {
+  const { data, error } = await supabase
+    .from('priority_events')
+    .select(`${EVENT_COLUMNS}, tiers:priority_ticket_tiers(id, label, price_cents, sale_starts_at, sale_ends_at, sort)`)
+    .in('status', ['on_sale', 'sold_out'])
+    .gt('starts_at', new Date().toISOString())
+    .order('starts_at', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchPriorityEvent(slug) {
+  const { data, error } = await supabase
+    .from('priority_events')
+    .select(`${EVENT_COLUMNS}, tiers:priority_ticket_tiers(id, label, price_cents, sale_starts_at, sale_ends_at, sort)`)
+    .eq('slug', slug)
+    .maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  data.tiers = (data.tiers || []).slice().sort((a, b) => a.sort - b.sort || a.price_cents - b.price_cents)
+  return data
+}
+
+// The signed in person's own tickets (row level security returns only theirs).
+export async function fetchMyPriorityTickets() {
+  const { data, error } = await supabase
+    .from('priority_tickets')
+    .select('id, code, status, used_at, created_at, event:priority_events(slug, title, city, venue, starts_at, doors_at)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// ── Formatting ─────────────────────────────────────────────────────────────
+function fmt(iso, options) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  try {
+    return d.toLocaleString('en-IE', { ...options, timeZone: 'Europe/Dublin' })
+  } catch {
+    return d.toLocaleString('en-IE', options)
+  }
+}
+
+export function formatEventDate(iso) {
+  return fmt(iso, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+export function formatEventTime(iso) {
+  return fmt(iso, { hour: 'numeric', minute: '2-digit', hour12: true }).replace(' ', '').toLowerCase()
+}
+
+export function formatPriceCents(cents) {
+  return `€${((Number(cents) || 0) / 100).toFixed(2)}`
+}
+
+export function cheapestTierCents(event) {
+  const prices = (event?.tiers || []).map(t => t.price_cents)
+  return prices.length ? Math.min(...prices) : null
 }

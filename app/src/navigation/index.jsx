@@ -79,10 +79,11 @@ import MyBlueprintScreen    from '../screens/MyBlueprintScreen'
 import ExploreScreen        from '../screens/ExploreScreen'
 import ExploreListScreen    from '../screens/ExploreListScreen'
 
-// Priority — UniBlueprint's events arm (demo build for Ross)
+// Priority — UniBlueprint's events arm. Events come from the database; tickets
+// are bought on the website, never in the app.
 import PrioritiesScreen        from '../screens/PrioritiesScreen'
 import PriorityEventScreen     from '../screens/PriorityEventScreen'
-import PriorityCheckoutScreen  from '../screens/PriorityCheckoutScreen'
+import PriorityTicketsScreen   from '../screens/PriorityTicketsScreen'
 
 // Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches)
 import StudioQueueScreen    from '../screens/studio/StudioQueueScreen'
@@ -193,7 +194,7 @@ function HomeStack() {
       <Stack.Screen name="CareerReadiness" component={Gated.CareerReadinessScreen} />
       <Stack.Screen name="Priorities"        component={PrioritiesScreen}       />
       <Stack.Screen name="PriorityEvent"     component={PriorityEventScreen}    />
-      <Stack.Screen name="PriorityCheckout"  component={PriorityCheckoutScreen} />
+      <Stack.Screen name="PriorityTickets"   component={PriorityTicketsScreen}  />
       <Stack.Screen name="CvBuilder"                component={Gated.CvBuilderScreen}                options={{ presentation: 'modal' }} />
       <Stack.Screen name="LinkedinBuilder"          component={Gated.LinkedinBuilderScreen}          options={{ presentation: 'modal' }} />
       <Stack.Screen name="CoverLetterBuilder"       component={Gated.CoverLetterBuilderScreen}       options={{ presentation: 'modal' }} />

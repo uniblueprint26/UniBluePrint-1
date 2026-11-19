@@ -397,10 +397,10 @@ export default function CampusConnectScreen({ navigation }) {
           )}
 
           {/* Priority — UniBlueprint's events arm (House/Afrobeats/Folk
-              nights, ticketed in-app). Kept outside CAMPUS_BOARDS on
-              purpose: it carries its own brand (dark + gold, not UBP
-              navy/cream) and a real purchase flow, so it gets its own
-              full screen rather than an inline board like the ones above. */}
+              nights). Kept outside CAMPUS_BOARDS on purpose: it carries its
+              own brand (black and silver, not UBP navy/cream), so it gets its
+              own full screen rather than an inline board like the ones
+              above. Tickets are bought on the website, not in the app. */}
           <TouchableOpacity
             style={priorityCardStyles.card}
             activeOpacity={0.9}
@@ -412,13 +412,13 @@ export default function CampusConnectScreen({ navigation }) {
               </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={priorityCardStyles.label}>PRIORITY EVENTS</Text>
-                <Text style={priorityCardStyles.count}>Preview · by UniBlueprint</Text>
+                <Text style={priorityCardStyles.count}>By UniBlueprint</Text>
               </View>
               <View style={priorityCardStyles.newBadge}><Text style={priorityCardStyles.newBadgeText}>NEW</Text></View>
             </View>
-            <Text style={priorityCardStyles.headline}>House, Afrobeats and Folk nights, ticketed in-app</Text>
+            <Text style={priorityCardStyles.headline}>House, Afrobeats and Folk nights</Text>
             <Text style={priorityCardStyles.sub}>
-              UniBlueprint's events arm — campus nightlife and live music across Ireland.
+              Nights out and live music across Ireland. Tickets are on the UniBlueprint website.
             </Text>
             <View style={priorityCardStyles.cta}>
               <Text style={priorityCardStyles.ctaText}>Open Priority</Text>
