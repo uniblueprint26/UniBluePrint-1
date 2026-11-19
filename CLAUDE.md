@@ -21,3 +21,6 @@ Pro is 6.99 euro a month or 49.99 euro a year. All services are half price durin
 
 ## Ad Board
 Order: Weekly Blueprint magazine at the top (the headline the founder approved), then this week's blogs, then Post a listing, then the Marketplace as a set of baskets (Deals, Jobs, Tutors and so on). Ride shares and Lost and found belong in Campus Connect, not the Ad Board. Never sell Campus Connect features on the Ad Board.
+
+## Team order
+Whenever the five teams are listed (posters, emails, pages, app screens), use this order: Outreach, Marketing, Finance, Tech, Legal.
