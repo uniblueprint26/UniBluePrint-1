@@ -7,7 +7,7 @@ Read this first:
 * Store text below follows the product vocabulary. Plain, short sentences. No dashes. No prices.
 * **No prices in any iOS or Android text.** Pro is 6.99 euro a month or 49.99 euro a year, and it is sold only on the website. Do not mention that in the store descriptions, screenshots or app preview.
 * **Foundation is hidden in the app at launch** (switch: `app_flags.foundation_enabled`, see the release checklist). A listing must match what the app really does, so the launch description below does not mention Foundation. When you switch it on in January, change the store text to the "From January" version.
-* The words `REVIEWER_EMAIL` and `REVIEWER_PASSWORD` are placeholders. Fill them in yourself. Never commit real credentials.
+* The reviewer email is appreview@uniblueprint.ie. `REVIEWER_PASSWORD` is a placeholder. Fill it in yourself when you paste the notes into the consoles. Never commit real credentials.
 
 ---
 
@@ -246,7 +246,7 @@ Founder to confirm before submission: the website Terms (https://uniblueprint.ie
 
 ```
 Sign in with this demo account:
-Email: REVIEWER_EMAIL
+Email: appreview@uniblueprint.ie
 Password: REVIEWER_PASSWORD
 The account is over 18 and has full access, including Elevation.
 
@@ -276,7 +276,7 @@ Notifications. Asked after sign in. They are optional.
 
 ```
 App access: all features need a sign in. Use this demo account.
-Email: REVIEWER_EMAIL
+Email: appreview@uniblueprint.ie
 Password: REVIEWER_PASSWORD
 The account is over 18 and has full access.
 

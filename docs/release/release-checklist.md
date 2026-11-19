@@ -8,20 +8,28 @@ Work from the `app/` folder for every `eas` and `expo` command.
 
 ## A. Accounts (start now, they take days or weeks)
 
-1. **Get a D-U-N-S number for UniBlueprint Limited** (company number 826545). It is free. Request it from Dun and Bradstreet, or through Apple's own D-U-N-S lookup at developer.apple.com/enroll/duns-lookup. The legal name and address must match the CRO record exactly. Expect days to a few weeks.
-2. **Apple Developer Program, as an organisation.** Enrol at developer.apple.com/programs/enroll. Choose Organisation, not Individual. You need the D-U-N-S number, a work email on the company domain, and the authority to sign for the company. Apple phones to verify. The fee is 99 US dollars a year. The Account Holder must be an owner or senior person.
-3. **Google Play Console, as an organisation.** Register at play.google.com/console. Choose Organisation. It needs the D-U-N-S number, the company website and a one time 25 US dollar fee. Complete the identity and phone verification. Organisation accounts are not held to the personal account rule of 12 testers for 14 days. Check the console in case that has changed.
+Company details to use on every form, exactly as written:
+
+* Legal name: UniBlueprint Limited
+* Company number (CRO): 826545
+* Registered office: Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland
+* D-U-N-S: 304929923
+* Contact and moderation address: desmond@uniblueprint.ie
+
+1. **D-U-N-S number.** Already issued: 304929923. If Apple or Google says it cannot find it, check that the legal name and address match the CRO record exactly, and use Apple's lookup at developer.apple.com/enroll/duns-lookup to confirm it.
+2. **Apple Developer Program, as an organisation (UniBlueprint Limited).** Enrol at developer.apple.com/programs/enroll. Choose Organisation, not Individual. Use D-U-N-S 304929923. You need a work email on the company domain, and the authority to sign for the company. Apple phones to verify. The fee is 99 US dollars a year. The Account Holder must be an owner or senior person.
+3. **Google Play Console, as an organisation (UniBlueprint Limited).** Register at play.google.com/console. Choose Organisation. It needs D-U-N-S 304929923, the company website and a one time 25 US dollar fee. Complete the identity and phone verification. Organisation accounts are not held to the personal account rule of 12 testers for 14 days. Check the console in case that has changed.
 4. **App Store Connect:** create the app record. Name UniBlueprint, bundle ID `com.uniblueprint.app`, primary language English (Ireland). Fill the Agreements, Tax and Banking section even though the app is free.
 5. **Google Play Console:** create the app. Name UniBlueprint, package `com.uniblueprint.app`, free.
 6. **Expo account:** the project is owned by `uniblueprint` with ID `69a062e2-f045-44c6-aeed-81e557ab3575`. Run `npx eas-cli login` and check you can see it.
 
 ## B. Database (Supabase)
 
-Apply these migrations, in this order, through the Supabase dashboard or CLI. The build does not apply them.
+Earlier migrations (the new look backend, moods, text guard) are already applied in production. Only the three below are new and still unapplied. Each is additive and safe to run once: tables use `create table if not exists`, policies are dropped and recreated by name, the app_flags seed row uses `on conflict do nothing`, and the age migration only replaces one function. Apply them in this order through the Supabase dashboard or CLI. The build does not apply them.
 
 1. `supabase/migrations/20261119090000_app_flags.sql` creates `app_flags` with `foundation_enabled = false`. The app hides Foundation on iOS and Android until this is `true`.
 2. `supabase/migrations/20261119100000_content_reports.sql` creates `content_reports`. Every Report in the app writes here. The app needs it.
-3. `supabase/migrations/20261119110000_min_age_18.sql` raises the database age check from 16 to 18.
+3. `supabase/migrations/20261119110000_min_age_18.sql` raises the database age check (`validate_date_of_birth`, from 20261012120000_profiles_date_of_birth_age_gate.sql) from 16 to 18 for new or changed dates of birth. A null date of birth stays allowed, and existing profiles are not touched.
 
 After applying, check:
 
@@ -34,7 +42,7 @@ After applying, check:
 1. **Google Maps key (Android).** In Google Cloud, enable Maps SDK for Android and create an API key. Restrict it to the package `com.uniblueprint.app` and to the SHA 1 fingerprints of your Play app signing key and the EAS upload key. This is `GOOGLE_MAPS_ANDROID_API_KEY`.
 2. **Push notifications on Android.** Create a Firebase project, add the Android app `com.uniblueprint.app`, download `google-services.json`, and upload the FCM V1 service account key in the Expo dashboard under Credentials. iOS push is set up for you by EAS when it creates the Apple credentials.
 3. **Crash reporting (optional).** Create a Sentry project and take its DSN. If you do not use Sentry, set `SENTRY_DISABLE_AUTO_UPLOAD=true` (below) so the build does not stop on a missing token.
-4. **Demo account for the reviewers.** Create it in the app (date of birth over 18). Give it full access, including Elevation, the same way you give any complimentary account. Put its email and password in the review notes, never in the repo. In `docs/release/store-listing.md` replace `REVIEWER_EMAIL` and `REVIEWER_PASSWORD` when you paste the notes into the consoles.
+4. **Demo account for the reviewers.** The email is `appreview@uniblueprint.ie`. Check it exists, its date of birth is over 18 and it is verified. Give it full access, including Elevation, the same way you give any complimentary account. The password is the placeholder `REVIEWER_PASSWORD` in `docs/release/store-listing.md`. Replace it only when you paste the notes into the consoles, never commit the real one.
 
 ## D. EAS environment variables
 
