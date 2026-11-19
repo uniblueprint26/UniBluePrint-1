@@ -23,7 +23,9 @@
 -- ── Events ──────────────────────────────────────────────────────────────────
 create table if not exists public.priority_events (
   id          uuid primary key default gen_random_uuid(),
-  slug        text not null unique check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and char_length(slug) <= 80),
+  -- 'success' and 'tickets' are website pages under /priority, so they cannot be slugs.
+  slug        text not null unique
+              check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and char_length(slug) <= 80 and slug not in ('success', 'tickets')),
   title       text not null check (char_length(title) between 1 and 120),
   genre       text not null check (char_length(genre) between 1 and 40),
   city        text not null check (char_length(city) between 1 and 80),
