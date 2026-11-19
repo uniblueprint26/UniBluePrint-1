@@ -268,7 +268,7 @@ export default function SignUpScreen({ navigation }) {
     const dob = parseDob()
     if (!dob || dob > new Date())              return 'Enter a valid date of birth.'
     if (!isAtLeastAge(dob, MIN_SIGNUP_AGE))
-      return `UniBlueprint is only able to offer accounts to people aged ${MIN_SIGNUP_AGE} and over, in line with Ireland's digital age of consent. We'd love to have you back once you turn ${MIN_SIGNUP_AGE}.`
+      return `UniBlueprint is for people aged ${MIN_SIGNUP_AGE} and over. We would love to have you back once you turn ${MIN_SIGNUP_AGE}.`
     if (!agreedToTerms)                        return 'Please agree to the Terms of Service and Privacy Policy to continue.'
     return null
   }

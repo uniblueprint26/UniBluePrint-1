@@ -4,8 +4,8 @@
  * copier product, and named trading coaches).
  *
  * Sign-up (SignUpScreen) already blocks account creation under
- * constants/legal.js's MIN_SIGNUP_AGE (16, Ireland's digital consent age).
- * This is a separate, higher bar — MIN_INVESTMENT_AGE (18) — checked
+ * constants/legal.js's MIN_SIGNUP_AGE (18).
+ * This is a separate check, MIN_INVESTMENT_AGE (18), made
  * against the same profiles.date_of_birth value, not a new field.
  *
  * Fails closed: a user with no date of birth on file at all (every account
