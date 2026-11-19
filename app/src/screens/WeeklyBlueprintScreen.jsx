@@ -20,9 +20,11 @@ import { openMenu } from '../navigation/helpers'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { WEBSITE_LINKS } from '../constants/site'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { COACHES } from './ElevationScreen'
 import { PARTNERS } from '../data/lifestylePartners'
-import { POSTS as BLOG_POSTS, calcReadTime, formatDate } from '../data/blogPosts'
+import { getPosts, calcReadTime, formatDate } from '../data/blogPosts'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
@@ -173,13 +175,13 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
               ? 'You have full access. Every Lifestyle Partner deal is unlocked, not just Mental Health.'
               : 'Pro unlocks every Lifestyle Partner deal on the platform, not just Mental Health, which is always free for everyone.'}
           </Text>
-          {/* iOS: no purchase CTA in the app (App Store 3.1.1) — status only (D1). */}
-          {!isPro && Platform.OS !== 'ios' && (
+          {/* iOS and Android: no purchase CTA in the app, status only (neutral billing). */}
+          {!isPro && !NATIVE_NEUTRAL_BILLING && (
             <TouchableOpacity style={styles.postPageCta} activeOpacity={0.85} onPress={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
               <Text style={styles.postPageCtaText}>Upgrade to Pro</Text>
             </TouchableOpacity>
           )}
-          {!isPro && Platform.OS === 'ios' && (
+          {!isPro && NATIVE_NEUTRAL_BILLING && (
             <Text style={[styles.postPageBody, { fontSize: 12.5, opacity: 0.7 }]}>Manage your plan on uniblueprint.ie</Text>
           )}
           <View style={{ flex: 1 }} />
@@ -450,7 +452,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
           <Text style={styles.pageKicker}>FROM THE BLOG</Text>
           <Text style={styles.pageHeading}>Real Irish education news</Text>
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 14 }}>
-            {BLOG_POSTS.slice(0, 6).map(post => (
+            {getPosts().slice(0, 6).map(post => (
               <TouchableOpacity key={post.slug} activeOpacity={0.8} onPress={() => navigation.navigate('Article', { slug: post.slug })}>
                 <View style={styles.blogCard}>
                   <View style={styles.categoryPill}><Text style={styles.categoryPillText}>{post.category}</Text></View>
@@ -708,8 +710,8 @@ function MagazinePage({ page, index, scrollX, navigation, onJump, onOpenPost, da
 //  - ubp-board + week-ahead (two short bullet-list pages, identical layout)
 //    combined onto one page as two stacked sections.
 
-function buildPages() {
-  const pages = [
+function buildPages(foundationOpen) {
+  const all = [
     { type: 'cover' },
     { type: 'contents', entries: [] },
     { type: 'deals-1' }, { type: 'deals-2' }, { type: 'deal-room' },
@@ -730,12 +732,14 @@ function buildPages() {
     { type: 'founders-note' },
     { type: 'closing' },
   ]
+  // The two Foundation pages are left out while Foundation is closed on iOS and Android.
+  const pages = foundationOpen ? all : all.filter(p => !p.type.startsWith('foundation-'))
   const toc = pages[1]
   const idx = t => pages.findIndex(p => p.type === t)
   toc.entries.push(
     { label: 'Deals & Discounts', Icon: Star,          page: idx('deals-1') },
     { label: 'Coach Spotlights',  Icon: GraduationCap,  page: idx('coach-1') },
-    { label: 'Foundation Focus',  Icon: Award,          page: idx('foundation-1') },
+    ...(foundationOpen ? [{ label: 'Foundation Focus',  Icon: Award,          page: idx('foundation-1') }] : []),
     { label: 'Campus Connect',    Icon: Building2,      page: idx('campus-events-1') },
     { label: 'Student Spotlight', Icon: Newspaper,      page: idx('student-spotlight-grid') },
     { label: 'Campus Guide',      Icon: MapPin,         page: idx('campus-guide') },
@@ -750,7 +754,8 @@ function buildPages() {
   return pages
 }
 
-const PAGES = buildPages()
+const PAGES_WITH_FOUNDATION = buildPages(true)
+const PAGES_WITHOUT_FOUNDATION = buildPages(false)
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
@@ -762,6 +767,8 @@ export default function WeeklyBlueprintScreen({ navigation }) {
   useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
   const { user, isPro } = useAuth()
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const PAGES = foundationOpen ? PAGES_WITH_FOUNDATION : PAGES_WITHOUT_FOUNDATION
   const [modalVisible, setModalVisible] = useState(false)
   const [pageIndex, setPageIndex] = useState(0)
   const [loading, setLoading] = useState(true)

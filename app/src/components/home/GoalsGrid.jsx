@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabase'
 import { publishGoals } from './personalStats'
 import { openInHomeStack } from '../../navigation/helpers'
 import { CAREER_SERVICES } from '../../screens/FoundationScreen'
+import { useFoundationEnabled } from '../../hooks/useAppFlags'
 import { REMIND_OPTIONS, syncGoalReminder, cancelGoalReminder } from './goalReminders'
 
 // "Your goals": one closed folder per Foundation Blueprint service (the real
@@ -373,6 +374,9 @@ export default function GoalsGrid({ navigation, userId, name }) {
   const { colors, isDark } = useTheme()
   const s = getStyles(colors, isDark)
   const { goals, add, update, toggle, remove } = useGoals(userId)
+  // The recommended Foundation folders only show once Foundation is open.
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const foundationTiles = foundationOpen ? FOUNDATION_TILES : []
   const [gridWidth, setGridWidth] = useState(0)
   const [target, setTarget] = useState(null) // { kind: 'custom' | 'foundation', title?, key?, goal? }
 
@@ -402,11 +406,11 @@ export default function GoalsGrid({ navigation, userId, name }) {
 
   return (
     <View style={s.section}>
-      <Text style={s.heading}>Your goals</Text>
-      <Text style={s.sub}>Recommended by UBP</Text>
+      <Text style={[s.heading, foundationTiles.length === 0 && { marginBottom: 16 }]}>Your goals</Text>
+      {foundationTiles.length > 0 && <Text style={s.sub}>Recommended by UBP</Text>}
 
       <View style={s.grid} onLayout={e => setGridWidth(e.nativeEvent.layout.width)}>
-        {FOUNDATION_TILES.map(t => {
+        {foundationTiles.map(t => {
           const g = foundationGoal(t.key)
           return (
             <FolderTile

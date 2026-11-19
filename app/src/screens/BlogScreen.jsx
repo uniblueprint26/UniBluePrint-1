@@ -12,10 +12,13 @@ import Card from '../components/ui/Card'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
-import { POSTS, calcReadTime, formatDate } from '../data/blogPosts'
+import { getPosts, calcReadTime, formatDate } from '../data/blogPosts'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 export default function BlogScreen({ navigation }) {
+  useFoundationEnabled() // the article list depends on it
+  const POSTS = getPosts()
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   // Cream hero under the status bar — the global light icons are invisible

@@ -7,6 +7,7 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 const TOPICS = [
   {
@@ -44,6 +45,9 @@ const TOPICS = [
 
 export default function HelpScreen({ navigation }) {
   const { colors } = useTheme()
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  // The Foundation topic is left out while Foundation is closed on iOS and Android.
+  const topics = foundationOpen ? TOPICS : TOPICS.filter(t => t.title !== 'Foundation Blueprint')
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)
@@ -87,7 +91,7 @@ export default function HelpScreen({ navigation }) {
         </Card>
 
         {/* Help topics */}
-        {TOPICS.map(({ icon: Icon, title, items }) => (
+        {topics.map(({ icon: Icon, title, items }) => (
           <View key={title} style={styles.topicSection}>
             <View style={styles.topicHeader}>
               <View style={styles.topicIcon}>

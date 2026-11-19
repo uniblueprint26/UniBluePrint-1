@@ -1,16 +1,21 @@
+import { useMemo } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { Clock, ChevronRight } from 'lucide-react-native'
 import { fonts, shadows } from '../../constants/theme'
-import { POSTS, calcReadTime, formatDate } from '../../data/blogPosts'
+import { getPosts, calcReadTime, formatDate } from '../../data/blogPosts'
+import { useFoundationEnabled } from '../../hooks/useAppFlags'
 import { useAdTokens } from './adTheme'
-
-const LATEST = [...POSTS].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 5)
 
 // "This week's blogs": a short, sideways row of the latest posts, read from the
 // same data the Blog screen uses. See all opens the Blog screen.
 export default function BlogRow({ onOpenPost, onSeeAll }) {
   const t = useAdTokens()
   const { colors } = t
+  const { enabled } = useFoundationEnabled() // the article list depends on it
+  const LATEST = useMemo(
+    () => [...getPosts()].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 5),
+    [enabled],
+  )
   return (
     <View>
       <View style={s.head}>

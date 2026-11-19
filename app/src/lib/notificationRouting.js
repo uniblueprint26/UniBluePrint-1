@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { COACHES, coachSlug } from '../screens/ElevationScreen'
+import { isFoundationEnabledNow } from '../hooks/useAppFlags'
 
 // ── Deep-link routing ────────────────────────────────────────────────────────
 // notifications.related_entity_type/related_entity_id are generic (an
@@ -23,6 +24,13 @@ export async function goToRelatedEntity(navigation, notif, userId) {
   const type = notif.related_entity_type
   const id = notif.related_entity_id
   if (!type || !id) return
+
+  // Foundation is closed on iOS and Android until the remote flag is on, so a
+  // Foundation notification opens the notifications list instead.
+  if ((type === 'submission' || type === 'job_application') && !isFoundationEnabledNow()) {
+    navigation.navigate('Notifications')
+    return
+  }
 
   switch (type) {
     case 'submission':

@@ -5,7 +5,8 @@ import { CalendarDays, Wallet, Play, ChevronRight } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import { SectionTitle, GroupCard, RowDivider, PartnerMark, pillarTone } from '../components/explore/ExploreParts'
-import { PILLARS, PILLAR_ORDER } from '../constants/pillars'
+import { PILLARS } from '../constants/pillars'
+import { usePillarOrder } from '../hooks/usePillarOrder'
 import { PARTNERS } from '../constants/exploreCatalog'
 import { fonts, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -19,6 +20,7 @@ export default function MyBlueprintScreen({ navigation }) {
   const { colors, isDark } = useTheme()
   const insets = useSafeAreaInsets()
   const [sheet, setSheet] = useState(null)
+  const pillarKeys = usePillarOrder()
 
   // There is no Calendar data yet, so there is never a "next up" event to
   // show. When one exists, set it here as { title, time, relative } and the
@@ -79,7 +81,7 @@ export default function MyBlueprintScreen({ navigation }) {
         <View style={s.block}>
           <SectionTitle>Your pillars</SectionTitle>
           <View style={s.grid}>
-            {PILLAR_ORDER.map(key => {
+            {pillarKeys.map(key => {
               const p = PILLARS[key]
               const tone = pillarTone(p.color, isDark)
               return (

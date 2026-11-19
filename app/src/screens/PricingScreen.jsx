@@ -32,14 +32,17 @@ import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { useAuth } from '../context/AuthContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { WEBSITE_LINKS } from '../constants/site'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 const { width: SCREEN_W } = Dimensions.get('window')
 const CARD_W = Math.min(320, SCREEN_W - 64)
 const CARD_GAP = 14
 
-// iOS: no purchase CTAs, prices or upgrade steering in the app (App Store
-// 3.1.1) — plan status only, for v1 (D1). Web and Android are unchanged.
-const IS_IOS = Platform.OS === 'ios'
+// iOS and Android: no purchase CTAs, prices or upgrade steering in the app
+// (App Store 3.1.1, Google Play Billing), plan status only. Web is unchanged.
+// IS_IOS keeps its old name here but now means "neutral billing".
+const IS_IOS = NATIVE_NEUTRAL_BILLING
 
 const FREE_FEATURES = [
   'Foundation Blueprint (pay-per-service)',
@@ -90,6 +93,11 @@ export default function PricingScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)
   const { subscription } = useAuth()
+  // Foundation lines are left out while Foundation is closed on iOS and Android.
+  const { enabled: foundationOpen } = useFoundationEnabled()
+  const noFoundation = f => foundationOpen || !/Foundation/.test(f)
+  const freeFeatures = FREE_FEATURES.filter(noFoundation)
+  const proFeatures = PRO_FEATURES.filter(noFoundation)
   const scrollRef = useRef(null)
   const scrollX = useRef(new Animated.Value(0)).current
   const [pageIndex, setPageIndex] = useState(0)
@@ -144,7 +152,7 @@ export default function PricingScreen({ navigation }) {
             <Text style={styles.priceNote}>No credit card required</Text>
 
             <View style={{ marginTop: 20, gap: 10, flex: 1 }}>
-              {FREE_FEATURES.map(f => <FeatureRow key={f} text={f} />)}
+              {freeFeatures.map(f => <FeatureRow key={f} text={f} />)}
             </View>
 
             {currentPlan === 'free' ? (
@@ -175,7 +183,7 @@ export default function PricingScreen({ navigation }) {
             )}
 
             <View style={{ marginTop: 20, gap: 10, flex: 1 }}>
-              {PRO_FEATURES.map(f => <FeatureRow key={f} text={f} />)}
+              {proFeatures.map(f => <FeatureRow key={f} text={f} />)}
             </View>
 
             {currentPlan === 'pro' ? (
@@ -208,7 +216,7 @@ export default function PricingScreen({ navigation }) {
             )}
 
             <View style={{ marginTop: 20, gap: 10, flex: 1 }}>
-              {PRO_FEATURES.map(f => <FeatureRow key={f} text={f} dim />)}
+              {proFeatures.map(f => <FeatureRow key={f} text={f} dim />)}
             </View>
 
             {currentPlan === 'premium' ? (

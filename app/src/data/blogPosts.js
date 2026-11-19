@@ -6,6 +6,9 @@
  * same title/excerpt/section content as the website — no invented copy.
  */
 
+import { isFoundationEnabledNow } from '../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+
 export function calcReadTime(sections) {
   const allText = sections
     .map(s => s.type === 'list' ? (s.items || []).join(' ') : (s.text || ''))
@@ -18,7 +21,7 @@ export function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-export const POSTS = [
+export const ALL_POSTS = [
   {
     slug: 'how-to-write-a-cv',
     title: 'How to Write a CV That Gets Noticed in Ireland',
@@ -331,6 +334,43 @@ export const POSTS = [
   },
 ]
 
+// ── What the app shows ──────────────────────────────────────────────────────
+// The articles are a copy of the website blog, so some of them talk about
+// Foundation and about Pro prices. Two rules for the iOS and Android apps:
+//   - While Foundation is closed (see hooks/useAppFlags.js), articles about
+//     Foundation are left out, and any paragraph that promotes a Foundation
+//     service is removed from the rest.
+//   - Neutral billing (constants/platformPolicy.js): the launch pricing
+//     article, which quotes Pro prices, is left out.
+// On the web build every article is shown in full, as before.
+const FOUNDATION_ONLY_SLUGS = new Set(['foundation-blueprint-explained', 'uniblueprint-launches-september-2026'])
+const PRICING_ONLY_SLUGS = new Set(['uniblueprint-launches-september-2026'])
+const FOUNDATION_TEXT = /Foundation Blueprint|Campus Handler|Optimisation service|trained eye/
+
+function sectionText(sec) {
+  return sec.type === 'list' ? (sec.items || []).join(' ') : (sec.text || '')
+}
+
+// Drops sections that promote Foundation, and any heading left with nothing under it.
+function withoutFoundation(post) {
+  const kept = post.sections.filter(sec => !FOUNDATION_TEXT.test(sectionText(sec)))
+  const cleaned = kept.filter((sec, i) => sec.type !== 'heading' || (kept[i + 1] && kept[i + 1].type !== 'heading'))
+  return { ...post, sections: cleaned }
+}
+
+const cache = {}
+export function getPosts() {
+  const foundationOpen = isFoundationEnabledNow()
+  const neutral = NATIVE_NEUTRAL_BILLING
+  const key = `${foundationOpen ? 1 : 0}${neutral ? 1 : 0}`
+  if (!cache[key]) {
+    cache[key] = ALL_POSTS
+      .filter(p => !(neutral && PRICING_ONLY_SLUGS.has(p.slug)) && !(!foundationOpen && FOUNDATION_ONLY_SLUGS.has(p.slug)))
+      .map(p => (foundationOpen ? p : withoutFoundation(p)))
+  }
+  return cache[key]
+}
+
 export function getPost(slug) {
-  return POSTS.find(p => p.slug === slug) || null
+  return getPosts().find(p => p.slug === slug) || null
 }

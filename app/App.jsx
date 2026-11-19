@@ -25,6 +25,7 @@ import { linking } from './src/navigation/linking'
 import { navigationRef } from './src/navigation/navigationRef'
 import LoadingScreen from './src/components/ui/LoadingScreen'
 import ErrorBoundary from './src/components/ErrorBoundary'
+import { refreshAppFlags } from './src/hooks/useAppFlags'
 
 // Keep the native splash (a plain image, no custom fonts involved) on
 // screen until the brand fonts have actually finished loading — without
@@ -106,6 +107,10 @@ export default function App() {
     Outfit_500Medium,
     Outfit_600SemiBold,
   })
+
+  // Remote switches (public.app_flags) start loading straight away, so the
+  // Foundation switch is known before the first screen needs it.
+  useEffect(() => { refreshAppFlags() }, [])
 
   const fontsReady = fontsLoaded || fontError
   const webFontsSettled = useWebFontsSettled(fontsReady)

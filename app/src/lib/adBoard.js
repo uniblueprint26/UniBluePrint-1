@@ -20,6 +20,7 @@
  */
 import { supabase } from './supabase'
 import { UBP_CARDS, UBP_PLACEMENTS, EXAMPLE_TUTORS, PLACEMENT_URL } from '../constants/adBoardContent'
+import { isFoundationEnabledNow } from '../hooks/useAppFlags'
 
 export const AD_BOARD_KINDS = ['deals', 'jobs', 'tutors', 'marketplace']
 
@@ -313,7 +314,9 @@ export function ubpCardToItem(card) {
 
 /** The UBP cards for the From UBP basket, or a basket's own starter cards. */
 export function ubpItems(starterFor) {
-  const cards = starterFor ? UBP_CARDS.filter(c => c.starterFor === starterFor) : UBP_CARDS
+  const all = starterFor ? UBP_CARDS.filter(c => c.starterFor === starterFor) : UBP_CARDS
+  // A card that opens Foundation is left out while Foundation is closed on iOS and Android.
+  const cards = isFoundationEnabledNow() ? all : all.filter(c => c.action?.route !== 'Foundation')
   return cards.map(ubpCardToItem)
 }
 
