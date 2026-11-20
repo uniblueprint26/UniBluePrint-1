@@ -33,7 +33,7 @@ import { useAuth } from '../context/AuthContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { WEBSITE_LINKS } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
-import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { useFoundationEnabled, useProFree } from '../hooks/useAppFlags'
 import ProFreeNotice from '../components/ui/ProFreeNotice'
 
 const { width: SCREEN_W } = Dimensions.get('window')
@@ -106,7 +106,9 @@ export default function PricingScreen({ navigation }) {
   const isActiveSub = !!subscription && subscription.status === 'active' && (
     !subscription.current_period_end || new Date(subscription.current_period_end) > new Date()
   )
-  const currentPlan = !isActiveSub ? 'free' : subscription.tier === 'pro_annual' ? 'premium' : 'pro'
+  // While Pro is free for everyone, an account with no paid plan is on Pro.
+  const { active: proFreeActive } = useProFree()
+  const currentPlan = !isActiveSub ? (proFreeActive ? 'pro' : 'free') : subscription.tier === 'pro_annual' ? 'premium' : 'pro'
 
   function openWebsitePricing() {
     Linking.openURL(WEBSITE_LINKS.pricing)

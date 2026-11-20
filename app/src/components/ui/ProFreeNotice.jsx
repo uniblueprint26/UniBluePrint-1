@@ -24,7 +24,7 @@ export default function ProFreeNotice({ style, compact = false }) {
       <View style={s.text}>
         <Text style={[s.title, { color: colors.textPrimary }]}>Pro is free for everyone until {labelShort}</Text>
         {!compact ? (
-          <Text style={[s.sub, { color: colors.textSecondary }]}>Every account has Pro until then. Nothing to do.</Text>
+          <Text style={[s.sub, { color: colors.textSecondary }]}>Every account has Pro until then.</Text>
         ) : null}
       </View>
     </View>
