@@ -24,7 +24,7 @@ export default function EditHomeSheet({ visible, layout, onChange, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={s.backdrop} onPress={onClose}>
-        <Pressable style={s.sheet} onPress={() => {}}>
+        <Pressable style={s.sheet} onPress={e => e.stopPropagation?.()}>
           <View style={s.grabber} />
           <Text style={s.title}>Edit Home</Text>
           <Text style={s.hint}>Choose what shows on Home and the order it comes in. Your header and stories stay put.</Text>

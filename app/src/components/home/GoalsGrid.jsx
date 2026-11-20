@@ -268,7 +268,7 @@ function GoalSheet({ target, name, onClose, onSave, onOpenFoundation, onRemove, 
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable style={s.backdrop} onPress={onClose}>
-          <Pressable style={s.sheet} onPress={() => {}}>
+          <Pressable style={s.sheet} onPress={e => e.stopPropagation?.()}>
             <View style={s.grabber} />
             <ScrollView style={{ maxHeight: 620 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <Text style={s.sheetTitle}>{heading}</Text>
