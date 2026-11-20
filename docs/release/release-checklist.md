@@ -100,6 +100,7 @@ Do not commit `google-services.json`.
    * Report a post, a comment, a profile and a chat message. Block a person. Their posts disappear.
    * Check there is no Foundation anywhere, no price and no Upgrade button.
    * Open Find Near Me on a partner map. The location prompt appears only then.
+   * Open Calendar from the header. Add an event, edit it, delete it. In Bring in a calendar, paste a public .ics link and check the preview before saving. Choose Allow and choose calendars: the explainer shows first, then the phone prompt.
    * Allow notifications. Send a test push from the Expo push tool.
    * Delete the test account from Profile, Privacy and Data.
    * Turn off the phone's internet. The app should not crash.

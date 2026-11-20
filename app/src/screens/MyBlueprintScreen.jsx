@@ -13,6 +13,8 @@ import { useTheme } from '../context/ThemeContext'
 import { openInHomeStack } from '../navigation/helpers'
 import { useComingSoonEnabled, COMING_SOON_COPY, COMING_SOON_TITLE } from '../constants/comingSoon'
 import ProFreeNotice from '../components/ui/ProFreeNotice'
+import { useAuth } from '../context/AuthContext'
+import { useCalendarSummary } from '../lib/calendar/useCalendarData'
 
 // My Blueprint: everything the app does, in one calm page. Four blocks:
 // Your day, Your pillars, Your tools, Our partners.
@@ -25,10 +27,9 @@ export default function MyBlueprintScreen({ navigation }) {
   const pillarKeys = usePillarOrder()
   const comingSoonOn = useComingSoonEnabled()
 
-  // There is no Calendar data yet, so there is never a "next up" event to
-  // show. When one exists, set it here as { title, time, relative } and the
-  // card below switches to it. Nothing is invented in the meantime.
-  const nextUp = null
+  // The next real event from the Calendar, or nothing. Never invented.
+  const { user } = useAuth()
+  const { nextUp } = useCalendarSummary(user?.id)
 
   const cardShadow = isDark ? { borderWidth: 1, borderColor: colors.border } : shadows.card
 
