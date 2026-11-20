@@ -23,6 +23,7 @@ import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import { coachBookingUrl } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING, isRealWorldCoach } from '../constants/platformPolicy'
 import { useProAccess } from '../hooks/useProAccess'
+import { useComingSoonEnabled } from '../constants/comingSoon'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { fetchActiveIntroCallOffer, introCallLabel } from '../lib/introCallOffers'
 import { formatEuro } from '../lib/coachPricing'
@@ -444,10 +445,11 @@ export default function CoachProfileScreen({ route, navigation }) {
   // Elevation is a Pro-only surface (see ElevationScreen.jsx's own comment
   // and docs/business/subscription-pricing-model.md) — gated again here,
   // not just on the ElevationScreen directory, because this screen is also
-  // reachable directly (Home Spotlight carousel, the Budgeting Investment
-  // tab's trading-coach links, the Weekly Blueprint coach spotlight page),
+  // reachable directly (Home Spotlight carousel, the Weekly Blueprint
+  // coach spotlight page),
   // bypassing that directory entirely.
   const { canAccess: hasProAccess, loading: proLoading } = useProAccess()
+  const comingSoonOn = useComingSoonEnabled()
 
   // Live self-edited bio/photo, if this coach has a linked coach_profiles
   // row with a coach_slug matching this listing. Falls back to the static
@@ -813,7 +815,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         )}
 
         {/* ── Booking note ── */}
-        {coach.bookingNote && (
+        {coach.bookingNote && (comingSoonOn || !/coming soon/i.test(coach.bookingNote)) && (
           <View style={styles.section}>
             <View style={styles.bookingCard}>
               <Text style={styles.bookingText}>{coach.bookingNote}</Text>

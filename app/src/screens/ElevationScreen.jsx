@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, MapPin, User, Send, X,
-  LayoutGrid, Dumbbell, GraduationCap, TrendingUp, Megaphone,
+  LayoutGrid, Dumbbell, GraduationCap, Wallet, Megaphone,
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
@@ -22,11 +22,12 @@ import { goToHome } from '../navigation/helpers'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
+import { useComingSoonEnabled } from '../constants/comingSoon'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 // Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
 // Creative folded entirely into "Marketing" — real coach roster review left
-// only 4 real categories (Fitness, Academic Grinds, Trading, Marketing). The
+// only 4 real categories (Fitness, Academic Grinds, Finance, Marketing). The
 // previous 2-column tile grid (built for 7 categories) reads oddly with that
 // few — an awkward lone tile on its own row, lots of empty card padding for
 // not much information. A single horizontal row of filter pills is the
@@ -36,7 +37,7 @@ const FILTERS = [
   { label: 'All Coaches',      filter: 'All',             Icon: LayoutGrid    },
   { label: 'Fitness',          filter: 'Fitness',         Icon: Dumbbell      },
   { label: 'Academic Grinds',  filter: 'Academic Grinds', Icon: GraduationCap },
-  { label: 'Trading',          filter: 'Trading',         Icon: TrendingUp    },
+  { label: 'Finance',          filter: 'Finance',         Icon: Wallet        },
   { label: 'Marketing',        filter: 'Marketing',       Icon: Megaphone     },
 ]
 
@@ -46,8 +47,9 @@ const FILTERS = [
 // Added: Tadgh Darcy, Eitne Jarrett, Kevin (TrainWitKev), Aoife Keogh
 //
 // Round 2 — Removed: Ali, Eitne Jarrett, Nikola Jurek
-// Round 2 — Renamed: Emmanuel Fasanmi -> 500+ with Eman, Daniel Gough -> DG Trading
-// Round 2 — Updated: Dinero Trading Group (shell -> full), Aoife Keogh (shell -> full)
+// Round 2 — Renamed: Emmanuel Fasanmi -> 500+ with Eman
+// Round 2 — Updated: Aoife Keogh (shell -> full)
+// Release batch — Removed: all trading coaches and trading content.
 // Round 2 — Added: Camila (also a Lifestyle partner), Luana (shell)
 
 // Stable key linking a coach's static listing here to their live
@@ -105,60 +107,9 @@ export const COACHES = [
     ],
   },
 
-  // ── Trading ──
+  // ── Finance ──
   {
-    id: 4, name: 'DG Trading', category: 'Trading & Finance', filter: 'Trading',
-    location: 'Ireland, Available Nationwide', from: 'Available on request',
-    title: 'Funded Futures Trader | NQ / MNQ | Trading Coach',
-    bio: "I'm Daniel, a funded futures trader specialising in NQ and MNQ. Having achieved a Topstep payout, I've developed a structured approach to trading built around confluence, patience, and disciplined execution. My strategy is ICT-based, combining market structure and liquidity concepts with standard deviation extensions and order flow confluence to identify high-probability opportunities during the New York pre-market.",
-    quote: "The goal isn't to predict every move in the market. It's to build the ability to recognise when the conditions align, when to act, and when to stay out.",
-    services: ['NQ & MNQ Futures Trading', 'ICT-Based Market Concepts', 'Standard Deviation Extensions', 'Order Flow & Confluence', 'Trade Selection', 'New York Pre-Market Analysis', 'Risk Management & Psychology', 'Trade Execution & Management'],
-    sections: [
-      {
-        title: 'My Approach',
-        body: "Strategy. Process. Discipline. Execution. Through coaching, I aim to help traders understand why the market is moving, how to identify quality setups, and how to approach trading with a clear, repeatable process, rather than relying on guesswork or chasing trades. Whether you're new to futures or looking to bring more structure to your current trading, my coaching is designed to help you develop a clearer understanding of the market and a more disciplined approach to execution.",
-      },
-      {
-        title: 'Risk Disclosure',
-        body: 'Trading involves significant risk. Coaching is educational and does not guarantee trading profits or results.',
-      },
-    ],
-    // Also linked from the Investment page in the Budgeting tool.
-  },
-
-  {
-    id: 15, name: 'Dinero Trading Group', category: 'Trading & Investment Education', filter: 'Trading',
-    location: 'Ireland, Available Nationwide', from: 'Available on request',
-    tagline: 'DTG — structured trading systems, education, and business opportunities.',
-    bio: "I'm a trader and entrepreneur focused on building structured trading systems, educational programmes, and business opportunities around the financial markets — from automated lower-risk copy trading and high-risk trading challenges, to 1-to-1 mentorship and opportunities to build a business around my services. My goal is to provide different routes for people depending on their experience, goals, and risk tolerance, with systems that are simple to understand, scalable, and built with a long-term vision.",
-    services: ['Low-Risk Copier', '10X Challenge', '1-to-1 Mentorship / Trading Course', 'IB Partner / White-Label Programme'],
-    sections: [
-      {
-        title: 'Low-Risk Copier',
-        body: "A hands-free, automated copy trading service designed around long-term growth and compounding — similar to treating the account like a savings account, letting profits remain and compound rather than constantly withdrawing. Targets approximately 5–15% monthly returns via broker STARTRADER (a target, not a guarantee). Sign up through the designated broker link, open a live account, connect it to the copy system, choose a risk level, then let profits compound or withdraw any time. Remains a trading service — losses are possible.",
-      },
-      {
-        title: '10X Challenge',
-        body: 'A separate, high-risk trading challenge that runs once per month, aiming to multiply a starting balance by 10 (for example, €100 → €1,000). Short-term and high-risk, not a compounding strategy — significant drawdowns can occur and starting capital can be lost.',
-      },
-      {
-        title: '1-to-1 Mentorship / Trading Course',
-        body: 'For students who want to learn how to trade rather than simply copy trades — structured educational material combined with personalised mentorship covering basics, psychology, trends and candlesticks, concepts, technical analysis, and strategy. Includes 1-to-1 calls, trade reviews, personal feedback, and ongoing support.',
-      },
-      {
-        title: 'IB Partner / White-Label Programme',
-        body: "Build a business around Dinero's existing trading services without needing previous trading experience — introduce clients, earn commissions, and access marketing and promotional resources. A white-label option is available for suitable partners to offer the services under their own branding.",
-      },
-      {
-        title: 'Important Risk Disclosure',
-        body: 'All forms of trading involve risk. Past performance does not guarantee future results, and no specific return or income is guaranteed. The Low-Risk Copier, despite its lower-risk approach, can still result in losses. The 10X Challenge involves substantially higher risk and can result in the loss of the entire starting capital. Mentorship and educational services provide knowledge and guidance but cannot guarantee trading success. IB and white-label opportunities do not guarantee income or commissions. Only commit capital you can afford to lose.',
-      },
-    ],
-    // Also linked from the Investment page in the Budgeting tool (the Low-Risk Copier specifically).
-  },
-
-  {
-    id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing & Finance Coach', filter: 'Trading',
+    id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing & Finance Coach', filter: 'Finance',
     location: 'Ireland, Available Nationwide', from: 'Available on request',
     title: 'Chartered Accountant · Founder, Soft Life Investing',
     tagline: 'Personal finance without the finance bro jargon.',
@@ -175,7 +126,6 @@ export const COACHES = [
       },
     ],
     bookingNote: 'Reach out via Instagram to book — availability is flexible week to week rather than a fixed recurring slot.',
-    // Also linked from the Investment page in the Budgeting tool.
   },
 
   // ── Fitness ──
@@ -386,7 +336,7 @@ export const COACHES = [
 const GROUPS = [
   { label: 'Fitness & Physique',   filters: ['Fitness']                    },
   { label: 'Academic Grinds',       filters: ['Academic Grinds']            },
-  { label: 'Trading & Finance',     filters: ['Trading']                    },
+  { label: 'Finance',               filters: ['Finance']                    },
   { label: 'Marketing & Branding',  filters: ['Marketing']                  },
 ]
 
@@ -395,6 +345,7 @@ const GROUPS = [
 function CoachCard({ coach, navigation, index = 0 }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
+  const comingSoonOn = useComingSoonEnabled()
   function handlePress() {
     navigation.navigate('CoachProfile', { coach })
   }
@@ -404,6 +355,8 @@ function CoachCard({ coach, navigation, index = 0 }) {
   // group in the grouped "All" view, continuous in the flat filtered view).
   // Display-only; never stored or sent anywhere.
   const indexLabel = `N°${String(index + 1).padStart(2, '0')}`
+
+  if (coach.shell && !comingSoonOn) return null
 
   if (coach.shell) {
     return (
@@ -651,7 +604,7 @@ function FindCoachModal({ visible, onClose, userId }) {
           ) : (
             <>
               <Text style={fm.sub}>
-                Tell us what you're looking for — subject, sport, trading, or marketing coaching — and we'll match you with the right coach.
+                Tell us what you're looking for — subject, sport, finance, or marketing coaching — and we'll match you with the right coach.
               </Text>
               <TextInput
                 style={fm.input}
@@ -806,7 +759,7 @@ export default function ElevationScreen({ navigation }) {
           logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
           eyebrow="ELEVATION BLUEPRINT"
           title="Our Coaches"
-          subtitle="Verified coaches across fitness, academic grinds, trading, and marketing. Every coach is reviewed before joining the platform."
+          subtitle="Coaches across fitness, academic grinds, finance, and marketing. Every coach is reviewed before joining the platform."
           style={styles.heroBlock}
           titleStyle={styles.heroTitle}
         />
@@ -821,7 +774,7 @@ export default function ElevationScreen({ navigation }) {
             <ProUpgradeGate
               variant="screen"
               title="Elevation Blueprint is a Pro feature"
-              message="Coaching across fitness, academic grinds, trading, and marketing is part of Pro. Upgrade to browse coaches and send booking requests."
+              message="Coaching across fitness, academic grinds, finance, and marketing is part of Pro. Upgrade to browse coaches and send booking requests."
             />
           ) : (
           <>

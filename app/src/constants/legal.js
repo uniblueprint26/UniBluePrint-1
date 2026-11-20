@@ -37,7 +37,7 @@ export const LEGAL_ENTITY_LINE =
 //
 // MIN_INVESTMENT_AGE (18): the Budgeting screen's Investment tab. It is the same
 // number now, but it stays its own constant because it guards a different
-// thing (trading education, a copier product, named trading coaches). See
+// thing (investing education). See
 // hooks/useInvestmentAccess.js.
 export const MIN_SIGNUP_AGE     = 18
 export const MIN_INVESTMENT_AGE = 18

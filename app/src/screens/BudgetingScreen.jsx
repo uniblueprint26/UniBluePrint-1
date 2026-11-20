@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   TrendingUp, TrendingDown, Wallet, Target, Plus, Minus,
   ChevronDown, ChevronUp, ChevronRight, ExternalLink,
-  CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap, BadgeEuro,
+  CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap,
   X, PiggyBank, Plane, Heart, ShoppingBag, Home as HomeIcon, Laptop, ShieldCheck,
   ShieldAlert, Scale, Clock as ClockIcon, Lock,
 } from 'lucide-react-native'
@@ -29,7 +29,7 @@ import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
 import { useInvestmentAccess } from '../hooks/useInvestmentAccess'
 import { supabase } from '../lib/supabase'
-import { COACHES } from './ElevationScreen'
+import InvestmentPartnerPlaceholder from '../components/budgeting/InvestmentPartnerPlaceholder'
 
 // Keyed per-user (not a flat device-wide key) — otherwise the next person
 // to sign in on a shared phone would load, and silently overwrite, the
@@ -206,9 +206,8 @@ const OTHER_SCHEMES = [
 // Common investing vocabulary for the Investment tab's glossary. The Irish
 // tax-specific terms (exit tax, deemed disposal, DIRT) are deliberately
 // included, not generic filler, because they're real gaps most beginner
-// guides skip, and because Zainab Adeyemi's own coaching (below) is
-// explicitly built around exactly these rules, so the glossary sets up the
-// cross-link rather than duplicating her sessions.
+// guides skip, and and the investment partner linked from this tab
+// (see InvestmentPartnerPlaceholder) covers exactly these rules.
 const INVEST_TERMS = [
   {
     term: 'Diversification',
@@ -1190,18 +1189,16 @@ function SUSITab() {
 
 // ─── Investment Tab ───────────────────────────────────────────────────────────
 // Structure: fundamentals first (what investing is, risk basics, why time
-// matters, a plain-language glossary), then a bridge into the three real
-// trading/investment coaches on Elevation Blueprint, each presented with its
-// own distinct differentiator, then a strengthened risk disclosure. Coach
-// bio/services/pricing/risk-disclosure content itself lives once, on their
-// Elevation profiles, this tab links out to it rather than duplicating it.
+// matters, a plain-language glossary), then the investment partner
+// placeholder (see InvestmentPartnerPlaceholder), then a risk disclosure.
+// No trading promotion of any kind lives here.
 function InvestmentTab({ navigation }) {
   const { canAccess, hasDateOfBirth, minAge, loading } = useInvestmentAccess()
 
   // Fail closed: while the profile is still loading, or for anyone under
   // minAge (18) — including every account with no date_of_birth on file at
   // all, which is every user created before this field existed. Nobody
-  // sees the trading/investment content below on an assumed age.
+  // sees the investment content below on an assumed age.
   if (loading) return null
   if (!canAccess) {
     return (
@@ -1210,8 +1207,8 @@ function InvestmentTab({ navigation }) {
         title="Investing content is for adults."
         subtitle={
           hasDateOfBirth
-            ? `This tab covers trading and investing education, including a real copier product and trading coaches, so we only show it to people aged ${minAge} and over. It'll unlock automatically once you turn ${minAge}.`
-            : `This tab covers trading and investing education, including a real copier product and trading coaches, so we only show it to people aged ${minAge} and over. We don't have a date of birth on file for your account yet, so it stays hidden until we do.`
+            ? `This tab covers investing education, so we only show it to people aged ${minAge} and over. It'll unlock automatically once you turn ${minAge}.`
+            : `This tab covers investing education, so we only show it to people aged ${minAge} and over. We don't have a date of birth on file for your account yet, so it stays hidden until we do.`
         }
       />
     )
@@ -1226,42 +1223,12 @@ function InvestmentTab({ navigation }) {
 function InvestmentTabContent({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
-  const zainab  = COACHES.find(c => c.id === 16)
-  const dg      = COACHES.find(c => c.name === 'DG Trading')
-  const dinero  = COACHES.find(c => c.name === 'Dinero Trading Group')
-
-  // Each coach's real differentiator, grounded in their actual Elevation
-  // profile content (see ElevationScreen.jsx), not marketing copy invented
-  // here: Zainab's own services list is personal-finance coaching and tips;
-  // DG's "sections" describe 1-to-1 trading mentorship; Dinero's services
-  // list is the only one of the three that includes an automated copier.
-  const COACH_OPTIONS = [
-    {
-      key: 'zainab', coach: zainab, Icon: GraduationCap,
-      name: 'Zainab Adeyemi', badge: 'Tips & Tricks',
-      sub: zainab?.title || 'Chartered Accountant · Founder, Soft Life Investing',
-      detail: 'Best for plain-language personal finance tips: budgeting, saving, and getting started with investing, including Irish tax rules like deemed disposal, exit tax, and DIRT.',
-    },
-    {
-      key: 'dg', coach: dg, Icon: InvestIcon,
-      name: 'DG Trading', badge: 'Mentorship',
-      sub: dg?.title || 'Funded Futures Trader · Trading Coach',
-      detail: "Best for structured 1-to-1 mentorship in Daniel's ICT-based futures strategy, market structure, risk management, and trade execution. He teaches you to trade, nobody trades for you.",
-    },
-    {
-      key: 'dinero', coach: dinero, Icon: BadgeEuro,
-      name: 'Dinero Trading Group', badge: 'Mentoring + Copier',
-      sub: 'Low-Risk Copier · 10X Challenge · 1-to-1 Mentorship',
-      detail: 'The only option of the three with both routes: hands-on 1-to-1 trading mentorship, or the hands-off Low-Risk Copier, which automatically mirrors trades onto your own broker account.',
-    },
-  ]
-
   return (
     <View>
       <Card style={styles.investIntro}>
-        <Text style={styles.investIntroTitle}>Investing & trading education</Text>
+        <Text style={styles.investIntroTitle}>Investing basics</Text>
         <Text style={styles.investIntroBody}>
-          UniBlueprint doesn't give financial advice. Everything below is general education, not a recommendation to buy, sell, or trade anything. The coaches further down are independent educators available through the platform, not UniBlueprint staff. Do your own research, and only ever commit money you can afford to lose.
+          UniBlueprint doesn't give financial advice. Everything below is general education, not a recommendation to buy, sell, or trade anything. Do your own research, and only ever commit money you can afford to lose.
         </Text>
       </Card>
 
@@ -1315,15 +1282,10 @@ function InvestmentTabContent({ navigation }) {
         {INVEST_TERMS.map(t => <SUSITerm key={t.term} item={t} />)}
       </View>
 
-      {/* Bridge into coaches */}
-      <Text style={styles.investBridge}>
-        None of the above replaces an actual person who trades or invests for a living. UniBlueprint's three investing and trading coaches each work differently, pick the one that matches how hands-on you want to be.
-      </Text>
-
-      <SectionHeader eyebrow="Real Coaches, Real Differences" title="Choose Your Path" style={{ marginTop: spacing.md }} />
-      <View style={{ gap: 12 }}>
-        {COACH_OPTIONS.map(opt => <CoachOptionCard key={opt.key} opt={opt} navigation={navigation} />)}
-      </View>
+      {/* PLACEHOLDER: the investment guidance partner link. The founder will confirm
+          the Zainab Ade link. Nothing shows here until ZAINAB_ADE_LINK is set in
+          components/budgeting/InvestmentPartnerPlaceholder.jsx. */}
+      <InvestmentPartnerPlaceholder />
 
       {/* Strengthened risk disclosure */}
       <Card style={styles.investRiskCard}>
@@ -1332,45 +1294,10 @@ function InvestmentTabContent({ navigation }) {
           <Text style={styles.investRiskTitle}>Before You Commit Any Money</Text>
         </View>
         <Text style={styles.investRiskBody}>
-          Zainab, DG Trading, and Dinero Trading Group are independent coaches and educators, not UniBlueprint staff or licensed financial advisors, and their content, strategies, and results are their own. All trading and investing carries real risk, including the risk of losing some or all of the money involved. Past performance and any stated targets, including Dinero's Low-Risk Copier target range, are not guarantees of future results. Only ever trade or invest with money you can genuinely afford to lose. Read a coach's full profile, including their own risk disclosure, before booking or committing any money, and consider independent financial advice for anything beyond general education.
+          All investing carries real risk, including the risk of losing some or all of the money involved. Past performance and any stated targets are not guarantees of future results. Only ever invest money you can genuinely afford to lose, and consider independent financial advice for anything beyond general education.
         </Text>
       </Card>
     </View>
-  )
-}
-
-// ─── Coach Option Card (Investment tab) ────────────────────────────────────────
-// Shows each coach's real differentiator up front (badge + one-line "best
-// for") before the tap-through to their full Elevation profile, so the
-// distinction is visible without leaving the Budgeting tool.
-function CoachOptionCard({ opt, navigation }) {
-  const { colors } = useTheme()
-  const styles = __gs_styles(colors)
-  return (
-    <TouchableOpacity
-      activeOpacity={opt.coach ? 0.8 : 1}
-      disabled={!opt.coach}
-      onPress={() => opt.coach && navigation.navigate('CoachProfile', { coach: opt.coach })}
-    >
-      <Card style={styles.investCard}>
-        <View style={styles.investCardTop}>
-          <View style={styles.investIconWrap}>
-            <opt.Icon size={20} color={colors.textPrimary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <View style={styles.investCardNameRow}>
-              <Text style={styles.investLabel}>{opt.name}</Text>
-              <View style={styles.investBadge}>
-                <Text style={styles.investBadgeText}>{opt.badge}</Text>
-              </View>
-            </View>
-            <Text style={styles.investSub} numberOfLines={1}>{opt.sub}</Text>
-          </View>
-          <ChevronRight size={16} color={colors.light} />
-        </View>
-        <Text style={styles.investDetail}>{opt.detail}</Text>
-      </Card>
-    </TouchableOpacity>
   )
 }
 

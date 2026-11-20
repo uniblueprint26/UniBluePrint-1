@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   Menu, X, ChevronDown, LogIn, UserCircle,
   FileText, Linkedin, Award, Briefcase, MessageSquare, Search,
-  Dumbbell, GraduationCap, TrendingUp, Megaphone, Sparkles, Trophy, Flower2,
+  Dumbbell, GraduationCap, Wallet, Megaphone, Sparkles, Trophy, Flower2,
   Instagram, UserCheck, Tag, Users, Globe, PiggyBank, Newspaper,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -26,7 +26,7 @@ const FOUNDATION_SERVICES = [
 const ELEVATION_SERVICES = [
   { label: 'Fitness', icon: Dumbbell, href: '/elevation-blueprint' },
   { label: 'Academic Grinds', icon: GraduationCap, href: '/elevation-blueprint' },
-  { label: 'Trading and Finance', icon: TrendingUp, href: '/elevation-blueprint' },
+  { label: 'Finance', icon: Wallet, href: '/elevation-blueprint' },
   { label: 'Marketing', icon: Megaphone, href: '/elevation-blueprint' },
   { label: 'Creative', icon: Sparkles, href: '/elevation-blueprint' },
   { label: 'Sports', icon: Trophy, href: '/elevation-blueprint' },

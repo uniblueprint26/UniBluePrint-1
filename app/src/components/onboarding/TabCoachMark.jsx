@@ -86,7 +86,7 @@ export default function TabCoachMark({ onDismiss }) {
             </View>
             <Text style={styles.rowText}>
               <Text style={styles.rowLabel}>Elevation Blueprint </Text>
-              is 1:1 coaching with verified coaches.
+              is 1:1 coaching with coaches across many fields.
             </Text>
           </View>
 

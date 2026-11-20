@@ -1,7 +1,6 @@
 /**
  * useInvestmentAccess — whether the current user is old enough to see the
- * Budgeting screen's Investment tab (trading/investment education, a
- * copier product, and named trading coaches).
+ * Budgeting screen's Investment tab (investing education).
  *
  * Sign-up (SignUpScreen) already blocks account creation under
  * constants/legal.js's MIN_SIGNUP_AGE (18).
