@@ -30,7 +30,11 @@ import Button from '../ui/Button'
 // first question is intercepted with a discard-confirmation Alert, same
 // pattern as WeeklyIssueEditorScreen's usePreventRemove — losing up to 15
 // steps of answers to an accidental gesture otherwise had no warning at all.
-export default function QuestionFlow({ steps, values, onChange, onComplete, onExit, navigation, submitLabel = 'Submit' }) {
+//
+// `closedNote` (optional string): when set, the last step shows this plain line
+// ("Ordering opens in January") instead of the submit button. Answers are
+// already saved as a draft by the caller, so the person can close the flow.
+export default function QuestionFlow({ steps, values, onChange, onComplete, onExit, navigation, submitLabel = 'Submit', closedNote = null }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
@@ -48,7 +52,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
   // builders) rather than a precise "did anything actually change" check.
   const hasProgress = index > 0
 
-  usePreventRemove(!!navigation && hasProgress, ({ data }) => {
+  usePreventRemove(!!navigation && hasProgress && !closedNote, ({ data }) => {
     Alert.alert(
       'Discard this request?',
       'You’ll lose your answers so far if you leave now.',
@@ -60,7 +64,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
   })
 
   function confirmDiscardThenExit() {
-    if (!hasProgress) { onExit?.(); return }
+    // With ordering closed the answers are already saved as a draft.
+    if (!hasProgress || closedNote) { onExit?.(); return }
     Alert.alert(
       'Discard this request?',
       'You’ll lose your answers so far if you leave now.',
@@ -79,6 +84,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
     }
     setError(null)
     if (isLast) {
+      if (closedNote) return
       handleSubmit()
     } else {
       setIndex(i => i + 1)
@@ -170,13 +176,23 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
             <Text style={styles.skipBtnText}>Skip</Text>
           </TouchableOpacity>
         )}
-        <Button
-          label={isLast ? submitLabel : 'Continue'}
-          onPress={goNext}
-          variant="primary"
-          loading={submitting}
-          style={styles.nextBtn}
-        />
+        {isLast && closedNote ? (
+          <View style={styles.closedWrap}>
+            <Text style={styles.closedNote} accessibilityRole="text">{closedNote}</Text>
+            <Text style={styles.closedSub}>Your answers are saved as a draft.</Text>
+            <TouchableOpacity onPress={() => onExit?.()} activeOpacity={0.7} style={styles.closedBtn} accessibilityRole="button">
+              <Text style={styles.closedBtnText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Button
+            label={isLast ? submitLabel : 'Continue'}
+            onPress={goNext}
+            variant="primary"
+            loading={submitting}
+            style={styles.nextBtn}
+          />
+        )}
       </View>
     </KeyboardAvoidingView>
   )
@@ -220,5 +236,10 @@ function __gs_styles(colors) {
   skipBtn: { paddingVertical: 14, paddingHorizontal: 4 },
   skipBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
   nextBtn: { flex: 1, ...shadows.card },
+  closedWrap: { flex: 1, alignItems: 'center', gap: 4, paddingVertical: 4 },
+  closedNote: { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.textPrimary, textAlign: 'center' },
+  closedSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center' },
+  closedBtn: { paddingVertical: 10, paddingHorizontal: 16, marginTop: 4 },
+  closedBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
   })
 }

@@ -18,6 +18,7 @@ import { supabase } from '../lib/supabase'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { foundationHandoffUrl } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { useFoundationOrdering } from '../hooks/useAppFlags'
 
 // ─── Career Readiness ───────────────────────────────────────────────────────
 // Tracks real progress across the 8 Foundation Blueprint builders (CV,
@@ -138,6 +139,7 @@ export default function CareerReadinessScreen({ navigation }) {
   const { inProgress: IN_PROGRESS_COLOR, notStarted: NOT_STARTED_COLOR } = getStatusColors(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const safeGoBack = useSafeGoBack(navigation, 'Foundation')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -218,9 +220,9 @@ export default function CareerReadinessScreen({ navigation }) {
   // plain same-stack navigations, not a cross-tab jump.
   function openBuilder(b) {
     if (b.status === 'not_started') {
-      // Foundation services are completed on the website. iOS and Android keep the
-      // in-app screen, which shows the neutral note (no link, neutral billing).
-      if (NATIVE_NEUTRAL_BILLING) navigation.navigate(b.screen)
+      // While ordering is closed, or on iOS and Android (neutral billing), open
+      // the in-app builder. Otherwise services are completed on the website.
+      if (NATIVE_NEUTRAL_BILLING || !orderingOpen) navigation.navigate(b.screen)
       else Linking.openURL(foundationHandoffUrl(b.fullLabel)).catch(() => {})
       return
     }

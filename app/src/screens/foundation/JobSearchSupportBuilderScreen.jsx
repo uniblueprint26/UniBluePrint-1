@@ -6,6 +6,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Job Search Support intake — the most complex Foundation Blueprint service,
@@ -174,9 +175,12 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:job_search_support:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const safeGoBack = useSafeGoBack(navigation)
 
-  if (IS_IOS) {
+  // iOS and Android never order in the app. While ordering is closed the builder
+  // opens for everyone, saves a draft and shows "Ordering opens in January".
+  if (IS_IOS && orderingOpen) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Job Search Support" />
   }
 
@@ -262,6 +266,7 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
+        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
       />
       <FoundationCheckoutModal ref={checkoutRef} />
     </>

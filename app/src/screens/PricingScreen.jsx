@@ -34,6 +34,7 @@ import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { WEBSITE_LINKS } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
+import ProFreeNotice from '../components/ui/ProFreeNotice'
 
 const { width: SCREEN_W } = Dimensions.get('window')
 const CARD_W = Math.min(320, SCREEN_W - 64)
@@ -128,6 +129,7 @@ export default function PricingScreen({ navigation }) {
       />
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
+        <ProFreeNotice style={{ marginHorizontal: spacing.md, marginTop: spacing.lg }} />
         <Animated.ScrollView
           ref={scrollRef}
           horizontal
@@ -145,10 +147,12 @@ export default function PricingScreen({ navigation }) {
           {/* Free */}
           <View style={[styles.card, { width: CARD_W }, currentPlan === 'free' && styles.cardHighlightNavy]}>
             <Text style={styles.planName}>Free</Text>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceBig}>€0</Text>
-              <Text style={styles.priceSub}>forever</Text>
-            </View>
+            {!IS_IOS && (
+              <View style={styles.priceRow}>
+                <Text style={styles.priceBig}>€0</Text>
+                <Text style={styles.priceSub}>forever</Text>
+              </View>
+            )}
             <Text style={styles.priceNote}>No credit card required</Text>
 
             <View style={{ marginTop: 20, gap: 10, flex: 1 }}>

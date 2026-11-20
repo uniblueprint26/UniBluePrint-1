@@ -11,6 +11,8 @@ import { PARTNERS } from '../constants/exploreCatalog'
 import { fonts, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { openInHomeStack } from '../navigation/helpers'
+import { useComingSoonEnabled, COMING_SOON_COPY, COMING_SOON_TITLE } from '../constants/comingSoon'
+import ProFreeNotice from '../components/ui/ProFreeNotice'
 
 // My Blueprint: everything the app does, in one calm page. Four blocks:
 // Your day, Your pillars, Your tools, Our partners.
@@ -21,6 +23,7 @@ export default function MyBlueprintScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const [sheet, setSheet] = useState(null)
   const pillarKeys = usePillarOrder()
+  const comingSoonOn = useComingSoonEnabled()
 
   // There is no Calendar data yet, so there is never a "next up" event to
   // show. When one exists, set it here as { title, time, relative } and the
@@ -31,7 +34,7 @@ export default function MyBlueprintScreen({ navigation }) {
 
   function openPartner(p) {
     if (p.action.route) navigation.navigate(p.action.route)
-    else setSheet(p)
+    else if (comingSoonOn) setSheet(p)
   }
 
   return (
@@ -77,6 +80,12 @@ export default function MyBlueprintScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* Your plan */}
+        <View style={s.block}>
+          <SectionTitle>Your plan</SectionTitle>
+          <ProFreeNotice />
+        </View>
+
         {/* Your pillars */}
         <View style={s.block}>
           <SectionTitle>Your pillars</SectionTitle>
@@ -119,13 +128,17 @@ export default function MyBlueprintScreen({ navigation }) {
               gold
               onPress={() => navigation.navigate('Budgeting')}
             />
-            <RowDivider />
-            <ToolRow
-              label="Live archive"
-              Icon={Play}
-              soon
-              onPress={() => setSheet({ name: 'Live archive', soonText: 'Your Lives will be kept here. This is coming soon.' })}
-            />
+            {comingSoonOn ? (
+              <>
+                <RowDivider />
+                <ToolRow
+                  label="Live archive"
+                  Icon={Play}
+                  soon
+                  onPress={() => setSheet({ name: 'Live archive', soonText: COMING_SOON_COPY })}
+                />
+              </>
+            ) : null}
           </GroupCard>
         </View>
 
@@ -150,12 +163,14 @@ export default function MyBlueprintScreen({ navigation }) {
         </View>
       </ScrollView>
 
-      <ComingSoonSheet
-        visible={!!sheet}
-        onClose={() => setSheet(null)}
-        title={sheet?.name || 'Coming soon'}
-        message={sheet?.soonText || (sheet ? `${sheet.blurb}. This is coming soon.` : '')}
-      />
+      {comingSoonOn ? (
+        <ComingSoonSheet
+          visible={!!sheet}
+          onClose={() => setSheet(null)}
+          title={sheet?.name || COMING_SOON_TITLE}
+          message={COMING_SOON_COPY}
+        />
+      ) : null}
     </View>
   )
 }

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { DEFAULT_USER_TYPE, isValidUserType } from '../constants/userTypes'
 import { MAX_INTERESTS, MAX_CUSTOM_INTEREST_LENGTH } from '../data/interests'
 import { SITE_URL } from '../constants/site'
+import { useProFree } from '../hooks/useAppFlags'
 import {
   STATUS_OPTIONS, SOCIAL_LINK_FIELDS, MAX_BIO_LENGTH, MAX_SOCIAL_LINK_LENGTH,
   MAX_CREDENTIALS, MAX_CREDENTIAL_LENGTH,
@@ -392,9 +393,16 @@ export function AuthProvider({ children }) {
     return roles.includes(role)
   }
 
-  const isPro = !!subscription && subscription.status === 'active' && (
+  // The real subscription, from the subscriptions table.
+  const hasRealPro = !!subscription && subscription.status === 'active' && (
     !subscription.current_period_end || new Date(subscription.current_period_end) > new Date()
   )
+  // Pro is free for every signed in account until app_flags.pro_free_until
+  // (31 January 2027 by default). After that date this falls back to the real
+  // subscription above.
+  const { active: proFreeActive, label: proFreeUntilLabel } = useProFree()
+  const isProFree = !!user && proFreeActive
+  const isPro = hasRealPro || isProFree
 
   const isHandler = hasRole('handler')
   const isCoach = hasRole('coach')
@@ -461,7 +469,8 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, loading, roles, hasRole, portalRole,
-      subscription, subscriptionLoading, isPro, isComplimentaryPro: !!subscription?.is_complimentary,
+      subscription, subscriptionLoading, isPro, hasRealPro, isProFree, proFreeUntilLabel,
+      isComplimentaryPro: !!subscription?.is_complimentary,
       signIn, signUp, signOut, resetPassword, resendVerification,
       isHandler, isCoach, isFounder, isOperations, isBusiness, isFinance,
       isStudioEligible, isAnyPortalEligible, studioLabel,

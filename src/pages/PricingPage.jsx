@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { Check, ChevronDown } from 'lucide-react'
 import CheckoutButton from '../components/pricing/CheckoutButton'
+import { isProFreeNow, PRO_FREE_LINE } from '../lib/proFree'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -223,6 +224,22 @@ export default function PricingPage() {
           }}>
             Free to join. Pay only for the services you use. Every service at 50% off during the free trial.
           </p>
+
+          {/* Pro is free for everyone until 31 January 2027 */}
+          {isProFreeNow() && (
+            <div style={{ marginTop: '24px' }}>
+              <span style={{
+                display: 'inline-block',
+                background: 'rgba(245,240,232,0.1)', color: '#F5F0E8',
+                border: '1px solid rgba(245,240,232,0.28)',
+                borderRadius: '100px', padding: '9px 22px',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px', fontWeight: '600', letterSpacing: '0.01em',
+              }}>
+                {PRO_FREE_LINE}
+              </span>
+            </div>
+          )}
 
           {/* Trial badge */}
           <div style={{ marginTop: '28px' }}>

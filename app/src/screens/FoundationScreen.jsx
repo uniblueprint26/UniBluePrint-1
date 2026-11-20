@@ -19,6 +19,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { useFoundationOrdering } from '../hooks/useAppFlags'
 
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
@@ -137,8 +138,8 @@ const CC_TOOLS = [
 // `table` is the document table the service's output is stored in; the same
 // mapping Career Readiness uses to read real progress from `submissions`, so a
 // service ordered on the website shows its status here. `screen` is the
-// in-app builder route: kept registered for deep links, but no button in
-// Foundation opens it any more.
+// in-app builder route. While ordering is closed the envelope's button opens
+// it so a member can start and save a draft.
 const BUILDER_BY_TITLE = {
   'CV Optimisation':             { screen: 'CvBuilder',               table: 'cv_documents' },
   'LinkedIn Optimisation':       { screen: 'LinkedinBuilder',         table: 'linkedin_documents' },
@@ -160,6 +161,9 @@ export default function FoundationScreen({ navigation }) {
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  // Ordering opens in January. Until the flag says so, no order button shows
+  // and a person can start their answers, which are saved as a draft.
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const [selected, setSelected] = useState(null)
   const [gridWidth, setGridWidth] = useState(0)
   const [rows, setRows] = useState([])
@@ -205,7 +209,7 @@ export default function FoundationScreen({ navigation }) {
   }
 
   function orderAction(title) {
-    if (IS_IOS) return null
+    if (IS_IOS || !orderingOpen) return null
     const hasPage = !!FOUNDATION_WEBSITE_LINKS[title]
     return {
       label: hasPage ? 'Continue on uniblueprint.ie' : 'Contact us to order',
@@ -245,6 +249,17 @@ export default function FoundationScreen({ navigation }) {
         status,
         primary: { label: 'See where it is', onPress: () => { setSelected(null); navigation.navigate('MyOutputs') } },
         secondary: order ? { label: 'Order another', onPress: order.onPress } : null,
+      }
+    }
+    if (!orderingOpen) {
+      // Not open for orders yet. The builder saves a draft as the person goes.
+      const builder = BUILDER_BY_TITLE[service.title]
+      return {
+        status: null,
+        primary: builder
+          ? { label: 'Start your answers', onPress: () => { setSelected(null); navigation.navigate(builder.screen) } }
+          : null,
+        secondary: null,
       }
     }
     return { status: null, primary: order, secondary: null }
@@ -378,6 +393,7 @@ export default function FoundationScreen({ navigation }) {
           service={{ ...selected, Icon: selected.icon, letter: SERVICE_LETTERS[selected.title] }}
           status={sheet.status}
           isIOS={IS_IOS}
+          orderingOpen={orderingOpen}
           weekend={isWeekendWindow}
           primary={sheet.primary}
           secondary={sheet.secondary}

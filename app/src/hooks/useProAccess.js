@@ -17,6 +17,11 @@
  * so there is exactly one place that decides what counts as an active
  * subscription.
  *
+ * Free period: every signed in account counts as Pro until the date in
+ * app_flags.pro_free_until (31 January 2027 by default, see AuthContext). After
+ * that only the real subscription counts, and only Elevation and Lifestyle
+ * extras are behind Pro.
+ *
  * Fails closed, same contract as useInvestmentAccess
  * (hooks/useInvestmentAccess.js):
  *   - signed out                -> canAccess: false
@@ -35,10 +40,14 @@
 import { useAuth } from '../context/AuthContext'
 
 export function useProAccess() {
-  const { user, isPro, isComplimentaryPro, subscription, subscriptionLoading } = useAuth()
+  const { user, isPro, isProFree, proFreeUntilLabel, isComplimentaryPro, subscription, subscriptionLoading } = useAuth()
   return {
     canAccess: !!isPro,
     isPro: !!isPro,
+    // True while Pro is free for everyone (app_flags.pro_free_until). After the
+    // date, isPro falls back to the real subscription.
+    isProFree: !!isProFree,
+    proFreeUntilLabel,
     isComplimentaryPro: !!isComplimentaryPro,
     subscription,
     loading: !!subscriptionLoading,

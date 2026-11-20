@@ -14,6 +14,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 
 // Application Form Assistance intake — same CV Optimisation pattern (QuestionFlow +
 // an application_forms-shaped table + submit_document_for_review + a generate-*
@@ -109,6 +110,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:application_form:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const { enabled: orderingOpen } = useFoundationOrdering()
 
   // generate-application-answers hard-requires at least one Evidence Bank
   // story to draft from ("Add at least one story..." 422 if the bank is
@@ -137,7 +139,9 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     return () => { active = false }
   }, [user])
 
-  if (IS_IOS) {
+  // iOS and Android never order in the app. While ordering is closed the builder
+  // opens for everyone, saves a draft and shows "Ordering opens in January".
+  if (IS_IOS && orderingOpen) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Application Form Assistance" />
   }
 
@@ -248,6 +252,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
+        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
       />
       <FoundationCheckoutModal ref={checkoutRef} />
     </>
