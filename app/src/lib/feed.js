@@ -255,7 +255,7 @@ export async function createFeedPost({ userId, postType, audience, ...fields }) 
   if (error) throw error
 }
 
-// Mood Board is post_type 'thread' in the database.
+// A Take is post_type 'thread' in the database.
 export async function createThread({ userId, mood, body, audience }) {
   await createFeedPost({ userId, postType: 'thread', audience, mood, body })
 }

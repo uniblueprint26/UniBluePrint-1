@@ -67,7 +67,7 @@ UniBlueprint is for students, apprentices and young workers across Ireland.
 Everyone here is on the same course. Not a degree. A course of life. We are all working toward getting better, together.
 
 COURSE CONNECT
-Your nationwide network. Share a Mood Board, a Post or a Clip with people across Ireland. It is the default place for everything you post.
+Your nationwide network. Share a Take, a Post or a Clip with people across Ireland. It is the default place for everything you post.
 
 CAMPUS CONNECT
 Your own community, in the same situation as you. If you are in college, it is your campus. Apprentices and workers get their own groups, by trade or by industry. Find notes, study groups, rides, societies and more.
@@ -223,9 +223,9 @@ Use this in the app review notes, in a moderation policy page on the website, an
 ```
 UniBlueprint has no tolerance for objectionable content or abusive people.
 
-Filtering. Mood Boards, Posts and Clips are checked for slurs and strong profanity before they are published, in the app and again in the database.
+Filtering. Takes, Posts and Clips are checked for slurs and strong profanity before they are published, in the app and again in the database.
 
-Reporting. Every place one member's content is shown to others has a Report action: feed posts, clips and mood boards, comments, member profiles, Discover cards, message requests, chat messages and chats, Campus Connect and Course Connect board posts, Module Q and A, and Ad Board and Marketplace listings. A member picks a reason (Inappropriate content, Spam, Safety concern, Other), confirms, and the report goes to our team. We do not tell the person who reported.
+Reporting. Every place one member's content is shown to others has a Report action: feed posts, clips and takes, comments, member profiles, Discover cards, message requests, chat messages and chats, Campus Connect and Course Connect board posts, Module Q and A, and Ad Board and Marketplace listings. A member picks a reason (Inappropriate content, Spam, Safety concern, Other), confirms, and the report goes to our team. We do not tell the person who reported.
 
 Blocking. Wherever a member is shown, the Report sheet also offers Block. Blocked members cannot message the blocker, and their posts and comments are hidden from the blocker.
 
@@ -251,9 +251,9 @@ Password: REVIEWER_PASSWORD
 The account is over 18 and has full access, including Elevation.
 
 What each tab does:
-Home. Your feed of Mood Boards, Posts and Clips, the story row (Live, Budget and the pillars), your goals and Today's Digest. The search icon opens Explore. The bell opens Notifications.
+Home. Your feed of Takes, Posts and Clips, the story row (Live, Budget and the pillars), your goals and Today's Digest. The search icon opens Explore. The bell opens Notifications.
 Ad Board. This week's Weekly Blueprint magazine, the latest blogs, Post a listing, and the Marketplace in baskets: Deals, Jobs, Tutors, Buy and sell, and From UBP.
-Post (the plus). Opens the composer for a Mood Board, a Post or a Clip. Course Connect is the default audience. You can also pick Campus Connect or Friends only.
+Post (the plus). Opens the composer for a Take, a Post or a Clip. Course Connect is the default audience. You can also pick Campus Connect or Friends only.
 Messages. Chats, message requests and Discover (find people).
 Profile. Your profile, plan status, Privacy and Data, help and sign out.
 

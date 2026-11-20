@@ -64,7 +64,7 @@ function PostPreview({ post, colors }) {
           <ReportButton
             target={{
               contentType: 'feed_post', contentId: post.id, reportedUserId: post.user_id, userName: post.author_name,
-              noun: post.post_type === 'clip' ? 'clip' : post.post_type === 'post' ? 'post' : 'mood board',
+              noun: post.post_type === 'clip' ? 'clip' : post.post_type === 'post' ? 'post' : 'take',
             }}
           />
         )}

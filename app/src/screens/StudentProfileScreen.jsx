@@ -239,7 +239,7 @@ function PostsSection({ userId, userName, colors }) {
                   size={13}
                   target={{
                     contentType: 'feed_post', contentId: p.id, reportedUserId: userId, userName,
-                    noun: p.post_type === 'clip' ? 'clip' : p.post_type === 'post' ? 'post' : 'mood board',
+                    noun: p.post_type === 'clip' ? 'clip' : p.post_type === 'post' ? 'post' : 'take',
                   }}
                 />
               </View>

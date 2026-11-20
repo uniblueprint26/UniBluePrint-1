@@ -96,7 +96,7 @@ Do not commit `google-services.json`.
 3. Run this test pass on both:
    * Sign up as someone under 18. It must be blocked with a plain message.
    * Sign up as 18 or over. Verify email. Sign in.
-   * Post a Mood Board, a Post (photo) and a Clip. Try a swear word. It must be refused.
+   * Post a Take, a Post (photo) and a Clip. Try a swear word. It must be refused.
    * Report a post, a comment, a profile and a chat message. Block a person. Their posts disappear.
    * Check there is no Foundation anywhere, no price and no Upgrade button.
    * Open Find Near Me on a partner map. The location prompt appears only then.

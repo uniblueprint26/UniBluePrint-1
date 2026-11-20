@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Animated, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  FileText, TrendingUp, Heart, Building2, Globe, Compass, Calculator, Megaphone,
+  FileText, TrendingUp, Heart, Building2, Globe, Compass, Calculator, Tag,
 } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import { fonts } from '../constants/theme'
@@ -22,7 +22,7 @@ const ITEMS = [
   { key: 'course',     label: 'Course Connect',       Icon: Globe,      tab: 'Home',    screen: 'CourseConnect' },
   { key: 'compass',    label: 'Course Compass',       Icon: Compass,    tab: 'Home',    screen: 'Compass' },
   { key: 'budgeting',  label: 'Budgeting',            Icon: Calculator, tab: 'Home',    screen: 'Budgeting' },
-  { key: 'adboard',    label: 'Ad Board',             Icon: Megaphone,  tab: 'AdBoard', screen: 'AdBoardMain' },
+  { key: 'adboard',    label: 'Ad Board',             Icon: Tag,  tab: 'AdBoard', screen: 'AdBoardMain' },
 ]
 
 // Route name (the deepest currently-focused leaf screen, anywhere in the
