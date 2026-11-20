@@ -29,6 +29,7 @@ import { CATEGORY_META } from './PartnerCards'
 import { fonts, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { PARTNERS } from '../../data/lifestylePartners'
+import { useComingSoonEnabled } from '../../constants/comingSoon'
 
 // ─── Curated roster ───────────────────────────────────────────────────────────
 // id -> productLabel (a display name for what's being shown; the partner's
@@ -75,6 +76,7 @@ const CATEGORY_ICON_FALLBACK = { fitness: ShoppingBag, beauty: Sparkles, fashion
 export function ProductPlaceholder({ partner, hero }) {
   const { colors } = useTheme()
   const styles = getCollectionStyles(colors)
+  const comingSoonOn = useComingSoonEnabled()
   const accent = CATEGORY_META[partner.filterKey]?.accent || colors.navy
   const Icon = CATEGORY_META[partner.filterKey]?.Icon || CATEGORY_ICON_FALLBACK[partner.filterKey] || ShoppingBag
 
@@ -116,10 +118,12 @@ export function ProductPlaceholder({ partner, hero }) {
       <Text style={[styles.placeholderMonogram, { color: accent }, hero && styles.placeholderMonogramHero]} numberOfLines={1}>
         {partner.initials}
       </Text>
-      <View style={styles.placeholderTag}>
-        <CameraIcon size={9} color={colors.muted} />
-        <Text style={styles.placeholderTagText}>Photo coming soon</Text>
-      </View>
+      {comingSoonOn ? (
+        <View style={styles.placeholderTag}>
+          <CameraIcon size={9} color={colors.muted} />
+          <Text style={styles.placeholderTagText}>Photo coming soon</Text>
+        </View>
+      ) : null}
     </View>
   )
 }

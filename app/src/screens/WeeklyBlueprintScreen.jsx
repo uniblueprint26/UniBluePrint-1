@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
-  Plus, ChevronRight, ChevronLeft, Megaphone, Star, Crown, Menu,
+  Plus, ChevronRight, ChevronLeft, Megaphone, Tag, Star, Crown, Menu,
   MapPin, Users, Wallet, Newspaper, Award, Heart, Clock, BookOpen,
   Building2, GraduationCap, Sparkles, ShoppingBag,
 } from 'lucide-react-native'
@@ -397,10 +397,10 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
       return (
         <View style={styles.pageInner}>
           <Text style={styles.pageKicker}>THE LIFESTYLE EDIT</Text>
-          <Text style={styles.pageHeading}>{lifestylePartners.length ? 'This week in fashion' : 'Coming soon'}</Text>
+          <Text style={styles.pageHeading}>This week in fashion</Text>
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 16 }}>
             {lifestylePartners.length === 0 ? (
-              <EmptyNote>No Lifestyle fashion partners live yet — check back soon.</EmptyNote>
+              <EmptyNote>No Lifestyle fashion partners are live this week.</EmptyNote>
             ) : lifestylePartners.map(p => (
               <TouchableOpacity key={p.id} style={styles.dealRow} activeOpacity={0.8} onPress={() => navigation.getParent()?.navigate('Home', { screen: 'Lifestyle' })}>
                 <View style={{ flex: 1 }}>
@@ -749,7 +749,7 @@ function buildPages(foundationOpen) {
     { label: 'UBP Team',          Icon: Users,          page: idx('team') },
     { label: 'Money Moves',       Icon: Wallet,         page: idx('money-moves') },
     { label: 'Coach Board',       Icon: Heart,          page: idx('coach-board') },
-    { label: 'Ad Board',          Icon: Megaphone,      page: idx('ad-board') },
+    { label: 'Ad Board',          Icon: Tag,            page: idx('ad-board') },
   )
   return pages
 }

@@ -8,7 +8,7 @@ import { useTheme } from '../../context/ThemeContext'
 // Deliberately reveals nothing beyond what's already visible on the
 // card/pin (name, county, category) — it's the partner's specific deal
 // (pricing, how-to-start) that's still pending, not their identity.
-export default function ComingSoonSheet({ visible, onClose, title = 'Coming Soon', message = 'This partner is launching soon. Stay tuned.' }) {
+export default function ComingSoonSheet({ visible, onClose, title = 'Coming soon', message = 'Stay tuned. Coming soon.' }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   return (

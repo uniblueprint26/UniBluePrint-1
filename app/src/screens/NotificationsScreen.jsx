@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { useComingSoonEnabled, COMING_SOON_COPY, COMING_SOON_TITLE } from '../constants/comingSoon'
 
 // ── Notification categories ─────────────────────────────────────────────────
 // public.notifications.category holds many fine-grained keys (welcome,
@@ -147,6 +148,7 @@ export default function NotificationsScreen({ navigation }) {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [liveSoon, setLiveSoon] = useState(false)
+  const comingSoonOn = useComingSoonEnabled()
   const live = useLiveWindow(notifications)
 
   async function fetchNotifications() {
@@ -204,7 +206,7 @@ export default function NotificationsScreen({ navigation }) {
   }
 
   function goLive() {
-    if (!tryOpenLive(navigation)) setLiveSoon(true)
+    if (!tryOpenLive(navigation) && comingSoonOn) setLiveSoon(true)
   }
 
   const { today, earlier } = useMemo(() => ({
@@ -255,12 +257,14 @@ export default function NotificationsScreen({ navigation }) {
         )}
       </ScrollView>
 
-      <ComingSoonSheet
-        visible={liveSoon}
-        onClose={() => setLiveSoon(false)}
-        title="Live is coming soon"
-        message="Two minute captures are on their way. We will let you know when you can go Live."
-      />
+      {comingSoonOn ? (
+        <ComingSoonSheet
+          visible={liveSoon}
+          onClose={() => setLiveSoon(false)}
+          title={COMING_SOON_TITLE}
+          message={COMING_SOON_COPY}
+        />
+      ) : null}
     </View>
   )
 }

@@ -19,6 +19,7 @@ import ListingCard from '../components/ads/ListingCard'
 import PinnedJobCard from '../components/ads/PinnedJobCard'
 import TrialHero from '../components/ads/TrialHero'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { useComingSoonEnabled, COMING_SOON_COPY } from '../constants/comingSoon'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import Notice from '../components/ads/Notice'
 import useListingActions from '../components/ads/useListingActions'
@@ -32,6 +33,7 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
   const { colors } = t
   const insets = useSafeAreaInsets()
   useFoundationEnabled() // re-render when the flag arrives, so From UBP cards are right
+  const comingSoonOn = useComingSoonEnabled()
   const key = basketKey || route?.params?.basket || 'deals'
   const basket = BASKET_BY_KEY[key] || BASKET_BY_KEY.deals
 
@@ -75,9 +77,9 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
   if (key === 'deals') {
     // The trial banner shows Pro prices, so it is web only (neutral billing on iOS and Android).
     lead = NATIVE_NEUTRAL_BILLING ? null : <TrialHero />
-    tail = (
-      <Notice Icon={Sparkles} title="More deals coming soon." sub="More Lifestyle partner offers will appear here." />
-    )
+    tail = comingSoonOn
+      ? <Notice Icon={Sparkles} title={COMING_SOON_COPY} sub="More Lifestyle partner offers will appear here." />
+      : null
   } else if (key === 'jobs') {
     // The UBP internships sit above any real jobs, under a small Pinned label.
     pinned = (
