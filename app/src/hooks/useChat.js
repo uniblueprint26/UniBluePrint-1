@@ -80,26 +80,35 @@ export function useChat({
 
         if (!id || cancelled) return
 
-        // Join as participant — ON CONFLICT DO NOTHING if already joined
-        const participantRows = [
-          { room_id: id, user_id: userId, display_name: userDisplayName },
-        ]
-        // Also add the other party (e.g. the original poster) as a participant,
-        // so they actually see/get notified of the room instead of it existing
-        // with only the opener ever joined.
-        if (otherParticipantId && otherParticipantId !== userId) {
-          participantRows.push({
-            room_id: id,
-            user_id: otherParticipantId,
-            display_name: otherParticipantName || null,
-          })
-        }
-        await supabase
+        // Join as participant (only our own row; RLS allows nothing else).
+        // ON CONFLICT DO NOTHING if already joined.
+        const { error: joinErr } = await supabase
           .from('chat_participants')
           .upsert(
-            participantRows,
+            [{ room_id: id, user_id: userId, display_name: userDisplayName }],
             { onConflict: 'room_id,user_id', ignoreDuplicates: true }
           )
+        if (joinErr) throw joinErr
+
+        // Add the other party (e.g. the original poster) through the
+        // join_chat_counterparty RPC. It checks that we are in the room, that
+        // neither side blocked the other, and that the room is an ad, board
+        // or carpool room. Direct rooms already hold both people (they are
+        // made by start_direct_chat after a connection request is accepted).
+        // Without it the poster never sees the chat.
+        if (contextType !== 'direct' && otherParticipantId && otherParticipantId !== userId) {
+          const { error: otherErr } = await supabase.rpc('join_chat_counterparty', {
+            p_room_id: id,
+            p_other_user_id: otherParticipantId,
+          })
+          if (otherErr) {
+            const msg = String(otherErr.message || '').toLowerCase()
+            if (msg.includes('blocked')) {
+              throw new Error('You cannot message this person.')
+            }
+            throw otherErr
+          }
+        }
 
         // Load the most recent 100 messages (newest first), then reverse for
         // chronological display — fetching oldest-first with a limit would

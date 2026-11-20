@@ -10,7 +10,6 @@ import {
   Eye, EyeOff, AlertCircle, ChevronLeft, Check, Users,
 } from 'lucide-react-native'
 import { useAuth } from '../../context/AuthContext'
-import { supabase } from '../../lib/supabase'
 import { fonts, spacing, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import UBPLogo from '../../components/ui/UBPLogo'
@@ -378,46 +377,16 @@ export default function SignUpScreen({ navigation }) {
       if (interestLabels.length)   metadata.interests = interestLabels
       if (selectedStatuses.size)   metadata.statuses  = [...selectedStatuses]
 
-      const signUpData = await signUp(email.trim(), password, metadata)
+      // Everything below is saved by the handle_new_user database trigger
+      // from this metadata (profile fields and the versioned terms and
+      // privacy consent record). There is no session yet when email
+      // confirmation is on, so the app cannot write these itself.
+      metadata.user_type       = userType
+      metadata.discoverable    = discoverable
+      metadata.terms_version   = TERMS_VERSION
+      metadata.privacy_version = PRIVACY_VERSION
 
-      // Record versioned consent. Best-effort — a failure here must not block
-      // account creation, which has already succeeded by this point.
-      const newUserId = signUpData?.user?.id
-      if (newUserId) {
-        try {
-          await supabase.from('legal_acknowledgements').insert([
-            { user_id: newUserId, document_type: 'terms_of_service', version: TERMS_VERSION },
-            { user_id: newUserId, document_type: 'privacy_policy',   version: PRIVACY_VERSION },
-          ])
-        } catch { /* best effort, account creation already succeeded */ }
-
-        // Write the chosen account type, interests, Directory visibility,
-        // "looking for" statuses, and course/year/institution onto the
-        // profile the handle_new_user trigger just created. Best effort —
-        // user_type/interests/discoverable/statuses already have sane
-        // database defaults ('student', '{}', true, '{}'), so a failure
-        // here just leaves those defaults in place; course/year_of_study/
-        // institution simply stay null, same as any other best-effort
-        // field here.
-        //
-        // course/year_of_study/institution previously lived ONLY in
-        // user_metadata (the `metadata` object above) — nowhere on
-        // `profiles`, so Directory discovery (Task #12) had no queryable
-        // column to match or score on. This is that column, written here
-        // the same way user_type/interests already are.
-        const institutionName = selectedInstitution?.name || (institutionQuery.trim() || null)
-        try {
-          await supabase.from('profiles').update({
-            user_type: userType,
-            discoverable,
-            ...(interestLabels.length ? { interests: interestLabels } : {}),
-            ...(selectedStatuses.size ? { statuses: [...selectedStatuses] } : {}),
-            ...(course.trim() ? { course: course.trim() } : {}),
-            ...(yearOfStudy.trim() ? { year_of_study: yearOfStudy.trim() } : {}),
-            ...(institutionName ? { institution: institutionName } : {}),
-          }).eq('id', newUserId)
-        } catch { /* best effort */ }
-      }
+      await signUp(email.trim(), password, metadata)
 
       navigation.navigate('VerifyEmail', { email: email.trim() })
     } catch (err) {

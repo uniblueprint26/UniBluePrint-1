@@ -26,7 +26,7 @@ import InterestsModal from '../components/profile/InterestsModal'
 import {
   STATUS_OPTIONS, SOCIAL_LINK_FIELDS, VISIBILITY_OPTIONS, MAX_BIO_LENGTH,
 } from '../constants/directory'
-import { USER_TYPE_STUDENT, USER_TYPE_APPRENTICE } from '../constants/userTypes'
+import { USER_TYPE_STUDENT, USER_TYPE_APPRENTICE, USER_TYPE_WORKER } from '../constants/userTypes'
 import { searchInstitutions } from '../data/institutions'
 import { searchTrades, searchProviders } from '../data/apprenticeships'
 import { supabase } from '../lib/supabase'
@@ -130,6 +130,7 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
   // collects — a Worker/Gap Year account gets neither.
   const showInstitutionFields    = userType === USER_TYPE_STUDENT
   const showApprenticeshipFields = userType === USER_TYPE_APPRENTICE
+  const showIndustryField         = userType === USER_TYPE_WORKER
 
   // Current values live on auth user_metadata, not `profile` — that's what
   // ProfileScreen's own header subtitle (getProfileSubLine) reads from, so
@@ -138,6 +139,8 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
   const currentCourse           = user?.user_metadata?.course || ''
   const currentTrade            = user?.user_metadata?.trade || ''
   const currentTrainingProvider = user?.user_metadata?.training_provider || ''
+  const currentIndustry         = user?.user_metadata?.industry || ''
+  const [industry, setIndustry]  = useState('')
 
   // Institution (Student) — same search-and-pick-or-type-free mechanism as
   // SignUpScreen's in_college/plc steps (data/institutions.js).
@@ -170,8 +173,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
       setProviderQuery(currentTrainingProvider)
       setSelectedProvider(null)
       setShowProviderList(false)
+      setIndustry(currentIndustry)
     }
-  }, [visible, currentName, currentInstitutionName, currentCourse, currentTrade, currentTrainingProvider])
+  }, [visible, currentName, currentInstitutionName, currentCourse, currentTrade, currentTrainingProvider, currentIndustry])
 
   const instResults = institutionQuery.trim() ? searchInstitutions(institutionQuery).slice(0, 8) : []
   const tradeResults = tradeQuery.trim() ? searchTrades(tradeQuery).slice(0, 8) : []
@@ -206,6 +210,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
         const tradeValue    = selectedTrade    || tradeQuery.trim()    || null
         const providerValue = selectedProvider || providerQuery.trim() || null
         const { error } = await updateEducationDetails({ trade: tradeValue, trainingProvider: providerValue })
+        if (error) throw error
+      } else if (showIndustryField) {
+        const { error } = await updateEducationDetails({ industry })
         if (error) throw error
       }
 
@@ -402,6 +409,24 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               </>
             )}
 
+            {/* Industry: Worker accounts only. Sets their Campus Connect group. */}
+            {showIndustryField && (
+              <>
+                <Text style={[ep.fieldLabel, { color: colors.textSecondary, marginTop: 28 }]}>Industry</Text>
+                <View style={[ep.pickerWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <Briefcase size={16} color={colors.textTertiary} style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={[ep.pickerInput, { color: colors.textPrimary }]}
+                    value={industry}
+                    onChangeText={setIndustry}
+                    maxLength={200}
+                    placeholder="e.g. Healthcare, Retail, Construction"
+                    placeholderTextColor={colors.textTertiary}
+                  />
+                </View>
+              </>
+            )}
+
             {/* Save */}
             <Button
               label={saving ? 'Saving…' : 'Save Changes'}
@@ -411,9 +436,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               style={ep.saveBtn}
             />
 
-            {!showInstitutionFields && !showApprenticeshipFields && (
+            {!showInstitutionFields && !showApprenticeshipFields && !showIndustryField && (
               <Text style={[ep.note, { color: colors.textTertiary }]}>
-                Institution, course, and apprenticeship fields appear here for Student and Apprentice account types.
+                Institution, course, apprenticeship and industry fields appear here for Student, Apprentice and Worker account types.
                 You can change your account type anytime from Account Type in Settings.
               </Text>
             )}

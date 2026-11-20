@@ -33,6 +33,7 @@ import { useChat } from '../hooks/useChat'
 import { supabase } from '../lib/supabase'
 import ReportButton from '../components/safety/ReportButton'
 import { useReport } from '../components/safety/ReportProvider'
+import { blockUser } from '../lib/reporting'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -151,11 +152,10 @@ export default function ChatRoomScreen({ navigation, route }) {
           text: 'Block',
           style: 'destructive',
           onPress: async () => {
-            const { error: blockErr } = await supabase.from('blocked_users').insert({
-              blocker_id: userId, blocked_id: otherId,
-            })
-            // 23505 = already blocked (unique constraint) — not a real failure
-            const failed = blockErr && blockErr.code !== '23505'
+            // blockUser also refreshes the cached blocked list, so their posts
+            // and comments disappear straight away.
+            const { ok } = await blockUser(userId, otherId)
+            const failed = !ok
             Alert.alert(
               failed ? 'Something went wrong' : 'Blocked',
               failed ? 'Please try again.' : `You won't see messages from ${otherName || 'this person'} again.`

@@ -108,7 +108,7 @@ export default function BoardDetailScreen({ navigation, route }) {
   const backFallbackRoute = registry === 'course' ? 'CourseConnect' : registry === 'marketplace' ? 'Marketplace' : 'CampusConnect'
   const safeGoBack = useSafeGoBack(navigation, backFallbackRoute)
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { openReport } = useReport()
 
   const [rows, setRows] = useState([])
@@ -236,7 +236,8 @@ export default function BoardDetailScreen({ navigation, route }) {
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
 
   function hasCampus() {
-    return !!user?.user_metadata?.institution
+    const p = profile || {}
+    return !!(user?.user_metadata?.institution || p.campus_community || p.institution || p.training_provider || p.trade || p.industry)
   }
 
   function requireCampus(action) {
