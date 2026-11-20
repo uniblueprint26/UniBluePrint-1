@@ -38,6 +38,8 @@ const googleMapsKey = String(process.env.GOOGLE_MAPS_ANDROID_API_KEY || '').trim
 
 const PHOTO_LIBRARY_TEXT =
   'UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.'
+const CALENDAR_TEXT =
+  'UniBlueprint reads the events in the calendars you choose, only to show them on your UBP Calendar. It never changes or deletes them, and they stay on your phone.'
 const LOCATION_TEXT =
   'UniBlueprint uses your location, only when you tap "Find Near Me", to show Lifestyle partners and coaches near you on the map.'
 
@@ -72,6 +74,11 @@ module.exports = {
     //   Emails or text messages: chat messages between members.
     //   Device ID: the push notification token, saved so we can notify the person.
     //   Crash data: only when a Sentry DSN is set (EXPO_PUBLIC_SENTRY_DSN).
+    // Calendar: the member's own events and goal dates are saved to their
+    // account (Other User Content, already listed). Events read from this
+    // phone's calendar are read on the phone each time, are never uploaded and
+    // are not listed as collected. A pasted .ics link is fetched by the phone
+    // directly from the address the member typed.
     // Location is read on the phone only when the person taps Find Near Me, to
     // sort partners by distance. It is never sent to a server, so it is not
     // listed as collected. If that ever changes, add PreciseLocation here.
@@ -107,17 +114,20 @@ module.exports = {
       backgroundColor: '#F5F0E8',
     },
     package: 'com.uniblueprint.app',
-    // Only location (Find Near Me). Photo picking uses the system picker. Camera,
+    // Location (Find Near Me) and read only calendar access (Calendar import). Photo picking uses the system picker. Camera,
     // microphone and write storage are never used, so they are blocked even if a
     // library asks for them.
     permissions: [
       'ACCESS_COARSE_LOCATION',
       'ACCESS_FINE_LOCATION',
+      'READ_CALENDAR',
     ],
     blockedPermissions: [
       'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
       'android.permission.WRITE_EXTERNAL_STORAGE',
+      // The Calendar only reads this phone's calendar. It never writes to it.
+      'android.permission.WRITE_CALENDAR',
     ],
     // Push notifications on Android need Firebase. Add the file as an EAS file
     // variable named GOOGLE_SERVICES_JSON.
@@ -167,6 +177,15 @@ module.exports = {
         photosPermission: PHOTO_LIBRARY_TEXT,
         cameraPermission: false,
         microphonePermission: false,
+      },
+    ],
+    [
+      // Read only. The member picks which calendars to show, after an
+      // explainer in the Calendar import sheet. No reminders access.
+      'expo-calendar',
+      {
+        calendarPermission: CALENDAR_TEXT,
+        remindersPermission: false,
       },
     ],
     '@sentry/react-native',

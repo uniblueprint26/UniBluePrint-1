@@ -171,7 +171,7 @@ Tracking: **No.** We do not track people across other companies' apps or website
 | Identifiers: User ID | Yes | Yes | No | App functionality |
 | Identifiers: Device ID (push notification token) | Yes | Yes | No | App functionality |
 | User content: Photos or videos | Yes | Yes | No | App functionality |
-| User content: Other user content (posts, comments, listings, profile text) | Yes | Yes | No | App functionality |
+| User content: Other user content (posts, comments, listings, profile text, the member's own calendar events and calendar names) | Yes | Yes | No | App functionality |
 | User content: Emails or text messages (chat messages between members) | Yes | Yes | No | App functionality |
 | Other data types (date of birth, course, college, interests) | Yes | Yes | No | App functionality |
 | Diagnostics: Crash data | Yes, only when crash reporting is switched on | Yes | No | App functionality |
@@ -179,6 +179,7 @@ Tracking: **No.** We do not track people across other companies' apps or website
 Not collected:
 
 * **Location.** The app asks for your location only when you tap Find Near Me on the partner map. It is read on the phone to sort pins by distance. It is not sent to our servers or stored, so it is not "collected" under Apple's definition. If you ever send it to a server, add Precise location here and in `app/app.config.js`.
+* **Phone calendar.** The Calendar can read this phone's calendar after a plain explainer and only for the calendars the person picks (read only, iOS calendar permission and Android READ_CALENDAR). Events are read on the phone each time and are never sent to our servers, so they are not "collected". The events a member types in, or brings in from a pasted calendar link (.ics, fetched by the phone), are saved to their own account and are private to them. They fall under Other user content above. No reminders access is requested. If you ever upload phone calendar events, add them here and in `app/app.config.js`.
 * Financial info, health and fitness, browsing history, search history, contacts, purchases, advertising data, sensitive info.
 
 This matches the privacy manifest in `app/app.config.js`. Keep the two in step.
@@ -210,7 +211,7 @@ Data types collected. For each one: collected, not shared, required for app func
 | App info and performance | Crash logs | Only when crash reporting is switched on. |
 | Device or other IDs | Device or other IDs | Push notification token |
 
-Not collected: approximate or precise location (read on the device only when the person taps Find Near Me, never sent), financial info, health info, contacts, web browsing, calendar, audio, files and docs.
+Not collected: approximate or precise location (read on the device only when the person taps Find Near Me, never sent), financial info, health info, contacts, web browsing, audio, files and docs. Calendar: events read from the phone's own calendar are read on the device only and never sent. Events the member adds or brings in from a link are saved to their account and covered by Other user generated content.
 
 Purposes for every item above: App functionality. Crash logs: App functionality and analytics.
 
@@ -269,6 +270,7 @@ Posts are filtered for abusive language. Members must be 18 or older (date of bi
 Account deletion. Profile, then Privacy and Data, then Delete account. It deletes the account and personal data straight away.
 
 Location. Asked only when you tap Find Near Me on the partner map (Lifestyle). It stays on the phone.
+Calendar. Asked only after you tap Allow and choose calendars in Calendar, Bring in a calendar. It is read only and stays on the phone.
 Notifications. Asked after sign in. They are optional.
 ```
 
@@ -288,7 +290,7 @@ User generated content policy: filtering, report on every item, block, a moderat
 
 Account deletion: in the app under Profile, then Privacy and Data, then Delete account. Account deletion web page: see the Data safety form.
 
-Permissions: location (only when the person taps Find Near Me) and notifications. No camera or microphone permission is requested. Photos use the system photo picker.
+Permissions: location (only when the person taps Find Near Me), read only calendar (only after the person taps Allow and choose calendars in Calendar, Bring in a calendar) and notifications. No camera or microphone permission is requested. Photos use the system photo picker.
 ```
 
 ---
