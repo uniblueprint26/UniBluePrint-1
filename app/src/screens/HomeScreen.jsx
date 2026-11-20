@@ -18,6 +18,7 @@ import StoryRail from '../components/home/StoryRail'
 import NextUpRow from '../components/home/NextUpRow'
 import { routeExists } from '../components/home/routeExists'
 import { useGoalSummary, useBudgetLeft } from '../components/home/personalStats'
+import { useCalendarSummary } from '../lib/calendar/useCalendarData'
 import { openInHomeStack } from '../navigation/helpers'
 import { formatNumber } from '../utils/formatNumber'
 import GoalsGrid from '../components/home/GoalsGrid'
@@ -481,6 +482,10 @@ export default function HomeScreen({ navigation }) {
   const goalSummary = useGoalSummary(user?.id)
   const budgetLeft = useBudgetLeft(user?.id)
   const calendarReady = routeExists(navigation, 'Calendar')
+  const calendarSummary = useCalendarSummary(user?.id)
+  const calendarValue = calendarSummary.todayCount > 0
+    ? `${calendarSummary.todayCount} today`
+    : calendarSummary.weekCount > 0 ? `${calendarSummary.weekCount} this week` : '–'
   const personalStats = [
     goalSummary ? {
       key: 'goals', label: 'Goals', Icon: Target,
@@ -490,10 +495,12 @@ export default function HomeScreen({ navigation }) {
         : 'No goals set yet',
     } : null,
     {
-      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: '–',
-      caption: calendarReady ? 'Add your timetable' : undefined,
+      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: calendarValue,
+      caption: calendarReady && calendarValue === '–' ? 'Add your timetable' : undefined,
       onPress: calendarReady ? () => openInHomeStack(navigation, 'Calendar') : undefined,
-      accessibilityLabel: calendarReady ? 'No events yet. Add your timetable' : 'No events yet',
+      accessibilityLabel: calendarValue === '–'
+        ? (calendarReady ? 'No events yet. Add your timetable' : 'No events yet')
+        : `${calendarValue}. Open Calendar`,
     },
     budgetLeft !== null ? {
       key: 'budget', label: 'Budget left', Icon: Wallet,
@@ -603,7 +610,7 @@ export default function HomeScreen({ navigation }) {
   // every unrelated re-render (e.g. a single reaction tap). A plain element
   // reconciles normally instead.
   // No Next up event yet: the Calendar feature supplies one later. Never fake it.
-  const nextUp = null
+  const nextUp = calendarSummary.nextUp
 
   // One Home section. Digest, Next up and Your goals are drawn here so they can
   // sit above the feed or inside it, wherever the layout puts them.
