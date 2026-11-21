@@ -3,6 +3,7 @@
 // and promoted placements ("Ad" cards). Kept separate from HomeScreen.jsx so
 // the screen stays about layout, not query shape.
 
+import { assertTextClean } from './moderation'
 import { supabase } from './supabase'
 
 export const BUZZ_WINDOWS = [
@@ -167,6 +168,7 @@ export async function fetchComments(postId) {
 }
 
 export async function createComment({ postId, userId, body }) {
+  assertTextClean(body)
   const { data, error } = await supabase
     .from('feed_comments')
     .insert({ post_id: postId, user_id: userId, body })

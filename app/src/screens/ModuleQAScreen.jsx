@@ -8,6 +8,7 @@
  * conventions (hero block, Card, filter bar, upvote pill) are lifted
  * straight from BoardDetailScreen for visual consistency.
  */
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet,
@@ -118,6 +119,7 @@ export default function ModuleQAScreen({ navigation, route }) {
       setAskError('Course, module, and your question are all required.')
       return
     }
+    if (!checkText(`${askCourse} ${askModule} ${askText}`).ok) { setAskError(GUIDELINES_MESSAGE); return }
     setAskSaving(true)
     setAskError(null)
     try {
@@ -155,6 +157,7 @@ export default function ModuleQAScreen({ navigation, route }) {
 
   async function postAnswer() {
     if (!answerDraft.trim() || answerSaving) return
+    if (!checkText(answerDraft).ok) { Alert.alert('Could not post', GUIDELINES_MESSAGE); return }
     setAnswerSaving(true)
     const { data, error } = await supabase.from('module_answers').insert({
       question_id: selected.id, user_id: user.id, poster_name: displayName, body: answerDraft.trim(),

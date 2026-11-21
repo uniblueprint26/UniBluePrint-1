@@ -34,6 +34,7 @@ import { supabase } from '../lib/supabase'
 import ReportButton from '../components/safety/ReportButton'
 import { useReport } from '../components/safety/ReportProvider'
 import { blockUser } from '../lib/reporting'
+import { moderationMessage } from '../lib/moderation'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -99,8 +100,9 @@ export default function ChatRoomScreen({ navigation, route }) {
     setSending(true)
     try {
       await sendMessage(text)
-    } catch {
+    } catch (e) {
       setInput(text) // restore on failure so the user doesn't lose their message
+      Alert.alert('Message not sent', moderationMessage(e, 'Please check your connection and try again.'))
     } finally {
       setSending(false)
     }

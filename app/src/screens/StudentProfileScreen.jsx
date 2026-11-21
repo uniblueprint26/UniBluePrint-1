@@ -1,3 +1,4 @@
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useCallback, useEffect, useState } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert,
@@ -394,6 +395,10 @@ export default function StudentProfileScreen({ route, navigation }) {
     if (!canEndorse || saving) return
     const clean = normalizeCustomEndorsement(rawText)
     if (!clean) return
+    if (!checkText(clean).ok) {
+      Alert.alert('Could not save that', GUIDELINES_MESSAGE)
+      return
+    }
     setSaving(true)
     try {
       const { error } = await supabase.from('peer_endorsements').insert({

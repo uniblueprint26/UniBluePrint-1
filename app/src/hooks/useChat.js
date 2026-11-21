@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import { assertTextClean } from '../lib/moderation'
 
 export function useChat({
   contextType, contextId, roomName, userId, userDisplayName,
@@ -166,6 +167,7 @@ export function useChat({
   // ── sendMessage ──────────────────────────────────────────────────────────────
   const sendMessage = useCallback(async (content) => {
     if (!roomId || !userId || !content?.trim()) return
+    assertTextClean(content)
     const { error: sendErr } = await supabase.from('chat_messages').insert({
       room_id:     roomId,
       user_id:     userId,

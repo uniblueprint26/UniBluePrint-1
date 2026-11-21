@@ -1,3 +1,5 @@
+import { unregisterPushTokenAsync } from '../lib/pushNotifications'
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
@@ -170,6 +172,8 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    // Stop this phone getting the account's pushes. Must run while still signed in.
+    await unregisterPushTokenAsync()
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
@@ -248,6 +252,7 @@ export function AuthProvider({ children }) {
       updates.discoverable = !!fields.discoverable
     }
     if ('bio' in fields) {
+      if (!checkText(String(fields.bio || '')).ok) return { error: new Error(GUIDELINES_MESSAGE) }
       updates.bio = String(fields.bio || '').trim().slice(0, MAX_BIO_LENGTH) || null
     }
     if ('statuses' in fields) {
