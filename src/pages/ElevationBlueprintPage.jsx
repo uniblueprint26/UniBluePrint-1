@@ -31,7 +31,7 @@ const PAGE_STYLES = `
 // coach's own shareable preview page (ElevationCoachProfilePage.jsx) so
 // that page and this grid never drift apart.
 
-const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Finance', 'Marketing', 'Creative', 'Yoga', 'Career']
+const COACH_FILTERS = ['All', 'Fitness', 'Academic Grinds', 'Finance', 'Marketing', 'Career']
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
 

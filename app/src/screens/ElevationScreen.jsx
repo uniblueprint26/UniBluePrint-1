@@ -76,6 +76,7 @@ export const COACHES = [
   // ── Academic ──
   {
     id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
+    heroImage: require('../../assets/coaches/eman/hero.jpg'),
     location: 'Dublin, Ireland, Available Nationwide', from: 'Available on request',
     tagline: 'From under 400 points to 500+, proven study strategy.',
     services: ['Leaving Cert Maths', 'Leaving Cert Biology', 'Leaving Cert Physics'],
@@ -85,6 +86,7 @@ export const COACHES = [
   // ── Sports ──
   {
     id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Fitness',
+    heroImage: require('../../assets/coaches/jmc-fitness/hero.jpg'),
     location: 'North Dublin, Available Nationwide', from: '€50/hr',
     services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics Breakdown', 'Dietary Guidance', 'Agent Connections'],
     bio: "I offer elite sports coaching with fully personalised programmes for students serious about performance. In-person sessions run on North Dublin 4G Astro, plus football coaching and professional agent connections.",
@@ -98,6 +100,7 @@ export const COACHES = [
   // ── Creative ──
   {
     id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Marketing',
+    heroImage: require('../../assets/coaches/nathan-yanzo/hero.jpg'),
     location: 'Dublin, Available Nationwide', from: '€55/month',
     services: ['Monthly Mentorship', '1-1 Shoot Session', 'Editing Guidance', 'Creative Direction'],
     bio: "I'm a professional photographer and videographer offering mentorship and shoot sessions. My monthly subscription includes Zoom calls and editing guidance.",
@@ -109,7 +112,8 @@ export const COACHES = [
 
   // ── Finance ──
   {
-    id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing & Finance Coach', filter: 'Finance',
+    id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing and Finance Coach', filter: 'Finance',
+    heroImage: require('../../assets/coaches/zainab-adeyemi/hero.jpg'),
     location: 'Ireland, Available Nationwide', from: 'Available on request',
     title: 'Chartered Accountant · Founder, Soft Life Investing',
     tagline: 'Personal finance without the finance bro jargon.',
@@ -131,6 +135,7 @@ export const COACHES = [
   // ── Fitness ──
   {
     id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga',
+    heroImage: require('../../assets/coaches/camila-aruk/hero.jpg'),
     // Card-only single specialty tag — the full compound category above still
     // shows on her profile page, but the grid card shows one clear tag per
     // coach (see CoachCard). Personal Training is the most representative of
@@ -162,6 +167,7 @@ export const COACHES = [
 
   {
     id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
+    heroImage: require('../../assets/coaches/emanuel-tolic/hero.jpg'),
     location: 'Mayo, Available Nationwide', from: 'Available on request',
     services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
     bio: "I'm a 20-year-old qualified personal trainer with 5+ years of fitness experience. I specialise in weightlifting and calisthenics, and also work with clients in kickboxing and other sports. I provide personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme, and I'm available in and outside working hours.",
@@ -232,6 +238,7 @@ export const COACHES = [
 
   {
     id: 9, name: 'Kevin (TrainWitKev)', category: 'Personal Training', filter: 'Fitness',
+    heroImage: require('../../assets/coaches/kevin-trainwitkev/hero.jpg'),
     location: 'Dublin, Ireland, Available Nationwide', from: '€25/session',
     tagline: 'Strength. Physique. Confidence. Mindset.',
     services: ['1-to-1 Personal Training', 'Beginner Gym Coaching', 'Personalised Training Programmes', 'Accountability & Progress Coaching'],
@@ -251,6 +258,7 @@ export const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
+    heroImage: require('../../assets/coaches/alex-leva/hero.jpg'),
     location: 'Co. Mayo, Ireland, Available Nationwide',
     // No set price and no pricelist to clarify a number against — a bare
     // "€40" reads as a real fixed rate when it isn't one. Standardized
@@ -287,6 +295,7 @@ export const COACHES = [
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
+    heroImage: require('../../assets/coaches/jayden-reynolds/hero.jpg'),
     location: 'County Sligo, Available Nationwide', from: 'Available on request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
     bio: "I'm a qualified Personal Trainer with over a decade of experience, passionate about helping people balance school, work, fitness, sport, and social life. I'm also a League of Ireland player, and I'm available for both online and local in-person coaching in County Sligo.",
@@ -295,6 +304,7 @@ export const COACHES = [
   // ── Yoga ──
   {
     id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Fitness',
+    heroImage: require('../../assets/coaches/aoife-keogh/hero.jpg'),
     location: 'Dublin, Available Nationwide',
     from: 'Available on request',
     title: '200 Hour Certified Yoga Teacher | Psychology | Life Coaching',
@@ -317,6 +327,7 @@ export const COACHES = [
 
   {
     id: 18, name: 'Luana Ciweck', category: 'Online Fitness Coaching', filter: 'Fitness',
+    heroImage: require('../../assets/coaches/luana-ciweck/hero.jpg'),
     location: 'Co. Mayo, Ireland, Available Nationwide', from: 'Available on request',
     tagline: 'Confidence. Strength. Sustainable change.',
     services: ['Online Fitness Coaching'],
@@ -341,6 +352,44 @@ const GROUPS = [
 ]
 
 // ─── Coach Card ───────────────────────────────────────────────────────────────
+
+// Swipe-paged pictures at the top of a coach card. 4:3 frame with 'contain' so
+// logos and portraits are never cropped. Dots show only with 2+ pictures.
+function CoachPhotoStrip({ photos }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const [width, setWidth] = useState(0)
+  const [index, setIndex] = useState(0)
+  return (
+    <View onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+      {width > 0 && (
+        <>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            nestedScrollEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={e => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
+            style={styles.photoStrip}
+          >
+            {photos.map((photo, i) => (
+              <View key={i} style={[styles.photoFrame, { width }]}>
+                <Image source={photo} style={styles.photoImage} resizeMode="contain" />
+              </View>
+            ))}
+          </ScrollView>
+          {photos.length > 1 && (
+            <View style={styles.photoDots}>
+              {photos.map((_, i) => (
+                <View key={i} style={[styles.photoDot, i === index && styles.photoDotActive]} />
+              ))}
+            </View>
+          )}
+        </>
+      )}
+    </View>
+  )
+}
 
 function CoachCard({ coach, navigation, index = 0 }) {
   const { colors } = useTheme()
@@ -410,6 +459,7 @@ function CoachCard({ coach, navigation, index = 0 }) {
   // a "standard vs premium" split — pricelist ordering isn't actually
   // tiered, so labelling one "premium" would misrepresent the data.
   const pricePreview = Array.isArray(coach.pricelist) ? coach.pricelist.slice(0, 2) : null
+  const photos = [coach.heroImage, ...(coach.gallery || [])].filter(Boolean)
 
   return (
     <View style={styles.cardSlot}>
@@ -419,24 +469,21 @@ function CoachCard({ coach, navigation, index = 0 }) {
       </View>
     <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
       <Card style={styles.coachCard}>
+        {/* Swiping pictures sit above the coach name. Only the real images
+            supplied for this coach are shown (hero first, then gallery). */}
+        {photos.length > 0 && <CoachPhotoStrip photos={photos} />}
+
         {/* Header */}
-        <View style={styles.coachTop}>
-          <View style={styles.coachAvatarWrap}>
-            {coach.heroImage ? (
-              // Portrait-ratio frame (not a square/circle crop) so a real
-              // studio photo shows full-frame — resizeMode 'contain' keeps
-              // the whole shot visible rather than cutting off the subject.
-              <View style={styles.coachAvatarPhotoFrame}>
-                <Image source={coach.heroImage} style={styles.coachAvatarPhoto} resizeMode="contain" />
-              </View>
-            ) : (
+        <View style={[styles.coachTop, photos.length > 0 && { marginTop: 14 }]}>
+          {photos.length === 0 && (
+            <View style={styles.coachAvatarWrap}>
               <View style={styles.coachAvatar}>
                 <User size={26} color={colors.light} />
               </View>
-            )}
-            <View style={styles.coachOnlineDot} />
-          </View>
-          <View style={{ flex: 1, marginLeft: 14 }}>
+              <View style={styles.coachOnlineDot} />
+            </View>
+          )}
+          <View style={{ flex: 1, marginLeft: photos.length === 0 ? 14 : 0 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
               <Text style={styles.coachName}>{coach.name}</Text>
               <VerifiedBadge verified={coach.verified} compact />
@@ -474,19 +521,22 @@ function CoachCard({ coach, navigation, index = 0 }) {
         {/* Bio, preview, 3 lines max */}
         <Text style={styles.coachBio} numberOfLines={3}>{coach.bio}</Text>
 
-        {/* Service pills, first 3 + overflow count */}
-        <View style={styles.servicePills}>
-          {coach.services.slice(0, 3).map(s => (
-            <View key={s} style={styles.servicePill}>
-              <Text style={styles.servicePillText}>{s}</Text>
-            </View>
-          ))}
-          {coach.services.length > 3 && (
-            <View style={[styles.servicePill, { backgroundColor: 'rgba(30,58,95,0.06)' }]}>
-              <Text style={styles.servicePillText}>+{coach.services.length - 3} more</Text>
-            </View>
-          )}
-        </View>
+        {/* Services menu: the coach's real listed services, first 5 plus a
+            count. Nothing is added that is not in the coach's data. */}
+        {Array.isArray(coach.services) && coach.services.length > 0 && (
+          <View style={styles.serviceMenu}>
+            <Text style={styles.serviceMenuLabel}>Services</Text>
+            {coach.services.slice(0, 5).map(s => (
+              <View key={s} style={styles.serviceMenuRow}>
+                <View style={styles.serviceMenuDot} />
+                <Text style={styles.serviceMenuText}>{s}</Text>
+              </View>
+            ))}
+            {coach.services.length > 5 && (
+              <Text style={styles.serviceMenuMore}>+{coach.services.length - 5} more on the profile</Text>
+            )}
+          </View>
+        )}
 
         {/* Footer — every coach shows the same "Starting from" label plus
             either a real € price or the single standard fallback phrase
@@ -968,6 +1018,18 @@ function __gs_styles(colors) {
   mentorPill:     { backgroundColor: '#F0FDF4', borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 2, marginTop: 5, alignSelf: 'flex-start' },
   mentorPillText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#15803D', letterSpacing: 0.3, textTransform: 'uppercase' },
 
+  photoStrip:     { borderRadius: radius.card, overflow: 'hidden', backgroundColor: colors.surfaceAlt },
+  photoFrame:     { aspectRatio: 4 / 3, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  photoImage:     { width: '100%', height: '100%' },
+  photoDots:      { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8 },
+  photoDot:       { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },
+  photoDotActive: { backgroundColor: colors.textPrimary, width: 16 },
+  serviceMenu:    { marginTop: 12, gap: 6 },
+  serviceMenuLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.6 },
+  serviceMenuRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  serviceMenuDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.muted },
+  serviceMenuText:{ flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 18 },
+  serviceMenuMore:{ fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 2 },
   servicePills:   { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
   servicePill:    { backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 4 },
   servicePillText:{ fontFamily: fonts.sans, fontSize: 11, color: colors.textPrimary },
