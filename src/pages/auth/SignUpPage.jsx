@@ -14,9 +14,31 @@ import {
   linkStyle,
 } from '../../styles/auth'
 
+// Members must be 18 or over. Keep in step with app/src/constants/legal.js
+// (MIN_SIGNUP_AGE) and the database check. The versions below are the
+// "Last updated" month of /terms and /privacy, recorded as consent.
+const MIN_SIGNUP_AGE = 18
+const TERMS_VERSION = '2026-09'
+const PRIVACY_VERSION = '2026-09'
+
+// "YYYY-MM-DD" from a date input. Returns a Date at local midnight or null.
+function parseDob(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '')
+  if (!m) return null
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  if (d.getFullYear() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1 || d.getDate() !== Number(m[3])) return null
+  return d
+}
+
+function isAtLeastAge(dob, years) {
+  const cutoff = new Date()
+  cutoff.setFullYear(cutoff.getFullYear() - years)
+  return dob <= cutoff
+}
+
 export default function SignUpPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', dob: '' })
   // Pre-filled from ?ref=<code> if someone arrived via a friend's invite
   // link (see useReferralCapture) — still editable, so someone who was
   // handed a code by word of mouth rather than a link can type it in too.
@@ -37,6 +59,10 @@ export default function SignUpPage() {
     else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Enter a valid email address'
     if (!form.password) errs.password = 'Password is required'
     else if (form.password.length < 8) errs.password = 'Must be at least 8 characters'
+    const dob = parseDob(form.dob)
+    if (!form.dob) errs.dob = 'Date of birth is required'
+    else if (!dob || dob > new Date() || dob.getFullYear() < 1900) errs.dob = 'Enter a valid date of birth'
+    else if (!isAtLeastAge(dob, MIN_SIGNUP_AGE)) errs.dob = `UniBlueprint is for people aged ${MIN_SIGNUP_AGE} and over.`
     if (!form.confirmPassword) errs.confirmPassword = 'Please confirm your password'
     else if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match'
     return errs
@@ -56,6 +82,9 @@ export default function SignUpPage() {
         options: { data: {
           full_name: form.fullName,
           marketing_consent: marketingConsent,
+          date_of_birth: form.dob,
+          terms_version: TERMS_VERSION,
+          privacy_version: PRIVACY_VERSION,
           ...(referralCode.trim() ? { referred_by_code: referralCode.trim() } : {}),
         } },
       })
@@ -114,6 +143,15 @@ export default function SignUpPage() {
           error={fieldErrors.email}
           autoComplete="email"
           placeholder="jane@example.com"
+        />
+        <AuthInput
+          label="Date of birth"
+          type="date"
+          value={form.dob}
+          onChange={set('dob')}
+          error={fieldErrors.dob}
+          hint="You must be 18 or over."
+          autoComplete="bday"
         />
         <AuthInput
           label="Password"
