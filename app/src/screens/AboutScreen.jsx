@@ -70,7 +70,7 @@ const TIMELINE = [
   { label: '#041', date: 'May 13, 2026',  title: 'Preparations Pt. 2' },
   { label: '#042', date: 'May 14, 2026',  title: 'Showtime' },
   { label: '#043', date: 'May 16, 2026',  title: 'Cafe Conversations' },
-  { label: '',     date: 'September 2026', title: 'Launch' },
+  { label: '',     date: 'December 2026', title: 'Launch' },
 ]
 
 export default function AboutScreen({ navigation }) {
@@ -108,7 +108,7 @@ export default function AboutScreen({ navigation }) {
           At the birthday dinner, a conversation about college life sparked the idea, and in that moment the foundation for this brand was created and set in motion. I flew home with a head full of plans and got to work.
         </Text>
         <Text style={[styles.para, { color: colors.textSecondary }]}>
-          What followed was weeks of brainstorming, long phone calls, voice messages, recruiting, the pieces forming one by one. By April the app had its first look. By May we were visiting campuses, ATU Galway, UCD, Maynooth, and back to Ballyhaunis Community School where it all began. September 2026 is launch.
+          What followed was weeks of brainstorming, long phone calls, voice messages, recruiting, the pieces forming one by one. By April the app had its first look. By May we were visiting campuses, ATU Galway, UCD, Maynooth, and back to Ballyhaunis Community School where it all began. 26 December 2026 is launch.
         </Text>
         <Text style={[styles.para, { color: colors.textSecondary }]}>
           Every step of it is documented. 43 posts and counting on the VSCO, Behind the Blueprint. From the pilot to launch day.
@@ -205,8 +205,8 @@ export default function AboutScreen({ navigation }) {
 
         {/* Launch CTA */}
         <View style={[styles.launchCta, { backgroundColor: colors.chromeBg }]}>
-          <Text style={[styles.launchTitle, { color: colors.chromeFg }]}>Launched September 2026.</Text>
-          <Text style={styles.launchSub}>Across Irish universities and colleges during freshers week.</Text>
+          <Text style={[styles.launchTitle, { color: colors.chromeFg }]}>Launching 26 December 2026.</Text>
+          <Text style={styles.launchSub}>Across Ireland, on the App Store and Google Play.</Text>
         </View>
 
         <Text style={[styles.legalText, { color: colors.textTertiary }]}>{LEGAL_ENTITY_LINE}</Text>

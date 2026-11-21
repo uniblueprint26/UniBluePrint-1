@@ -26,8 +26,6 @@ export const MENTAL_HEALTH_CATEGORIES = [
       { name: 'Text About It', number: 'Text HELLO to 50808', hours: '24/7, free to text', link: 'sms:50808' },
       { name: 'SOSAD Ireland', number: '1800 901 909', hours: '24/7, 365 days a year', link: 'tel:1800901909' },
       { name: 'HSE YourMentalHealth Info Line', number: '1800 111 888', hours: 'Anytime, day or night', link: 'tel:1800111888' },
-      { name: 'Childline (ISPCC)', number: '1800 66 66 66', hours: '24/7 · under 18s', link: 'tel:1800666666' },
-      { name: 'Teenline Ireland', number: '1800 833 634', hours: '24/7, 365 days · under 18s', link: 'tel:1800833634' },
       { name: 'Emergency Services', number: '999 or 112', hours: 'Immediate danger, anytime', link: 'tel:999' },
     ],
   },
