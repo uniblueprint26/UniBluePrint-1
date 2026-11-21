@@ -19,6 +19,7 @@ import { foundationGated } from './foundationGate'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { colors, fonts } from '../constants/theme'
 import BlueprintTourScreen, { TOUR_SEEN_KEY_PREFIX } from '../screens/BlueprintTourScreen'
+import OnboardingScreen from '../screens/OnboardingScreen'
 import TabCoachMark from '../components/onboarding/TabCoachMark'
 
 // Main screens
@@ -37,7 +38,6 @@ import StudyRoomsScreen from '../screens/StudyRoomsScreen'
 import CommuteBuddyScreen from '../screens/CommuteBuddyScreen'
 import CampusToolkitScreen from '../screens/CampusToolkitScreen'
 import CampusRankedScreen from '../screens/CampusRankedScreen'
-import RoomyPartnerScreen from '../screens/RoomyPartnerScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import LifestylePartnersScreen from '../screens/LifestylePartnersScreen'
 import LifestyleFeaturedDealsScreen from '../screens/LifestyleFeaturedDealsScreen'
@@ -129,6 +129,9 @@ import FAQsScreen        from '../screens/FAQsScreen'
 import HelpScreen        from '../screens/HelpScreen'
 import PrivacyDataScreen from '../screens/PrivacyDataScreen'
 import ParentInfoScreen from '../screens/ParentInfoScreen'
+import GlobalSearchScreen from '../screens/GlobalSearchScreen'
+import SettingsScreen from '../screens/SettingsScreen'
+import BlockedMembersScreen from '../screens/BlockedMembersScreen'
 
 // Auth screens
 import WelcomeScreen        from '../screens/auth/WelcomeScreen'
@@ -212,6 +215,7 @@ function HomeStack() {
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="Calendar"      component={CalendarScreen}      />
       <Stack.Screen name="MyBlueprint"   component={MyBlueprintScreen}  />
+      <Stack.Screen name="Search"        component={GlobalSearchScreen} />
       <Stack.Screen name="Explore"       component={ExploreScreen}      />
       <Stack.Screen name="ExploreList"   component={ExploreListScreen}  />
       <Stack.Screen name="ExploreBundle" component={ExploreBundleScreen} />
@@ -223,7 +227,6 @@ function HomeStack() {
       <Stack.Screen name="Scholarships" component={ScholarshipsScreen} />
       <Stack.Screen name="KoboPartner" component={KoboPartnerScreen} />
       <Stack.Screen name="ScoutPartner" component={ScoutPartnerScreen} />
-      <Stack.Screen name="RoomyPartner" component={RoomyPartnerScreen} />
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="CoachBooking"  component={CoachBookingScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
@@ -314,6 +317,8 @@ function ProfileStack() {
       <Stack.Screen name="Help"         component={HelpScreen}        />
       <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
       <Stack.Screen name="ParentInfo"   component={ParentInfoScreen}  />
+      <Stack.Screen name="Settings"     component={SettingsScreen}    />
+      <Stack.Screen name="BlockedMembers" component={BlockedMembersScreen} />
       <Stack.Screen name="BlueprintTour" options={{ gestureEnabled: false }}>
         {({ navigation }) => {
           const safeGoBack = useSafeGoBack(navigation)
@@ -586,7 +591,7 @@ export default function RootNavigator() {
   }
 
   if (!tourSeen) {
-    return <BlueprintTourScreen mode="first-launch" onFinish={() => setTourSeen(true)} />
+    return <OnboardingScreen onFinish={() => setTourSeen(true)} />
   }
 
   return <AppShell />

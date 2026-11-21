@@ -84,6 +84,7 @@ export const linking = {
               Pricing:     'pricing',
               PrivacyData: 'privacy',
               ParentInfo:  'for-parents',
+              Settings:    'settings',
               BlueprintTour: 'tour',
             },
           },

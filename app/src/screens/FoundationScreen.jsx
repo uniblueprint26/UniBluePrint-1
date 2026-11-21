@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
@@ -156,7 +156,7 @@ const GAP = 14
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
-export default function FoundationScreen({ navigation }) {
+export default function FoundationScreen({ navigation, route }) {
   const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
@@ -187,6 +187,16 @@ export default function FoundationScreen({ navigation }) {
     } catch { /* leave envelopes without a status */ }
   }, [user?.id])
   useFocusEffect(useCallback(() => { loadProgress() }, [loadProgress]))
+
+  // Search opens a service straight away: Foundation with params.open set to
+  // the service title.
+  const openTitle = route?.params?.open
+  useEffect(() => {
+    if (!openTitle) return
+    const match = CAREER_SERVICES.find(sv => sv.title === openTitle)
+    if (match) setSelected(match)
+    navigation.setParams?.({ open: undefined })
+  }, [openTitle])
 
   function progressFor(title) {
     const table = BUILDER_BY_TITLE[title]?.table

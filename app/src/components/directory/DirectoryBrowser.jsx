@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { View, Text, FlatList, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Search, X } from 'lucide-react-native'
 import Card from '../ui/Card'
@@ -8,6 +9,10 @@ import { courseLine, sharedInterests, sameCourse } from './helpers'
 import { fonts, spacing } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { PILLARS } from '../../constants/pillars'
+import DiscoverDeck from './DiscoverDeck'
+import PersonCardModal from './PersonCardModal'
+import ErrorState from '../ui/ErrorState'
+import SlowLoad from '../ui/SlowLoad'
 
 // The browse list used by Messages > Discover and by the (hidden) Directory
 // screen: search, interest filters, a "Also on your course" row, and one card
@@ -63,7 +68,7 @@ function CourseRow({ people, follows, onOpenProfile }) {
     <View style={s.courseSection}>
       <View style={s.labelRow}>
         <View style={[s.dot, { backgroundColor: dot }]} />
-        <Text style={[s.label, { color: colors.textSecondary }]}>ALSO ON YOUR COURSE</Text>
+        <Text style={[s.label, { color: colors.textSecondary }]}>IN THE SAME FIELD</Text>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.courseScroll}>
         {people.map(p => (
@@ -85,6 +90,8 @@ export default function DirectoryBrowser({ data, follows, onOpenProfile, bottomP
   const { colors } = useTheme()
   const { filtered, candidates, loading, error, filters, filter, setFilter, search, setSearch, query, viewer, viewerInterests } = data
 
+  const [cardPerson, setCardPerson] = useState(null)
+  const openCard = p => setCardPerson(p)
   const filtering = !!query || filter !== 'All'
   const courseMates = viewer.course
     ? candidates.filter(c => sameCourse(viewer.course, c) && !follows.isFollowing(c.id)).slice(0, 8)
@@ -93,7 +100,13 @@ export default function DirectoryBrowser({ data, follows, onOpenProfile, bottomP
   const header = (
     <View>
       {!filtering && courseMates.length > 0 && (
-        <CourseRow people={courseMates} follows={follows} onOpenProfile={onOpenProfile} />
+        <CourseRow people={courseMates} follows={follows} onOpenProfile={openCard} />
+      )}
+
+      {!filtering && !loading && !error && filtered.length > 0 && (
+        <View style={{ marginBottom: 24 }}>
+          <DiscoverDeck people={filtered} viewerInterests={viewerInterests} follows={follows} onOpenCard={openCard} />
+        </View>
       )}
 
       {heading && (
@@ -146,7 +159,7 @@ export default function DirectoryBrowser({ data, follows, onOpenProfile, bottomP
       {loading ? (
         <View style={s.center}><ActivityIndicator color={colors.textPrimary} /></View>
       ) : error ? (
-        <Text style={[s.note, { color: colors.textSecondary }]}>Could not load people right now. Please try again shortly.</Text>
+        <ErrorState onRetry={data.reload} />
       ) : filtered.length === 0 ? (
         <Text style={[s.note, { color: colors.textSecondary }]}>
           {candidates.length === 0
@@ -158,6 +171,7 @@ export default function DirectoryBrowser({ data, follows, onOpenProfile, bottomP
   )
 
   return (
+    <View style={{ flex: 1 }}>
     <FlatList
       style={s.list}
       contentContainerStyle={[s.content, { paddingBottom: bottomPad }]}
@@ -167,9 +181,18 @@ export default function DirectoryBrowser({ data, follows, onOpenProfile, bottomP
       keyExtractor={p => p.id}
       ListHeaderComponent={header}
       renderItem={({ item }) => (
-        <PersonCard person={item} viewerInterests={viewerInterests} query={query} follows={follows} onOpenProfile={onOpenProfile} />
+        <PersonCard person={item} viewerInterests={viewerInterests} query={query} follows={follows} onOpenProfile={openCard} />
       )}
     />
+    <PersonCardModal
+      person={cardPerson}
+      viewerInterests={viewerInterests}
+      follows={follows}
+      onClose={() => setCardPerson(null)}
+      onViewProfile={p => { setCardPerson(null); onOpenProfile(p) }}
+    />
+    <SlowLoad loading={loading} />
+    </View>
   )
 }
 

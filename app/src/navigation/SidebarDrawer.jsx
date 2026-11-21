@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Animated, ScrollView } from 'react-native'
+import { useState, useMemo } from 'react'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import {
-  FileText, TrendingUp, Heart, Building2, Globe, Compass, Calculator, Tag,
-} from 'lucide-react-native'
+import { Compass, Wallet, Tag, Search, X } from 'lucide-react-native'
+import { PILLARS } from '../constants/pillars'
+import SearchResults from '../components/search/SearchResults'
+import { searchApp, openSearchResult } from '../constants/searchIndex'
 import UBPLogo from '../components/ui/UBPLogo'
 import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -15,14 +16,14 @@ import { useFoundationEnabled } from '../hooks/useAppFlags'
 // two levels down: MainTabs -> Home tab -> the screen itself. Ad Board is
 // the root of its own tab/stack, so it only needs one level.
 const ITEMS = [
-  { key: 'foundation', label: 'Foundation Blueprint', Icon: FileText,   tab: 'Home',    screen: 'Foundation' },
-  { key: 'elevation',  label: 'Elevation Blueprint',  Icon: TrendingUp, tab: 'Home',    screen: 'Elevation' },
-  { key: 'lifestyle',  label: 'Lifestyle Blueprint',  Icon: Heart,      tab: 'Home',    screen: 'Lifestyle' },
-  { key: 'campus',     label: 'Campus Connect',       Icon: Building2,  tab: 'Home',    screen: 'CampusConnect' },
-  { key: 'course',     label: 'Course Connect',       Icon: Globe,      tab: 'Home',    screen: 'CourseConnect' },
-  { key: 'compass',    label: 'Course Compass',       Icon: Compass,    tab: 'Home',    screen: 'Compass' },
-  { key: 'budgeting',  label: 'Budgeting',            Icon: Calculator, tab: 'Home',    screen: 'Budgeting' },
-  { key: 'adboard',    label: 'Ad Board',             Icon: Tag,  tab: 'AdBoard', screen: 'AdBoardMain' },
+  { key: 'foundation', label: 'Foundation Blueprint', Icon: PILLARS.foundation.Icon, color: PILLARS.foundation.color, tab: 'Home', screen: 'Foundation', group: 1 },
+  { key: 'elevation',  label: 'Elevation Blueprint',  Icon: PILLARS.elevation.Icon,  color: PILLARS.elevation.color,  tab: 'Home', screen: 'Elevation', group: 1 },
+  { key: 'lifestyle',  label: 'Lifestyle Blueprint',  Icon: PILLARS.lifestyle.Icon,  color: PILLARS.lifestyle.color,  tab: 'Home', screen: 'Lifestyle', group: 1 },
+  { key: 'campus',     label: 'Campus Connect',       Icon: PILLARS.campus.Icon,     color: PILLARS.campus.color,     tab: 'Home', screen: 'CampusConnect', group: 2 },
+  { key: 'course',     label: 'Course Connect',       Icon: PILLARS.course.Icon,     color: PILLARS.course.color,     tab: 'Home', screen: 'CourseConnect', group: 2 },
+  { key: 'compass',    label: 'Course Compass',       Icon: Compass,                 color: null,                     tab: 'Home', screen: 'Compass', group: 3 },
+  { key: 'budgeting',  label: 'Budgeting',            Icon: Wallet,                  color: null,                     tab: 'Home', screen: 'Budgeting', group: 3 },
+  { key: 'adboard',    label: 'Ad Board',             Icon: Tag,                     color: null,                     tab: 'AdBoard', screen: 'AdBoardMain', group: 3 },
 ]
 
 // Route name (the deepest currently-focused leaf screen, anywhere in the
@@ -63,67 +64,86 @@ function getActiveRouteName(state) {
 
 function DrawerRow({ item, isActive, onPress }) {
   const { colors } = useTheme()
-  const highlight = useRef(new Animated.Value(isActive ? 1 : 0)).current
-
-  useEffect(() => {
-    Animated.timing(highlight, {
-      toValue: isActive ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start()
-  }, [isActive])
-
+  const accent = item.color || colors.textPrimary
   return (
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={styles.rowOuter}>
-      <Animated.View style={[styles.rowHighlight, { opacity: highlight }]} />
-      <item.Icon
-        size={19}
-        color={isActive ? colors.chromeFg : 'rgba(245,240,232,0.6)'}
-        strokeWidth={isActive ? 2.1 : 1.7}
-        style={styles.rowIcon}
-      />
-      <Text
-        style={[styles.rowLabel, isActive && { color: colors.chromeFg, fontFamily: fonts.sansSemiBold }]}
-        numberOfLines={1}
-      >
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={item.label}
+      style={[styles.rowOuter, isActive && { backgroundColor: colors.tabFill }]}
+    >
+      <View style={[styles.tile, { backgroundColor: item.color ? item.color + '22' : colors.tabFill }]}>
+        <item.Icon size={21} color={accent} strokeWidth={1.8} />
+      </View>
+      <Text style={[styles.rowLabel, { color: colors.textPrimary }, isActive && { fontFamily: fonts.sansSemiBold }]} numberOfLines={1}>
         {item.label}
       </Text>
     </TouchableOpacity>
   )
 }
 
-// Custom Drawer content — React Navigation hands this `state`/`navigation`
-// for the Drawer navigator itself; we walk into the nested Tab/Stack state
-// to find what's really on screen so the correct row highlights.
+// Option A side menu: the wordmark, a search field, then the pillars. Typing in
+// the search field swaps the list for Google like results with the path to each
+// thing, for example CV, then Foundation Blueprint, then CV Optimisation.
 export default function SidebarDrawer({ state, navigation }) {
   const insets = useSafeAreaInsets()
   const { colors } = useTheme()
   const { enabled: foundationOpen } = useFoundationEnabled()
+  const [q, setQ] = useState('')
   const items = ITEMS.filter(i => foundationOpen || i.key !== 'foundation')
   const mainTabsRoute = state.routes.find(r => r.name === 'MainTabs')
   const activeRouteName = getActiveRouteName(mainTabsRoute?.state)
   const activeKey = ROUTE_TO_KEY[activeRouteName] ?? null
+  const results = useMemo(() => searchApp(q, 10), [q])
 
   function handlePress(item) {
     navigation.navigate('MainTabs', { screen: item.tab, params: { screen: item.screen } })
     navigation.closeDrawer()
   }
 
+  function openResult(entry) {
+    openSearchResult(navigation, entry, { fromDrawer: true })
+    setQ('')
+    navigation.closeDrawer()
+  }
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.chromeBg, paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
       <View style={styles.logoWrap}>
-        <UBPLogo height={30} color={colors.chromeFg} />
+        <UBPLogo height={30} color={colors.textPrimary} />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.rows}>
-        {items.map(item => (
-          <DrawerRow
-            key={item.key}
-            item={item}
-            isActive={item.key === activeKey}
-            onPress={() => handlePress(item)}
-          />
-        ))}
+      <View style={[styles.field, { backgroundColor: colors.tabFill }]}>
+        <Search size={18} color={colors.textSecondary} strokeWidth={1.9} />
+        <TextInput
+          style={[styles.input, { color: colors.textPrimary }]}
+          value={q}
+          onChangeText={setQ}
+          placeholder="Search"
+          placeholderTextColor={colors.textTertiary}
+          autoCorrect={false}
+          returnKeyType="search"
+          accessibilityLabel="Search UniBlueprint"
+        />
+        {!!q && (
+          <TouchableOpacity onPress={() => setQ('')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear search">
+            <X size={18} color={colors.textSecondary} strokeWidth={1.9} />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.rows}>
+        {q.trim() ? (
+          <SearchResults query={q} results={results} onOpen={openResult} compact />
+        ) : (
+          items.map((item, i) => (
+            <View key={item.key}>
+              {i > 0 && items[i - 1].group !== item.group && <View style={[styles.divider, { backgroundColor: colors.divider }]} />}
+              <DrawerRow item={item} isActive={item.key === activeKey} onPress={() => handlePress(item)} />
+            </View>
+          ))
+        )}
       </ScrollView>
     </View>
   )
@@ -131,24 +151,13 @@ export default function SidebarDrawer({ state, navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 14 },
-  logoWrap: { paddingHorizontal: 6, marginBottom: 24 },
-  // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
-  // fills the space below the logo on native.
+  logoWrap: { paddingHorizontal: 6, marginBottom: 18 },
+  field: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, borderRadius: 16, paddingHorizontal: 14, marginBottom: 16 },
+  input: { flex: 1, fontFamily: fonts.sans, fontSize: 16, paddingVertical: 0 },
   scrollView: { flex: 1 },
-  rows: { gap: 4, paddingBottom: 12 },
-  rowOuter: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 13, paddingHorizontal: 12,
-    borderRadius: 8, overflow: 'hidden',
-  },
-  rowHighlight: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: 8,
-  },
-  rowIcon: { marginRight: 13 },
-  rowLabel: {
-    fontFamily: fonts.sansMedium, fontSize: 14.5,
-    color: 'rgba(245,240,232,0.75)', flexShrink: 1,
-  },
+  rows: { paddingBottom: 12 },
+  divider: { height: StyleSheet.hairlineWidth, marginVertical: 10, marginHorizontal: 8 },
+  rowOuter: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, paddingHorizontal: 8, borderRadius: 16 },
+  tile: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  rowLabel: { fontFamily: fonts.sansMedium, fontSize: 16, flexShrink: 1 },
 })

@@ -1,98 +1,98 @@
 /**
- * BlogScreen — the Ad Board's Blog, as its own standalone screen (reached
- * from an entry-point card on AdBoardScreen, not a scroll section on the
- * Ad Board page itself). Lists all real Irish education news / guide
- * articles from data/blogPosts.js; tapping one opens ArticleScreen, which
- * already reads "Blog" on its own back button.
+ * BlogScreen: the Ad Board's Blog (round three pick A). A large navy feature
+ * card for the newest article, then a clean list with a hairline between
+ * rows. Articles come from data/blogPosts.js, the same as the website.
  */
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, ChevronRight, Clock } from 'lucide-react-native'
-import Card from '../components/ui/Card'
-import { fonts, spacing, radius } from '../constants/theme'
+import { ChevronRight, Clock, BookOpen } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import EmptyState from '../components/ui/EmptyState'
+import { fonts, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { useLightBackgroundStatusBar } from '../hooks/useStatusBarStyle'
 import { getPosts, calcReadTime, formatDate } from '../data/blogPosts'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 export default function BlogScreen({ navigation }) {
   useFoundationEnabled() // the article list depends on it
-  const POSTS = getPosts()
+  const posts = getPosts()
   const { colors } = useTheme()
-  const styles = __gs_styles(colors)
-  // Cream hero under the status bar — the global light icons are invisible
-  // here without this (L3).
-  useLightBackgroundStatusBar()
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation)
+  const [feature, ...rest] = posts
+  const open = post => navigation.navigate('Article', { slug: post.slug })
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <View style={styles.heroBlock}>
-        <View style={styles.navRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Go back">
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Ad Board</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.heroTitle}>Blog</Text>
-        <Text style={styles.heroSub}>Real Irish education news, CV and career guides, and campus life, the same articles as the UniBlueprint website.</Text>
-      </View>
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} showBack />
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
+        <PageTitle title="Blog" subtitle="Real Irish news and guides, the same as the website." />
 
-      {/* Wrapped in an extra plain View with flex:1 (not just the ScrollView's
-          own style) as a defensive measure against a Fabric/New-Architecture
-          initial-layout race: this screen already had style={{flex:1}} on the
-          ScrollView, and it's unchanged, but that alone was still reported
-          to fail on a real device on a fresh cold open (self-correcting after
-          backgrounding), which points at the native scroll-view frame
-          committing before Yoga finishes measuring the header sibling on the
-          very first paint. Forcing Yoga to resolve a concrete height for a
-          plain View first, then letting the ScrollView fill that
-          already-measured box, is the standard hardening for this class of
-          timing bug. Needs a real-device retest to confirm. */}
-      <View style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>
-        {POSTS.map(post => (
-          <TouchableOpacity key={post.slug} activeOpacity={0.85} onPress={() => navigation.navigate('Article', { slug: post.slug })} style={{ marginBottom: spacing.md }}>
-            <Card style={styles.postCard}>
-              <View style={styles.categoryPill}><Text style={styles.categoryPillText}>{post.category}</Text></View>
-              <Text style={styles.postTitle} numberOfLines={2}>{post.title}</Text>
-              <Text style={styles.postExcerpt} numberOfLines={2}>{post.excerpt}</Text>
-              <View style={styles.metaRow}>
-                <Text style={styles.metaText}>{formatDate(post.date)}</Text>
-                <View style={styles.metaDivider} />
-                <Clock size={11} color={colors.light} />
-                <Text style={styles.metaText}>{calcReadTime(post.sections)}</Text>
-                <View style={{ flex: 1 }} />
-                <ChevronRight size={16} color={colors.light} />
+        {!feature ? (
+          <EmptyState icon={BookOpen} title="No articles yet" subtitle="New guides are on the way. Check back soon." />
+        ) : (
+          <>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => open(feature)}
+              style={[s.feature, { backgroundColor: colors.chromeBg }]}
+              accessibilityRole="button"
+              accessibilityLabel={feature.title}
+            >
+              <View style={s.glow} />
+              <View style={s.pill}><Text style={[s.pillText, { color: colors.chromeFg }]}>{feature.category}</Text></View>
+              <Text style={[s.featureTitle, { color: colors.chromeFg }]}>{feature.title}</Text>
+              <View style={s.metaRow}>
+                <Text style={s.featureMeta}>{formatDate(feature.date)}</Text>
+                <View style={s.dot} />
+                <Clock size={14} color="rgba(245,240,232,0.7)" strokeWidth={1.8} />
+                <Text style={s.featureMeta}>{calcReadTime(feature.sections)}</Text>
               </View>
-            </Card>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+
+            <View style={s.list}>
+              {rest.map((post, i) => (
+                <TouchableOpacity
+                  key={post.slug}
+                  activeOpacity={0.8}
+                  onPress={() => open(post)}
+                  style={[s.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={post.title}
+                >
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={[s.cat, { color: colors.textSecondary }]}>{String(post.category).toUpperCase()}</Text>
+                    <Text style={[s.title, { color: colors.textPrimary }]}>{post.title}</Text>
+                    <View style={s.metaRow}>
+                      <Text style={[s.meta, { color: colors.textSecondary }]}>{formatDate(post.date)}</Text>
+                      <View style={[s.dot, { backgroundColor: colors.textTertiary }]} />
+                      <Clock size={13} color={colors.textSecondary} strokeWidth={1.8} />
+                      <Text style={[s.meta, { color: colors.textSecondary }]}>{calcReadTime(post.sections)}</Text>
+                    </View>
+                  </View>
+                  <ChevronRight size={20} color={colors.textTertiary} strokeWidth={1.8} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
-      </View>
     </View>
   )
 }
 
-function __gs_styles(colors) {
-  return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  navRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md, paddingTop: 8 },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingRight: 10 },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, lineHeight: 34 },
-  heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 8, lineHeight: 20 },
-
-  postCard: { padding: 18 },
-  categoryPill: { alignSelf: 'flex-start', backgroundColor: colors.accentBg, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
-  categoryPillText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.accentFg, letterSpacing: 0.3 },
-  postTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.textPrimary, marginTop: 10, lineHeight: 23 },
-  postExcerpt: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 6, lineHeight: 19 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 },
-  metaText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.light },
-  metaDivider: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: colors.light },
-  })
-}
+const s = StyleSheet.create({
+  screen: { flex: 1 },
+  feature: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.card, padding: 24, overflow: 'hidden', minHeight: 210, justifyContent: 'flex-end' },
+  glow: { position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.06)' },
+  pill: { alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, marginBottom: 16 },
+  pillText: { fontFamily: fonts.sansSemiBold, fontSize: 13, letterSpacing: 0.4 },
+  featureTitle: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 34 },
+  featureMeta: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.78)' },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
+  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: 'rgba(245,240,232,0.6)' },
+  list: { marginHorizontal: 20, marginTop: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 20 },
+  cat: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1.1, marginBottom: 6 },
+  title: { fontFamily: fonts.serif, fontSize: 21, lineHeight: 27 },
+  meta: { fontFamily: fonts.sans, fontSize: 14 },
+})
