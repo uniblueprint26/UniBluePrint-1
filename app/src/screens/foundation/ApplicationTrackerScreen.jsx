@@ -11,7 +11,8 @@ import { fonts, radius, spacing, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
-import StatTile, { StatTileRow } from '../../components/ui/StatTile'
+import AppHeader, { PageTitle } from '../../components/ui/AppHeader'
+import { envelopePaper } from '../../components/foundation/envelopePaper'
 import EmptyState from '../../components/ui/EmptyState'
 import Button from '../../components/ui/Button'
 
@@ -81,7 +82,7 @@ function daysUntil(dateStr) {
 }
 
 export default function ApplicationTrackerScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -331,6 +332,8 @@ export default function ApplicationTrackerScreen({ navigation }) {
   }
 
   // ── List ──────────────────────────────────────────────────────────────────
+  const paper = envelopePaper(isDark)
+  const dueColor = isDark ? '#F2A584' : '#B5522C'
   const activeCount = applications.filter(a => !CLOSED_STAGES.has(a.stage)).length
   const offerCount = applications.filter(a => a.stage === 'offer').length
   const dueSoonCount = applications.filter(a => {
@@ -341,23 +344,20 @@ export default function ApplicationTrackerScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.listHeader, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity onPress={safeGoBack} activeOpacity={0.7} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Back to Foundation Blueprint">
-          <X size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Application Tracker</Text>
-        <View style={styles.headerBtn} />
-      </View>
+      <AppHeader navigation={navigation} showBack />
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
-        <Text style={styles.pageSubtitle}>Every application you've made, in one place, with a reminder before each deadline.</Text>
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: 24 }]} showsVerticalScrollIndicator={false}>
+        <PageTitle title="Application Tracker" subtitle="Every application in one place, with a reminder before each deadline." style={{ paddingHorizontal: 0 }} />
 
         {!loading && applications.length > 0 && (
-          <StatTileRow style={{ marginTop: spacing.md }}>
-            <StatTile icon={Briefcase} iconBg="#EFF6FF" iconColor={colors.textPrimary} value={activeCount} label="Active" border />
-            <StatTile icon={CalendarClock} iconBg="#FEF3C7" iconColor={colors.goldDeep} value={dueSoonCount} label="Due soon" border />
-            <StatTile icon={FileText} iconBg="#F0FDF4" iconColor={colors.success} value={offerCount} label="Offers" />
-          </StatTileRow>
+          <View style={[styles.counts, { backgroundColor: paper.body, borderColor: paper.edge }]}>
+            {[[activeCount, 'Active'], [dueSoonCount, 'Due soon'], [offerCount, 'Offers']].map(([n, label], i) => (
+              <View key={label} style={[styles.countCell, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: paper.edge }]}>
+                <Text style={styles.countNum}>{n}</Text>
+                <Text style={styles.countLabel}>{label}</Text>
+              </View>
+            ))}
+          </View>
         )}
 
         <Text style={styles.sectionLabel}>Your applications</Text>
@@ -389,14 +389,15 @@ export default function ApplicationTrackerScreen({ navigation }) {
                   <View style={{ flex: 1 }}>
                     <View style={styles.appTopRow}>
                       <Text style={styles.appRole} numberOfLines={1}>{app.role_title}</Text>
-                      <View style={[styles.stagePill, { backgroundColor: stageColor.bg }]}>
-                        <Text style={[styles.stagePillText, { color: stageColor.fg }]}>{STAGE_LABEL[app.stage] || app.stage}</Text>
+                      <View style={styles.stagePill}>
+                        <View style={[styles.stageDot, { backgroundColor: stageColor.fg }]} />
+                        <Text style={styles.stagePillText}>{STAGE_LABEL[app.stage] || app.stage}</Text>
                       </View>
                     </View>
                     <Text style={styles.appCompany} numberOfLines={1}>{app.company_name}</Text>
                     <View style={styles.appMetaRow}>
                       {app.deadline ? (
-                        <Text style={[styles.appMeta, dueSoon && styles.appMetaDueSoon]}>
+                        <Text style={[styles.appMeta, dueSoon && { color: dueColor }]}>
                           {dueSoon ? (due === 0 ? 'Due today' : `Due in ${due}d`) : `Due ${formatDate(app.deadline)}`}
                         </Text>
                       ) : (
@@ -417,13 +418,15 @@ export default function ApplicationTrackerScreen({ navigation }) {
           </View>
         )}
 
-        {applications.length > 0 && (
-          <TouchableOpacity onPress={startAdd} activeOpacity={0.8} style={styles.addBtn} accessibilityRole="button">
-            <Plus size={16} color={colors.textPrimary} />
-            <Text style={styles.addBtnText}>Add another application</Text>
-          </TouchableOpacity>
-        )}
       </ScrollView>
+      {applications.length > 0 && (
+        <View style={[styles.pinFooter, { paddingBottom: insets.bottom + 12, backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+          <TouchableOpacity onPress={startAdd} activeOpacity={0.85} style={styles.pinBtn} accessibilityRole="button" accessibilityLabel="Add another application">
+            <Plus size={18} color={colors.accentFg} />
+            <Text style={styles.pinBtnText}>Add another application</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   )
 }
@@ -449,7 +452,7 @@ function getStyles(colors) {
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
   pageSubtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 4, lineHeight: 20 },
 
-  sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: spacing.lg, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },
+  sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textSecondary, marginTop: spacing.xl, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.4 },
 
   appCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
@@ -460,12 +463,19 @@ function getStyles(colors) {
   appCompany: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 2 },
   appMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' },
   appMeta: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted },
-  appMetaDueSoon: { color: '#B45309' },
   linkedChip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.background, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 },
   linkedChipText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.textPrimary },
 
-  stagePill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, flexShrink: 0 },
-  stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
+  stagePill: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0, backgroundColor: colors.tabFill },
+  stageDot: { width: 7, height: 7, borderRadius: 4 },
+  stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
+  counts: { flexDirection: 'row', borderRadius: 22, borderWidth: 1, paddingVertical: 18, marginTop: 4 },
+  countCell: { flex: 1, alignItems: 'center' },
+  countNum: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 42, color: colors.textPrimary },
+  countLabel: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textSecondary, marginTop: 2 },
+  pinFooter: { paddingHorizontal: spacing.md, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
+  pinBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 54, borderRadius: radius.button, backgroundColor: colors.accentBg },
+  pinBtnText: { fontFamily: fonts.sansBold, fontSize: 16, color: colors.accentFg },
 
   addBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,

@@ -12,7 +12,8 @@ import { fonts, radius, spacing, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 import { FieldLabel, FormTextInput, FormTextArea } from '../../components/forms/FormControls'
-import StatTile, { StatTileRow } from '../../components/ui/StatTile'
+import AppHeader, { PageTitle } from '../../components/ui/AppHeader'
+import { envelopePaper } from '../../components/foundation/envelopePaper'
 import EmptyState from '../../components/ui/EmptyState'
 import Button from '../../components/ui/Button'
 
@@ -144,7 +145,7 @@ const ADD_STEPS = [
 ]
 
 export default function EvidenceBankScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
@@ -423,51 +424,33 @@ export default function EvidenceBankScreen({ navigation }) {
     )
   }
 
-  // ── List view ─────────────────────────────────────────────────────────────
+  // ── List view ──────────────────────────────────────────────────────────
   const storiesCount = stories.length
+  const paper = envelopePaper(isDark)
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
-          onPress={safeGoBack}
-          activeOpacity={0.7}
-          style={styles.headerBtn}
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-        >
-          <X size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Evidence Bank</Text>
-        <View style={styles.headerBtn} />
-      </View>
+      <AppHeader navigation={navigation} showBack />
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-        <Text style={styles.pageSubtitle}>Your experiences, organised.</Text>
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: 24 }]} keyboardShouldPersistTaps="handled">
+        <PageTitle title="Evidence Bank" subtitle="Your experiences, organised." style={{ paddingHorizontal: 0 }} />
 
-        <View style={styles.bannerCard}>
-          <Text style={styles.bannerText}>
-            Build your bank once. Reuse your strongest experiences whenever an application or interview asks for them.
-          </Text>
+        {/* Counts in one envelope card */}
+        <View style={[styles.counts, { backgroundColor: paper.body, borderColor: paper.edge }]}>
+          {[
+            [loading ? '...' : storiesCount, 'Stories'],
+            [statCounts.applications === null ? '...' : statCounts.applications, 'Applications'],
+            [statCounts.interviews === null ? '...' : statCounts.interviews, 'Interviews'],
+          ].map(([n, label], i) => (
+            <View key={label} style={[styles.countCell, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: paper.edge }]}>
+              <Text style={styles.countNum}>{n}</Text>
+              <Text style={styles.countLabel}>{label}</Text>
+            </View>
+          ))}
         </View>
+        <Text style={styles.bannerLine}>Build your bank once. Reuse your strongest experiences whenever an application or interview asks for them.</Text>
 
-        {/* Stats row */}
-        <StatTileRow style={{ marginTop: spacing.md }}>
-          <StatTile
-            icon={BookOpen} iconBg="#EFF6FF" iconColor={colors.textPrimary}
-            value={loading ? '...' : storiesCount} label={'Evidence\nStories'} border
-          />
-          <StatTile
-            icon={FileText} iconBg="#FEF9C3" iconColor={colors.goldDeep}
-            value={statCounts.applications === null ? '...' : statCounts.applications} label="Applications" border
-          />
-          <StatTile
-            icon={MessageSquare} iconBg="#F0FDF4" iconColor={colors.success}
-            value={statCounts.interviews === null ? '...' : statCounts.interviews} label="Interviews"
-          />
-        </StatTileRow>
-
-        {/* Category prompts */}
-        <Text style={styles.sectionLabel}>Start with a category</Text>
+        {/* Category prompts as small envelopes with a seal */}
+        <Text style={styles.sectionLabel}>Add by category</Text>
         <View style={styles.categoryGrid}>
           {CATEGORIES.map(cat => {
             const Icon = cat.icon
@@ -476,12 +459,14 @@ export default function EvidenceBankScreen({ navigation }) {
                 key={cat.value}
                 onPress={() => startAdd(cat.value)}
                 activeOpacity={0.8}
-                style={styles.categoryTile}
+                style={[styles.categoryTile, { backgroundColor: paper.body, borderColor: paper.edge }]}
                 accessibilityRole="button"
                 accessibilityLabel={`Add a ${cat.label.toLowerCase()} story`}
               >
-                <Icon size={18} color={colors.textPrimary} strokeWidth={2} />
-                <Text style={styles.categoryTileText}>{cat.promptLabel}</Text>
+                <View style={[styles.categorySeal, { backgroundColor: paper.sealBg }]}>
+                  <Icon size={15} color={paper.sealFg} strokeWidth={2} />
+                </View>
+                <Text style={styles.categoryTileText} numberOfLines={2}>{cat.label}</Text>
               </TouchableOpacity>
             )
           })}
@@ -495,7 +480,7 @@ export default function EvidenceBankScreen({ navigation }) {
           <EmptyState
             icon={BookOpen}
             title="No stories yet"
-            subtitle="Your evidence bank is empty, add your first story to start building real, reusable proof for applications and interviews."
+            subtitle="Your evidence bank is empty. Add your first story to start building real, reusable proof for applications and interviews."
             ctaLabel="Add your first story"
             onCtaPress={() => startAdd(null)}
           />
@@ -516,26 +501,29 @@ export default function EvidenceBankScreen({ navigation }) {
                     <View style={styles.tagChip}>
                       <Text style={styles.tagChipText}>{meta.label}</Text>
                     </View>
-                    <Pencil size={14} color={colors.light} />
+                    <Pencil size={15} color={colors.textSecondary} />
                   </View>
                   <Text style={styles.storyTitle}>{story.title}</Text>
-                  <Text style={styles.storyPreview} numberOfLines={2}>{story.situation}</Text>
+                  {[['Situation', story.situation], ['Action', story.action], ['Result', story.result]].map(([lbl, txt]) => (
+                    !!txt && (
+                      <Text key={lbl} style={styles.storyPreview} numberOfLines={1}>
+                        <Text style={styles.storyPreviewLabel}>{lbl}  </Text>{txt}
+                      </Text>
+                    )
+                  ))}
                 </TouchableOpacity>
               )
             })}
           </View>
         )}
-
-        <TouchableOpacity
-          onPress={() => startAdd(null)}
-          activeOpacity={0.8}
-          style={styles.addBtn}
-          accessibilityRole="button"
-        >
-          <Plus size={16} color={colors.textPrimary} />
-          <Text style={styles.addBtnText}>Add a story</Text>
-        </TouchableOpacity>
       </ScrollView>
+
+      <View style={[styles.pinFooter, { paddingBottom: insets.bottom + 12, backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+        <TouchableOpacity onPress={() => startAdd(null)} activeOpacity={0.85} style={styles.pinBtn} accessibilityRole="button" accessibilityLabel="Add a story">
+          <Plus size={18} color={colors.accentFg} />
+          <Text style={styles.pinBtnText}>Add a story</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -557,35 +545,33 @@ function getStyles(colors) {
 
   pageSubtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 4 },
 
-  bannerCard: {
-    marginTop: spacing.md, backgroundColor: colors.accentBg, borderRadius: radius.card,
-    padding: 16, borderLeftWidth: 4, borderLeftColor: colors.gold,
-  },
-  bannerText: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.accentFg, lineHeight: 20 },
+  counts: { flexDirection: 'row', borderRadius: 22, borderWidth: 1, paddingVertical: 18, marginTop: 4 },
+  countCell: { flex: 1, alignItems: 'center' },
+  countNum: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 42, color: colors.textPrimary },
+  countLabel: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.textSecondary, marginTop: 2 },
+  bannerLine: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 21, color: colors.textSecondary, marginTop: 14 },
 
-  sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: spacing.lg, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },
+  sectionLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textSecondary, marginTop: spacing.xl, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1.1 },
 
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   categoryTile: {
-    width: '31%', minWidth: 96, aspectRatio: 1.05, backgroundColor: colors.surface,
-    borderRadius: radius.card, borderWidth: 1, borderColor: colors.border,
-    alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6,
+    width: '31.5%', minHeight: 92, borderRadius: 16, borderWidth: 1,
+    alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6, paddingVertical: 12,
   },
-  categoryTileText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.textPrimary, textAlign: 'center', letterSpacing: 0.3 },
+  categorySeal: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  categoryTileText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary, textAlign: 'center' },
 
-  storyCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, ...shadows.card },
+  storyCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: colors.border, ...shadows.card },
   storyCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  storyTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, marginTop: 10 },
-  storyPreview: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 6, lineHeight: 18 },
-  tagChip: { backgroundColor: colors.background, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' },
-  tagChipText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
+  storyTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, marginTop: 10, marginBottom: 4 },
+  storyPreview: { fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, marginTop: 5, lineHeight: 20 },
+  storyPreviewLabel: { fontFamily: fonts.sansSemiBold, color: colors.textPrimary },
+  tagChip: { backgroundColor: colors.tabFill, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5, alignSelf: 'flex-start' },
+  tagChipText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
 
-  addBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    height: 48, borderRadius: radius.button, borderWidth: 1.5, borderColor: colors.accentBg,
-    borderStyle: 'dashed', marginTop: 16,
-  },
-  addBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+  pinFooter: { paddingHorizontal: spacing.md, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
+  pinBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 54, borderRadius: radius.button, backgroundColor: colors.accentBg },
+  pinBtnText: { fontFamily: fonts.sansBold, fontSize: 16, color: colors.accentFg },
 
   formActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
   cancelBtn: { flex: 1, height: 48, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: colors.border },
