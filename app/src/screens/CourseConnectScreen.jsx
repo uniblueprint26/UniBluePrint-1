@@ -221,11 +221,11 @@ async function countRecentRows(table, cutoffIso) {
 function openCourseFeature(navigation, key) {
   const boardRoute = k => navigation.navigate('BoardDetail', { boardKey: k, registry: 'course' })
   if (key === 'course_boards') return boardRoute('course-boards')
-  if (key === 'notes') return boardRoute('notes')
+  if (key === 'notes') return navigation.navigate('StudyResources', { scope: 'course', type: 'note' })
   if (key === 'groups') return boardRoute('study-groups')
   if (key === 'qa') return navigation.navigate('ModuleQA')
-  if (key === 'exams') return boardRoute('papers')
-  if (key === 'resources') return navigation.navigate('ResourceFinder')
+  if (key === 'exams') return navigation.navigate('StudyResources', { scope: 'course', type: 'paper' })
+  if (key === 'resources') return navigation.navigate('StudyResources', { scope: 'course' })
   if (key === 'industry') return boardRoute('industry')
   if (key === 'college_reviews') return boardRoute('course-reviews')
   if (key === 'cross_projects') return boardRoute('projects')
@@ -539,10 +539,10 @@ export default function CourseConnectScreen({ navigation }) {
 
           {popularNotes.length > 0 && (
             <>
-              <SectionRow title="Popular notes" kind="course" action="Open" onAction={() => navigation.navigate('BoardDetail', { boardKey: 'notes', registry: 'course' })} />
+              <SectionRow title="Popular notes" kind="course" action="Open" onAction={() => navigation.navigate('StudyResources', { scope: 'course', type: 'note' })} />
               <Card style={{ padding: 4 }}>
                 {popularNotes.map((n, i) => (
-                  <TouchableOpacity key={n.id} onPress={() => navigation.navigate('BoardDetail', { boardKey: 'notes', registry: 'course' })}
+                  <TouchableOpacity key={n.id} onPress={() => navigation.navigate('StudyResources', { scope: 'course', type: 'note' })}
                     style={[s.noteRow, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider }]} accessibilityRole="button">
                     <FileText size={18} color={accent} strokeWidth={1.8} />
                     <View style={{ flex: 1 }}>

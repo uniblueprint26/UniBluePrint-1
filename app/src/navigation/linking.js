@@ -62,6 +62,7 @@ export const linking = {
               RoomyPartner:  'roomy',
               ModuleQA:      'course-qa',
               ResourceFinder: 'resource-finder',
+              StudyResources: 'study-resources',
               Lifestyle:     'lifestyle',
               Budgeting:     'budgeting',
               SplitBill:     'split-the-bill',

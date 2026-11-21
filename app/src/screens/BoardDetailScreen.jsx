@@ -50,6 +50,7 @@ import { ROOMY } from '../constants/partnerBrands'
 import { useBlockedIds } from '../lib/reporting'
 import { useReport } from '../components/safety/ReportProvider'
 import PostFormModal from '../components/campusConnect/PostFormModal'
+import StudyResourcesScreen from './StudyResourcesScreen'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
 import { getBoard, formatCarpoolDays, readBoardRows } from '../constants/campusBoards'
 import { getCourseBoard } from '../constants/courseConnectBoards'
@@ -99,7 +100,17 @@ function Stars({ value, size = 12 }) {
   )
 }
 
-export default function BoardDetailScreen({ navigation, route }) {
+// Shared Notes and Past Papers are files and links that live in both Campus
+// Connect and Course Connect, so they use the Study resources screen.
+export default function BoardDetailScreen(props) {
+  const p = props.route?.params || {}
+  if (p.registry === 'course' && (p.boardKey === 'notes' || p.boardKey === 'papers')) {
+    return <StudyResourcesScreen navigation={props.navigation} route={{ ...props.route, params: { ...p, scope: 'course', type: p.boardKey === 'papers' ? 'paper' : 'note' } }} />
+  }
+  return <BoardDetailInner {...props} />
+}
+
+function BoardDetailInner({ navigation, route }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const { boardKey, openPostForm, openProblemId, registry = 'campus' } = route.params ?? {}

@@ -32,6 +32,7 @@ import CampusPulseArchiveScreen from '../screens/CampusPulseArchiveScreen'
 import CourseConnectScreen from '../screens/CourseConnectScreen'
 import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
+import StudyResourcesScreen from '../screens/StudyResourcesScreen'
 import CampusBoardsScreen from '../screens/CampusBoardsScreen'
 import BusySpotsScreen from '../screens/BusySpotsScreen'
 import StudyRoomsScreen from '../screens/StudyRoomsScreen'
@@ -198,6 +199,7 @@ function HomeStack() {
       <Stack.Screen name="CourseConnect" component={CourseConnectScreen} />
       <Stack.Screen name="ModuleQA"      component={ModuleQAScreen}      />
       <Stack.Screen name="ResourceFinder" component={ResourceFinderScreen} />
+      <Stack.Screen name="StudyResources" component={StudyResourcesScreen} />
       <Stack.Screen name="CampusBoards" component={CampusBoardsScreen} />
       <Stack.Screen name="BusySpots" component={BusySpotsScreen} />
       <Stack.Screen name="StudyRooms" component={StudyRoomsScreen} />
