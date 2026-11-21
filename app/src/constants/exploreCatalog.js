@@ -147,11 +147,11 @@ export const STRIP_PARTNERS = [
   },
   {
     key: 'roomy', name: 'Roomy.ie', blurb: 'Rooms and homes across Ireland',
-    mark: 'R', action: { route: 'RoomyPartner' }, cta: 'Open',
-    bg: ROOMY.deep, fg: '#F4FBFD', accent: ROOMY.mint, markBg: 'rgba(207,243,250,0.14)',
-    gradient: [ROOMY.deep, '#0F5A70'], darkGradient: ['#082B36', ROOMY.deep], darkRing: 'rgba(207,243,250,0.35)',
+    mark: 'image', logo: require('../../assets/partners/roomy/logo.png'), action: { route: 'RoomyPartner' }, cta: 'Open',
+    bg: ROOMY.deep, fg: '#F4FBFD', accent: ROOMY.mint, markBg: 'rgba(74,222,128,0.14)',
+    gradient: [ROOMY.deep, '#254225'], darkGradient: ['#0F1C0F', ROOMY.deep], darkRing: 'rgba(74,222,128,0.35)',
     ctaBg: ROOMY.teal, ctaFg: '#FFFFFF',
-    nameFont: 'DMSerifDisplay_400Regular', bodyFont: 'DMSans_400Regular', ctaFont: 'DMSans_600SemiBold',
+    nameFont: 'DMSans_700Bold', bodyFont: 'DMSans_400Regular', ctaFont: 'DMSans_600SemiBold',
   },
 ]
 

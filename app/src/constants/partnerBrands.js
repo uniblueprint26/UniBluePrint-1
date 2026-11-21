@@ -64,12 +64,15 @@ export const SCOUT = {
   fonts: { heading: 'DMSerifDisplay_400Regular', body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', bodySemi: 'DMSans_600SemiBold' },
 }
 
-// Roomy.ie (roomy.ie), the accommodation partner.
+// Roomy.ie (roomy.ie), the accommodation partner. Colours are taken from the
+// roomy.ie site: blue theme colour #2563eb, dark green #1a2e1a, and the
+// neon green outline house in their logo. They use system sans type.
 export const ROOMY = {
   name: 'Roomy.ie',
-  teal: '#0891B2',
-  deep: '#0B3F4F',
-  mint: '#CFF3FA',
+  teal: '#2563EB',
+  deep: '#1A2E1A',
+  mint: '#4ADE80',
   siteUrl: 'https://roomy.ie',
-  fonts: { heading: 'DMSerifDisplay_400Regular', body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', bodySemi: 'DMSans_600SemiBold' },
+  fonts: { heading: 'DMSans_700Bold', body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', bodySemi: 'DMSans_600SemiBold' },
 }
+

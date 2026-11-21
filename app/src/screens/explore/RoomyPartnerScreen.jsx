@@ -8,7 +8,8 @@ export default function RoomyPartnerScreen({ navigation }) {
   return (
     <PartnerPage
       navigation={navigation}
-      brand={{ bg: ROOMY.deep, fg: '#F4FBFD', accent: ROOMY.mint, button: ROOMY.teal, buttonText: '#FFFFFF', heading: ROOMY.fonts.heading, body: ROOMY.fonts.body, bodySemi: ROOMY.fonts.bodySemi }}
+      brand={{ bg: ROOMY.deep, fg: '#F3FAF3', accent: ROOMY.mint, button: ROOMY.teal, buttonText: '#FFFFFF', heading: ROOMY.fonts.heading, body: ROOMY.fonts.body, bodySemi: ROOMY.fonts.bodySemi }}
+      logo={require('../../../assets/partners/roomy/logo.png')}
       tag="Accommodation partner"
       eyebrow="Our partner"
       title="Roomy.ie"
