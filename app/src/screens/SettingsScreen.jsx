@@ -13,7 +13,6 @@ import {
 } from '../components/profile/ProfileModals'
 import InterestsModal from '../components/profile/InterestsModal'
 import NotificationPrefsSheet from '../components/notifications/NotificationPrefsSheet'
-import { routeExists } from '../components/home/routeExists'
 import { fonts } from '../constants/theme'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
 import { useTheme } from '../context/ThemeContext'
@@ -47,7 +46,6 @@ export default function SettingsScreen({ navigation }) {
 
   const appearanceValue = preference === 'system' ? 'System' : preference === 'dark' ? 'Dark' : 'Light'
   const notifValue = prefs.pillar_alerts || prefs.interest_alerts || prefs.trending_alerts || prefs.following_alerts || prefs.budget_nudges ? 'On' : 'Off'
-  const hasParents = routeExists(navigation, 'ParentPortal')
 
   function confirmSignOut() {
     Alert.alert('Sign out', 'Are you sure you want to sign out?', [
@@ -78,7 +76,7 @@ export default function SettingsScreen({ navigation }) {
 
         <SectionLabel>App</SectionLabel>
         <RowGroup>
-          <Row Icon={Bell} label="Notifications" sub="Pillars, interests, trending, quiet hours" value={notifValue} onPress={() => setNotifOpen(true)} />
+          <Row Icon={Bell} label="Notifications" value={notifValue} onPress={() => setNotifOpen(true)} />
           <Row Icon={Sun} label="Appearance" value={appearanceValue} onPress={() => setAppearance(true)} last />
         </RowGroup>
 
@@ -94,7 +92,7 @@ export default function SettingsScreen({ navigation }) {
           <Row Icon={Compass} label="How UniBlueprint works" onPress={() => navigation.navigate('BlueprintTour')} />
           <Row Icon={HelpCircle} label="FAQs" onPress={() => navigation.navigate('FAQs')} />
           <Row Icon={LifeBuoy} label="Help and support" onPress={() => navigation.navigate('Help')} />
-          {hasParents && <Row Icon={Users} label="For parents" sub="Invite a parent to see what you choose to share" onPress={() => navigation.navigate('ParentPortal')} />}
+          <Row Icon={Users} label="For parents" sub="What UniBlueprint is, for a parent or guardian" onPress={() => navigation.navigate('ParentInfo')} />
           <Row Icon={Info} label="About UniBlueprint" onPress={() => navigation.navigate('About')} last />
         </RowGroup>
 

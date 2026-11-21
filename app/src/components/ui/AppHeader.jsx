@@ -34,7 +34,7 @@ export default function AppHeader({
   const side = btn * 3
   const wordSize = width >= 380 ? 22 : 20
 
-  const search = onSearch || (() => openInHomeStack(navigation, 'Explore'))
+  const search = onSearch || (() => openInHomeStack(navigation, 'Search'))
   const calendar = onCalendar || (() => openInHomeStack(navigation, 'Calendar'))
   const budget = onBudget || (() => openInHomeStack(navigation, 'Budgeting'))
   const bell = onBell || (() => openInHomeStack(navigation, 'Notifications'))

@@ -22,6 +22,8 @@ import {
 import { userTypeLabel } from '../constants/userTypes'
 import { STATUS_STYLES, avatarColorFor, initialsFor } from './DirectoryScreen'
 import Button from '../components/ui/Button'
+import AppHeader from '../components/ui/AppHeader'
+import ErrorState from '../components/ui/ErrorState'
 import ReportButton from '../components/safety/ReportButton'
 import { useReport } from '../components/safety/ReportProvider'
 
@@ -475,15 +477,8 @@ export default function StudentProfileScreen({ route, navigation }) {
   if (!student) {
     return (
       <View style={styles.screen}>
-        <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Back</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.loadingWrap}>
-          <Text style={styles.noteText}>This profile is no longer available.</Text>
-        </View>
+        <AppHeader navigation={navigation} showBack />
+        <ErrorState kind="notfound" title="This profile is no longer available" body="They may have changed who can find them, or left UniBlueprint." />
       </View>
     )
   }
@@ -496,54 +491,43 @@ export default function StudentProfileScreen({ route, navigation }) {
 
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Back</Text>
-          </TouchableOpacity>
-
-          {student.id !== user?.id && (
-            <TouchableOpacity
-              style={[styles.reportBtn, { top: insets.top + 12 }]}
-              onPress={() => openReport({
-                contentType: 'profile', contentId: student.id, reportedUserId: student.id,
-                userName: student.full_name, noun: 'profile',
-              })}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Report or block this person"
-            >
-              <Flag size={14} color={colors.chromeFg} strokeWidth={1.9} />
-              <Text style={styles.reportBtnText}>Report or block</Text>
-            </TouchableOpacity>
-          )}
-
+        <View style={styles.header}>
           <View style={[styles.avatar, { backgroundColor: avatarColorFor(student.id) }]}>
             <Text style={styles.avatarText}>{initialsFor(student.full_name)}</Text>
           </View>
-
-          <Text style={styles.headerName}>{student.full_name || 'UniBlueprint Student'}</Text>
-          {!!student.user_type && (
-            <View style={styles.typePill}>
-              <Text style={styles.typePillText}>{userTypeLabel(student.user_type)}</Text>
-            </View>
-          )}
+          <View style={styles.headText}>
+            <Text style={styles.headerName} numberOfLines={2}>{student.full_name || 'UniBlueprint member'}</Text>
+            {!!student.course && <Text style={styles.courseText} numberOfLines={2}>{student.course}{student.institution ? `, ${student.institution}` : ''}</Text>}
+            {!student.course && !!student.institution && <Text style={styles.courseText} numberOfLines={1}>{student.institution}</Text>}
+            {!!student.user_type && (
+              <View style={styles.typePill}>
+                <Text style={styles.typePillText}>{userTypeLabel(student.user_type)}</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        <View style={styles.identityBlock}>
-          {!!student.course && <Text style={styles.courseText}>{student.course}</Text>}
-          {!!student.institution && (
-            <View style={styles.locationRow}>
-              <MapPin size={12} color={colors.muted} strokeWidth={1.8} />
-              <Text style={styles.locationText}>{student.institution}</Text>
-            </View>
-          )}
-        </View>
+        {student.id !== user?.id && (
+          <TouchableOpacity
+            style={styles.reportBtn}
+            onPress={() => openReport({
+              contentType: 'profile', contentId: student.id, reportedUserId: student.id,
+              userName: student.full_name, noun: 'profile',
+            })}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Report or block this person"
+          >
+            <Flag size={14} color={colors.textSecondary} strokeWidth={1.9} />
+            <Text style={styles.reportBtnText}>Report or block</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Credentials — short self-written list */}
         {credentials.length > 0 && (
@@ -719,45 +703,34 @@ function __gs_styles(colors) {
   scroll: {},
 
   header: {
-    backgroundColor: colors.chromeBg,
-    paddingHorizontal: spacing.md,
-    paddingBottom: 28,
-    alignItems: 'center',
+    paddingHorizontal: spacing.md, paddingTop: 20, paddingBottom: 6,
+    flexDirection: 'row', alignItems: 'center', gap: 16,
   },
-  backBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    alignSelf: 'flex-start', marginBottom: 20,
-  },
-  backBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.chromeFg },
+  headText: { flex: 1, minWidth: 0 },
   reportBtn: {
-    position: 'absolute', right: spacing.md, zIndex: 2,
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14,
-    backgroundColor: 'rgba(245,240,232,0.14)',
+    flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
+    marginLeft: spacing.md, marginTop: 10, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14,
+    backgroundColor: colors.tabFill,
   },
-  reportBtnText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.chromeFg },
+  reportBtnText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.textSecondary },
 
   avatar: {
-    width: 76, height: 76, borderRadius: 38,
+    width: 88, height: 88, borderRadius: 44,
     alignItems: 'center', justifyContent: 'center',
   },
-  avatarText: { fontFamily: fonts.serif, fontSize: 28, color: '#fff' },
+  avatarText: { fontFamily: fonts.serif, fontSize: 32, color: '#fff' },
 
-  headerName: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg, textAlign: 'center', marginTop: 14 },
+  headerName: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 32, color: colors.textPrimary },
 
   typePill: {
-    marginTop: 8,
-    backgroundColor: 'rgba(245,240,232,0.1)',
+    marginTop: 8, alignSelf: 'flex-start',
+    backgroundColor: colors.tabFill,
     borderRadius: radius.pill,
-    borderWidth: 1, borderColor: 'rgba(245,240,232,0.2)',
-    paddingHorizontal: 12, paddingVertical: 5,
+    paddingHorizontal: 12, paddingVertical: 6,
   },
-  typePillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: 'rgba(245,240,232,0.85)', letterSpacing: 0.3 },
+  typePillText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary },
 
-  identityBlock: { paddingHorizontal: spacing.md, paddingTop: spacing.lg, alignItems: 'center' },
-  courseText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary, marginBottom: 4 },
-  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  locationText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
+  courseText: { fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, marginTop: 3 },
 
   section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
   sectionLabel: {

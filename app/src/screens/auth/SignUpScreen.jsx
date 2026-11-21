@@ -71,8 +71,8 @@ const SITUATIONS = [
   },
   {
     key:      'other',
-    label:    'Not Currently Studying',
-    sub:      'Something else entirely',
+    label:    'Other',
+    sub:      'Something else',
     hasDetails: false,
   },
 ]
@@ -457,7 +457,7 @@ export default function SignUpScreen({ navigation }) {
           {/* ── Step 1: Basics ─────────────────────────────────────────────── */}
           {step === 1 && (
             <>
-              <Text style={styles.stepLabel}>Step 1 of 3</Text>
+              <Text style={styles.stepLabel}>Step 2 of 11</Text>
               <Text style={styles.title}>Create your account.</Text>
               <Text style={styles.sub}>Free to join. No credit card required.</Text>
 
@@ -636,10 +636,10 @@ export default function SignUpScreen({ navigation }) {
           {/* ── Step 2: Situation ───────────────────────────────────────────── */}
           {step === 2 && (
             <>
-              <Text style={styles.stepLabel}>Step 2 of 3</Text>
-              <Text style={styles.title}>What best describes you?</Text>
+              <Text style={styles.stepLabel}>Step 3 of 11</Text>
+              <Text style={styles.title}>Who are you?</Text>
               <Text style={styles.sub}>
-                This helps us show you the right features and content.
+                This sets the words we use for you, like what Campus Connect is called. You can change it later in Settings.
               </Text>
 
               <View style={styles.situationList}>
@@ -682,7 +682,7 @@ export default function SignUpScreen({ navigation }) {
           {/* ── Step 3: Details + Interests + Availability ──────────────────── */}
           {step === 3 && (
             <>
-              <Text style={styles.stepLabel}>Step 3 of 3</Text>
+              <Text style={styles.stepLabel}>Step 4 of 11</Text>
 
               {/* Generic title for situations without specific details */}
               {situation !== 'in_college' && situation !== 'plc' && situation !== 'apprenticeship' && (

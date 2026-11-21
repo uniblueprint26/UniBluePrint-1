@@ -54,6 +54,7 @@ export function useDirectoryData() {
 
   const [popularTags, setPopularTags] = useState([])
   const [tagsLoading, setTagsLoading] = useState(true)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -72,7 +73,7 @@ export function useDirectoryData() {
       }
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadKey])
 
   useEffect(() => {
     let cancelled = false
@@ -117,7 +118,9 @@ export function useDirectoryData() {
     return matchFilter && matchSearch
   }), [ranked, filter, q])
 
+  const reload = () => setReloadKey(k => k + 1)
   return {
+    reload,
     viewer, viewerInterests,
     candidates, ranked, filtered,
     loading, error,
