@@ -3,20 +3,29 @@ import { supabase } from '../lib/supabase'
 import { IS_NATIVE } from '../constants/platformPolicy'
 
 // Remote switches, read from the public.app_flags table (key text, value jsonb).
-// They let the founder turn a feature on without a new store release.
+// They let the founder change a feature without a new store release.
 //
-// Every flag FAILS CLOSED: its value is the default below until the table has
-// answered with the literal boolean true. A missing table, a network error or
-// any other value keeps the feature off.
+// Every flag FAILS TO ITS SAFE DEFAULT (the value in FLAG_DEFAULTS below). The
+// default is used until the table has answered, and again if the table is
+// missing, the network is down or the stored value is the wrong type. A good
+// answer is cached for 10 minutes and a failed one is retried after a minute.
+//
+//   foundation_visible           true   Foundation shows everywhere in the app.
+//   foundation_ordering_enabled  false  Foundation orders are open. While this
+//                                       is false every order or checkout button
+//                                       reads "Ordering opens in January".
+//   coming_soon_tiles            false  Coming soon tiles, sheets and labels
+//                                       are hidden while this is false.
+//   pro_free_until               date   Every signed in account counts as Pro
+//                                       up to the end of this day (YYYY-MM-DD).
 
-// Foundation orders do not open on iOS and Android until January. This is the
-// default, and it stays false until the app_flags row `foundation_enabled` says
-// otherwise. Web keeps showing Foundation as it does today (see
-// useFoundationEnabled).
-export const FOUNDATION_ENABLED = false
+export const PRO_FREE_UNTIL_DEFAULT = '2027-01-31'
 
 const FLAG_DEFAULTS = {
-  foundation_enabled: FOUNDATION_ENABLED,
+  foundation_visible: true,
+  foundation_ordering_enabled: false,
+  coming_soon_tiles: false,
+  pro_free_until: PRO_FREE_UNTIL_DEFAULT,
 }
 
 const TTL_MS = 10 * 60 * 1000        // a good answer is reused for 10 minutes
@@ -46,15 +55,16 @@ export function refreshAppFlags({ force = false } = {}) {
         ok = true
         data.forEach(row => { if (row && typeof row.key === 'string') values[row.key] = row.value })
       }
-    } catch { /* fail closed */ }
+    } catch { /* fall back to the defaults */ }
     publish({ status: 'ready', values, expiresAt: Date.now() + (ok ? TTL_MS : RETRY_AFTER_FAIL_MS) })
     return values
   })().finally(() => { inflight = null })
   return inflight
 }
 
-// Current value of a flag, right now, from the cache. For code that is not a
-// React component (notification routing, link handling).
+// Current value of a yes or no flag, right now, from the cache. For code that
+// is not a React component (notification routing, link handling). Only a real
+// boolean from the table overrides the default.
 export function getAppFlag(key) {
   const fallback = FLAG_DEFAULTS[key] === true
   const v = cache.values[key]
@@ -62,7 +72,7 @@ export function getAppFlag(key) {
 }
 
 // { value, loading } for one flag. `loading` is true until the first answer
-// (or failure) has come back. `value` is the fail-closed default meanwhile.
+// (or failure) has come back. `value` is the safe default meanwhile.
 export function useAppFlag(key) {
   const [, force] = useState(0)
   useEffect(() => {
@@ -74,16 +84,62 @@ export function useAppFlag(key) {
   return { value: getAppFlag(key), loading: cache.status !== 'ready' }
 }
 
-// Is Foundation open to this person? Always true on web (unchanged). On iOS
-// and Android it is true only when app_flags.foundation_enabled is true.
-// `enabled` is false while loading, so nothing flashes on screen first.
+// Is Foundation visible to this person? Defaults to true. On iOS and Android
+// the row `foundation_visible` can switch it off remotely. Web always shows it.
+// `loading` is always false: the default is "visible", so nothing needs to wait.
 export function useFoundationEnabled() {
-  const { value, loading } = useAppFlag('foundation_enabled')
+  const { value } = useAppFlag('foundation_visible')
   if (!IS_NATIVE) return { enabled: true, loading: false }
-  return { enabled: value, loading }
+  return { enabled: value, loading: false }
 }
 
 // Same answer without React, from whatever the cache holds right now.
 export function isFoundationEnabledNow() {
-  return IS_NATIVE ? getAppFlag('foundation_enabled') : true
+  return IS_NATIVE ? getAppFlag('foundation_visible') : true
+}
+
+// Can Foundation be ordered yet? Defaults to false until the table says true.
+// While false, show FOUNDATION_ORDERING_LINE where an order or checkout button
+// would be. `loading` is true until the first answer.
+export const FOUNDATION_ORDERING_LINE = 'Ordering opens in January'
+
+export function useFoundationOrdering() {
+  const { value, loading } = useAppFlag('foundation_ordering_enabled')
+  return { enabled: value, loading }
+}
+
+export function isFoundationOrderingEnabledNow() {
+  return getAppFlag('foundation_ordering_enabled')
+}
+
+// Pro is free for every signed in account until this day (inclusive, UTC).
+function parseDay(v) {
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null
+  const t = Date.parse(`${v}T23:59:59.999Z`)
+  return Number.isNaN(t) ? null : { day: v, endsAt: t }
+}
+
+export function getProFreeUntilNow() {
+  return parseDay(cache.values.pro_free_until) || parseDay(FLAG_DEFAULTS.pro_free_until)
+}
+
+export function isProFreeNow() {
+  const u = getProFreeUntilNow()
+  return !!u && Date.now() <= u.endsAt
+}
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+// { active, until, label, labelShort } for the free Pro period. `label` reads
+// "31 January 2027". Re-renders when the flag arrives.
+export function useProFree() {
+  useAppFlag('pro_free_until')
+  const u = getProFreeUntilNow()
+  const [y, m, d] = u.day.split('-').map(Number)
+  return {
+    active: Date.now() <= u.endsAt,
+    until: u.day,
+    label: `${d} ${MONTHS[m - 1]} ${y}`,
+    labelShort: `${d} ${MONTHS[m - 1]}`,
+  }
 }

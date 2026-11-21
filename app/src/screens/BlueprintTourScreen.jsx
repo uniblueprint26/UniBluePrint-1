@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   FileText, Compass, Building2, Heart, Globe, CheckCircle,
-  Calculator, Megaphone, Users, MessageSquare, CalendarClock, Send, Star, User,
+  Calculator, Tag, Users, MessageSquare, CalendarClock, Send, Star, User,
 } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -32,7 +32,7 @@ import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 // closed on iOS and Android.
 const FOUNDATION_TILE_LABELS = ['Submit a Service', 'My Outputs']
 const SAMPLE_TILES = [
-  { Icon: FileText,      label: 'Submit a Service', sub: 'Order a Foundation Blueprint service' },
+  { Icon: FileText,      label: 'Submit a Service', sub: 'Start a Foundation Blueprint service' },
   { Icon: CheckCircle,   label: 'My Outputs',       sub: 'Your completed documents' },
   { Icon: Users,         label: 'Find a Coach',     sub: 'Book time with a coach' },
   { Icon: MessageSquare, label: 'Campus Board',     sub: 'See what campus is talking about' },
@@ -70,9 +70,9 @@ function __gs_STEPS(colors, foundationOpen) {
   },
   {
     key: 'elevation', accent: '#16A34A', Icon: Compass,
-    title: 'Elevation Blueprint', tagline: 'Verified coaches, one enquiry away',
-    body: 'Browse verified coaches across fitness, academics, trading and marketing. Every coach profile follows the same layout: pricing, a full bio, services, and a clear way to reach them.',
-    chips: ['All Coaches', 'Fitness', 'Academic Grinds', 'Trading', 'Marketing'],
+    title: 'Elevation Blueprint', tagline: 'Coaches, one enquiry away',
+    body: 'Browse coaches across fitness, academics, finance and marketing. Every coach profile follows the same layout: pricing, a full bio, services, and a clear way to reach them.',
+    chips: ['All Coaches', 'Fitness', 'Academic Grinds', 'Finance', 'Marketing'],
   },
   {
     key: 'elevation-detail', accent: '#16A34A', Icon: Compass,
@@ -135,7 +135,7 @@ function __gs_STEPS(colors, foundationOpen) {
   {
     key: 'budgeting', accent: '#B45309', Icon: Calculator,
     title: 'Budgeting', tagline: 'Your financial companion, not a Blueprint',
-    body: 'A standalone tool, not one of the five pillars. Track what you spend and plan your term under Budget, see every real Irish grant and scheme you might qualify for under Grants & Schemes, and learn from independent trading coaches under Investment.',
+    body: 'A standalone tool, not one of the five pillars. Track what you spend and plan your term under Budget, see every real Irish grant and scheme you might qualify for under Grants & Schemes, and read the plain investing basics under Investment.',
     mock: {
       kind: 'budget',
       tabs: ['Budget', 'Grants & Schemes', 'Investment'],
@@ -145,7 +145,7 @@ function __gs_STEPS(colors, foundationOpen) {
     },
   },
   {
-    key: 'adboard', accent: '#7C3AED', Icon: Megaphone,
+    key: 'adboard', accent: '#7C3AED', Icon: Tag,
     title: 'Ad Board', tagline: 'Not one of the five pillars, four things in one place',
     body: 'The Weekly Blueprint, a 13-section magazine you flip through, not scroll: deals, coach spotlights, campus events and student stories, new every week. A Blog, a Marketplace to buy, sell, or offer a skill, and the live Ad Board itself, where anyone can post a listing for review.',
     mock: {

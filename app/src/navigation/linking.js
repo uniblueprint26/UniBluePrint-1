@@ -54,6 +54,7 @@ export const linking = {
               CourseConnect: 'course-connect',
               Lifestyle:     'lifestyle',
               Budgeting:     'budgeting',
+              Calendar:      'calendar',
             },
           },
           AdBoard: {

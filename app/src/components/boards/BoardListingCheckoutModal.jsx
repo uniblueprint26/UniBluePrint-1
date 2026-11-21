@@ -154,7 +154,8 @@ const BoardListingCheckoutModal = forwardRef(function BoardListingCheckoutModal(
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={handleCancel}>
-      <Pressable style={styles.backdrop} onPress={() => {}}>
+      {/* No tap handler on purpose: a stray tap must not dismiss a payment. Use Cancel. */}
+      <Pressable style={styles.backdrop} accessible={false}>
         <View style={styles.sheet}>
           <View style={styles.handle} />
 

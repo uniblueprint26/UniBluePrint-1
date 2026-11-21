@@ -11,6 +11,7 @@ import RepeatingList from '../../components/forms/RepeatingList'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, TagInput, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 
 // CV Optimisation intake — the reference pattern for the other 7 Foundation
 // Blueprint services (same skeleton: QuestionFlow + a cv_documents-shaped table +
@@ -275,9 +276,12 @@ export default function CvBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cv:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const safeGoBack = useSafeGoBack(navigation)
 
-  if (IS_IOS) {
+  // iOS and Android never order in the app. While ordering is closed the builder
+  // opens for everyone, saves a draft and shows "Ordering opens in January".
+  if (IS_IOS && orderingOpen) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="CV Optimisation" />
   }
 
@@ -384,6 +388,7 @@ export default function CvBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
+        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
       />
       <FoundationCheckoutModal ref={checkoutRef} />
     </>

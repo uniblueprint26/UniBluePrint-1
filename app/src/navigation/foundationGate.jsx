@@ -3,12 +3,13 @@ import { View, ActivityIndicator } from 'react-native'
 import { useTheme } from '../context/ThemeContext'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
 
-// Foundation is closed in the iOS and Android apps until the app_flags row
-// `foundation_enabled` is switched on (see hooks/useAppFlags.js). Every
-// Foundation screen is wrapped with this, so a deep link, a notification tap
-// or an old shortcut can never land on one. When the flag is off the person is
-// sent to Home, which always exists. Nothing is shown in between, and there is
-// no "coming soon" screen.
+// Foundation is visible everywhere by default. The app_flags row
+// `foundation_visible` (default true, see hooks/useAppFlags.js) is only a
+// remote kill switch. Every Foundation screen is wrapped with this, so if the
+// founder ever switches it off, a deep link, a notification tap or an old
+// shortcut cannot land on one: the person is sent to Home, which always
+// exists. Ordering is a separate switch (foundation_ordering_enabled) and is
+// handled inside each screen, not here.
 //
 // Web is unchanged: useFoundationEnabled() is always true there.
 export function foundationGated(Screen) {

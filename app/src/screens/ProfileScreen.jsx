@@ -32,7 +32,7 @@ import { searchTrades, searchProviders } from '../data/apprenticeships'
 import { supabase } from '../lib/supabase'
 import { WEBSITE_LINKS } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
-import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { useFoundationEnabled, useProFree } from '../hooks/useAppFlags'
 import { LEGAL_ENTITY_LINE } from '../constants/legal'
 
 // Read from the one place the real build/version number lives (app.json's
@@ -49,7 +49,7 @@ const EXPLORE_LINKS = [
     Icon: Users,
     eyebrow: 'OUR COACHES',
     label: 'Find the right coach for your goals',
-    sub: 'Browse our verified panel of coaches across every field.',
+    sub: 'Browse our panel of coaches across every field.',
     color: '#EFF6FF',
     action: 'coaches',
   },
@@ -1091,7 +1091,8 @@ const inv = StyleSheet.create({
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { colors, preference: themePreference, mode: themeMode } = useTheme()
-  const { user, signOut, isPro, isComplimentaryPro, subscription } = useAuth()
+  const { user, signOut, isPro, hasRealPro, isProFree, isComplimentaryPro, subscription } = useAuth()
+  const { labelShort: proFreeLabelShort } = useProFree()
   const { label: userTypeLabel } = useUserType()
   const { interests } = useInterests()
   const { discoverable } = useDirectoryProfile()
@@ -1117,9 +1118,11 @@ export default function ProfileScreen({ navigation }) {
   // PricingScreen already uses (`pro_annual` → Premium, otherwise Pro).
   const membershipLabel = isComplimentaryPro
     ? 'Complimentary Pro'
-    : isPro
+    : hasRealPro
       ? (subscription?.tier === 'pro_annual' ? 'Premium Member' : 'Pro Member')
-      : 'Free Member'
+      : isProFree
+        ? 'Pro Member'
+        : 'Free Member'
 
   // Build the sub-line shown beneath the display name in the profile header
   const SITUATION_LABELS = {
@@ -1286,7 +1289,7 @@ export default function ProfileScreen({ navigation }) {
               <Text style={[styles.membershipTitle, { color: colors.chromeFg }]}>{membershipLabel}</Text>
             </View>
             {/* iOS and Android: no purchase CTA in the app (neutral billing), plan status only. */}
-            {!isPro && !isComplimentaryPro && !NATIVE_NEUTRAL_BILLING && (
+            {!hasRealPro && !isComplimentaryPro && !isProFree && !NATIVE_NEUTRAL_BILLING && (
               <TouchableOpacity
                 style={[styles.upgradeBtn, { backgroundColor: colors.chromeFg }]}
                 activeOpacity={0.8}
@@ -1297,7 +1300,9 @@ export default function ProfileScreen({ navigation }) {
             )}
           </View>
           <Text style={styles.membershipSub}>
-            {isPro || isComplimentaryPro
+            {!hasRealPro && !isComplimentaryPro && isProFree
+              ? `Pro is free for everyone until ${proFreeLabelShort}.`
+              : isPro || isComplimentaryPro
               ? 'Thanks for being a member. Manage or change your plan on the UniBlueprint website.'
               : NATIVE_NEUTRAL_BILLING
                 ? 'Manage your plan on uniblueprint.ie.'

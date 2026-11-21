@@ -27,6 +27,10 @@ import LoadingScreen from './src/components/ui/LoadingScreen'
 import ErrorBoundary from './src/components/ErrorBoundary'
 import ReportProvider from './src/components/safety/ReportProvider'
 import { refreshAppFlags } from './src/hooks/useAppFlags'
+import { installWebAlert } from './src/lib/webAlert'
+
+// Alert.alert does nothing on the web build. This gives it a browser fallback.
+installWebAlert()
 
 // Keep the native splash (a plain image, no custom fonts involved) on
 // screen until the brand fonts have actually finished loading — without

@@ -30,8 +30,8 @@ const ALL_SLIDES = [
     title: 'Coaches who\nget you.',
     // No price on iOS and Android (neutral billing).
     sub: NATIVE_NEUTRAL_BILLING
-      ? 'Find verified coaches in fitness, career, branding, nutrition, trading, creative skills and more.'
-      : 'Book verified coaches in fitness, career, branding, nutrition, trading, creative skills and more. Starting from €25.',
+      ? 'Find coaches in fitness, career, branding, nutrition, creative skills and more.'
+      : 'Book coaches in fitness, career, branding, nutrition, creative skills and more. Starting from €25.',
   },
   {
     icon: Users,

@@ -7,7 +7,7 @@ import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
-import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { useFoundationEnabled, useFoundationOrdering } from '../hooks/useAppFlags'
 
 const TOPICS = [
   {
@@ -47,7 +47,15 @@ export default function HelpScreen({ navigation }) {
   const { colors } = useTheme()
   const { enabled: foundationOpen } = useFoundationEnabled()
   // The Foundation topic is left out while Foundation is closed on iOS and Android.
-  const topics = foundationOpen ? TOPICS : TOPICS.filter(t => t.title !== 'Foundation Blueprint')
+  const { enabled: orderingOpen } = useFoundationOrdering()
+  const topics = (foundationOpen ? TOPICS : TOPICS.filter(t => t.title !== 'Foundation Blueprint')).map(t => (
+    orderingOpen ? t : {
+      ...t,
+      items: t.items?.map(it => (it.label === 'How to submit a document request'
+        ? { ...it, detail: 'Open Foundation Blueprint from the Home screen or sidebar. Tap an envelope and start your answers. They are saved as a draft. Ordering opens in January.' }
+        : it)),
+    }
+  ))
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)

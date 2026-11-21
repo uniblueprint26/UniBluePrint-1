@@ -6,6 +6,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Portfolio Building intake — simplest of the Foundation Blueprint services,
@@ -85,9 +86,12 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:portfolio_plan:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const safeGoBack = useSafeGoBack(navigation)
 
-  if (IS_IOS) {
+  // iOS and Android never order in the app. While ordering is closed the builder
+  // opens for everyone, saves a draft and shows "Ordering opens in January".
+  if (IS_IOS && orderingOpen) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Portfolio Building" />
   }
 
@@ -163,6 +167,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
+        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
       />
       <FoundationCheckoutModal ref={checkoutRef} />
     </>

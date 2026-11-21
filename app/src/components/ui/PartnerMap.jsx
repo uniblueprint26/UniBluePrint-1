@@ -4,6 +4,7 @@ import { Lock, Navigation, X } from 'lucide-react-native'
 import { colors, fonts, spacing, radius } from '../../constants/theme'
 import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../../data/lifestylePartners'
 import { COACHES } from '../../screens/ElevationScreen'
+import { useComingSoonEnabled } from '../../constants/comingSoon'
 import { COUNTY_CENTROIDS, countyFromLocation, jitterFor, distanceKm, MUTED_MAP_STYLE } from '../../constants/mapGeo'
 
 // ─── Design tokens — same palette as the website map ─────────────────────────
@@ -95,7 +96,12 @@ export default function PartnerMap({ onViewListing, navigation }) {
   const [userLoc, setUserLoc] = useState(null)
   const [locError, setLocError] = useState(null)
 
-  const allPins = useMemo(() => [...PARTNER_PINS, ...COACH_PINS], [])
+  // Greyed pins for partners who are not live yet only show while the coming soon switch is on.
+  const comingSoonOn = useComingSoonEnabled()
+  const allPins = useMemo(
+    () => [...PARTNER_PINS, ...COACH_PINS].filter(p => comingSoonOn || (p.kind !== 'mystery' && !(p.kind === 'partner' && !p.live))),
+    [comingSoonOn],
+  )
 
   const nearbySorted = useMemo(() => {
     if (!userLoc) return []

@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { fonts } from '../../constants/theme'
 import { envelopePaper, FLAP_DEPTH } from './envelopePaper'
 import { STATUS_TEXT } from './EnvelopeTile'
+import { FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 
 // The opened envelope. Tapping an envelope in the grid mounts this: the flap
 // rotates open on its top edge, the letter slides up out of the envelope and
@@ -25,7 +26,7 @@ import { STATUS_TEXT } from './EnvelopeTile'
 const NATIVE = Platform.OS !== 'web'
 
 export default function EnvelopeSheet({
-  service, status, isIOS, weekend, primary, secondary, onClose, colors, isDark,
+  service, status, isIOS, orderingOpen = true, weekend, primary, secondary, onClose, colors, isDark,
 }) {
   const paper = envelopePaper(isDark)
   const insets = useSafeAreaInsets()
@@ -92,7 +93,7 @@ export default function EnvelopeSheet({
   const { Icon, letter: copy } = service
   // Android and web answer the questions on the website. iOS keeps the
   // neutral wording that never points to the website as a place to buy.
-  const firstStep = copy ? (!isIOS && copy.webStep) || copy.steps[0] : null
+  const firstStep = copy ? (!isIOS && orderingOpen && copy.webStep) || copy.steps[0] : null
   const steps = copy
     ? [
         firstStep,
@@ -213,7 +214,11 @@ export default function EnvelopeSheet({
                 <LinearGradient pointerEvents="none" colors={[paper.letter + '00', paper.letter]} style={s.fade} />
                 </View>
 
-                {isIOS ? (
+                {!orderingOpen ? (
+                  <Text style={[s.iosNote, { color: colors.textPrimary, fontFamily: fonts.sansMedium }]}>
+                    {FOUNDATION_ORDERING_LINE}
+                  </Text>
+                ) : isIOS ? (
                   <Text style={[s.iosNote, { color: paper.letterText2 }]}>
                     {service.title} is not available to order in the app. Orders you already have show under Outputs.
                   </Text>

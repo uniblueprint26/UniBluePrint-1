@@ -31,6 +31,7 @@ import { useTheme } from '../../context/ThemeContext'
 import { CATEGORY } from '../../data/adBoardAds'
 import { usePartnerContact } from '../../hooks/usePartnerContact'
 import ProUpgradeGate from '../ui/ProUpgradeGate'
+import { useComingSoonEnabled } from '../../constants/comingSoon'
 
 
 // One row per contact channel this partner has on file, built from the
@@ -90,6 +91,7 @@ function buildContactMethods(contact) {
 export default function PartnerContactModal({ ad, visible, onClose }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
+  const comingSoonOn = useComingSoonEnabled()
   const { contact: fetchedContact, requiresPro } = usePartnerContact(ad?.partnerSlug, { enabled: visible && !!ad?.hasContact })
   if (!ad) return null
 
@@ -171,9 +173,11 @@ export default function PartnerContactModal({ ad, visible, onClose }) {
               <View style={styles.emptyIconWrap}>
                 <Clock size={18} color={colors.light} strokeWidth={1.8} />
               </View>
-              <Text style={styles.emptyTitle}>Contact details coming soon</Text>
+              <Text style={styles.emptyTitle}>{comingSoonOn ? 'Contact details coming soon' : `Contact ${name}`}</Text>
               <Text style={styles.emptyBody}>
-                {name} hasn't added a direct contact yet. Message the UniBlueprint team and we'll connect you.
+                {comingSoonOn
+                  ? `${name} hasn't added a direct contact yet. Message the UniBlueprint team and we'll connect you.`
+                  : `Message the UniBlueprint team and we'll connect you with ${name}.`}
               </Text>
               <TouchableOpacity style={styles.teamBtn} activeOpacity={0.85} onPress={messageTeam}>
                 <Mail size={14} color={colors.accentFg} strokeWidth={2} />

@@ -31,7 +31,7 @@ const PAGE_STYLES = `
 // coach's own shareable preview page (ElevationCoachProfilePage.jsx) so
 // that page and this grid never drift apart.
 
-const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Trading and Finance', 'Marketing', 'Creative', 'Yoga', 'Career']
+const COACH_FILTERS = ['All', 'Fitness', 'Sports', 'Academic Grinds', 'Finance', 'Marketing', 'Creative', 'Yoga', 'Career']
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
 
@@ -298,9 +298,9 @@ export default function ElevationBlueprintPage() {
     <>
       <Helmet>
         <title>Meet Our Coaches | UniBlueprint</title>
-        <meta name="description" content="Uni Coaches delivering personal training, career coaching, trading, creative skills, and more across Ireland. Book directly in the app." />
+        <meta name="description" content="Uni Coaches delivering personal training, career coaching, finance, creative skills, and more across Ireland. Book directly in the app." />
         <meta property="og:title" content="Meet Our Coaches | UniBlueprint" />
-        <meta property="og:description" content="Uni Coaches delivering personal training, career coaching, trading, creative skills, and more across Ireland." />
+        <meta property="og:description" content="Uni Coaches delivering personal training, career coaching, finance, creative skills, and more across Ireland." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
 
@@ -343,13 +343,13 @@ export default function ElevationBlueprintPage() {
               fontSize: '15px', color: 'rgba(245,240,232,0.65)',
               marginTop: '14px', lineHeight: 1.7,
             }}>
-              Coaches across Ireland in fitness, career, trading, creative skills, and more.
+              Coaches across Ireland in fitness, career, finance, creative skills, and more.
               Find your coach and book directly in the app.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
               {[
                 'Personal training, physique coaching, and online fitness plans',
-                'Trading, digital marketing, and personal branding',
+                'Personal finance, digital marketing, and personal branding',
                 'Photography, videography, and creative mentorship',
                 'Academic grinds, career counselling, and sports coaching',
               ].map(pt => (

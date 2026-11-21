@@ -6,11 +6,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   CheckCircle2, Bell, Building2, Calculator, Compass, Globe, Heart, BookOpen, FileText, TrendingUp, LayoutGrid,
-  Tag, Newspaper, SlidersHorizontal, Target, CalendarDays, Wallet,
+  Tag, Newspaper, SlidersHorizontal, Target, CalendarDays, Wallet, WifiOff,
 } from 'lucide-react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import PortalSwitcher from '../components/ui/PortalSwitcher'
 import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
+import EmptyState from '../components/ui/EmptyState'
 import UBPLogo from '../components/ui/UBPLogo'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import TodayDigestCard from '../components/ui/TodayDigestCard'
@@ -18,6 +19,7 @@ import StoryRail from '../components/home/StoryRail'
 import NextUpRow from '../components/home/NextUpRow'
 import { routeExists } from '../components/home/routeExists'
 import { useGoalSummary, useBudgetLeft } from '../components/home/personalStats'
+import { useCalendarSummary } from '../lib/calendar/useCalendarData'
 import { openInHomeStack } from '../navigation/helpers'
 import { formatNumber } from '../utils/formatNumber'
 import GoalsGrid from '../components/home/GoalsGrid'
@@ -78,7 +80,7 @@ const NAV_GROUPS = [
     items: [
       { key: 'compass',   label: 'Compass',   Icon: Compass,    action: 'compass'   },
       { key: 'budgeting', label: 'Budgeting', Icon: Calculator, action: 'budgeting' },
-      { key: 'adboard',   label: 'Ad Board',  Icon: BookOpen,  action: 'tab', tabName: 'AdBoard' },
+      { key: 'adboard',   label: 'Ad Board',  Icon: Tag,  action: 'tab', tabName: 'AdBoard' },
     ],
   },
 ]
@@ -180,6 +182,9 @@ export default function HomeScreen({ navigation }) {
   // a minute or two of scrolling.
   const [feedPosts, setFeedPosts]           = useState([])
   const [loadingFeed, setLoadingFeed]       = useState(true)
+  // True when the last feed load failed. A failed load must not look like an
+  // empty feed, so it shows a retry state instead of "No posts yet".
+  const [feedFailed, setFeedFailed]         = useState(false)
   const [loadingMore, setLoadingMore]       = useState(false)
   const [hasMoreFeed, setHasMoreFeed]       = useState(true)
   const loadingMoreRef = useRef(false)
@@ -211,6 +216,7 @@ export default function HomeScreen({ navigation }) {
   async function loadFeed() {
     setLoadingFeed(true)
     setHasMoreFeed(true)
+    setFeedFailed(false)
     try {
       const posts = await fetchFeedPage({ limit: FEED_PAGE_SIZE })
       setFeedPosts(posts)
@@ -221,7 +227,7 @@ export default function HomeScreen({ navigation }) {
       ])
       setMyReactions(reactions)
       setSavedPostIds(new Set(savedIds))
-    } catch {}
+    } catch { setFeedFailed(true) }
     finally { setLoadingFeed(false) }
   }
 
@@ -481,6 +487,10 @@ export default function HomeScreen({ navigation }) {
   const goalSummary = useGoalSummary(user?.id)
   const budgetLeft = useBudgetLeft(user?.id)
   const calendarReady = routeExists(navigation, 'Calendar')
+  const calendarSummary = useCalendarSummary(user?.id)
+  const calendarValue = calendarSummary.todayCount > 0
+    ? `${calendarSummary.todayCount} today`
+    : calendarSummary.weekCount > 0 ? `${calendarSummary.weekCount} this week` : '–'
   const personalStats = [
     goalSummary ? {
       key: 'goals', label: 'Goals', Icon: Target,
@@ -490,10 +500,12 @@ export default function HomeScreen({ navigation }) {
         : 'No goals set yet',
     } : null,
     {
-      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: '–',
-      caption: calendarReady ? 'Add your timetable' : undefined,
+      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: calendarValue,
+      caption: calendarReady && calendarValue === '–' ? 'Add your timetable' : undefined,
       onPress: calendarReady ? () => openInHomeStack(navigation, 'Calendar') : undefined,
-      accessibilityLabel: calendarReady ? 'No events yet. Add your timetable' : 'No events yet',
+      accessibilityLabel: calendarValue === '–'
+        ? (calendarReady ? 'No events yet. Add your timetable' : 'No events yet')
+        : `${calendarValue}. Open Calendar`,
     },
     budgetLeft !== null ? {
       key: 'budget', label: 'Budget left', Icon: Wallet,
@@ -603,7 +615,7 @@ export default function HomeScreen({ navigation }) {
   // every unrelated re-render (e.g. a single reaction tap). A plain element
   // reconciles normally instead.
   // No Next up event yet: the Calendar feature supplies one later. Never fake it.
-  const nextUp = null
+  const nextUp = calendarSummary.nextUp
 
   // One Home section. Digest, Next up and Your goals are drawn here so they can
   // sit above the feed or inside it, wherever the layout puts them.
@@ -631,7 +643,8 @@ export default function HomeScreen({ navigation }) {
     return null
   }
 
-  const emptyFeed = postsOn && !loadingFeed && feedPosts.length === 0
+  const emptyFeed = postsOn && !loadingFeed && feedPosts.length === 0 && !feedFailed
+  const failedFeed = postsOn && !loadingFeed && feedPosts.length === 0 && feedFailed
 
   const feedListHeader = (
     <View>
@@ -674,6 +687,16 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.feedStatusText}>
               No posts yet. Tap + to share the first one.
             </Text>
+          )}
+          {failedFeed && (
+            <EmptyState
+              icon={WifiOff}
+              title="Could not load your feed"
+              subtitle="Check your connection and try again."
+              ctaLabel="Try again"
+              onCtaPress={loadFeed}
+              style={{ paddingTop: 8 }}
+            />
           )}
           <View style={{ height: 14 }} />
         </>

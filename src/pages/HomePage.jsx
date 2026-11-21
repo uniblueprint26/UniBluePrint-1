@@ -10,6 +10,7 @@ import { FoundationScreen } from './FoundationBlueprintPage'
 import { ElevationScreen } from './ElevationBlueprintPage'
 import { CampusScreen } from './CampusConnectPage'
 import { CourseScreen } from './CourseConnectPage'
+import { isProFreeNow, PRO_FREE_LINE } from '../lib/proFree'
 
 // ─── CyclingScreenMockup ────────────────────────────────────────────────────────
 // Same bezel as PhoneMockup above, but instead of a static screenshot it
@@ -711,6 +712,19 @@ export default function HomePage() {
         }}>
           UniBlueprint brings CV and career document support, 1:1 coaching, campus community, and verified student deals together in one free app, built for students, apprentices, and young people across Ireland.
         </p>
+        {isProFreeNow() && (
+          <p style={{ margin: '22px 0 0' }}>
+            <span style={{
+              display: 'inline-block',
+              background: 'rgba(30,58,95,0.06)', color: '#1E3A5F',
+              border: '1px solid rgba(30,58,95,0.16)',
+              borderRadius: '100px', padding: '8px 20px',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: '600',
+            }}>
+              {PRO_FREE_LINE}
+            </span>
+          </p>
+        )}
         <div className="ubp-cta-row">
           <Link to="/sign-up" style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',

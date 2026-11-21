@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking, ScrollView,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Video, Image as ImageIcon, Flame, WifiOff, RotateCcw } from 'lucide-react-native'
+import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Plus, Video, Image as ImageIcon, Flame, WifiOff, RotateCcw, MessageSquareQuote } from 'lucide-react-native'
 import { fonts, radius, spacing, shadows, sheen } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { MOODS, moodDef } from '../../constants/moods'
@@ -162,7 +162,7 @@ export function MoodPickerSheet({ visible, currentMood, onPick, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={k.sheetBackdrop} activeOpacity={1} onPress={onClose}>
-        <TouchableOpacity activeOpacity={1} style={k.sheet} onPress={() => {}}>
+        <TouchableOpacity activeOpacity={1} style={k.sheet} onPress={e => e.stopPropagation?.()}>
           <Text style={k.sheetTitle}>React with a mood</Text>
           <View style={k.sheetGrid}>
             {MOODS.map(m => {
@@ -294,7 +294,7 @@ function AudienceChip({ audience, k, colors }) {
   return <Chip label={def.label} k={k} colors={colors} icon={<Users size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
 }
 
-// Post type tag for the two shapes that are not a Take.
+// Post type tag: Take, Post or Clip.
 function TypeChip({ post, k, colors }) {
   if (post.post_type === 'clip') {
     return <Chip label="Clip" k={k} colors={colors} icon={<Video size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
@@ -302,7 +302,8 @@ function TypeChip({ post, k, colors }) {
   if (post.post_type === 'post') {
     return <Chip label="Post" k={k} colors={colors} icon={<ImageIcon size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
   }
-  return null
+  // post_type 'thread' in the database is a Take. The word Thread is never shown.
+  return <Chip label="Take" k={k} colors={colors} icon={<MessageSquareQuote size={14} color={colors.textSecondary} strokeWidth={1.9} />} />
 }
 
 // UBP-written content has no author. Real student posts never get the tag.

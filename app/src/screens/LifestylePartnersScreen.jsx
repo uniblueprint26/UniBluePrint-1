@@ -25,6 +25,7 @@ import { ChevronLeft, Lock } from 'lucide-react-native'
 import UBPLogo from '../components/ui/UBPLogo'
 import SectionHeader from '../components/ui/SectionHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import { useComingSoonEnabled, COMING_SOON_COPY } from '../constants/comingSoon'
 import PartnerMap from '../components/ui/PartnerMap'
 import {
   FILTERS, ComingSoonGridCard, CategoryAccordion, PartnerExpandCard, PartnerDetailSheet,
@@ -46,6 +47,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
+  const comingSoonOn = useComingSoonEnabled()
   const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [detailPartnerId, setDetailPartnerId] = useState(route?.params?.highlightId || null)
   const [codePartnerId, setCodePartnerId] = useState(null)
@@ -76,7 +78,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
     .map(key => ({ key, items: PARTNERS.filter(p => p.status === 'live' && p.filterKey === key) }))
     .filter(g => g.items.length > 0)
   const liveCount = categoryGroups.reduce((n, g) => n + g.items.length, 0)
-  const soonVisible = PARTNERS.filter(p => p.status === 'shell')
+  const soonVisible = comingSoonOn ? PARTNERS.filter(p => p.status === 'shell') : []
 
   const expandPartner = PARTNERS.find(p => p.id === expandPartnerId) || null
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
@@ -191,7 +193,7 @@ export default function LifestylePartnersScreen({ navigation, route }) {
         visible={!!codePartner}
         onClose={() => setCodePartnerId(null)}
       />
-      <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} />
+      {comingSoonOn ? <ComingSoonSheet visible={comingSoonOpen} onClose={() => setComingSoonOpen(false)} message={COMING_SOON_COPY} /> : null}
     </View>
   )
 }

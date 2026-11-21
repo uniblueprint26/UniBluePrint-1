@@ -32,8 +32,8 @@ const PILLARS = [
   {
     icon: Compass, tint: '#F0FDF4', accent: '#16A34A',
     title: 'Elevation Blueprint', tagline: 'Verified coaches, one enquiry away',
-    description: 'Browse real, verified coaches: fitness, academic grinds, trading, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
-    chips: ['Fitness', 'Academic Grinds', 'Trading', 'Marketing', 'Creative', 'Sports', 'Yoga'],
+    description: 'Browse real, verified coaches: fitness, academic grinds, finance, marketing, creative, sports and more. See their profile, message them to enquire. Pricing and booking happen directly between you and them.',
+    chips: ['Fitness', 'Academic Grinds', 'Finance', 'Marketing', 'Creative', 'Sports', 'Yoga'],
     features: [
       ['Browse by category', 'Filter the full coach directory to find the right fit.'],
       ['Verified profiles', 'Every coach is checked before they’re listed, real bios, real services.'],

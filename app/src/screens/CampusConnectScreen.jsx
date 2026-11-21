@@ -1,3 +1,4 @@
+import { useComingSoonEnabled } from '../constants/comingSoon'
 import { useState, useMemo, useEffect } from 'react'
 import {
   ScrollView, View, Text, TouchableOpacity, TextInput,
@@ -88,8 +89,11 @@ function buildBoardTiles(boardsData) {
 const TILE_COLUMNS = 3
 const TILE_GAP = 10
 
-function BoardTileGrid({ tiles, onPress }) {
+function BoardTileGrid({ tiles: allTiles, onPress }) {
   const { colors } = useTheme()
+  // Coming soon tiles only show while app_flags.coming_soon_tiles is on.
+  const comingSoonOn = useComingSoonEnabled()
+  const tiles = comingSoonOn ? allTiles : allTiles.filter(t => !t.coming)
   const styles = __gs_styles(colors)
   const [containerWidth, setContainerWidth] = useState(0)
   const tileSize = containerWidth > 0
@@ -109,7 +113,7 @@ function BoardTileGrid({ tiles, onPress }) {
           onPress={() => !t.coming && onPress(t.key)}
           disabled={t.coming}
           accessibilityRole="button"
-          accessibilityLabel={t.coming ? `${t.title} — coming soon` : `Open ${t.title}`}
+          accessibilityLabel={t.coming ? `${t.title}, coming soon` : `Open ${t.title}`}
         >
           {t.Icon
             ? <t.Icon size={24} color={colors.navy} strokeWidth={1.8} />
@@ -117,7 +121,7 @@ function BoardTileGrid({ tiles, onPress }) {
           <Text style={styles.tileLabel} numberOfLines={2}>{t.title}</Text>
           {t.coming && (
             <View style={styles.tileComingPill}>
-              <Text style={styles.tileComingText}>Coming Soon</Text>
+              <Text style={styles.tileComingText}>Coming soon</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -243,7 +247,7 @@ export default function CampusConnectScreen({ navigation }) {
 
   // ── Mood Pulse (moved here from Home, 2026-11-09) ───────────────────────
   // Distinct from CampusPulseCard above — this is the mood-distribution bar
-  // (aggregated from Thread posts' mood tags), not the weekly prompt
+  // (aggregated from Take posts' mood tags), not the weekly prompt
   // module. Fixed to the default window rather than its own filter chips;
   // the Today/Week/Month/Year toggle still lives on Home where it also
   // drives the Buzzing highlight.
@@ -321,7 +325,7 @@ export default function CampusConnectScreen({ navigation }) {
           {/* ── Campus Mood — the mood-distribution bar (see FeedKit's
               MoodPulse) moved here from Home. Different from Campus Pulse
               above: that's a weekly prompt + replies, this is a read-only
-              aggregate of mood tags across Thread posts. */}
+              aggregate of mood tags across Take posts. */}
           <View style={{ marginBottom: spacing.md }}>
             <MoodPulse pulse={moodPulse} title="Campus Mood" />
           </View>

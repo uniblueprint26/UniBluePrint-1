@@ -15,9 +15,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { fonts, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { useComingSoonEnabled } from '../../constants/comingSoon'
 
 export default function FeatureCard({ feature, dark = false, onPress }) {
   const { colors } = useTheme()
+  const comingSoonOn = useComingSoonEnabled()
+  // A coming soon card is hidden while app_flags.coming_soon_tiles is off.
+  if (feature.coming && !comingSoonOn) return null
   const cardBg    = dark ? 'rgba(245,240,232,0.08)' : colors.surface
   const labelClr  = dark ? 'rgba(245,240,232,0.5)'  : colors.muted
   const titleClr  = dark ? colors.cream              : colors.textPrimary
@@ -47,7 +51,7 @@ export default function FeatureCard({ feature, dark = false, onPress }) {
           <View style={s.meta}>
             {feature.coming ? (
               <View style={[s.comingSoonPill, { backgroundColor: pillBg }]}>
-                <Text style={[s.comingSoonText, { color: pillTx }]}>Coming Soon</Text>
+                <Text style={[s.comingSoonText, { color: pillTx }]}>Coming soon</Text>
               </View>
             ) : (
               <Text style={[s.count, { color: countClr }]}>{feature.count}</Text>

@@ -14,6 +14,7 @@ import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../hooks/useAppFlags'
 
 // "My Outputs" — a student's own submission history and completed
 // documents. A delivered row opens OutputDetailScreen for the generated
@@ -129,6 +130,7 @@ export default function MyOutputsScreen({ navigation }) {
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const safeGoBack = useSafeGoBack(navigation)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -191,7 +193,9 @@ export default function MyOutputsScreen({ navigation }) {
             <FileText size={36} color="rgba(30,58,95,0.2)" />
             <Text style={styles.emptyTitle}>Nothing here yet.</Text>
             <Text style={styles.emptySub}>
-              Order a CV, cover letter, or any other Foundation Blueprint service and it'll be tracked here from submission to delivery.
+              {orderingOpen
+                ? "Order a CV, cover letter, or any other Foundation Blueprint service and it'll be tracked here from submission to delivery."
+                : `${FOUNDATION_ORDERING_LINE}. You can start your answers now and they are saved as a draft.`}
             </Text>
             <Button
               label="Go to Foundation Blueprint"

@@ -10,6 +10,7 @@ import QuestionFlow from '../../components/forms/QuestionFlow'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
+import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 
 // Cover Letter Assistance intake — same skeleton as CvBuilderScreen /
 // LinkedinBuilderScreen (QuestionFlow + a cover_letters-shaped table +
@@ -139,9 +140,12 @@ export default function CoverLetterBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:cover_letter:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
+  const { enabled: orderingOpen } = useFoundationOrdering()
   const safeGoBack = useSafeGoBack(navigation)
 
-  if (IS_IOS) {
+  // iOS and Android never order in the app. While ordering is closed the builder
+  // opens for everyone, saves a draft and shows "Ordering opens in January".
+  if (IS_IOS && orderingOpen) {
     return <FoundationIOSNotice navigation={navigation} serviceTitle="Cover Letter Assistance" />
   }
 
@@ -221,6 +225,7 @@ export default function CoverLetterBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
+        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
       />
       <FoundationCheckoutModal ref={checkoutRef} />
     </>

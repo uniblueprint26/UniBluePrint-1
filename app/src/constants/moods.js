@@ -1,6 +1,5 @@
-// Mood words, shared by a Take's own mood (picked on the Mood Board in the
-// Composer) and a reaction's mood. "Mood Board" now names only that picker.
-// `id` is the value stored in Postgres (public.feed_mood
+// Mood words, shared by a Take's own mood (picked in the Composer)
+// and a reaction's mood. `id` is the value stored in Postgres (public.feed_mood
 // enum), so every id here must exist in that enum
 // (supabase/migrations/20261118120000_feed_moods.sql).
 //
@@ -111,7 +110,7 @@ export function moodDef(id) {
 // words. Default ON, as asked.
 export const NEW_MOODS_ENABLED = true
 
-// What the Composer's Mood Board picker offers.
+// What the Composer's mood picker (the Mood Board) offers.
 export const COMPOSER_MOODS = (NEW_MOODS_ENABLED ? MOOD_LIST : MOODS).filter(m => !m.hidden)
 
 // Six plain groups. The first one is open in the Composer, the rest sit under

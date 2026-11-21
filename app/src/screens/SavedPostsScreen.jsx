@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Share } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
-import { Bookmark } from 'lucide-react-native'
+import { Bookmark, WifiOff } from 'lucide-react-native'
+import EmptyState from '../components/ui/EmptyState'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -28,11 +29,14 @@ export default function SavedPostsScreen({ navigation }) {
   const [posts, setPosts] = useState([])
   const [myReactions, setMyReactions] = useState({})
   const [loading, setLoading] = useState(true)
+  // A failed load must not look like "No saved posts yet".
+  const [failed, setFailed] = useState(false)
 
   const load = useCallback(() => {
     if (!user?.id) { setLoading(false); return }
     let cancelled = false
     setLoading(true)
+    setFailed(false)
     fetchSavedPostsWithData(user.id)
       .then(async rows => {
         if (cancelled) return
@@ -40,7 +44,7 @@ export default function SavedPostsScreen({ navigation }) {
         const reactions = await fetchMyReactions(rows.map(p => p.id), user.id)
         if (!cancelled) setMyReactions(reactions)
       })
-      .catch(() => {})
+      .catch(() => { if (!cancelled) setFailed(true) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [user?.id])
@@ -112,7 +116,15 @@ export default function SavedPostsScreen({ navigation }) {
               onToggleSave={handleToggleSave}
             />
           )}
-          ListEmptyComponent={
+          ListEmptyComponent={failed ? (
+            <EmptyState
+              icon={WifiOff}
+              title="Could not load your saved posts"
+              subtitle="Check your connection and try again."
+              ctaLabel="Try again"
+              onCtaPress={() => load()}
+            />
+          ) : (
             <View style={styles.emptyWrap}>
               <Bookmark size={28} color={colors.light} strokeWidth={1.5} />
               <Text style={styles.emptyTitle}>No saved posts yet</Text>
@@ -120,7 +132,7 @@ export default function SavedPostsScreen({ navigation }) {
                 Tap the bookmark icon on any post in your feed to save it here.
               </Text>
             </View>
-          }
+          )}
           contentContainerStyle={{ paddingTop: 14, paddingBottom: 28 }}
           showsVerticalScrollIndicator={false}
         />
