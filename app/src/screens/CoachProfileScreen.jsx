@@ -430,7 +430,7 @@ function __gs_m(colors) {
 // as empty or broken. Kept as-is rather than rebuilt; see ElevationScreen's
 // COACHES for the underlying data every field below reads from.
 export default function CoachProfileScreen({ route, navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -593,7 +593,7 @@ export default function CoachProfileScreen({ route, navigation }) {
     )
   }
 
-  const purple = PILLARS.elevation.color
+  const purple = isDark ? '#B7A3F0' : PILLARS.elevation.color
   const pricelistRows = displayPricelist && displayPricelist.length > 0 && showPricing ? displayPricelist : null
   const hasServices = coach.services && coach.services.length > 0
   const hasPrices = !coach.shell && (!!pricelistRows || (coach.pricingNote && showPricing))
@@ -661,7 +661,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         {activeTab === 'about' && (
           <>
             {!!coach.tagline && (
-              <View style={styles.section}>
+              <View style={[styles.section, { marginTop: 20 }]}>
                 <Text style={[pb.tagline, { color: colors.textPrimary, borderLeftColor: purple }]}>{coach.tagline}</Text>
               </View>
             )}

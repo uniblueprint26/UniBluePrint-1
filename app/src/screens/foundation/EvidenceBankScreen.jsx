@@ -555,7 +555,7 @@ function getStyles(colors) {
 
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   categoryTile: {
-    width: '31.5%', minHeight: 92, borderRadius: 16, borderWidth: 1,
+    width: '30.5%', flexGrow: 1, minHeight: 92, borderRadius: 16, borderWidth: 1,
     alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6, paddingVertical: 12,
   },
   categorySeal: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },

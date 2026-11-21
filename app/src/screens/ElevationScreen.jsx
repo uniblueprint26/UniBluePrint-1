@@ -716,7 +716,8 @@ function GroupHeader({ label, count, first }) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ElevationScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
+  const elevAccent = isDark ? '#B7A3F0' : PILLARS.elevation.color
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -796,7 +797,7 @@ export default function ElevationScreen({ navigation }) {
       >
         <PageTitle
           title="Elevation"
-          right={<View style={styles.pillarMark}><PILLARS.elevation.Icon size={22} color={PILLARS.elevation.color} strokeWidth={1.8} /></View>}
+          right={<View style={[styles.pillarMark, { backgroundColor: elevAccent + '2E' }]}><PILLARS.elevation.Icon size={22} color={elevAccent} strokeWidth={1.8} /></View>}
         />
 
         <View style={styles.content}>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Mail, Check, UserCheck } from 'lucide-react-native'
 import { fonts, radius, spacing, shadows } from '../../constants/theme'
@@ -63,7 +63,7 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + 56, paddingBottom: insets.bottom + 20 }]}>
-      <View style={{ flex: 1, width: '100%' }}>
+      <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
         {phase === 'loading' ? (
           <View style={styles.loadingRing}>
             <Text style={styles.loadingLabel} numberOfLines={1}>
@@ -106,9 +106,23 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
               </View>
             </View>
             <Text style={styles.subBody}>No need to keep this screen open.</Text>
+            <View style={{ marginTop: 12 }}>
+      {phase === 'done' && (
+                <SharePrompt
+                  visible={!promptDismissed}
+                  prefill={{
+                    initialTab: 'thread',
+                    initialMood: 'delira',
+                    initialText: `Just submitted my ${serviceTitle || 'Foundation output'}`,
+                  }}
+                  onShare={(prefill) => navigation.navigate('Composer', prefill)}
+                  onDismiss={() => setPromptDismissed(true)}
+                />
+              )}
+            </View>
           </Animated.View>
         )}
-      </View>
+      </ScrollView>
 
       {phase === 'done' && (
         <View style={{ width: '100%' }}>
@@ -124,18 +138,6 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
         </View>
       )}
 
-      {phase === 'done' && (
-        <SharePrompt
-          visible={!promptDismissed}
-          prefill={{
-            initialTab: 'thread',
-            initialMood: 'delira',
-            initialText: `Just submitted my ${serviceTitle || 'Foundation output'}`,
-          }}
-          onShare={(prefill) => navigation.navigate('Composer', prefill)}
-          onDismiss={() => setPromptDismissed(true)}
-        />
-      )}
     </View>
   )
 }

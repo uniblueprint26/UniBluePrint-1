@@ -79,7 +79,8 @@ function isoDate(d) {
 }
 
 export default function CoachBookingScreen({ route, navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
+  const elevAccent = isDark ? '#B7A3F0' : PILLARS.elevation.color
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -258,7 +259,7 @@ export default function CoachBookingScreen({ route, navigation }) {
         <PageTitle title="Request sent" />
         <View style={styles.confirmWrap}>
           <View style={styles.confirmIconWrap}>
-            <CheckCircle2 size={48} color={PILLARS.elevation.color} strokeWidth={1.5} />
+            <CheckCircle2 size={48} color={elevAccent} strokeWidth={1.5} />
           </View>
           <Text style={styles.confirmTitle}>Booking request sent</Text>
           <Text style={styles.confirmBody}>
@@ -290,11 +291,11 @@ export default function CoachBookingScreen({ route, navigation }) {
         >
           <PageTitle title="Book a session" style={{ paddingHorizontal: 0 }} />
           <View style={styles.coachRow}>
-            <View style={[styles.coachAvatar, { borderWidth: 3, borderColor: PILLARS.elevation.color, backgroundColor: colors.surface, overflow: 'hidden' }]}>
+            <View style={[styles.coachAvatar, { borderWidth: 3, borderColor: elevAccent, backgroundColor: colors.surface, overflow: 'hidden' }]}>
               {coach.heroImage ? (
                 <Image source={typeof coach.heroImage === 'string' ? { uri: coach.heroImage } : coach.heroImage} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
               ) : (
-                <User size={22} color={PILLARS.elevation.color} />
+                <User size={22} color={elevAccent} />
               )}
             </View>
             <View style={{ flex: 1 }}>

@@ -118,6 +118,7 @@ function getSteps(colors) {
   },
   {
     key: 'has_no_experience',
+    summary: () => '',
     title: 'Do you have any work experience yet?',
     subtitle: 'No experience? That’s completely fine, we build a different, equally strong CV structure for it.',
     render: (value, onChange) => <YesNoToggle value={value === null ? null : !value} onChange={v => onChange(!v)} yesLabel="Yes, I do" noLabel="Not yet" />,
@@ -125,12 +126,15 @@ function getSteps(colors) {
   },
   {
     key: 'years_experience_band',
+    reviewLabel: 'Experience',
+    summary: v => (YEARS_BANDS.find(b => b.value === v.years_experience_band) || {}).label || (v.has_no_experience ? 'None yet' : ''),
     title: 'Roughly how much experience?',
     render: (value, onChange) => <ChoiceGrid options={YEARS_BANDS} value={value} onChange={onChange} />,
     validate: value => (value ? null : 'Please choose one.'),
   },
   {
     key: 'education',
+    summary: v => { const e = (v.education || [])[0] || {}; return [e.institution, e.degree].filter(Boolean).join(', ') },
     title: 'Your education',
     subtitle: 'Add every institution you’ve studied at, most recent first.',
     render: (value, onChange) => (
@@ -159,6 +163,7 @@ function getSteps(colors) {
   },
   {
     key: 'experience',
+    summary: v => { const e = (v.experience || [])[0] || {}; return v.has_no_experience ? '' : [e.job_title, e.company].filter(Boolean).join(' at ') },
     title: 'Your work experience',
     subtitle: 'Jobs, internships, placements, anything relevant.',
     optional: true,

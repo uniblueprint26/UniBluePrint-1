@@ -249,13 +249,13 @@ function __gs_styles(colors) {
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
   pillarMark: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
 
-  chipRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  chipRow: { flexDirection: 'row', gap: 6 },
   chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 999,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
   },
-  chipLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+  chipLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
 
   crisisStrip: {
     flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: spacing.lg,
@@ -275,7 +275,7 @@ function __gs_styles(colors) {
 
   partnerRail: { gap: 12, paddingRight: spacing.md },
   partnerCard: {
-    width: 168, borderRadius: radius.card, overflow: 'hidden',
+    width: 154, borderRadius: radius.card, overflow: 'hidden',
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
   },
   partnerCaption: { padding: 12, gap: 2 },
