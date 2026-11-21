@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import RepeatingList from '../../components/forms/RepeatingList'
 import EmptyState from '../../components/ui/EmptyState'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
@@ -38,7 +39,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_deadline', label: 'Deadline', title: 'When is the deadline?', kind: 'line', subtitle: 'So your Handler can plan the review time.', placeholder: 'e.g. 12 December' },
+  { key: 'x_org_knowledge', label: 'About the organisation', title: 'What do you know about the organisation?', kind: 'text', subtitle: 'Their values, recent news, why you chose them. Even a few notes help.' },
+  { key: 'x_top_strengths', label: 'Top strengths', title: 'What are the three things the reader must know about you?', kind: 'text', subtitle: 'The points you would be gutted to leave out.' },
+  { key: 'x_stories', label: 'Stories to use', title: 'Real examples you want used in your answers', kind: 'text', subtitle: 'Placements, projects, jobs, volunteering. Say what happened and what you did.', minHeight: 160 },
+  { key: 'x_limits', label: 'Word limits', title: 'Word or character limits for each question', kind: 'text', subtitle: 'Paste them if they are not already in your questions.' },
+  { key: 'x_leave_out', label: 'Leave out', title: 'Anything we should avoid?', kind: 'text', placeholder: 'Optional' },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   target_company: '', target_role: '',
   industry: '',
   questions: [EMPTY_QUESTION],
@@ -153,6 +165,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       industry: v.industry || null,
       unsure_about: v.unsure_about || null,
     }
@@ -245,7 +258,8 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="Application Form Assistance"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}

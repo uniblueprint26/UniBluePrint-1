@@ -26,6 +26,8 @@ The letter should ADD to the CV, not repeat it — pick the one or two things fr
 
 NO FORMAL WORK EXPERIENCE — if has_no_experience is true, the letter's architecture shifts, honestly: the HOOK leads with the genuine, specific connection between what this person has actually studied, built, or done and what this role needs — not a manufactured career narrative. The PROOF draws from academic projects, coursework, societies, volunteering, or part-time work, presented at full confidence as the real evidence it is. Never imply professional experience that doesn't exist, never dress a college project in workplace language it didn't have, and never apologise for the absence ("although I have not yet worked in..."). A first cover letter earns the interview on genuine specificity and demonstrated initiative, not on borrowed seniority.
 
+ADDITIONAL DETAIL: if additional_detail is provided, these are extra answers the person gave to detailed questions (the keys are the questions). Use them wherever they make the output more specific and more personal. Never invent anything beyond what they wrote.
+
 UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present (a gap, a career change, an unconventional path). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
 
 ${ANTI_HALLUCINATION_RULE}
@@ -86,6 +88,7 @@ Deno.serve(async (req: Request) => {
       ['Relevant experience', input.relevant_experience, LIMITS.LONG],
       ['Why this company', input.why_this_company, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Additional detail', JSON.stringify(input.extra_detail || ''), LIMITS.PASTE_DOC],
       // A fixed-option select in the UI, checked anyway since the UI isn't
       // the only way to call this function.
       ['Tone', input.tone, LIMITS.SHORT],
@@ -110,6 +113,7 @@ Deno.serve(async (req: Request) => {
       functionName: 'generate-cover-letter',
       system: `${SYSTEM_PROMPT}${mustHaveRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
+      additional_detail: input.extra_detail || null,
         target_role: targetRole,
         target_company: targetCompany,
         target_industry: industryCtx.industry,

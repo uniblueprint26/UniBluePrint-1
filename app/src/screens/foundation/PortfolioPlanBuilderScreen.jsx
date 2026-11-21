@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
@@ -28,7 +29,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_audience', label: 'Audience', title: 'Who will look at your portfolio?', kind: 'text', subtitle: 'Employers, clients, a college, followers. This changes what goes first.' },
+  { key: 'x_pieces', label: 'Work so far', title: 'List the pieces or projects you have so far', kind: 'text', subtitle: 'One line each is fine. Say which you are most proud of.', minHeight: 160 },
+  { key: 'x_tools', label: 'Tools', title: 'Tools and platforms you use', kind: 'line', subtitle: 'Separate them with commas.', placeholder: 'e.g. Figma, Premiere, GitHub, Canva' },
+  { key: 'x_time', label: 'Time', title: 'How much time can you give this each week?', kind: 'choice', options: [{ value: '1_2', label: '1 to 2 hours' }, { value: '3_5', label: '3 to 5 hours' }, { value: '6_plus', label: '6 hours or more' }] },
+  { key: 'x_inspiration', label: 'Portfolios you admire', title: 'Portfolios you admire and what you like about them', kind: 'text', subtitle: 'Links or names are fine.' },
+  { key: 'x_deadline', label: 'Deadline', title: 'Is there a deadline?', kind: 'line', subtitle: 'An application date, an interview or a launch.', placeholder: 'e.g. Before 15 January' },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   field: '',
   work_type: '',
   existing_presence: '',
@@ -103,6 +115,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       work_type: v.work_type,
       career_goal: v.career_goal || null,
       existing_presence: v.existing_presence || null,
@@ -160,7 +173,8 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="Portfolio Building"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}

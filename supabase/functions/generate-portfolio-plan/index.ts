@@ -48,6 +48,8 @@ STRUCTURE CHECKLIST: give a concrete, ordered checklist for what to build/includ
 
 NO PROFESSIONAL WORK YET: for a student or first-time job seeker, coursework projects, society work, hackathon builds, and personal projects ARE the portfolio — that's the normal starting point, not a compromise. Plan around presenting that work at its best (clean write-ups, honest framing of what was a college project) rather than suggesting they wait until they have "real" work. If they genuinely have very few pieces, the checklist's first items should be about creating one or two small, real, finishable pieces — never about presenting thin work as more than it is.
 
+ADDITIONAL DETAIL: if additional_detail is provided, these are extra answers the person gave to detailed questions (the keys are the questions). Use them wherever they make the output more specific and more personal. Never invent anything beyond what they wrote.
+
 UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure about (whether they have enough to show, how to present a weak or unfinished piece, something else). Do your best with it, but always add a handler_notes entry naming it so the reviewing Coach double-checks that specific area — never silently guess past it.
 
 ${ANTI_HALLUCINATION_RULE}
@@ -100,6 +102,7 @@ Deno.serve(async (req: Request) => {
       ['Existing presence', input.existing_presence, LIMITS.MEDIUM],
       ['Work type', input.work_type, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Additional detail', JSON.stringify(input.extra_detail || ''), LIMITS.PASTE_DOC],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
@@ -117,6 +120,7 @@ Deno.serve(async (req: Request) => {
       functionName: 'generate-portfolio-plan',
       system: `${SYSTEM_PROMPT}${portfolioRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
+      additional_detail: input.extra_detail || null,
         field, resolved_industry: industryCtx.industry,
         work_type: input.work_type, career_goal: careerGoal, existing_presence: input.existing_presence,
         unsure_about: input.unsure_about || null,

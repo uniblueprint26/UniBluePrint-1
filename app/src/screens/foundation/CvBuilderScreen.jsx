@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import RepeatingList from '../../components/forms/RepeatingList'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, TagInput, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
@@ -61,7 +62,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_summary', label: 'Summary', title: 'How would you describe yourself professionally?', kind: 'text', subtitle: 'Two or three sentences in your own words. We use this to write your profile at the top of the CV.', placeholder: 'e.g. Final year marketing student who has run two society campaigns and enjoys turning numbers into stories.' },
+  { key: 'x_projects', label: 'Projects', title: 'Any projects or coursework you are proud of?', kind: 'text', subtitle: 'A final year project, a build, a campaign, a portfolio piece. Say what it was and what happened.' },
+  { key: 'x_volunteering', label: 'Societies and volunteering', title: 'Societies, volunteering, sport or leadership?', kind: 'text', subtitle: 'Include your role and roughly how long. Employers read these as evidence of how you work with people.' },
+  { key: 'x_certifications', label: 'Certifications', title: 'Certifications, licences or short courses?', kind: 'text', subtitle: 'For example Safe Pass, First Aid, a driving licence, a trade certificate or an online course.' },
+  { key: 'x_references', label: 'References', title: 'How should we handle references?', kind: 'choice', options: [{ value: 'on_request', label: 'Available on request' }, { value: 'list', label: 'List my referees' }, { value: 'leave_out', label: 'Leave them out' }] },
+  { key: 'x_leave_out', label: 'Leave out', title: 'Anything we should leave out?', kind: 'text', subtitle: 'A job you do not want shown, an old grade, a gap you would rather not highlight.', placeholder: 'Optional' },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   personal_full_name: '', personal_email: '', personal_phone: '', personal_location: '',
   personal_linkedin: '', personal_portfolio: '',
   has_no_experience: null,
@@ -293,6 +305,7 @@ export default function CvBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       personal_info: {
         full_name: v.personal_full_name,
         email: v.personal_email,
@@ -381,7 +394,8 @@ export default function CvBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="CV Optimisation"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}

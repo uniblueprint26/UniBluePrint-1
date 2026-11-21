@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
@@ -35,7 +36,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_date', label: 'Interview date', title: 'When is the interview?', kind: 'line', subtitle: 'So the prep can be paced to the time you have.', placeholder: 'e.g. Thursday 4 December, 10am' },
+  { key: 'x_company_known', label: 'About the employer', title: 'What do you already know about the organisation?', kind: 'text', subtitle: 'Products, values, news, people you have spoken to.' },
+  { key: 'x_panel', label: 'Who is interviewing', title: 'Who will interview you and how long will it be?', kind: 'text', subtitle: 'A panel, a manager, an assessor. Any detail you have been given.' },
+  { key: 'x_stories', label: 'Stories you could use', title: 'Examples from work, study or life you could talk about', kind: 'text', subtitle: 'A time you led, solved a problem, failed or worked under pressure.', minHeight: 160 },
+  { key: 'x_worries', label: 'What worries you', title: 'What worries you most about this interview?', kind: 'text', subtitle: 'Nerves, a gap on your CV, a topic you find hard. We will prepare for it directly.' },
+  { key: 'x_experience_level', label: 'Interview experience', title: 'How many interviews have you done?', kind: 'choice', options: [{ value: 'none', label: 'None yet' }, { value: 'few', label: 'One to three' }, { value: 'many', label: 'Four or more' }] },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   target_role: '', target_company: '', industry: '',
   interview_type: 'blended',
   background_summary: '',
@@ -108,6 +120,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       industry: v.industry || null,
       background_summary: v.background_summary || null,
       unsure_about: v.unsure_about || null,
@@ -170,7 +183,8 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="Interview Preparation"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}

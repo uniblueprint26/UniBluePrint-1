@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
@@ -35,7 +36,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_why_role', label: 'Why this role', title: 'Why does this role appeal to you?', kind: 'text', subtitle: 'What drew you to it, beyond the job title. Be honest. We turn it into a clear reason.' },
+  { key: 'x_proof_story', label: 'Proof story', title: 'Tell us about one time you did something that fits this job', kind: 'text', subtitle: 'What the situation was, what you did and what changed. Numbers help if you have them.' },
+  { key: 'x_address_to', label: 'Addressed to', title: 'Who should the letter be addressed to?', kind: 'line', subtitle: 'A name and job title if you know them. Otherwise say Hiring Manager.', placeholder: 'e.g. Ms Byrne, Talent Lead' },
+  { key: 'x_start_date', label: 'Start date', title: 'When could you start?', kind: 'line', subtitle: 'A date, a notice period or a term break.', placeholder: 'e.g. From 1 June, or one month notice' },
+  { key: 'x_letter_length', label: 'Letter length', title: 'How long should the letter be?', kind: 'choice', options: [{ value: 'short', label: 'Short, about 200 words' }, { value: 'standard', label: 'Standard, about 300 words' }, { value: 'full', label: 'Full page' }] },
+  { key: 'x_leave_out', label: 'Leave out', title: 'Anything we should leave out or avoid saying?', kind: 'text', placeholder: 'Optional' },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   target_role: '', target_company: '', target_industry: '',
   job_description: '',
   has_no_experience: null,
@@ -157,6 +169,7 @@ export default function CoverLetterBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       industry: v.target_industry || null,
       relevant_experience: v.relevant_experience,
       background_summary: v.background_summary || null,
@@ -218,7 +231,8 @@ export default function CoverLetterBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="Cover Letter Assistance"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}

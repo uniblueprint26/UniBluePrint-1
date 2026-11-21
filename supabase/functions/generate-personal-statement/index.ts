@@ -113,6 +113,7 @@ Deno.serve(async (req: Request) => {
       functionName: 'generate-personal-statement',
       system: `${SYSTEM_PROMPT_BASE}\n\n${pathwayPrompt}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
+      additional_detail: input.extra_detail || null,
         pathway: doc.pathway,
         target_course: targetCourse,
         target_institution: targetInstitution,

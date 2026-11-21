@@ -94,6 +94,8 @@ ${NON_TRADITIONAL_EVIDENCE_RULE}
 
 HANDLER MOCK RUBRIC: produce a three-criterion scoring rubric (First impression / Poise & delivery / Content) for the Handler to use in a live mock session, mirroring how university career-services offices actually score mock interviews — 1/3/5 scale per criterion, with a one-line description of what's assessed.
 
+ADDITIONAL DETAIL: if additional_detail is provided, these are extra answers the person gave to detailed questions (the keys are the questions). Use them wherever they make the output more specific and more personal. Never invent anything beyond what they wrote.
+
 UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure about for this interview (a format they've never done, a weak area, a gap they don't know how to field). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
 
 ${realExamplesRule('real, published, sourced STAR answers from university career services. Only the candidate\'s own evidence bank stories may be used as the substance of a model answer')}
@@ -160,6 +162,7 @@ Deno.serve(async (req: Request) => {
       ['Industry', input.industry, LIMITS.SHORT],
       ['Background summary', input.background_summary, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Additional detail', JSON.stringify(input.extra_detail || ''), LIMITS.PASTE_DOC],
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
 
@@ -188,6 +191,7 @@ Deno.serve(async (req: Request) => {
       functionName: 'generate-interview-prep',
       system: `${SYSTEM_PROMPT}${formatRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
+      additional_detail: input.extra_detail || null,
         target_company: targetCompany,
         target_role: targetRole,
         resolved_industry: industryCtx.industry,

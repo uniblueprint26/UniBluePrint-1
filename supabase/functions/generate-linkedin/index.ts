@@ -33,6 +33,8 @@ EXPERIENCE REWRITES: for each role given, rewrite the description with impact la
 
 NO FORMAL WORK EXPERIENCE — if has_no_experience is true, the About section and Education/Projects carry the profile, and that is a legitimate, recruiter-recognised shape for a student profile — not a deficient one. The HEADLINE leads honestly with who they are and where they're headed ("Final-year Computer Science student at UCD | ...") — a real student headline outperforms a manufactured professional one, and recruiters searching for graduate talent search for exactly these terms. Return experience_rewrites as an empty array rather than inventing roles. FEATURED SECTION ideas should draw from coursework projects, society work, or anything real they've built. Never pad the profile to look more senior than it is.
 
+ADDITIONAL DETAIL: if additional_detail is provided, these are extra answers the person gave to detailed questions (the keys are the questions). Use them wherever they make the output more specific and more personal. Never invent anything beyond what they wrote.
+
 UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present (a gap, a career change, an unconventional path). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
 
 ${NON_TRADITIONAL_EVIDENCE_RULE}
@@ -98,6 +100,7 @@ Deno.serve(async (req: Request) => {
       ['Notable achievements', input.notable_achievements, LIMITS.LONG],
       ['Experience', input.experience, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Additional detail', JSON.stringify(input.extra_detail || ''), LIMITS.PASTE_DOC],
       // A fixed-option select in the UI, checked anyway since the UI isn't
       // the only way to call this function.
       ['Tone', input.tone, LIMITS.SHORT],
@@ -134,6 +137,7 @@ Deno.serve(async (req: Request) => {
       functionName: 'generate-linkedin',
       system: `${SYSTEM_PROMPT}${searchRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
+      additional_detail: input.extra_detail || null,
         target_industry: industryCtx.industry,
         target_role: targetRole,
         current_status: input.current_status,

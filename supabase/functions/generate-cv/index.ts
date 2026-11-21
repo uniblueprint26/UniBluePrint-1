@@ -35,6 +35,8 @@ EXPERIENCE LEVEL — years_experience_band (none / under_1 / 1_2 / 3_5 / 5_plus)
 
 ACHIEVEMENTS — achievements_highlight is the person's own free-text answer to "what do you most want us to highlight?". achievements_structured, when present instead, is an older categorised breakdown (societies / volunteering / projects / publications / other) from a different intake path. Use whichever one is actually provided as the source for the Achievements section — never invent an achievement neither one mentions.
 
+ADDITIONAL DETAIL: if additional_detail is provided, these are extra answers the person gave to detailed questions (the keys are the questions). Use them wherever they make the output more specific and more personal. Never invent anything beyond what they wrote.
+
 UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present. Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
 
 ${NON_TRADITIONAL_EVIDENCE_RULE}
@@ -151,6 +153,7 @@ Deno.serve(async (req: Request) => {
       ['Type of opportunity', input.opportunity_type, LIMITS.SHORT],
       ['What to highlight', input.achievements_highlight, LIMITS.LONG],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Additional detail', JSON.stringify(input.extra_detail || ''), LIMITS.PASTE_DOC],
       ['Your existing CV', input.existing_cv_text, LIMITS.PASTE_DOC],
       // tone/length/style are fixed-option selects in the UI and can't
       // realistically exceed this, but the UI is not the only way to call
@@ -176,6 +179,7 @@ Deno.serve(async (req: Request) => {
     const intelligence = industryCtx.intelligence
 
     const userContent = JSON.stringify({
+      additional_detail: input.extra_detail || null,
       personal_info: input.personal_info,
       target: {
         industry: industryCtx.industry,

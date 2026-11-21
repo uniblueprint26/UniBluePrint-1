@@ -47,6 +47,8 @@ ${NON_TRADITIONAL_EVIDENCE_RULE} A story from a society committee, a group cours
 
 ${realExamplesRule('real, published, sourced STAR answers from university career services — note especially how the Action section carries the weight and how Result closes the loop. These are NOT the candidate\'s stories')}
 
+ADDITIONAL DETAIL: if additional_detail is provided, these are extra answers the person gave to detailed questions (the keys are the questions). Use them wherever they make the output more specific and more personal. Never invent anything beyond what they wrote.
+
 UNCERTAINTY FLAG — if unsure_about is provided, the person told us themselves what they're unsure how to present on this particular form (a gap, a weak-fit story, a question they don't know how to angle). Do your best with it, but always add a handler_notes entry naming it so the reviewing Handler double-checks that specific area — never silently guess past it.
 
 ${ANTI_GENERIC_RULE}`
@@ -102,6 +104,7 @@ Deno.serve(async (req: Request) => {
       ['Target role', targetRole, LIMITS.SHORT],
       ['Industry', input.industry, LIMITS.SHORT],
       ["What you're unsure about", input.unsure_about, LIMITS.LONG],
+      ['Additional detail', JSON.stringify(input.extra_detail || ''), LIMITS.PASTE_DOC],
       ...answerable.map((q, i) => [`Question ${i + 1}`, q.question_text, LIMITS.LONG] as [string, unknown, number]),
     ])
     if (lengthError) return jsonResponse({ error: lengthError }, 422)
@@ -133,6 +136,7 @@ Deno.serve(async (req: Request) => {
       functionName: 'generate-application-answers',
       system: `${SYSTEM_PROMPT}${frameworkRule}\n\n${industryCtx.promptBlock}`,
       userContent: JSON.stringify({
+      additional_detail: input.extra_detail || null,
         target_company: targetCompany,
         target_role: targetRole,
         resolved_industry: industryCtx.industry,

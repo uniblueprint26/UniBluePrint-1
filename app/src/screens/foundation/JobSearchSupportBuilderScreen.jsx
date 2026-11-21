@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FormTextInput, FormTextArea, ChoiceGrid, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
@@ -62,7 +63,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_dream_employers', label: 'Employers you like', title: 'Which employers would you love to work for?', kind: 'text', subtitle: 'Name as many as you like. We use them to shape your search.' },
+  { key: 'x_must_haves', label: 'Must haves', title: 'What must the job have?', kind: 'text', subtitle: 'Pay range, hours, commute, remote or hybrid, training, a team you would enjoy.' },
+  { key: 'x_constraints', label: 'Constraints', title: 'Anything that limits your search?', kind: 'text', subtitle: 'Work permission, transport, caring duties, availability or health. Share only what you are comfortable with.' },
+  { key: 'x_strengths', label: 'Strengths', title: 'What are your strongest points as a candidate?', kind: 'text', placeholder: 'Optional' },
+  { key: 'x_dealbreakers', label: 'Deal breakers', title: 'What would make you say no to a role?', kind: 'text', placeholder: 'Optional' },
+  { key: 'x_hours', label: 'Time per week', title: 'How much time can you put into your search each week?', kind: 'choice', options: [{ value: '1_3', label: '1 to 3 hours' }, { value: '4_8', label: '4 to 8 hours' }, { value: '9_plus', label: '9 hours or more' }] },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   field_or_industry: '',
   non_university_type: null,
   has_no_experience: null,
@@ -192,6 +204,7 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       field_or_industry: v.field_or_industry,
       opportunity_type: v.opportunity_type,
       non_university_type: v.non_university_type || null,
@@ -259,7 +272,8 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="Job Search Support"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
