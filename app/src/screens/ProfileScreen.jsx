@@ -101,6 +101,7 @@ const ACCOUNT_LINKS = [
   { Icon: Bell,     label: 'Notifications',   sub: 'Push alerts and in-app reminders',  action: 'notifications' },
   { Icon: Palette,  label: 'Appearance',      sub: null,                                action: 'appearance' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
+  { Icon: Users,    label: 'For parents',      sub: 'What UniBlueprint is, for a parent or guardian', screen: 'ParentInfo' },
   { Icon: Lock,     label: 'Privacy and Data', sub: 'Your data rights and requests',    screen: 'PrivacyData' },
   { Icon: LifeBuoy, label: 'Help and Support', sub: 'Get help from the team',            screen: 'Help' },
 ]

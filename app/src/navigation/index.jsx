@@ -121,6 +121,7 @@ import PricingScreen     from '../screens/PricingScreen'
 import FAQsScreen        from '../screens/FAQsScreen'
 import HelpScreen        from '../screens/HelpScreen'
 import PrivacyDataScreen from '../screens/PrivacyDataScreen'
+import ParentInfoScreen from '../screens/ParentInfoScreen'
 
 // Auth screens
 import WelcomeScreen        from '../screens/auth/WelcomeScreen'
@@ -298,6 +299,7 @@ function ProfileStack() {
       <Stack.Screen name="FAQs"         component={FAQsScreen}        />
       <Stack.Screen name="Help"         component={HelpScreen}        />
       <Stack.Screen name="PrivacyData"  component={PrivacyDataScreen} />
+      <Stack.Screen name="ParentInfo"   component={ParentInfoScreen}  />
       <Stack.Screen name="BlueprintTour" options={{ gestureEnabled: false }}>
         {({ navigation }) => {
           const safeGoBack = useSafeGoBack(navigation)

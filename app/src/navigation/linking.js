@@ -73,6 +73,7 @@ export const linking = {
               About:       'about',
               Pricing:     'pricing',
               PrivacyData: 'privacy',
+              ParentInfo:  'for-parents',
               BlueprintTour: 'tour',
             },
           },

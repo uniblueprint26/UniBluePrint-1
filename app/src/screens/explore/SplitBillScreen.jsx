@@ -19,6 +19,7 @@ import { fonts } from '../../constants/theme'
 const GOLD = '#B4923A'
 const GOLD_DARK = '#D4B766'
 const CADENCES = [['weekly', 'Every week'], ['monthly', 'Every month'], ['yearly', 'Every year']]
+const CADENCE_SHORT = { weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' }
 
 export const money = c => `€${((c || 0) / 100).toFixed(2)}`
 
@@ -362,7 +363,7 @@ function SplitRow({ split, me, gold, nameOf, onPress }) {
   const x = summarise(split, me)
   const n = (split.bill_split_members || []).length
   const paidLine = split.paid_by === me ? 'You paid' : `${nameOf(split.paid_by)} paid`
-  const cad = split.kind === 'subscription' ? CADENCES.find(c => c[0] === split.cadence)?.[1] : null
+  const cad = split.kind === 'subscription' ? CADENCE_SHORT[split.cadence] : null
   let pill
   if (split.paid_by === me) {
     pill = x.allSettled ? 'Settled' : `${x.others.length - x.open.length} of ${x.others.length} settled`
@@ -421,7 +422,7 @@ function Detail({ split, me, gold, busy, error, nameOf, personOf, onSettle, onRe
             <Avatar person={personOf(m.user_id)} size={40} />
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={[s.rowTitle, { color: colors.textPrimary }]} numberOfLines={2}>{line}</Text>
-              <Text style={[s.rowSub, { color: colors.textSecondary }]}>{isPayer ? 'Paid the bill' : m.settled ? 'Settled' : 'Not settled'}</Text>
+              <Text style={[s.rowSub, { color: colors.textSecondary }]}>{isPayer ? 'Paid the bill, own share' : m.settled ? 'Settled' : 'Not settled'}</Text>
             </View>
             <View style={{ alignItems: 'flex-end', gap: 6 }}>
               <Text style={[s.rowAmt, { color: gold }]}>{money(m.share_cents)}</Text>
