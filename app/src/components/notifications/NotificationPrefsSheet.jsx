@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TouchableOpacity, Modal, Pressable, Switch, ScrollView, StyleSheet, Alert, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, Modal, Pressable, Switch, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { Minus, Plus } from 'lucide-react-native'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
@@ -19,6 +19,7 @@ export default function NotificationPrefsSheet({ visible, onClose, userId, prefs
   const { colors } = useTheme()
   const s = getStyles(colors)
   const [note, setNote] = useState('')
+  const { height } = useWindowDimensions()
 
   async function setNudges(on) {
     const next = { ...prefs, budget_nudges: on }
@@ -50,7 +51,7 @@ export default function NotificationPrefsSheet({ visible, onClose, userId, prefs
           <Text style={s.title}>Notification choices</Text>
           <Text style={s.hint}>You choose what reaches you. Change it any time.</Text>
 
-          <ScrollView style={{ maxHeight: 520 }} showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ maxHeight: Math.max(320, height - 260) }} showsVerticalScrollIndicator={false}>
             <View style={s.card}>
               {GROUPS.map((g, i) => (
                 <View key={g.key} style={[s.row, i > 0 && s.rowBorder]}>

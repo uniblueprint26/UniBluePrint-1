@@ -695,35 +695,21 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
   }
 }
 
-// ── Page wrapper: a real page turn ─────────────────────────────────────────
-// Every page is pinned to the same spot (translateX cancels the scroll), with
-// page 1 on top. As you swipe, the top page hinges on its left edge like a
-// page in a book, swings away and fades, and the page beneath is already
-// there, lit up as the shadow of the turning page slides off it. The cover
+// ── Page wrapper: a page turn ───────────────────────────────────────────────
+// As you swipe, the page you are leaving hinges on its left edge (the spine)
+// and swings toward you while it slides away and darkens, and the page coming
+// in is first in the shadow of the turning one, then lights up. The cover
 // turns the same way, so opening the issue feels like opening a book.
 
-function MagazinePage({ page, index, count, active, scrollX, navigation, onJump, onOpenPost, data, isPro }) {
+function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpenPost, data, isPro }) {
   const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
-  const pin = Animated.subtract(scrollX, index * SCREEN_W)
-  // progress: below 0 the page is waiting underneath, 0 to 1 it is turning.
-  const p = [-1, 0, 0.7, 1]
-  const rotateY = scrollX.interpolate({
-    inputRange: [(index - 1) * SCREEN_W, index * SCREEN_W, (index + 1) * SCREEN_W],
-    outputRange: ['0deg', '0deg', '-105deg'], extrapolate: 'clamp',
-  })
-  const opacity = scrollX.interpolate({
-    inputRange: p.map(v => (index + v) * SCREEN_W),
-    outputRange: [0, 1, 1, 0], extrapolate: 'clamp',
-  })
-  const shade = scrollX.interpolate({
-    inputRange: [(index - 1) * SCREEN_W, (index - 0.5) * SCREEN_W, index * SCREEN_W],
-    outputRange: [0, 0.28, 0], extrapolate: 'clamp',
-  })
-  const edge = scrollX.interpolate({
-    inputRange: [index * SCREEN_W, (index + 0.5) * SCREEN_W],
-    outputRange: [0, 0.35], extrapolate: 'clamp',
-  })
+  const W = SCREEN_W
+  const range = [(index - 1) * W, index * W, (index + 1) * W]
+  const rotateY = scrollX.interpolate({ inputRange: range, outputRange: ['0deg', '0deg', '-62deg'], extrapolate: 'clamp' })
+  const opacity = scrollX.interpolate({ inputRange: range, outputRange: [0.9, 1, 0.5], extrapolate: 'clamp' })
+  const inShadow = scrollX.interpolate({ inputRange: range, outputRange: [0.32, 0, 0], extrapolate: 'clamp' })
+  const outShade = scrollX.interpolate({ inputRange: range, outputRange: [0, 0, 0.4], extrapolate: 'clamp' })
 
   return (
     <Animated.View
@@ -731,20 +717,16 @@ function MagazinePage({ page, index, count, active, scrollX, navigation, onJump,
       style={[
         styles.page,
         {
-          position: 'absolute', left: 0, top: 0, bottom: 0,
-          zIndex: count - index,
           backgroundColor: colors.background,
           transformOrigin: 'left center',
-          transform: [{ translateX: pin }, { perspective: 1100 }, { rotateY }],
+          transform: [{ perspective: 1000 }, { rotateY }],
           opacity,
         },
       ]}
     >
       <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
-      {/* The shadow of the page turning above this one. */}
-      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: shade }]} />
-      {/* The page darkens as it swings away from the light. */}
-      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: edge }]} />
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: inShadow }]} />
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: outShade }]} />
       {/* The fold at the spine. */}
       <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
     </Animated.View>
@@ -958,13 +940,11 @@ export default function WeeklyBlueprintScreen({ navigation }) {
               { useNativeDriver: true, listener: e => setPageIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W)) },
             )}
           >
-            <View style={{ width: SCREEN_W * PAGES.length, height: '100%' }}>
             {PAGES.map((page, i) => (
               <MagazinePage
                 key={i}
                 page={page}
                 index={i}
-                count={PAGES.length}
                 active={i === pageIndex}
                 scrollX={scrollX}
                 navigation={navigation}
@@ -974,7 +954,6 @@ export default function WeeklyBlueprintScreen({ navigation }) {
                 isPro={isPro}
               />
             ))}
-            </View>
           </Animated.ScrollView>
 
           <View style={[styles.pagerControls, { paddingBottom: insets.bottom + 12 }]}>

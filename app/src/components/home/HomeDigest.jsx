@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native'
-import { ChevronDown, ChevronUp, SlidersHorizontal, Target } from 'lucide-react-native'
+import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react-native'
 import { fonts, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -90,7 +90,7 @@ export default function HomeDigest({ eyebrow, title, stats = [], nextUpLabel, on
                       <Text style={s.cellLabel} numberOfLines={1}>{stat.label}</Text>
                     </View>
                     <Text style={s.cellValue} numberOfLines={1}>{stat.value}</Text>
-                    {!!stat.caption && <Text style={s.cellCaption} numberOfLines={1}>{stat.caption}</Text>}
+                    {!!stat.caption && <Text style={s.cellCaption} numberOfLines={2}>{stat.caption}</Text>}
                   </>
                 )
                 return stat.onPress ? (
@@ -107,18 +107,16 @@ export default function HomeDigest({ eyebrow, title, stats = [], nextUpLabel, on
             </View>
           ))}
 
-          <View style={s.goalsHead}>
-            <Target size={16} color={colors.textPrimary} strokeWidth={1.9} />
-            <Text style={s.goalsTitle}>Your goals</Text>
-            {!!onEditHome && (
+          {!!onEditHome && (
+            <View style={s.goalsHead}>
+              <Text style={s.goalsHint}>Your goals and reminders live here too.</Text>
               <TouchableOpacity style={s.editBtn} onPress={onEditHome} activeOpacity={0.7} hitSlop={8}
                 accessibilityRole="button" accessibilityLabel="Edit Home">
                 <SlidersHorizontal size={14} color={colors.textPrimary} strokeWidth={1.9} />
                 <Text style={s.editText}>Edit Home</Text>
               </TouchableOpacity>
-            )}
-          </View>
-          <Text style={s.goalsHint}>Add a goal, and choose if and how often we remind you.</Text>
+            </View>
+          )}
           <View style={s.goalsBody}>{children}</View>
         </View>
       )}
@@ -155,7 +153,7 @@ function getStyles(colors, isDark) {
     cellValue: { fontFamily: fonts.serif, fontSize: 21, color: colors.textPrimary },
     cellCaption: { fontFamily: fonts.sans, fontSize: 11, color: colors.textSecondary, marginTop: 3 },
     goalsHead: {
-      flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingTop: 20,
+      flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14,
       borderTopWidth: 1, borderTopColor: colors.divider,
     },
     goalsTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.textPrimary, flex: 1 },
@@ -164,7 +162,7 @@ function getStyles(colors, isDark) {
       borderWidth: 1, borderColor: colors.border,
     },
     editText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
-    goalsHint: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, color: colors.textSecondary, paddingHorizontal: 16, marginTop: 6 },
+    goalsHint: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, color: colors.textSecondary, flex: 1 },
     goalsBody: { paddingBottom: 18, paddingTop: 4 },
   })
 }
