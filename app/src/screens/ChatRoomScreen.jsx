@@ -147,7 +147,7 @@ export default function ChatRoomScreen({ navigation, route }) {
 
     Alert.alert(
       'Block this user?',
-      `You won't see messages from ${otherName || 'this person'} again, and in a direct chat they won't be able to message you. This doesn't remove them from a shared group chat — use Report for that instead.`,
+      `You won't see messages from ${otherName || 'this person'} again, and in a direct chat they won't be able to message you. This doesn't remove them from a shared group chat, use Report for that instead.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {

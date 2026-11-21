@@ -77,9 +77,9 @@ export const COACHES = [
   {
     id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
     location: 'Dublin, Ireland, Available Nationwide', from: 'Available on request',
-    tagline: 'From under 400 points to 500+ — proven study strategy.',
+    tagline: 'From under 400 points to 500+, proven study strategy.',
     services: ['Leaving Cert Maths', 'Leaving Cert Biology', 'Leaving Cert Physics'],
-    bio: "Hi, I'm Emmanuel, a UCD student who transformed my own Leaving Cert performance — taking my points from under 400 to 500+ in just a few months. Now I help students do the same, specialising in Leaving Cert Maths, Biology, and Physics, combining proven study strategies, smarter revision techniques, and exam-focused approaches to help students understand the material, maximise their marks, and make significant grade improvements. I'm not here to just teach you what's in the textbook — I'm here to show you how to study smarter, approach questions strategically, and perform when it matters most. If you're aiming for 500+, I'll help you build the structure, confidence, and exam technique to give yourself the best possible shot at getting there.",
+    bio: "Hi, I'm Emmanuel, a UCD student who transformed my own Leaving Cert performance, taking my points from under 400 to 500+ in just a few months. Now I help students do the same, specialising in Leaving Cert Maths, Biology, and Physics, combining proven study strategies, smarter revision techniques, and exam-focused approaches to help students understand the material, maximise their marks, and make significant grade improvements. I'm not here to just teach you what's in the textbook, I'm here to show you how to study smarter, approach questions strategically, and perform when it matters most. If you're aiming for 500+, I'll help you build the structure, confidence, and exam technique to give yourself the best possible shot at getting there.",
   },
 
   // ── Sports ──
@@ -114,7 +114,7 @@ export const COACHES = [
     title: 'Chartered Accountant · Founder, Soft Life Investing',
     tagline: 'Personal finance without the finance bro jargon.',
     services: ['1:1 Personal Finance Coaching', 'Budgeting & Saving', 'Getting Started with Investing', 'Irish Investing Tax Rules (Deemed Disposal, Exit Tax, DIRT)'],
-    bio: "I'm a chartered accountant and founder of Soft Life Investing, helping thousands of first-generation wealth builders make sense of personal finance without the finance bro jargon — covering everything from budgeting basics to Irish-specific investing rules like deemed disposal, exit tax, and DIRT.",
+    bio: "I'm a chartered accountant and founder of Soft Life Investing, helping thousands of first-generation wealth builders make sense of personal finance without the finance bro jargon, covering everything from budgeting basics to Irish-specific investing rules like deemed disposal, exit tax, and DIRT.",
     sections: [
       {
         title: 'How Sessions Work',
@@ -122,10 +122,10 @@ export const COACHES = [
       },
       {
         title: 'Free Investing Guide',
-        body: 'A free beginner-friendly investing guide is available — ask about it when you book.',
+        body: 'A free beginner-friendly investing guide is available, ask about it when you book.',
       },
     ],
-    bookingNote: 'Reach out via Instagram to book — availability is flexible week to week rather than a fixed recurring slot.',
+    bookingNote: 'Reach out via Instagram to book, availability is flexible week to week rather than a fixed recurring slot.',
   },
 
   // ── Fitness ──
@@ -143,11 +143,11 @@ export const COACHES = [
     tagline: 'HEALTHY · WELLNESS · FITNESS',
     services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
     bio: "With over 10 years of experience in fitness, martial arts, and lifestyle coaching, I help people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. My focus areas include physique development, weight loss, muscle building, self-defence, confidence, lifestyle improvement, and pre-contest preparation, for both athletes and everyday people.",
-    quote: 'My goal is not just to motivate you for a few weeks, but to give you the knowledge, structure, and real reason to keep going, even when motivation is not there. When you know your WHY, you don\'t need motivation, you need DIRECTION — that\'s where I come in to help you.',
+    quote: 'My goal is not just to motivate you for a few weeks, but to give you the knowledge, structure, and real reason to keep going, even when motivation is not there. When you know your WHY, you don\'t need motivation, you need DIRECTION, that\'s where I come in to help you.',
     pricelist: [
-      { label: 'PT — 1x/week', price: '€220/month' },
-      { label: 'PT — 2x/week', price: '€370/month' },
-      { label: 'PT — Pay as you go', price: '€60/session' },
+      { label: 'PT, 1x/week', price: '€220/month' },
+      { label: 'PT, 2x/week', price: '€370/month' },
+      { label: 'PT, Pay as you go', price: '€60/session' },
       { label: 'Body Scan', price: '€70/session' },
       { label: 'Food Plan + e-book', price: '€120' },
       { label: 'Online Coach', price: '€320/month' },
@@ -179,7 +179,7 @@ export const COACHES = [
     location: 'Dublin, Available Nationwide', from: 'Available on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
-    bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process — online physique development coaching built around you.",
+    bio: "I'm a qualified personal trainer with 4 to 5 years of gym experience and several male and female client results to show for it. I teach efficient training and nutrition that fits into real life. I personally lost over 30kg and completed photoshoot prep myself, so I know exactly what the process takes. I'm a strong believer in building a healthy relationship with food alongside the physical side. My main goal is to help people regain confidence and build healthy, sustainable habits while enjoying the process, online physique development coaching built around you.",
     // Studio photoshoot set (Sept 2026 asset round). heroImage is the
     // designated Spotlight/card image; gallery is the full supplied set for
     // the profile's sliding photo gallery — see CoachProfileScreen.
@@ -320,7 +320,7 @@ export const COACHES = [
     location: 'Co. Mayo, Ireland, Available Nationwide', from: 'Available on request',
     tagline: 'Confidence. Strength. Sustainable change.',
     services: ['Online Fitness Coaching'],
-    bio: "I'm Luana, 21, a qualified fitness professional with a huge passion for training, health, and helping others become the best version of themselves. I completed my training with Image Fitness and have gained hands-on experience working with clients on the gym floor. Everyone is different, which is why I build an approach tailored to each individual's goals, lifestyle, and experience level. Training is a huge part of my own life too — I've personally gone through both bulking and cutting phases, and having experienced those stages myself helps me understand the highs, lows, challenges, and rewards that come with pursuing your own fitness goals.",
+    bio: "I'm Luana, 21, a qualified fitness professional with a huge passion for training, health, and helping others become the best version of themselves. I completed my training with Image Fitness and have gained hands-on experience working with clients on the gym floor. Everyone is different, which is why I build an approach tailored to each individual's goals, lifestyle, and experience level. Training is a huge part of my own life too, I've personally gone through both bulking and cutting phases, and having experienced those stages myself helps me understand the highs, lows, challenges, and rewards that come with pursuing your own fitness goals.",
     sections: [
       {
         title: 'My Coaching Goal',
@@ -494,7 +494,7 @@ function CoachCard({ coach, navigation, index = 0 }) {
             see the COACHES data above. The price side is flex:1 + wrapping
             so a longer fallback string (or a future long price string) wraps
             onto a second line instead of running behind the View Profile
-            button — the fixed-width overlap bug this replaces. */}
+            button, the fixed-width overlap bug this replaces. */}
         {pricePreview ? (
           <View style={styles.priceFooter}>
             <View style={styles.priceTileRow}>
@@ -604,11 +604,11 @@ function FindCoachModal({ visible, onClose, userId }) {
           ) : (
             <>
               <Text style={fm.sub}>
-                Tell us what you're looking for — subject, sport, finance, or marketing coaching — and we'll match you with the right coach.
+                Tell us what you're looking for, subject, sport, finance, or marketing coaching, and we'll match you with the right coach.
               </Text>
               <TextInput
                 style={fm.input}
-                placeholder="e.g. Looking for a Leaving Cert Maths grind, twice a week..."
+                placeholder="e.g. Looking for a Maths grind, twice a week..."
                 placeholderTextColor={colors.light}
                 value={message}
                 onChangeText={setMessage}
@@ -716,7 +716,7 @@ export default function ElevationScreen({ navigation }) {
     <View style={styles.academicBanner}>
       <Text style={styles.academicBannerTitle}>Academic Grinds</Text>
       <Text style={styles.academicBannerSub}>
-        One-to-one Leaving Cert and university grinds now available through Elevation Blueprint.
+        One-to-one grinds for college and further study, available through Elevation Blueprint.
       </Text>
     </View>
   )
@@ -726,7 +726,7 @@ export default function ElevationScreen({ navigation }) {
 
       {/* ── Scrollable content ──
           The navy hero block below is the FIRST CHILD of the ScrollView, not
-          a fixed sibling above it — same pattern as Campus Connect and
+          a fixed sibling above it, same pattern as Campus Connect and
           Lifestyle, the two screens in this family that never showed the
           sticky-header bug. Root cause (confirmed by structural comparison
           across every affected/unaffected screen): a fixed sibling View
@@ -736,12 +736,12 @@ export default function ElevationScreen({ navigation }) {
           genuine cold start under the New Architecture that pass can
           resolve after the ScrollView sibling has already committed its
           frame sized against the header's stale/interim height, so content
-          renders under or over the header — self-correcting on any later
+          renders under or over the header, self-correcting on any later
           layout pass (background/foreground), matching the previously
           reported symptom exactly. Earlier attempts (`style={{flex:1}}` on
           the ScrollView, then an extra wrapping View around it) only ever
           touched the ScrollView side and left the actual unreliable
-          element — the header sibling's height — in place, which is why
+          element, the header sibling's height, in place, which is why
           the bug kept coming back. Making the header scroll with the page
           removes the fixed-sibling/flex-sizing relationship entirely, so
           there is nothing left to race. */}

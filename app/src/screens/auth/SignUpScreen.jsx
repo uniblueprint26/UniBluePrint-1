@@ -1119,7 +1119,7 @@ export default function SignUpScreen({ navigation }) {
               <View style={styles.sectionDivider} />
               <Text style={styles.sectionLabel}>Your interests</Text>
               <Text style={styles.sectionSub}>
-                Select up to {MAX_INTERESTS}, or add your own — these are how Course Connect and the
+                Select up to {MAX_INTERESTS}, or add your own, these are how Course Connect and the
                 Directory find people who match you, whatever course, trade, or job they're on.
               </Text>
               <View style={styles.chipGrid}>

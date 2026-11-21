@@ -106,7 +106,7 @@ function AppRoutes() {
             category) intact across that detour, rather than losing them to
             ProtectedRoute's redirect. This is what the app's "Book a Coach"
             button deep-links iOS users to instead of its in-app
-            CoachBookingScreen flow — see constants/site.js's
+            CoachBookingScreen flow, see constants/site.js's
             coachBookingUrl() on the app side. */}
         <Route path="/elevation/book-coach" element={<ElevationCoachBookingPage />} />
         <Route path="/lifestyle-blueprint" element={<LifestyleBlueprintPage />} />

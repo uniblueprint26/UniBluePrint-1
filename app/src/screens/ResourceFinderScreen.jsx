@@ -45,7 +45,7 @@ export default function ResourceFinderScreen({ navigation }) {
     ])
     const combined = [
       ...(notes || []).map(n => ({ ...n, _kind: 'notes', _title: n.title, _label: 'Shared Notes' })),
-      ...(papers || []).map(p => ({ ...p, _kind: 'papers', _title: `${p.subject} — ${p.exam_session} ${p.year}`, _label: 'Past Paper' })),
+      ...(papers || []).map(p => ({ ...p, _kind: 'papers', _title: `${p.subject}, ${p.exam_session} ${p.year}`, _label: 'Past Paper' })),
     ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     setItems(combined)
     setLoading(false)
@@ -100,7 +100,7 @@ export default function ResourceFinderScreen({ navigation }) {
             <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filtered.length === 0 ? (
             <Text style={styles.emptyText}>
-              {items.length === 0 ? 'No resources uploaded yet — check back once students start sharing.' : 'No resources match that search.'}
+              {items.length === 0 ? 'No resources uploaded yet, check back once students start sharing.' : 'No resources match that search.'}
             </Text>
           ) : (
             <View style={{ gap: 10, marginTop: spacing.md }}>

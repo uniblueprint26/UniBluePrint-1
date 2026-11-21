@@ -63,10 +63,10 @@ export default function CvReviewPage() {
               <FormField id="target_role" label="Target role" hint="Optional, but strongly recommended">
                 <FormInput id="target_role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} maxLength={LIMITS.SHORT} />
               </FormField>
-              <FormField id="industry" label="Industry" hint="Optional — unlocks industry-specific red-flag checks (e.g. tech, law, healthcare, finance)">
+              <FormField id="industry" label="Industry" hint="Optional, unlocks industry-specific red-flag checks (e.g. tech, law, healthcare, finance)">
                 <FormInput id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} maxLength={LIMITS.SHORT} />
               </FormField>
-              <FormField id="job_description" label="Paste a job description" hint="Optional — the most accurate way to score keyword match">
+              <FormField id="job_description" label="Paste a job description" hint="Optional, the most accurate way to score keyword match">
                 <FormTextarea id="job_description" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={6} maxLength={LIMITS.PASTE_JD} />
               </FormField>
               <button

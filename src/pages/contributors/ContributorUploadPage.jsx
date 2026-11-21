@@ -227,11 +227,11 @@ function UploadForm({ category, onBack }) {
             </FormField>
           ))}
 
-          <FormField label="Link (optional)" hint="Add a URL if relevant — a resource link, article, or listing.">
+          <FormField label="Link (optional)" hint="Add a URL if relevant, a resource link, article, or listing.">
             <FormInput type="url" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://" />
           </FormField>
 
-          <FormField label="Attach a file (optional)" hint="PDF, image, or document — max 10MB." error={fileError}>
+          <FormField label="Attach a file (optional)" hint="PDF, image, or document, max 10MB." error={fileError}>
             <label style={{
               position: 'relative',
               display: 'flex', alignItems: 'center', gap: '10px',

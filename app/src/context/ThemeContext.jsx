@@ -58,7 +58,7 @@ export function ThemeProvider({ children }) {
         if (cancelled) return
         if (stored && VALID_PREFERENCES.includes(stored)) setPreferenceState(stored)
       })
-      .catch(() => { /* fall back to 'system' — matches the default state */ })
+      .catch(() => { /* fall back to 'system', matches the default state */ })
       .finally(() => { if (!cancelled) setReady(true) })
     return () => { cancelled = true }
   }, [])

@@ -21,7 +21,7 @@ export const UNIVERSITIES = [
 ]
 
 export const LC_YEAR_GROUPS = ['Junior Cycle', '3rd Year', '4th Year (TY)', '5th Year', '6th Year']
-const RATING_5 = ['1 — Very low', '2 — Low', '3 — Moderate', '4 — High', '5 — Very high']
+const RATING_5 = ['1, Very low', '2, Low', '3, Moderate', '4, High', '5, Very high']
 
 // ─── Category groups (for landing page display) ────────────────────────────────
 

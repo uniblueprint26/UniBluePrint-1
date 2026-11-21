@@ -191,8 +191,8 @@ export default function InterviewPrepPage() {
       // tiers, but the live mock-session feature itself isn't built anywhere
       // yet — simplifying to the two base packs rather than offering an
       // upsell for a feature that doesn't exist.
-      const serviceName = tier === 'premium' ? 'Interview Preparation — Premium Pack' : 'Interview Preparation — Standard Pack'
-      const subId = await submitForReview('interview_prep_packs', pack.id, serviceName, `Interview Prep — ${form.target_role}`, tier)
+      const serviceName = tier === 'premium' ? 'Interview Preparation, Premium Pack' : 'Interview Preparation, Standard Pack'
+      const subId = await submitForReview('interview_prep_packs', pack.id, serviceName, `Interview Prep, ${form.target_role}`, tier)
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -213,7 +213,7 @@ export default function InterviewPrepPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Interview Preparation</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          Likely questions, model answers from your evidence bank, company research prompts, and confidence tips — matched to the actual interview format.
+          Likely questions, model answers from your evidence bank, company research prompts, and confidence tips, matched to the actual interview format.
         </p>
 
         {error && <ErrorBanner message={error} />}
@@ -234,7 +234,7 @@ export default function InterviewPrepPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Build my prep pack"
-            strapline="The more you give us, the better your output — this takes about 3 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your output, this takes about 3 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : submitted ? (
@@ -324,10 +324,10 @@ function profileCheckRows(profileKnown) {
 /** Rows for the closing "here's what we'll build from" summary step. */
 function summaryRows(form, tier) {
   return [
-    ['Interviewing for', [form.target_role, form.target_company].filter(Boolean).join(' at ') || form.target_role || '—'],
+    ['Interviewing for', [form.target_role, form.target_company].filter(Boolean).join(' at ') || form.target_role || 'Not given'],
     ['Industry', form.industry || 'Not specified'],
     ['Format', INTERVIEW_TYPE_OPTIONS.find((o) => o.value === form.interview_type)?.label || form.interview_type],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -345,7 +345,7 @@ function useInterviewPrepSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'target_role',
@@ -359,14 +359,14 @@ function useInterviewPrepSteps({ form, profileKnown, tier, setTier }) {
       key: 'target_company',
       title: 'Which company?',
       optional: true,
-      whyItHelps: 'sharpens the company research prompts — leave it blank for general prep.',
+      whyItHelps: 'sharpens the company research prompts, leave it blank for general prep.',
       render: ({ form: f, set }) => <FormInput id="target_company" value={f.target_company} onChange={set('target_company')} maxLength={LIMITS.SHORT} />,
     },
     {
       key: 'industry',
       title: 'What industry is this in?',
       optional: true,
-      whyItHelps: 'interview format varies a lot by field — this makes sure we prepare you for the right one.',
+      whyItHelps: 'interview format varies a lot by field, this makes sure we prepare you for the right one.',
       render: ({ form: f, set }) => <IndustrySelect id="industry" value={f.industry} onChange={set('industry')} />,
     },
     {
@@ -383,7 +383,7 @@ function useInterviewPrepSteps({ form, profileKnown, tier, setTier }) {
       key: 'background_summary',
       title: 'Anything specific about your background or this interview?',
       optional: true,
-      whyItHelps: 'context we should factor in — a career change, a specific worry, anything unusual about this process.',
+      whyItHelps: 'context we should factor in, a career change, a specific worry, anything unusual about this process.',
       render: ({ form: f, set }) => (
         <FormTextarea id="background_summary" value={f.background_summary} onChange={set('background_summary')} rows={3} maxLength={LIMITS.LONG} />
       ),
@@ -392,7 +392,7 @@ function useInterviewPrepSteps({ form, profileKnown, tier, setTier }) {
       key: 'unsure_about',
       title: 'Anything you\'re unsure how to present?',
       optional: true,
-      whyItHelps: 'a format you\'ve never done, a weak area, a gap — tell us and we\'ll flag it rather than guess.',
+      whyItHelps: 'a format you\'ve never done, a weak area, a gap, tell us and we\'ll flag it rather than guess.',
       render: ({ form: f, set }) => (
         <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />
       ),
@@ -409,7 +409,7 @@ function useInterviewPrepSteps({ form, profileKnown, tier, setTier }) {
         <div>
           <SummaryRows intro="Here's what we'll build from. Go back to change anything, or build your prep pack now." rows={summaryRows(f, tier)} />
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', color: '#9CA3AF', marginTop: '16px' }}>
-            Model answers draw on your <Link to="/foundation/application-form-assistance" style={{ color: '#1E3A5F' }}>evidence bank</Link> — add stories there first for the strongest results.
+            Model answers draw on your <Link to="/foundation/application-form-assistance" style={{ color: '#1E3A5F' }}>evidence bank</Link>, add stories there first for the strongest results.
           </p>
         </div>
       ),

@@ -31,8 +31,8 @@ const T = FIELD_TYPES
 // logic every other board filter uses.
 const PRICE_BUCKETS = [
   { label: 'Under €20',   test: p => p != null && p < 20 },
-  { label: '€20 – €50',   test: p => p != null && p >= 20 && p < 50 },
-  { label: '€50 – €100',  test: p => p != null && p >= 50 && p < 100 },
+  { label: '€20 to €50',   test: p => p != null && p >= 20 && p < 50 },
+  { label: '€50 to €100',  test: p => p != null && p >= 50 && p < 100 },
   { label: '€100+',       test: p => p != null && p >= 100 },
 ]
 

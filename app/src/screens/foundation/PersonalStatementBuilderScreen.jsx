@@ -22,12 +22,12 @@ import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 const PATHWAYS = [
   { value: 'ucas', label: 'UCAS (UK universities)' },
-  { value: 'cao_mature', label: 'CAO — Mature applicant' },
+  { value: 'cao_mature', label: 'CAO, Mature applicant' },
   { value: 'postgrad', label: 'Postgraduate' },
 ]
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -49,7 +49,7 @@ const STEPS = [
   {
     key: 'pathway',
     title: 'Which application is this for?',
-    subtitle: 'This changes the whole structure — UCAS now uses three short structured answers, not one long essay; CAO mature applicant statements carry most of the weight since there\'s no points-based assessment; postgraduate follows academic/skills/goals structure.',
+    subtitle: 'This changes the whole structure, UCAS now uses three short structured answers, not one long essay; CAO mature applicant statements carry most of the weight since there\'s no points-based assessment; postgraduate follows academic/skills/goals structure.',
     render: (value, onChange) => <ChoiceGrid options={PATHWAYS} value={value} onChange={onChange} />,
     validate: value => (value ? null : 'Please choose one.'),
   },
@@ -72,20 +72,20 @@ const STEPS = [
   {
     key: 'background_and_motivation',
     title: 'Why this course, and why you?',
-    subtitle: 'Your genuine motivation and background — this is the core of the whole statement. Avoid the obvious openers (“I have always been passionate about...”) — we\'ll help sharpen it, but start from something true and specific.',
+    subtitle: 'Your genuine motivation and background, this is the core of the whole statement. Avoid the obvious openers (“I have always been passionate about...”), we\'ll help sharpen it, but start from something true and specific.',
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Tell us the real story..." minHeight={160} />,
-    validate: value => (isBlank(value) ? 'Please tell us your motivation and background — this is the core of the statement.' : null),
+    validate: value => (isBlank(value) ? 'Please tell us your motivation and background, this is the core of the statement.' : null),
   },
   {
     key: 'relevant_experience',
-    title: 'Any relevant experience — academic, work, extracurricular — that supports this application?',
+    title: 'Any relevant experience, academic, work, extracurricular, that supports this application?',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'life_work_experience',
     title: 'Life or work experience',
-    subtitle: 'Especially relevant if you\'re a mature applicant — real life and work experience count as genuine evidence here, not something to work around.',
+    subtitle: 'Especially relevant if you\'re a mature applicant, real life and work experience count as genuine evidence here, not something to work around.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Leave blank and we'll pull from your profile instead..." />,
   },
@@ -98,9 +98,9 @@ const STEPS = [
   {
     key: 'weaknesses_or_gaps',
     title: 'Anything you want addressed honestly?',
-    subtitle: 'A lower grade in one module, a gap, something that needs context — completely optional, and only used if you actually tell us about it. We never invent a weakness to seem balanced.',
+    subtitle: 'A lower grade in one module, a gap, something that needs context, completely optional, and only used if you actually tell us about it. We never invent a weakness to seem balanced.',
     optional: true,
-    render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional — skip if there's nothing to add..." />,
+    render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional, skip if there's nothing to add..." />,
   },
   {
     key: 'tier',
@@ -176,7 +176,7 @@ export default function PersonalStatementBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'personal_statements',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Personal Statement — Premium' : 'Personal Statement — Standard',
+      p_service_name: v.tier === 'premium' ? 'Personal Statement, Premium' : 'Personal Statement, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

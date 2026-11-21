@@ -27,8 +27,8 @@ const TONES = [
   { value: 'modern', label: 'Modern' },
 ]
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -52,7 +52,7 @@ function getSteps(colors) {
   {
     key: '_targeting',
     title: 'What role are you applying for?',
-    subtitle: 'Role and company are required — this letter is written for this one application, not a generic template.',
+    subtitle: 'Role and company are required, this letter is written for this one application, not a generic template.',
     render: (_, __, values, setValue) => (
       <View style={{ gap: 14 }}>
         <View><FieldLabel required>Target role</FieldLabel><FormTextInput value={values.target_role} onChangeText={t => setValue('target_role', t)} placeholder="e.g. Marketing Intern" /></View>
@@ -70,14 +70,14 @@ function getSteps(colors) {
   {
     key: 'job_description',
     title: 'Have the job ad?',
-    subtitle: 'Paste the job ad if you have one — it sharpens the letter toward exactly what they asked for.',
+    subtitle: 'Paste the job ad if you have one, it sharpens the letter toward exactly what they asked for.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Paste the job ad if you have one..." minHeight={160} />,
   },
   {
     key: 'has_no_experience',
     title: 'Do you have any work experience yet?',
-    subtitle: 'No formal work experience yet? That\'s fine — the letter\'s structure shifts accordingly.',
+    subtitle: 'No formal work experience yet? That\'s fine, the letter\'s structure shifts accordingly.',
     render: (value, onChange) => <YesNoToggle value={value === null ? null : !value} onChange={v => onChange(!v)} yesLabel="Yes, I do" noLabel="Not yet" />,
     validate: value => (value === null ? 'Please choose one.' : null),
   },
@@ -89,7 +89,7 @@ function getSteps(colors) {
       <View>
         {values.has_no_experience && (
           <Text style={{ fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginBottom: 12, fontStyle: 'italic' }}>
-            You said you don't have experience yet — draw on coursework, projects, societies, or volunteering instead.
+            You said you don't have experience yet, draw on coursework, projects, societies, or volunteering instead.
           </Text>
         )}
         <FormTextArea value={value} onChangeText={onChange} placeholder="What makes you right for this role?" minHeight={120} />
@@ -100,21 +100,21 @@ function getSteps(colors) {
   {
     key: 'background_summary',
     title: 'Any extra background context?',
-    subtitle: 'A short summary of your background, if you want to add context beyond what you just wrote — leave blank and we\'ll pull from your profile instead.',
+    subtitle: 'A short summary of your background, if you want to add context beyond what you just wrote, leave blank and we\'ll pull from your profile instead.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'why_this_company',
     title: 'Why this company?',
-    subtitle: 'Why this company, specifically? A real reason — a project they do, something true about them — beats a generic compliment.',
+    subtitle: 'Why this company, specifically? A real reason, a project they do, something true about them, beats a generic compliment.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'unsure_about',
     title: 'Anything you\'re unsure how to present?',
-    subtitle: 'A gap, a career change, something unconventional — tell us and your Handler will double-check it specifically.',
+    subtitle: 'A gap, a career change, something unconventional, tell us and your Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
@@ -202,7 +202,7 @@ export default function CoverLetterBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'cover_letters',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Cover Letter Assistance — Premium' : 'Cover Letter Assistance — Standard',
+      p_service_name: v.tier === 'premium' ? 'Cover Letter Assistance, Premium' : 'Cover Letter Assistance, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

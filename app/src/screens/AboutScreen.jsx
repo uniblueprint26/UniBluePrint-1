@@ -58,7 +58,7 @@ const LEADERSHIP = [
 const TIMELINE = [
   { label: '#001', date: 'Feb 28, 2026',  title: 'Pilot' },
   { label: '#002', date: 'Feb 28, 2026',  title: 'Cakes and Candles' },
-  { label: '#003', date: 'Mar–Apr 2026',  title: 'Finding the Pieces' },
+  { label: '#003', date: 'Mar to Apr 2026',  title: 'Finding the Pieces' },
   { label: '#025', date: 'Apr 10, 2026',  title: 'First Look' },
   { label: '#027', date: 'Apr 14, 2026',  title: "We're Online" },
   { label: '#031', date: '2026',          title: 'Course Compass' },

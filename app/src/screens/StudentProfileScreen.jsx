@@ -128,7 +128,7 @@ function AddEndorsementModal({
 
           <Text style={m.customLabel}>Or write your own</Text>
           <Text style={m.sub}>
-            Say something specific — you can give this person more than one custom note.
+            Say something specific, you can give this person more than one custom note.
           </Text>
           <TextInput
             value={customDraft}

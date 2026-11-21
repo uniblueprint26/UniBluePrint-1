@@ -81,25 +81,25 @@ const HOW_IT_WORKS_STEPS = [
   { n: 1, title: 'Create your account', description: 'Sign up free and set up your Blueprint Contributor profile in under two minutes.' },
   { n: 2, title: 'Upload valuable content', description: 'Choose a category in the Upload Centre and submit notes, reviews, resources or opportunities.' },
   { n: 3, title: 'UniBlueprint reviews it', description: 'Our team checks every submission for quality, accuracy and usefulness before it goes live.' },
-  { n: 4, title: 'It goes live at launch', description: 'Approved content appears on UniBlueprint from day one — built by students, for students.' },
+  { n: 4, title: 'It goes live at launch', description: 'Approved content appears on UniBlueprint from day one, built by students, for students.' },
 ]
 
 const FAQS = [
   {
     q: 'Who can become a Blueprint Contributor?',
-    a: 'Any student in Ireland — university, 5th year, 6th year, apprentice, or young worker — can become a Blueprint Contributor. Create a free account and start contributing.',
+    a: 'Any student in Ireland, university, 5th year, 6th year, apprentice, or young worker, can become a Blueprint Contributor. Create a free account and start contributing.',
   },
   {
     q: 'How do I contribute?',
-    a: 'Sign up, then head to the Upload Centre in your Contributor Dashboard. Choose a category — from Leaving Cert Notes to Course Reviews to Careers & Opportunities — and fill in the structured form.',
+    a: 'Sign up, then head to the Upload Centre in your Contributor Dashboard. Choose a category, from Leaving Cert Notes to Course Reviews to Careers & Opportunities, and fill in the structured form.',
   },
   {
     q: 'How is the €100 winner chosen?',
-    a: 'Judging is based on quality, usefulness, accuracy, originality, variety, and overall impact — not purely on quantity. A small number of highly valuable contributions can outweigh hundreds of low-quality uploads.',
+    a: 'Judging is based on quality, usefulness, accuracy, originality, variety, and overall impact, not purely on quantity. A small number of highly valuable contributions can outweigh hundreds of low-quality uploads.',
   },
   {
     q: 'What content is accepted?',
-    a: 'Notes, resources, reviews, experiences, events, opportunities and more — across the Leaving Cert Hub, Course Connect, Campus Life, and Careers categories. Every submission is reviewed before it goes live.',
+    a: 'Notes, resources, reviews, experiences, events, opportunities and more, across the Leaving Cert Hub, Course Connect, Campus Life, and Careers categories. Every submission is reviewed before it goes live.',
   },
   {
     q: 'Can I upload anonymously?',
@@ -271,10 +271,10 @@ export default function ContributorsLandingPage() {
                 A mission, not a task list
               </h2>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '16px', lineHeight: 1.8 }}>
-                Blueprint Contributors are students who share real knowledge — Leaving Cert notes, course reviews, campus tips, career opportunities — before UniBlueprint officially launches.
+                Blueprint Contributors are students who share real knowledge, Leaving Cert notes, course reviews, campus tips, career opportunities, before UniBlueprint officially launches.
               </p>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.8 }}>
-                Every contribution helps build a content library that supports students from Leaving Certificate through CAO decisions, college, apprenticeships and careers — so the next student who joins UniBlueprint has real, useful, student-made resources from the very first day.
+                Every contribution helps build a content library that supports students from Leaving Certificate through CAO decisions, college, apprenticeships and careers, so the next student who joins UniBlueprint has real, useful, student-made resources from the very first day.
               </p>
             </div>
             <div style={{ background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)', padding: '32px' }}>
@@ -283,7 +283,7 @@ export default function ContributorsLandingPage() {
               </h3>
               <ul style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px', listStyle: 'none' }}>
                 {[
-                  'Students joining from day one see real value immediately — not an empty platform.',
+                  'Students joining from day one see real value immediately, not an empty platform.',
                   'Your notes, reviews and advice genuinely help the next student behind you.',
                   'You get recognised for the impact you make, not just the amount you upload.',
                 ].map(text => (
@@ -316,7 +316,7 @@ export default function ContributorsLandingPage() {
               €100 Cash Prize
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.75)', marginTop: '8px', lineHeight: 1.7, maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Awarded to the Blueprint Contributor who creates the biggest impact before launch. Not based purely on quantity — a small number of highly valuable contributions can outweigh hundreds of low-quality uploads.
+              Awarded to the Blueprint Contributor who creates the biggest impact before launch. Not based purely on quantity, a small number of highly valuable contributions can outweigh hundreds of low-quality uploads.
             </p>
             <CountdownTimer />
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: 'rgba(245,240,232,0.6)', marginTop: '16px' }}>
@@ -354,7 +354,7 @@ export default function ContributorsLandingPage() {
                 Top 10 Blueprint Contributors across Ireland
               </p>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.7 }}>
-                Recognised at launch for their contribution and impact in helping build UniBlueprint before release — judged on the same criteria as the cash prize.
+                Recognised at launch for their contribution and impact in helping build UniBlueprint before release, judged on the same criteria as the cash prize.
               </p>
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function ContributorsLandingPage() {
               Content categories
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.7 }}>
-              From Leaving Cert revision to career opportunities — every category supports a different stage of the student journey.
+              From Leaving Cert revision to career opportunities, every category supports a different stage of the student journey.
             </p>
           </div>
 

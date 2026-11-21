@@ -74,7 +74,7 @@ const EXPLORE_LINKS = [
     Icon: Tag,
     eyebrow: 'PRICING',
     label: 'View Plans',
-    sub: 'Free, Pro, and Premium — see what each plan includes.',
+    sub: 'Free, Pro, and Premium, see what each plan includes.',
     color: '#FEF3C7',
     action: 'screen',
     screen: 'Pricing',
@@ -634,7 +634,7 @@ function AppearanceModal({ visible, onClose }) {
   const { colors, preference, setPreference, mode } = useTheme()
 
   const OPTIONS = [
-    { key: 'system', label: 'System', sub: `Match your device setting — currently ${mode === 'dark' ? 'Dark' : 'Light'}`, Icon: Smartphone },
+    { key: 'system', label: 'System', sub: `Match your device setting, currently ${mode === 'dark' ? 'Dark' : 'Light'}`, Icon: Smartphone },
     { key: 'light',  label: 'Light',  sub: 'Always use the light theme', Icon: Sun },
     { key: 'dark',   label: 'Dark',   sub: 'Always use the dark theme', Icon: Moon },
   ]
@@ -890,7 +890,7 @@ function DirectoryProfileModal({ visible, onClose }) {
             />
 
             <Text style={[ep.note, { color: colors.textTertiary }]}>
-              Private profiles never appear in anyone's Directory search or results — enforced on our servers,
+              Private profiles never appear in anyone's Directory search or results, enforced on our servers,
               not just hidden in the app.
             </Text>
           </ScrollView>
@@ -1046,9 +1046,9 @@ function InviteFriendsCard() {
     if (!shareLink) return
     try {
       await Share.share({
-        message: `Join me on UniBlueprint — the free platform for CVs, coaching, and student life in Ireland. ${shareLink}`,
+        message: `Join me on UniBlueprint, the free platform for CVs, coaching, and student life in Ireland. ${shareLink}`,
       })
-    } catch { /* user cancelled or share sheet unavailable — nothing to recover from */ }
+    } catch { /* user cancelled or share sheet unavailable, nothing to recover from */ }
   }
 
   if (loading || !code) return null
@@ -1064,7 +1064,7 @@ function InviteFriendsCard() {
           <Text style={[inv.sub, { color: colors.textSecondary }]}>
             {count > 0
               ? `${count} friend${count === 1 ? '' : 's'} joined using your code`
-              : 'Share your code — no catch, just helps us grow'}
+              : 'Share your code, no catch, just helps us grow'}
           </Text>
         </View>
       </View>
@@ -1353,7 +1353,7 @@ export default function ProfileScreen({ navigation }) {
                 <Card style={styles.linkCard}>
                   <View style={[styles.linkIcon, { backgroundColor: link.color }]}>
                     {/* link.color is a fixed pale pastel swatch in both modes
-                        (not mode-aware) — the icon needs a fixed dark color
+                        (not mode-aware), the icon needs a fixed dark color
                         too, not textPrimary, which flips to a near-white
                         cream in dark mode and disappears against it. */}
                     <link.Icon size={20} color={colors.navy} strokeWidth={1.8} />
@@ -1400,8 +1400,8 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={[styles.settingsLabel, { color: colors.textPrimary }]}>{label}</Text>
                   <Text style={[styles.settingsSub, { color: colors.textSecondary }]} numberOfLines={1}>
                     {action === 'accountType' ? userTypeLabel
-                      : action === 'interests' ? (interests.length ? interests.join(', ') : 'Not set — tap to choose')
-                      : action === 'directoryProfile' ? (discoverable ? 'Public — visible in Directory search' : 'Private — hidden from Directory search')
+                      : action === 'interests' ? (interests.length ? interests.join(', ') : 'Not set, tap to choose')
+                      : action === 'directoryProfile' ? (discoverable ? 'Public, visible in Directory search' : 'Private, hidden from Directory search')
                       : action === 'appearance' ? appearanceSubLabel
                       : sub}
                   </Text>

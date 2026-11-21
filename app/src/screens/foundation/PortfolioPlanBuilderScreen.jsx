@@ -20,8 +20,8 @@ import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 // student flagged themselves as unsure about.
 
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -41,35 +41,35 @@ const STEPS = [
   {
     key: 'field',
     title: 'What field is this portfolio for?',
-    subtitle: 'This decides everything — a developer\'s portfolio (GitHub) looks nothing like a designer\'s (Behance) or a teacher\'s (a teaching portfolio of lesson plans and placement reports).',
+    subtitle: 'This decides everything, a developer\'s portfolio (GitHub) looks nothing like a designer\'s (Behance) or a teacher\'s (a teaching portfolio of lesson plans and placement reports).',
     render: (value, onChange) => <FormTextInput value={value} onChangeText={onChange} placeholder="e.g. Software Development, Graphic Design, Teaching" />,
     validate: value => (isBlank(value) ? 'Please tell us what field this is for.' : null),
   },
   {
     key: 'work_type',
     title: 'What kind of work do you want to showcase?',
-    subtitle: 'Projects, coursework, freelance work, coaching sessions, designs — be specific about what you actually have or want to build.',
+    subtitle: 'Projects, coursework, freelance work, coaching sessions, designs, be specific about what you actually have or want to build.',
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Tell us what you'd showcase..." minHeight={120} />,
     validate: value => (isBlank(value) ? 'Please tell us what you want to showcase.' : null),
   },
   {
     key: 'existing_presence',
     title: 'Do you already have anything online?',
-    subtitle: 'A GitHub, a Behance, a site, an Instagram — tell us what exists already so we build on it rather than starting you over.',
+    subtitle: 'A GitHub, a Behance, a site, an Instagram, tell us what exists already so we build on it rather than starting you over.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'career_goal',
     title: 'What\'s this portfolio ultimately for?',
-    subtitle: 'Landing a specific role, freelance clients, a course application — whatever the end goal is.',
+    subtitle: 'Landing a specific role, freelance clients, a course application, whatever the end goal is.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Leave blank and we'll use your profile goals instead..." />,
   },
   {
     key: 'unsure_about',
     title: 'Anything you\'re unsure about?',
-    subtitle: 'Whether you have enough to show, how to present a weak or unfinished piece, something else — tell us and your Campus Handler will double-check it specifically.',
+    subtitle: 'Whether you have enough to show, how to present a weak or unfinished piece, something else, tell us and your Campus Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
@@ -144,7 +144,7 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'portfolio_plans',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Portfolio Building — Premium' : 'Portfolio Building — Standard',
+      p_service_name: v.tier === 'premium' ? 'Portfolio Building, Premium' : 'Portfolio Building, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

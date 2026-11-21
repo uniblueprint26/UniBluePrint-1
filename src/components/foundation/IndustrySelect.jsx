@@ -83,7 +83,7 @@ export default function IndustrySelect({ value, onChange, id, required }) {
     else if (e.key === 'Escape') { setOpen(false); e.preventDefault() }
   }
 
-  const display = otherMode ? 'Other — not listed' : (value || '')
+  const display = otherMode ? 'Other, not listed' : (value || '')
 
   return (
     <div ref={wrapRef} style={{ position: 'relative' }}>
@@ -143,7 +143,7 @@ export default function IndustrySelect({ value, onChange, id, required }) {
           >
             {filtered.length === 0 && (
               <li style={{ padding: '12px 16px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF' }}>
-                No match — choose “Other — not listed” below.
+                No match, choose “Other, not listed” below.
               </li>
             )}
             {options.map((option, i) => {
@@ -166,7 +166,7 @@ export default function IndustrySelect({ value, onChange, id, required }) {
                       color: selected ? '#F5F0E8' : isOther ? '#6B7280' : '#1E3A5F',
                     }}
                   >
-                    {isOther ? 'Other — not listed' : option}
+                    {isOther ? 'Other, not listed' : option}
                     {selected && <Check size={14} aria-hidden="true" style={{ flexShrink: 0 }} />}
                   </button>
                 </li>

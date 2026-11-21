@@ -121,10 +121,10 @@ const CAO_SERVICES = [
   {
     name: 'CAO Personal Statement',
     tagline: 'Your story. Your voice. Your place.',
-    description: 'Your CAO personal statement is your only chance to speak directly to admissions. UniBlueprint helps you craft a compelling, authentic statement that goes beyond your grades — telling the story of who you are, what drives you, and why you belong on this course. Reviewed by a Campus Handler before delivery.',
+    description: 'Your CAO personal statement is your only chance to speak directly to admissions. UniBlueprint helps you craft a compelling, authentic statement that goes beyond your grades, telling the story of who you are, what drives you, and why you belong on this course. Reviewed by a Campus Handler before delivery.',
     bullets: [
       'Compelling personal statement drafted from your input',
-      'Opens with impact — not the clichés admissions tutors have read a thousand times',
+      'Opens with impact, not the clichés admissions tutors have read a thousand times',
       'Tells a coherent story connecting your background to your chosen course',
       'Reviewed by a trained Campus Handler before delivery',
     ],
@@ -136,7 +136,7 @@ const CAO_SERVICES = [
   {
     name: 'College Interview Preparation',
     tagline: 'Impress the panel. Secure your place.',
-    description: 'College interviews — for medicine, dentistry, law, and other competitive programmes — require a different kind of preparation. UniBlueprint prepares you with predicted questions, structured model answers, and the confidence to perform under pressure. Premium includes a live mock interview.',
+    description: 'College interviews, for medicine, dentistry, law, and other competitive programmes, require a different kind of preparation. UniBlueprint prepares you with predicted questions, structured model answers, and the confidence to perform under pressure. Premium includes a live mock interview.',
     standardBullets: [
       'Predicted interview questions for your specific programme',
       'Model answers structured for academic interview panels',
@@ -153,7 +153,7 @@ const CAO_SERVICES = [
   {
     name: 'Scholarship & Grants Application',
     tagline: 'The funding is out there. We help you get it.',
-    description: 'Scholarships and grants go unclaimed every year because applicants do not know how to present themselves effectively. UniBlueprint identifies relevant opportunities and helps you craft a strong, compelling application — personal statement, supporting evidence, and covering letter — reviewed by a Campus Handler before submission.',
+    description: 'Scholarships and grants go unclaimed every year because applicants do not know how to present themselves effectively. UniBlueprint identifies relevant opportunities and helps you craft a strong, compelling application, personal statement, supporting evidence, and covering letter, reviewed by a Campus Handler before submission.',
     bullets: [
       'Scholarship and grant identification for your profile and field',
       'Compelling application personal statement',
@@ -166,8 +166,8 @@ const CAO_SERVICES = [
   },
   {
     name: 'Course Selection Guidance',
-    tagline: 'Find the course that fits you — not just the one with the highest points',
-    description: "Choosing the right course is one of the most important decisions you will make. UniBlueprint combines personalised guidance with CourseCompass — Ireland's leading AI-powered CAO course matching platform — to help you find the course that matches your strengths, interests, and goals.",
+    tagline: 'Find the course that fits you, not just the one with the highest points',
+    description: "Choosing the right course is one of the most important decisions you will make. UniBlueprint combines personalised guidance with CourseCompass, Ireland's leading AI-powered CAO course matching platform, to help you find the course that matches your strengths, interests, and goals.",
     bullets: [
       'Personalised course matching using the CourseCompass platform',
       'Subject interest and learning style assessments',
@@ -335,7 +335,7 @@ function TrialBadge() {
       fontSize: '12px', fontWeight: '700',
     }}>
       <Sparkles size={13} />
-      50% OFF — Launch Trial
+      50% OFF, Launch Trial
     </div>
   )
 }
@@ -645,10 +645,10 @@ export default function FoundationBlueprintPage() {
         <title>Foundation Blueprint | UniBlueprint</title>
         <meta
           name="description"
-          content="Professional CV, LinkedIn, cover letter, interview prep, and CAO support — reviewed by trained Campus Handlers before delivery."
+          content="Professional CV, LinkedIn, cover letter, interview prep, and CAO support, reviewed by trained Campus Handlers before delivery."
         />
         <meta property="og:title" content="Foundation Blueprint | UniBlueprint" />
-        <meta property="og:description" content="Professional CV, LinkedIn, cover letter, interview prep, and CAO support — reviewed by trained Campus Handlers before delivery." />
+        <meta property="og:description" content="Professional CV, LinkedIn, cover letter, interview prep, and CAO support, reviewed by trained Campus Handlers before delivery." />
       </Helmet>
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
@@ -664,7 +664,7 @@ export default function FoundationBlueprintPage() {
           fontSize: '18px', color: '#6B7280',
           margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.6,
         }}>
-          Professional career support — reviewed by real students before delivery
+          Professional career support, reviewed by real students before delivery
         </p>
         <div style={{ marginTop: '20px' }}>
           <TrialBadge />
@@ -801,7 +801,7 @@ export default function FoundationBlueprintPage() {
           fontSize: '16px', color: '#6B7280',
           margin: '16px auto 0', maxWidth: '640px', lineHeight: 1.7,
         }}>
-          Every Foundation Blueprint output is reviewed by a trained Campus Handler — a student who knows the Irish market, the CAO process, and what employers actually look for. No output leaves without passing their quality check.
+          Every Foundation Blueprint output is reviewed by a trained Campus Handler, a student who knows the Irish market, the CAO process, and what employers actually look for. No output leaves without passing their quality check.
         </p>
 
         <div className="hiw-quality-row" style={{ maxWidth: '700px', margin: '40px auto 0' }}>
@@ -1042,7 +1042,7 @@ export default function FoundationBlueprintPage() {
           fontSize: '16px', color: 'rgba(245,240,232,0.7)',
           marginTop: '12px',
         }}>
-          Free to join. Launch trial — 50% off everything.
+          Free to join. Launch trial, 50% off everything.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '32px' }}>
           <Link
