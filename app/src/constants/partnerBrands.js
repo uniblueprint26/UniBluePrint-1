@@ -32,3 +32,44 @@ export const COURSE_COMPASS = {
     bodySemiBold: 'Outfit_600SemiBold',
   },
 }
+
+// Kobo (kobopayments.com). The site says "Closed beta, test money only", so UBP
+// only ever shows it as a waitlist partner, never as a live money service.
+// Palette read from the live site. Outfit for headings and body.
+export const KOBO = {
+  name: 'Kobo',
+  teal: '#073F3C',
+  tealDeep: '#021413',
+  tealMid: '#12645D',
+  mint: '#A8E6CF',
+  amber: '#F4B942',
+  cream: '#FAF7F0',
+  waitlistUrl: 'https://kobopayments.com/waitlist',
+  siteUrl: 'https://kobopayments.com',
+  fonts: { heading: 'Outfit_600SemiBold', body: 'Outfit_400Regular', bodyMedium: 'Outfit_500Medium' },
+}
+
+// ScoutByRohi (scoutbyrohi.com), built by Rohi Aluede. Palette from the site.
+export const SCOUT = {
+  name: 'ScoutByRohi',
+  forest: '#0B3327',
+  green: '#0A7449',
+  signal: '#12B76F',
+  mint: '#D5E9DF',
+  paper: '#F6F8F5',
+  ink: '#0C2219',
+  trackerUrl: 'https://scoutbyrohi.com/tracker',
+  alertsUrl: 'https://scoutbyrohi.com/alerts',
+  siteUrl: 'https://scoutbyrohi.com',
+  fonts: { heading: 'DMSerifDisplay_400Regular', body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', bodySemi: 'DMSans_600SemiBold' },
+}
+
+// Roomy.ie (roomy.ie), the accommodation partner.
+export const ROOMY = {
+  name: 'Roomy.ie',
+  teal: '#0891B2',
+  deep: '#0B3F4F',
+  mint: '#CFF3FA',
+  siteUrl: 'https://roomy.ie',
+  fonts: { heading: 'DMSerifDisplay_400Regular', body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', bodySemi: 'DMSans_600SemiBold' },
+}
