@@ -60,7 +60,7 @@ export const PARTNERS = [
   {
     id: 'energie',
     brand: 'Energie Fitness',
-    logo: null,    // upload via partner-logos bucket when available
+    logo: require('../../assets/partners/energie/logo.jpg'),
     initials: 'EF',
     initBg: '#0369A1',
     filterKey: 'fitness',
@@ -121,7 +121,7 @@ export const PARTNERS = [
   {
     id: 'whipwizardz',
     brand: 'Whip Wizardz',
-    logo: null,    // upload via partner-logos bucket when available
+    logo: require('../../assets/partners/whipwizardz/logo.png'),
     initials: 'WW',
     initBg: '#1E3A5F',
     filterKey: 'services',
@@ -353,6 +353,7 @@ export const PARTNERS = [
   {
     id: 'roomy',
     brand: 'Roomy.ie',
+    logo: require('../../assets/partners/roomy/logo.png'),
     initials: 'RM',
     initBg: '#0891B2',
     filterKey: 'services',
