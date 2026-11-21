@@ -5,11 +5,13 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { ChevronDown, ExternalLink, Mail, Check, Library, WifiOff, X } from 'lucide-react-native'
+import { ChevronDown, ChevronRight, ExternalLink, Check, Library, WifiOff, X } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import EmptyState from '../components/ui/EmptyState'
 import { GroupCard, RowDivider } from '../components/explore/ExploreParts'
 import { useSocieties } from '../components/explore/societies'
+import SocietySheet from '../components/explore/SocietySheet'
+import UbpStamp from '../components/ui/UbpStamp'
 import { EXPLORE_KINDS } from '../constants/exploreCatalog'
 import { fonts, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -134,6 +136,7 @@ function SocietiesListScreen({ navigation }) {
   const { user } = useAuth()
   const { items, status, reload } = useSocieties()
   const [suggestOpen, setSuggestOpen] = useState(false)
+  const [selected, setSelected] = useState(null)
   const meta = EXPLORE_KINDS.societies
 
   return (
@@ -172,7 +175,7 @@ function SocietiesListScreen({ navigation }) {
               {items.map((it, i) => (
                 <View key={it.id}>
                   {i > 0 && <RowDivider inset={16} />}
-                  <SocietyRow item={it} />
+                  <SocietyRow item={it} onPress={() => setSelected(it)} />
                 </View>
               ))}
             </GroupCard>
@@ -192,50 +195,36 @@ function SocietiesListScreen({ navigation }) {
       </ScrollView>
 
       <SuggestSheet visible={suggestOpen} kind="societies" userId={user?.id} onClose={() => setSuggestOpen(false)} />
+      <SocietySheet item={selected} onClose={() => setSelected(null)} />
     </View>
   )
 }
 
-function SocietyRow({ item }) {
+function SocietyRow({ item, onPress }) {
   const { colors } = useTheme()
-  const [open, setOpen] = useState(false)
-  const hasBody = !!item.description
-  const isMail = !!item.url && /^mailto:/i.test(item.url)
-  const LinkIcon = isMail ? Mail : ExternalLink
-
   return (
-    <View style={s.contentRow}>
-      <TouchableOpacity
-        activeOpacity={hasBody ? 0.75 : 1}
-        onPress={hasBody ? () => setOpen(o => !o) : undefined}
-        accessibilityRole={hasBody ? 'button' : undefined}
-        accessibilityLabel={item.name}
-        accessibilityState={hasBody ? { expanded: open } : undefined}
-        style={s.contentHead}
-      >
+    <TouchableOpacity
+      activeOpacity={0.75}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.name}${item.example ? ', example' : ''}. How to join and message`}
+      style={s.contentRow}
+    >
+      <View style={s.contentHead}>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={[s.contentTitle, { color: colors.textPrimary }]}>{item.name}</Text>
           {!!item.institution && <Text style={[s.contentSub, { color: colors.textSecondary }]}>{item.institution}</Text>}
         </View>
-        {hasBody && (
-          <ChevronDown size={18} color={colors.textTertiary} strokeWidth={1.8} style={open ? { transform: [{ rotate: '180deg' }] } : null} />
-        )}
-      </TouchableOpacity>
+        <ChevronRight size={18} color={colors.textTertiary} strokeWidth={1.8} />
+      </View>
       {(item.example || item.ubp || item.tags.length > 0) && (
         <View style={s.tagRow}>
-          {item.example && <Tag label="Example" ubp />}
+          {item.example && <UbpStamp example />}
           {!item.example && item.ubp && <Tag label="From UBP" ubp />}
           {item.tags.map(t => <Tag key={t} label={t} />)}
         </View>
       )}
-      {hasBody && open && <Text style={[s.body, s.societyBody, { color: colors.textPrimary }]}>{item.description}</Text>}
-      {!!item.url && (
-        <TouchableOpacity onPress={() => openUrl(item.url)} activeOpacity={0.75} style={[s.linkBtn, s.societyLink]} accessibilityRole="link" accessibilityLabel={`${isMail ? 'Email' : 'Open link for'} ${item.name}`}>
-          <Text style={[s.linkText, { color: colors.textPrimary }]}>{isMail ? 'Email them' : 'Open link'}</Text>
-          <LinkIcon size={14} color={colors.textPrimary} strokeWidth={2} />
-        </TouchableOpacity>
-      )}
-    </View>
+    </TouchableOpacity>
   )
 }
 

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Compass, ChevronRight } from 'lucide-react-native'
 import { fonts, shadows } from '../../constants/theme'
@@ -53,6 +53,13 @@ export function PartnerMark({ partner, size = 44, bg }) {
     )
   }
   const radiusPx = Math.round(size * 0.28)
+  if (partner.mark === 'image') {
+    return (
+      <View style={[s.mark, { width: size, height: size, borderRadius: radiusPx, backgroundColor: partner.logoTile || bg || partner.markBg || partner.bg, overflow: 'hidden' }]}>
+        <Image source={partner.logo} style={{ width: size * 0.78, height: size * 0.78 }} resizeMode="contain" accessibilityLabel={`${partner.name} logo`} />
+      </View>
+    )
+  }
   return (
     <View style={[s.mark, { width: size, height: size, borderRadius: radiusPx, backgroundColor: bg || partner.bg }]}>
       {partner.mark === 'compass' ? (
@@ -72,17 +79,15 @@ export function PartnerMark({ partner, size = 44, bg }) {
 }
 
 // The big partner card on Explore. The whole card is the partner's colour.
-// A featured card (Course Compass) is wider and taller so it reads as first.
+// Every card is the same size so the strip can swipe in even steps.
 export function PartnerCard({ partner: p, onPress }) {
   const { isDark } = useTheme()
-  const featured = !!p.featured
   // The app's dark page is navy too, so on dark the Compass card goes a shade
   // deeper and gets a thin sky edge to stay a distinct card.
   const grad = isDark && p.darkGradient ? p.darkGradient : p.gradient
   const ring = isDark && p.darkRing ? p.darkRing : p.ring
   const cardStyle = [
     s.pCard,
-    featured ? s.pCardFeatured : null,
     { backgroundColor: p.bg },
     ring ? { borderWidth: 1, borderColor: ring } : null,
   ]
@@ -103,14 +108,21 @@ export function PartnerCard({ partner: p, onPress }) {
         </View>
       )}
       <View style={s.pTop}>
-        <PartnerMark partner={p} size={featured ? 52 : 44} bg={p.markBg} />
+        <View style={s.pLeft}>
+          <PartnerMark partner={p} size={48} bg={p.markBg} />
+          {!!p.tag && (
+            <View style={[s.pTag, { borderColor: p.accent }]}>
+              <Text style={[s.pTagText, { color: p.accent, fontFamily: p.ctaFont || fonts.sansSemiBold }]} numberOfLines={1}>{p.tag}</Text>
+            </View>
+          )}
+        </View>
         <View style={[s.pCta, { backgroundColor: p.ctaBg }]}>
           <Text style={[s.pCtaText, { color: p.ctaFg, fontFamily: p.ctaFont || fonts.sansSemiBold }]}>{p.cta}</Text>
           <ChevronRight size={14} color={p.ctaFg} strokeWidth={2.4} />
         </View>
       </View>
       <View style={{ flex: 1 }} />
-      <Text style={[s.pName, featured && s.pNameFeatured, { color: p.fg, fontFamily: p.nameFont || fonts.serif }]}>{p.name}</Text>
+      <Text style={[s.pName, { color: p.fg, fontFamily: p.nameFont || fonts.serif }]}>{p.name}</Text>
       <Text style={[s.pBlurb, { color: p.fg, fontFamily: p.bodyFont || fonts.sans }]} numberOfLines={2}>{p.blurb}</Text>
     </TouchableOpacity>
   )
@@ -121,14 +133,15 @@ const s = StyleSheet.create({
   card: { borderRadius: 16, overflow: 'hidden' },
   mark: { alignItems: 'center', justifyContent: 'center' },
 
-  pCard: { width: 224, minHeight: 168, borderRadius: 18, padding: 16, overflow: 'hidden' },
-  pCardFeatured: { width: 288, minHeight: 176, padding: 18 },
+  pCard: { width: 264, minHeight: 168, borderRadius: 18, padding: 16, overflow: 'hidden' },
   pWatermark: { position: 'absolute', right: -26, bottom: -30 },
+  pLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
+  pTag: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 8, height: 22, justifyContent: 'center', flexShrink: 1 },
+  pTagText: { fontSize: 10.5 },
   pTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pCta: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 13, height: 30, borderRadius: 15 },
   pCtaText: { fontSize: 12.5 },
   pName: { fontSize: 22, lineHeight: 28, marginTop: 14 },
-  pNameFeatured: { fontSize: 28, lineHeight: 34 },
   pBlurb: { fontSize: 13, lineHeight: 18, marginTop: 3, opacity: 0.78 },
 })
 
