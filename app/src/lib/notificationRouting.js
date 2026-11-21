@@ -56,6 +56,9 @@ export async function goToRelatedEntity(navigation, notif, userId) {
     // 20261015140000_job_application_tracker.sql. No extra lookup needed:
     // the tracker's own list is the right destination for any application,
     // not a single-item detail screen.
+    case 'bill_split':
+      navigation.navigate('SplitBill', { splitId: id })
+      return
     case 'job_application':
       navigation.navigate('ApplicationTracker')
       return

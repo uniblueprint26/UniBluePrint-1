@@ -16,7 +16,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, ExternalLink,
   CheckCircle, Circle, Info, Save, TrendingUp as InvestIcon, GraduationCap,
   X, PiggyBank, Plane, Heart, ShoppingBag, Home as HomeIcon, Laptop, ShieldCheck,
-  ShieldAlert, Scale, Clock as ClockIcon, Lock,
+  ShieldAlert, Scale, Clock as ClockIcon, Lock, Receipt,
 } from 'lucide-react-native'
 import TopBar from '../components/layout/TopBar'
 import Card from '../components/ui/Card'
@@ -1021,6 +1021,24 @@ function BudgetTab({ navigation }) {
           We track this for you as you go. Come back anytime and your numbers will still be here.
         </Text>
       </View>
+
+      {/* Split the bill: opens the tracker for shared bills and subscriptions */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => navigation?.navigate('SplitBill')}
+        accessibilityRole="button"
+        accessibilityLabel="Split the bill. Share a bill or subscription with friends."
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: spacing.xl, padding: 16, borderRadius: radius.card, backgroundColor: colors.surface, ...shadows.card }}
+      >
+        <View style={{ width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(180,146,58,0.16)' }}>
+          <Receipt size={20} color={colors.textPrimary} />
+        </View>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={{ fontFamily: fonts.sansSemiBold, fontSize: 15.5, color: colors.textPrimary }}>Split the bill</Text>
+          <Text style={{ fontFamily: fonts.sans, fontSize: 13, lineHeight: 18, color: colors.textSecondary, marginTop: 2 }}>Share a bill or subscription with friends. Tracking only.</Text>
+        </View>
+        <ChevronRight size={18} color={colors.textSecondary} />
+      </TouchableOpacity>
 
       {/* Goals */}
       <SectionHeader eyebrow="Goals" title="Track Your Progress" style={{ marginTop: spacing.xl }} />

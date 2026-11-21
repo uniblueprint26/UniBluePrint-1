@@ -1,7 +1,7 @@
 import {
   GraduationCap, Users, StickyNote, Calculator, CalendarClock, ArrowRightLeft,
   Tag, ShieldCheck, Leaf, Search, Bus, Wallet, Briefcase, CheckCheck, Hourglass,
-  Building2, Flag, Sparkles, BookOpen, Radio, CircleHelp, LayoutGrid, Handshake,
+  Building2, Flag, Sparkles, BookOpen, Radio, CircleHelp, LayoutGrid, Handshake, Receipt,
 } from 'lucide-react-native'
 import { COURSE_COMPASS, KOBO, SCOUT, ROOMY } from './partnerBrands'
 import { priorityChrome } from './priorityTheme'
@@ -58,6 +58,7 @@ export const EXPLORE_BUNDLES = [
     Icon: Wallet,
     rows: [
       { key: 'budgeting', name: 'Budgeting', hint: 'Track what comes in and goes out', Icon: Wallet, route: 'Budgeting', money: true },
+      { key: 'split-the-bill', name: 'Split the bill', hint: 'Share a bill or subscription with friends', Icon: Receipt, route: 'SplitBill', money: true },
       { key: 'internships', name: 'Internships', hint: 'Real openings from official sources', Icon: Handshake, route: 'Internships' },
       { key: 'jobs-board', name: 'Jobs board', hint: 'Jobs on the Ad Board', Icon: Briefcase, adBoardBasket: 'jobs' },
     ],
