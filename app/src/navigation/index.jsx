@@ -31,6 +31,13 @@ import CampusPulseArchiveScreen from '../screens/CampusPulseArchiveScreen'
 import CourseConnectScreen from '../screens/CourseConnectScreen'
 import ModuleQAScreen      from '../screens/ModuleQAScreen'
 import ResourceFinderScreen from '../screens/ResourceFinderScreen'
+import CampusBoardsScreen from '../screens/CampusBoardsScreen'
+import BusySpotsScreen from '../screens/BusySpotsScreen'
+import StudyRoomsScreen from '../screens/StudyRoomsScreen'
+import CommuteBuddyScreen from '../screens/CommuteBuddyScreen'
+import CampusToolkitScreen from '../screens/CampusToolkitScreen'
+import CampusRankedScreen from '../screens/CampusRankedScreen'
+import RoomyPartnerScreen from '../screens/RoomyPartnerScreen'
 import LifestyleScreen     from '../screens/LifestyleScreen'
 import LifestylePartnersScreen from '../screens/LifestylePartnersScreen'
 import LifestyleFeaturedDealsScreen from '../screens/LifestyleFeaturedDealsScreen'
@@ -176,6 +183,13 @@ function HomeStack() {
       <Stack.Screen name="CourseConnect" component={CourseConnectScreen} />
       <Stack.Screen name="ModuleQA"      component={ModuleQAScreen}      />
       <Stack.Screen name="ResourceFinder" component={ResourceFinderScreen} />
+      <Stack.Screen name="CampusBoards" component={CampusBoardsScreen} />
+      <Stack.Screen name="BusySpots" component={BusySpotsScreen} />
+      <Stack.Screen name="StudyRooms" component={StudyRoomsScreen} />
+      <Stack.Screen name="CommuteBuddy" component={CommuteBuddyScreen} />
+      <Stack.Screen name="CampusToolkit" component={CampusToolkitScreen} />
+      <Stack.Screen name="CampusRanked" component={CampusRankedScreen} />
+      <Stack.Screen name="RoomyPartner" component={RoomyPartnerScreen} />
       <Stack.Screen name="Lifestyle"     component={LifestyleScreen}     />
       <Stack.Screen name="LifestylePartners" component={LifestylePartnersScreen} />
       <Stack.Screen name="LifestyleFeaturedDeals" component={LifestyleFeaturedDealsScreen} />

@@ -23,6 +23,7 @@ import { useProAccess } from '../../hooks/useProAccess'
 import { MARKETPLACE_SKILL_PRICE_CENTS, formatEuro } from '../../constants/boardListingPricing'
 import { confirmAsync } from '../../utils/confirmAlert'
 import { NATIVE_NEUTRAL_BILLING } from '../../constants/platformPolicy'
+import { checkText, GUIDELINES_MESSAGE } from '../../lib/moderation'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -241,6 +242,17 @@ export default function PostFormModal({
       }
     }
 
+    // Community guidelines: the same word check every post goes through. The
+    // server checks again, so a changed app cannot skip it.
+    for (const field of activeFields) {
+      const v = values[field.key]
+      const parts = Array.isArray(v) ? v : (field.type === 'text' || field.type === 'textarea') ? [v] : []
+      if (parts.some(x => typeof x === 'string' && x && !checkText(x).ok)) {
+        setErrorMsg(GUIDELINES_MESSAGE)
+        return
+      }
+    }
+
     // Payment gate check happens before the spinner shows — same "confirm,
     // then pay" order PostAdModal.jsx uses for Ad Board ads. If the user
     // cancels here, nothing has been touched yet (no setSaving, no payload
@@ -309,7 +321,7 @@ export default function PostFormModal({
       }
     } catch (err) {
       if (err?.message !== 'Payment cancelled.') {
-        setErrorMsg(err?.message && charge ? err.message : 'Could not post. Please check your entries and try again.')
+        setErrorMsg(String(err?.message || '').includes('feed_text_guard') ? GUIDELINES_MESSAGE : String(err?.message || '').includes('campus_required') ? 'Choose your campus in Settings first.' : err?.message && charge ? err.message : 'Could not post. Please check your entries and try again.')
       }
     } finally {
       setSaving(false)

@@ -83,7 +83,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'carpool',
-    title: 'Carpooling',
+    title: 'Ride shares',
     Icon: Car,
     color: colors.successBg,
     table: 'carpool_routes',
@@ -97,7 +97,9 @@ export const CAMPUS_BOARDS = [
     fields: [
       { key: 'from_location', label: 'From', type: T.TEXT, required: true, placeholder: 'e.g. Limerick City' },
       { key: 'to_location', label: 'To', type: T.TEXT, required: true, placeholder: 'e.g. UL Campus' },
-      { key: 'days', label: 'Days', type: T.MULTISELECT, required: true, options: CARPOOL_DAYS },
+      { key: 'stops', label: 'Stops on the way (optional)', type: T.TAGS, placeholder: 'Type a stop and press add' },
+      { key: 'days', label: 'Repeats on these days', type: T.MULTISELECT, options: CARPOOL_DAYS },
+      { key: 'ride_date', label: 'Or one date (plan ahead)', type: T.DATE, placeholder: 'YYYY-MM-DD' },
       { key: 'departure_time', label: 'Departure time', type: T.TEXT, required: true, placeholder: 'e.g. 8:30am' },
       { key: 'seats_available', label: 'Seats available', type: T.NUMBER, required: true, min: 1, max: 4, default: 1 },
       { key: 'contribution', label: 'Contribution towards fuel/costs', type: T.SELECT, required: true, options: ['Yes', 'No', 'Flexible'], default: 'Flexible' },
@@ -117,7 +119,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'events',
-    title: 'Campus Events',
+    title: 'Events',
     Icon: PartyPopper,
     color: '#FDF4FF',
     table: 'campus_events',
@@ -142,7 +144,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'study-groups',
-    title: 'Study Groups',
+    title: 'Study groups',
     Icon: BookOpen,
     color: '#F0F9FF',
     table: 'study_groups',
@@ -166,7 +168,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'lost-found',
-    title: 'Lost and Found',
+    title: 'Lost and found',
     Icon: Search,
     color: '#FFF7ED',
     table: 'lost_found_posts',
@@ -188,7 +190,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'conversations',
-    title: 'Campus Conversation Boards',
+    title: 'Conversations',
     Icon: MessageCircle,
     color: '#FDF4FF',
     table: 'campus_conversations',
@@ -206,7 +208,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'clubs',
-    title: 'Join Clubs and Societies',
+    title: 'Clubs and societies',
     Icon: Handshake,
     color: colors.successBg,
     table: 'clubs_societies',
@@ -227,7 +229,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'projects',
-    title: 'Project Collaboration',
+    title: 'Project collaboration',
     Icon: Lightbulb,
     color: '#FDF4FF',
     table: 'project_collaborations',
@@ -252,7 +254,7 @@ export const CAMPUS_BOARDS = [
   },
   {
     key: 'problems',
-    title: 'Problems and Solutions',
+    title: 'Problems and solutions',
     Icon: Puzzle,
     color: colors.warningBg,
     table: 'problems_posts',

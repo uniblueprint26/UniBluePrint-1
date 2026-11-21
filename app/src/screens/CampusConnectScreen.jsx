@@ -1,397 +1,139 @@
-import { useComingSoonEnabled } from '../constants/comingSoon'
-import { useState, useMemo, useEffect } from 'react'
-import {
-  ScrollView, View, Text, TouchableOpacity, TextInput,
-  StyleSheet, KeyboardAvoidingView, Platform,
-} from 'react-native'
+import { useState, useEffect } from 'react'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, Plus, Ticket, ChevronLeft } from 'lucide-react-native'
+import {
+  Armchair, Car, CalendarDays, GraduationCap, Search, Users, Plus, Ticket, ChevronRight,
+  Building2, MapPin, DoorOpen, Footprints, CloudSun, Bus, Trophy, MessageCircle,
+} from 'lucide-react-native'
 
-import SectionHeader from '../components/ui/SectionHeader'
-import ScreenHeader from '../components/ui/ScreenHeader'
-import UBPLogo from '../components/ui/UBPLogo'
-import Button from '../components/ui/Button'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
-import CampusPulseCard from '../components/campusConnect/CampusPulseCard'
-import { MoodPulse } from '../components/feed/FeedKit'
+import PulseQuestions from '../components/campusConnect/PulseQuestions'
+import { Card, SectionRow, TileGrid, useTone } from '../components/campusConnect/CampusKit'
 import LiveRail from '../components/live/LiveRail'
+import { MoodPulse } from '../components/feed/FeedKit'
 import { fetchMoodPulse, DEFAULT_BUZZ_WINDOW } from '../lib/feed'
-import { CAMPUS_BOARDS } from '../constants/campusBoards'
-import { fonts, spacing, radius, shadows } from '../constants/theme'
+import { useCampus, useBoardCounts, countLine, useCampusMemberCount } from '../lib/campus'
+import { useUserType } from '../hooks/useUserType'
+import { fonts } from '../constants/theme'
 import { priorityColors, priorityFonts } from '../constants/priorityTheme'
-import { useTheme } from '../context/ThemeContext'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
-import { goToHome } from '../navigation/helpers'
-import { useAuth } from '../context/AuthContext'
 
-// ─── Board showcase (14 boards, one consistent card treatment) ─────────────
-// Restyled to match Course Connect's hub layout: one full-width FeatureCard
-// per board (headline, sub, live preview posts, Open CTA). Every board —
-// Carpooling and Project Collaboration included — now lives in CAMPUS_BOARDS
-// and gets the identical card and the identical "tap → BoardDetail" behaviour;
-// both used to keep their own bespoke inline sections further down this
-// screen (real posted routes/projects, filters, join flow) before they moved
-// onto the shared board-engine pattern, matching every other board here.
+// Campus Connect hub (founder pick r3-11 A). Your own community in the same
+// situation: for college students that is their campus, for apprentices and
+// workers it is their own group. The weekly Pulse comes first, then the boards,
+// then the campus toolkit.
 
 const PRIORITY_GOLD = priorityColors.gold
-const PRIORITY_BG   = priorityColors.bg
+const PRIORITY_BG = priorityColors.bg
 
-// Short, punchy headline per board — the FeatureCard equivalent of
-// COURSE_FEATURES' headline field (e.g. "Talk to everyone on your course").
-// board.tagline (from campusBoards.js, single source of truth) becomes the
-// card's `sub` line, so this is the only new copy this restyle adds.
-const BOARD_HEADLINES = {
-  accommodation: 'Find your next room',
-  events: "Never miss what's on this week",
-  'study-groups': 'Study with people who get it',
-  'lost-found': 'Lost something? Found something?',
-  conversations: "Say what's actually on your mind",
-  clubs: 'Find your people',
-  projects: 'Build something real with your peers',
-  problems: 'Get real answers, fast',
-  subscriptions: 'Split the cost, keep the perks',
-  reviews: 'The honest take on your college',
-  suggestions: 'Pitch the fix, campus decides',
-  ads: 'Buy, sell, or offer your skills',
-  opportunities: 'Find your next opportunity',
-  carpool: 'Split the cost of your commute',
-}
+const HUB_BOARDS = [
+  { key: 'accommodation', title: 'Accommodation', Icon: Armchair },
+  { key: 'carpool', title: 'Ride shares', Icon: Car },
+  { key: 'events', title: 'Events', Icon: CalendarDays },
+  { key: 'study-groups', title: 'Study groups', Icon: GraduationCap },
+  { key: 'lost-found', title: 'Lost and found', Icon: Search },
+  { key: 'clubs', title: 'Clubs and societies', Icon: Users },
+]
 
-// Sample posts for each board's mini preview inside its card — every board
-// (including Carpooling and Project Collaboration) draws from BOARDS_DATA
-// below the same way, now that both are ordinary CAMPUS_BOARDS entries.
-function buildBoardTiles(boardsData) {
-  return CAMPUS_BOARDS.map(b => {
-    const sample = boardsData.find(x => x.key === b.key)?.posts?.map(p => ({ text: p.text, meta: p.time }))
-    return {
-      key: b.key,
-      title: b.title,
-      label: b.title.toUpperCase(),
-      Icon: b.Icon,
-      color: b.color,
-      headline: BOARD_HEADLINES[b.key] || b.title,
-      sub: b.tagline,
-      count: 'Live at launch',
-      preview: sample && sample.length ? sample : undefined,
-      coming: b.coming,
-    }
-  })
-}
-
-// ─── Board grid — smaller square tiles, 3 per row ───────────────────────────
-// Replaces the old one-full-width-FeatureCard-per-board list: with 14 boards
-// that list ran to a very long scroll before a student ever saw the bottom.
-// Square tiles get every board in view a few at a time and read as a single
-// scannable grid instead of a feed, closer to how Quick Access's square
-// cards already work on Home. Tile width is measured (not a percentage) —
-// combining RN's flex `gap` with percentage widths in the same row is the
-// exact bug QuickAccessGrid's own COLUMNS math was written to avoid.
-const TILE_COLUMNS = 3
-const TILE_GAP = 10
-
-function BoardTileGrid({ tiles: allTiles, onPress }) {
-  const { colors } = useTheme()
-  // Coming soon tiles only show while app_flags.coming_soon_tiles is on.
-  const comingSoonOn = useComingSoonEnabled()
-  const tiles = comingSoonOn ? allTiles : allTiles.filter(t => !t.coming)
-  const styles = __gs_styles(colors)
-  const [containerWidth, setContainerWidth] = useState(0)
-  const tileSize = containerWidth > 0
-    ? (containerWidth - TILE_GAP * (TILE_COLUMNS - 1)) / TILE_COLUMNS
-    : 0
-
-  return (
-    <View
-      style={styles.tileGrid}
-      onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}
-    >
-      {containerWidth > 0 && tiles.map(t => (
-        <TouchableOpacity
-          key={t.key}
-          style={[styles.tile, { width: tileSize, height: tileSize, backgroundColor: t.color }, t.coming && styles.tileComing]}
-          activeOpacity={t.coming ? 1 : 0.82}
-          onPress={() => !t.coming && onPress(t.key)}
-          disabled={t.coming}
-          accessibilityRole="button"
-          accessibilityLabel={t.coming ? `${t.title}, coming soon` : `Open ${t.title}`}
-        >
-          {t.Icon
-            ? <t.Icon size={24} color={colors.navy} strokeWidth={1.8} />
-            : <Text style={styles.tileEmoji}>{t.emoji}</Text>}
-          <Text style={styles.tileLabel} numberOfLines={2}>{t.title}</Text>
-          {t.coming && (
-            <View style={styles.tileComingPill}>
-              <Text style={styles.tileComingText}>Coming soon</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      ))}
-    </View>
-  )
-}
-
-// ─── Boards (sample posts feeding buildBoardTiles above) ───────────────────
-
-const BOARDS_DATA = [
-  {
-    key: 'accommodation', title: 'Accommodation', icon: '🏠', color: '#EFF6FF',
-    posts: [
-      { text: 'Room available near UCD, €600/month, bills included. Available from August.', time: '2h ago' },
-      { text: 'Looking for 2 flatmates in Smithfield. Modern apt, €750pp. DM for info.', time: '5h ago' },
-    ],
-  },
-  {
-    key: 'carpool', title: 'Carpooling', icon: '🚗', color: '#F0FDF4',
-    posts: [
-      { text: 'Limerick City → UL Campus · Mon–Fri · 8:30am', time: '2 seats' },
-      { text: 'Cork City → UCC Main Gate · Mon/Wed/Fri · 9:00am', time: '3 seats' },
-    ],
-  },
-  {
-    key: 'events', title: 'Campus Events', icon: '🎉', color: '#FDF4FF',
-    posts: [
-      { text: 'UCD Law Society mixer this Thursday, free entry with student card.', time: '30m ago' },
-      { text: 'TCD Drama Society auditions, Monday 7pm, all welcome.', time: '4h ago' },
-    ],
-  },
-  {
-    key: 'study-groups', title: 'Study Groups', icon: '📚', color: '#F0F9FF',
-    posts: [
-      { text: 'FIN301 exam prep group forming, meet Thursdays in the library.', time: '1h ago' },
-      { text: 'Looking for two more for a CS2001 study group, hybrid format.', time: '3h ago' },
-    ],
-  },
-  {
-    key: 'lost-found', title: 'Lost and Found', icon: '🔍', color: '#FFF7ED',
-    posts: [
-      { text: 'Found: Blue North Face jacket in Library. Posted to security desk.', time: '6h ago' },
-      { text: 'Lost: AirPods Pro near Arts building, please DM if found.', time: '1d ago' },
-    ],
-  },
-  {
-    key: 'conversations', title: 'Campus Conversation Boards', icon: '💬', color: '#FDF4FF',
-    posts: [
-      { text: 'Anyone else find the new library hours a pain?', time: '45m ago' },
-      { text: 'Best spots to study on campus that aren’t the library?', time: '3h ago' },
-    ],
-  },
-  {
-    key: 'clubs', title: 'Join Clubs and Societies', icon: '🤝', color: '#F0FDF4',
-    posts: [
-      { text: 'Chess Society looking for new members, all levels welcome!', time: '2h ago' },
-      { text: 'St. Vincent de Paul, volunteering every Tuesday evening.', time: '1d ago' },
-    ],
-  },
-  {
-    key: 'projects', title: 'Project Collaboration', icon: '💡', color: '#FDF4FF',
-    posts: [
-      { text: 'Campus Sustainability App · 2 spots open', time: 'Mobile Dev' },
-      { text: 'AI Study Planner (Final Year) · 3 spots open', time: 'AI/ML' },
-    ],
-  },
-  {
-    key: 'problems', title: 'Problems & Solutions', icon: '🧩', color: '#FEF9C3',
-    posts: [
-      { text: 'Anyone know how to appeal a CAO change of mind decision? Need help urgently.', time: '1h ago' },
-      { text: 'Accommodation deposit taken but landlord gone silent, what are my rights?', time: '3h ago' },
-    ],
-  },
-  {
-    key: 'subscriptions', title: 'Shared Subscriptions', icon: '🔗', color: '#F0F9FF',
-    posts: [
-      { text: 'Sharing Spotify Premium family plan, 2 spots left, €4/month each.', time: '2h ago' },
-      { text: 'Netflix account share, 1 spot open, €5/month.', time: '5h ago' },
-    ],
-  },
-  {
-    key: 'reviews', title: 'College Reviews', icon: '⭐', color: '#F0FDF4',
-    posts: [
-      { text: 'UCD Commerce, solid for networking, weak on small group teaching.', time: '4h ago' },
-      { text: 'TCD Law, incredibly challenging but library resources are unmatched.', time: '1d ago' },
-    ],
-  },
-  {
-    key: 'suggestions', title: 'Campus Suggestions', icon: '💭', color: '#FDF4FF',
-    posts: [
-      { text: '24hr study room in the Arts block, high demand during exam season.', time: '6h ago' },
-      { text: 'More microwaves in the SU, lunch queues are 20 minutes.', time: '1d ago' },
-    ],
-  },
-  {
-    key: 'ads', title: 'Student Ads', icon: '📢', color: '#F5F0E8',
-    posts: [
-      { text: 'Guitar lessons available, €25/session. Beginners welcome.', time: '1h ago' },
-      { text: 'Professional CV & cover letter service, €25. Fast turnaround.', time: '2h ago' },
-    ],
-  },
-  {
-    key: 'opportunities', title: 'Opportunities', icon: '💼', color: '#FEF9C3',
-    posts: [
-      { text: 'Part-time barista role, €13.50/hr, 3 mins from UCD. Apply now.', time: '45m ago' },
-      { text: 'Marketing intern wanted by Dublin startup, 20 hrs/week, paid.', time: '3h ago' },
-    ],
-  },
+const TOOLKIT = [
+  { key: 'busy', title: 'Busy spots', sub: 'Where is quiet right now', Icon: MapPin, route: 'BusySpots' },
+  { key: 'rooms', title: 'Study rooms', sub: 'Share a booked slot', Icon: DoorOpen, route: 'StudyRooms' },
+  { key: 'buddy', title: 'Commute buddy', sub: 'Travel with someone', Icon: Footprints, route: 'CommuteBuddy' },
+  { key: 'weather', title: 'Weather', sub: 'And what to wear', Icon: CloudSun, route: 'CampusToolkit', params: { view: 'weather' } },
+  { key: 'transport', title: 'Transport', sub: 'Official links', Icon: Bus, route: 'CampusToolkit', params: { view: 'transport' } },
+  { key: 'ranked', title: 'Campus ranked', sub: 'Colleges compared', Icon: Trophy, route: 'CampusRanked' },
 ]
 
 export default function CampusConnectScreen({ navigation }) {
-  const { colors } = useTheme()
-  const styles = __gs_styles(colors)
+  const { colors, accent } = useTone('campus')
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
-  const safeGoBack = useSafeGoBack(navigation)
-  const institutionShort = user?.user_metadata?.institution_short
-  const [search, setSearch] = useState('')
-
-  // ── Post to Board picker ────────────────────────────────────────────────────
+  const campus = useCampus()
+  const { userType } = useUserType()
+  const counts = useBoardCounts()
+  const members = useCampusMemberCount(campus.institution)
   const [pickerOpen, setPickerOpen] = useState(false)
-
-  // ── Mood Pulse (moved here from Home, 2026-11-09) ───────────────────────
-  // Distinct from CampusPulseCard above — this is the mood-distribution bar
-  // (aggregated from Take posts' mood tags), not the weekly prompt
-  // module. Fixed to the default window rather than its own filter chips;
-  // the Today/Week/Month/Year toggle still lives on Home where it also
-  // drives the Buzzing highlight.
   const [moodPulse, setMoodPulse] = useState({ total: 0, counts: {} })
   useEffect(() => {
     fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(setMoodPulse).catch(() => {})
   }, [])
 
-  // ── Board showcase (14 boards, one card treatment) ─────────────────────────
-  const boardTiles = useMemo(() => buildBoardTiles(BOARDS_DATA), [])
-  const filteredBoardTiles = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return boardTiles
-    return boardTiles.filter(t =>
-      t.label.toLowerCase().includes(q) || t.headline.toLowerCase().includes(q) || t.sub.toLowerCase().includes(q))
-  }, [boardTiles, search])
+  // The wording never assumes everyone is in college.
+  const isCollege = userType === 'student' || userType === 'gap_year'
+  const communityName = isCollege
+    ? (campus.short || null)
+    : (userType === 'apprentice' ? 'Your apprentice group' : 'Your industry group')
 
-  function openBoardTile(key) {
-    navigation.navigate('BoardDetail', { boardKey: key })
-  }
+  const boardTiles = HUB_BOARDS.map(b => ({ ...b, sub: countLine(counts[b.key]) }))
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
-    >
-      {/* ── Scrollable content — header now scrolls with the page, same as every other screen ── */}
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 56 }]}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Integrated header + hero ── */}
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
-          eyebrow="CAMPUS CONNECT"
-          title={institutionShort ? `Campus Connect ${institutionShort}` : 'Campus Connect'}
-          subtitle="From accommodation to study groups, carpooling to project collaboration: your campus community, all in one place."
-          style={styles.heroBlock}
-          titleStyle={styles.heroTitle}
-        >
-          {/* Stats */}
-          <View style={styles.heroStats}>
-            <View style={styles.heroStatItem}>
-              <Text style={styles.heroStatNumber}>All</Text>
-              <Text style={styles.heroStatLabel}>Irish Institutions{'\n'}Welcome</Text>
-            </View>
-            <View style={styles.heroStatDivider} />
-            <View style={styles.heroStatItem}>
-              <Text style={styles.heroStatNumber}>14</Text>
-              <Text style={styles.heroStatLabel}>Campus Boards{'\n'}per College</Text>
-            </View>
-            <View style={styles.heroStatDivider} />
-            <View style={styles.heroStatItem}>
-              <Text style={styles.heroStatNumber}>Free</Text>
-              <Text style={styles.heroStatLabel}>To join{'\n'}your campus</Text>
-            </View>
-          </View>
-        </ScreenHeader>
+        <PageTitle title="Campus Connect" subtitle="Everyone in the same situation as you." />
+
+        <View style={s.community}>
+          <Building2 size={16} color={colors.textSecondary} strokeWidth={1.8} />
+          {communityName ? (
+            <Text style={[s.communityText, { color: colors.textSecondary }]}>
+              <Text style={{ color: accent, fontFamily: fonts.sansBold }}>{communityName}</Text>
+              {members ? `  ·  ${members.toLocaleString('en-IE')} member${members === 1 ? '' : 's'} here` : ''}
+            </Text>
+          ) : (
+            <Text style={[s.communityText, { color: colors.textSecondary }]}>Add your campus in Settings to see your community.</Text>
+          )}
+        </View>
 
         <LiveRail audience="campus" navigation={navigation} />
 
-        <View style={styles.content}>
+        <View style={s.body}>
+          <PulseQuestions navigation={navigation} audience="campus" />
 
-          {/* ── Campus Pulse — Desmond's weekly low-pressure prompt module,
-              lives on the Campus Events board area. See CampusPulseCard.jsx
-              and supabase/migrations/20261015140000_campus_pulse.sql. ── */}
-          <CampusPulseCard navigation={navigation} />
+          <SectionRow title="Boards" action="All 14" onAction={() => navigation.navigate('CampusBoards')} />
+          <TileGrid items={boardTiles} onPress={t => navigation.navigate('BoardDetail', { boardKey: t.key })} />
 
-          {/* ── Campus Mood — the mood-distribution bar (see FeedKit's
-              MoodPulse) moved here from Home. Different from Campus Pulse
-              above: that's a weekly prompt + replies, this is a read-only
-              aggregate of mood tags across Take posts. */}
-          <View style={{ marginBottom: spacing.md }}>
+          <TouchableOpacity
+            style={[s.postBar, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => setPickerOpen(true)}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Post to a board"
+          >
+            <View style={[s.postAvatar, { backgroundColor: colors.accentBg }]}>
+              <Text style={[s.postAvatarText, { color: colors.accentFg }]}>You</Text>
+            </View>
+            <Text style={[s.postText, { color: colors.textSecondary }]}>Post to a board</Text>
+            <Plus size={22} color={colors.textPrimary} strokeWidth={1.8} />
+          </TouchableOpacity>
+
+          <SectionRow title="Campus toolkit" />
+          <TileGrid items={TOOLKIT} onPress={t => navigation.navigate(t.route, t.params)} />
+
+          <View style={{ marginTop: 24 }}>
             <MoodPulse pulse={moodPulse} title="Campus Mood" />
           </View>
 
-          {/* Search — filters the board showcase below by name or topic */}
-          <View style={styles.searchWrap}>
-            <Search size={16} color={colors.muted} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search boards..."
-              placeholderTextColor={colors.light}
-              value={search}
-              onChangeText={setSearch}
-            />
-          </View>
-
-          {/* ── Board showcase: every board, one tap-sized square tile ── */}
-          <SectionHeader eyebrow="What's Available" title="14 Boards, One Place" style={{ marginTop: spacing.lg }} />
-          <Text style={styles.boardsIntro}>
-            Live from day one — browse any board straight away, no campus sign-up required. Posting just needs your
-            institution on file.
-          </Text>
-          {filteredBoardTiles.length > 0 ? (
-            <BoardTileGrid tiles={filteredBoardTiles} onPress={openBoardTile} />
-          ) : (
-            <Text style={styles.emptyBoardsText}>No boards match “{search}”.</Text>
-          )}
-
-          {/* Priority — UniBlueprint's events arm (House/Afrobeats/Folk
-              nights, ticketed in-app). Kept outside CAMPUS_BOARDS on
-              purpose: it carries its own brand (dark + gold, not UBP
-              navy/cream) and a real purchase flow, so it gets its own
-              full screen rather than an inline board like the ones above. */}
           <TouchableOpacity
-            style={priorityCardStyles.card}
+            style={pc.card}
             activeOpacity={0.9}
             onPress={() => navigation.navigate('Priorities')}
+            accessibilityRole="button"
+            accessibilityLabel="Open Priority events"
           >
-            <View style={priorityCardStyles.topRow}>
-              <View style={priorityCardStyles.iconBox}>
-                <Ticket size={20} color={PRIORITY_GOLD} strokeWidth={2} />
-              </View>
+            <View style={pc.topRow}>
+              <View style={pc.iconBox}><Ticket size={20} color={PRIORITY_GOLD} strokeWidth={2} /></View>
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={priorityCardStyles.label}>PRIORITY EVENTS</Text>
-                <Text style={priorityCardStyles.count}>Preview · by UniBlueprint</Text>
+                <Text style={pc.label}>PRIORITY EVENTS</Text>
+                <Text style={pc.count}>by UniBlueprint</Text>
               </View>
-              <View style={priorityCardStyles.newBadge}><Text style={priorityCardStyles.newBadgeText}>NEW</Text></View>
+              <ChevronRight size={18} color={PRIORITY_GOLD} />
             </View>
-            <Text style={priorityCardStyles.headline}>House, Afrobeats and Folk nights, ticketed in-app</Text>
-            <Text style={priorityCardStyles.sub}>
-              UniBlueprint's events arm — campus nightlife and live music across Ireland.
-            </Text>
-            <View style={priorityCardStyles.cta}>
-              <Text style={priorityCardStyles.ctaText}>Open Priority</Text>
-              <ChevronLeft size={13} color={PRIORITY_BG} style={{ transform: [{ rotate: '180deg' }] }} />
-            </View>
+            <Text style={pc.headline}>House, Afrobeats and Folk nights</Text>
+            <Text style={pc.sub}>Campus nightlife and live music across Ireland.</Text>
           </TouchableOpacity>
-
-          <Button
-            label="Post to Campus Board"
-            icon={Plus}
-            onPress={() => setPickerOpen(true)}
-            variant="primary"
-            style={styles.primaryBtn}
-          />
-
         </View>
       </ScrollView>
 
@@ -403,90 +145,28 @@ export default function CampusConnectScreen({ navigation }) {
           navigation.navigate('BoardDetail', { boardKey: board.key, openPostForm: true })
         }}
       />
-    </KeyboardAvoidingView>
+    </View>
   )
 }
 
-// ─── Priority entry card — its own brand, deliberately not UBP navy/cream ────
-
-const priorityCardStyles = StyleSheet.create({
-  card: {
-    marginTop: 14, borderRadius: 14, padding: 16,
-    backgroundColor: priorityColors.bg, borderWidth: 1, borderColor: priorityColors.borderStrong,
-    ...shadows.card,
-  },
-  topRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  iconBox: {
-    width: 46, height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0, backgroundColor: 'rgba(185,185,180,0.14)',
-  },
-  label: { fontFamily: priorityFonts.sansSemiBold, fontSize: 10, letterSpacing: 0.8, color: PRIORITY_GOLD, marginBottom: 4 },
-  count: { fontFamily: priorityFonts.sans, fontSize: 12, color: priorityColors.textMuted },
-  newBadge: { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: PRIORITY_GOLD, alignSelf: 'flex-start' },
-  newBadgeText: { fontFamily: priorityFonts.sansSemiBold, fontSize: 9, color: PRIORITY_BG, letterSpacing: 0.5 },
-  headline: { fontFamily: priorityFonts.serif, fontSize: 20, marginTop: 12, lineHeight: 27, color: priorityColors.textPrimary },
-  sub: { fontFamily: priorityFonts.sans, fontSize: 13, marginTop: 5, lineHeight: 19, color: priorityColors.textMuted },
-  cta: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
-    borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: PRIORITY_GOLD,
-    alignSelf: 'flex-end', marginTop: 14,
-  },
-  ctaText: { fontFamily: priorityFonts.sansSemiBold, fontSize: 13, color: PRIORITY_BG },
+const s = StyleSheet.create({
+  screen: { flex: 1 },
+  community: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingTop: 6, paddingBottom: 12 },
+  communityText: { fontFamily: fonts.sans, fontSize: 14, flexShrink: 1 },
+  body: { paddingHorizontal: 16 },
+  postBar: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 14, borderRadius: 999, borderWidth: 1, paddingVertical: 10, paddingLeft: 10, paddingRight: 18 },
+  postAvatar: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  postAvatarText: { fontFamily: fonts.sansBold, fontSize: 12 },
+  postText: { flex: 1, fontFamily: fonts.sans, fontSize: 16 },
 })
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-function __gs_styles(colors) {
-  return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-
-  // Hero
-  heroBlock: {
-    backgroundColor: colors.chromeBg,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl + spacing.sm,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, lineHeight: 38, marginTop: 6, marginBottom: 10 },
-  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
-  heroStats:       { flexDirection: 'row', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(245,240,232,0.12)' },
-  heroStatItem:    { flex: 1, alignItems: 'flex-start' },
-  heroStatNumber:  { fontFamily: fonts.serif, fontSize: 22, color: colors.chromeFg, lineHeight: 26 },
-  heroStatLabel:   { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(245,240,232,0.5)', marginTop: 3, lineHeight: 15 },
-  heroStatDivider: { width: 1, backgroundColor: 'rgba(245,240,232,0.12)', marginHorizontal: 16, alignSelf: 'stretch' },
-
-  // THE fix for the header floating/overlapping content on native — a
-  // ScrollView needs an explicit flex (not just contentContainerStyle) on
-  // its own `style`, or native has nothing to size its clipped viewport
-  // against. See HomeScreen.jsx's mainScroll comment for the full story.
-  scrollView: { flex: 1 },
-  scroll:  {},
-  content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
-
-  // Search
-  searchWrap: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.surface, borderRadius: 8,
-    paddingHorizontal: 14, height: 48, ...shadows.card,
-  },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
-  boardsIntro: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 6, marginBottom: 12, lineHeight: 18 },
-  emptyBoardsText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', paddingVertical: spacing.md },
-
-  // Board tile grid — small square tiles, 3 per row (see BoardTileGrid above)
-  tileGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
-  tile: {
-    borderRadius: radius.card, padding: 10,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    alignItems: 'flex-start', justifyContent: 'space-between',
-    ...shadows.card,
-  },
-  tileEmoji: { fontSize: 24 },
-  tileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.navy, lineHeight: 15 },
-  tileComing: { opacity: 0.6 },
-  tileComingPill: { marginTop: 4, borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(30,58,95,0.08)' },
-  tileComingText: { fontFamily: fonts.sansMedium, fontSize: 8.5, color: colors.muted },
-
-  // CTA
-  primaryBtn:    { marginTop: spacing.lg },
-  })
-}
+// Priority keeps its own black and silver look.
+const pc = StyleSheet.create({
+  card: { marginTop: 24, borderRadius: 18, padding: 18, backgroundColor: priorityColors.bg, borderWidth: 1, borderColor: priorityColors.borderStrong },
+  topRow: { flexDirection: 'row', alignItems: 'center' },
+  iconBox: { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(185,185,180,0.14)' },
+  label: { fontFamily: priorityFonts.sansSemiBold, fontSize: 11, letterSpacing: 0.8, color: PRIORITY_GOLD, marginBottom: 3 },
+  count: { fontFamily: priorityFonts.sans, fontSize: 12, color: priorityColors.textMuted },
+  headline: { fontFamily: priorityFonts.serif, fontSize: 20, marginTop: 14, lineHeight: 26, color: priorityColors.textPrimary },
+  sub: { fontFamily: priorityFonts.sans, fontSize: 13, marginTop: 4, lineHeight: 19, color: priorityColors.textMuted },
+})

@@ -128,6 +128,9 @@ export async function goToRelatedEntity(navigation, notif, userId) {
       }
       return
     }
+    case 'study_room':
+      navigation.navigate('StudyRooms')
+      return
     default:
       return
   }

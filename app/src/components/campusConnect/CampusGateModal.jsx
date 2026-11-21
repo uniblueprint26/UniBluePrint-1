@@ -29,9 +29,13 @@ export default function CampusGateModal({ visible, onClose, onSelected }) {
   async function choose(inst) {
     if (saving) return
     setSaving(true)
-    const { error } = await supabase.auth.updateUser({
+    const { data: updated, error } = await supabase.auth.updateUser({
       data: { institution: inst.name, institution_short: inst.short },
     })
+    // The server reads the campus from the profile, so keep it in step.
+    if (!error && updated?.user?.id) {
+      try { await supabase.from('profiles').update({ institution: inst.name }).eq('id', updated.user.id) } catch { /* the metadata copy still works */ }
+    }
     setSaving(false)
     if (!error) {
       setQuery('')

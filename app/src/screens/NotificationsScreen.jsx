@@ -19,7 +19,7 @@ import { useFoundationEnabled } from '../hooks/useAppFlags'
 // System.
 
 const CATEGORY_OF = {
-  chat_message: 'social', board_reply: 'social', coach_enquiry: 'social',
+  chat_message: 'social', board_reply: 'social', coach_enquiry: 'social', study_room: 'social',
   document: 'academic', session: 'academic', coach_booking: 'academic',
   foundation_blueprint: 'academic', job_application_reminder: 'academic',
   checkin_reminder: 'academic', weekly_summary: 'academic',

@@ -42,6 +42,11 @@ import {
 
 import Card from '../components/ui/Card'
 import ScreenHeader from '../components/ui/ScreenHeader'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import { EventsView, RidesView, LostFoundView, AccommodationView } from '../components/campusConnect/BoardViews'
+import { PrimaryButton } from '../components/campusConnect/CampusKit'
+import { openRoomy } from './RoomyPartnerScreen'
+import { useBlockedIds } from '../lib/reporting'
 import { useReport } from '../components/safety/ReportProvider'
 import PostFormModal from '../components/campusConnect/PostFormModal'
 import CampusGateModal from '../components/campusConnect/CampusGateModal'
@@ -109,7 +114,8 @@ export default function BoardDetailScreen({ navigation, route }) {
   const safeGoBack = useSafeGoBack(navigation, backFallbackRoute)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
-  const { openReport } = useReport()
+  const { openReport, openBlock } = useReport()
+  const blockedIds = useBlockedIds(user?.id)
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -234,6 +240,8 @@ export default function BoardDetailScreen({ navigation, route }) {
   }
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
+  const newLook = registry === 'campus' || registry === 'course'
+  const customView = registry === 'campus' && ['events', 'carpool', 'lost-found', 'accommodation'].includes(board.key)
 
   function hasCampus() {
     return !!user?.user_metadata?.institution
@@ -428,7 +436,7 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const filteredRows = useMemo(() => {
-    return rows.filter(item => {
+    return rows.filter(item => !blockedIds.has(item.user_id ?? item.created_by)).filter(item => {
       return (board.filters || []).every(filter => {
         const fv = filterValues[filter.key]
         if (!fv) return true
@@ -441,7 +449,7 @@ export default function BoardDetailScreen({ navigation, route }) {
         return item[filter.key] === fv
       })
     })
-  }, [rows, filterValues, board.filters])
+  }, [rows, filterValues, board.filters, blockedIds])
 
   const posterLine = item => {
     const anon = item.anonymous
@@ -908,6 +916,26 @@ export default function BoardDetailScreen({ navigation, route }) {
     )
   }
 
+  // New look (Campus Connect and Course Connect): the app header, a serif title
+  // and a floating post button. Boards with their own view show it instead of
+  // the generic card list.
+  function renderCustomView() {
+    const common = {
+      rows: filteredRows,
+      user,
+      onPost: handlePostPress,
+      onReport: report,
+      onBlock: item => openBlock({ contentType: board.table, contentId: item.id, reportedUserId: item.user_id ?? item.created_by, userName: item.poster_name || 'this member' }),
+      onRemove: confirmRemove,
+      onChat: (item, roomName, subtitle) => openChat(item, roomName, subtitle),
+    }
+    if (board.key === 'events') return <EventsView {...common} />
+    if (board.key === 'carpool') return <RidesView {...common} />
+    if (board.key === 'lost-found') return <LostFoundView {...common} />
+    if (board.key === 'accommodation') return <AccommodationView {...common} onRoomy={openRoomy} onRoomyPage={() => navigation.navigate('RoomyPartner')} />
+    return null
+  }
+
   // ── Roomy.ie panel (Accommodation only) ──────────────────────────────────
   function renderRoomyPanel() {
     const listings = [
@@ -942,23 +970,31 @@ export default function BoardDetailScreen({ navigation, route }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
     >
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          backLabel={backLabel}
-          icon={board.Icon
-            ? <board.Icon size={28} color={colors.chromeFg} strokeWidth={1.8} />
-            : <Text style={styles.heroIcon}>{board.icon}</Text>}
-          title={board.title}
-          subtitle={board.tagline}
-          style={styles.heroBlock}
-          titleStyle={styles.heroTitle}
-        />
+      {newLook && <AppHeader navigation={navigation} showBack />}
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 120 }} keyboardShouldPersistTaps="handled">
+        {newLook ? (
+          <PageTitle title={board.title} subtitle={board.tagline} />
+        ) : (
+          <ScreenHeader
+            variant="navy"
+            onBack={safeGoBack}
+            backLabel={backLabel}
+            icon={board.Icon
+              ? <board.Icon size={28} color={colors.chromeFg} strokeWidth={1.8} />
+              : <Text style={styles.heroIcon}>{board.icon}</Text>}
+            title={board.title}
+            subtitle={board.tagline}
+            style={styles.heroBlock}
+            titleStyle={styles.heroTitle}
+          />
+        )}
 
         <View style={styles.content}>
-          {board.special === 'accommodation' && renderRoomyPanel()}
-          {board.special === 'carpool' && (
+          {customView && (loading
+            ? <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
+            : renderCustomView())}
+          {!customView && board.special === 'accommodation' && renderRoomyPanel()}
+          {!customView && board.special === 'carpool' && (
             <View style={styles.safetyBanner}>
               <AlertCircle size={15} color="#92400E" />
               <Text style={styles.safetyBannerText}>
@@ -967,16 +1003,18 @@ export default function BoardDetailScreen({ navigation, route }) {
             </View>
           )}
 
-          {renderFilterBar()}
+          {!customView && renderFilterBar()}
 
-          <TouchableOpacity style={styles.postBtn} activeOpacity={0.85} onPress={handlePostPress}>
-            <Plus size={15} color={colors.accentFg} />
-            <Text style={styles.postBtnText}>{board.postCta}</Text>
-          </TouchableOpacity>
+          {!customView && (
+            <TouchableOpacity style={styles.postBtn} activeOpacity={0.85} onPress={handlePostPress}>
+              <Plus size={15} color={colors.accentFg} />
+              <Text style={styles.postBtnText}>{board.postCta}</Text>
+            </TouchableOpacity>
+          )}
 
-          {board.special === 'reviews' && renderReviewsAggregate()}
+          {!customView && board.special === 'reviews' && renderReviewsAggregate()}
 
-          {loading ? (
+          {customView ? null : loading ? (
             <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filteredRows.length === 0 ? (
             <Text style={styles.emptyText}>Nothing here yet — be the first to post.</Text>
@@ -987,6 +1025,12 @@ export default function BoardDetailScreen({ navigation, route }) {
           )}
         </View>
       </ScrollView>
+
+      {newLook && !loading && (
+        <View style={[styles.fabWrap, { paddingBottom: insets.bottom + 12 }]} pointerEvents="box-none">
+          <PrimaryButton label={board.postCta} Icon={Plus} onPress={handlePostPress} style={{ marginTop: 0 }} />
+        </View>
+      )}
 
       <PostFormModal
         visible={postOpen}
@@ -1153,6 +1197,7 @@ function __gs_styles(colors) {
 
   content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
 
+  fabWrap: { position: 'absolute', left: 16, right: 16, bottom: 0, alignItems: 'flex-end' },
   postBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: colors.accentBg, borderRadius: radius.button, height: 50, marginBottom: spacing.sm,
