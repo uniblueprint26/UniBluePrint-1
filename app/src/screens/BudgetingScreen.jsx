@@ -18,7 +18,7 @@ import {
   X, PiggyBank, Plane, Heart, ShoppingBag, Home as HomeIcon, Laptop, ShieldCheck,
   ShieldAlert, Scale, Clock as ClockIcon, Lock, Receipt,
 } from 'lucide-react-native'
-import TopBar from '../components/layout/TopBar'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import EmptyState from '../components/ui/EmptyState'
@@ -684,12 +684,12 @@ const DEFAULT_GOAL_SEEDS = [
 ]
 
 function BudgetTab({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
   const { user } = useAuth()
   const { userType, loading: userTypeLoading, label: userTypeLabel } = useUserType()
   const [loaded, setLoaded]   = useState(false)
-  const [period, setPeriod]   = useState('week')
+  const [period, setPeriod]   = useState('month')
   const [mode,   setMode]     = useState('both')
   // Tracks which user type the income categories below were last generated
   // for, so a change made in Settings (see Account Type there) regenerates
@@ -861,12 +861,55 @@ function BudgetTab({ navigation }) {
       ? colors.destructive
       : colors.muted
 
+  const barPalette = isDark
+    ? ['#F5F0E8', '#8FB0E8', '#B7A3F0', '#F2A584', '#7DD3CB', '#9CA3AF']
+    : ['#1E3A5F', '#5B7DB8', '#7B61C4', '#C96A42', '#4FA3AC', '#8A8F98']
+  const spendRows = expenses
+    .map(e => ({ id: e.id, label: e.label, value: parseFloat(e.amount) || 0 }))
+    .filter(e => e.value > 0)
+    .sort((a, b) => b.value - a.value)
+  const periodWord = period === 'week' ? 'this week' : period === 'month' ? 'this month' : 'this term'
+  const bigBalanceColor = balance < 0 ? colors.destructive : colors.goldText
+
   return (
     <View>
+      {/* Balance first, as a big number. All the other numbers sit just below. */}
+      <Text style={[styles.bigLabel, { color: colors.textSecondary }]}>{`BALANCE ${periodWord.toUpperCase()}`}</Text>
+      <Text style={[styles.bigNumber, { color: bigBalanceColor }]} accessibilityLabel={`Balance ${periodWord}, ${balance < 0 ? 'minus ' : ''}${Math.abs(Math.round(balance))} euro`} adjustsFontSizeToFit numberOfLines={1}>
+        {balance < 0 ? '-' : ''}€{formatNumber(Math.abs(Math.round(balance)))}
+      </Text>
+      <Text style={[styles.bigSub, { color: colors.textSecondary }]}>
+        €{formatNumber(Math.round(totalIncome))} in, €{formatNumber(Math.round(totalExpenses))} out
+      </Text>
+
+      {spendRows.length > 0 && (
+        <View style={{ marginTop: spacing.lg }}>
+          <View style={styles.spendBar} accessibilityLabel="Where your spending went">
+            {spendRows.map((r, n) => (
+              <View key={r.id} style={{ flex: r.value, backgroundColor: barPalette[n % barPalette.length], marginLeft: n === 0 ? 0 : 2 }} />
+            ))}
+          </View>
+          <Card style={[styles.entriesCard, { marginTop: spacing.md }]}>
+            {spendRows.map((r, n) => (
+              <View key={r.id} style={[styles.spendRow, n < spendRows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
+                <View style={[styles.spendDot, { backgroundColor: barPalette[n % barPalette.length] }]} />
+                <Text style={[styles.spendLabel, { color: colors.textPrimary }]} numberOfLines={1}>{r.label}</Text>
+                <Text style={[styles.spendValue, { color: colors.textPrimary }]}>€{formatNumber(Math.round(r.value))}</Text>
+              </View>
+            ))}
+          </Card>
+        </View>
+      )}
+
+      <TouchableOpacity style={styles.addExpenseBig} activeOpacity={0.85} onPress={addExpense} accessibilityRole="button" accessibilityLabel="Add expense">
+        <Plus size={18} color={colors.accentFg} />
+        <Text style={styles.addExpenseBigText}>Add expense</Text>
+      </TouchableOpacity>
+
       {/* Account type — the income categories below are tailored to this.
           Changed in Settings (Profile > Account Type), not here, so it
           stays the same single, reusable concept every screen reads. */}
-      <TouchableOpacity style={styles.userTypeRow} activeOpacity={0.8} onPress={goToAccountType}>
+      <TouchableOpacity style={[styles.userTypeRow, { marginTop: spacing.xl }]} activeOpacity={0.8} onPress={goToAccountType}>
         <View style={{ flex: 1 }}>
           <Text style={styles.userTypeLabel}>Your account type</Text>
           <Text style={styles.userTypeValue}>{userTypeLabel}</Text>
@@ -995,21 +1038,6 @@ function BudgetTab({ navigation }) {
             <Text style={styles.addRowBtnText}>Add Expense</Text>
           </TouchableOpacity>
         </View>
-      )}
-
-      {/* Balance summary card */}
-      {hasAnyData && (
-        <Card style={[styles.balanceSummary, { borderLeftColor: balanceColor }]}>
-          <Text style={styles.balanceSummaryLabel}>
-            {balance >= 0 ? 'You have' : 'You are'}
-          </Text>
-          <Text style={[styles.balanceSummaryAmount, { color: balanceColor }]}>
-            {balance < 0 ? '-' : ''}€{formatNumber(Math.abs(balance), { decimals: 2 })}
-          </Text>
-          <Text style={styles.balanceSummaryLabel}>
-            {balance >= 0 ? 'left over this ' + (period === 'week' ? 'week' : period === 'month' ? 'month' : 'term') : 'over budget this ' + (period === 'week' ? 'week' : period === 'month' ? 'month' : 'term')}
-          </Text>
-        </Card>
       )}
 
       {/* Tracking note — this is the "we track this, save anytime" line: there's
@@ -1326,51 +1354,28 @@ export default function BudgetingScreen({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <TopBar navigation={navigation} showBack />
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Hero */}
-        <View style={styles.hero}>
-          <Text style={styles.heroEyebrow}>FINANCIAL COMPANION</Text>
-          <Text style={styles.heroTitle}>Know where your money goes, every week.</Text>
-          <Text style={styles.heroSub}>
-            Track what you spend, set savings goals, understand what you're owed, and explore investing, all in one place.
-          </Text>
-          <Text style={styles.heroCurator}>
-            Includes a built-in SUSI Grant Checker, so you always know what state support you could be entitled to.
-          </Text>
-        </View>
+        <PageTitle title="Budgeting" />
 
-        {/* Tab selector — icon centred above label (not side-by-side) so a
-            longer, wrapping label like "Grants & Schemes" still lands dead
-            centre both horizontally and vertically, matching the shorter
-            single-line tabs either side of it instead of drifting off-centre. */}
-        <View style={styles.tabRow}>
-          <TouchableOpacity
-            style={[styles.tabBtn, tab === 'budget' && styles.tabBtnActive]}
-            onPress={() => setTab('budget')}
-          >
-            <Wallet size={16} color={tab === 'budget' ? colors.accentFg : colors.textPrimary} />
-            <Text style={[styles.tabBtnText, tab === 'budget' && styles.tabBtnTextActive]} numberOfLines={2}>Budget</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabBtn, tab === 'susi' && styles.tabBtnActive]}
-            onPress={() => setTab('susi')}
-          >
-            <Target size={16} color={tab === 'susi' ? colors.accentFg : colors.textPrimary} />
-            <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]} numberOfLines={2}>Grants & Schemes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabBtn, tab === 'invest' && styles.tabBtnActive]}
-            onPress={() => setTab('invest')}
-          >
-            <InvestIcon size={16} color={tab === 'invest' ? colors.accentFg : colors.textPrimary} />
-            <Text style={[styles.tabBtnText, tab === 'invest' && styles.tabBtnTextActive]} numberOfLines={2}>Investment</Text>
-          </TouchableOpacity>
+        <View style={[styles.switchRow, { backgroundColor: colors.tabFill }]}>
+          {[['budget', 'Budget'], ['susi', 'Grants'], ['invest', 'Investment']].map(([k, label]) => (
+            <TouchableOpacity
+              key={k}
+              style={[styles.switchBtn, tab === k && { backgroundColor: colors.surface }]}
+              onPress={() => setTab(k)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityState={{ selected: tab === k }}
+            >
+              <Text style={[styles.switchText, { color: tab === k ? colors.textPrimary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <View style={styles.content}>
@@ -1386,6 +1391,19 @@ export default function BudgetingScreen({ navigation, route }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
+  switchRow: { flexDirection: 'row', marginHorizontal: 16, marginTop: 8, padding: 4, borderRadius: 14 },
+  switchBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 11 },
+  switchText: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  bigLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1.2, marginTop: 8 },
+  bigNumber: { fontFamily: fonts.serif, fontSize: 68, lineHeight: 78, marginTop: 6 },
+  bigSub: { fontFamily: fonts.sans, fontSize: 15, marginTop: 2 },
+  spendBar: { flexDirection: 'row', height: 14, borderRadius: 7, overflow: 'hidden' },
+  spendRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 4 },
+  spendDot: { width: 10, height: 10, borderRadius: 5 },
+  spendLabel: { flex: 1, fontFamily: fonts.sans, fontSize: 15 },
+  spendValue: { fontFamily: fonts.sansBold, fontSize: 15 },
+  addExpenseBig: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 54, borderRadius: radius.button, backgroundColor: colors.accentBg, marginTop: spacing.lg },
+  addExpenseBigText: { fontFamily: fonts.sansBold, fontSize: 16, color: colors.accentFg },
   screen: { flex: 1, backgroundColor: colors.background },
   scroll: { paddingBottom: 56 },
 
