@@ -1,63 +1,63 @@
 /**
- * ResourceFinderScreen — search across Shared Notes + Past Papers.
- *
- * Bespoke rather than a generic board because it reads from two tables at
- * once and has no post form of its own — purely a cross-table search over
- * resources other students already uploaded via the Shared Notes and Past
- * Papers boards.
+ * Resource finder (founder pick r3-20 merge): search and filter chips, the most
+ * downloaded file big at the top, then the rest in a tidy list. It reads shared
+ * notes and past papers that members uploaded, so each college's own resources
+ * show up by themselves. An institution chip narrows the list to one college.
+ * Every file has Report (and Block through the same sheet).
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, ActivityIndicator, Platform, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Search, Download, FileText, Image as ImageIcon } from 'lucide-react-native'
-import ScreenHeader from '../components/ui/ScreenHeader'
-
-import Card from '../components/ui/Card'
-import { fonts, spacing, radius, shadows } from '../constants/theme'
-import { useTheme } from '../context/ThemeContext'
+import { Search, Download, FileText, Image as ImageIcon, Flag } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import { Card, Chip, Pill, EmptyNote, PrimaryButton, useTone } from '../components/campusConnect/CampusKit'
+import { useReport } from '../components/safety/ReportProvider'
+import { useAuth } from '../context/AuthContext'
+import { useBlockedIds } from '../lib/reporting'
+import { fonts } from '../constants/theme'
 import { supabase } from '../lib/supabase'
 import { fileTypeLabel } from './BoardDetailScreen'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
-
-function formatDate(dateStr) {
-  try {
-    return new Date(dateStr).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
-  } catch {
-    return ''
-  }
-}
 
 export default function ResourceFinderScreen({ navigation }) {
-  const { colors } = useTheme()
-  const styles = getStyles(colors)
+  const { colors, accent, tint } = useTone('course')
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation, 'CourseConnect')
+  const { user } = useAuth()
+  const { openReport } = useReport()
+  const blocked = useBlockedIds(user?.id)
   const [query, setQuery] = useState('')
+  const [kind, setKind] = useState('all')
+  const [inst, setInst] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
   const [items, setItems] = useState([])
   const [busyId, setBusyId] = useState(null)
 
   const load = useCallback(async () => {
-    setLoading(true)
-    const [{ data: notes }, { data: papers }] = await Promise.all([
-      supabase.from('shared_notes').select('*'),
-      supabase.from('past_papers').select('*'),
+    setLoading(true); setFailed(false)
+    const [n, p] = await Promise.all([supabase.from('shared_notes').select('*'), supabase.from('past_papers').select('*')])
+    if (n.error && p.error) { setFailed(true); setLoading(false); return }
+    setItems([
+      ...(n.data || []).map(x => ({ ...x, _kind: 'notes', _title: x.title, _table: 'shared_notes' })),
+      ...(p.data || []).map(x => ({ ...x, _kind: 'papers', _title: `${x.subject}, ${x.exam_session} ${x.year}`, _table: 'past_papers' })),
     ])
-    const combined = [
-      ...(notes || []).map(n => ({ ...n, _kind: 'notes', _title: n.title, _label: 'Shared Notes' })),
-      ...(papers || []).map(p => ({ ...p, _kind: 'papers', _title: `${p.subject} — ${p.exam_session} ${p.year}`, _label: 'Past Paper' })),
-    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    setItems(combined)
     setLoading(false)
   }, [])
-
   useEffect(() => { load() }, [load])
 
-  const filtered = items.filter(i => {
-    if (!query.trim()) return true
+  const institutions = useMemo(() => [...new Set(items.map(i => (i.institution || '').trim()).filter(Boolean))].slice(0, 20), [items])
+
+  const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return [i.subject, i.course, i._title].some(v => (v || '').toLowerCase().includes(q))
-  })
+    return items
+      .filter(i => !blocked.has(i.user_id))
+      .filter(i => kind === 'all' || i._kind === kind)
+      .filter(i => !inst || (i.institution || '').trim() === inst)
+      .filter(i => !q || [i.subject, i.course, i._title, i.institution].some(v => (v || '').toLowerCase().includes(q)))
+      .sort((a, b) => (b.download_count || 0) - (a.download_count || 0) || new Date(b.created_at) - new Date(a.created_at))
+  }, [items, blocked, kind, inst, query])
+
+  const top = list.length && (list[0].download_count || 0) > 0 ? list[0] : null
+  const rest = top ? list.slice(1) : list
 
   async function download(item) {
     setBusyId(item.id)
@@ -66,73 +66,86 @@ export default function ResourceFinderScreen({ navigation }) {
     await supabase.rpc(rpcName, rpcArg)
     setItems(prev => prev.map(r => r.id === item.id && r._kind === item._kind ? { ...r, download_count: (r.download_count || 0) + 1 } : r))
     setBusyId(null)
-    if (Platform.OS === 'web') window.open(item.file_url, '_blank')
+    if (Platform.OS === 'web') window.open(item.file_url, '_blank', 'noopener')
     else Linking.openURL(item.file_url)
   }
 
+  const flag = item => openReport({ contentType: item._table, contentId: item.id, reportedUserId: item.user_id ?? null, userName: item.poster_name || null, noun: 'file' })
+
   return (
-    <View style={styles.screen}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 80 }} keyboardShouldPersistTaps="handled">
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          backLabel="Course Connect"
-          title="Resource Finder"
-          subtitle="Search shared notes and past papers from every Irish college by subject, course, or keyword."
-          style={styles.heroBlock}
-          titleStyle={styles.heroTitle}
-        />
-
-        <View style={styles.content}>
-          <View style={styles.searchWrap}>
-            <Search size={16} color={colors.muted} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by subject, course, or keyword..."
-              placeholderTextColor={colors.light}
-              value={query}
-              onChangeText={setQuery}
-              autoFocus={Platform.OS === 'web'}
-            />
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} showBack />
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
+        <PageTitle title="Resource finder" subtitle="Notes and past papers shared by members." />
+        <View style={s.body}>
+          <View style={[s.search, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Search size={18} color={colors.textSecondary} strokeWidth={1.8} />
+            <TextInput value={query} onChangeText={setQuery} placeholder="Search by subject, course or keyword" placeholderTextColor={colors.textTertiary}
+              style={[s.input, { color: colors.textPrimary }]} accessibilityLabel="Search resources" />
           </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>
+            <Chip kind="course" label="All" active={kind === 'all'} onPress={() => setKind('all')} />
+            <Chip kind="course" label="Shared notes" active={kind === 'notes'} onPress={() => setKind('notes')} />
+            <Chip kind="course" label="Past papers" active={kind === 'papers'} onPress={() => setKind('papers')} />
+          </ScrollView>
+          {institutions.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[s.chips, { paddingTop: 0 }]}>
+              {institutions.map(i => <Chip kind="course" key={i} label={i} active={inst === i} onPress={() => setInst(inst === i ? null : i)} />)}
+            </ScrollView>
+          )}
 
-          {loading ? (
-            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
-          ) : filtered.length === 0 ? (
-            <Text style={styles.emptyText}>
-              {items.length === 0 ? 'No resources uploaded yet — check back once students start sharing.' : 'No resources match that search.'}
-            </Text>
+          {loading ? <ActivityIndicator style={{ marginTop: 40 }} color={colors.textPrimary} />
+          : failed ? (
+            <EmptyNote title="Could not load resources" body="Check your connection and try again.">
+              <PrimaryButton label="Try again" onPress={load} />
+            </EmptyNote>
+          ) : list.length === 0 ? (
+            <EmptyNote Icon={FileText} title={items.length ? 'Nothing matches' : 'No resources yet'} body={items.length ? 'Try a different word or filter.' : 'Members add notes and past papers from the Notes and Exam resources boards. They show up here.'}>
+              <PrimaryButton label="Open Notes" onPress={() => navigation.navigate('BoardDetail', { boardKey: 'notes', registry: 'course' })} />
+            </EmptyNote>
           ) : (
-            <View style={{ gap: 10, marginTop: spacing.md }}>
-              {filtered.map(item => {
-                const isPdf = fileTypeLabel(item) === 'PDF'
-                return (
-                  <Card key={`${item._kind}-${item.id}`} style={styles.card}>
-                    <View style={styles.metaRow}>
-                      <View style={styles.metaPill}><Text style={styles.metaPillText}>{item._label}</Text></View>
-                      <View style={styles.metaPill}>
-                        {isPdf ? <FileText size={11} color={colors.textPrimary} /> : <ImageIcon size={11} color={colors.textPrimary} />}
-                        <Text style={styles.metaPillText}> {fileTypeLabel(item)}</Text>
-                      </View>
-                      {!!item.institution && <View style={styles.metaPill}><Text style={styles.metaPillText}>{item.institution}</Text></View>}
-                    </View>
-                    <Text style={styles.cardTitle}>{item._title}</Text>
-                    <View style={styles.metaRow}>
-                      {[item.subject, item.course].filter(Boolean).map((m, i) => (
-                        <View key={i} style={styles.metaPill}><Text style={styles.metaPillText}>{m}</Text></View>
-                      ))}
-                    </View>
-                    <Text style={styles.posterLine}>
-                      Uploaded {formatDate(item.created_at)} · {item.download_count || 0} download{(item.download_count || 0) !== 1 ? 's' : ''}
-                    </Text>
-                    <TouchableOpacity style={styles.downloadBtn} activeOpacity={0.85} disabled={busyId === item.id} onPress={() => download(item)}>
-                      <Download size={13} color={colors.accentFg} strokeWidth={2} />
-                      <Text style={styles.downloadBtnText}>Download</Text>
+            <>
+              {top && (
+                <Card style={{ marginTop: 6 }}>
+                  <Text style={[s.eyebrow, { color: accent }]}>MOST DOWNLOADED</Text>
+                  <Text style={[s.title, { color: colors.textPrimary }]}>{top._title}</Text>
+                  <View style={s.pills}>
+                    {!!top.institution && <Pill kind="course" tone="accent" label={top.institution} />}
+                    {!!top.course && <Pill label={top.course} />}
+                    <Pill label={`${top.download_count} download${top.download_count === 1 ? '' : 's'}`} />
+                  </View>
+                  <View style={s.topActions}>
+                    <PrimaryButton label={busyId === top.id ? 'Opening' : 'Download'} Icon={Download} onPress={() => download(top)} disabled={busyId === top.id} style={s.dl} />
+                    <TouchableOpacity onPress={() => flag(top)} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Report this file">
+                      <Flag size={18} color={colors.textSecondary} strokeWidth={1.8} />
                     </TouchableOpacity>
+                  </View>
+                </Card>
+              )}
+              {rest.length > 0 && <Text style={[s.section, { color: colors.textPrimary }]}>{top ? 'More resources' : 'Resources'}</Text>}
+              {rest.map(r => {
+                const Icon = fileTypeLabel(r) === 'PDF' ? FileText : ImageIcon
+                return (
+                  <Card key={`${r._kind}-${r.id}`} style={{ marginBottom: 10 }}>
+                    <View style={s.row}>
+                      <View style={[s.icon, { backgroundColor: tint }]}><Icon size={20} color={accent} strokeWidth={1.8} /></View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[s.rowTitle, { color: colors.textPrimary }]} numberOfLines={2}>{r._title}</Text>
+                        <Text style={[s.small, { color: colors.textSecondary }]} numberOfLines={1}>{[r.institution, r.course].filter(Boolean).join(', ')}</Text>
+                        <Text style={[s.small, { color: colors.textSecondary }]}>{r.download_count || 0} downloads</Text>
+                      </View>
+                      <TouchableOpacity onPress={() => flag(r)} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Report this file">
+                        <Flag size={16} color={colors.textSecondary} strokeWidth={1.8} />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => download(r)} disabled={busyId === r.id} accessibilityRole="button" accessibilityLabel={`Download ${r._title}`}
+                        style={[s.round, { backgroundColor: colors.accentBg, opacity: busyId === r.id ? 0.5 : 1 }]}>
+                        <Download size={18} color={colors.accentFg} strokeWidth={2} />
+                      </TouchableOpacity>
+                    </View>
                   </Card>
                 )
               })}
-            </View>
+            </>
           )}
         </View>
       </ScrollView>
@@ -140,34 +153,22 @@ export default function ResourceFinderScreen({ navigation }) {
   )
 }
 
-function getStyles(colors) {
-  return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, lineHeight: 32 },
-  heroSub: { fontFamily: fonts.sans, fontSize: 13.5, color: 'rgba(245,240,232,0.72)', marginTop: 6, lineHeight: 20 },
-
-  content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
-  searchWrap: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.surface, borderRadius: radius.card,
-    paddingHorizontal: 14, height: 48, ...shadows.card,
-  },
-  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary },
-
-  emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.lg, textAlign: 'center' },
-
-  card: { padding: 16 },
-  cardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary, lineHeight: 21, marginTop: 8 },
-  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' },
-  metaPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 9, paddingVertical: 4 },
-  metaPillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.textPrimary },
-  posterLine: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, marginTop: 10 },
-
-  downloadBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 10, marginTop: 12,
-  },
-  downloadBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.accentFg },
-  })
-}
+const s = StyleSheet.create({
+  screen: { flex: 1 },
+  body: { paddingHorizontal: 16, paddingTop: 8 },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 16, borderWidth: 1, paddingHorizontal: 16, height: 52 },
+  input: { flex: 1, fontFamily: fonts.sans, fontSize: 16 },
+  chips: { gap: 8, paddingVertical: 14 },
+  eyebrow: { fontFamily: fonts.sansBold, fontSize: 12, letterSpacing: 1 },
+  title: { fontFamily: fonts.serif, fontSize: 24, lineHeight: 31, marginTop: 8 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dl: { flex: 1 },
+  section: { fontFamily: fonts.serif, fontSize: 22, marginTop: 24, marginBottom: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  icon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15.5, lineHeight: 21 },
+  small: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 18 },
+  round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  iconBtn: { padding: 8 },
+})

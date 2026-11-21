@@ -1,213 +1,148 @@
-/**
- * CampusPulseArchiveScreen — "Past Weeks" for Campus Pulse (see
- * CampusPulseCard.jsx and supabase/migrations/20261015140000_campus_pulse.sql).
- * Desmond was explicit that the archive be "on-brand and easy to access" —
- * a real browsable view, not a buried status flag. An expandable list: one
- * row per past week's prompt, tap to reveal that week's archived responses
- * in a plain chronological list. No streaks, no vote counts, no ranking.
- *
- * A "past week" is any prompt with week_start set that isn't the current
- * active one — the seeded-but-not-yet-rotated-to prompts further down the
- * rotation have week_start = null and never show up here (see the
- * migration's seed comment).
- */
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { ChevronDown, ChevronUp, Archive } from 'lucide-react-native'
-import Card from '../components/ui/Card'
-import ScreenHeader from '../components/ui/ScreenHeader'
-import { fonts, spacing, radius } from '../constants/theme'
-import { useTheme } from '../context/ThemeContext'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { Flag, UserX, MessageSquareQuote } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import { Card, EmptyNote, PrimaryButton, Stamp, useTone } from '../components/campusConnect/CampusKit'
+import { useReport } from '../components/safety/ReportProvider'
+import { useAuth } from '../context/AuthContext'
+import { useBlockedIds } from '../lib/reporting'
 import { supabase } from '../lib/supabase'
+import { fonts } from '../constants/theme'
 
-function formatWeekRange(startStr, endStr) {
-  const opts = { day: 'numeric', month: 'short' }
-  const start = new Date(startStr).toLocaleDateString('en-IE', opts)
-  const end = endStr ? new Date(new Date(endStr).getTime() - 86400000).toLocaleDateString('en-IE', opts) : null
-  return end ? `${start} – ${end}` : start
-}
+// Past weeks of Campus Pulse (founder pick r3-16 B): a timeline. One dot per
+// past week with the question in serif, then one reply quoted and a link to the
+// rest. Only real replies are shown. Every reply has Report and Block.
 
-function formatTimestamp(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })
+function range(startStr, endStr) {
+  const o = { day: 'numeric', month: 'short' }
+  const a = new Date(startStr).toLocaleDateString('en-IE', o)
+  const b = endStr ? new Date(new Date(endStr).getTime() - 86400000).toLocaleDateString('en-IE', o) : null
+  return b ? `${a} to ${b}` : a
 }
 
 export default function CampusPulseArchiveScreen({ navigation }) {
-  const { colors } = useTheme()
-  const styles = getStyles(colors)
+  const { colors, accent, tint } = useTone('campus')
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation, 'CampusConnect')
-
+  const { user } = useAuth()
+  const { openReport, openBlock } = useReport()
+  const blocked = useBlockedIds(user?.id)
   const [prompts, setPrompts] = useState([])
+  const [replies, setReplies] = useState({})
+  const [open, setOpen] = useState({})
   const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState(null)
-  const [expanded, setExpanded] = useState(null)
-  const [responsesByPrompt, setResponsesByPrompt] = useState({})
-  const [loadingResponsesFor, setLoadingResponsesFor] = useState(null)
-  const [responseErrors, setResponseErrors] = useState({})
+  const [failed, setFailed] = useState(false)
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setLoadError(null)
-    const { data, error } = await supabase
-      .from('campus_pulse_prompts')
-      .select('*')
-      .eq('active', false)
-      .not('week_start', 'is', null)
-      .order('week_start', { ascending: false })
-    if (error) {
-      setLoadError('Could not load past weeks.')
-      setLoading(false)
-      return
+    setLoading(true); setFailed(false)
+    const a = await supabase.from('campus_pulse_prompts').select('*').eq('active', false).not('week_start', 'is', null).order('week_start', { ascending: false })
+    if (a.error) { setFailed(true); setLoading(false); return }
+    const list = a.data || []
+    setPrompts(list)
+    if (list.length) {
+      const b = await supabase.from('campus_pulse_responses').select('*').in('prompt_id', list.map(p => p.id)).order('created_at', { ascending: false }).limit(500)
+      const map = {}
+      ;(b.data || []).forEach(r => { (map[r.prompt_id] = map[r.prompt_id] || []).push(r) })
+      setReplies(map)
     }
-    setPrompts(data || [])
     setLoading(false)
   }, [])
-
   useFocusEffect(useCallback(() => { load() }, [load]))
 
-  const fetchResponses = useCallback(async (id) => {
-    setLoadingResponsesFor(id)
-    setResponseErrors(prev => ({ ...prev, [id]: null }))
-    const { data, error } = await supabase
-      .from('campus_pulse_responses')
-      .select('*')
-      .eq('prompt_id', id)
-      .order('created_at', { ascending: false })
-    if (error) {
-      setResponseErrors(prev => ({ ...prev, [id]: 'Could not load responses.' }))
-      setLoadingResponsesFor(null)
-      return
-    }
-    setResponsesByPrompt(prev => ({ ...prev, [id]: data || [] }))
-    setLoadingResponsesFor(null)
-  }, [])
+  const visible = useMemo(() => {
+    const out = {}
+    Object.keys(replies).forEach(k => { out[k] = replies[k].filter(r => !blocked.has(r.user_id)) })
+    return out
+  }, [replies, blocked])
 
-  async function toggleExpand(promptItem) {
-    const id = promptItem.id
-    if (expanded === id) {
-      setExpanded(null)
-      return
-    }
-    setExpanded(id)
-    if (responsesByPrompt[id]) return
-    fetchResponses(id)
+  function Reply({ r }) {
+    const own = r.user_id === user?.id
+    return (
+      <View style={[s.quote, { borderLeftColor: accent }]}>
+        <Text style={[s.quoteText, { color: colors.textPrimary }]}>{r.content}</Text>
+        <View style={s.quoteFoot}>
+          <Text style={[s.small, { color: colors.textSecondary, flex: 1 }]}>{r.poster_name || 'A member'}, {new Date(r.created_at).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' })}</Text>
+          {!own && (
+            <>
+              <TouchableOpacity onPress={() => openReport({ contentType: 'campus_pulse_response', contentId: r.id, reportedUserId: r.user_id, userName: r.poster_name, noun: 'reply' })} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Report this reply">
+                <Flag size={16} color={colors.textSecondary} strokeWidth={1.8} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => openBlock({ contentType: 'campus_pulse_response', contentId: r.id, reportedUserId: r.user_id, userName: r.poster_name })} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Block this member">
+                <UserX size={16} color={colors.textSecondary} strokeWidth={1.8} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </View>
+    )
   }
 
   return (
-    <View style={styles.screen}>
-      <ScreenHeader
-        compact
-        variant="navy"
-        onBack={safeGoBack}
-        backLabel="Campus Connect"
-        title="Past Weeks"
-        subtitle="Campus Pulse archive"
-      />
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.introRow}>
-          <Archive size={16} color={colors.muted} strokeWidth={2} />
-          <Text style={styles.introText}>
-            Every past Campus Pulse prompt and the replies it got, kept here rather than deleted.
-          </Text>
-        </View>
-
-        {loading ? (
-          <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
-        ) : loadError ? (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{loadError}</Text>
-            <TouchableOpacity onPress={load} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
-              <Text style={styles.retryBtnText}>Retry</Text>
-            </TouchableOpacity>
-          </View>
-        ) : prompts.length === 0 ? (
-          <Text style={styles.emptyText}>No past weeks yet — check back once this week's prompt rotates.</Text>
-        ) : (
-          <View style={{ gap: 10 }}>
-            {prompts.map(p => {
-              const isOpen = expanded === p.id
-              const weekResponses = responsesByPrompt[p.id]
-              return (
-                <Card key={p.id} style={styles.weekCard}>
-                  <TouchableOpacity
-                    style={styles.weekHeaderRow}
-                    activeOpacity={0.8}
-                    onPress={() => toggleExpand(p)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${isOpen ? 'Collapse' : 'Expand'} week of ${formatWeekRange(p.week_start, p.week_end)}`}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.weekRange}>{formatWeekRange(p.week_start, p.week_end)}</Text>
-                      <Text style={styles.weekPrompt}>{p.prompt_text}</Text>
-                    </View>
-                    {isOpen ? <ChevronUp size={18} color={colors.muted} /> : <ChevronDown size={18} color={colors.muted} />}
-                  </TouchableOpacity>
-
-                  {isOpen && (
-                    <View style={styles.responsesWrap}>
-                      {loadingResponsesFor === p.id ? (
-                        <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: 10 }} />
-                      ) : responseErrors[p.id] ? (
-                        <View style={styles.errorBox}>
-                          <Text style={styles.errorText}>{responseErrors[p.id]}</Text>
-                          <TouchableOpacity onPress={() => fetchResponses(p.id)} activeOpacity={0.7} style={styles.retryBtn} accessibilityRole="button">
-                            <Text style={styles.retryBtnText}>Retry</Text>
-                          </TouchableOpacity>
-                        </View>
-                      ) : !weekResponses || weekResponses.length === 0 ? (
-                        <Text style={styles.noResponsesText}>Nobody replied to this one.</Text>
-                      ) : (
-                        weekResponses.map(r => (
-                          <View key={r.id} style={styles.responseRow}>
-                            <Text style={styles.responseMeta}>{r.poster_name || 'A student'} · {formatTimestamp(r.created_at)}</Text>
-                            <Text style={styles.responseBody}>{r.content}</Text>
-                          </View>
-                        ))
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} showBack />
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
+        <PageTitle title="Past weeks" subtitle="Every Campus Pulse question and what people said." />
+        <View style={s.body}>
+          {loading ? <ActivityIndicator style={{ marginTop: 40 }} color={colors.textPrimary} />
+          : failed ? (
+            <EmptyNote title="Could not load past weeks" body="Check your connection and try again.">
+              <PrimaryButton label="Try again" onPress={load} />
+            </EmptyNote>
+          ) : prompts.length === 0 ? (
+            <EmptyNote Icon={MessageSquareQuote} title="No past weeks yet" body="Once this week's question moves on, it and its replies are kept here." />
+          ) : prompts.map((p, i) => {
+            const rs = visible[p.id] || []
+            const isOpen = !!open[p.id]
+            return (
+              <View key={p.id} style={s.item}>
+                <View style={s.rail}>
+                  <View style={[s.dot, { backgroundColor: accent }]} />
+                  {i < prompts.length - 1 && <View style={[s.line, { backgroundColor: colors.divider }]} />}
+                </View>
+                <View style={{ flex: 1, paddingBottom: 26 }}>
+                  <View style={s.head}>
+                    <Text style={[s.range, { color: accent }]}>{range(p.week_start, p.week_end).toUpperCase()}</Text>
+                    {p.is_ubp !== false && <Stamp label="From UBP" />}
+                  </View>
+                  <Text style={[s.q, { color: colors.textPrimary }]}>{p.prompt_text}</Text>
+                  {rs.length === 0 ? (
+                    <Text style={[s.small, { color: colors.textSecondary, marginTop: 8 }]}>No replies this week.</Text>
+                  ) : (
+                    <>
+                      <Reply r={rs[0]} />
+                      {isOpen && rs.slice(1).map(r => <Reply key={r.id} r={r} />)}
+                      {rs.length > 1 && (
+                        <TouchableOpacity onPress={() => setOpen(o => ({ ...o, [p.id]: !isOpen }))} style={{ marginTop: 10 }} accessibilityRole="button">
+                          <Text style={[s.link, { color: accent }]}>{isOpen ? 'Show fewer' : `See all ${rs.length} replies`}</Text>
+                        </TouchableOpacity>
                       )}
-                    </View>
+                    </>
                   )}
-                </Card>
-              )
-            })}
-          </View>
-        )}
+                </View>
+              </View>
+            )
+          })}
+        </View>
       </ScrollView>
     </View>
   )
 }
 
-function getStyles(colors) {
-  return StyleSheet.create({
-    screen: { flex: 1, backgroundColor: colors.background },
-    content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
-    introRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: spacing.md },
-    introText: { flex: 1, fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 18 },
-    emptyText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', textAlign: 'center', paddingVertical: spacing.xl },
-    errorBox: {
-      backgroundColor: 'rgba(220,38,38,0.08)', borderRadius: radius.button,
-      padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-    },
-    errorText: { flex: 1, fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, lineHeight: 18 },
-    retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(220,38,38,0.1)' },
-    retryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.destructive },
-    weekCard: { padding: 16 },
-    weekHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-    weekRange: {
-      fontFamily: fonts.sansSemiBold, fontSize: 10.5, color: colors.muted,
-      textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4,
-    },
-    weekPrompt: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, lineHeight: 22 },
-    responsesWrap: { marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.divider, gap: 12 },
-    noResponsesText: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, fontStyle: 'italic' },
-    responseRow: {},
-    responseMeta: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.muted, marginBottom: 3 },
-    responseBody: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.textPrimary, lineHeight: 19 },
-  })
-}
+const s = StyleSheet.create({
+  screen: { flex: 1 },
+  body: { paddingHorizontal: 16, paddingTop: 12 },
+  item: { flexDirection: 'row', gap: 14 },
+  rail: { width: 16, alignItems: 'center', paddingTop: 4 },
+  dot: { width: 14, height: 14, borderRadius: 7 },
+  line: { width: 2, flex: 1, marginTop: 4 },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  range: { fontFamily: fonts.sansBold, fontSize: 12, letterSpacing: 1 },
+  q: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 29, marginTop: 6 },
+  quote: { borderLeftWidth: 3, paddingLeft: 12, marginTop: 12 },
+  quoteText: { fontFamily: fonts.sans, fontSize: 15, lineHeight: 22 },
+  quoteFoot: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  small: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 18 },
+  iconBtn: { padding: 8 },
+  link: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
+})

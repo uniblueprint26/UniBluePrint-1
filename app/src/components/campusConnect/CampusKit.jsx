@@ -130,8 +130,8 @@ export function TileGrid({ items, onPress, kind = 'campus' }) {
 }
 
 // A calm message for an empty list. `children` is where a button goes.
-export function EmptyNote({ title, body, children, Icon }) {
-  const { colors, accent, tint } = useTone()
+export function EmptyNote({ title, body, children, Icon, kind = 'campus' }) {
+  const { colors, accent, tint } = useTone(kind)
   return (
     <Card style={{ alignItems: 'center', padding: 22 }}>
       {Icon && (

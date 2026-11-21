@@ -11,7 +11,11 @@ import {
   ChevronRight, Plus, Heart, TrendingUp,
 } from 'lucide-react-native'
 
-import Card from '../components/ui/Card'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import IrishFlag from '../components/ui/IrishFlag'
+import PulseQuestions from '../components/campusConnect/PulseQuestions'
+import { Card, Pill, SectionRow, TileGrid, EmptyNote, PrimaryButton, useTone } from '../components/campusConnect/CampusKit'
+import { HelpCircle } from 'lucide-react-native'
 import ScreenHeader from '../components/ui/ScreenHeader'
 import FeatureCard from '../components/ui/FeatureCard'
 import MockContentBanner from '../components/ui/MockContentBanner'
@@ -381,41 +385,33 @@ const CROSS_IRELAND_FEATURES = [
 ]
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
+// Course Connect hub (founder pick r3-17 A): your interests first, then Course
+// Pulse, then the tools as tiles, then recent questions. Open to everyone on a
+// course of life, nationwide: students, apprentices and workers.
+
+const TOOL_TITLES = {
+  course_boards: 'Course boards', notes: 'Notes', groups: 'Study groups', qa: 'Q&A',
+  exams: 'Exam resources', resources: 'Resource finder', industry: 'Industry discussions',
+  college_reviews: 'College reviews', cross_projects: 'Project collaboration',
+}
 
 export default function CourseConnectScreen({ navigation }) {
-  const { colors } = useTheme()
-  const { enabled: foundationOpen } = useFoundationEnabled()
-  // Coming soon cards only show while app_flags.coming_soon_tiles is on.
+  const { colors, accent, tint } = useTone('course')
   const comingSoonOn = useComingSoonEnabled()
-  const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [interestsModalOpen, setInterestsModalOpen] = useState(false)
+  const [allTools, setAllTools] = useState(false)
 
-  // ── Course Mood (moved here from Home alongside Campus's own copy,
-  // 2026-11-09) — same underlying mood-distribution aggregate FeedKit's
-  // MoodPulse already powers on Campus Connect, just titled for this
-  // screen. Fixed to the default window, same reasoning as Campus Connect.
   const [moodPulse, setMoodPulse] = useState({ total: 0, counts: {} })
-  useEffect(() => {
-    fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(setMoodPulse).catch(() => {})
-  }, [])
-  const { userType, label: userTypeLabel } = useUserType()
+  useEffect(() => { fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(setMoodPulse).catch(() => {}) }, [])
   const { interests } = useInterests()
-  const path = PATH_CONTENT[userType] || PATH_CONTENT[USER_TYPE_STUDENT]
-  const isStudent = userType === USER_TYPE_STUDENT
 
-  // ── Real popularity signal #1: Course Tools tile order ──────────────────
-  // Recent-activity counts (last POPULARITY_WINDOW_DAYS days) per feature's
-  // real backing table (see FEATURE_ACTIVITY_TABLE above) — genuine signal,
-  // not a fabricated number. All-zero (a fresh table with no posts yet)
-  // falls back to the curated order below via the stable sort, rather than
-  // shuffling tiles for no reason.
+  // Real activity counts for the tile lines (last 30 days).
   const [featureCounts, setFeatureCounts] = useState({})
   useEffect(() => {
     let cancelled = false
-    const cutoff = new Date(Date.now() - POPULARITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
+    const cutoff = new Date(Date.now() - POPULARITY_WINDOW_DAYS * 86400000).toISOString()
     ;(async () => {
       const entries = Object.entries(FEATURE_ACTIVITY_TABLE)
       const results = await Promise.all(entries.map(async ([key, table]) => [key, await countRecentRows(table, cutoff)]))
@@ -427,516 +423,193 @@ export default function CourseConnectScreen({ navigation }) {
     return () => { cancelled = true }
   }, [])
 
-  const sortedCourseFeatures = useMemo(() => {
-    return COURSE_FEATURES
-      .map((f, i) => ({ f, i, count: featureCounts[f.key] || 0 }))
-      .sort((a, b) => (b.count - a.count) || (a.i - b.i))
-      .map(({ f, count }) => count > 0 ? { ...f, count: `${count} this month` } : f)
-  }, [featureCounts])
-
-  // ── Real popularity signal #2: "Popular Right Now" courses/programmes ───
-  // Replaces the old mock Journey Match grid outright — see
-  // groupPopularCourses() above for how real course_boards_posts rows
-  // become this ranking.
+  // Popular right now: real post counts per course over 30 days.
   const [popularCourses, setPopularCourses] = useState([])
-  const [popularLoading, setPopularLoading] = useState(true)
   useEffect(() => {
     let cancelled = false
-    const cutoff = new Date(Date.now() - POPULARITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
+    const cutoff = new Date(Date.now() - POPULARITY_WINDOW_DAYS * 86400000).toISOString()
     ;(async () => {
-      setPopularLoading(true)
-      const { data } = await supabase
-        .from('course_boards_posts')
-        .select('course, created_at')
-        .gte('created_at', cutoff)
-        .limit(2000)
-      if (cancelled) return
-      setPopularCourses(groupPopularCourses(data || []))
-      setPopularLoading(false)
+      const { data } = await supabase.from('course_boards_posts').select('course, created_at').gte('created_at', cutoff).limit(2000)
+      if (!cancelled) setPopularCourses(groupPopularCourses(data || []))
     })()
     return () => { cancelled = true }
   }, [])
 
-  // ── Real popularity signal #3: "Popular Notes" ───────────────────────────
-  // Replaces the old hardcoded RECENT_NOTES array — see get_popular_notes()
-  // (20261012163000_popular_notes_rpc.sql) for how real shared_notes rows
-  // become this ranking (ordered by genuine download_count).
+  // Popular notes: real downloads.
   const [popularNotes, setPopularNotes] = useState([])
-  const [popularNotesLoading, setPopularNotesLoading] = useState(true)
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      setPopularNotesLoading(true)
       const { data } = await supabase.rpc('get_popular_notes', { limit_count: POPULAR_NOTES_LIMIT })
-      if (cancelled) return
-      setPopularNotes(data || [])
-      setPopularNotesLoading(false)
+      if (!cancelled) setPopularNotes(data || [])
     })()
     return () => { cancelled = true }
   }, [])
 
-  function goToDirectory() {
-    navigation.getParent()?.navigate('Directory')
-  }
+  // Recent questions: the latest real Q&A, with how many answers each has.
+  const [recent, setRecent] = useState([])
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data: qs } = await supabase.from('module_questions').select('id, question_text, course, module, created_at').order('created_at', { ascending: false }).limit(3)
+        if (cancelled || !qs?.length) { if (!cancelled) setRecent([]); return }
+        const { data: ans } = await supabase.from('module_answers').select('question_id').in('question_id', qs.map(q => q.id))
+        const counts = {}
+        ;(ans || []).forEach(a => { counts[a.question_id] = (counts[a.question_id] || 0) + 1 })
+        if (!cancelled) setRecent(qs.map(q => ({ ...q, answers: counts[q.id] || 0 })))
+      } catch { /* optional */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
-  function goToAccountType() {
-    navigation.getParent()?.navigate('Profile', { screen: 'ProfileMain' })
-  }
+  const tools = useMemo(() => {
+    const list = COURSE_FEATURES.map(f => ({
+      key: f.key, title: TOOL_TITLES[f.key] || f.label, Icon: f.Icon,
+      sub: featureCounts[f.key] > 0 ? `${featureCounts[f.key]} this month` : '',
+    }))
+    return allTools ? list : list.slice(0, 6)
+  }, [featureCounts, allTools])
 
-  function openPopularCourse(course) {
-    navigation.navigate('BoardDetail', { boardKey: 'course-boards', registry: 'course', presetFilter: { course } })
-  }
+  const comingSoon = comingSoonOn ? [...ACADEMIC_TOOLS, ...CROSS_IRELAND_FEATURES.filter(f => f.coming)] : []
 
   return (
-    <View style={styles.screen}>
-
-      {/* ── Scrollable content ──
-          The navy hero block below is the FIRST CHILD of the ScrollView, not
-          a fixed sibling above it — same pattern as Campus Connect and
-          Lifestyle, the two screens in this family that never showed the
-          native sticky-header bug. Root cause (confirmed by structural
-          comparison across every affected/unaffected screen): a fixed
-          sibling View above a flex:1 ScrollView, where that sibling's own
-          height depends on wrapped multi-line Text (heroTagline/heroSub
-          here), needs a real Yoga/Fabric text-measurement pass before its
-          height is known. On a genuine cold start under the New
-          Architecture that pass can resolve after the ScrollView sibling
-          has already committed its frame sized against the header's
-          stale/interim height, so content renders under or over the
-          header — self-correcting on any later layout pass
-          (background/foreground), matching the previously reported symptom
-          exactly. This screen was believed already "fixed" in an earlier
-          pass because its ScrollView already had `style={{flex:1}}`, but
-          that only ever addressed the ScrollView side, never the actual
-          unreliable element: the header sibling's height. Making the
-          header scroll with the page removes the fixed-sibling/flex-sizing
-          relationship entirely, so there is nothing left to race. */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 56 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ── Integrated header + hero (stats live in the navy block) ── */}
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
-          eyebrow="COURSE CONNECT"
-          title="Course Connect"
-          subtitle="Not sorted by course, trade, or path. Connected by what you're actually into, and what's busiest here right now, whatever route got you here."
-          style={styles.heroBlock}
-          titleStyle={styles.heroTitle}
-          subtitleStyle={styles.heroTagline}
-        >
-          <Text style={styles.heroSub}>{path.sub}</Text>
-
-          {/*
-            Stats: real Irish HE figures, not platform usage metrics.
-            Source: HEA.ie Annual Report 2022/23 and CAO.ie course listings.
-            The CAO-courses-covered and Irish-HE-population figures are shown
-            to Student users only. See the PATH_CONTENT comment above for why
-            every other userType sees unsourced, pathway-neutral stats
-            instead.
-
-            Decided 11 Oct 2026: rounded down to safe, defensible lower-bound
-            figures instead of chasing exact verification before launch —
-            "All 32" refers to counties, CourseConnect covers the full island.
-          */}
-          <View style={styles.heroStats}>
-            <View style={styles.heroStatItem}>
-              <Text style={styles.heroStatNumber}>All 32</Text>
-              <Text style={styles.heroStatLabel}>Counties{'\n'}Across Ireland</Text>
-            </View>
-            <View style={styles.heroStatDivider} />
-            {isStudent ? (
-              <View style={styles.heroStatItem}>
-                <Text style={styles.heroStatNumber}>1,000+</Text>
-                <Text style={styles.heroStatLabel}>CAO Courses{'\n'}Covered</Text>
-              </View>
-            ) : (
-              <View style={styles.heroStatItem}>
-                <Text style={styles.heroStatNumber}>{LIVE_TOOL_COUNT}</Text>
-                <Text style={styles.heroStatLabel}>Live Tools{'\n'}& Boards</Text>
-              </View>
-            )}
-            <View style={styles.heroStatDivider} />
-            {isStudent ? (
-              <View style={styles.heroStatItem}>
-                <Text style={styles.heroStatNumber}>200k+</Text>
-                <Text style={styles.heroStatLabel}>Young People{'\n'}in Irish HE</Text>
-              </View>
-            ) : (
-              <View style={styles.heroStatItem}>
-                <Text style={styles.heroStatNumber}>Free</Text>
-                <Text style={styles.heroStatLabel}>To join,{'\n'}every path</Text>
-              </View>
-            )}
-          </View>
-        </ScreenHeader>
+    <View style={[s.screen, { backgroundColor: colors.background }]}>
+      <AppHeader navigation={navigation} showBack />
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 120 }} showsVerticalScrollIndicator={false}>
+        <PageTitle title="Course Connect" />
+        <View style={s.sub}>
+          <IrishFlag size={14} />
+          <Text style={[s.subText, { color: colors.textSecondary }]}>Everyone on the same course of life.</Text>
+        </View>
 
         <LiveRail audience="course" navigation={navigation} />
 
-        <View style={styles.content}>
-
-          {/* ── Interests banner — the actual connecting mechanism now.
-              Same shared InterestsModal Profile Settings uses, surfaced
-              here too since this is where the matching it powers happens. ── */}
-          <TouchableOpacity style={styles.interestsBanner} activeOpacity={0.85} onPress={() => setInterestsModalOpen(true)}>
-            <View style={styles.interestsBannerIcon}>
-              <Heart size={15} color={colors.accentFg} strokeWidth={2} />
+        <View style={s.body}>
+          <Card onPress={() => setInterestsModalOpen(true)} accessibilityLabel="Your interests. Edit">
+            <View style={s.interests}>
+              <View style={[s.iconBox, { backgroundColor: tint }]}><Heart size={22} color={accent} strokeWidth={1.8} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.cardTitle, { color: colors.textPrimary }]}>Your interests</Text>
+                <Text style={[s.small, { color: colors.textSecondary }]} numberOfLines={2}>
+                  {interests.length
+                    ? `Matched on ${interests.slice(0, 3).join(', ')}${interests.length > 3 ? ' and more' : ''}`
+                    : 'Add what you are into and meet people who share it.'}
+                </Text>
+              </View>
+              <Text style={[s.edit, { color: accent }]}>{interests.length ? 'Edit' : 'Add'}</Text>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.interestsBannerLabel}>
-                YOUR INTERESTS · {interests.length ? `${interests.length} SET` : 'NOT SET'}
-              </Text>
-              <Text style={styles.interestsBannerText}>
-                {interests.length
-                  ? `Matched on ${interests.slice(0, 3).join(', ')}${interests.length > 3 ? ', and more' : ''}. Students, apprentices, gap year, and working people alike.`
-                  : "Add what you're into so we can connect you with people who share it, wherever they are."}
-              </Text>
-              <Text style={styles.interestsBannerChange}>
-                {interests.length ? 'Edit your interests →' : 'Add your interests →'}
-              </Text>
-            </View>
-          </TouchableOpacity>
+          </Card>
 
-          {/* ── Course Mood — Course Connect's own copy of the mood-
-              distribution bar (see FeedKit's MoodPulse); Campus Connect
-              has the same widget titled "Campus Mood". ── */}
-          <View style={{ marginTop: spacing.md }}>
-            <MoodPulse pulse={moodPulse} title="Course Mood" />
+          <View style={{ marginTop: 16 }}>
+            <PulseQuestions navigation={navigation} audience="course" />
           </View>
 
-          {/* ── "Viewing as" note — demoted deliberately. This screen is no
-              longer organised BY path (that's the whole point of the
-              interests + popularity reframe above and below); userType still
-              legitimately nudges some copy/stats (see PATH_CONTENT), but
-              that's a minor styling detail, not the screen's structure, so
-              it gets one quiet line rather than a competing full banner. ── */}
-          <TouchableOpacity activeOpacity={0.7} onPress={goToAccountType} style={styles.viewingAsRow}>
-            <Text style={styles.viewingAsText}>
-              Some copy below is tailored for {userTypeLabel} · <Text style={styles.viewingAsLink}>change account type</Text>
-            </Text>
-          </TouchableOpacity>
+          <SectionRow title="Tools" kind="course" action={allTools ? 'Show fewer' : `All ${COURSE_FEATURES.length}`} onAction={() => setAllTools(v => !v)} />
+          <TileGrid kind="course" items={tools} onPress={t => openCourseFeature(navigation, t.key)} />
 
-          {/* ── Course Tools — ordered by real recent-activity counts from
-              each tool's own table (see FEATURE_ACTIVITY_TABLE), same
-              "genuine popularity, not fabricated" principle as the section
-              below. Falls back to the curated order when there's no
-              activity yet to differentiate by. ── */}
-          <SectionHeader eyebrow="Most Active First" title="Course Tools" style={{ marginTop: spacing.lg }} />
-          <View style={{ gap: 14 }}>
-            {sortedCourseFeatures.map(f => (
-              <FeatureCard key={f.key} feature={f} onPress={() => openCourseFeature(navigation, f.key)} />
-            ))}
-          </View>
+          <SectionRow title="Recent questions" kind="course" action="See all" onAction={() => navigation.navigate('ModuleQA')} />
+          {recent.length === 0 ? (
+            <EmptyNote Icon={HelpCircle} title="No questions yet" body="Ask the first one. Anyone on the course of life can answer.">
+              <PrimaryButton label="Ask a question" onPress={() => navigation.navigate('ModuleQA', { openAsk: true })} />
+            </EmptyNote>
+          ) : recent.map(q => (
+            <Card key={q.id} style={{ marginBottom: 10 }} onPress={() => navigation.navigate('ModuleQA', { openQuestionId: q.id })} accessibilityLabel={q.question_text}>
+              <View style={s.qRow}>
+                <Pill kind="course" tone="accent" label={q.answers ? `${q.answers} answer${q.answers === 1 ? '' : 's'}` : 'Unanswered'} />
+                <Text style={[s.q, { color: colors.textPrimary }]} numberOfLines={3}>{q.question_text}</Text>
+              </View>
+            </Card>
+          ))}
 
-          {/* ── Academic Support (white breakout section) ── */}
-          <View style={styles.academicSection}>
-            <Text style={styles.academicEyebrow}>{path.academicEyebrow}</Text>
-            <Text style={styles.academicTitle}>{path.academicTitle}</Text>
-            <Text style={styles.academicSub}>{foundationOpen ? path.toolsSub : path.toolsSub.replace(/ Foundation Blueprint's Personal Statement service[^.]*\./, '')}</Text>
-
-            {comingSoonOn ? (
-              <>
-                <Text style={[styles.academicSubLabel, { marginTop: spacing.lg }]}>COURSE TOOLS</Text>
-                <View style={{ gap: 12, marginTop: spacing.md }}>
-                  {ACADEMIC_TOOLS.map(f => <FeatureCard key={f.key} feature={f} />)}
-                </View>
-              </>
-            ) : null}
-
-            <Text style={[styles.academicSubLabel, { marginTop: spacing.xl }]}>POPULAR NOTES</Text>
-            <Text style={styles.academicSubSub}>
-              Real notes shared by students, ranked by how many times they've actually been downloaded.
-            </Text>
-            {popularNotesLoading ? (
-              <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.md }} />
-            ) : popularNotes.length === 0 ? (
-              <Text style={styles.popularEmptyText}>
-                No notes shared yet. Be the first to upload one in Notes Exchange.
-              </Text>
-            ) : (
-              <View style={{ gap: 10, marginTop: spacing.sm }}>
-                {popularNotes.map(note => (
-                  <TouchableOpacity
-                    key={note.id}
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate('ResourceFinder')}
-                  >
-                    <Card style={styles.noteCard}>
-                      <View style={styles.noteModuleBadge}>
-                        <Text style={styles.noteModuleText}>{note.subject}</Text>
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.noteTitle}>{note.title}</Text>
-                        <View style={styles.noteMeta}>
-                          <Text style={styles.noteMetaText}>{note.institution || note.course}</Text>
-                          <Text style={styles.noteMetaText}>·</Text>
-                          <Text style={styles.noteMetaText}>
-                            {note.download_count || 0} download{(note.download_count || 0) !== 1 ? 's' : ''}
-                          </Text>
-                        </View>
-                      </View>
-                      <ChevronRight size={14} color={colors.light} style={{ alignSelf: 'center' }} />
-                    </Card>
+          {popularCourses.length > 0 && (
+            <>
+              <SectionRow title="Busiest right now" kind="course" />
+              <View style={s.wrap}>
+                {popularCourses.map(c => (
+                  <TouchableOpacity key={c.label} onPress={() => navigation.navigate('BoardDetail', { boardKey: 'course-boards', registry: 'course', presetFilter: { course: c.label } })}
+                    style={[s.chip, { backgroundColor: colors.surface, borderColor: colors.border }]} accessibilityRole="button">
+                    <Text style={[s.chipText, { color: colors.textPrimary }]} numberOfLines={1}>{c.label}</Text>
+                    <Text style={[s.chipCount, { color: accent }]}>{c.count}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-            )}
-
-          </View>
-
-          {/* ── Popular Right Now — replaces the old stage-grouped Journey
-              Match section. Real data only: ranked by actual post counts
-              from course_boards_posts (see groupPopularCourses() above),
-              not a mock preview. Courses, trades, and workplaces show up
-              side by side purely because people are actually posting in
-              them — nothing here is grouped by user_type. ── */}
-          <SectionHeader eyebrow="Popular Right Now" title="What's Busiest on Course Connect" style={{ marginTop: spacing.xl }} />
-          <Text style={styles.popularIntro}>
-            Not sorted by stage or path. This is what people are actually posting about
-            right now, across every course, trade, and workplace in Ireland. Ranked by
-            real activity in the last {POPULARITY_WINDOW_DAYS} days.
-          </Text>
-
-          {popularLoading ? (
-            <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.lg }} />
-          ) : popularCourses.length === 0 ? (
-            <Text style={styles.popularEmptyText}>
-              Nothing posted yet. Be the first to start a Course Board discussion for your course, trade, or workplace.
-            </Text>
-          ) : (
-            <PopularCourseGrid items={popularCourses} onPress={openPopularCourse} />
+            </>
           )}
 
-          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8} onPress={() => navigation.navigate('BoardDetail', { boardKey: 'course-boards', registry: 'course' })}>
-            <Text style={styles.secondaryBtnText}>Browse All Course Boards</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.sm }]} activeOpacity={0.8} onPress={goToDirectory}>
-            <Text style={styles.secondaryBtnText}>Browse Full Directory</Text>
-          </TouchableOpacity>
-
-          {/* ── Course Discussions ── */}
-          <SectionHeader eyebrow="Community" title="Recent Discussions" style={{ marginTop: spacing.xl }} />
-          <MockContentBanner
-            title="Examples shown below. Module Q&A is live"
-            subtitle="These previews are illustrative. Tap through to ask a real question or browse live answers."
-          />
-          <View style={{ gap: 10 }}>
-            {DISCUSSIONS.map((d, i) => (
-              <TouchableOpacity
-                key={i}
-                activeOpacity={0.8}
-                onPress={() => navigation.navigate('ModuleQA')}
-              >
-                <Card style={styles.discussionCard}>
-                  <View style={styles.discussionTop}>
-                    <View style={styles.noteModuleBadge}>
-                      <Text style={styles.noteModuleText}>{d.module}</Text>
+          {popularNotes.length > 0 && (
+            <>
+              <SectionRow title="Popular notes" kind="course" action="Open" onAction={() => navigation.navigate('BoardDetail', { boardKey: 'notes', registry: 'course' })} />
+              <Card style={{ padding: 4 }}>
+                {popularNotes.map((n, i) => (
+                  <TouchableOpacity key={n.id} onPress={() => navigation.navigate('BoardDetail', { boardKey: 'notes', registry: 'course' })}
+                    style={[s.noteRow, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider }]} accessibilityRole="button">
+                    <FileText size={18} color={accent} strokeWidth={1.8} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.cardTitle, { color: colors.textPrimary, fontSize: 15 }]} numberOfLines={1}>{n.title}</Text>
+                      <Text style={[s.small, { color: colors.textSecondary }]} numberOfLines={1}>{[n.subject, n.course].filter(Boolean).join(', ')}</Text>
                     </View>
-                    <Text style={styles.discussionTime}>{d.time}</Text>
+                    <Text style={[s.small, { color: colors.textSecondary }]}>{n.download_count || 0} downloads</Text>
+                  </TouchableOpacity>
+                ))}
+              </Card>
+            </>
+          )}
+
+          {comingSoon.length > 0 && (
+            <>
+              <SectionRow title="Coming soon" kind="course" />
+              <Text style={[s.small, { color: colors.textSecondary, marginBottom: 10 }]}>Stay tuned. Coming soon.</Text>
+              <View style={s.wrap}>
+                {comingSoon.map(c => (
+                  <View key={c.key} style={[s.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <c.Icon size={14} color={accent} strokeWidth={1.8} />
+                    <Text style={[s.chipText, { color: colors.textPrimary }]} numberOfLines={1}>{c.label.charAt(0) + c.label.slice(1).toLowerCase()}</Text>
                   </View>
-                  <Text style={styles.discussionQuestion} numberOfLines={2}>{d.question}</Text>
-                  <View style={styles.discussionMeta}>
-                    <MessageSquare size={12} color={colors.muted} />
-                    <Text style={styles.discussionReplies}>{d.replies} replies</Text>
-                    <Text style={styles.discussionUni}>{d.university}</Text>
-                  </View>
-                </Card>
-              </TouchableOpacity>
-            ))}
+                ))}
+              </View>
+            </>
+          )}
+
+          <View style={{ marginTop: 24 }}>
+            <MoodPulse pulse={moodPulse} title="Course Mood" />
           </View>
-          <TouchableOpacity style={[styles.secondaryBtn, { marginTop: spacing.md }]} activeOpacity={0.8} onPress={() => navigation.navigate('ModuleQA')}>
-            <Text style={styles.secondaryBtnText}>Browse All Module Q&A</Text>
-          </TouchableOpacity>
-
-          {/* ── Cross-Ireland (navy breakout section) ── */}
-          <View style={styles.crossIrelandSection}>
-            <Text style={styles.crossIrelandEyebrow}>ACROSS IRELAND</Text>
-            <Text style={styles.crossIrelandTitle}>Built for every young person in Ireland</Text>
-            <Text style={styles.crossIrelandSub}>
-              Not just current university students. Whether you're a recent graduate, a prospective student, on an apprenticeship, or taking a gap year, this section is for you.
-            </Text>
-            <View style={{ gap: 14, marginTop: spacing.lg }}>
-              {CROSS_IRELAND_FEATURES.filter(f => comingSoonOn || !f.coming).map(f => (
-                <FeatureCard
-                  key={f.key}
-                  feature={f}
-                  dark
-                  onPress={f.key === 'all_reviews' ? () => openCourseFeature(navigation, 'college_reviews') : undefined}
-                />
-              ))}
-            </View>
-          </View>
-
-          <Button
-            label="Post to a Course Connect Board"
-            icon={Plus}
-            onPress={() => setPickerOpen(true)}
-            variant="primary"
-            style={styles.primaryBtn}
-          />
-
         </View>
       </ScrollView>
+
+      <View style={[s.fabWrap, { paddingBottom: insets.bottom + 12 }]} pointerEvents="box-none">
+        <PrimaryButton label="Post to a board" Icon={Plus} onPress={() => setPickerOpen(true)} style={{ marginTop: 0 }} />
+      </View>
 
       <CourseBoardPickerModal
         visible={pickerOpen}
         onClose={() => setPickerOpen(false)}
         onPick={board => {
           setPickerOpen(false)
-          if (board.key === 'module-qa') navigation.navigate('ModuleQA', { openAsk: true })
-          else navigation.navigate('BoardDetail', { boardKey: board.key, registry: 'course', openPostForm: true })
+          navigation.navigate('BoardDetail', { boardKey: board.key, registry: 'course', openPostForm: true })
         }}
       />
-
-      <InterestsModal
-        visible={interestsModalOpen}
-        onClose={() => setInterestsModalOpen(false)}
-      />
+      <InterestsModal visible={interestsModalOpen} onClose={() => setInterestsModalOpen(false)} />
     </View>
   )
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-function __gs_styles(colors) {
-  return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-
-  // Hero (includes stats)
-  heroBlock: {
-    backgroundColor: colors.chromeBg,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 30, color: colors.chromeFg, lineHeight: 38, marginTop: 6, marginBottom: 10 },
-  heroTagline: { fontFamily: fonts.sansMedium, fontSize: 13.5, color: colors.gold, lineHeight: 20, marginBottom: 10 },
-  heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22, marginBottom: spacing.lg },
-
-  // Stats inside hero
-  heroStats: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(245,240,232,0.08)',
-    borderRadius: radius.card, padding: spacing.md,
-    borderWidth: 1, borderColor: 'rgba(245,240,232,0.12)',
-  },
-  heroStatItem:   { flex: 1, alignItems: 'center' },
-  heroStatNumber: { fontFamily: fonts.serif, fontSize: 20, color: colors.chromeFg },
-  heroStatLabel:  { fontFamily: fonts.sans, fontSize: 10, color: 'rgba(245,240,232,0.65)', marginTop: 3, textAlign: 'center', lineHeight: 14 },
-  heroStatDivider:{ width: 1, height: 36, backgroundColor: 'rgba(245,240,232,0.15)' },
-
-  // THE fix for the header floating/overlapping content on native — see
-  // HomeScreen.jsx's mainScroll comment for the full explanation. A
-  // ScrollView needs an explicit flex (not just contentContainerStyle) on
-  // its own `style` or native has nothing to size its clipped viewport
-  // against; react-native-web silently tolerates the omission, which is
-  // why this only broke on a physical phone.
-  scrollView: { flex: 1 },
-  scroll:  {},
-  content: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
-
-  // Interests banner — primary framing now, so it's the bolder (navy) card
-  interestsBanner: {
-    flexDirection: 'row', gap: 12, alignItems: 'flex-start',
-    backgroundColor: colors.accentBg, borderRadius: radius.card,
-    padding: 14, marginTop: spacing.lg,
-    ...shadows.card,
-  },
-  interestsBannerIcon: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(245,240,232,0.15)',
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
-  },
-  interestsBannerLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.goldLight, letterSpacing: 0.8 },
-  interestsBannerText:  { fontFamily: fonts.sans, fontSize: 13, color: colors.accentFg, lineHeight: 19, marginTop: 4 },
-  interestsBannerChange:{ fontFamily: fonts.sansMedium, fontSize: 11.5, color: 'rgba(245,240,232,0.65)', marginTop: 6 },
-
-  // "Viewing as" note — deliberately a single quiet line, not a competing
-  // banner (see the comment where it's rendered for why).
-  viewingAsRow: { marginTop: spacing.sm, paddingHorizontal: 2 },
-  viewingAsText: { fontFamily: fonts.sans, fontSize: 11.5, color: colors.muted, lineHeight: 16 },
-  viewingAsLink: { fontFamily: fonts.sansMedium, color: colors.textPrimary, textDecorationLine: 'underline' },
-
-  // Academic Support section (white breakout)
-  academicSection: {
-    backgroundColor: colors.surface,
-    marginHorizontal: -spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
-    marginTop: spacing.xl,
-    borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)',
-    borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)',
-  },
-  academicEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted,
-    letterSpacing: 1.2, marginBottom: 6,
-  },
-  academicTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.textPrimary, lineHeight: 33 },
-  academicSub:   { fontFamily: fonts.sans, fontSize: 14, color: colors.muted, marginTop: 8, lineHeight: 21 },
-  academicSubLabel: {
-    fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textPrimary,
-    opacity: 0.55, letterSpacing: 0.8,
-  },
-  academicSubSub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 },
-
-  // Cross-Ireland section (navy breakout)
-  crossIrelandSection: {
-    backgroundColor: colors.chromeBg,
-    marginHorizontal: -spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
-    marginTop: spacing.xl,
-  },
-  crossIrelandEyebrow: {
-    fontFamily: fonts.sansSemiBold, fontSize: 11,
-    color: 'rgba(245,240,232,0.55)', letterSpacing: 1.2, marginBottom: 6,
-  },
-  crossIrelandTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg, lineHeight: 33 },
-  crossIrelandSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.65)', marginTop: 8, lineHeight: 21 },
-
-  // Notes
-  noteCard:        { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
-  noteModuleBadge: { backgroundColor: colors.accentBg, borderRadius: radius.badge, paddingHorizontal: 8, paddingVertical: 5, flexShrink: 0 },
-  noteModuleText:  { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.accentFg },
-  noteTitle:       { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, lineHeight: 18 },
-  noteMeta:        { flexDirection: 'row', gap: 5, marginTop: 3 },
-  noteMetaText:    { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-
-  // Popular Right Now — intro copy + empty state
-  popularIntro: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 19, marginTop: 8 },
-  popularEmptyText: {
-    fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic',
-    textAlign: 'center', marginTop: spacing.lg, lineHeight: 19,
-  },
-
-  // Popular Right Now — tile grid (same measured-width flex-wrap pattern as
-  // Campus Connect's board grid, see PopularCourseGrid above)
-  popularGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: POPULAR_TILE_GAP, marginTop: spacing.md },
-  popularTile: {
-    borderRadius: radius.card, padding: 14, minHeight: 92,
-    backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)',
-    justifyContent: 'space-between', ...shadows.card,
-  },
-  popularTileTop:   { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  popularTileCount: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.goldDeep },
-  popularTileLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginTop: 10, lineHeight: 18 },
-
-  // Discussions
-  discussionCard:     { padding: 14 },
-  discussionTop:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  discussionTime:     { fontFamily: fonts.sans, fontSize: 11, color: colors.muted },
-  discussionQuestion: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary, lineHeight: 19 },
-  discussionMeta:     { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
-  discussionReplies:  { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, flex: 1 },
-  discussionUni:      { fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.textPrimary, opacity: 0.6 },
-
-  // CTAs
-  primaryBtn:     { marginTop: spacing.lg },
-  secondaryBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 8, height: 46, borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.15)' },
-  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
-  })
-}
+const s = StyleSheet.create({
+  screen: { flex: 1 },
+  sub: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingBottom: 12 },
+  subText: { fontFamily: fonts.sans, fontSize: 14 },
+  body: { paddingHorizontal: 16, paddingTop: 8 },
+  interests: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  iconBox: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  cardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 17, lineHeight: 22 },
+  small: { fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 19 },
+  edit: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  qRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  q: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 16, lineHeight: 23 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9, maxWidth: '100%' },
+  chipText: { fontFamily: fonts.sansMedium, fontSize: 14, flexShrink: 1 },
+  chipCount: { fontFamily: fonts.sansBold, fontSize: 13 },
+  noteRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 },
+  fabWrap: { position: 'absolute', left: 16, right: 16, bottom: 0, alignItems: 'flex-end' },
+})
