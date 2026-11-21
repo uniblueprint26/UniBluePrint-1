@@ -501,12 +501,12 @@ export default function CourseConnectScreen({ navigation }) {
             </View>
           </Card>
 
-          <View style={{ marginTop: 16 }}>
-            <PulseQuestions navigation={navigation} audience="course" />
-          </View>
-
           <SectionRow title="Tools" kind="course" action={allTools ? 'Show fewer' : `All ${COURSE_FEATURES.length}`} onAction={() => setAllTools(v => !v)} />
           <TileGrid kind="course" items={tools} onPress={t => openCourseFeature(navigation, t.key)} />
+
+          <View style={{ marginTop: 24 }}>
+            <PulseQuestions navigation={navigation} audience="course" />
+          </View>
 
           <SectionRow title="Recent questions" kind="course" action="See all" onAction={() => navigation.navigate('ModuleQA')} />
           {recent.length === 0 ? (

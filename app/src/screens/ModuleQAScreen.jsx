@@ -122,7 +122,8 @@ function QuestionList({ navigation, openAsk }) {
             <Chip kind="course" label="Unanswered" active={sort === 'unanswered'} onPress={() => setSort('unanswered')} />
             <View style={{ flex: 1 }} />
             <TouchableOpacity onPress={() => setCountsFirst(v => !v)} accessibilityRole="button" accessibilityLabel={countsFirst ? 'Show question cards' : 'Show answer counts first'} style={s.viewBtn}>
-              {countsFirst ? <LayoutList size={20} color={accent} strokeWidth={1.8} /> : <Hash size={20} color={accent} strokeWidth={1.8} />}
+              {countsFirst ? <LayoutList size={18} color={accent} strokeWidth={1.8} /> : <Hash size={18} color={accent} strokeWidth={1.8} />}
+              <Text style={[s.small, { color: accent, fontFamily: fonts.sansSemiBold }]}>{countsFirst ? 'Cards' : 'Counts'}</Text>
             </TouchableOpacity>
           </View>
           {!!courseFilter && (
@@ -369,7 +370,7 @@ const s = StyleSheet.create({
   input: { flex: 1, fontFamily: fonts.sans, fontSize: 16 },
   filterBtn: { width: 52, height: 52, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   chips: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
-  viewBtn: { padding: 8 },
+  viewBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, padding: 8 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   q: { fontFamily: fonts.sansSemiBold, fontSize: 16.5, lineHeight: 24 },

@@ -173,7 +173,7 @@ export default function PulseQuestions({ navigation, audience = 'campus' }) {
                 {postIt ? (photo ? 'Goes up as a Post with your picture.' : 'Goes up as a Take.') : 'Off: your answer stays in the Pulse only.'}
               </Text>
             </View>
-            <Switch value={postIt} onValueChange={setPostIt} accessibilityLabel={`Post to ${place}`} />
+            <Switch value={postIt} onValueChange={setPostIt} trackColor={{ false: colors.divider, true: accent }} thumbColor="#FFFFFF" accessibilityLabel={`Post to ${place}`} />
           </View>
 
           {postIt && !photo && (

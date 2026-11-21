@@ -23,7 +23,7 @@ import { fonts } from '../constants/theme'
 const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
 const hourLabel = h => `${h > 12 ? h - 12 : h}${h >= 12 ? 'pm' : 'am'}`
 const slotDay = iso => new Date(iso).toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' })
-const slotTime = (a, b) => `${new Date(a).toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit' })} to ${new Date(b).toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit' })}`
+const slotTime = (a, b) => `${new Date(a).toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit', hour12: true })} to ${new Date(b).toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit', hour12: true })}`
 const STATE = { open: 'Open', claimed: 'Claimed', handed_over: 'Handed over', withdrawn: 'Taken down' }
 
 function ask(title, message, okLabel) {

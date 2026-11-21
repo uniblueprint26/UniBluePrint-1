@@ -101,7 +101,7 @@ export function SectionRow({ title, action, onAction, kind = 'campus', style }) 
 export function TileGrid({ items, onPress, kind = 'campus' }) {
   const { colors, accent, tint, isDark } = useTone(kind)
   const { width, fontScale } = useWindowDimensions()
-  const cols = width < 360 || fontScale > 1.3 ? 2 : 3
+  const cols = 2
   const gap = 10
   const tileW = (width - 32 - gap * (cols - 1)) / cols
   return (
@@ -114,7 +114,7 @@ export function TileGrid({ items, onPress, kind = 'campus' }) {
           accessibilityRole="button"
           accessibilityLabel={t.sub ? `${t.title}. ${t.sub}` : t.title}
           style={[
-            k.tile, { width: tileW, minHeight: tileW * 0.9, backgroundColor: colors.surface },
+            k.tile, { width: tileW, minHeight: tileW * 0.62, backgroundColor: colors.surface },
             isDark ? { borderWidth: 1, borderColor: colors.border } : shadows.card,
           ]}
         >

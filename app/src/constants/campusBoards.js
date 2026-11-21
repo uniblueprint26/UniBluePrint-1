@@ -47,7 +47,7 @@ export const CARPOOL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export function formatCarpoolDays(days) {
   if (!days || days.length === 0) return ''
-  if (days.length === 5 && CARPOOL_DAYS.slice(0, 5).every(d => days.includes(d))) return 'Mon–Fri'
+  if (days.length === 5 && CARPOOL_DAYS.slice(0, 5).every(d => days.includes(d))) return 'Mon to Fri'
   if (days.length === 7) return 'Every day'
   return days.join(', ')
 }
@@ -89,7 +89,7 @@ export const CAMPUS_BOARDS = [
     table: 'carpool_routes',
     special: 'carpool',
     tagline: 'Match with people on your route and split the cost of your commute.',
-    postCta: 'Post Your Route',
+    postCta: 'Post a ride',
     // A route can't actually be inserted until the user has accepted the
     // Carpool Safety Terms — enforced at the DB level by a trigger on
     // carpool_routes (see supabase/migrations/20260829150000_carpool_routes.sql).
@@ -124,7 +124,7 @@ export const CAMPUS_BOARDS = [
     color: '#FDF4FF',
     table: 'campus_events',
     tagline: 'Society nights, careers fairs, open days, and student-run events.',
-    postCta: 'Post an Event',
+    postCta: 'Post an event',
     fields: [
       { key: 'event_name', label: 'Event name', type: T.TEXT, required: true },
       { key: 'description', label: 'Description', type: T.TEXTAREA, required: true },
@@ -173,7 +173,7 @@ export const CAMPUS_BOARDS = [
     color: '#FFF7ED',
     table: 'lost_found_posts',
     tagline: 'Report a lost item, or hand something found back to its owner.',
-    postCta: 'Post to Lost & Found',
+    postCta: 'Report an item',
     fields: [
       { key: 'status', label: 'Found or lost?', type: T.SELECT, required: true, options: ['Found', 'Lost'] },
       { key: 'item_description', label: 'Item description', type: T.TEXTAREA, required: true, placeholder: 'Colour, brand, any distinguishing details...' },
