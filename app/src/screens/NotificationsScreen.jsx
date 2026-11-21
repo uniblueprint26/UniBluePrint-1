@@ -59,6 +59,10 @@ const CATEGORY_META = {
   budget_goal:         { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
   subscription:        { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
   wallet:              { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
+  split_added:         { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
+  split_changed:       { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
+  split_reminder:      { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
+  split_settled:       { label: 'MONEY',      Icon: Wallet,        tone: 'money' },
 }
 
 function lift(hex, amt) {

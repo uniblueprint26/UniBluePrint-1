@@ -43,6 +43,7 @@ import BlogScreen          from '../screens/BlogScreen'
 import MarketplaceScreen   from '../screens/MarketplaceScreen'
 import ArticleScreen       from '../screens/ArticleScreen'
 import BudgetingScreen     from '../screens/BudgetingScreen'
+import SplitBillScreen     from '../screens/explore/SplitBillScreen'
 import MessagesScreen      from '../screens/MessagesScreen'
 import DirectoryScreen     from '../screens/DirectoryScreen'
 import StudentProfileScreen from '../screens/StudentProfileScreen'
@@ -192,6 +193,7 @@ function HomeStack() {
       <Stack.Screen name="LifestyleWellbeing" component={LifestyleWellbeingScreen} />
       <Stack.Screen name="LifestyleBudgetingPreview" component={LifestyleBudgetingPreviewScreen} />
       <Stack.Screen name="Budgeting"     component={BudgetingScreen}    />
+      <Stack.Screen name="SplitBill"     component={SplitBillScreen}    />
       <Stack.Screen name="Notifications" component={NotificationsScreen}/>
       <Stack.Screen name="Calendar"      component={CalendarScreen}      />
       <Stack.Screen name="MyBlueprint"   component={MyBlueprintScreen}  />
