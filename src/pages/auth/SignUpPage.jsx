@@ -18,8 +18,8 @@ import {
 // (MIN_SIGNUP_AGE) and the database check. The versions below are the
 // "Last updated" month of /terms and /privacy, recorded as consent.
 const MIN_SIGNUP_AGE = 18
-const TERMS_VERSION = '2026-09'
-const PRIVACY_VERSION = '2026-09'
+const TERMS_VERSION = '2026-11'
+const PRIVACY_VERSION = '2026-11'
 
 // "YYYY-MM-DD" from a date input. Returns a Date at local midnight or null.
 function parseDob(value) {

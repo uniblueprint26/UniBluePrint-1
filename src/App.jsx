@@ -65,6 +65,7 @@ const PartnerPortalPage = lazy(() => import('./pages/portal/PartnerPortalPage'))
 
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'))
+const DeleteAccountPage = lazy(() => import('./pages/legal/DeleteAccountPage'))
 const CookiesPage = lazy(() => import('./pages/legal/CookiesPage'))
 const RefundPolicyPage = lazy(() => import('./pages/legal/RefundPolicyPage'))
 const AccessibilityPage = lazy(() => import('./pages/legal/AccessibilityPage'))
@@ -254,6 +255,7 @@ function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/delete-account" element={<DeleteAccountPage />} />
         <Route path="/cookies" element={<CookiesPage />} />
         <Route path="/refund-policy" element={<RefundPolicyPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />
