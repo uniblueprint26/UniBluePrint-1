@@ -16,6 +16,8 @@ import { WEBSITE_LINKS } from '../constants/site'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
+import AppHeader from '../components/ui/AppHeader'
+import { PILLARS } from '../constants/pillars'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import SharePrompt from '../components/feed/SharePrompt'
 import Button from '../components/ui/Button'
@@ -469,6 +471,7 @@ export default function CoachProfileScreen({ route, navigation }) {
   // never assumed. Re-checked on focus so returning from the new booking
   // flow (or after sending a quick enquiry) unlocks it without a reload.
   const [hasEngaged, setHasEngaged] = useState(null)
+  const [tab, setTab] = useState('about')
 
   useEffect(() => {
     if (!baseCoach) return
@@ -567,416 +570,257 @@ export default function CoachProfileScreen({ route, navigation }) {
   if (!coach) {
     return (
       <View style={styles.screen}>
-        <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Back</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerName}>Coach not found</Text>
-        </View>
+        <AppHeader navigation={navigation} showBack />
+        <Text style={[styles.headerName, { color: colors.textPrimary, textAlign: 'left', padding: 20 }]}>Coach not found</Text>
       </View>
     )
   }
 
-  // Fails closed while subscription status is still resolving — render
-  // nothing rather than flash the paywall at a real Pro user mid-fetch.
   if (proLoading) return null
 
   if (!hasProAccess) {
     return (
       <View style={styles.screen}>
-        <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 28 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={safeGoBack} activeOpacity={0.7}>
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Back</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerName}>{coach.name}</Text>
-          <Text style={styles.headerTitle}>{coach.category}</Text>
-        </View>
+        <AppHeader navigation={navigation} showBack />
+        <Text style={[styles.headerName, { color: colors.textPrimary, textAlign: 'left', paddingHorizontal: 20, paddingTop: 20 }]}>{coach.name}</Text>
+        <Text style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, paddingHorizontal: 20, marginBottom: 8 }}>{coach.category}</Text>
         <ProUpgradeGate
           variant="screen"
-          title="Elevation Blueprint is a Pro feature"
+          title="Elevation is a Pro feature"
           message={`Pro unlocks full access to Elevation coaching, including ${coach.name}'s profile, pricing, and booking requests.`}
         />
       </View>
     )
   }
 
+  const purple = PILLARS.elevation.color
+  const pricelistRows = displayPricelist && displayPricelist.length > 0 && showPricing ? displayPricelist : null
+  const hasServices = coach.services && coach.services.length > 0
+  const hasPrices = !coach.shell && (!!pricelistRows || (coach.pricingNote && showPricing))
+  const tabs = [
+    { key: 'about', label: 'About' },
+    ...(hasServices ? [{ key: 'services', label: 'Services' }] : []),
+    ...(hasPrices ? [{ key: 'prices', label: 'Prices' }] : []),
+  ]
+  const activeTab = tabs.some(t => t.key === tab) ? tab : 'about'
+  const pics = [coach.photoUrl, ...(coach.gallery || [])].filter(Boolean)
+  const isMoney = v => /€/.test(String(v))
+
+  function onBook() {
+    if (NATIVE_BOOKING_LINK) { Linking.openURL(coachBookingUrl(coach)); return }
+    navigation.navigate('CoachBooking', { coach })
+  }
+
   return (
     <View style={styles.screen}>
-
-      {/* ── Scrollable content ──
-          The navy header below is the FIRST CHILD of the ScrollView, not a
-          fixed sibling above it, same pattern as Campus Connect and
-          Lifestyle, the two screens in this family that never showed the
-          native sticky-header bug. Root cause (confirmed by structural
-          comparison across every affected/unaffected screen): a fixed
-          sibling View above a flex:1 ScrollView, where that sibling's own
-          height depends on wrapped multi-line Text (headerTitle allows up
-          to 2 lines here), needs a real Yoga/Fabric text-measurement pass
-          before its height is known. On a genuine cold start under the New
-          Architecture that pass can resolve after the ScrollView sibling
-          has already committed its frame sized against the header's
-          stale/interim height, so content renders under or over the
-          header, self-correcting on any later layout pass
-          (background/foreground), matching the previously reported symptom
-          exactly (this is the "Elevation coach profiles" case of that
-          report). Making the header scroll with the page removes the
-          fixed-sibling/flex-sizing relationship entirely, so there is
-          nothing left to race. */}
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 24 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Navy header with frosted glass avatar ── */}
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={safeGoBack}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-            <Text style={styles.backBtnText}>Back</Text>
-          </TouchableOpacity>
+        {/* Swiping pictures sit above the coach name. */}
+        {pics.length > 0 && <CoachPictures photos={pics} />}
 
-          {/* Frosted glass avatar — double-ring treatment, real photo when available */}
-          <View style={styles.avatarOuter}>
-            <View style={styles.avatarInner}>
-              {coach.photoUrl ? (
-                // coach.photoUrl is either a remote URL string (self-uploaded
-                // via coach_profiles) or a local require()'d image module (a
-                // bundled hero shot) — both are valid Image sources.
-                // resizeMode 'contain' keeps the whole studio portrait
-                // visible rather than cropping it to fill this circle.
-                <Image
-                  source={typeof coach.photoUrl === 'string' ? { uri: coach.photoUrl } : coach.photoUrl}
-                  style={styles.avatarImg}
-                  resizeMode="contain"
-                />
-              ) : (
-                <User
-                  size={44}
-                  color={coach.shell ? 'rgba(245,240,232,0.3)' : 'rgba(245,240,232,0.6)'}
-                  strokeWidth={1.2}
-                />
-              )}
-            </View>
-          </View>
-
-          <Text style={styles.headerName}>{coach.name}</Text>
-          <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'center', marginTop: 6 }} />
-          {coach.title && <Text style={styles.headerTitle} numberOfLines={2}>{coach.title}</Text>}
-        </View>
-
-        {/* ── Identity ──
-            Price chip always reads "Starting from", every coach shows
-            either a real € price or the single standard fallback phrase
-            ("Available on request"); see the COACHES data in
-            ElevationScreen.jsx. Kept structurally identical across all
-            coaches, shell placeholders aside. */}
-        <View style={styles.identityBlock}>
-          <View style={styles.priceChip}>
-            {!coach.shell && <Text style={styles.priceChipLabel}>Starting from</Text>}
-            <Text style={styles.priceChipText}>
-              {coach.shell ? 'Coming Soon' : (coach.from || 'Available on request')}
-            </Text>
-          </View>
-          <View style={styles.categoryPill}>
-            <Text style={styles.categoryPillText}>{coach.category}</Text>
-          </View>
-          <View style={styles.locationRow}>
-            <MapPin size={12} color={colors.muted} strokeWidth={1.8} />
-            <Text style={styles.locationText}>{coach.location}</Text>
-          </View>
-          {coach.badge && (
-            <View style={styles.mentorBadge}>
-              <Text style={styles.mentorBadgeText}>{coach.badge}</Text>
+        <View style={pb.head}>
+          {pics.length === 0 && (
+            <View style={[pb.ring, { borderColor: purple }]}>
+              <User size={34} color={purple} strokeWidth={1.4} />
             </View>
           )}
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={[pb.name, { color: colors.textPrimary }]}>{coach.name}</Text>
+            <Text style={[pb.sub, { color: colors.textSecondary }]}>{[coach.cardTag || coach.category, coach.location].filter(Boolean).join(', ')}</Text>
+            <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'flex-start', marginTop: 6 }} />
+          </View>
         </View>
 
-        {/* ── Tagline ── */}
-        {coach.tagline && (
-          <View style={styles.taglineBlock}>
-            <Text style={styles.taglineText}>{coach.tagline}</Text>
-          </View>
-        )}
-
-        {/* ── Photo gallery ── */}
-        {coach.gallery && <PhotoGallery photos={coach.gallery} />}
-
-        {/* ── Shell placeholder ── */}
         {coach.shell && coach.shellMessage && (
           <View style={styles.section}>
-            <View style={styles.shellBlock}>
-              <Text style={styles.shellText}>{coach.shellMessage}</Text>
-            </View>
+            <View style={styles.shellBlock}><Text style={styles.shellText}>{coach.shellMessage}</Text></View>
           </View>
         )}
 
-        {/* ── Bio ── */}
-        {coach.bio && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>About</Text>
-            <Text style={styles.bioText}>{coach.bio}</Text>
+        {tabs.length > 1 && (
+          <View style={[pb.tabs, { backgroundColor: colors.tabFill }]}>
+            {tabs.map(t => (
+              <TouchableOpacity
+                key={t.key}
+                style={[pb.tab, activeTab === t.key && { backgroundColor: colors.surface }]}
+                onPress={() => setTab(t.key)}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityState={{ selected: activeTab === t.key }}
+              >
+                <Text style={[pb.tabText, { color: activeTab === t.key ? colors.textPrimary : colors.textSecondary }]}>{t.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         )}
 
-        {/* ── Structured sections (e.g. Student Mentor Listing breakdown) ── */}
-        {coach.sections && coach.sections.map(sec => (
-          <View key={sec.title} style={styles.section}>
-            <Text style={styles.sectionLabel}>{sec.title}</Text>
-            <Text style={styles.bioText}>{sec.body}</Text>
-          </View>
-        ))}
-
-        {/* ── Quote ── */}
-        {coach.quote && (
-          <View style={styles.section}>
-            <View style={styles.quoteBlock}>
-              <Text style={styles.quoteText}>"{coach.quote}"</Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── Services ── */}
-        {coach.services && coach.services.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Services</Text>
-            <View style={styles.servicePills}>
-              {coach.services.map(s => (
-                <View key={s} style={styles.servicePill}>
-                  <Text style={styles.servicePillText}>{s}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* ── Pricing & Booking (coach's existing items, plus their own
-            active intro call offer as one more row, see displayPricelist
-            above), fully visible to free users, but blurred with a lock
-            overlay over the real numbers and the booking CTA; Pro members
-            see it exactly as before, un-blurred. ── */}
-        {!coach.shell && displayPricelist && displayPricelist.length > 0 && showPricing && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Pricing &amp; Booking</Text>
-            <ProBlurLock styles={styles} isPro={hasProAccess} onUnlock={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
-              <View>
-                <View style={styles.pricelistCard}>
-                  {displayPricelist.map((p, i) => (
-                    <View
-                      key={p.label}
-                      style={[
-                        styles.pricelistRow,
-                        i < displayPricelist.length - 1 && styles.pricelistDivider,
-                      ]}
-                    >
-                      <Text style={styles.pricelistLabel}>{p.label}</Text>
-                      <Text style={styles.pricelistPrice}>{p.price}</Text>
+        {activeTab === 'about' && (
+          <>
+            {!!coach.tagline && (
+              <View style={styles.section}>
+                <Text style={[pb.tagline, { color: colors.textPrimary, borderLeftColor: purple }]}>{coach.tagline}</Text>
+              </View>
+            )}
+            {coach.bio && (
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>About</Text>
+                <Text style={styles.bioText}>{coach.bio}</Text>
+              </View>
+            )}
+            {coach.sections && coach.sections.map(sec => (
+              <View key={sec.title} style={styles.section}>
+                <Text style={styles.sectionLabel}>{sec.title}</Text>
+                <Text style={styles.bioText}>{sec.body}</Text>
+              </View>
+            ))}
+            {coach.quote && (
+              <View style={styles.section}>
+                <View style={styles.quoteBlock}><Text style={styles.quoteText}>"{coach.quote}"</Text></View>
+              </View>
+            )}
+            {coach.package && coach.package.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>What's included</Text>
+                <View style={styles.packageCard}>
+                  {coach.package.map((item, i) => (
+                    <View key={i} style={styles.packageRow}>
+                      <View style={styles.packageDot} />
+                      <Text style={styles.packageText}>{item}</Text>
                     </View>
                   ))}
                 </View>
-                <TouchableOpacity
-                  style={[styles.ctaBtn, { marginHorizontal: 0, marginTop: 14 }]}
-                  activeOpacity={0.8}
-                  onPress={() => setEnquiryOpen(true)}
-                >
-                  <Text style={styles.ctaBtnText}>Book / Enquire</Text>
+              </View>
+            )}
+            {coach.bookingNote && (comingSoonOn || !/coming soon/i.test(coach.bookingNote)) && (
+              <View style={styles.section}>
+                <View style={styles.bookingCard}><Text style={styles.bookingText}>{coach.bookingNote}</Text></View>
+              </View>
+            )}
+            {coach.contact && (
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Get in touch</Text>
+                <View style={styles.contactList}>
+                  {coach.contact.instagram && (
+                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('instagram', coach.contact.instagram)} activeOpacity={0.75}>
+                      <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
+                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Instagram</Text><Text style={styles.contactHandle}>@{coach.contact.instagram}</Text></View>
+                      <ChevronRight size={14} color={colors.light} />
+                    </TouchableOpacity>
+                  )}
+                  {coach.contact.tiktok && (
+                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('tiktok', coach.contact.tiktok)} activeOpacity={0.75}>
+                      <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
+                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>TikTok</Text><Text style={styles.contactHandle}>@{coach.contact.tiktok}</Text></View>
+                      <ChevronRight size={14} color={colors.light} />
+                    </TouchableOpacity>
+                  )}
+                  {coach.contact.email && (
+                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('email', coach.contact.email)} activeOpacity={0.75}>
+                      <View style={styles.contactIcon}><Mail size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
+                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Email</Text><Text style={styles.contactHandle} numberOfLines={1}>{coach.contact.email}</Text></View>
+                      <ChevronRight size={14} color={colors.light} />
+                    </TouchableOpacity>
+                  )}
+                  {coach.contact.phone && (
+                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('phone', coach.contact.phone)} activeOpacity={0.75}>
+                      <View style={styles.contactIcon}><Phone size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
+                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Phone or WhatsApp</Text><Text style={styles.contactHandle}>{coach.contact.phone}</Text></View>
+                      <ChevronRight size={14} color={colors.light} />
+                    </TouchableOpacity>
+                  )}
+                  {coach.contact.linktree && (
+                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('linktree', coach.contact.linktree)} activeOpacity={0.75}>
+                      <View style={styles.contactIcon}><Link2 size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
+                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Linktree</Text><Text style={styles.contactHandle}>View all links</Text></View>
+                      <ChevronRight size={14} color={colors.light} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            )}
+            {coach.crossLink && (
+              <View style={styles.section}>
+                <TouchableOpacity style={styles.crossLinkCard} activeOpacity={0.75} onPress={() => navigation.navigate(coach.crossLink.screen, coach.crossLink.params)}>
+                  <Text style={styles.crossLinkText}>{coach.crossLink.label}</Text>
+                  <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
                 </TouchableOpacity>
               </View>
-            </ProBlurLock>
-          </View>
+            )}
+          </>
         )}
 
-        {/* ── Pricing note (no pricelist/intro call) ── */}
-        {!(displayPricelist && displayPricelist.length > 0) && coach.pricingNote && showPricing && (
+        {activeTab === 'services' && hasServices && (
           <View style={styles.section}>
-            <View style={styles.noteCard}>
-              <Text style={styles.noteText}>{coach.pricingNote}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── Package inclusions ── */}
-        {coach.package && coach.package.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>What's included</Text>
-            <View style={styles.packageCard}>
-              {coach.package.map((item, i) => (
-                <View key={i} style={styles.packageRow}>
-                  <View style={styles.packageDot} />
-                  <Text style={styles.packageText}>{item}</Text>
+            <Text style={styles.sectionLabel}>Services</Text>
+            <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              {coach.services.map((sv, i) => (
+                <View key={sv} style={[pb.row, i < coach.services.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
+                  <View style={[pb.dot, { backgroundColor: purple }]} />
+                  <Text style={[pb.rowText, { color: colors.textPrimary }]}>{sv}</Text>
                 </View>
               ))}
             </View>
           </View>
         )}
 
-        {/* ── Booking note ── */}
-        {coach.bookingNote && (comingSoonOn || !/coming soon/i.test(coach.bookingNote)) && (
+        {activeTab === 'prices' && hasPrices && (
           <View style={styles.section}>
-            <View style={styles.bookingCard}>
-              <Text style={styles.bookingText}>{coach.bookingNote}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── Contact ── */}
-        {coach.contact && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Get in touch</Text>
-            <View style={styles.contactList}>
-              {coach.contact.instagram && (
-                <TouchableOpacity
-                  style={styles.contactRow}
-                  onPress={() => openLink('instagram', coach.contact.instagram)}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.contactPlatform}>Instagram</Text>
-                    <Text style={styles.contactHandle}>@{coach.contact.instagram}</Text>
-                  </View>
-                  <ChevronRight size={14} color={colors.light} />
-                </TouchableOpacity>
-              )}
-              {coach.contact.tiktok && (
-                <TouchableOpacity
-                  style={styles.contactRow}
-                  onPress={() => openLink('tiktok', coach.contact.tiktok)}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.contactPlatform}>TikTok</Text>
-                    <Text style={styles.contactHandle}>@{coach.contact.tiktok}</Text>
-                  </View>
-                  <ChevronRight size={14} color={colors.light} />
-                </TouchableOpacity>
-              )}
-              {coach.contact.email && (
-                <TouchableOpacity
-                  style={styles.contactRow}
-                  onPress={() => openLink('email', coach.contact.email)}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.contactIcon}><Mail size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.contactPlatform}>Email</Text>
-                    <Text style={styles.contactHandle} numberOfLines={1}>{coach.contact.email}</Text>
-                  </View>
-                  <ChevronRight size={14} color={colors.light} />
-                </TouchableOpacity>
-              )}
-              {coach.contact.phone && (
-                <TouchableOpacity
-                  style={styles.contactRow}
-                  onPress={() => openLink('phone', coach.contact.phone)}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.contactIcon}><Phone size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.contactPlatform}>Phone / WhatsApp</Text>
-                    <Text style={styles.contactHandle}>{coach.contact.phone}</Text>
-                  </View>
-                  <ChevronRight size={14} color={colors.light} />
-                </TouchableOpacity>
-              )}
-              {coach.contact.linktree && (
-                <TouchableOpacity
-                  style={styles.contactRow}
-                  onPress={() => openLink('linktree', coach.contact.linktree)}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.contactIcon}><Link2 size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.contactPlatform}>Linktree</Text>
-                    <Text style={styles.contactHandle}>View all links</Text>
-                  </View>
-                  <ChevronRight size={14} color={colors.light} />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        )}
-
-        {/* ── Cross-link (e.g. coach who also runs a Lifestyle Blueprint partner business) ── */}
-        {coach.crossLink && (
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.crossLinkCard}
-              activeOpacity={0.75}
-              onPress={() => navigation.navigate(coach.crossLink.screen, coach.crossLink.params)}
-            >
-              <Text style={styles.crossLinkText}>{coach.crossLink.label}</Text>
-              <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* ── CTA ── */}
-        {/* Real booking flow — distinct from the "Book / Enquire" CTA inside
-            the Pricing & Booking lock above (that one just opens the
-            enquiry modal). Unconditional: every coach gets a way to book,
-            regardless of whether they have a pricelist to gate. */}
-        {!coach.shell && (
-          <View style={{ gap: 10 }}>
-            {showBooking && (
-              <Button
-                label={NATIVE_BOOKING_LINK ? 'Book a Coach on uniblueprint.ie' : 'Book a Coach'}
-                icon={NATIVE_BOOKING_LINK ? ExternalLink : CalendarClock}
-                onPress={() => {
-                  if (NATIVE_BOOKING_LINK) {
-                    Linking.openURL(coachBookingUrl(coach))
-                    return
-                  }
-                  navigation.navigate('CoachBooking', { coach })
-                }}
-                variant="primary"
-                style={styles.ctaBtn}
-              />
+            <Text style={styles.sectionLabel}>Prices and booking</Text>
+            {pricelistRows ? (
+              <ProBlurLock styles={styles} isPro={hasProAccess} onUnlock={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
+                <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  {pricelistRows.map((pl, i) => (
+                    <View key={pl.label} style={[pb.row, i < pricelistRows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
+                      <Text style={[pb.rowText, { color: colors.textPrimary }]}>{pl.label}</Text>
+                      <Text style={[pb.price, { color: isMoney(pl.price) ? colors.goldText : colors.textPrimary }]}>{pl.price}</Text>
+                    </View>
+                  ))}
+                </View>
+              </ProBlurLock>
+            ) : (
+              <View style={styles.noteCard}><Text style={styles.noteText}>{coach.pricingNote}</Text></View>
             )}
-            <TouchableOpacity
-              style={styles.ctaSecondaryBtn}
-              activeOpacity={0.75}
-              onPress={() => setEnquiryOpen(true)}
-            >
-              <Text style={styles.ctaSecondaryBtnText}>Send a Quick Message</Text>
-            </TouchableOpacity>
-            {coach.contact && (
-              <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={handleEnquire}>
-                <Text style={styles.ctaSecondaryBtnText}>Or contact directly</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Rating — only reachable once the user has an actual booking
-                or enquiry on record with this coach, so "submit a rating"
-                isn't open to anyone who has never engaged with them. */}
-            {user?.id && myRating && (
-              <View style={styles.ratedBanner}>
-                <Star size={14} color="#F59E0B" fill="#F59E0B" />
-                <Text style={styles.ratedBannerText}>You rated this coach {myRating} / 5</Text>
+            {user?.id && myRating ? (
+              <View style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <View style={[pb.rateIcon, { backgroundColor: purple + '22' }]}><Star size={18} color={purple} fill={purple} /></View>
+                <View style={{ flex: 1 }}><Text style={[pb.rateTitle, { color: colors.textPrimary }]}>You rated this coach {myRating} out of 5</Text></View>
               </View>
-            )}
-            {user?.id && !myRating && hasEngaged === true && (
-              <TouchableOpacity style={styles.ctaSecondaryBtn} activeOpacity={0.75} onPress={() => setRateOpen(true)}>
-                <Text style={styles.ctaSecondaryBtnText}>Rate this coach</Text>
+            ) : user?.id && hasEngaged === true ? (
+              <TouchableOpacity style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border }]} activeOpacity={0.8} onPress={() => setRateOpen(true)} accessibilityRole="button" accessibilityLabel="Rate this coach">
+                <View style={[pb.rateIcon, { backgroundColor: purple + '22' }]}><Star size={18} color={purple} /></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[pb.rateTitle, { color: colors.textPrimary }]}>Rate this coach</Text>
+                  <Text style={[pb.rateSub, { color: colors.textSecondary }]}>Tell others how it went.</Text>
+                </View>
+                <ChevronRight size={18} color={colors.light} />
               </TouchableOpacity>
-            )}
-            {user?.id && !myRating && hasEngaged === false && (
+            ) : user?.id && hasEngaged === false ? (
               <View style={styles.rateLockedRow}>
                 <Lock size={12} color={colors.light} strokeWidth={2} />
-                <Text style={styles.rateLockedText}>
-                  You can rate {coach.name} once you've booked or enquired with them.
-                </Text>
+                <Text style={styles.rateLockedText}>You can rate {coach.name} once you have booked or enquired with them.</Text>
               </View>
-            )}
+            ) : null}
           </View>
         )}
-
       </ScrollView>
+
+      {!coach.shell && (
+        <View style={[pb.footer, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: insets.bottom + 12 }]}>
+          {showBooking && (
+            <TouchableOpacity style={[pb.bookBtn, { backgroundColor: colors.accentBg }]} activeOpacity={0.85} onPress={onBook} accessibilityRole="button" accessibilityLabel="Book a session">
+              {NATIVE_BOOKING_LINK ? <ExternalLink size={18} color={colors.accentFg} /> : <CalendarClock size={18} color={colors.accentFg} />}
+              <Text style={[pb.bookText, { color: colors.accentFg }]}>{NATIVE_BOOKING_LINK ? 'Book on uniblueprint.ie' : 'Book a session'}</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={pb.msgBtn} activeOpacity={0.75} onPress={() => setEnquiryOpen(true)} accessibilityRole="button">
+            <Text style={[pb.msgText, { color: colors.textPrimary }]}>Send a quick message</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <EnquiryModal
         visible={enquiryOpen}
@@ -998,6 +842,60 @@ export default function CoachProfileScreen({ route, navigation }) {
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────────
+
+// Swiping pictures above the coach name. Contain, so logos and portraits are never cropped.
+function CoachPictures({ photos }) {
+  const { colors } = useTheme()
+  const [w, setW] = useState(0)
+  const [i, setI] = useState(0)
+  return (
+    <View style={{ marginHorizontal: 16, marginTop: 14 }} onLayout={e => setW(e.nativeEvent.layout.width)}>
+      <View style={{ height: 230, borderRadius: radius.card, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
+        {w > 0 && (
+          <ScrollView horizontal pagingEnabled nestedScrollEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={e => setI(Math.round(e.nativeEvent.contentOffset.x / w))}>
+            {photos.map((ph, n) => (
+              <View key={n} style={{ width: w, height: 230, alignItems: 'center', justifyContent: 'center' }}>
+                <Image source={typeof ph === 'string' ? { uri: ph } : ph} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+              </View>
+            ))}
+          </ScrollView>
+        )}
+      </View>
+      {photos.length > 1 && (
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+          {photos.map((_, n) => (
+            <View key={n} style={{ height: 6, width: n === i ? 16 : 6, borderRadius: 3, backgroundColor: n === i ? colors.textPrimary : colors.border }} />
+          ))}
+        </View>
+      )}
+    </View>
+  )
+}
+
+const pb = StyleSheet.create({
+  head: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 16 },
+  ring: { width: 76, height: 76, borderRadius: 38, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
+  name: { fontFamily: fonts.serif, fontSize: 30, lineHeight: 34 },
+  sub: { fontFamily: fonts.sans, fontSize: 14, marginTop: 2 },
+  tabs: { flexDirection: 'row', marginHorizontal: 16, marginTop: 18, padding: 4, borderRadius: 14 },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 11, borderRadius: 11 },
+  tabText: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  tagline: { fontFamily: fonts.serifItalic, fontSize: 17, lineHeight: 24, borderLeftWidth: 3, paddingLeft: 12 },
+  card: { borderRadius: radius.card, borderWidth: 1, paddingHorizontal: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 15 },
+  rowText: { flex: 1, fontFamily: fonts.sans, fontSize: 15, lineHeight: 21 },
+  dot: { width: 7, height: 7, borderRadius: 4 },
+  price: { fontFamily: fonts.sansBold, fontSize: 15 },
+  rateRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 16, padding: 14, borderRadius: radius.card, borderWidth: 1 },
+  rateIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  rateTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  rateSub: { fontFamily: fonts.sans, fontSize: 13, marginTop: 2 },
+  footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth, gap: 4 },
+  bookBtn: { height: 54, borderRadius: radius.button, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  bookText: { fontFamily: fonts.sansBold, fontSize: 16 },
+  msgBtn: { alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
+  msgText: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
+})
 
 function __gs_styles(colors) {
   return StyleSheet.create({

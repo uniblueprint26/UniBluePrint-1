@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image,
   ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { User, CalendarDays, Clock, CheckCircle2, Wallet } from 'lucide-react-native'
-import ScreenHeader from '../components/ui/ScreenHeader'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import { PILLARS } from '../constants/pillars'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import CoachCheckoutModal from '../components/elevation/CoachCheckoutModal'
@@ -138,14 +139,8 @@ export default function CoachBookingScreen({ route, navigation }) {
   if (!coach) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          eyebrow="BOOK A COACH"
-          title="Coach not found"
-          style={styles.header}
-          titleStyle={styles.headerTitle}
-        />
+        <AppHeader navigation={navigation} showBack />
+        <PageTitle title="Coach not found" />
       </View>
     )
   }
@@ -153,18 +148,11 @@ export default function CoachBookingScreen({ route, navigation }) {
   if (!hasProAccess) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          eyebrow="BOOK A COACH"
-          title={coach.name}
-          subtitle={coach.category}
-          style={styles.header}
-          titleStyle={styles.headerTitle}
-        />
+        <AppHeader navigation={navigation} showBack />
+        <PageTitle title={coach.name} subtitle={coach.category} />
         <ProUpgradeGate
           variant="screen"
-          title="Elevation Blueprint is a Pro feature"
+          title="Elevation is a Pro feature"
           message={`Booking requests to ${coach.name} are part of Pro. Upgrade to send one.`}
         />
       </View>
@@ -266,16 +254,11 @@ export default function CoachBookingScreen({ route, navigation }) {
   if (sent) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          title="Request Sent"
-          style={styles.header}
-          titleStyle={styles.headerTitle}
-        />
+        <AppHeader navigation={navigation} showBack />
+        <PageTitle title="Request sent" />
         <View style={styles.confirmWrap}>
           <View style={styles.confirmIconWrap}>
-            <CheckCircle2 size={48} color={colors.gold} strokeWidth={1.5} />
+            <CheckCircle2 size={48} color={PILLARS.elevation.color} strokeWidth={1.5} />
           </View>
           <Text style={styles.confirmTitle}>Booking request sent</Text>
           <Text style={styles.confirmBody}>
@@ -293,15 +276,7 @@ export default function CoachBookingScreen({ route, navigation }) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader
-        variant="navy"
-        onBack={safeGoBack}
-        eyebrow="BOOK A COACH"
-        title={coach.name}
-        subtitle={coach.category}
-        style={styles.header}
-        titleStyle={styles.headerTitle}
-      />
+      <AppHeader navigation={navigation} showBack />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -309,25 +284,29 @@ export default function CoachBookingScreen({ route, navigation }) {
       >
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
+          contentContainerStyle={[styles.scroll, { paddingBottom: 32 }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Coach recap */}
+          <PageTitle title="Book a session" style={{ paddingHorizontal: 0 }} />
           <View style={styles.coachRow}>
-            <View style={styles.coachAvatar}>
-              <User size={20} color={colors.light} />
+            <View style={[styles.coachAvatar, { borderWidth: 3, borderColor: PILLARS.elevation.color, backgroundColor: colors.surface, overflow: 'hidden' }]}>
+              {coach.heroImage ? (
+                <Image source={typeof coach.heroImage === 'string' ? { uri: coach.heroImage } : coach.heroImage} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+              ) : (
+                <User size={22} color={PILLARS.elevation.color} />
+              )}
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.coachName}>{coach.name}</Text>
-              <Text style={styles.coachMeta}>{coach.from || 'Available on request'}</Text>
+              <Text style={styles.coachMeta}>{[coach.cardTag || coach.category, coach.from && /€/.test(coach.from) ? `from ${coach.from.replace(/^from\s+/i, '')}` : null].filter(Boolean).join(', ')}</Text>
             </View>
           </View>
 
           {/* Step 1 — date */}
           <View style={styles.stepRow}>
             <CalendarDays size={14} color={colors.textPrimary} />
-            <Text style={styles.stepLabel}>1. Pick a date</Text>
+            <Text style={styles.stepLabel}>1. PICK A DATE</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayRow}>
             {days.map(d => {
@@ -354,7 +333,7 @@ export default function CoachBookingScreen({ route, navigation }) {
               against their actual availability. */}
           <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
             <Clock size={14} color={colors.textPrimary} />
-            <Text style={styles.stepLabel}>2. Pick a preferred time</Text>
+            <Text style={styles.stepLabel}>2. PREFERRED TIME</Text>
           </View>
           {!selectedDay ? (
             <Text style={styles.hintText}>Choose a date above to pick a preferred time.</Text>
@@ -387,7 +366,7 @@ export default function CoachBookingScreen({ route, navigation }) {
             <>
               <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
                 <Wallet size={14} color={colors.textPrimary} />
-                <Text style={styles.stepLabel}>3. Choose what you're booking</Text>
+                <Text style={styles.stepLabel}>3. WHAT YOU ARE BOOKING</Text>
               </View>
               <Text style={styles.hintText}>Paid items are charged now to confirm the request; free items send straight away.</Text>
               <View style={styles.pricelistWrap}>
@@ -399,9 +378,14 @@ export default function CoachBookingScreen({ route, navigation }) {
                       style={[styles.pricelistRow, active && styles.pricelistRowActive]}
                       activeOpacity={0.85}
                       onPress={() => setSelectedItem(item)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: !!active }}
                     >
+                      <View style={[bk.radio, { borderColor: active ? colors.accentFg : colors.textSecondary }]}>
+                        {active && <View style={[bk.radioDot, { backgroundColor: colors.accentFg }]} />}
+                      </View>
                       <Text style={[styles.pricelistLabel, active && styles.pricelistTextActive]}>{item.label}</Text>
-                      <Text style={[styles.pricelistPrice, active && styles.pricelistTextActive]}>
+                      <Text style={[styles.pricelistPrice, { color: active ? colors.accentFg : colors.goldText }]}>
                         {item.chargeable ? item.priceLabel : (item.cents === 0 ? 'Free' : item.priceLabel || 'Ask')}
                       </Text>
                     </TouchableOpacity>
@@ -422,7 +406,7 @@ export default function CoachBookingScreen({ route, navigation }) {
 
           {/* Step 4 — confirm */}
           <View style={[styles.stepRow, { marginTop: spacing.lg }]}>
-            <Text style={styles.stepLabel}>{effectivePricing.kind === 'pricelist' ? '4' : '3'}. Add a note (optional) and confirm</Text>
+            <Text style={styles.stepLabel}>{effectivePricing.kind === 'pricelist' ? '4' : '3'}. ADD A NOTE (OPTIONAL)</Text>
           </View>
           <TextInput
             style={styles.input}
@@ -435,55 +419,64 @@ export default function CoachBookingScreen({ route, navigation }) {
             textAlignVertical="top"
           />
 
-          {ready && (
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryText}>
-                Requesting <Text style={styles.summaryStrong}>{selectedTime}</Text> on{' '}
-                <Text style={styles.summaryStrong}>
-                  {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })}
-                </Text>{' '}with {coach.name}
-                {effectivePricing.kind === 'pricelist' && selectedItem && (
-                  <>{' '}for <Text style={styles.summaryStrong}>{selectedItem.label}</Text></>
-                )}
-                .
-                {effectivePricing.kind === 'pricelist' && selectedItem?.chargeable && (
-                  <Text style={styles.summaryStrong}> Paying {selectedItem.priceLabel} now.</Text>
-                )}
-                {effectivePricing.kind === 'flat' && (
-                  <Text style={styles.summaryStrong}> Paying {formatEuro(effectivePricing.cents)} now.</Text>
-                )}
-              </Text>
-            </View>
-          )}
-
-          {!!errorMsg && <Text style={styles.error}>{errorMsg}</Text>}
-
-          <TouchableOpacity
-            style={[styles.confirmCta, (!ready || sending) && { opacity: 0.5 }]}
-            activeOpacity={0.85}
-            onPress={confirm}
-            disabled={!ready || sending}
-          >
-            {sending
-              ? <ActivityIndicator size="small" color={colors.accentFg} />
-              : <Text style={styles.confirmCtaText}>
-                  {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
-                    ? 'Pay & Send Booking Request'
-                    : 'Send Booking Request'}
-                </Text>
-            }
-          </TouchableOpacity>
-          <Text style={styles.disclaimer}>
-            {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
-              ? `Confirming opens secure payment in your browser. Your request to ${coach.name} is sent once that's done, it isn't confirmed until they accept.`
-              : `This sends a request, it isn't confirmed until ${coach.name} accepts.`}
-          </Text>
         </ScrollView>
+        <View style={[bk.footer, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: insets.bottom + 12 }]}>
+          {ready && (
+              <View style={bk.summary}>
+                <Text style={styles.summaryText}>
+                  Requesting <Text style={styles.summaryStrong}>{selectedTime}</Text> on{' '}
+                  <Text style={styles.summaryStrong}>
+                    {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </Text>{' '}with {coach.name}
+                  {effectivePricing.kind === 'pricelist' && selectedItem && (
+                    <>{' '}for <Text style={styles.summaryStrong}>{selectedItem.label}</Text></>
+                  )}
+                  .
+                  {effectivePricing.kind === 'pricelist' && selectedItem?.chargeable && (
+                    <Text style={styles.summaryStrong}> Paying {selectedItem.priceLabel} now.</Text>
+                  )}
+                  {effectivePricing.kind === 'flat' && (
+                    <Text style={styles.summaryStrong}> Paying {formatEuro(effectivePricing.cents)} now.</Text>
+                  )}
+                </Text>
+              </View>
+            )}
+
+            {!!errorMsg && <Text style={styles.error}>{errorMsg}</Text>}
+
+            <TouchableOpacity
+              style={[styles.confirmCta, (!ready || sending) && { opacity: 0.5 }]}
+              activeOpacity={0.85}
+              onPress={confirm}
+              disabled={!ready || sending}
+            >
+              {sending
+                ? <ActivityIndicator size="small" color={colors.accentFg} />
+                : <Text style={styles.confirmCtaText}>
+                    {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
+                      ? 'Pay & Send Booking Request'
+                      : 'Send Booking Request'}
+                  </Text>
+              }
+            </TouchableOpacity>
+            <Text style={styles.disclaimer}>
+              {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
+                ? `Confirming opens secure payment in your browser. Your request to ${coach.name} is sent once that's done, it isn't confirmed until they accept.`
+                : `This sends a request, it isn't confirmed until ${coach.name} accepts.`}
+            </Text>
+        </View>
       </KeyboardAvoidingView>
       <CoachCheckoutModal ref={checkoutRef} />
     </View>
   )
 }
+
+const bk = StyleSheet.create({
+  footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
+  summary: { marginBottom: 10 },
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  radioDot: { width: 10, height: 10, borderRadius: 5 },
+})
 
 function __gs_styles(colors) {
   return StyleSheet.create({
@@ -497,22 +490,20 @@ function __gs_styles(colors) {
   headerTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.chromeFg },
 
   scrollView: { flex: 1 },
-  scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
+  scroll: { paddingHorizontal: spacing.md, paddingTop: 0 },
 
   coachRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.surface, borderRadius: radius.card, padding: 14,
-    marginBottom: spacing.xl, ...shadows.card,
+    flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: spacing.xl,
   },
   coachAvatar: {
-    width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceAlt,
+    width: 52, height: 52, borderRadius: 26, backgroundColor: colors.surfaceAlt,
     alignItems: 'center', justifyContent: 'center',
   },
   coachName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   coachMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
 
-  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 },
-  stepLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textPrimary },
+  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 12 },
+  stepLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1, color: colors.textSecondary },
 
   dayRow: { gap: 8, paddingRight: spacing.md },
   dayChip: {
@@ -566,11 +557,7 @@ function __gs_styles(colors) {
   },
   flatPriceText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, flex: 1, lineHeight: 19 },
 
-  summaryCard: {
-    backgroundColor: 'rgba(201,162,75,0.10)', borderRadius: 8,
-    borderWidth: 1, borderColor: 'rgba(201,162,75,0.35)',
-    padding: 14, marginTop: 16,
-  },
+  summaryCard: { marginTop: 0 },
   summaryText: { fontFamily: fonts.sans, fontSize: 13, color: colors.textPrimary, lineHeight: 20 },
   summaryStrong: { fontFamily: fonts.sansSemiBold },
 
@@ -578,10 +565,10 @@ function __gs_styles(colors) {
 
   confirmCta: {
     backgroundColor: colors.accentBg, borderRadius: radius.button, height: 54,
-    alignItems: 'center', justifyContent: 'center', marginTop: 20,
+    alignItems: 'center', justifyContent: 'center', marginTop: 10,
   },
   confirmCtaText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
-  disclaimer: { fontFamily: fonts.sans, fontSize: 11, color: colors.light, textAlign: 'center', marginTop: 10 },
+  disclaimer: { fontFamily: fonts.sans, fontSize: 12, color: colors.textSecondary, textAlign: 'center', marginTop: 8 },
 
   // Confirmation state
   confirmWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl },
