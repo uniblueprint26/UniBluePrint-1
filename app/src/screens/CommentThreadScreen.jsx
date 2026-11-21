@@ -1,3 +1,4 @@
+import { moderationMessage } from '../lib/moderation'
 import { useCallback, useState } from 'react'
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput,
@@ -171,18 +172,21 @@ export default function CommentThreadScreen({ navigation, route }) {
   const [loading, setLoading] = useState(true)
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [loadError, setLoadError] = useState(false)
+  const [sendError, setSendError] = useState(null)
 
   const load = useCallback(() => {
     if (!postId) { setLoading(false); return }
     let cancelled = false
     setLoading(true)
+    setLoadError(false)
     Promise.all([fetchPostById(postId), fetchComments(postId)])
       .then(([postRow, commentRows]) => {
         if (cancelled) return
         setPost(postRow)
         setComments(commentRows)
       })
-      .catch(() => {})
+      .catch(() => { if (!cancelled) setLoadError(true) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [postId])
@@ -196,6 +200,7 @@ export default function CommentThreadScreen({ navigation, route }) {
     const body = draft.trim()
     if (!body || sending || !user?.id || !postId) return
     setSending(true)
+    setSendError(null)
     try {
       const inserted = await createComment({ postId, userId: user.id, body })
       setComments(prev => [...prev, {
@@ -203,8 +208,9 @@ export default function CommentThreadScreen({ navigation, route }) {
         author_name: inserted.author_name || user.user_metadata?.full_name || user.email?.split('@')[0] || null,
       }])
       setDraft('')
-    } catch {
-      // Best effort — the draft text stays in the input so nothing is lost.
+    } catch (e) {
+      // The draft text stays in the input so nothing is lost.
+      setSendError(moderationMessage(e, 'Could not send your comment. Please try again.'))
     } finally {
       setSending(false)
     }
@@ -241,20 +247,30 @@ export default function CommentThreadScreen({ navigation, route }) {
             <CommentRow comment={item} isOwn={item.user_id === user?.id} onDelete={handleDelete} colors={colors} />
           )}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No comments yet. Be the first to say something.</Text>
+            loadError ? (
+              <View>
+                <Text style={styles.emptyText}>Could not load comments.</Text>
+                <TouchableOpacity onPress={load} accessibilityRole="button" accessibilityLabel="Try again">
+                  <Text style={[styles.emptyText, { paddingTop: 0, color: colors.textPrimary, fontFamily: fonts.sansMedium }]}>Try again</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Text style={styles.emptyText}>No comments yet. Be the first to say something.</Text>
+            )
           }
           contentContainerStyle={{ paddingBottom: 12 }}
           style={{ flex: 1 }}
         />
       )}
 
+      {sendError ? <Text style={[styles.emptyText, { paddingVertical: 8, backgroundColor: colors.surface }]}>{sendError}</Text> : null}
       <View style={[styles.composerRow, { paddingBottom: insets.bottom + 10 }]}>
         <TextInput
           style={styles.input}
           placeholder="Write a comment…"
           placeholderTextColor={colors.textTertiary}
           value={draft}
-          onChangeText={setDraft}
+          onChangeText={t => { setDraft(t); if (sendError) setSendError(null) }}
           multiline
           maxLength={1000}
         />

@@ -4,8 +4,12 @@
 // matched to that page's own "Last updated" line so the two never drift.
 //
 // Website source of truth:
-//   src/pages/legal/TermsPage.jsx   → "Last updated: September 2026"
-//   src/pages/legal/PrivacyPage.jsx → "Last updated: September 2026"
+//   src/pages/legal/TermsPage.jsx   → "Last updated: November 2026"
+//   src/pages/legal/PrivacyPage.jsx → "Last updated: November 2026"
+//
+// 2026-11 bump: Terms gain published Community Standards, reporting and
+// blocking; Privacy names the mobile app data (push token, optional location,
+// budget goals, photos, Expo, Sentry) and links /delete-account.
 //
 // 2026-09 bump: both pages now name UniBlueprint Limited as the operating
 // entity/data controller with its CRO number and registered office (the
@@ -17,8 +21,8 @@
 // "No re-consent flow" under batch 7) — bumping the version alone does not
 // yet prompt existing users to re-accept anything.
 
-export const TERMS_VERSION   = '2026-09'
-export const PRIVACY_VERSION = '2026-09'
+export const TERMS_VERSION   = '2026-11'
+export const PRIVACY_VERSION = '2026-11'
 
 // The legal-entity line shown in-app (About, Privacy & Data, Profile) so the
 // operating company is identifiable from inside the app itself, not just on

@@ -48,7 +48,7 @@ export default function CoverLetterReviewPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Cover Letter Review</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '32px', lineHeight: 1.7 }}>
-          Structure, tone, storytelling, relevance, and employer alignment — five specific things, not a made-up score.
+          Structure, tone, storytelling, relevance, and employer alignment, five specific things, not a made-up score.
         </p>
 
         {error && <ErrorBanner message={error} />}

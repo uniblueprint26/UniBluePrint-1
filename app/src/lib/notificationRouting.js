@@ -21,6 +21,15 @@ import { isFoundationEnabledNow } from '../hooks/useAppFlags'
 // the OS push notification itself, app backgrounded or killed) — both expose
 // the same `.navigate(name, params)` method, which is all this needs.
 export async function goToRelatedEntity(navigation, notif, userId) {
+  // Connection requests carry no related entity. A new request opens the
+  // Requests tab in Messages, an accepted one opens the chats list.
+  if (notif.category === 'connection_request' || notif.category === 'connection_accepted') {
+    navigation.navigate('Messages', {
+      screen: 'MessagesMain',
+      params: { tab: notif.category === 'connection_request' ? 'requests' : 'chats' },
+    })
+    return
+  }
   const type = notif.related_entity_type
   const id = notif.related_entity_id
   if (!type || !id) return

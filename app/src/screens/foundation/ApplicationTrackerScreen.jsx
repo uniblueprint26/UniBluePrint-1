@@ -129,7 +129,7 @@ export default function ApplicationTrackerScreen({ navigation }) {
 
   function submissionLabel(sub) {
     const name = sub?.services?.name || 'Delivered document'
-    return sub?.delivered_at ? `${name} — delivered ${formatDate(sub.delivered_at.slice(0, 10))}` : name
+    return sub?.delivered_at ? `${name}, delivered ${formatDate(sub.delivered_at.slice(0, 10))}` : name
   }
 
   function startAdd() {
@@ -245,7 +245,7 @@ export default function ApplicationTrackerScreen({ navigation }) {
               <ChoiceGrid options={STAGES} value={form.stage} onChange={v => setField('stage', v)} />
             </View>
             <View>
-              <FieldLabel hint="Optional — used to remind you when it's coming up.">Deadline</FieldLabel>
+              <FieldLabel hint="Optional, used to remind you when it's coming up.">Deadline</FieldLabel>
               <View style={styles.deadlineRow}>
                 <FormTextInput
                   value={form.deadline}
@@ -268,7 +268,7 @@ export default function ApplicationTrackerScreen({ navigation }) {
               <FieldLabel hint="Which delivered document did you use for this one, if any?">Linked document</FieldLabel>
               {submissions.length === 0 ? (
                 <Text style={styles.noSubmissionsHint}>
-                  You don't have any delivered Foundation Blueprint documents to link yet — you can still track this application without one.
+                  You don't have any delivered Foundation Blueprint documents to link yet, you can still track this application without one.
                 </Text>
               ) : (
                 <View style={{ gap: 8 }}>
@@ -303,7 +303,7 @@ export default function ApplicationTrackerScreen({ navigation }) {
 
             <View>
               <FieldLabel>Notes</FieldLabel>
-              <FormTextArea value={form.notes} onChangeText={t => setField('notes', t)} placeholder="Anything worth remembering — a referral, interview format, salary range…" minHeight={90} />
+              <FormTextArea value={form.notes} onChangeText={t => setField('notes', t)} placeholder="Anything worth remembering, a referral, interview format, salary range…" minHeight={90} />
             </View>
 
             {!!formError && (
@@ -350,7 +350,7 @@ export default function ApplicationTrackerScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
-        <Text style={styles.pageSubtitle}>Every application you've made, in one place — with a reminder before each deadline.</Text>
+        <Text style={styles.pageSubtitle}>Every application you've made, in one place, with a reminder before each deadline.</Text>
 
         {!loading && applications.length > 0 && (
           <StatTileRow style={{ marginTop: spacing.md }}>
@@ -367,7 +367,7 @@ export default function ApplicationTrackerScreen({ navigation }) {
           <EmptyState
             icon={Briefcase}
             title="Nothing tracked yet"
-            subtitle="Add the applications you've sent out — link one to a delivered CV or cover letter and we'll remind you before the deadline."
+            subtitle="Add the applications you've sent out, link one to a delivered CV or cover letter and we'll remind you before the deadline."
             ctaLabel="Add your first application"
             onCtaPress={startAdd}
           />

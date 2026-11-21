@@ -99,7 +99,7 @@ const ADD_STEPS = [
   {
     key: 'situation',
     title: 'What happened?',
-    subtitle: 'Set the scene — a job, a class project, a society you ran, a moment things went sideways and you fixed it.',
+    subtitle: 'Set the scene, a job, a class project, a society you ran, a moment things went sideways and you fixed it.',
     validate: v => isBlank(v) ? 'Tell us what happened.' : null,
     render: (value, onChange) => (
       <FormTextArea value={value} onChangeText={onChange} placeholder="e.g. Our society's open day stand had no volunteers two days before the event…" minHeight={140} />
@@ -126,7 +126,7 @@ const ADD_STEPS = [
   {
     key: 'action',
     title: 'What did you do?',
-    subtitle: 'The specific actions you took — the part only you can take credit for.',
+    subtitle: 'The specific actions you took, the part only you can take credit for.',
     validate: v => isBlank(v) ? 'Add what you actually did.' : null,
     render: (value, onChange) => (
       <FormTextArea value={value} onChangeText={onChange} placeholder="e.g. I messaged every member individually, built a sign-up rota, and covered the two gaps myself." minHeight={120} />
@@ -135,7 +135,7 @@ const ADD_STEPS = [
   {
     key: 'result',
     title: 'What happened as a result?',
-    subtitle: 'The outcome — numbers if you have them, what changed, what you learned.',
+    subtitle: 'The outcome, numbers if you have them, what changed, what you learned.',
     validate: v => isBlank(v) ? 'Add what happened as a result.' : null,
     render: (value, onChange) => (
       <FormTextArea value={value} onChangeText={onChange} placeholder="e.g. The stand ran fully staffed all day and we signed up 40 new members, our best on record." minHeight={120} />
@@ -454,15 +454,15 @@ export default function EvidenceBankScreen({ navigation }) {
         <StatTileRow style={{ marginTop: spacing.md }}>
           <StatTile
             icon={BookOpen} iconBg="#EFF6FF" iconColor={colors.textPrimary}
-            value={loading ? '–' : storiesCount} label={'Evidence\nStories'} border
+            value={loading ? '...' : storiesCount} label={'Evidence\nStories'} border
           />
           <StatTile
             icon={FileText} iconBg="#FEF9C3" iconColor={colors.goldDeep}
-            value={statCounts.applications === null ? '–' : statCounts.applications} label="Applications" border
+            value={statCounts.applications === null ? '...' : statCounts.applications} label="Applications" border
           />
           <StatTile
             icon={MessageSquare} iconBg="#F0FDF4" iconColor={colors.success}
-            value={statCounts.interviews === null ? '–' : statCounts.interviews} label="Interviews"
+            value={statCounts.interviews === null ? '...' : statCounts.interviews} label="Interviews"
           />
         </StatTileRow>
 
@@ -495,7 +495,7 @@ export default function EvidenceBankScreen({ navigation }) {
           <EmptyState
             icon={BookOpen}
             title="No stories yet"
-            subtitle="Your evidence bank is empty — add your first story to start building real, reusable proof for applications and interviews."
+            subtitle="Your evidence bank is empty, add your first story to start building real, reusable proof for applications and interviews."
             ctaLabel="Add your first story"
             onCtaPress={() => startAdd(null)}
           />

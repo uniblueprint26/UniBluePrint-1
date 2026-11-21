@@ -11,7 +11,7 @@ import { colors, fonts, radius, spacing, shadows } from '../../constants/theme'
 // `onShare` is handed the composer prefill it should navigate with:
 // { initialTab, initialText, initialMood }.
 
-const DEFAULT_PROMPT = "That's one more Blueprint sorted — fancy sharing it?"
+const DEFAULT_PROMPT = "That's one more Blueprint sorted, fancy sharing it?"
 
 export default function SharePrompt({
   visible,

@@ -61,7 +61,7 @@ export default function InterestsModal({ visible, onClose }) {
         return prev.filter(l => l.toLowerCase() !== label.toLowerCase())
       }
       if (prev.length >= max) {
-        setError(`You can pick up to ${max} interests — remove one to add another.`)
+        setError(`You can pick up to ${max} interests, remove one to add another.`)
         return prev
       }
       return [...prev, label]
@@ -73,7 +73,7 @@ export default function InterestsModal({ visible, onClose }) {
     if (!clean) return
     if (has(clean)) { setCustomText(''); return }
     if (selected.length >= max) {
-      setError(`You can pick up to ${max} interests — remove one to add another.`)
+      setError(`You can pick up to ${max} interests, remove one to add another.`)
       return
     }
     setSelected(prev => [...prev, clean])
@@ -87,7 +87,7 @@ export default function InterestsModal({ visible, onClose }) {
     setError('')
     const { error: err } = await setInterests(selected)
     setSaving(false)
-    if (err) { setError('Could not save this — please try again.'); return }
+    if (err) { setError('Could not save this, please try again.'); return }
     onClose()
   }
 
@@ -99,7 +99,7 @@ export default function InterestsModal({ visible, onClose }) {
             <View style={{ flex: 1 }}>
               <Text style={s.title}>What are you into?</Text>
               <Text style={s.subtitle}>
-                Pick from the list or add your own — this is how Course Connect and the Directory
+                Pick from the list or add your own, this is how Course Connect and the Directory
                 connect you to people with the same interests, whatever course, trade, or job they're on.
               </Text>
             </View>

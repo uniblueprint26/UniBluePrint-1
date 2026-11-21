@@ -98,7 +98,7 @@ export default function QuestionFlow({
         )}
         {current.optional && current.whyItHelps && (
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginBottom: '20px', lineHeight: 1.5 }}>
-            Optional — {current.whyItHelps}
+            Optional, {current.whyItHelps}
           </p>
         )}
 

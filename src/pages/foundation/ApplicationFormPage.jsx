@@ -32,7 +32,7 @@ export default function ApplicationFormPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Application Form Assistance</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '24px', lineHeight: 1.7 }}>
-          Build your evidence bank once — real STAR stories from your own experience — then answer any application form by reusing them under the right competency lens.
+          Build your evidence bank once, real STAR stories from your own experience, then answer any application form by reusing them under the right competency lens.
         </p>
 
         <div style={{ display: 'flex', gap: '6px', marginBottom: '28px' }}>
@@ -122,13 +122,13 @@ function EvidenceBankTab({ userId }) {
       <FormCard>
         <h2 style={sectionHeading}>Add a story</h2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginTop: '6px', lineHeight: 1.6 }}>
-          No formal work experience needed — stories from college projects, societies, sport, volunteering, and part-time jobs all count. Graduate employers expect exactly these.
+          No formal work experience needed, stories from college projects, societies, sport, volunteering, and part-time jobs all count. Graduate employers expect exactly these.
         </p>
         <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
           <FormField id="story_title" label="Short title" required><FormInput id="story_title" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required maxLength={LIMITS.SHORT} /></FormField>
           <FormField id="story_situation" label="Situation" required><FormTextarea id="story_situation" value={form.situation} onChange={(e) => setForm((f) => ({ ...f, situation: e.target.value }))} rows={2} required maxLength={LIMITS.LONG} /></FormField>
           <FormField id="story_task" label="Task" required><FormTextarea id="story_task" value={form.task} onChange={(e) => setForm((f) => ({ ...f, task: e.target.value }))} rows={2} required maxLength={LIMITS.LONG} /></FormField>
-          <FormField id="story_action" label="Action" required hint="This is the bulk of the story — what did you specifically do?"><FormTextarea id="story_action" value={form.action} onChange={(e) => setForm((f) => ({ ...f, action: e.target.value }))} rows={3} required maxLength={LIMITS.LONG} /></FormField>
+          <FormField id="story_action" label="Action" required hint="This is the bulk of the story, what did you specifically do?"><FormTextarea id="story_action" value={form.action} onChange={(e) => setForm((f) => ({ ...f, action: e.target.value }))} rows={3} required maxLength={LIMITS.LONG} /></FormField>
           <FormField id="story_result" label="Result" required><FormTextarea id="story_result" value={form.result} onChange={(e) => setForm((f) => ({ ...f, result: e.target.value }))} rows={2} required maxLength={LIMITS.LONG} /></FormField>
           <div>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 500, color: '#1E3A5F', marginBottom: '8px' }}>Which competencies does this demonstrate? *</p>
@@ -163,7 +163,7 @@ function EvidenceBankTab({ userId }) {
         {loading ? (
           <Loader2 size={20} style={{ animation: 'spin 0.8s linear infinite', color: '#1E3A5F' }} />
         ) : stories.length === 0 ? (
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF' }}>No stories yet — add your first one above.</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF' }}>No stories yet, add your first one above.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {stories.map((s) => (
@@ -350,8 +350,8 @@ function AnswerFormTab({ userId, onSwitchToBank }) {
     if (!result) return
     setSubmitting(true)
     try {
-      const serviceName = tier === 'premium' ? 'Application Form Assistance — Premium' : 'Application Form Assistance — Standard'
-      const subId = await submitForReview('application_forms', result.id, serviceName, `Application Form — ${form.target_company || 'Untitled'}`, tier)
+      const serviceName = tier === 'premium' ? 'Application Form Assistance, Premium' : 'Application Form Assistance, Standard'
+      const subId = await submitForReview('application_forms', result.id, serviceName, `Application Form, ${form.target_company || 'Untitled'}`, tier)
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -419,7 +419,7 @@ function AnswerFormTab({ userId, onSwitchToBank }) {
         <FormCard>
           <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>Add a story first</h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>
-            Application Form Assistance drafts answers from your real evidence bank — it never invents a story. Add at least one on the Evidence Bank tab, then come back here.
+            Application Form Assistance drafts answers from your real evidence bank, it never invents a story. Add at least one on the Evidence Bank tab, then come back here.
           </p>
           <button
             type="button" onClick={onSwitchToBank}
@@ -442,7 +442,7 @@ function AnswerFormTab({ userId, onSwitchToBank }) {
           onComplete={handleGenerate}
           completing={generating}
           completeLabel="Generate my answers"
-          strapline="The more you give us, the better your output — this takes about 3 minutes, and everything is saved as you go."
+          strapline="The more you give us, the better your output, this takes about 3 minutes, and everything is saved as you go."
           initialStepKey={form._current_step}
         />
       )}
@@ -467,7 +467,7 @@ function summaryRows(form, tier) {
     ['Form', [form.target_role, form.target_company].filter(Boolean).join(' at ') || 'Not specified'],
     ['Industry', form.industry || 'Not specified'],
     ['Questions', `${validCount} question(s)`],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -487,7 +487,7 @@ function useApplicationFormSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'target_company',
@@ -507,7 +507,7 @@ function useApplicationFormSteps({ form, profileKnown, tier, setTier }) {
       key: 'industry',
       title: 'What industry is this in?',
       optional: true,
-      whyItHelps: 'some fields (like the Civil Service) score against a specific published framework — this makes sure we use it.',
+      whyItHelps: 'some fields (like the Civil Service) score against a specific published framework, this makes sure we use it.',
       render: ({ form: f, set }) => <IndustrySelect id="industry" value={f.industry} onChange={set('industry')} />,
     },
     {
@@ -527,7 +527,7 @@ function useApplicationFormSteps({ form, profileKnown, tier, setTier }) {
       key: 'unsure_about',
       title: 'Anything you\'re unsure how to present?',
       optional: true,
-      whyItHelps: 'a question you don\'t know how to angle, or a gap in your evidence bank — tell us and we\'ll flag it rather than guess.',
+      whyItHelps: 'a question you don\'t know how to angle, or a gap in your evidence bank, tell us and we\'ll flag it rather than guess.',
       render: ({ form: f, set }) => (
         <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />
       ),

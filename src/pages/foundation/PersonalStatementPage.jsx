@@ -16,9 +16,9 @@ import TierPicker from '../../components/foundation/TierPicker'
 import PipelineStatusTimeline from '../../components/foundation/PipelineStatusTimeline'
 
 const PATHWAYS = [
-  ['ucas', 'UCAS (UK undergraduate)', 'Three structured questions — the new 2026 entry format.'],
-  ['cao_mature', 'CAO — Mature applicant', 'For mature students, or RCSI / portfolio-based programmes requiring a statement.'],
-  ['postgrad', 'Postgraduate / Masters', 'The five-part structure — academic background, skills, goals, and course fit.'],
+  ['ucas', 'UCAS (UK undergraduate)', 'Three structured questions, the new 2026 entry format.'],
+  ['cao_mature', 'CAO, Mature applicant', 'For mature students, or RCSI / portfolio-based programmes requiring a statement.'],
+  ['postgrad', 'Postgraduate / Masters', 'The five-part structure, academic background, skills, goals, and course fit.'],
 ]
 
 const DRAFT_MAX_AGE_DAYS = 7
@@ -192,8 +192,8 @@ export default function PersonalStatementPage() {
     if (!doc) return
     setSubmitting(true)
     try {
-      const serviceName = tier === 'premium' ? 'Personal Statement — Premium' : 'Personal Statement — Standard'
-      const subId = await submitForReview('personal_statements', doc.id, serviceName, `Personal Statement — ${form.target_course} at ${form.target_institution}`, tier)
+      const serviceName = tier === 'premium' ? 'Personal Statement, Premium' : 'Personal Statement, Standard'
+      const subId = await submitForReview('personal_statements', doc.id, serviceName, `Personal Statement, ${form.target_course} at ${form.target_institution}`, tier)
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -214,7 +214,7 @@ export default function PersonalStatementPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Personal Statement Builder</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          UCAS, CAO mature applicant, or postgraduate — three genuinely different structures, not one template with the label swapped.
+          UCAS, CAO mature applicant, or postgraduate, three genuinely different structures, not one template with the label swapped.
         </p>
 
         {error && <ErrorBanner message={error} />}
@@ -235,7 +235,7 @@ export default function PersonalStatementPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Generate my statement"
-            strapline="The more you give us, the better your statement — this takes about 4 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your statement, this takes about 4 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : submitted ? (
@@ -299,9 +299,9 @@ function profileCheckRows(profileKnown) {
 /** Rows for the closing "here's what we'll build from" summary step. */
 function summaryRows(form, tier) {
   return [
-    ['Pathway', PATHWAYS.find(([v]) => v === form.pathway)?.[1] || '—'],
-    ['Course', [form.target_course, form.target_institution].filter(Boolean).join(' at ') || '—'],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Pathway', PATHWAYS.find(([v]) => v === form.pathway)?.[1] || 'Not given'],
+    ['Course', [form.target_course, form.target_institution].filter(Boolean).join(' at ') || 'Not given'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -319,7 +319,7 @@ function usePersonalStatementSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'pathway',
@@ -357,7 +357,7 @@ function usePersonalStatementSteps({ form, profileKnown, tier, setTier }) {
       title: 'What relevant life or work experience do you have?',
       skip: (f) => f.pathway !== 'cao_mature',
       optional: true,
-      whyItHelps: 'this carries real weight for a mature applicant statement — CAO does not assess you on Leaving Cert points.',
+      whyItHelps: 'this carries real weight for a mature applicant statement, CAO does not assess you on Leaving Cert points.',
       render: ({ form: f, set }) => <FormTextarea id="life_work_experience" value={f.life_work_experience} onChange={set('life_work_experience')} rows={5} maxLength={LIMITS.LONG} />,
     },
     {
@@ -371,7 +371,7 @@ function usePersonalStatementSteps({ form, profileKnown, tier, setTier }) {
       key: 'weaknesses_or_gaps',
       title: 'Anything you want addressed honestly?',
       optional: true,
-      whyItHelps: 'a lower grade, a gap, an unconventional path — tell us and we\'ll frame it honestly rather than skip it.',
+      whyItHelps: 'a lower grade, a gap, an unconventional path, tell us and we\'ll frame it honestly rather than skip it.',
       render: ({ form: f, set }) => <FormTextarea id="weaknesses_or_gaps" value={f.weaknesses_or_gaps} onChange={set('weaknesses_or_gaps')} rows={3} maxLength={LIMITS.LONG} />,
     },
     {

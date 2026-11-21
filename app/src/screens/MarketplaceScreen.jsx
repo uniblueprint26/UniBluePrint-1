@@ -39,7 +39,7 @@ export default function MarketplaceScreen({ navigation }) {
           </TouchableOpacity>
         </View>
         <Text style={styles.heroTitle}>Marketplace</Text>
-        <Text style={styles.heroSub}>Offer a skill, find one, or buy and sell with students across Ireland. No auto-expiry — you mark your own listing sold whenever it's done.</Text>
+        <Text style={styles.heroSub}>Offer a skill, find one, or buy and sell with students across Ireland. No auto-expiry, you mark your own listing sold whenever it's done.</Text>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 40 }} showsVerticalScrollIndicator={false}>

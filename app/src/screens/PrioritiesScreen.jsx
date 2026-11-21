@@ -112,12 +112,12 @@ export default function PrioritiesScreen({ navigation }) {
         <Text style={styles.brandEyebrow}>UNIBLUEPRINT PRESENTS</Text>
         <Text style={styles.brandTitle}>Priority</Text>
         <Text style={styles.brandSub}>
-          House, Afrobeats and Folk nights across Ireland — ticketed through the UBP app.
+          House, Afrobeats and Folk nights across Ireland, ticketed through the UBP app.
         </Text>
 
         <View style={styles.demoBanner}>
           <Text style={styles.demoBannerText}>
-            Demo content — every event below is invented for this preview, not a real booking.
+            Demo content, every event below is invented for this preview, not a real booking.
           </Text>
         </View>
 

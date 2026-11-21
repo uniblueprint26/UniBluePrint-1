@@ -85,7 +85,7 @@ const BoardListingCheckoutModal = forwardRef(function BoardListingCheckoutModal(
         setState(s => ({
           ...s,
           phase: 'error',
-          error: "We haven't seen your payment go through yet. If you completed checkout, wait a moment and tap “I've paid — check again”. Otherwise tap Cancel and try again.",
+          error: "We haven't seen your payment go through yet. If you completed checkout, wait a moment and tap “I've paid, check again”. Otherwise tap Cancel and try again.",
         }))
       }
     } finally {
@@ -176,7 +176,7 @@ const BoardListingCheckoutModal = forwardRef(function BoardListingCheckoutModal(
               {phase === 'awaiting_payment' && (
                 <>
                   <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={checkOnce}>
-                    <Text style={styles.primaryBtnText}>I've paid — check again</Text>
+                    <Text style={styles.primaryBtnText}>I've paid, check again</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.cancelBtn} activeOpacity={0.75} onPress={handleCancel}>
                     <Text style={styles.cancelBtnText}>Cancel</Text>
@@ -194,7 +194,7 @@ const BoardListingCheckoutModal = forwardRef(function BoardListingCheckoutModal(
               <Text style={styles.title}>Payment not confirmed</Text>
               <Text style={styles.body}>{error}</Text>
               <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={checkOnce}>
-                <Text style={styles.primaryBtnText}>I've paid — check again</Text>
+                <Text style={styles.primaryBtnText}>I've paid, check again</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.retryBtn} activeOpacity={0.8} onPress={handleRetry}>
                 <Text style={styles.retryBtnText}>Start checkout again</Text>

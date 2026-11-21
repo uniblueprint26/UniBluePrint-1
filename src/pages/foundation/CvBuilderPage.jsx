@@ -55,8 +55,8 @@ const emptyExperience = () => ({ job_title: '', company: '', dates: '', responsi
 const YEARS_EXPERIENCE_OPTIONS = [
   { value: 'none', label: 'None yet' },
   { value: 'under_1', label: 'Less than 1 year' },
-  { value: '1_2', label: '1–2 years' },
-  { value: '3_5', label: '3–5 years' },
+  { value: '1_2', label: '1 to 2 years' },
+  { value: '3_5', label: '3 to 5 years' },
   { value: '5_plus', label: '5+ years' },
 ]
 
@@ -189,7 +189,7 @@ export default function CvBuilderPage() {
       if (draftIdRef.current) {
         await supabase.from('cv_documents').update({
           input: draftInput,
-          title: `${form.personal_info.full_name || 'Untitled'} — ${form.target_role || form.target_industry || 'CV'}`,
+          title: `${form.personal_info.full_name || 'Untitled'}, ${form.target_role || form.target_industry || 'CV'}`,
           style: form.style,
           target_role: form.target_role || null,
           target_industry: form.target_industry || null,
@@ -202,7 +202,7 @@ export default function CvBuilderPage() {
           .from('cv_documents')
           .insert([{
             user_id: user.id,
-            title: `${form.personal_info.full_name || 'Untitled'} — ${form.target_role || form.target_industry || 'CV'}`,
+            title: `${form.personal_info.full_name || 'Untitled'}, ${form.target_role || form.target_industry || 'CV'}`,
             style: form.style,
             target_role: form.target_role || null,
             target_industry: form.target_industry || null,
@@ -255,7 +255,7 @@ export default function CvBuilderPage() {
     try {
       const payload = {
         user_id: user.id,
-        title: `${form.personal_info.full_name || 'Untitled'} — ${form.target_role || form.target_industry}`,
+        title: `${form.personal_info.full_name || 'Untitled'}, ${form.target_role || form.target_industry}`,
         style: form.style,
         target_role: form.target_role || null,
         target_industry: form.target_industry,
@@ -292,8 +292,8 @@ export default function CvBuilderPage() {
     setSubmitting(true)
     setError('')
     try {
-      const serviceName = tier === 'premium' ? 'CV Optimisation — Premium' : 'CV Optimisation — Standard'
-      const subId = await submitForReview('cv_documents', cvDoc.id, serviceName, `CV Builder — ${cvDoc.title}`, tier)
+      const serviceName = tier === 'premium' ? 'CV Optimisation, Premium' : 'CV Optimisation, Standard'
+      const subId = await submitForReview('cv_documents', cvDoc.id, serviceName, `CV Builder, ${cvDoc.title}`, tier)
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -315,7 +315,7 @@ export default function CvBuilderPage() {
 
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>CV Optimisation</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          A few quick questions, then a tailored, ATS-optimised CV — reviewed by a Campus Handler before delivery.
+          A few quick questions, then a tailored, ATS-optimised CV, reviewed by a Campus Handler before delivery.
         </p>
 
         {error && <ErrorBanner message={error} />}
@@ -333,7 +333,7 @@ export default function CvBuilderPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Generate my CV"
-            strapline="The more you give us, the better your output — this takes about 5 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your output, this takes about 5 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : (
@@ -401,7 +401,7 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'existing_cv',
@@ -528,7 +528,7 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
       key: 'achievements_highlight',
       title: 'What do you most want us to highlight?',
       optional: true,
-      whyItHelps: 'the more specific, the better — this is the raw material we turn into your strongest bullets.',
+      whyItHelps: 'the more specific, the better, this is the raw material we turn into your strongest bullets.',
       render: ({ form: f, set }) => (
         <FormTextarea
           id="achievements_highlight" value={f.achievements_highlight} onChange={set('achievements_highlight')}
@@ -541,7 +541,7 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
       key: 'unsure_about',
       title: 'Anything you\'re unsure how to present?',
       optional: true,
-      whyItHelps: 'a gap, a low grade, a career change — tell us and we\'ll frame it honestly rather than skip it.',
+      whyItHelps: 'a gap, a low grade, a career change, tell us and we\'ll frame it honestly rather than skip it.',
       render: ({ form: f, set }) => (
         <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />
       ),
@@ -565,10 +565,10 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
               <option value="two_page">Two page</option>
             </FormSelect>
           </FormField>
-          <FormField id="style" label="Template" hint="Both templates are equally ATS-safe — single column, no tables, standard section names. They differ only in visual tone.">
+          <FormField id="style" label="Template" hint="Both templates are equally ATS-safe, single column, no tables, standard section names. They differ only in visual tone.">
             <FormSelect id="style" value={f.style} onChange={set('style')}>
-              <option value="classic_ats">Classic — serif, traditional. Expected in finance, law, healthcare, government</option>
-              <option value="modern">Modern — sans-serif, cleaner. Common in tech, startups, creative</option>
+              <option value="classic_ats">Classic, serif, traditional. Expected in finance, law, healthcare, government</option>
+              <option value="modern">Modern, sans-serif, cleaner. Common in tech, startups, creative</option>
             </FormSelect>
           </FormField>
         </div>
@@ -582,8 +582,8 @@ function useCvSteps({ form, profileKnown, tier, setTier }) {
       render: ({ form: f, set }) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <FormField id="target_company" label="Specific company you're applying to" hint="Optional"><FormInput id="target_company" value={f.target_company} onChange={set('target_company')} maxLength={LIMITS.SHORT} /></FormField>
-          <FormField id="job_description" label="Paste a job description" hint="Optional — improves ATS keyword matching"><FormTextarea id="job_description" value={f.job_description} onChange={set('job_description')} rows={5} maxLength={LIMITS.PASTE_JD} /></FormField>
-          <FormField id="target_emphasis" label="Anything specific to emphasise — or avoid?" hint="Optional"><FormTextarea id="target_emphasis" value={f.target_emphasis} onChange={set('target_emphasis')} rows={3} maxLength={LIMITS.LONG} /></FormField>
+          <FormField id="job_description" label="Paste a job description" hint="Optional, improves ATS keyword matching"><FormTextarea id="job_description" value={f.job_description} onChange={set('job_description')} rows={5} maxLength={LIMITS.PASTE_JD} /></FormField>
+          <FormField id="target_emphasis" label="Anything specific to emphasise, or avoid?" hint="Optional"><FormTextarea id="target_emphasis" value={f.target_emphasis} onChange={set('target_emphasis')} rows={3} maxLength={LIMITS.LONG} /></FormField>
         </div>
       ),
     },
@@ -621,8 +621,8 @@ function ExperienceEntries({ experience, onChange, onAdd, onRemove }) {
           )}
           <FormField id={`exp-title-${i}`} label="Job title" required={i === 0}><FormInput id={`exp-title-${i}`} value={r.job_title} onChange={(ev) => onChange(i, 'job_title', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
           <FormField id={`exp-company-${i}`} label="Company name" required={i === 0}><FormInput id={`exp-company-${i}`} value={r.company} onChange={(ev) => onChange(i, 'company', ev.target.value)} required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
-          <FormField id={`exp-dates-${i}`} label="Dates" required={i === 0}><FormInput id={`exp-dates-${i}`} value={r.dates} onChange={(ev) => onChange(i, 'dates', ev.target.value)} placeholder="e.g. Jun 2024 – Aug 2024" required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
-          <FormField id={`exp-resp-${i}`} label="Key responsibilities and achievements" required={i === 0} hint="Bullet points or a few sentences — we'll rewrite these properly">
+          <FormField id={`exp-dates-${i}`} label="Dates" required={i === 0}><FormInput id={`exp-dates-${i}`} value={r.dates} onChange={(ev) => onChange(i, 'dates', ev.target.value)} placeholder="e.g. Jun 2024, Aug 2024" required={i === 0} maxLength={LIMITS.SHORT} /></FormField>
+          <FormField id={`exp-resp-${i}`} label="Key responsibilities and achievements" required={i === 0} hint="Bullet points or a few sentences, we'll rewrite these properly">
             <FormTextarea id={`exp-resp-${i}`} value={r.responsibilities} onChange={(ev) => onChange(i, 'responsibilities', ev.target.value)} rows={4} required={i === 0} maxLength={LIMITS.LONG} />
           </FormField>
         </div>
@@ -657,11 +657,11 @@ function EducationEntries({ education, onChange, onAdd, onRemove }) {
 function summaryRows(form, tier) {
   return [
     ['Targeting', [form.target_role, form.target_industry].filter(Boolean).join(' · ') || form.target_industry],
-    ['Experience', form.has_no_experience ? 'None yet — building around education and projects' : `${form.experience.filter((r) => r.job_title).length} role(s)`],
+    ['Experience', form.has_no_experience ? 'None yet, building around education and projects' : `${form.experience.filter((r) => r.job_title).length} role(s)`],
     ['Education', `${form.education.filter((e) => e.institution).length} entry(ies)`],
     ['Skills', `${Object.values(form.skills).reduce((n, v) => n + (v ? v.split(',').filter((s) => s.trim()).length : 0), 0)} listed`],
     ['Style', `${form.tone}, ${form.length === 'one_page' ? 'one page' : 'two page'}, ${form.style === 'modern' ? 'modern template' : 'classic template'}`],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 

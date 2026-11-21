@@ -64,7 +64,7 @@ export default function SignInPage() {
       subtitle="Sign in to your Blueprint"
       note={
         <>
-          Your Foundation Blueprint tools are right here — head to{' '}
+          Your Foundation Blueprint tools are right here, head to{' '}
           <Link to="/foundation/my-documents" style={linkStyle}>My Documents</Link> or{' '}
           <Link to="/foundation/career-profile" style={linkStyle}>your Career Profile</Link> once you're signed in.
         </>

@@ -15,7 +15,7 @@ const STATUS_META = {
 }
 
 const UPLOAD_TIPS = [
-  'One detailed, accurate resource beats ten thin ones — quality is judged first.',
+  'One detailed, accurate resource beats ten thin ones, quality is judged first.',
   'Add real context: why it helped, who it is for, and when to use it.',
   'Spread contributions across categories to show variety and impact.',
   'Double-check subject, university and course details before submitting.',

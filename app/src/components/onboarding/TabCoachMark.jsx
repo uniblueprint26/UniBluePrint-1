@@ -76,7 +76,7 @@ export default function TabCoachMark({ onDismiss }) {
             </View>
             <Text style={styles.rowText}>
               <Text style={styles.rowLabel}>Foundation Blueprint </Text>
-              is your career documents — CV, cover letters, LinkedIn, and more.
+              is your career documents, CV, cover letters, LinkedIn, and more.
             </Text>
           </View>
 

@@ -38,7 +38,7 @@ import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
+import { useConnect } from '../hooks/useConnect'
 import { useBlockedIds } from '../lib/reporting'
 
 // How many posts a single feed page fetches — both the first load and every
@@ -194,7 +194,6 @@ export default function HomeScreen({ navigation }) {
   const [myReactions, setMyReactions]       = useState({})
   const [savedPostIds, setSavedPostIds]     = useState(() => new Set())
   const [suggestedProfiles, setSuggestedProfiles] = useState([])
-  const [suggestedConnectingId, setSuggestedConnectingId] = useState(null)
 
   // Load the feed + the one-off placement on mount, and again whenever Home
   // regains focus (so a post made in the Composer, a comment added, or a
@@ -258,39 +257,8 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  // Suggested profiles' Connect re-plays DirectoryScreen's own "start a
-  // direct chat" flow (same RPC/room-context lookup, same nav target), so a
-  // connect made from Home lands the person in the exact same place one made
-  // from the Directory would.
-  async function handleSuggestedConnect(profile) {
-    if (suggestedConnectingId) return
-    setSuggestedConnectingId(profile.id)
-    try {
-      const { roomId, blocked, error } = await startDirectChat(profile.id, profile.full_name)
-      if (blocked) {
-        Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
-        return
-      }
-      if (error || !roomId) throw error || new Error('No room id returned')
-      const { contextId } = await fetchRoomContextId(roomId)
-      if (!contextId) throw new Error('Could not resolve the new conversation.')
-      navigation.getParent()?.navigate('Messages', {
-        screen: 'ChatRoom',
-        params: {
-          contextType: 'direct',
-          contextId,
-          roomName:    profile.full_name || 'Chat',
-          subtitle:    null,
-          posterId:    profile.id,
-          posterName:  profile.full_name,
-        },
-      })
-    } catch {
-      Alert.alert('Something went wrong', 'Could not start the conversation. Please try again.')
-    } finally {
-      setSuggestedConnectingId(null)
-    }
-  }
+  // Suggested profiles' Connect sends a connection request (see hooks/useConnect.js).
+  const { connect: handleSuggestedConnect, connectingId: suggestedConnectingId } = useConnect(navigation)
 
   function handleViewSuggestedProfile(profile) {
     navigation.navigate('StudentProfile', { student: profile })

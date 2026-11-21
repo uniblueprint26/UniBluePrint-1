@@ -32,7 +32,7 @@ const LIVE_PARTNERS = [
     name: 'Energie Fitness',
     logo: energieLogo,
     category: 'Gym Membership',
-    description: 'Full gym access at an exclusive member rate versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am–10pm, weekends 9am–5pm.',
+    description: 'Full gym access at an exclusive member rate versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am to 10pm, weekends 9am to 5pm.',
   },
   {
     id: 'jmc',
@@ -703,7 +703,7 @@ export default function PartnersPage() {
             Real deals, right now
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
-            Every partner below is live today — verified, real, and offering something to UniBlueprint Pro subscribers.
+            Every partner below is live today, verified, real, and offering something to UniBlueprint Pro subscribers.
           </p>
           <div className="partners-live-grid">
             {LIVE_PARTNERS.map(p => <LivePartnerCard key={p.id} {...p} />)}

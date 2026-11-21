@@ -31,7 +31,7 @@ export default function FoundationPaymentSuccessPage() {
               Payment received
             </h1>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', marginTop: '12px', lineHeight: 1.6 }}>
-              Thanks — your Foundation Blueprint request is paid for. Return to the UniBlueprint app on your phone to finish submitting it to a Campus Handler. You can close this tab now.
+              Thanks, your Foundation Blueprint request is paid for. Return to the UniBlueprint app on your phone to finish submitting it to a Campus Handler. You can close this tab now.
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', marginTop: '20px' }}>
               A receipt has been sent to your email. If anything looks wrong with this payment, <a href="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>contact us</a>.

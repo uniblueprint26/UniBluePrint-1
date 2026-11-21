@@ -250,7 +250,7 @@ export default function CareerReadinessScreen({ navigation }) {
         logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
         eyebrow="CAREER READINESS"
         title="Your Blueprint Progress"
-        subtitle="Your progress across all 8 Foundation Blueprint builders, in one place — no leaderboard, nothing comparing you to anyone else."
+        subtitle="Your progress across all 8 Foundation Blueprint builders, in one place, no leaderboard, nothing comparing you to anyone else."
         style={styles.heroBlock}
         titleStyle={styles.heroTitle}
       />

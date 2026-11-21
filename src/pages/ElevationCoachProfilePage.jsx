@@ -78,7 +78,7 @@ export default function ElevationCoachProfilePage() {
   const initial = name.charAt(0).toUpperCase()
   const canonicalUrl = `${SITE_URL}/elevation/coach/${coachId}`
   const ogImage = photo ? `${SITE_URL}${photo}` : `${SITE_URL}/og-image.png`
-  const metaTitle = `${name} — ${category} | UniBlueprint Elevation`
+  const metaTitle = `${name}, ${category} | UniBlueprint Elevation`
   const metaDescription = `${name}${via ? ` (${via})` : ''}, ${category} in ${location}. ${services.join(', ')}. Book a session with a real Uni Coach on UniBlueprint.`
 
   const personJsonLd = {
@@ -136,7 +136,7 @@ export default function ElevationCoachProfilePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
           }}>
             {photo ? (
-              <img src={photo} alt={`${name} — ${category}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={photo} alt={`${name}, ${category}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
               <div style={{
                 width: '96px', height: '96px', borderRadius: '50%', background: accent,
@@ -244,7 +244,7 @@ export default function ElevationCoachProfilePage() {
             )}
 
             <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11.5px', color: '#9CA3AF', textAlign: 'center', marginTop: '20px', lineHeight: 1.5 }}>
-              Every Uni Coach sets and collects their own price directly — booking sends a request, not a confirmed or paid session.
+              Every Uni Coach sets and collects their own price directly, booking sends a request, not a confirmed or paid session.
             </p>
           </div>
         </div>

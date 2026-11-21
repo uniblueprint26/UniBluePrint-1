@@ -21,7 +21,7 @@ import JobSearchHandlerGuide from '../../components/handler/JobSearchHandlerGuid
 const OPPORTUNITY_TYPE_OPTIONS = OPPORTUNITY_TYPES.map(([value, label]) => ({ value, label }))
 const URGENCY_OPTIONS = [
   { value: 'longer_runway', label: 'I have time to build a longer-term strategy' },
-  { value: 'needs_income_2_4_weeks', label: 'I need income within the next 2–4 weeks' },
+  { value: 'needs_income_2_4_weeks', label: 'I need income within the next 2 to 4 weeks' },
 ]
 const INTERVIEW_CONVERSION_OPTIONS = [
   { value: 'no_responses', label: 'Not applied yet / no responses at all' },
@@ -175,8 +175,8 @@ export default function JobSearchSupportPage() {
   // failure is soft rather than fatal to begin with.
   const queueForHandler = async (sessionId) => {
     setQueueError('')
-    const serviceName = tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard'
-    const label = `Job Search — ${form.field_or_industry}`
+    const serviceName = tier === 'premium' ? 'Job Search Support, Premium' : 'Job Search Support, Standard'
+    const label = `Job Search, ${form.field_or_industry}`
     try {
       const subId = await submitForReview('job_search_sessions', sessionId, serviceName, label, tier)
       setSubmissionId(subId)
@@ -195,7 +195,7 @@ export default function JobSearchSupportPage() {
   const handleGenerate = () => runLocked(async () => {
     setError('')
     if (!form.field_or_industry.trim() || !form.opportunity_type.trim()) {
-      setError('Field/industry and target opportunity type are required — they\'re the minimum needed to build a personalised strategy.')
+      setError('Field/industry and target opportunity type are required, they\'re the minimum needed to build a personalised strategy.')
       return
     }
     setGenerating(true)
@@ -272,7 +272,7 @@ export default function JobSearchSupportPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Get my strategy"
-            strapline="The more you give us, the better your strategy — this takes about 4 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your strategy, this takes about 4 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : (
@@ -304,11 +304,11 @@ function profileCheckRows(profileKnown) {
 /** Rows for the closing "here's what we'll build from" summary step. */
 function summaryRows(form, tier) {
   return [
-    ['Field', form.field_or_industry || '—'],
-    ['Looking for', OPPORTUNITY_TYPE_OPTIONS.find((o) => o.value === form.opportunity_type)?.label || '—'],
+    ['Field', form.field_or_industry || 'Not given'],
+    ['Looking for', OPPORTUNITY_TYPE_OPTIONS.find((o) => o.value === form.opportunity_type)?.label || 'Not given'],
     ['Experience', form.has_no_experience ? 'First-ever job search' : 'Has prior experience'],
     ['Urgency', URGENCY_OPTIONS.find((o) => o.value === form.urgency)?.label],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -328,7 +328,7 @@ function useJobSearchSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'field_or_industry',
@@ -351,11 +351,11 @@ function useJobSearchSteps({ form, profileKnown, tier, setTier }) {
             id="has_no_experience"
             checked={f.has_no_experience}
             onChange={set('has_no_experience')}
-            label="Yes — I have no formal work experience yet"
+            label="Yes, I have no formal work experience yet"
           />
           {f.has_no_experience && (
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6, marginTop: '12px' }}>
-              Good to know — searching for a first role works differently. Your strategy will lead on your college careers service, speculative applications, and building visibility, rather than assuming a work history you don't have yet.
+              Good to know, searching for a first role works differently. Your strategy will lead on your college careers service, speculative applications, and building visibility, rather than assuming a work history you don't have yet.
             </p>
           )}
         </div>
@@ -424,7 +424,7 @@ function useJobSearchSteps({ form, profileKnown, tier, setTier }) {
       key: 'specifics',
       title: 'A couple of specifics',
       optional: true,
-      whyItHelps: 'only relevant to some fields and situations — skip freely if neither applies.',
+      whyItHelps: 'only relevant to some fields and situations, skip freely if neither applies.',
       render: ({ form: f, set }) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <FormField id="professional_registration_status" label="Does your field require professional registration?" hint="e.g. NMBI, Teaching Council, CORU">
@@ -445,7 +445,7 @@ function useJobSearchSteps({ form, profileKnown, tier, setTier }) {
       key: 'unsure_about',
       title: 'Anything you\'re unsure about?',
       optional: true,
-      whyItHelps: 'whether your background even applies here, a gap, anything — tell us and the Handler will raise it in your session.',
+      whyItHelps: 'whether your background even applies here, a gap, anything, tell us and the Handler will raise it in your session.',
       render: ({ form: f, set }) => (
         <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />
       ),

@@ -25,7 +25,7 @@ const SOURCES = [
 ]
 
 const STATUS_STYLE = {
-  draft: { bg: 'rgba(156,107,38,0.12)', fg: '#9C6B26', label: 'Draft — not generated' },
+  draft: { bg: 'rgba(156,107,38,0.12)', fg: '#9C6B26', label: 'Draft, not generated' },
   generated: { bg: 'rgba(30,58,95,0.08)', fg: '#1E3A5F', label: 'Generated' },
   submitted: { bg: 'rgba(22,163,74,0.12)', fg: '#15803D', label: 'With Handler' },
   delivered: { bg: 'rgba(22,163,74,0.18)', fg: '#14532D', label: 'Delivered' },
@@ -85,7 +85,7 @@ export default function MyDocumentsPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>My Documents</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '32px', lineHeight: 1.7 }}>
-          Everything you've started across the Foundation Blueprint tools. Drafts are ones that never finished generating — you can delete them here.
+          Everything you've started across the Foundation Blueprint tools. Drafts are ones that never finished generating, you can delete them here.
         </p>
 
         {error && <ErrorBanner message={error} onRetry={load} />}

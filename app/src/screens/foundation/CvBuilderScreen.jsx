@@ -32,8 +32,8 @@ const EMPTY_EXPERIENCE = { job_title: '', company: '', dates: '', responsibiliti
 const YEARS_BANDS = [
   { value: 'none', label: 'None yet' },
   { value: 'under_1', label: 'Under 1 year' },
-  { value: '1_2', label: '1–2 years' },
-  { value: '3_5', label: '3–5 years' },
+  { value: '1_2', label: '1 to 2 years' },
+  { value: '3_5', label: '3 to 5 years' },
   { value: '5_plus', label: '5+ years' },
 ]
 const OPPORTUNITY_TYPES = [
@@ -53,8 +53,8 @@ const LENGTHS = [
   { value: 'two_page', label: 'Two page' },
 ]
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -85,7 +85,7 @@ function getSteps(colors) {
   {
     key: '_personal',
     title: 'A little about you',
-    subtitle: 'This goes at the top of your CV — make sure it’s accurate.',
+    subtitle: 'This goes at the top of your CV, make sure it’s accurate.',
     render: (_, __, values, setValue) => (
       <View style={{ gap: 14 }}>
         <View><FieldLabel required>Full name</FieldLabel><FormTextInput value={values.personal_full_name} onChangeText={t => setValue('personal_full_name', t)} placeholder="Aoife Murphy" /></View>
@@ -107,7 +107,7 @@ function getSteps(colors) {
   {
     key: 'has_no_experience',
     title: 'Do you have any work experience yet?',
-    subtitle: 'No experience? That’s completely fine — we build a different, equally strong CV structure for it.',
+    subtitle: 'No experience? That’s completely fine, we build a different, equally strong CV structure for it.',
     render: (value, onChange) => <YesNoToggle value={value === null ? null : !value} onChange={v => onChange(!v)} yesLabel="Yes, I do" noLabel="Not yet" />,
     validate: value => (value === null ? 'Please choose one.' : null),
   },
@@ -120,7 +120,7 @@ function getSteps(colors) {
   {
     key: 'education',
     title: 'Your education',
-    subtitle: 'Add every institution you’ve studied at — most recent first.',
+    subtitle: 'Add every institution you’ve studied at, most recent first.',
     render: (value, onChange) => (
       <RepeatingList
         entries={value}
@@ -131,7 +131,7 @@ function getSteps(colors) {
           <View style={{ gap: 10 }}>
             <FormTextInput value={entry.institution} onChangeText={t => onChangeEntry({ ...entry, institution: t })} placeholder="Institution (e.g. UCD)" />
             <FormTextInput value={entry.degree} onChangeText={t => onChangeEntry({ ...entry, degree: t })} placeholder="Degree / course title" />
-            <FormTextInput value={entry.year} onChangeText={t => onChangeEntry({ ...entry, year: t })} placeholder="Year (e.g. 2023–2027)" />
+            <FormTextInput value={entry.year} onChangeText={t => onChangeEntry({ ...entry, year: t })} placeholder="Year (e.g. 2023 to 2027)" />
             <FormTextInput value={entry.grade} onChangeText={t => onChangeEntry({ ...entry, grade: t })} placeholder="Grade so far (optional)" />
           </View>
         )}
@@ -148,13 +148,13 @@ function getSteps(colors) {
   {
     key: 'experience',
     title: 'Your work experience',
-    subtitle: 'Jobs, internships, placements — anything relevant.',
+    subtitle: 'Jobs, internships, placements, anything relevant.',
     optional: true,
     render: (value, onChange, values) => (
       <View>
         {values.has_no_experience && (
           <Text style={{ fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginBottom: 12, fontStyle: 'italic' }}>
-            You said you don't have experience yet — feel free to skip this.
+            You said you don't have experience yet, feel free to skip this.
           </Text>
         )}
         <RepeatingList
@@ -166,7 +166,7 @@ function getSteps(colors) {
             <View style={{ gap: 10 }}>
               <FormTextInput value={entry.job_title} onChangeText={t => onChangeEntry({ ...entry, job_title: t })} placeholder="Job title" />
               <FormTextInput value={entry.company} onChangeText={t => onChangeEntry({ ...entry, company: t })} placeholder="Company" />
-              <FormTextInput value={entry.dates} onChangeText={t => onChangeEntry({ ...entry, dates: t })} placeholder="Dates (e.g. Jun 2024 – Aug 2024)" />
+              <FormTextInput value={entry.dates} onChangeText={t => onChangeEntry({ ...entry, dates: t })} placeholder="Dates (e.g. Jun 2024, Aug 2024)" />
               <FormTextArea value={entry.responsibilities} onChangeText={t => onChangeEntry({ ...entry, responsibilities: t })} placeholder="What did you actually do? Be specific." minHeight={80} />
             </View>
           )}
@@ -176,7 +176,7 @@ function getSteps(colors) {
     validate: (value, values) => {
       if (values.has_no_experience) return null
       const hasValid = (value || []).some(r => !isBlank(r.job_title) && !isBlank(r.company) && !isBlank(r.dates))
-      if (!hasValid) return 'Add at least one role with a job title, company, and dates — or go back and say you have no experience yet.'
+      if (!hasValid) return 'Add at least one role with a job title, company, and dates, or go back and say you have no experience yet.'
       return null
     },
   },
@@ -201,28 +201,28 @@ function getSteps(colors) {
   {
     key: 'achievements_highlight',
     title: 'What do you most want us to highlight?',
-    subtitle: 'Societies, awards, projects, volunteering — anything that makes you stand out.',
+    subtitle: 'Societies, awards, projects, volunteering, anything that makes you stand out.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Tell us what you're proud of..." />,
   },
   {
     key: 'existing_cv_text',
     title: 'Have an existing CV?',
-    subtitle: 'Paste it here and we’ll use it as a real source — improving the writing, not starting from nothing.',
+    subtitle: 'Paste it here and we’ll use it as a real source, improving the writing, not starting from nothing.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Paste your existing CV text..." minHeight={160} />,
   },
   {
     key: 'unsure_about',
     title: 'Anything you’re unsure how to present?',
-    subtitle: 'A gap year, a career change, something unconventional — tell us and your Handler will double-check it specifically.',
+    subtitle: 'A gap year, a career change, something unconventional, tell us and your Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: '_targeting',
     title: 'Targeting a specific role?',
-    subtitle: 'Target industry is required so we can tailor your CV properly — role, company, and job description are optional.',
+    subtitle: 'Target industry is required so we can tailor your CV properly, role, company, and job description are optional.',
     render: (_, __, values, setValue) => (
       <View style={{ gap: 14 }}>
         <View><FieldLabel hint="Optional">Target role</FieldLabel><FormTextInput value={values.target_role} onChangeText={t => setValue('target_role', t)} placeholder="e.g. Marketing Intern" /></View>
@@ -365,7 +365,7 @@ export default function CvBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'cv_documents',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'CV Optimisation — Premium' : 'CV Optimisation — Standard',
+      p_service_name: v.tier === 'premium' ? 'CV Optimisation, Premium' : 'CV Optimisation, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

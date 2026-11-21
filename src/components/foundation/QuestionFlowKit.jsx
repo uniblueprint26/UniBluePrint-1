@@ -49,7 +49,7 @@ export function ResumeDraftCard({ onResume, onDiscard, title, description }) {
         {title || 'You have an unfinished request'}
       </h2>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '8px', lineHeight: 1.6 }}>
-        {description || 'Continue where you left off, or start fresh — either way, nothing is lost until you choose.'}
+        {description || 'Continue where you left off, or start fresh, either way, nothing is lost until you choose.'}
       </p>
       <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
         <button type="button" onClick={onResume} style={{ height: '46px', padding: '0 22px', background: '#1E3A5F', color: '#F5F0E8', border: 'none', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>

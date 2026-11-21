@@ -7,6 +7,8 @@
  * point a student tries to post without one already on their account
  * (most students set this at sign-up; this covers the few who skipped it
  * or typed a free-text institution that didn't match the directory).
+ * Apprentices are asked for their training provider and workers for their
+ * industry. Everything is saved to profiles (see updateEducationDetails).
  */
 import { useState } from 'react'
 import {
@@ -15,28 +17,79 @@ import {
 } from 'react-native'
 import { X, Search, MapPin } from 'lucide-react-native'
 import { searchInstitutions } from '../../data/institutions'
+import { searchProviders } from '../../data/apprenticeships'
+import { useAuth } from '../../context/AuthContext'
+import { useUserType } from '../../hooks/useUserType'
+import { USER_TYPE_APPRENTICE, USER_TYPE_WORKER } from '../../constants/userTypes'
 import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
-import { supabase } from '../../lib/supabase'
+
+// What the person is asked for depends on who they are. Students and gap year
+// pick a college. Apprentices pick their training provider (or type one).
+// Workers type their industry. All of it is saved to their profile, and a
+// database trigger turns it into their Campus Connect group.
+function copyFor(userType) {
+  if (userType === USER_TYPE_APPRENTICE) {
+    return {
+      title: 'Select your training provider',
+      sub: 'Posting to your Campus Connect group needs your training provider on file first. Browsing does not.',
+      placeholder: 'Search your training centre or college...',
+    }
+  }
+  if (userType === USER_TYPE_WORKER) {
+    return {
+      title: 'Your industry',
+      sub: 'Posting to your Campus Connect group needs your industry on file first. Browsing does not.',
+      placeholder: 'e.g. Healthcare, Retail, Construction',
+    }
+  }
+  return {
+    title: 'Select your campus',
+    sub: 'Posting to a Campus Connect board needs your institution on file first. Browsing does not.',
+    placeholder: 'Search your college or institute...',
+  }
+}
 
 export default function CampusGateModal({ visible, onClose, onSelected }) {
   const { colors } = useTheme()
   const s = __gs_s(colors)
+  const { updateEducationDetails } = useAuth()
+  const { userType } = useUserType()
+  const copy = copyFor(userType)
+  const isApprentice = userType === USER_TYPE_APPRENTICE
+  const isWorker = userType === USER_TYPE_WORKER
   const [query, setQuery] = useState('')
   const [saving, setSaving] = useState(false)
-  const results = query.trim() ? searchInstitutions(query).slice(0, 8) : []
+  const [failed, setFailed] = useState(false)
+  const typed = query.trim()
 
-  async function choose(inst) {
+  let results = []
+  if (typed && !isWorker) {
+    results = (isApprentice ? searchProviders(query) : searchInstitutions(query)).slice(0, 8)
+  }
+
+  async function save(fields) {
     if (saving) return
     setSaving(true)
-    const { error } = await supabase.auth.updateUser({
-      data: { institution: inst.name, institution_short: inst.short },
-    })
+    setFailed(false)
+    const { error } = await updateEducationDetails(fields)
     setSaving(false)
-    if (!error) {
-      setQuery('')
-      onSelected()
-    }
+    if (error) { setFailed(true); return }
+    setQuery('')
+    onSelected()
+  }
+
+  function choose(item) {
+    // institution (students) or trainingProvider (apprentices): writes
+    // profiles and auth metadata, see AuthContext.updateEducationDetails.
+    save(isApprentice ? { trainingProvider: item } : { institution: item })
+  }
+
+  function saveTyped() {
+    if (!typed) return
+    if (isWorker) save({ industry: typed })
+    else if (isApprentice) save({ trainingProvider: typed })
+    else save({ institution: typed })
   }
 
   return (
@@ -48,40 +101,51 @@ export default function CampusGateModal({ visible, onClose, onSelected }) {
       >
         <View style={s.sheet}>
           <View style={s.headerRow}>
-            <Text style={s.title}>Select your campus</Text>
+            <Text style={s.title}>{copy.title}</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Close">
               <X size={18} color={colors.muted} />
             </TouchableOpacity>
           </View>
-          <Text style={s.sub}>
-            Posting to a Campus Connect board needs your institution on file first — browsing doesn't.
-          </Text>
+          <Text style={s.sub}>{copy.sub}</Text>
           <View style={s.searchWrap}>
             <Search size={15} color={colors.muted} />
             <TextInput
               style={s.searchInput}
-              placeholder="Search your college or institute..."
+              placeholder={copy.placeholder}
               placeholderTextColor={colors.light}
               value={query}
               onChangeText={setQuery}
               autoFocus
+              maxLength={200}
+              returnKeyType={isWorker ? 'done' : 'search'}
+              onSubmitEditing={isWorker ? saveTyped : undefined}
             />
           </View>
+          {failed ? <Text style={s.error}>Could not save. Please try again.</Text> : null}
           <ScrollView style={{ maxHeight: 280 }} keyboardShouldPersistTaps="handled">
             {saving ? (
               <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.md }} />
-            ) : results.length === 0 && query.trim() ? (
-              <Text style={s.empty}>No matches — try a shorter search.</Text>
             ) : (
-              results.map(inst => (
-                <TouchableOpacity key={inst.id} style={s.row} activeOpacity={0.7} onPress={() => choose(inst)}>
-                  <MapPin size={14} color={colors.textPrimary} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={s.rowName}>{inst.name}</Text>
-                    <Text style={s.rowMeta}>{inst.short} · {inst.city}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))
+              <>
+                {results.map(item => (
+                  <TouchableOpacity key={item.id || item.name} style={s.row} activeOpacity={0.7} onPress={() => choose(item)}>
+                    <MapPin size={14} color={colors.textPrimary} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.rowName}>{item.name}</Text>
+                      <Text style={s.rowMeta}>{item.short} · {item.city}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+                {typed ? (
+                  <TouchableOpacity style={s.row} activeOpacity={0.7} onPress={saveTyped} accessibilityRole="button">
+                    <MapPin size={14} color={colors.textPrimary} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.rowName}>Use "{typed}"</Text>
+                      {results.length === 0 && !isWorker ? <Text style={s.rowMeta}>Not in the list? Add it yourself.</Text> : null}
+                    </View>
+                  </TouchableOpacity>
+                ) : null}
+              </>
             )}
           </ScrollView>
         </View>
@@ -113,6 +177,7 @@ function __gs_s(colors) {
   },
   rowName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
   rowMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 1 },
+  error: { fontFamily: fonts.sans, fontSize: 13, color: colors.destructive, marginBottom: 8 },
   empty: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, fontStyle: 'italic', marginTop: spacing.md, textAlign: 'center' },
   })
 }

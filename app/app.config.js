@@ -37,7 +37,7 @@ if (IS_PRODUCTION_BUILD) {
 const googleMapsKey = String(process.env.GOOGLE_MAPS_ANDROID_API_KEY || '').trim()
 
 const PHOTO_LIBRARY_TEXT =
-  'UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.'
+  'UniBlueprint needs access to your photo library so you can choose a profile picture, or a photo or clip for a post or listing.'
 // Live (a camera moment) is the only place the camera is used. The words match
 // what the explainer screen says before the system prompt.
 const CAMERA_TEXT =
@@ -81,6 +81,9 @@ module.exports = {
     //   Other data types: date of birth, course, college and interests on the profile.
     //   Emails or text messages: chat messages between members.
     //   Device ID: the push notification token, saved so we can notify the person.
+    //   Product interaction: which partner cards and offers a member opens (activity_events).
+    //   Other financial info: budget goals a member saves to their account (budget_goals).
+    //   Other diagnostic data: error reports, only when a Sentry DSN is set.
     //   Crash data: only when a Sentry DSN is set (EXPO_PUBLIC_SENTRY_DSN).
     // Calendar: the member's own events and goal dates are saved to their
     // account (Other User Content, already listed). Events read from this
@@ -103,6 +106,9 @@ module.exports = {
         collected('NSPrivacyCollectedDataTypeEmailsOrTextMessages'),
         collected('NSPrivacyCollectedDataTypeDeviceID'),
         collected('NSPrivacyCollectedDataTypeCrashData'),
+        collected('NSPrivacyCollectedDataTypeProductInteraction'),
+        collected('NSPrivacyCollectedDataTypeOtherFinancialInfo'),
+        collected('NSPrivacyCollectedDataTypeOtherDiagnosticData'),
       ],
       NSPrivacyAccessedAPITypes: [
         {
@@ -112,6 +118,14 @@ module.exports = {
         {
           NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryFileTimestamp',
           NSPrivacyAccessedAPITypeReasons: ['C617.1'],
+        },
+        {
+          NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategorySystemBootTime',
+          NSPrivacyAccessedAPITypeReasons: ['35F9.1'],
+        },
+        {
+          NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryDiskSpace',
+          NSPrivacyAccessedAPITypeReasons: ['E174.1'],
         },
       ],
     },
