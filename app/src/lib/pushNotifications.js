@@ -1,4 +1,4 @@
-import { Platform } from 'react-native'
+import { Platform, Alert } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -121,6 +121,25 @@ export async function requestAndRegisterAsync(userId) {
   // granted — never prompt again, this app's permission flows don't nag.
   if (alreadyAsked) return
 
+  // One plain line of why, before the system prompt appears. Asking cold
+  // right after sign in is what reviewers and members dislike. Not now is
+  // respected and we do not ask again on this device.
+  const wantsPrompt = await new Promise(resolve => {
+    Alert.alert(
+      'Stay in the loop?',
+      'Turn on notifications for messages, connection requests and the reminders you set. You can change this any time in your phone settings.',
+      [
+        { text: 'Not now', style: 'cancel', onPress: () => resolve(false) },
+        { text: 'Turn on', onPress: () => resolve(true) },
+      ],
+      { cancelable: true, onDismiss: () => resolve(false) },
+    )
+  })
+  if (!wantsPrompt) {
+    await AsyncStorage.setItem(askedKey, '1').catch(() => {})
+    return
+  }
+
   const result = await Notifications.requestPermissionsAsync().catch(() => null)
   await AsyncStorage.setItem(askedKey, '1').catch(() => {})
 
@@ -128,6 +147,17 @@ export async function requestAndRegisterAsync(userId) {
     await ensureAndroidChannelAsync()
     await fetchAndRegisterTokenAsync()
   }
+}
+
+// Call just before sign out. Removes this device's token from the signed out
+// account so it stops getting that account's notifications. Never throws.
+export async function unregisterPushTokenAsync() {
+  if (Platform.OS === 'web' || !Device.isDevice) return
+  try {
+    const { data: token } = await Notifications.getExpoPushTokenAsync()
+    if (!token) return
+    await supabase.from('push_tokens').delete().eq('token', token)
+  } catch { /* best effort */ }
 }
 
 // Call on app foreground / re-focus. Never prompts — only re-registers a

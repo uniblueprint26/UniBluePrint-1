@@ -56,6 +56,7 @@ const COLUMNS = [
       { label: 'Accessibility',  href: '/accessibility' },
       { label: 'Terms',          href: '/terms' },
       { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Delete your account', href: '/delete-account' },
       { label: 'Cookie Policy',  href: '/cookies' },
       { label: 'Refund Policy',  href: '/refund-policy' },
     ],

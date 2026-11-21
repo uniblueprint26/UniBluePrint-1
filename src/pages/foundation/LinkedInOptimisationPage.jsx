@@ -198,7 +198,7 @@ export default function LinkedInOptimisationPage() {
     setSubmitting(true)
     setError('')
     try {
-      const serviceName = tier === 'premium' ? 'LinkedIn Optimisation — Premium' : 'LinkedIn Optimisation — Standard'
+      const serviceName = tier === 'premium' ? 'LinkedIn Optimisation, Premium' : 'LinkedIn Optimisation, Standard'
       const subId = await submitForReview('linkedin_documents', cvDoc.id, serviceName, 'LinkedIn Optimisation', tier)
       setSubmissionId(subId)
       setSubmitted(true)
@@ -220,7 +220,7 @@ export default function LinkedInOptimisationPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>LinkedIn Optimisation</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          A headline and About section that actually get found — plus experience rewrites, skill suggestions, and Featured section ideas.
+          A headline and About section that actually get found, plus experience rewrites, skill suggestions, and Featured section ideas.
         </p>
 
         {error && <ErrorBanner message={error} />}
@@ -241,7 +241,7 @@ export default function LinkedInOptimisationPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Generate my LinkedIn profile"
-            strapline="The more you give us, the better your output — this takes about 4 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your output, this takes about 4 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : submitted ? (
@@ -327,11 +327,11 @@ function profileCheckRows(profileKnown) {
 function summaryRows(form, tier) {
   return [
     ['Targeting', [form.target_role, form.target_industry].filter(Boolean).join(' · ') || form.target_industry],
-    ['Current status', form.current_status || '—'],
-    ['Experience', form.has_no_experience ? 'None yet — About section carries the profile' : 'Roles provided'],
+    ['Current status', form.current_status || 'Not given'],
+    ['Experience', form.has_no_experience ? 'None yet, About section carries the profile' : 'Roles provided'],
     ['Skills', `${splitCsv(form.key_skills).length} listed`],
     ['Tone', form.tone],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -354,7 +354,7 @@ function useLinkedInSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'current_status',
@@ -377,7 +377,7 @@ function useLinkedInSteps({ form, profileKnown, tier, setTier }) {
       key: 'target_role',
       title: 'What title do you want to be found for?',
       optional: true,
-      whyItHelps: 'the exact title recruiters search — leave it blank and we\'ll infer one from your status.',
+      whyItHelps: 'the exact title recruiters search, leave it blank and we\'ll infer one from your status.',
       render: ({ form: f, set }) => (
         <FormInput id="target_role" value={f.target_role} onChange={set('target_role')} placeholder="e.g. Graduate Software Engineer" maxLength={LIMITS.SHORT} />
       ),
@@ -396,11 +396,11 @@ function useLinkedInSteps({ form, profileKnown, tier, setTier }) {
           />
           {f.has_no_experience ? (
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', lineHeight: 1.6 }}>
-              No problem — a student profile built on your About section, education, and projects is exactly what recruiters searching for graduate talent expect to find.
+              No problem, a student profile built on your About section, education, and projects is exactly what recruiters searching for graduate talent expect to find.
             </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>Job title, where, and roughly what you did — one per line.</p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280' }}>Job title, where, and roughly what you did, one per line.</p>
               <FormTextarea id="experience" value={f.experience} onChange={set('experience')} rows={4} maxLength={LIMITS.LONG} />
             </div>
           )}
@@ -422,7 +422,7 @@ function useLinkedInSteps({ form, profileKnown, tier, setTier }) {
       key: 'notable_achievements',
       title: 'What achievements do you want your profile to highlight?',
       optional: true,
-      whyItHelps: 'a project, an award, a result — this becomes the proof point in your About section.',
+      whyItHelps: 'a project, an award, a result, this becomes the proof point in your About section.',
       render: ({ form: f, set }) => (
         <FormTextarea id="notable_achievements" value={f.notable_achievements} onChange={set('notable_achievements')} rows={4} maxLength={LIMITS.LONG} />
       ),
@@ -431,7 +431,7 @@ function useLinkedInSteps({ form, profileKnown, tier, setTier }) {
       key: 'unsure_about',
       title: 'Anything you\'re unsure how to present?',
       optional: true,
-      whyItHelps: 'a gap, a career change, an unconventional path — tell us and we\'ll frame it honestly rather than skip it.',
+      whyItHelps: 'a gap, a career change, an unconventional path, tell us and we\'ll frame it honestly rather than skip it.',
       render: ({ form: f, set }) => (
         <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />
       ),
@@ -454,7 +454,7 @@ function useLinkedInSteps({ form, profileKnown, tier, setTier }) {
       optional: true,
       whyItHelps: 'sharpens who the profile is written to attract, but nothing here blocks a strong result either way.',
       render: ({ form: f, set }) => (
-        <FormField id="target_connections" label="What kind of connections do you want to attract?" hint="Optional — e.g. recruiters, clients, peers in your field">
+        <FormField id="target_connections" label="What kind of connections do you want to attract?" hint="Optional, e.g. recruiters, clients, peers in your field">
           <FormInput id="target_connections" value={f.target_connections} onChange={set('target_connections')} maxLength={LIMITS.MEDIUM} />
         </FormField>
       ),

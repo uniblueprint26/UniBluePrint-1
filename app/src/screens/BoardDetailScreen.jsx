@@ -108,7 +108,7 @@ export default function BoardDetailScreen({ navigation, route }) {
   const backFallbackRoute = registry === 'course' ? 'CourseConnect' : registry === 'marketplace' ? 'Marketplace' : 'CampusConnect'
   const safeGoBack = useSafeGoBack(navigation, backFallbackRoute)
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { openReport } = useReport()
 
   const [rows, setRows] = useState([])
@@ -236,7 +236,8 @@ export default function BoardDetailScreen({ navigation, route }) {
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'A student'
 
   function hasCampus() {
-    return !!user?.user_metadata?.institution
+    const p = profile || {}
+    return !!(user?.user_metadata?.institution || p.campus_community || p.institution || p.training_provider || p.trade || p.industry)
   }
 
   function requireCampus(action) {
@@ -288,7 +289,7 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   function handleClubRequestPosted() {
     setClubRequestOpen(false)
-    Alert.alert('Thanks!', 'Your request has been sent — the UniBlueprint team will review it and add the society if it fits.')
+    Alert.alert('Thanks!', 'Your request has been sent, the UniBlueprint team will review it and add the society if it fits.')
   }
 
   async function removeRow(id) {
@@ -917,7 +918,7 @@ export default function BoardDetailScreen({ navigation, route }) {
     return (
       <View style={styles.roomyPanel}>
         <Text style={styles.roomyLabel}>FROM ROOMY.IE</Text>
-        <Text style={styles.roomySub}>An external accommodation partner — browse their live listings without leaving your campus board search.</Text>
+        <Text style={styles.roomySub}>An external accommodation partner, browse their live listings without leaving your campus board search.</Text>
         <View style={{ gap: 10, marginTop: 12 }}>
           {listings.map(l => (
             <View key={l.title} style={styles.roomyCard}>
@@ -979,7 +980,7 @@ export default function BoardDetailScreen({ navigation, route }) {
           {loading ? (
             <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filteredRows.length === 0 ? (
-            <Text style={styles.emptyText}>Nothing here yet — be the first to post.</Text>
+            <Text style={styles.emptyText}>Nothing here yet, be the first to post.</Text>
           ) : (
             <View style={{ gap: 10, marginTop: spacing.md }}>
               {filteredRows.map(renderCard)}
@@ -1060,7 +1061,7 @@ export default function BoardDetailScreen({ navigation, route }) {
             <AlertCircle size={22} color={colors.gold} />
             <Text style={styles.exampleTitle}>This is an example project</Text>
             <Text style={styles.exampleBody}>
-              It's shown to illustrate what Project Collaboration looks like. There's no real team to join yet — real
+              It's shown to illustrate what Project Collaboration looks like. There's no real team to join yet, real
               student-posted projects will appear here and above this example set as soon as they're posted.
             </Text>
             <TouchableOpacity style={styles.exampleBtn} activeOpacity={0.85} onPress={() => setExampleSheetOpen(false)}>
@@ -1118,7 +1119,7 @@ export default function BoardDetailScreen({ navigation, route }) {
                     </Card>
                   )
                 })}
-                {solutions.length === 0 && <Text style={styles.emptyText}>No solutions yet — share what worked for you.</Text>}
+                {solutions.length === 0 && <Text style={styles.emptyText}>No solutions yet, share what worked for you.</Text>}
               </View>
             </ScrollView>
           )}

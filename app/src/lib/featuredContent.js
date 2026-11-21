@@ -113,12 +113,12 @@ async function board(row, kind) {
       const { count: c } = await supabase
         .from(b.table).select('id', { count: 'exact', head: true })
       count = c ?? 0
-    } catch { /* leave count null — copy below handles it */ }
+    } catch { /* leave count null, copy below handles it */ }
   }
   const body = count === null
     ? 'Open the board'
     : count === 0
-      ? 'Just launched — be the first to post'
+      ? 'Just launched, be the first to post'
       : `${count} live ${count === 1 ? 'post' : 'posts'} right now`
   return {
     id: row.id,

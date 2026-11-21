@@ -25,11 +25,17 @@ Company details to use on every form, exactly as written:
 
 ## B. Database (Supabase)
 
-Earlier migrations (the new look backend, moods, text guard) are already applied in production. Only the three below are new and still unapplied. Each is additive and safe to run once: tables use `create table if not exists`, policies are dropped and recreated by name, the app_flags seed row uses `on conflict do nothing`, and the age migration only replaces one function. Apply them in this order through the Supabase dashboard or CLI. The build does not apply them.
+Already applied in production: the new look backend, moods, text guard, `app_flags`, `content_reports` and the age 18 check (`20261119090000`, `20261119100000`, `20261119110000`). Do not run those again.
 
-1. `supabase/migrations/20261119090000_app_flags.sql` creates `app_flags` with `foundation_enabled = false`. The app hides Foundation on iOS and Android until this is `true`.
-2. `supabase/migrations/20261119100000_content_reports.sql` creates `content_reports`. Every Report in the app writes here. The app needs it.
-3. `supabase/migrations/20261119110000_min_age_18.sql` raises the database age check (`validate_date_of_birth`, from 20261012120000_profiles_date_of_birth_age_gate.sql) from 16 to 18 for new or changed dates of birth. A null date of birth stays allowed, and existing profiles are not touched.
+New and not yet applied. Apply in this order through the Supabase dashboard or CLI (the build does not apply them). Each file has a header that says what it changes and how to undo it.
+
+1. `20261120000100` profiles campus community (trade, training provider, industry, Campus Connect group).
+2. `20261120000200` sign up saves the whole profile and the terms and privacy consent. The app and website now send `user_type`, `discoverable`, `terms_version` and `privacy_version`.
+3. `20261120000300` chat counterparty RPC and consent for direct chats. The app now calls `join_chat_counterparty`, and Home Connect sends a request.
+4. `20261120000400` to `20261120001100`: staff access to reports, text guard on all member text, audience aware read policies, date of birth required once the flag is on, bucket limits, revoke anon on internal functions, drop probe leftovers, new app flags (Pro free until 31 January 2027, coming soon tiles off, Foundation visible, ordering closed).
+5. `20261120600000` release flags.
+
+Apply 1 and 2 before the app build goes to testers. Then flip `require_dob_on_signup` only after the website sign up has been live a day (it now collects a date of birth).
 
 After applying, check:
 
@@ -100,6 +106,7 @@ Do not commit `google-services.json`.
    * Report a post, a comment, a profile and a chat message. Block a person. Their posts disappear.
    * Check there is no Foundation anywhere, no price and no Upgrade button.
    * Open Find Near Me on a partner map. The location prompt appears only then.
+   * Open Calendar from the header. Add an event, edit it, delete it. In Bring in a calendar, paste a public .ics link and check the preview before saving. Choose Allow and choose calendars: the explainer shows first, then the phone prompt.
    * Allow notifications. Send a test push from the Expo push tool.
    * Delete the test account from Profile, Privacy and Data.
    * Turn off the phone's internet. The app should not crash.

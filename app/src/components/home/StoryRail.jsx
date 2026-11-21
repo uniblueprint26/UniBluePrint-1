@@ -6,8 +6,9 @@ import { PILLARS } from '../../constants/pillars'
 import { usePillarOrder } from '../../hooks/usePillarOrder'
 import { routeExists } from './routeExists'
 
-// The row of rings under the page title: your Live ring first, then Budget
-// (gold, because it is money), then the five pillars. Icons, colours and routes all come from PILLARS, so a pillar looks
+// The row of rings under the page title: Budget (gold, because it is money),
+// then the pillars. There is no Live circle here: Live lives in the Post area
+// and on the Campus Connect and Course Connect rails. Icons, colours and routes all come from PILLARS, so a pillar looks
 // the same here as everywhere else in the app.
 
 // The Foundation and Compass colours are navy, which vanishes on the dark
@@ -34,17 +35,11 @@ export default function StoryRail({ navigation, name }) {
   const { width } = useWindowDimensions()
   // Foundation is left out while it is closed on iOS and Android.
   const pillarKeys = usePillarOrder(['compass'])
-  const count = pillarKeys.length + 2 // Live and Budget come first
+  const count = pillarKeys.length + 1 // Budget comes first
   // Size the items to fit, never narrower than 52 (the row then scrolls) or wider than 66.
   const item = Math.max(52, Math.min(66, Math.floor((width - SIDE * 2 - GAP * (count - 1)) / count)))
   const ring = Math.min(62, item - 2)
   const s = getStyles(colors, item, ring)
-  const initial = (name || 'You').trim().charAt(0).toUpperCase() || 'Y'
-
-  function openLive() {
-    // Live Capture is built separately: only open it once it is registered.
-    if (routeExists(navigation, 'LiveCapture')) navigation.navigate('LiveCapture')
-  }
 
   function openBudget() {
     // Opens Budgeting once it is registered on this stack, otherwise does nothing.
@@ -55,22 +50,6 @@ export default function StoryRail({ navigation, name }) {
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.row}>
-      <TouchableOpacity
-        style={s.item}
-        activeOpacity={0.8}
-        onPress={openLive}
-        accessibilityRole="button"
-        accessibilityLabel="Go live, a 2 minute capture"
-      >
-        <View style={[s.ring, { borderColor: colors.textPrimary, backgroundColor: colors.surface }]}>
-          <Text style={[s.liveInitial, { color: colors.textPrimary }]}>{initial}</Text>
-          <View style={[s.minPill, { backgroundColor: colors.accentBg }]}>
-            <Text style={[s.minText, { color: colors.accentFg }]}>2 MIN</Text>
-          </View>
-        </View>
-        <Text style={s.label}>Live</Text>
-      </TouchableOpacity>
-
       <TouchableOpacity
         style={s.item}
         activeOpacity={0.8}
@@ -116,12 +95,6 @@ function getStyles(colors, item, ring) {
       width: ring, height: ring, borderRadius: ring / 2, borderWidth: 2,
       alignItems: 'center', justifyContent: 'center',
     },
-    liveInitial: { fontFamily: fonts.serif, fontSize: 22 },
-    minPill: {
-      position: 'absolute', bottom: -7, borderRadius: 8,
-      paddingHorizontal: 6, paddingVertical: 2,
-    },
-    minText: { fontFamily: fonts.sansBold, fontSize: 8.5, letterSpacing: 0.4 },
     label: { fontFamily: fonts.sansMedium, fontSize: 10.5, color: colors.textSecondary, marginTop: 10, textAlign: 'center', width: item + 12, marginHorizontal: -6, flexShrink: 0 },
   })
 }

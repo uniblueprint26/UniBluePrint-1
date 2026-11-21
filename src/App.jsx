@@ -65,6 +65,7 @@ const PartnerPortalPage = lazy(() => import('./pages/portal/PartnerPortalPage'))
 
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'))
+const DeleteAccountPage = lazy(() => import('./pages/legal/DeleteAccountPage'))
 const CookiesPage = lazy(() => import('./pages/legal/CookiesPage'))
 const RefundPolicyPage = lazy(() => import('./pages/legal/RefundPolicyPage'))
 const AccessibilityPage = lazy(() => import('./pages/legal/AccessibilityPage'))
@@ -105,7 +106,7 @@ function AppRoutes() {
             category) intact across that detour, rather than losing them to
             ProtectedRoute's redirect. This is what the app's "Book a Coach"
             button deep-links iOS users to instead of its in-app
-            CoachBookingScreen flow — see constants/site.js's
+            CoachBookingScreen flow, see constants/site.js's
             coachBookingUrl() on the app side. */}
         <Route path="/elevation/book-coach" element={<ElevationCoachBookingPage />} />
         <Route path="/lifestyle-blueprint" element={<LifestyleBlueprintPage />} />
@@ -254,6 +255,7 @@ function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/delete-account" element={<DeleteAccountPage />} />
         <Route path="/cookies" element={<CookiesPage />} />
         <Route path="/refund-policy" element={<RefundPolicyPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />

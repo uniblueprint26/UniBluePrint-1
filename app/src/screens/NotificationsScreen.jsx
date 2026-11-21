@@ -4,9 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import { Bell, Users, BookOpen, Wallet } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
-import ComingSoonSheet from '../components/ui/ComingSoonSheet'
-import LiveWindowCard from '../components/live/LiveWindowCard'
-import { useLiveWindow, tryOpenLive } from '../components/live/useLiveWindow'
 import { GroupCard, RowDivider } from '../components/explore/ExploreParts'
 import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -14,7 +11,6 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
-import { useComingSoonEnabled, COMING_SOON_COPY, COMING_SOON_TITLE } from '../constants/comingSoon'
 
 // ── Notification categories ─────────────────────────────────────────────────
 // public.notifications.category holds many fine-grained keys (welcome,
@@ -147,9 +143,6 @@ export default function NotificationsScreen({ navigation }) {
   )
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [liveSoon, setLiveSoon] = useState(false)
-  const comingSoonOn = useComingSoonEnabled()
-  const live = useLiveWindow(notifications)
 
   async function fetchNotifications() {
     if (!user?.id) { setLoading(false); return }
@@ -167,8 +160,7 @@ export default function NotificationsScreen({ navigation }) {
   useFocusEffect(useCallback(() => { fetchNotifications() }, [user?.id]))
 
   // Realtime: new notifications (check-in reminders, Ghost Handler welfare
-  // checks, Sunday flock, ticket reassignment, subscription changes, a Live
-  // window opening) appear the moment they're inserted, not just on next
+  // checks, Sunday flock, ticket reassignment, subscription changes) appear the moment they're inserted, not just on next
   // screen focus.
   useEffect(() => {
     if (!user?.id) return
@@ -205,10 +197,6 @@ export default function NotificationsScreen({ navigation }) {
     fetchNotifications()
   }
 
-  function goLive() {
-    if (!tryOpenLive(navigation) && comingSoonOn) setLiveSoon(true)
-  }
-
   const { today, earlier } = useMemo(() => ({
     today: notifications.filter(n => isToday(n.created_at)),
     earlier: notifications.filter(n => !isToday(n.created_at)),
@@ -234,15 +222,6 @@ export default function NotificationsScreen({ navigation }) {
           ) : null}
         />
 
-        {live.open && (
-          <LiveWindowCard
-            secondsLeft={live.secondsLeft}
-            totalSeconds={live.totalSeconds}
-            onGoLive={goLive}
-            style={styles.liveCard}
-          />
-        )}
-
         {loading ? (
           <View style={styles.loadingWrap}>
             <ActivityIndicator color={colors.textPrimary} size="small" />
@@ -257,14 +236,6 @@ export default function NotificationsScreen({ navigation }) {
         )}
       </ScrollView>
 
-      {comingSoonOn ? (
-        <ComingSoonSheet
-          visible={liveSoon}
-          onClose={() => setLiveSoon(false)}
-          title={COMING_SOON_TITLE}
-          message={COMING_SOON_COPY}
-        />
-      ) : null}
     </View>
   )
 }
@@ -282,7 +253,6 @@ function __gs_styles(colors) {
   pageTitle: { paddingHorizontal: 2, paddingTop: 18, paddingBottom: 4 },
   markAll: { paddingVertical: 8, paddingLeft: 8 },
   markAllText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
-  liveCard: { marginTop: 16 },
   loadingWrap: { alignItems: 'center', paddingVertical: 48 },
 
   group: { marginTop: 26 },

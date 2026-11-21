@@ -8,6 +8,7 @@
  * conventions (hero block, Card, filter bar, upvote pill) are lifted
  * straight from BoardDetailScreen for visual consistency.
  */
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet,
@@ -118,6 +119,7 @@ export default function ModuleQAScreen({ navigation, route }) {
       setAskError('Course, module, and your question are all required.')
       return
     }
+    if (!checkText(`${askCourse} ${askModule} ${askText}`).ok) { setAskError(GUIDELINES_MESSAGE); return }
     setAskSaving(true)
     setAskError(null)
     try {
@@ -155,6 +157,7 @@ export default function ModuleQAScreen({ navigation, route }) {
 
   async function postAnswer() {
     if (!answerDraft.trim() || answerSaving) return
+    if (!checkText(answerDraft).ok) { Alert.alert('Could not post', GUIDELINES_MESSAGE); return }
     setAnswerSaving(true)
     const { data, error } = await supabase.from('module_answers').insert({
       question_id: selected.id, user_id: user.id, poster_name: displayName, body: answerDraft.trim(),
@@ -223,7 +226,7 @@ export default function ModuleQAScreen({ navigation, route }) {
           {loading ? (
             <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filtered.length === 0 ? (
-            <Text style={styles.emptyText}>No questions yet — be the first to ask.</Text>
+            <Text style={styles.emptyText}>No questions yet, be the first to ask.</Text>
           ) : (
             <View style={{ gap: 10, marginTop: spacing.md }}>
               {filtered.map(q => {
@@ -271,7 +274,7 @@ export default function ModuleQAScreen({ navigation, route }) {
             </View>
             <ScrollView style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <Text style={f.label}>Course / Programme / Workplace</Text>
-              <TextInput style={f.input} value={askCourse} onChangeText={setAskCourse} placeholder="e.g. Computer Science, UCD — or your trade / employer" placeholderTextColor={colors.light} />
+              <TextInput style={f.input} value={askCourse} onChangeText={setAskCourse} placeholder="e.g. Computer Science, UCD, or your trade / employer" placeholderTextColor={colors.light} />
               <Text style={[f.label, { marginTop: 14 }]}>Module / Unit</Text>
               <TextInput style={f.input} value={askModule} onChangeText={setAskModule} placeholder="e.g. CS2001 Data Structures" placeholderTextColor={colors.light} />
               <Text style={[f.label, { marginTop: 14 }]}>Your question</Text>
@@ -341,7 +344,7 @@ export default function ModuleQAScreen({ navigation, route }) {
                     </Card>
                   )
                 })}
-                {answers.length === 0 && <Text style={styles.emptyText}>No answers yet — share what you know.</Text>}
+                {answers.length === 0 && <Text style={styles.emptyText}>No answers yet, share what you know.</Text>}
               </View>
             </ScrollView>
           )}

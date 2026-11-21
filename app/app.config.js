@@ -37,7 +37,13 @@ if (IS_PRODUCTION_BUILD) {
 const googleMapsKey = String(process.env.GOOGLE_MAPS_ANDROID_API_KEY || '').trim()
 
 const PHOTO_LIBRARY_TEXT =
-  'UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.'
+  'UniBlueprint needs access to your photo library so you can choose a profile picture, or a photo or clip for a post or listing.'
+// Live (a camera moment) is the only place the camera is used. The words match
+// what the explainer screen says before the system prompt.
+const CAMERA_TEXT =
+  'UniBlueprint uses your camera only when you open Live. It takes the shot with the back and front cameras and never records in the background.'
+const CALENDAR_TEXT =
+  'UniBlueprint reads the events in the calendars you choose, only to show them on your UBP Calendar. It never changes or deletes them, and they stay on your phone.'
 const LOCATION_TEXT =
   'UniBlueprint uses your location, only when you tap "Find Near Me", to show Lifestyle partners and coaches near you on the map.'
 
@@ -58,6 +64,7 @@ module.exports = {
     bundleIdentifier: 'com.uniblueprint.app',
     infoPlist: {
       NSPhotoLibraryUsageDescription: PHOTO_LIBRARY_TEXT,
+      NSCameraUsageDescription: CAMERA_TEXT,
       NSLocationWhenInUseUsageDescription: LOCATION_TEXT,
     },
     config: {
@@ -66,12 +73,23 @@ module.exports = {
     // What the app collects, as Apple's privacy manifest wants it. Everything is
     // linked to the account and none of it is used for tracking.
     //   Email, name, user id: sign up and the account.
-    //   Photos or videos: profile picture, post photos, clips.
+    //   Photos or videos: profile picture, post photos, clips, and Live camera
+    //   moments (a back and a front camera photo, shown for 24 hours, then kept
+    //   in a private archive only the poster can see). The camera is used only
+    //   inside Live and no microphone is used, so no extra category is needed.
     //   Other user content: posts, comments, profile text, listings.
     //   Other data types: date of birth, course, college and interests on the profile.
     //   Emails or text messages: chat messages between members.
     //   Device ID: the push notification token, saved so we can notify the person.
+    //   Product interaction: which partner cards and offers a member opens (activity_events).
+    //   Other financial info: budget goals a member saves to their account (budget_goals).
+    //   Other diagnostic data: error reports, only when a Sentry DSN is set.
     //   Crash data: only when a Sentry DSN is set (EXPO_PUBLIC_SENTRY_DSN).
+    // Calendar: the member's own events and goal dates are saved to their
+    // account (Other User Content, already listed). Events read from this
+    // phone's calendar are read on the phone each time, are never uploaded and
+    // are not listed as collected. A pasted .ics link is fetched by the phone
+    // directly from the address the member typed.
     // Location is read on the phone only when the person taps Find Near Me, to
     // sort partners by distance. It is never sent to a server, so it is not
     // listed as collected. If that ever changes, add PreciseLocation here.
@@ -88,6 +106,9 @@ module.exports = {
         collected('NSPrivacyCollectedDataTypeEmailsOrTextMessages'),
         collected('NSPrivacyCollectedDataTypeDeviceID'),
         collected('NSPrivacyCollectedDataTypeCrashData'),
+        collected('NSPrivacyCollectedDataTypeProductInteraction'),
+        collected('NSPrivacyCollectedDataTypeOtherFinancialInfo'),
+        collected('NSPrivacyCollectedDataTypeOtherDiagnosticData'),
       ],
       NSPrivacyAccessedAPITypes: [
         {
@@ -98,6 +119,14 @@ module.exports = {
           NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryFileTimestamp',
           NSPrivacyAccessedAPITypeReasons: ['C617.1'],
         },
+        {
+          NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategorySystemBootTime',
+          NSPrivacyAccessedAPITypeReasons: ['35F9.1'],
+        },
+        {
+          NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryDiskSpace',
+          NSPrivacyAccessedAPITypeReasons: ['E174.1'],
+        },
       ],
     },
   },
@@ -107,17 +136,20 @@ module.exports = {
       backgroundColor: '#F5F0E8',
     },
     package: 'com.uniblueprint.app',
-    // Only location (Find Near Me). Photo picking uses the system picker. Camera,
-    // microphone and write storage are never used, so they are blocked even if a
-    // library asks for them.
+    // Location (Find Near Me), read only calendar access (Calendar import) and the
+    // camera (Live only). Photo picking uses the system picker. The microphone and
+    // write storage are never used, so they are blocked even if a library asks.
     permissions: [
       'ACCESS_COARSE_LOCATION',
       'ACCESS_FINE_LOCATION',
+      'READ_CALENDAR',
+      'CAMERA',
     ],
     blockedPermissions: [
-      'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
       'android.permission.WRITE_EXTERNAL_STORAGE',
+      // The Calendar only reads this phone's calendar. It never writes to it.
+      'android.permission.WRITE_CALENDAR',
     ],
     // Push notifications on Android need Firebase. Add the file as an EAS file
     // variable named GOOGLE_SERVICES_JSON.
@@ -161,12 +193,32 @@ module.exports = {
       },
     ],
     [
-      // Photo library only. No camera and no microphone strings or permissions.
+      // Photo library only. The picker never opens the camera (Live has its own
+      // camera screen), and it uses the same camera words so the two plugins
+      // never write different text for the same permission.
       'expo-image-picker',
       {
         photosPermission: PHOTO_LIBRARY_TEXT,
-        cameraPermission: false,
+        cameraPermission: CAMERA_TEXT,
         microphonePermission: false,
+      },
+    ],
+    [
+      // Camera for Live only. No microphone and no audio recording.
+      'expo-camera',
+      {
+        cameraPermission: CAMERA_TEXT,
+        microphonePermission: false,
+        recordAudioAndroid: false,
+      },
+    ],
+    [
+      // Read only. The member picks which calendars to show, after an
+      // explainer in the Calendar import sheet. No reminders access.
+      'expo-calendar',
+      {
+        calendarPermission: CALENDAR_TEXT,
+        remindersPermission: false,
       },
     ],
     '@sentry/react-native',

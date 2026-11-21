@@ -49,7 +49,7 @@ const BUNDLE = {
 const BUNDLE_TWO = {
   name:     'Complete Platform Bundle',
   price:    '€90',
-  includes: 'All 6 assessments — Subject Interest Test · Course Compass · Learning Style Test · Apprenticeship Compass · Career Investigations · CV Builder',
+  includes: 'All 6 assessments, Subject Interest Test · Course Compass · Learning Style Test · Apprenticeship Compass · Career Investigations · CV Builder',
   url:      'https://coursecompass.ie/pricing',
 }
 
@@ -181,7 +181,7 @@ const FREE_TOOLS = [
     key:  'riasec',
     label: 'Free RIASEC Career Test',
     Icon: Sparkles,
-    sub:  'A 5-minute interest inventory — get your three-letter Holland Code and the CAO course areas that typically fit. No account needed.',
+    sub:  'A 5-minute interest inventory, get your three-letter Holland Code and the CAO course areas that typically fit. No account needed.',
     url:  'https://coursecompass.ie/riasec-test-ireland',
   },
   {
@@ -286,7 +286,7 @@ export default function CompassScreen({ navigation }) {
 
       {/* ── Scrollable content ──
           The navy hero block below is the FIRST CHILD of the ScrollView, not
-          a fixed sibling above it — same pattern as Campus Connect and
+          a fixed sibling above it, same pattern as Campus Connect and
           Lifestyle, the two screens in this family that never showed the
           native sticky-header bug. Root cause (confirmed by structural
           comparison across every affected/unaffected screen): a fixed
@@ -313,7 +313,7 @@ export default function CompassScreen({ navigation }) {
         {/* ── Integrated header + hero — branded as CourseCompass's own
             space (navy/sky/orange, Crimson Pro + Outfit), not UniBlueprint's
             navy/cream, since it's their product we're handing off to. See
-            constants/partnerBrands.js — same reusable pattern queued for the
+            constants/partnerBrands.js, same reusable pattern queued for the
             next partner integration ("Priority"). ── */}
         <PartnerBrandedHeader
           brand={COURSE_COMPASS}

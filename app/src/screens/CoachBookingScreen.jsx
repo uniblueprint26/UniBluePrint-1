@@ -279,7 +279,7 @@ export default function CoachBookingScreen({ route, navigation }) {
           </View>
           <Text style={styles.confirmTitle}>Booking request sent</Text>
           <Text style={styles.confirmBody}>
-            You've requested {selectedTime} on {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })} with {coach.name}. They'll confirm directly, and we'll notify you the moment they reply — a push notification plus an update in your Notifications either way.
+            You've requested {selectedTime} on {selectedDay.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long' })} with {coach.name}. They'll confirm directly, and we'll notify you the moment they reply, a push notification plus an update in your Notifications either way.
           </Text>
           <Button
             label={`Back to ${coach.name}'s Profile`}
@@ -348,7 +348,7 @@ export default function CoachBookingScreen({ route, navigation }) {
           </ScrollView>
 
           {/* Step 2 — time. These are candidate slots, not the coach's real
-              calendar (see the header comment) — labelled "preferred time"
+              calendar (see the header comment), labelled "preferred time"
               throughout rather than "available time" so this reads as a
               request the coach still has to confirm, not a live booking
               against their actual availability. */}
@@ -360,7 +360,7 @@ export default function CoachBookingScreen({ route, navigation }) {
             <Text style={styles.hintText}>Choose a date above to pick a preferred time.</Text>
           ) : (
             <>
-              <Text style={styles.hintText}>Preferred times — {coach.name} will confirm what actually works.</Text>
+              <Text style={styles.hintText}>Preferred times, {coach.name} will confirm what actually works.</Text>
               <View style={styles.timeGrid}>
                 {TIME_SLOTS.map(t => {
                   const active = selectedTime === t
@@ -380,7 +380,7 @@ export default function CoachBookingScreen({ route, navigation }) {
           )}
 
           {/* Step 3 — what's being booked/paid for. Only shown for a coach
-              with a real chargeable price (see lib/coachPricing.js) — an
+              with a real chargeable price (see lib/coachPricing.js), an
               "Available on request" coach has nothing to pick here and
               goes straight to the note/confirm step below, unchanged. */}
           {effectivePricing.kind === 'pricelist' && (
@@ -415,7 +415,7 @@ export default function CoachBookingScreen({ route, navigation }) {
             <View style={styles.flatPriceCard}>
               <Wallet size={14} color={colors.textPrimary} />
               <Text style={styles.flatPriceText}>
-                This session is <Text style={styles.summaryStrong}>{formatEuro(effectivePricing.cents)}</Text> — you'll pay when you confirm below.
+                This session is <Text style={styles.summaryStrong}>{formatEuro(effectivePricing.cents)}</Text>, you'll pay when you confirm below.
               </Text>
             </View>
           )}
@@ -475,7 +475,7 @@ export default function CoachBookingScreen({ route, navigation }) {
           </TouchableOpacity>
           <Text style={styles.disclaimer}>
             {(effectivePricing.kind === 'flat' || (effectivePricing.kind === 'pricelist' && selectedItem?.chargeable))
-              ? `Confirming opens secure payment in your browser. Your request to ${coach.name} is sent once that's done — it isn't confirmed until they accept.`
+              ? `Confirming opens secure payment in your browser. Your request to ${coach.name} is sent once that's done, it isn't confirmed until they accept.`
               : `This sends a request, it isn't confirmed until ${coach.name} accepts.`}
           </Text>
         </ScrollView>

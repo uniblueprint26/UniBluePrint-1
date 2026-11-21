@@ -4,13 +4,14 @@ import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 
 // The four things you can make from the Post sheet. `type` is the composer's
-// internal tab: 'thread' is the Mood Board post type in the database (the
-// word "Thread" is never shown to a user).
+// internal tab: 'thread' is the Take post type in the database (the word
+// "Thread" is never shown to a user). "Mood Board" is only the mood picker that
+// goes with a Take.
 export const POST_TYPES = [
-  { type: 'thread', label: 'Mood Board', hint: 'A mood and a few words', Icon: Smile },
-  { type: 'post',   label: 'Post',       hint: 'Share a photo',          Icon: ImageIcon },
-  { type: 'clip',   label: 'Clip',       hint: 'A short video',          Icon: Video },
-  { type: 'live',   label: 'Live',       hint: '2-minute capture',       Icon: Radio },
+  { type: 'thread', label: 'Take', hint: 'Your take, with a mood', Icon: Smile },
+  { type: 'post',   label: 'Post', hint: 'Share up to 6 pictures', Icon: ImageIcon },
+  { type: 'clip',   label: 'Clip', hint: 'A short video',          Icon: Video },
+  { type: 'live',   label: 'Live', hint: 'Camera, any time', Icon: Radio },
 ]
 
 export default function PostTypeTiles({ value, onChange }) {

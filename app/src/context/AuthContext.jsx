@@ -1,3 +1,5 @@
+import { unregisterPushTokenAsync } from '../lib/pushNotifications'
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
@@ -170,6 +172,8 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    // Stop this phone getting the account's pushes. Must run while still signed in.
+    await unregisterPushTokenAsync()
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
@@ -248,6 +252,7 @@ export function AuthProvider({ children }) {
       updates.discoverable = !!fields.discoverable
     }
     if ('bio' in fields) {
+      if (!checkText(String(fields.bio || '')).ok) return { error: new Error(GUIDELINES_MESSAGE) }
       updates.bio = String(fields.bio || '').trim().slice(0, MAX_BIO_LENGTH) || null
     }
     if ('statuses' in fields) {
@@ -321,6 +326,11 @@ export function AuthProvider({ children }) {
   // #? never promoted them the way institution/course were) so those only
   // ever land in user_metadata.
   //
+  // Update: profiles now also has trade, training_provider and industry
+  // (20261120000100_profiles_campus_community.sql). All of them are written
+  // to profiles as well as metadata. A database trigger turns them into
+  // profiles.campus_community, the group a person sees Campus Connect posts for.
+  //
   // Each of institution/trade/trainingProvider accepts either a picked
   // object ({ name, short|category }) from the same institutions.js/
   // apprenticeships.js lookups SignUpScreen uses, a plain string (free-typed
@@ -359,18 +369,25 @@ export function AuthProvider({ children }) {
     if ('trade' in fields) {
       const trade = fields.trade
       if (trade && typeof trade === 'object') {
-        metadataUpdates.trade          = cleanText(trade.name)
+        profileUpdates.trade           = cleanText(trade.name)
+        metadataUpdates.trade          = profileUpdates.trade
         metadataUpdates.trade_category = cleanText(trade.category)
       } else {
-        metadataUpdates.trade          = cleanText(trade)
+        profileUpdates.trade           = cleanText(trade)
+        metadataUpdates.trade          = profileUpdates.trade
         metadataUpdates.trade_category = null
       }
     }
     if ('trainingProvider' in fields) {
       const provider = fields.trainingProvider
-      metadataUpdates.training_provider = (provider && typeof provider === 'object')
+      profileUpdates.training_provider = (provider && typeof provider === 'object')
         ? cleanText(provider.name)
         : cleanText(provider)
+      metadataUpdates.training_provider = profileUpdates.training_provider
+    }
+    if ('industry' in fields) {
+      profileUpdates.industry  = cleanText(fields.industry)
+      metadataUpdates.industry = profileUpdates.industry
     }
 
     if (Object.keys(profileUpdates).length === 0 && Object.keys(metadataUpdates).length === 0) {

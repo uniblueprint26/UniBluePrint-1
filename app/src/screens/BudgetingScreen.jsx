@@ -1337,21 +1337,21 @@ export default function BudgetingScreen({ navigation, route }) {
             style={[styles.tabBtn, tab === 'budget' && styles.tabBtnActive]}
             onPress={() => setTab('budget')}
           >
-            <Wallet size={16} color={tab === 'budget' ? colors.white : colors.textPrimary} />
+            <Wallet size={16} color={tab === 'budget' ? colors.accentFg : colors.textPrimary} />
             <Text style={[styles.tabBtnText, tab === 'budget' && styles.tabBtnTextActive]} numberOfLines={2}>Budget</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'susi' && styles.tabBtnActive]}
             onPress={() => setTab('susi')}
           >
-            <Target size={16} color={tab === 'susi' ? colors.white : colors.textPrimary} />
+            <Target size={16} color={tab === 'susi' ? colors.accentFg : colors.textPrimary} />
             <Text style={[styles.tabBtnText, tab === 'susi' && styles.tabBtnTextActive]} numberOfLines={2}>Grants & Schemes</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, tab === 'invest' && styles.tabBtnActive]}
             onPress={() => setTab('invest')}
           >
-            <InvestIcon size={16} color={tab === 'invest' ? colors.white : colors.textPrimary} />
+            <InvestIcon size={16} color={tab === 'invest' ? colors.accentFg : colors.textPrimary} />
             <Text style={[styles.tabBtnText, tab === 'invest' && styles.tabBtnTextActive]} numberOfLines={2}>Investment</Text>
           </TouchableOpacity>
         </View>
@@ -1396,7 +1396,7 @@ function __gs_styles(colors) {
   },
   tabBtnActive:     { backgroundColor: colors.accentBg },
   tabBtnText:       { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary, textAlign: 'center', lineHeight: 15 },
-  tabBtnTextActive: { color: colors.white },
+  tabBtnTextActive: { color: colors.accentFg },
 
   content: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
 
@@ -1486,11 +1486,11 @@ function __gs_styles(colors) {
   segChip:         { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.button - 2 },
   segChipActive:   { backgroundColor: colors.accentBg },
   segChipText:     { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
-  segChipTextActive:{ color: colors.white },
+  segChipTextActive:{ color: colors.accentFg },
   modeChip:         { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.button - 2, backgroundColor: colors.surfaceAlt },
   modeChipActive:   { backgroundColor: colors.accentBg },
   modeChipText:     { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
-  modeChipTextActive:{ color: colors.white },
+  modeChipTextActive:{ color: colors.accentFg },
 
   // Mini dashboard
   dashboard: {
@@ -1633,7 +1633,7 @@ function __gs_styles(colors) {
   },
   depChipActive:    { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
   depChipText:      { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
-  depChipTextActive:{ color: colors.white },
+  depChipTextActive:{ color: colors.accentFg },
   estimateBtn: {
     backgroundColor: colors.accentBg, borderRadius: radius.button,
     height: 50, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md,

@@ -50,7 +50,11 @@ export function refreshAppFlags({ force = false } = {}) {
     const values = {}
     let ok = false
     try {
-      const { data, error } = await supabase.from('app_flags').select('key, value')
+      // Give up after 5 seconds so a slow connection never leaves a gate spinning. The safe defaults apply.
+      const { data, error } = await Promise.race([
+        supabase.from('app_flags').select('key, value'),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+      ])
       if (!error && Array.isArray(data)) {
         ok = true
         data.forEach(row => { if (row && typeof row.key === 'string') values[row.key] = row.value })

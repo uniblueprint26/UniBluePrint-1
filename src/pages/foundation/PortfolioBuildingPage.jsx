@@ -172,8 +172,8 @@ export default function PortfolioBuildingPage() {
     if (!plan) return
     setSubmitting(true)
     try {
-      const serviceName = tier === 'premium' ? 'Portfolio Building — Premium' : 'Portfolio Building — Standard'
-      const subId = await submitForReview('portfolio_plans', plan.id, serviceName, `Portfolio Building — ${form.field}`, tier)
+      const serviceName = tier === 'premium' ? 'Portfolio Building, Premium' : 'Portfolio Building, Standard'
+      const subId = await submitForReview('portfolio_plans', plan.id, serviceName, `Portfolio Building, ${form.field}`, tier)
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -194,7 +194,7 @@ export default function PortfolioBuildingPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Portfolio Building</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          The right platform for your field, plus a structure checklist — a portfolio's job is to get out of the way of the work.
+          The right platform for your field, plus a structure checklist, a portfolio's job is to get out of the way of the work.
         </p>
 
         {error && <ErrorBanner message={error} />}
@@ -215,7 +215,7 @@ export default function PortfolioBuildingPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Get my portfolio plan"
-            strapline="The more you give us, the better your plan — this takes about 2 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your plan, this takes about 2 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : submitted ? (
@@ -279,10 +279,10 @@ function profileCheckRows(profileKnown) {
 /** Rows for the closing "here's what we'll build from" summary step. */
 function summaryRows(form, tier) {
   return [
-    ['Field', form.field || '—'],
+    ['Field', form.field || 'Not given'],
     ['Showcasing', form.work_type ? `${form.work_type.slice(0, 40)}${form.work_type.length > 40 ? '…' : ''}` : '—'],
     ['Existing presence', form.existing_presence || 'None yet'],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -301,7 +301,7 @@ function usePortfolioSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'field',
@@ -319,21 +319,21 @@ function usePortfolioSteps({ form, profileKnown, tier, setTier }) {
       key: 'existing_presence',
       title: 'Do you already have anything online?',
       optional: true,
-      whyItHelps: 'GitHub, a site, social profiles — we\'ll build on what you have rather than starting you over.',
+      whyItHelps: 'GitHub, a site, social profiles, we\'ll build on what you have rather than starting you over.',
       render: ({ form: f, set }) => <FormInput id="existing_presence" value={f.existing_presence} onChange={set('existing_presence')} placeholder="e.g. github.com/you, a personal site" maxLength={LIMITS.MEDIUM} />,
     },
     {
       key: 'career_goal',
       title: 'What\'s this portfolio for?',
       optional: true,
-      whyItHelps: 'e.g. internship applications, freelance clients — sharpens who it\'s written to convince.',
+      whyItHelps: 'e.g. internship applications, freelance clients, sharpens who it\'s written to convince.',
       render: ({ form: f, set }) => <FormInput id="career_goal" value={f.career_goal} onChange={set('career_goal')} maxLength={LIMITS.MEDIUM} />,
     },
     {
       key: 'unsure_about',
       title: 'Anything you\'re unsure about?',
       optional: true,
-      whyItHelps: 'whether you have enough to show, how to present a weak or unfinished piece — tell us and we\'ll address it honestly rather than skip it.',
+      whyItHelps: 'whether you have enough to show, how to present a weak or unfinished piece, tell us and we\'ll address it honestly rather than skip it.',
       render: ({ form: f, set }) => <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />,
     },
     {

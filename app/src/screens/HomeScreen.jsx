@@ -19,6 +19,7 @@ import StoryRail from '../components/home/StoryRail'
 import NextUpRow from '../components/home/NextUpRow'
 import { routeExists } from '../components/home/routeExists'
 import { useGoalSummary, useBudgetLeft } from '../components/home/personalStats'
+import { useCalendarSummary } from '../lib/calendar/useCalendarData'
 import { openInHomeStack } from '../navigation/helpers'
 import { formatNumber } from '../utils/formatNumber'
 import GoalsGrid from '../components/home/GoalsGrid'
@@ -37,7 +38,7 @@ import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { startDirectChat, fetchRoomContextId } from '../lib/directMessaging'
+import { useConnect } from '../hooks/useConnect'
 import { useBlockedIds } from '../lib/reporting'
 
 // How many posts a single feed page fetches — both the first load and every
@@ -193,7 +194,6 @@ export default function HomeScreen({ navigation }) {
   const [myReactions, setMyReactions]       = useState({})
   const [savedPostIds, setSavedPostIds]     = useState(() => new Set())
   const [suggestedProfiles, setSuggestedProfiles] = useState([])
-  const [suggestedConnectingId, setSuggestedConnectingId] = useState(null)
 
   // Load the feed + the one-off placement on mount, and again whenever Home
   // regains focus (so a post made in the Composer, a comment added, or a
@@ -257,39 +257,8 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  // Suggested profiles' Connect re-plays DirectoryScreen's own "start a
-  // direct chat" flow (same RPC/room-context lookup, same nav target), so a
-  // connect made from Home lands the person in the exact same place one made
-  // from the Directory would.
-  async function handleSuggestedConnect(profile) {
-    if (suggestedConnectingId) return
-    setSuggestedConnectingId(profile.id)
-    try {
-      const { roomId, blocked, error } = await startDirectChat(profile.id, profile.full_name)
-      if (blocked) {
-        Alert.alert("Can't start this conversation", "This conversation isn't available right now.")
-        return
-      }
-      if (error || !roomId) throw error || new Error('No room id returned')
-      const { contextId } = await fetchRoomContextId(roomId)
-      if (!contextId) throw new Error('Could not resolve the new conversation.')
-      navigation.getParent()?.navigate('Messages', {
-        screen: 'ChatRoom',
-        params: {
-          contextType: 'direct',
-          contextId,
-          roomName:    profile.full_name || 'Chat',
-          subtitle:    null,
-          posterId:    profile.id,
-          posterName:  profile.full_name,
-        },
-      })
-    } catch {
-      Alert.alert('Something went wrong', 'Could not start the conversation. Please try again.')
-    } finally {
-      setSuggestedConnectingId(null)
-    }
-  }
+  // Suggested profiles' Connect sends a connection request (see hooks/useConnect.js).
+  const { connect: handleSuggestedConnect, connectingId: suggestedConnectingId } = useConnect(navigation)
 
   function handleViewSuggestedProfile(profile) {
     navigation.navigate('StudentProfile', { student: profile })
@@ -486,6 +455,10 @@ export default function HomeScreen({ navigation }) {
   const goalSummary = useGoalSummary(user?.id)
   const budgetLeft = useBudgetLeft(user?.id)
   const calendarReady = routeExists(navigation, 'Calendar')
+  const calendarSummary = useCalendarSummary(user?.id)
+  const calendarValue = calendarSummary.todayCount > 0
+    ? `${calendarSummary.todayCount} today`
+    : calendarSummary.weekCount > 0 ? `${calendarSummary.weekCount} this week` : '–'
   const personalStats = [
     goalSummary ? {
       key: 'goals', label: 'Goals', Icon: Target,
@@ -495,10 +468,12 @@ export default function HomeScreen({ navigation }) {
         : 'No goals set yet',
     } : null,
     {
-      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: '–',
-      caption: calendarReady ? 'Add your timetable' : undefined,
+      key: 'calendar', label: 'Calendar', Icon: CalendarDays, value: calendarValue,
+      caption: calendarReady && calendarValue === '–' ? 'Add your timetable' : undefined,
       onPress: calendarReady ? () => openInHomeStack(navigation, 'Calendar') : undefined,
-      accessibilityLabel: calendarReady ? 'No events yet. Add your timetable' : 'No events yet',
+      accessibilityLabel: calendarValue === '–'
+        ? (calendarReady ? 'No events yet. Add your timetable' : 'No events yet')
+        : `${calendarValue}. Open Calendar`,
     },
     budgetLeft !== null ? {
       key: 'budget', label: 'Budget left', Icon: Wallet,
@@ -608,7 +583,7 @@ export default function HomeScreen({ navigation }) {
   // every unrelated re-render (e.g. a single reaction tap). A plain element
   // reconciles normally instead.
   // No Next up event yet: the Calendar feature supplies one later. Never fake it.
-  const nextUp = null
+  const nextUp = calendarSummary.nextUp
 
   // One Home section. Digest, Next up and Your goals are drawn here so they can
   // sit above the feed or inside it, wherever the layout puts them.

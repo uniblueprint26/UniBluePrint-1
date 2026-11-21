@@ -14,6 +14,7 @@ import Button from '../components/ui/Button'
 import BoardPickerModal from '../components/campusConnect/BoardPickerModal'
 import CampusPulseCard from '../components/campusConnect/CampusPulseCard'
 import { MoodPulse } from '../components/feed/FeedKit'
+import LiveRail from '../components/live/LiveRail'
 import { fetchMoodPulse, DEFAULT_BUZZ_WINDOW } from '../lib/feed'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
@@ -311,6 +312,8 @@ export default function CampusConnectScreen({ navigation }) {
             </View>
           </View>
         </ScreenHeader>
+
+        <LiveRail audience="campus" navigation={navigation} />
 
         <View style={styles.content}>
 

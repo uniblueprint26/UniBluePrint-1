@@ -124,7 +124,7 @@ export function experienceNarrative(profile) {
   return profile.experience
     .map((r) => {
       const head = [r.job_title, r.company].filter(Boolean).join(' at ')
-      return [head, r.dates, r.responsibilities].filter(Boolean).join(' — ')
+      return [head, r.dates, r.responsibilities].filter(Boolean).join(', ')
     })
     .filter(Boolean)
     .join('\n')

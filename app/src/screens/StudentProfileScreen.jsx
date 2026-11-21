@@ -1,3 +1,4 @@
+import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useCallback, useEffect, useState } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert,
@@ -127,7 +128,7 @@ function AddEndorsementModal({
 
           <Text style={m.customLabel}>Or write your own</Text>
           <Text style={m.sub}>
-            Say something specific — you can give this person more than one custom note.
+            Say something specific, you can give this person more than one custom note.
           </Text>
           <TextInput
             value={customDraft}
@@ -181,6 +182,7 @@ function PostsSection({ userId, userName, colors }) {
           .from('feed_posts')
           .select('id, post_type, body, mood, created_at')
           .eq('user_id', userId)
+          .in('post_type', ['thread', 'post', 'clip'])
           .order('created_at', { ascending: false })
           .limit(10)
         if (cancelled) return
@@ -394,6 +396,10 @@ export default function StudentProfileScreen({ route, navigation }) {
     if (!canEndorse || saving) return
     const clean = normalizeCustomEndorsement(rawText)
     if (!clean) return
+    if (!checkText(clean).ok) {
+      Alert.alert('Could not save that', GUIDELINES_MESSAGE)
+      return
+    }
     setSaving(true)
     try {
       const { error } = await supabase.from('peer_endorsements').insert({

@@ -129,3 +129,23 @@ export const MOOD_GROUP_DEFS = [
 export const MOOD_GROUPS = NEW_MOODS_ENABLED
   ? MOOD_GROUP_DEFS.map(g => ({ ...g, moods: COMPOSER_MOODS.filter(m => m.group === g.key) }))
   : [{ key: 'all', title: null, moods: COMPOSER_MOODS }]
+
+// The Mood Board shows nine words first: three happy, three in between and
+// three bad. "More feelings" holds every other word, in the six groups above,
+// so nothing is lost (the full 42 words stay).
+export const MOOD_FIRST_GROUPS = [
+  { key: 'happy',   title: 'Feeling good', ids: ['flying_it', 'sound', 'buzzing'] },
+  { key: 'between', title: 'In between',   ids: ['locked_in', 'grand', 'not_too_bad'] },
+  { key: 'bad',     title: 'Not great',    ids: ['banjaxed', 'arsed', 'spoofed'] },
+].map(g => ({ ...g, moods: g.ids.map(id => MOOD_BY_ID[id]).filter(Boolean) }))
+
+const FIRST_IDS = new Set(MOOD_FIRST_GROUPS.flatMap(g => g.ids))
+
+// Everything else, still in its group, for "More feelings".
+export const MOOD_MORE_GROUPS = MOOD_GROUP_DEFS
+  .map(g => ({ ...g, moods: COMPOSER_MOODS.filter(m => m.group === g.key && !FIRST_IDS.has(m.id)) }))
+  .filter(g => g.moods.length > 0)
+
+export function isFirstMood(id) {
+  return FIRST_IDS.has(id)
+}

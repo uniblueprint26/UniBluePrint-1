@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SquarePen } from 'lucide-react-native'
@@ -23,6 +23,8 @@ export default function MessagesScreen({ navigation, route }) {
   const insets = useSafeAreaInsets()
   const [tab, setTab] = useState(route?.params?.tab || 'chats')
   const [composeVisible, setComposeVisible] = useState(false)
+  // The tab can be set again from a notification tap while this screen is open.
+  useEffect(() => { if (route?.params?.tab) setTab(route.params.tab) }, [route?.params?.tab])
 
   const { rooms, loading: roomsLoading } = useChatRooms()
   const requestsState = useMessageRequests()

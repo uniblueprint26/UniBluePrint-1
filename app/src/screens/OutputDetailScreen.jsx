@@ -191,7 +191,7 @@ export default function OutputDetailScreen({ navigation, route }) {
               <Text selectable style={styles.bodyText}>{text}</Text>
             </Card>
             <Text style={styles.scopeNote}>
-              Plain text only, for now — copy or share it anywhere you need it below.
+              Plain text only, for now, copy or share it anywhere you need it below.
             </Text>
           </>
         )}

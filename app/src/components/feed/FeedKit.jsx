@@ -7,7 +7,8 @@ import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Plus, 
 import { fonts, radius, spacing, shadows, sheen } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { MOODS, moodDef } from '../../constants/moods'
-import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS } from '../../lib/feed'
+import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS, getPostImages } from '../../lib/feed'
+import PostGallery from './PostGallery'
 import { PILLARS, AUDIENCES } from '../../constants/pillars'
 import { avatarColorFor, initialsFor } from '../../screens/DirectoryScreen'
 import UbpLoader from '../brand/UbpLoader'
@@ -68,22 +69,6 @@ function Sheen({ isDark, radius: r }) {
   )
 }
 
-// ── Composer entry bar ───────────────────────────────────────────────────────
-// One quiet line: your initial, a prompt, and a plain "+" at the right. No
-// camera or smiley buttons; the Composer itself offers every post type.
-
-export function ComposerEntryBar({ name, onPress }) {
-  const { colors, isDark } = useTheme()
-  const k = getStyles(colors, isDark)
-  return (
-    <TouchableOpacity style={k.composerBar} onPress={onPress} activeOpacity={0.88} accessibilityRole="button" accessibilityLabel="Share something">
-      <View style={k.composerAvatar}><Text style={k.composerAvatarText}>{initialsOf(name).slice(0, 1) || 'Y'}</Text></View>
-      <Text style={k.composerPlaceholder} numberOfLines={1}>Share something</Text>
-      <Plus size={24} color={colors.textPrimary} strokeWidth={1.9} />
-    </TouchableOpacity>
-  )
-}
-
 // ── Buzz strip (filter chips) ────────────────────────────────────────────────
 
 export function BuzzStrip({ selected, onSelect }) {
@@ -118,7 +103,7 @@ export function BuzzStrip({ selected, onSelect }) {
 // Named "Mood Pulse" (not "Campus Pulse") deliberately — Campus Connect
 // already has its own real "Campus Pulse" feature (a weekly rotating prompt
 // + replies, see components/campusConnect/CampusPulseCard.jsx), a wholly
-// different thing. This widget aggregates mood tags across Take posts
+// different thing. This widget aggregates mood tags across Takes
 // app-wide, not scoped to campus specifically, so neither the name nor the
 // data pretends otherwise. Reused with a `title` override per screen
 // ("Campus Mood" / "Course Mood") so it reads as that screen's own flavour
@@ -522,8 +507,8 @@ function PostCardBody({ post, myMood, onReact, commentCount, saved, onComment, o
       <PostHeader post={post} k={k} />
       <PostChips post={post} highlight={highlight} colors={colors} k={k} />
       {!!post.body && <Text style={k.bodyText}>{post.body}</Text>}
-      {post.post_type === 'post' && !!post.photo_url && (
-        <Image source={{ uri: post.photo_url }} style={k.photo} resizeMode="cover" />
+      {post.post_type === 'post' && (
+        <PostGallery images={getPostImages(post)} style={{ marginTop: 14 }} />
       )}
       <ClipTile post={post} k={k} colors={colors} />
       <EngagementRow
@@ -635,20 +620,6 @@ export function SuggestedProfilesCard({ profiles, connectingId, onConnect, onVie
 function getStyles(colors, isDark) {
   const cardShadow = isDark ? shadows.glowDark : shadows.glow
   return StyleSheet.create({
-  composerBar: {
-    backgroundColor: colors.surface, borderRadius: radius.pill + 8,
-    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
-    paddingVertical: 11, paddingLeft: 11, paddingRight: 16,
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-  },
-  composerAvatar: {
-    width: 36, height: 36, borderRadius: 18, backgroundColor: colors.navy,
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-    borderWidth: isDark ? 1 : 0, borderColor: colors.border,
-  },
-  composerAvatarText: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.cream },
-  composerPlaceholder: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.textSecondary },
-
   buzzRow: { marginTop: 8 },
   buzzEyebrow: {
     fontFamily: fonts.sansSemiBold, fontSize: 10, color: colors.muted,

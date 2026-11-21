@@ -53,7 +53,7 @@ const initialProfile = {
 // Mirrors the sign-up pathway question so a user is never asked it twice.
 const PATHWAYS = [
   'PLC / Further Education', 'Apprenticeship',
-  'University / College', 'Gap year', 'Recent graduate', 'Working — early career',
+  'University / College', 'Gap year', 'Recent graduate', 'Working, early career',
 ]
 
 export default function CareerProfilePage() {
@@ -231,7 +231,7 @@ export default function CareerProfilePage() {
         .from('cv_documents')
         .insert([{
           user_id: user.id,
-          title: `${form.personal_info.full_name || 'Untitled'} — ${activeTarget?.target_role || activeTarget?.target_industry || 'CV'}`,
+          title: `${form.personal_info.full_name || 'Untitled'}, ${activeTarget?.target_role || activeTarget?.target_industry || 'CV'}`,
           style: 'classic_ats',
           target_role: activeTarget?.target_role || null,
           target_industry: activeTarget?.target_industry || null,
@@ -368,7 +368,7 @@ export default function CareerProfilePage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Career Profile</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '32px', lineHeight: 1.7 }}>
-          Fill this in once and every Foundation Blueprint tool starts from it — your CV, LinkedIn, cover letters,
+          Fill this in once and every Foundation Blueprint tool starts from it, your CV, LinkedIn, cover letters,
           application forms and interview prep all read from here instead of asking you the same questions again.
           You can still change anything inside an individual tool; whatever you type there wins.
         </p>
@@ -495,7 +495,7 @@ export default function CareerProfilePage() {
           <div>
             <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', color: '#1E3A5F' }}>What you're applying for</h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', marginTop: '6px', marginBottom: '18px', lineHeight: 1.7 }}>
-              Add an application once — the role, the company, the job description — and every tool tailors to it
+              Add an application once, the role, the company, the job description, and every tool tailors to it
               automatically. Switch the active one when you move on to the next application.
             </p>
 
@@ -530,7 +530,7 @@ export default function CareerProfilePage() {
             {showTargetForm ? (
               <FormCard>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <FormField id="t_label" label="Name this application" required hint="Just for you — e.g. 'Stripe grad scheme' or 'UCD Psychology'">
+                  <FormField id="t_label" label="Name this application" required hint="Just for you, e.g. 'Stripe grad scheme' or 'UCD Psychology'">
                     <FormInput id="t_label" value={newTarget.label} onChange={(e) => setNewTarget((t) => ({ ...t, label: e.target.value }))} required maxLength={LIMITS.SHORT} />
                   </FormField>
                   <div style={grid}>
@@ -562,7 +562,7 @@ export default function CareerProfilePage() {
                       }))}
                     />
                   )}
-                  <FormField id="t_jd" label="Paste the job description" hint="Optional — this is what sharpens keyword matching the most">
+                  <FormField id="t_jd" label="Paste the job description" hint="Optional, this is what sharpens keyword matching the most">
                     <FormTextarea id="t_jd" value={newTarget.job_description} onChange={(e) => setNewTarget((t) => ({ ...t, job_description: e.target.value }))} rows={5} maxLength={LIMITS.PASTE_JD} />
                   </FormField>
                   <div style={{ display: 'flex', gap: '10px' }}>
@@ -611,11 +611,11 @@ function QuickGenerateSection({
         <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F' }}>Quick Generate</h2>
       </div>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13.5px', color: '#6B7280', marginTop: '6px', marginBottom: '18px', lineHeight: 1.6 }}>
-        Generate straight from what's in this form — no need to save first, and no separate builder to fill in again.
+        Generate straight from what's in this form, no need to save first, and no separate builder to fill in again.
         {activeTarget ? (
           <> Targeting <strong style={{ color: '#1E3A5F' }}>{activeTarget.label}</strong>.</>
         ) : (
-          <> Add an application below with an industry first — these need one to target properly.</>
+          <> Add an application below with an industry first, these need one to target properly.</>
         )}
       </p>
 
@@ -671,7 +671,7 @@ function QuickGenerateSection({
 
       <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(30,58,95,0.08)' }}>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '10px' }}>
-          These need a bit more from you — open the pre-filled builder
+          These need a bit more from you, open the pre-filled builder
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {LINK_ONLY_TOOLS.map((t) => (
@@ -728,7 +728,7 @@ function IndustryQuestionnaireFields({ industry, values, onChange }) {
   return (
     <div style={{ background: 'rgba(30,58,95,0.03)', border: '1px solid rgba(30,58,95,0.1)', borderRadius: '10px', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 600, color: '#1E3A5F' }}>
-        A couple of specifics for {industry} — this is exactly what your generated documents will name precisely instead of leaving vague.
+        A couple of specifics for {industry}, this is exactly what your generated documents will name precisely instead of leaving vague.
       </p>
       {questions.map(({ key, placeholder }) => (
         <FormField key={key} id={`qd-${key}`} label={key} hint="Leave blank if not applicable yet">

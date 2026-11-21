@@ -9,7 +9,7 @@ import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
   Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart, Eye,
-  Palette, Sun, Moon, Smartphone, Share2, MapPin, Bookmark,
+  Palette, Sun, Moon, Smartphone, Share2, MapPin, Bookmark, Radio,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -26,7 +26,7 @@ import InterestsModal from '../components/profile/InterestsModal'
 import {
   STATUS_OPTIONS, SOCIAL_LINK_FIELDS, VISIBILITY_OPTIONS, MAX_BIO_LENGTH,
 } from '../constants/directory'
-import { USER_TYPE_STUDENT, USER_TYPE_APPRENTICE } from '../constants/userTypes'
+import { USER_TYPE_STUDENT, USER_TYPE_APPRENTICE, USER_TYPE_WORKER } from '../constants/userTypes'
 import { searchInstitutions } from '../data/institutions'
 import { searchTrades, searchProviders } from '../data/apprenticeships'
 import { supabase } from '../lib/supabase'
@@ -74,7 +74,7 @@ const EXPLORE_LINKS = [
     Icon: Tag,
     eyebrow: 'PRICING',
     label: 'View Plans',
-    sub: 'Free, Pro, and Premium — see what each plan includes.',
+    sub: 'Free, Pro, and Premium, see what each plan includes.',
     color: '#FEF3C7',
     action: 'screen',
     screen: 'Pricing',
@@ -97,6 +97,7 @@ const ACCOUNT_LINKS = [
   { Icon: Heart,     label: 'Interests',       sub: null,                                action: 'interests' },
   { Icon: Eye,      label: 'Directory Profile', sub: null,                              action: 'directoryProfile' },
   { Icon: Bookmark, label: 'Saved Posts',     sub: 'Posts you’ve bookmarked from the feed', action: 'savedPosts' },
+  { Icon: Radio,    label: 'Live archive',    sub: 'Your Live moments, private to you',  action: 'liveArchive' },
   { Icon: Bell,     label: 'Notifications',   sub: 'Push alerts and in-app reminders',  action: 'notifications' },
   { Icon: Palette,  label: 'Appearance',      sub: null,                                action: 'appearance' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
@@ -130,6 +131,7 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
   // collects — a Worker/Gap Year account gets neither.
   const showInstitutionFields    = userType === USER_TYPE_STUDENT
   const showApprenticeshipFields = userType === USER_TYPE_APPRENTICE
+  const showIndustryField         = userType === USER_TYPE_WORKER
 
   // Current values live on auth user_metadata, not `profile` — that's what
   // ProfileScreen's own header subtitle (getProfileSubLine) reads from, so
@@ -138,6 +140,8 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
   const currentCourse           = user?.user_metadata?.course || ''
   const currentTrade            = user?.user_metadata?.trade || ''
   const currentTrainingProvider = user?.user_metadata?.training_provider || ''
+  const currentIndustry         = user?.user_metadata?.industry || ''
+  const [industry, setIndustry]  = useState('')
 
   // Institution (Student) — same search-and-pick-or-type-free mechanism as
   // SignUpScreen's in_college/plc steps (data/institutions.js).
@@ -170,8 +174,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
       setProviderQuery(currentTrainingProvider)
       setSelectedProvider(null)
       setShowProviderList(false)
+      setIndustry(currentIndustry)
     }
-  }, [visible, currentName, currentInstitutionName, currentCourse, currentTrade, currentTrainingProvider])
+  }, [visible, currentName, currentInstitutionName, currentCourse, currentTrade, currentTrainingProvider, currentIndustry])
 
   const instResults = institutionQuery.trim() ? searchInstitutions(institutionQuery).slice(0, 8) : []
   const tradeResults = tradeQuery.trim() ? searchTrades(tradeQuery).slice(0, 8) : []
@@ -206,6 +211,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
         const tradeValue    = selectedTrade    || tradeQuery.trim()    || null
         const providerValue = selectedProvider || providerQuery.trim() || null
         const { error } = await updateEducationDetails({ trade: tradeValue, trainingProvider: providerValue })
+        if (error) throw error
+      } else if (showIndustryField) {
+        const { error } = await updateEducationDetails({ industry })
         if (error) throw error
       }
 
@@ -402,6 +410,24 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               </>
             )}
 
+            {/* Industry: Worker accounts only. Sets their Campus Connect group. */}
+            {showIndustryField && (
+              <>
+                <Text style={[ep.fieldLabel, { color: colors.textSecondary, marginTop: 28 }]}>Industry</Text>
+                <View style={[ep.pickerWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <Briefcase size={16} color={colors.textTertiary} style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={[ep.pickerInput, { color: colors.textPrimary }]}
+                    value={industry}
+                    onChangeText={setIndustry}
+                    maxLength={200}
+                    placeholder="e.g. Healthcare, Retail, Construction"
+                    placeholderTextColor={colors.textTertiary}
+                  />
+                </View>
+              </>
+            )}
+
             {/* Save */}
             <Button
               label={saving ? 'Saving…' : 'Save Changes'}
@@ -411,9 +437,9 @@ function EditProfileModal({ visible, onClose, userId, currentName, currentAvatar
               style={ep.saveBtn}
             />
 
-            {!showInstitutionFields && !showApprenticeshipFields && (
+            {!showInstitutionFields && !showApprenticeshipFields && !showIndustryField && (
               <Text style={[ep.note, { color: colors.textTertiary }]}>
-                Institution, course, and apprenticeship fields appear here for Student and Apprentice account types.
+                Institution, course, apprenticeship and industry fields appear here for Student, Apprentice and Worker account types.
                 You can change your account type anytime from Account Type in Settings.
               </Text>
             )}
@@ -609,7 +635,7 @@ function AppearanceModal({ visible, onClose }) {
   const { colors, preference, setPreference, mode } = useTheme()
 
   const OPTIONS = [
-    { key: 'system', label: 'System', sub: `Match your device setting — currently ${mode === 'dark' ? 'Dark' : 'Light'}`, Icon: Smartphone },
+    { key: 'system', label: 'System', sub: `Match your device setting, currently ${mode === 'dark' ? 'Dark' : 'Light'}`, Icon: Smartphone },
     { key: 'light',  label: 'Light',  sub: 'Always use the light theme', Icon: Sun },
     { key: 'dark',   label: 'Dark',   sub: 'Always use the dark theme', Icon: Moon },
   ]
@@ -865,7 +891,7 @@ function DirectoryProfileModal({ visible, onClose }) {
             />
 
             <Text style={[ep.note, { color: colors.textTertiary }]}>
-              Private profiles never appear in anyone's Directory search or results — enforced on our servers,
+              Private profiles never appear in anyone's Directory search or results, enforced on our servers,
               not just hidden in the app.
             </Text>
           </ScrollView>
@@ -1021,9 +1047,9 @@ function InviteFriendsCard() {
     if (!shareLink) return
     try {
       await Share.share({
-        message: `Join me on UniBlueprint — the free platform for CVs, coaching, and student life in Ireland. ${shareLink}`,
+        message: `Join me on UniBlueprint, the free platform for CVs, coaching, and student life in Ireland. ${shareLink}`,
       })
-    } catch { /* user cancelled or share sheet unavailable — nothing to recover from */ }
+    } catch { /* user cancelled or share sheet unavailable, nothing to recover from */ }
   }
 
   if (loading || !code) return null
@@ -1039,7 +1065,7 @@ function InviteFriendsCard() {
           <Text style={[inv.sub, { color: colors.textSecondary }]}>
             {count > 0
               ? `${count} friend${count === 1 ? '' : 's'} joined using your code`
-              : 'Share your code — no catch, just helps us grow'}
+              : 'Share your code, no catch, just helps us grow'}
           </Text>
         </View>
       </View>
@@ -1328,7 +1354,7 @@ export default function ProfileScreen({ navigation }) {
                 <Card style={styles.linkCard}>
                   <View style={[styles.linkIcon, { backgroundColor: link.color }]}>
                     {/* link.color is a fixed pale pastel swatch in both modes
-                        (not mode-aware) — the icon needs a fixed dark color
+                        (not mode-aware), the icon needs a fixed dark color
                         too, not textPrimary, which flips to a near-white
                         cream in dark mode and disappears against it. */}
                     <link.Icon size={20} color={colors.navy} strokeWidth={1.8} />
@@ -1365,6 +1391,7 @@ export default function ProfileScreen({ navigation }) {
                   // below (that row used to be a dead tap, screen: null).
                   else if (action === 'notifications') navigation.getParent()?.navigate('Home', { screen: 'Notifications' })
                   else if (action === 'savedPosts') navigation.getParent()?.navigate('Home', { screen: 'SavedPosts' })
+                  else if (action === 'liveArchive') navigation.getParent()?.navigate('Home', { screen: 'LiveArchive' })
                   else if (screen) navigation.navigate(screen)
                 }}
               >
@@ -1375,8 +1402,8 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={[styles.settingsLabel, { color: colors.textPrimary }]}>{label}</Text>
                   <Text style={[styles.settingsSub, { color: colors.textSecondary }]} numberOfLines={1}>
                     {action === 'accountType' ? userTypeLabel
-                      : action === 'interests' ? (interests.length ? interests.join(', ') : 'Not set — tap to choose')
-                      : action === 'directoryProfile' ? (discoverable ? 'Public — visible in Directory search' : 'Private — hidden from Directory search')
+                      : action === 'interests' ? (interests.length ? interests.join(', ') : 'Not set, tap to choose')
+                      : action === 'directoryProfile' ? (discoverable ? 'Public, visible in Directory search' : 'Private, hidden from Directory search')
                       : action === 'appearance' ? appearanceSubLabel
                       : sub}
                   </Text>

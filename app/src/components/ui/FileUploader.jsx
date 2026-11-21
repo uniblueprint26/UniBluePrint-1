@@ -49,7 +49,7 @@ export default function FileUploader({ bucket, storagePath, onUpload, label = 'F
     if (result.canceled || !result.assets?.length) return
     const asset = result.assets[0]
     if (asset.size && asset.size > MAX_BYTES) {
-      setErrorMsg('File is over 15 MB — please choose a smaller file.')
+      setErrorMsg('File is over 15 MB, please choose a smaller file.')
       return
     }
     setPicked(asset)
@@ -64,7 +64,7 @@ export default function FileUploader({ bucket, storagePath, onUpload, label = 'F
       const response = await fetch(picked.uri)
       const blob = await response.blob()
       if (blob.size > MAX_BYTES) {
-        setErrorMsg('File is over 15 MB — please choose a smaller file.')
+        setErrorMsg('File is over 15 MB, please choose a smaller file.')
         setUploading(false)
         return
       }

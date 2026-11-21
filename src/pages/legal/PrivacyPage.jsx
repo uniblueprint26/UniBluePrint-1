@@ -77,8 +77,8 @@ function RetentionTable() {
   )
 }
 
-function GdprForm() {
-  const [form, setForm] = useState({ name: '', email: '', request_type: '', message: '' })
+export function GdprForm({ defaultRequestType = '' }) {
+  const [form, setForm] = useState({ name: '', email: '', request_type: defaultRequestType, message: '' })
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading]   = useState(false)
   const [success, setSuccess]   = useState(false)
@@ -292,7 +292,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: September 2026
+          Last updated: November 2026
         </p>
       </section>
 
@@ -321,7 +321,12 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Service request data:</strong> CV content, essays, cover letters, application materials, and coaching notes you submit for Foundation Blueprint or Elevation Blueprint services.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Community data:</strong> posts, replies, and messages you create in Campus Connect or Course Connect.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Payment data:</strong> processed by Stripe on our behalf. We do not store your card number, CVV, or full payment details, only a Stripe customer reference.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Usage data:</strong> pages visited, features used, session duration, and in-app interactions.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Usage data:</strong> pages visited, features used, session duration, and in-app interactions such as which partner offers and cards you open.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Budget goals:</strong> if you use the Budgeting tool, the goals and amounts you choose to save to your account.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Photos and clips:</strong> pictures and short videos you choose from your photo library for your profile, posts or listings. We only access the ones you pick.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Date of birth:</strong> collected at sign up to confirm you are 18 or over.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Location (mobile app, optional):</strong> only when you tap Find Near Me. It is read on your phone to sort partners by distance and is not sent to our servers.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Push notification token (mobile app):</strong> an identifier for your phone so we can send notifications you allow. It is removed when you sign out.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Device and technical data:</strong> browser type, operating system, IP address, and device identifiers (collected automatically when you visit the Platform).</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Marketing preferences:</strong> your opt-in or opt-out status for marketing communications.</li>
               </ul>
@@ -357,6 +362,8 @@ export default function PrivacyPage() {
               <ul style={{ ...P, paddingLeft: '20px' }}>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Supabase:</strong> database hosting and user authentication infrastructure. Data stored within the EU.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Stripe:</strong> payment processing. Stripe is the data controller for your card data under their own Privacy Policy. A Data Processing Agreement is in place under GDPR Article 28.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Expo (push notifications):</strong> delivers push notifications to the UniBlueprint mobile app. The notification text and your device token pass through Expo, and then Apple or Google.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Sentry (error reports):</strong> if enabled in the mobile app, receives crash and error reports with technical device information, not the content of your posts or messages.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Resend:</strong> transactional email delivery (order confirmations, password resets).</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Mailchimp:</strong> marketing email delivery, only for users who have explicitly opted in via the marketing-consent checkbox on sign-up or early-access sign-up. We do not share your data with Mailchimp unless you have ticked that box.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Google Analytics:</strong> platform usage analytics, only if you have accepted analytics cookies via the consent banner.</li>
@@ -403,6 +410,7 @@ export default function PrivacyPage() {
 
             <Section title="10. Children's Privacy">
               <p style={P}>UniBlueprint is not directed at children under 18 years of age. We do not knowingly collect personal data from anyone under 18. If you become aware that a person under 18 has provided personal data to UniBlueprint without appropriate consent, please contact us at <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a> and we will take steps to delete that data promptly.</p>
+              <p style={P}>You can delete your account at any time from the UniBlueprint app (Profile, Privacy and Data, Delete) or by following the steps on our <Link to="/delete-account" style={{ color: '#1E3A5F', fontWeight: '500' }}>Delete your account</Link> page.</p>
             </Section>
 
             <Section title="11. Security">

@@ -7,53 +7,53 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { X, Camera, RefreshCw, Video, Play, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react-native'
+import { X, Camera, RefreshCw, Video, Play, ChevronLeft, ChevronDown, ChevronUp, Radio, Archive } from 'lucide-react-native'
 import { fonts, radius, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { MOOD_GROUPS, COMPOSER_MOODS, moodDef } from '../constants/moods'
+import { MOOD_FIRST_GROUPS, MOOD_MORE_GROUPS, COMPOSER_MOODS, moodDef, isFirstMood } from '../constants/moods'
 import { DEFAULT_AUDIENCE } from '../constants/pillars'
 import { checkText, GUIDELINES_MESSAGE } from '../lib/moderation'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { createThread, createPost, createClip, AUDIENCE_KEYS } from '../lib/feed'
+import { createThread, createPost, createClip, AUDIENCE_KEYS, MAX_POST_IMAGES } from '../lib/feed'
 import AudiencePicker, { AudienceChip } from '../components/feed/AudiencePicker'
 import PostTypeTiles from '../components/feed/PostTypeTiles'
-import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import ImageStrip from '../components/feed/ImageStrip'
 
-// Composer — two steps, all writing to public.feed_posts.
+// Composer: two steps, all writing to public.feed_posts.
 //
-//   Step 1 "Post sheet" → pick what to make (Mood Board, Post, Clip or Live)
-//                   and where it goes (Course Connect, Campus Connect or
-//                   Friends only), then Continue. Course Connect is listed
-//                   first and is the default. The last audience is
-//                   remembered per user in AsyncStorage.
-//   Step 2 compose  → the existing compose UI for the chosen type:
-//     Mood Board → post_type = 'thread': pick a mood (six groups, the first
-//                  open and the rest under "More feelings"), write a short
-//                  text post.
-//     Post       → post_type = 'post': a photo (required) + optional caption.
-//     Clip       → post_type = 'clip': a short video (required) + optional
-//                  caption.
-//     Live       → opens the LiveCapture route when it is registered,
-//                  otherwise a "coming soon" sheet. Nothing is faked.
+//   Step 1 "Post sheet": pick what to make (Take, Post, Clip or Live) and where
+//                  it goes (Course Connect, Campus Connect or Friends only),
+//                  then Continue. Course Connect is listed first and is the
+//                  default. The last audience is remembered per user in
+//                  AsyncStorage. Live opens the camera instead: its audience
+//                  is chosen after the shot.
+//   Step 2 compose: the compose UI for the chosen type:
+//     Take  -> post_type = 'thread': the Mood Board (nine words first: three
+//              happy, three in between, three bad, then "More feelings" for
+//              the rest), then a short text.
+//     Post  -> post_type = 'post': one to six pictures (required) + optional
+//              caption. Pictures can be reordered and removed. The first is
+//              the cover (photo_url); all are saved in image_urls.
+//     Clip  -> post_type = 'clip': a short video (required) + optional caption.
+//     Live  -> LiveCapture, then LiveCompose (see screens/Live*Screen.jsx).
 //   A small audience chip at the top of step 2 changes the audience.
 //
-// The header says "Post" on both steps. Every insert carries `audience`
-// ('campus' | 'course' | 'friends'). The word "Thread" is never shown to a
-// user: the Mood Board type is stored as post_type 'thread'.
+// "Mood Board" now means only the mood picker. The word "Thread" is never
+// shown to a user: a Take is stored as post_type 'thread'.
 //
-// Anything typed (Mood Board text and both captions) goes through
-// lib/moderation.js checkText before it is submitted; the database repeats a
-// shorter check (20261118121000_feed_text_guard.sql).
+// Anything typed (Take text and both captions) goes through lib/moderation.js
+// checkText before it is submitted; the database repeats a shorter check
+// (20261118121000_feed_text_guard.sql).
 //
-// Clips upload to the feed-clips bucket and save as post_type 'clip' with
-// video_url (supabase/migrations/20261116233209_feed_clips.sql).
+// Pictures upload to the feed-photos bucket under the member's own folder, 10MB
+// a picture. Clips upload to feed-clips (20261116233209_feed_clips.sql).
 //
 // route.params (all optional) support the contextual share-prompt flow:
-//   initialTab   — 'thread' (Mood Board) | 'post' | 'clip'. When set, the
-//                  Post sheet is skipped and step 2 opens directly.
-//   initialText  — pre-filled body text
-//   initialMood  — pre-selected mood id (thread tab only)
+//   initialTab   - 'thread' (Take) | 'post' | 'clip'. When set, the Post sheet
+//                  is skipped and step 2 opens directly.
+//   initialText  - pre-filled body text
+//   initialMood  - pre-selected mood id (Take only)
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10MB, per the Snapshot/Post dropzone copy
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024 // 50MB — a short clip, not a full video upload
@@ -61,18 +61,6 @@ const CLIP_TYPES = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm':
 const MAX_DIM = 1600
 const MAX_CLIP_SECONDS = 60
 const AUDIENCE_KEY_PREFIX = 'ubp_post_audience_'
-
-// Is a LiveCapture screen registered anywhere above this one?
-function hasRoute(navigation, name) {
-  let nav = navigation
-  for (let i = 0; nav && i < 5; i += 1) {
-    try {
-      if (nav.getState?.()?.routeNames?.includes(name)) return true
-    } catch {}
-    nav = nav.getParent?.()
-  }
-  return false
-}
 
 function initialsOf(name) {
   if (!name) return '?'
@@ -95,13 +83,13 @@ export default function ComposerScreen({ navigation, route }) {
   const [audience, setAudience] = useState(DEFAULT_AUDIENCE)
   const [moreMoods, setMoreMoods] = useState(false)
   const [audienceSheetOpen, setAudienceSheetOpen] = useState(false)
-  const [liveSoonOpen, setLiveSoonOpen] = useState(false)
+  const [uploadNote, setUploadNote] = useState(null)
   const initialMood = COMPOSER_MOODS.some(m => m.id === route?.params?.initialMood) ? route.params.initialMood : 'flying_it'
   const [mood, setMood] = useState(initialMood)
   const [threadText, setThreadText] = useState(route?.params?.initialText || '')
   const [caption, setCaption] = useState(initialTabParam === 'post' ? (route?.params?.initialText || '') : '')
   const [clipCaption, setClipCaption] = useState('')
-  const [localPhotoUri, setLocalPhotoUri] = useState(null)
+  const [photos, setPhotos] = useState([]) // [{ key, uri, width }] in the member's order
   const [localVideoUri, setLocalVideoUri] = useState(null)
   const [posting, setPosting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
@@ -111,10 +99,11 @@ export default function ComposerScreen({ navigation, route }) {
   const isPost   = tab === 'post'
   const isClip   = tab === 'clip'
   const isLive   = tab === 'live'
+  const moreOpenByPick = !isFirstMood(mood)
   const canPost = isThread
     ? threadText.trim().length > 0
     : isPost
-      ? !!localPhotoUri
+      ? photos.length > 0
       : !!localVideoUri
 
   // Remember the last audience per user. Reads once; a first-time user stays on
@@ -135,10 +124,7 @@ export default function ComposerScreen({ navigation, route }) {
 
   function onContinue() {
     if (isLive) {
-      if (hasRoute(navigation, 'LiveCapture')) {
-        try { navigation.navigate('LiveCapture', { audience }); return } catch {}
-      }
-      setLiveSoonOpen(true)
+      navigation.navigate('LiveCapture')
       return
     }
     setErrorMsg(null)
@@ -149,38 +135,65 @@ export default function ComposerScreen({ navigation, route }) {
     if (step === 'compose') { setStep('pick'); setErrorMsg(null) } else navigation.goBack()
   }
 
-  async function pickPhoto() {
+  async function pickPhotos() {
+    const room = MAX_POST_IMAGES - photos.length
+    if (room <= 0) {
+      Alert.alert('That is six pictures', 'A post can have up to 6 pictures. Remove one to add another.')
+      return
+    }
     if (Platform.OS !== 'web') {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Please allow access to your photo library in Settings to add a photo.', [{ text: 'OK' }])
+        Alert.alert('Permission required', 'Please allow access to your photo library in Settings to add pictures.', [{ text: 'OK' }])
         return
       }
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 5],
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: room,
+      orderedSelection: true,
       quality: 0.9,
     })
     if (result.canceled || !result.assets?.length) return
-    const asset = result.assets[0]
 
-    if (asset.fileSize && asset.fileSize > MAX_BYTES) {
-      Alert.alert('File too large', 'Please choose an image under 10 MB.')
-      return
+    const added = []
+    let skipped = 0
+    for (const asset of result.assets.slice(0, room)) {
+      const mime = (asset.mimeType || '').toLowerCase()
+      const uri = (asset.uri || '').toLowerCase()
+      const validType =
+        mime.startsWith('image/jpeg') || mime.startsWith('image/png') || mime.startsWith('image/webp') ||
+        uri.endsWith('.jpg') || uri.endsWith('.jpeg') || uri.endsWith('.png') || uri.endsWith('.webp') ||
+        uri.startsWith('blob:') || uri.startsWith('data:image') || uri.startsWith('ph://') || uri.startsWith('content://')
+      if ((asset.fileSize && asset.fileSize > MAX_BYTES) || !validType) { skipped += 1; continue }
+      added.push({ key: `${Date.now()}-${added.length}-${Math.random().toString(36).slice(2, 6)}`, uri: asset.uri, width: asset.width || 0 })
     }
-    const mime = (asset.mimeType || '').toLowerCase()
-    const uri = (asset.uri || '').toLowerCase()
-    const validType =
-      mime.startsWith('image/jpeg') || mime.startsWith('image/png') || mime.startsWith('image/webp') ||
-      uri.endsWith('.jpg') || uri.endsWith('.jpeg') || uri.endsWith('.png') || uri.endsWith('.webp')
-    if (!validType) {
-      Alert.alert('Unsupported format', 'Please choose a JPG, PNG, or WebP image.')
-      return
+    if (skipped > 0) {
+      Alert.alert(
+        skipped === 1 ? 'One picture skipped' : `${skipped} pictures skipped`,
+        'Pictures must be a JPG, PNG or WebP under 10 MB.',
+      )
     }
-    setLocalPhotoUri(asset.uri)
-    setErrorMsg(null)
+    if (added.length) {
+      setPhotos(prev => [...prev, ...added].slice(0, MAX_POST_IMAGES))
+      setErrorMsg(null)
+    }
+  }
+
+  function removePhoto(key) {
+    setPhotos(prev => prev.filter(p => p.key !== key))
+  }
+
+  function movePhoto(key, dir) {
+    setPhotos(prev => {
+      const i = prev.findIndex(p => p.key === key)
+      const j = i + dir
+      if (i < 0 || j < 0 || j >= prev.length) return prev
+      const next = prev.slice()
+      ;[next[i], next[j]] = [next[j], next[i]]
+      return next
+    })
   }
 
   async function pickVideo() {
@@ -211,24 +224,23 @@ export default function ComposerScreen({ navigation, route }) {
     setErrorMsg(null)
   }
 
-  async function uploadPhoto() {
-    const processed = await manipulateAsync(
-      localPhotoUri,
-      [{ resize: { width: MAX_DIM } }],
-      { compress: 0.85, format: SaveFormat.JPEG },
-    )
+  // Uploads one picture to the member's own folder. Large pictures are resized
+  // to MAX_DIM wide and every picture is saved as JPEG. Returns { url, path }.
+  async function uploadPhoto(photo, index) {
+    const actions = !photo.width || photo.width > MAX_DIM ? [{ resize: { width: MAX_DIM } }] : []
+    const processed = await manipulateAsync(photo.uri, actions, { compress: 0.85, format: SaveFormat.JPEG })
     const response = await fetch(processed.uri)
     const blob = await response.blob()
     if (blob.size > MAX_BYTES) {
-      throw new Error('Image is still over 10 MB after compression. Please choose a smaller image.')
+      throw new Error('A picture is still over 10 MB after compression. Please choose a smaller one.')
     }
-    const storagePath = `${user.id}/${Date.now()}.jpg`
+    const storagePath = `${user.id}/${Date.now()}-${index}.jpg`
     const { error: uploadErr } = await supabase.storage
       .from('feed-photos')
       .upload(storagePath, blob, { contentType: 'image/jpeg', upsert: false })
     if (uploadErr) throw uploadErr
     const { data: { publicUrl } } = supabase.storage.from('feed-photos').getPublicUrl(storagePath)
-    return publicUrl
+    return { url: publicUrl, path: storagePath }
   }
 
   async function uploadVideo() {
@@ -260,8 +272,18 @@ export default function ComposerScreen({ navigation, route }) {
       if (isThread) {
         await createThread({ userId: user.id, mood, body: threadText.trim(), audience })
       } else if (isPost) {
-        const photoUrl = await uploadPhoto()
-        await createPost({ userId: user.id, photoUrl, caption: caption.trim(), audience })
+        const uploaded = []
+        try {
+          for (let i = 0; i < photos.length; i += 1) {
+            setUploadNote(photos.length > 1 ? `Uploading ${i + 1} of ${photos.length}` : null)
+            uploaded.push(await uploadPhoto(photos[i], i))
+          }
+          await createPost({ userId: user.id, photoUrls: uploaded.map(u => u.url), caption: caption.trim(), audience })
+        } catch (e) {
+          // Do not leave half a post's pictures in storage.
+          if (uploaded.length) supabase.storage.from('feed-photos').remove(uploaded.map(u => u.path)).catch(() => {})
+          throw e
+        }
       } else {
         const videoUrl = await uploadVideo()
         await createClip({ userId: user.id, videoUrl, caption: clipCaption.trim(), audience })
@@ -272,7 +294,37 @@ export default function ComposerScreen({ navigation, route }) {
       setErrorMsg(/feed_text_guard/.test(e?.message || '') ? GUIDELINES_MESSAGE : (e?.message || 'Could not post. Please try again.'))
     } finally {
       setPosting(false)
+      setUploadNote(null)
     }
+  }
+
+  function renderMoodGrid(moods) {
+    return (
+      <View style={s.moodGrid}>
+        {moods.map(m => {
+          const selected = m.id === mood
+          return (
+            <TouchableOpacity
+              key={m.id}
+              style={[
+                s.moodChip,
+                selected
+                  ? { backgroundColor: m.bg, borderColor: m.color }
+                  : { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+              onPress={() => setMood(m.id)}
+              activeOpacity={0.8}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              accessibilityLabel={m.label}
+            >
+              <Text style={s.moodEmoji}>{m.emoji}</Text>
+              <Text style={[s.moodLabel, { color: colors.textPrimary }]} numberOfLines={2}>{m.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+    )
   }
 
   if (step === 'pick') {
@@ -299,22 +351,39 @@ export default function ComposerScreen({ navigation, route }) {
         >
           <PostTypeTiles value={tab} onChange={setTab} />
 
-          <Text style={s.pickLabel}>Post to</Text>
-          <AudiencePicker value={audience} onChange={chooseAudience} />
+          {isLive ? (
+            <View style={s.liveNote}>
+              <View style={s.liveNoteRow}>
+                <Camera size={18} color={colors.textPrimary} strokeWidth={1.8} style={{ marginTop: 2 }} />
+                <Text style={s.liveNoteText}>
+                  <Text style={s.liveNoteBold}>Live uses both cameras at once. </Text>
+                  You can post it at any time. There is no gallery, only what is in front of you. Others see it for 24 hours. You choose who sees it after the shot.
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={s.archiveLink}
+                onPress={() => navigation.navigate('LiveArchive')}
+                accessibilityRole="button"
+                accessibilityLabel="Your Live archive"
+              >
+                <Archive size={14} color={colors.textSecondary} strokeWidth={1.9} />
+                <Text style={s.archiveLinkText}>Your Live archive</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={s.pickLabel}>Post to</Text>
+              <AudiencePicker value={audience} onChange={chooseAudience} />
+            </>
+          )}
         </ScrollView>
 
         <View style={[s.continueBar, { paddingBottom: insets.bottom + 16 }]}>
-          <TouchableOpacity style={s.postBtn} onPress={onContinue} activeOpacity={0.85} accessibilityRole="button">
-            <Text style={s.postBtnText}>Continue</Text>
+          <TouchableOpacity style={[s.postBtn, s.postBtnRow]} onPress={onContinue} activeOpacity={0.85} accessibilityRole="button">
+            {isLive && <Camera size={18} color={colors.accentFg} strokeWidth={1.9} />}
+            <Text style={s.postBtnText}>{isLive ? 'Open camera' : 'Continue'}</Text>
           </TouchableOpacity>
         </View>
-
-        <ComingSoonSheet
-          visible={liveSoonOpen}
-          onClose={() => setLiveSoonOpen(false)}
-          title="Live is coming soon"
-          message="Two-minute Live captures are on their way. For now, share a Mood Board, a Post or a Clip."
-        />
       </View>
     )
   }
@@ -356,64 +425,42 @@ export default function ComposerScreen({ navigation, route }) {
         <View style={s.body}>
           {isThread ? (
             <>
-              <Text style={s.sectionLabel}>Pick a mood</Text>
-              {MOOD_GROUPS.map((group, gi) => {
-                const open = gi === 0 || moreMoods || group.moods.some(m => m.id === mood)
-                if (!open) return null
-                return (
-                  <View key={group.key} style={s.moodGroup}>
-                    {!!group.title && <Text style={s.moodGroupTitle}>{group.title}</Text>}
-                    <View style={s.moodGrid}>
-                      {group.moods.map(m => {
-                        const selected = m.id === mood
-                        return (
-                          <TouchableOpacity
-                            key={m.id}
-                            style={[
-                              s.moodChip,
-                              selected
-                                ? { backgroundColor: m.bg, borderColor: m.color }
-                                : { backgroundColor: colors.surface, borderColor: colors.border },
-                            ]}
-                            onPress={() => setMood(m.id)}
-                            activeOpacity={0.8}
-                            accessibilityRole="radio"
-                            accessibilityState={{ selected }}
-                            accessibilityLabel={m.label}
-                          >
-                            <Text style={s.moodEmoji}>{m.emoji}</Text>
-                            <Text style={[s.moodLabel, { color: colors.textPrimary }]} numberOfLines={1}>{m.label}</Text>
-                          </TouchableOpacity>
-                        )
-                      })}
-                    </View>
-                  </View>
-                )
-              })}
-              {MOOD_GROUPS.length > 1 && (
-                <TouchableOpacity
-                  style={s.moreBtn}
-                  onPress={() => setMoreMoods(v => !v)}
-                  activeOpacity={0.7}
-                  accessibilityRole="button"
-                  accessibilityState={{ expanded: moreMoods }}
-                  accessibilityLabel={moreMoods ? 'Show fewer feelings' : 'Show more feelings'}
-                >
-                  <Text style={s.moreBtnText}>{moreMoods ? 'Fewer feelings' : 'More feelings'}</Text>
-                  {moreMoods
-                    ? <ChevronUp size={14} color={colors.textSecondary} strokeWidth={2} />
-                    : <ChevronDown size={14} color={colors.textSecondary} strokeWidth={2} />}
-                </TouchableOpacity>
-              )}
+              <Text style={s.sectionLabel}>Mood Board</Text>
+              <Text style={s.sectionHint}>Pick how you feel. It goes with your take.</Text>
+              {MOOD_FIRST_GROUPS.map(group => (
+                <View key={group.key} style={s.moodGroup}>
+                  <Text style={s.moodGroupTitle}>{group.title}</Text>
+                  {renderMoodGrid(group.moods)}
+                </View>
+              ))}
+              <TouchableOpacity
+                style={s.moreBtn}
+                onPress={() => setMoreMoods(v => !v)}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: moreMoods || moreOpenByPick }}
+                accessibilityLabel={(moreMoods || moreOpenByPick) ? 'Show fewer feelings' : 'Show more feelings'}
+              >
+                <Text style={s.moreBtnText}>{(moreMoods || moreOpenByPick) ? 'Fewer feelings' : 'More feelings'}</Text>
+                {(moreMoods || moreOpenByPick)
+                  ? <ChevronUp size={14} color={colors.textSecondary} strokeWidth={2} />
+                  : <ChevronDown size={14} color={colors.textSecondary} strokeWidth={2} />}
+              </TouchableOpacity>
+              {(moreMoods || moreOpenByPick) && MOOD_MORE_GROUPS.map(group => (
+                <View key={group.key} style={s.moodGroup}>
+                  <Text style={s.moodGroupTitle}>{group.title}</Text>
+                  {renderMoodGrid(group.moods)}
+                </View>
+              ))}
 
-              <Text style={s.sectionLabel}>Share what's on your mind</Text>
+              <Text style={s.sectionLabel}>Your take</Text>
               <TextInput
                 multiline
                 numberOfLines={4}
                 maxLength={280}
                 value={threadText}
                 onChangeText={t => { setThreadText(t); if (errorMsg === GUIDELINES_MESSAGE) setErrorMsg(null) }}
-                placeholder={`What's got you feeling ${activeMood.label.toLowerCase()} today?`}
+                placeholder={`What's your take? You are feeling ${activeMood.label.toLowerCase()}.`}
                 placeholderTextColor={colors.textTertiary}
                 style={s.textArea}
               />
@@ -421,19 +468,13 @@ export default function ComposerScreen({ navigation, route }) {
             </>
           ) : isPost ? (
             <>
-              {localPhotoUri ? (
-                <View style={s.photoPreviewWrap}>
-                  <Image source={{ uri: localPhotoUri }} style={s.photoPreview} resizeMode="cover" />
-                  <TouchableOpacity style={s.changePhotoBtn} onPress={pickPhoto} activeOpacity={0.85}>
-                    <RefreshCw size={12} color={colors.textPrimary} strokeWidth={2} />
-                    <Text style={s.changePhotoBtnText}>Change photo</Text>
-                  </TouchableOpacity>
-                </View>
+              {photos.length > 0 ? (
+                <ImageStrip photos={photos} max={MAX_POST_IMAGES} onAdd={pickPhotos} onRemove={removePhoto} onMove={movePhoto} />
               ) : (
-                <TouchableOpacity style={s.dropzone} onPress={pickPhoto} activeOpacity={0.8}>
+                <TouchableOpacity style={s.dropzone} onPress={pickPhotos} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Add pictures">
                   <Camera size={26} color={colors.textTertiary} strokeWidth={1.6} />
-                  <Text style={s.dropzoneTitle}>Add a photo</Text>
-                  <Text style={s.dropzoneSub}>PNG or JPG, up to 10MB</Text>
+                  <Text style={s.dropzoneTitle}>Add pictures</Text>
+                  <Text style={s.dropzoneSub}>Up to {MAX_POST_IMAGES} pictures, JPG, PNG or WebP, 10MB each</Text>
                 </TouchableOpacity>
               )}
 
@@ -497,7 +538,12 @@ export default function ComposerScreen({ navigation, route }) {
             activeOpacity={0.85}
           >
             {posting
-              ? <ActivityIndicator size="small" color={colors.accentFg} />
+              ? (
+                <View style={s.postingRow}>
+                  <ActivityIndicator size="small" color={colors.accentFg} />
+                  {!!uploadNote && <Text style={s.postBtnText}>{uploadNote}</Text>}
+                </View>
+              )
               : <Text style={s.postBtnText}>Post</Text>}
           </TouchableOpacity>
         </View>
@@ -645,6 +691,19 @@ function composerStyles(colors) {
       paddingVertical: 14, alignItems: 'center',
     },
     postBtnDisabled: { opacity: 0.45 },
+    postBtnRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+    postingRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+
+    sectionHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.textSecondary, marginTop: -2, marginBottom: 16 },
+    liveNote: {
+      marginTop: 28, padding: 16, borderRadius: 16,
+      backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, gap: 14,
+    },
+    liveNoteRow: { flexDirection: 'row', gap: 12 },
+    liveNoteText: { flex: 1, fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 20, color: colors.textSecondary },
+    liveNoteBold: { fontFamily: fonts.sansSemiBold, color: colors.textPrimary },
+    archiveLink: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', paddingVertical: 4 },
+    archiveLinkText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textSecondary },
     postBtnText: { fontFamily: fonts.sansBold, fontSize: 15, color: colors.accentFg },
   })
 }

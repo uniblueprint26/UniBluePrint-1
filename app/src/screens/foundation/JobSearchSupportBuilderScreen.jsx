@@ -28,9 +28,9 @@ const OPPORTUNITY_TYPES = [
   { value: 'placement_year', label: 'Placement year' },
 ]
 const URGENCY = [
-  { value: 'urgent', label: 'Urgent — I need income within a few weeks' },
-  { value: 'moderate', label: 'Moderate — a few months timeline' },
-  { value: 'flexible', label: 'No rush — just planning ahead' },
+  { value: 'urgent', label: 'Urgent, I need income within a few weeks' },
+  { value: 'moderate', label: 'Moderate, a few months timeline' },
+  { value: 'flexible', label: 'No rush, just planning ahead' },
 ]
 const INTERVIEW_CONVERSION = [
   { value: 'new_to_search', label: 'Just starting my search' },
@@ -54,8 +54,8 @@ const NON_UNIVERSITY_TYPE = [
   { value: 'secondary_student', label: '5th or 6th year student' },
 ]
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -144,21 +144,21 @@ const STEPS = [
   {
     key: 'applications_so_far',
     title: 'What have you tried so far?',
-    subtitle: "Applications sent, platforms used, anything — helps us avoid repeating advice you've already acted on.",
+    subtitle: "Applications sent, platforms used, anything, helps us avoid repeating advice you've already acted on.",
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'professional_registration_status',
     title: 'Any professional registration relevant to your field?',
-    subtitle: 'e.g. NMBI, Teaching Council, CORU — leave blank if not applicable.',
+    subtitle: 'e.g. NMBI, Teaching Council, CORU, leave blank if not applicable.',
     optional: true,
     render: (value, onChange) => <FormTextInput value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'unsure_about',
     title: "Anything you're unsure how to present?",
-    subtitle: 'A gap, a career change, something unconventional — tell us and your Handler will double-check it specifically.',
+    subtitle: 'A gap, a career change, something unconventional, tell us and your Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
@@ -243,7 +243,7 @@ export default function JobSearchSupportBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'job_search_sessions',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Job Search Support — Premium' : 'Job Search Support — Standard',
+      p_service_name: v.tier === 'premium' ? 'Job Search Support, Premium' : 'Job Search Support, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

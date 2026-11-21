@@ -88,7 +88,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'tus_athlone',
-    name: 'TUS — Athlone',
+    name: 'TUS, Athlone',
     short: 'TUS Athlone',
     type: 'tu',
     city: 'Athlone',
@@ -96,7 +96,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'tus_midwest',
-    name: 'TUS — Midwest',
+    name: 'TUS, Midwest',
     short: 'TUS Midwest',
     type: 'tu',
     city: 'Limerick · Thurles · Clonmel',
@@ -104,7 +104,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'atu_galway',
-    name: 'ATU — Galway',
+    name: 'ATU, Galway',
     short: 'ATU Galway',
     type: 'tu',
     city: 'Galway',
@@ -112,7 +112,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'atu_sligo',
-    name: 'ATU — Sligo',
+    name: 'ATU, Sligo',
     short: 'ATU Sligo',
     type: 'tu',
     city: 'Sligo',
@@ -120,7 +120,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'atu_donegal',
-    name: 'ATU — Donegal',
+    name: 'ATU, Donegal',
     short: 'ATU Letterkenny',
     type: 'tu',
     city: 'Letterkenny',
@@ -128,7 +128,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'atu_mayo',
-    name: 'ATU — Mayo',
+    name: 'ATU, Mayo',
     short: 'ATU Mayo',
     type: 'tu',
     city: 'Castlebar',
@@ -136,7 +136,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'setu_waterford',
-    name: 'SETU — Waterford',
+    name: 'SETU, Waterford',
     short: 'SETU Waterford',
     type: 'tu',
     city: 'Waterford',
@@ -144,7 +144,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'setu_carlow',
-    name: 'SETU — Carlow',
+    name: 'SETU, Carlow',
     short: 'SETU Carlow',
     type: 'tu',
     city: 'Carlow',
@@ -152,7 +152,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'mtu_cork',
-    name: 'MTU — Cork',
+    name: 'MTU, Cork',
     short: 'MTU Cork',
     type: 'tu',
     city: 'Cork',
@@ -160,7 +160,7 @@ export const INSTITUTIONS = [
   },
   {
     id: 'mtu_kerry',
-    name: 'MTU — Kerry',
+    name: 'MTU, Kerry',
     short: 'MTU Kerry',
     type: 'tu',
     city: 'Tralee',

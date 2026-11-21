@@ -172,7 +172,7 @@ export async function fetchHomeActivity({ userId, firstName }) {
     events.push({
       id: `weekly-issue-${row.id}`,
       dot: DOT.weekly_issue,
-      text: `The Weekly Blueprint — Issue #${row.issue_number}${themePart} just dropped`,
+      text: `The Weekly Blueprint, Issue #${row.issue_number}${themePart} just dropped`,
       at: row.created_at,
     })
   }

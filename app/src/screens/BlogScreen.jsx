@@ -37,13 +37,13 @@ export default function BlogScreen({ navigation }) {
           </TouchableOpacity>
         </View>
         <Text style={styles.heroTitle}>Blog</Text>
-        <Text style={styles.heroSub}>Real Irish education news, CV and career guides, and campus life — the same articles as the UniBlueprint website.</Text>
+        <Text style={styles.heroSub}>Real Irish education news, CV and career guides, and campus life, the same articles as the UniBlueprint website.</Text>
       </View>
 
       {/* Wrapped in an extra plain View with flex:1 (not just the ScrollView's
           own style) as a defensive measure against a Fabric/New-Architecture
           initial-layout race: this screen already had style={{flex:1}} on the
-          ScrollView, and it's unchanged — but that alone was still reported
+          ScrollView, and it's unchanged, but that alone was still reported
           to fail on a real device on a fresh cold open (self-correcting after
           backgrounding), which points at the native scroll-view frame
           committing before Yoga finishes measuring the header sibling on the

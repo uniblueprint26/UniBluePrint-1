@@ -224,7 +224,7 @@ export default function PartnerMap({ onViewListing, navigation }) {
                 <View style={styles.lockBadge}><Lock size={14} color="#8B9BB5" strokeWidth={2} /></View>
                 <Text style={styles.cardName}>A new partner is joining soon</Text>
               </View>
-              <Text style={styles.cardBody}>We're not ready to share who yet — {active.county[0].toUpperCase() + active.county.slice(1)}.</Text>
+              <Text style={styles.cardBody}>We're not ready to share who yet, {active.county[0].toUpperCase() + active.county.slice(1)}.</Text>
             </>
           ) : (
             <>
@@ -259,7 +259,7 @@ export default function PartnerMap({ onViewListing, navigation }) {
         </View>
       ) : (
         <View style={[styles.card, styles.cardIdle]}>
-          <Text style={styles.idleText}>Tap a pin to see who's there — gold-ringed pins are Lifestyle partners, navy-ringed pins are Elevation coaches.</Text>
+          <Text style={styles.idleText}>Tap a pin to see who's there, gold-ringed pins are Lifestyle partners, navy-ringed pins are Elevation coaches.</Text>
         </View>
       )}
 
