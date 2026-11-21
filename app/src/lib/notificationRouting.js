@@ -32,7 +32,13 @@ export async function goToRelatedEntity(navigation, notif, userId) {
   }
   const type = notif.related_entity_type
   const id = notif.related_entity_id
-  if (!type || !id) return
+
+  // Notifications with no row to open go to the screen for their category.
+  if (!type || !id) {
+    if (notif.category === 'foundation_open' && isFoundationEnabledNow()) navigation.navigate('Foundation')
+    else if (notif.category === 'weekly_blueprint') navigation.navigate('AdBoard', { screen: 'WeeklyBlueprint' })
+    return
+  }
 
   // Foundation is closed on iOS and Android until the remote flag is on, so a
   // Foundation notification opens the notifications list instead.
@@ -135,6 +141,45 @@ export async function goToRelatedEntity(navigation, notif, userId) {
           subtitle: null,
         })
       }
+      return
+    }
+    // ── Pillar, interest, trending and follower notifications ──
+    // (supabase/migrations/20261120700000_pillar_notifications.sql)
+    case 'campus_event':
+      navigation.navigate('CampusConnect')
+      return
+    case 'feed_post':
+      navigation.navigate('CommentThread', { postId: id })
+      return
+    case 'weekly_issue':
+      navigation.navigate('AdBoard', { screen: 'WeeklyBlueprint' })
+      return
+    case 'budget_goal':
+      navigation.navigate('Budgeting')
+      return
+    case 'coach_profile':
+    case 'coach_update': {
+      // coach_profile carries the coach_profiles id. coach_update carries the
+      // follower_updates id, so it needs one more lookup to find the coach.
+      let coachProfileId = id
+      if (type === 'coach_update') {
+        const { data: upd } = await supabase.from('follower_updates').select('coach_profile_id').eq('id', id).maybeSingle()
+        coachProfileId = upd?.coach_profile_id || null
+      }
+      const { data: cp } = coachProfileId
+        ? await supabase.from('coach_profiles').select('coach_slug').eq('id', coachProfileId).maybeSingle()
+        : { data: null }
+      const coach = COACHES.find(c => coachSlug(c.id) === cp?.coach_slug)
+      if (coach) navigation.navigate('CoachProfile', { coach })
+      else navigation.navigate('Elevation')
+      return
+    }
+    case 'partner_update': {
+      const { data: upd } = await supabase.from('follower_updates').select('partner_id').eq('id', id).maybeSingle()
+      const { data: partner } = upd?.partner_id
+        ? await supabase.from('partners').select('partner_slug').eq('id', upd.partner_id).maybeSingle()
+        : { data: null }
+      navigation.navigate('LifestylePartners', { highlightId: partner?.partner_slug || null })
       return
     }
     default:

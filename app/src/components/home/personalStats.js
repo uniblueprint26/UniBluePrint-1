@@ -71,7 +71,7 @@ export function useGoalSummary(userId) {
 const budgetKey = userId => `ub_budget_v1_${userId}`
 const sum = list => (Array.isArray(list) ? list : []).reduce((s, i) => s + (parseFloat(i?.amount) || 0), 0)
 
-async function readBudgetLeft(userId) {
+export async function readBudgetLeft(userId) {
   try {
     const raw = await AsyncStorage.getItem(budgetKey(userId))
     if (!raw) return null

@@ -35,7 +35,7 @@ export default function ListingCard({ item, onPress }) {
             ? <Chip label={item.chip} />
             : <Text style={[s.type, { color: v.text }]}>{item.typeLabel}</Text>}
           {item.example
-            ? (item.exampleLine ? null : <ExampleTag label={item.exampleLabel || 'EXAMPLE, NOT REAL'} />)
+            ? <ExampleTag />
             : item.origin === 'ubp'
               ? <UbpTag label={item.tagLabel} />
               : item.byStudent ? <QuietTag label="POSTED BY A STUDENT" /> : null}
@@ -56,7 +56,6 @@ export default function ListingCard({ item, onPress }) {
         <View style={s.price}>
           <Text style={[s.priceMain, { color: colors.textPrimary }]} numberOfLines={1}>{item.price.main}</Text>
           {!!item.price.sub && <Text style={[s.priceSub, { color: colors.textSecondary }]} numberOfLines={1}>{item.price.sub}</Text>}
-          {!!item.price.tag && <View style={s.priceTag}><ExampleTag label={item.price.tag} /></View>}
         </View>
       )}
     </>

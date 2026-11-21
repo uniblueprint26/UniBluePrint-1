@@ -81,6 +81,16 @@ export const EXAMPLE_TUTORS = [
   { id: 'example-tutor-8', industry: 'Languages',            subject: 'Conversational Spanish for beginners',       blurb: 'Relaxed speaking practice, one to one.' },
 ]
 
+// Always shown after any real buy and sell listings. Each one is stamped
+// Example and has no real price. Never stored.
+export const EXAMPLE_LISTINGS = [
+  { id: 'example-sale-1', title: 'First year textbooks, good condition', blurb: 'Textbooks, notes included.' },
+  { id: 'example-sale-2', title: 'Commuter bike with lights and lock', blurb: 'Collection on campus.' },
+  { id: 'example-sale-3', title: 'Desk lamp and monitor stand', blurb: 'Moving out, must go.' },
+  { id: 'example-sale-4', title: 'Looking for a second hand scientific calculator', blurb: 'Wanted for exam season.', wanted: true },
+  { id: 'example-sale-5', title: 'Looking for a mini fridge for a student house', blurb: 'Wanted, can collect.', wanted: true },
+]
+
 // What kind of tap each UBP card does (see useListingActions.openUbpCard):
 //   weekly  opens the Weekly Blueprint
 //   home    opens a screen in the Home stack with openInHomeStack

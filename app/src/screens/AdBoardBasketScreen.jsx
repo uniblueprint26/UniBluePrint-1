@@ -13,7 +13,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Plus, WifiOff, Sparkles, PackageOpen, Pin } from 'lucide-react-native'
+import { Plus, WifiOff, Sparkles, PackageOpen, Pin, Tag } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import ListingCard from '../components/ads/ListingCard'
 import PinnedJobCard from '../components/ads/PinnedJobCard'
@@ -24,7 +24,7 @@ import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import Notice from '../components/ads/Notice'
 import useListingActions from '../components/ads/useListingActions'
 import { useAdTokens } from '../components/ads/adTheme'
-import { fetchListings, ubpItems, pinnedJobItems, exampleTutorItems } from '../lib/adBoard'
+import { fetchListings, ubpItems, pinnedJobItems, exampleTutorItems, exampleListingItems } from '../lib/adBoard'
 import { BASKET_BY_KEY, EXAMPLE_TUTOR_NOTE, PLACEMENTS_INTRO } from '../constants/adBoardContent'
 import { fonts } from '../constants/theme'
 
@@ -77,7 +77,9 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
   if (key === 'deals') {
     // The trial banner shows Pro prices, so it is web only (neutral billing on iOS and Android).
     lead = NATIVE_NEUTRAL_BILLING ? null : <TrialHero />
-    tail = comingSoonOn
+    tail = real.length === 0
+      ? <Notice Icon={Tag} title="No live deals yet" sub="Real offers from our Lifestyle partners appear here as soon as they are live." ctaLabel="See Lifestyle partners" onCta={() => navigation?.navigate?.('LifestylePartners')} />
+      : comingSoonOn
       ? <Notice Icon={Sparkles} title={COMING_SOON_COPY} sub="More Lifestyle partner offers will appear here." />
       : null
   } else if (key === 'jobs') {
@@ -105,9 +107,15 @@ export default function AdBoardBasketScreen({ navigation, route, basketKey, onCl
         {exampleTutorItems().map(item => <ListingCard key={item.key} item={item} />)}
       </View>
     )
-  } else if (key === 'marketplace' && real.length === 0) {
-    list = ubpItems('marketplace')
-    tail = <Notice Icon={PackageOpen} title="Be the first to post here" sub="Sell an item, or offer a skill, and it will show up in this basket." ctaLabel="Post a listing" onCta={openPost} />
+  } else if (key === 'marketplace') {
+    // Real listings first. The stamped examples always follow, so the basket is
+    // never empty and people can see how a listing looks.
+    afterList = (
+      <View style={s.examples}>
+        <Notice Icon={PackageOpen} title="Examples" sub="These show how a listing looks. Post yours to appear here." ctaLabel="Post a listing" onCta={openPost} />
+        {exampleListingItems().map(item => <ListingCard key={item.key} item={item} />)}
+      </View>
+    )
   } else if (key === 'ubp') {
     list = ubpItems()
     lead = (

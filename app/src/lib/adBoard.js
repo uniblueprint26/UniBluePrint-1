@@ -19,7 +19,7 @@
  * Cards show "From UBP" for those and "Posted by a student" on Jobs otherwise.
  */
 import { supabase } from './supabase'
-import { UBP_CARDS, UBP_PLACEMENTS, EXAMPLE_TUTORS, PLACEMENT_URL } from '../constants/adBoardContent'
+import { UBP_CARDS, UBP_PLACEMENTS, EXAMPLE_TUTORS, EXAMPLE_LISTINGS, PLACEMENT_URL } from '../constants/adBoardContent'
 import { isFoundationEnabledNow } from '../hooks/useAppFlags'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
@@ -133,8 +133,27 @@ function isLifestylePartner(partner) {
   return !p || p === 'lifestyle'
 }
 
+// A deal is real when a verified, active Lifestyle partner offers it, it is not
+// the auto created placeholder, and it is not a sample or example partner.
+// Seeded sample rows never pass, so the Deals basket only shows real offers.
+export function isRealDeal(row) {
+  const partner = row?.partners || null
+  if (!partner || partner.verified !== true || partner.active === false) return false
+  if (row.auto_created === true) return false
+  if (/\b(example|sample)\b/i.test(`${partner.name || ''} ${row.title || ''}`)) return false
+  if (row.valid_until && new Date(row.valid_until) < new Date()) return false
+  return true
+}
+
+/** How many real deals are live. Same rule as the Deals basket. */
+export async function fetchRealDealCount() {
+  const rows = await read('deals', '*, partners(*)', q => q.eq('active', true))
+  return rows.filter(isRealDeal).length
+}
+
 function fromDeal(row) {
   const partner = row.partners || null
+  if (!isRealDeal(row)) return null
   if (partner && partner.active === false) return null
   if (!isLifestylePartner(partner)) return null
   if (row.valid_until && new Date(row.valid_until) < new Date()) return null
@@ -146,8 +165,7 @@ function fromDeal(row) {
     title: row.title,
     from: name,
     meta: compact([untilText(row.valid_until)]),
-    // Deals are curated by the UBP team, so they always carry the tag.
-    origin: 'ubp',
+    origin: null,
     percent: row.discount_percent || null,
     price: row.discount_percent ? { main: `${row.discount_percent}%`, sub: 'off' } : null,
     description: row.description || null,
@@ -351,8 +369,24 @@ export function exampleTutorItems() {
     typeLabel: e.industry,
     title: e.subject,
     meta: [e.blurb],
-    price: { main: '€?', tag: 'EXAMPLE' },
+    price: { main: '€?' },
     example: true,
     exampleLine: 'Example, not a real tutor',
+  }))
+}
+
+/** Example buy and sell listings, stamped Example. Always after the real ones. Never stored. */
+export function exampleListingItems() {
+  return EXAMPLE_LISTINGS.map(e => ({
+    key: e.id,
+    id: e.id,
+    source: 'example',
+    visual: 'sale',
+    typeLabel: e.wanted ? 'Wanted' : 'For sale',
+    title: e.title,
+    meta: [e.blurb],
+    price: { main: '€?' },
+    example: true,
+    exampleLine: 'Example, not a real listing',
   }))
 }

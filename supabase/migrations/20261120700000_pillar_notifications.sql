@@ -585,11 +585,3 @@ end;
 $$;
 revoke all on function public.broadcast_foundation_open() from public, anon, authenticated;
 grant execute on function public.broadcast_foundation_open() to service_role;
-
--- ── 13. More than one picture on a post ────────────────────────────────────
--- photo_url stays as the first picture so older posts and clients keep working.
--- photo_urls holds all of them, up to 6, in order.
-
-alter table public.feed_posts add column if not exists photo_urls text[] not null default '{}';
-alter table public.feed_posts drop constraint if exists feed_posts_photo_urls_max;
-alter table public.feed_posts add constraint feed_posts_photo_urls_max check (cardinality(photo_urls) <= 6);

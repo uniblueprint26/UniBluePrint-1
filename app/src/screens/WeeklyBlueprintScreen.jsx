@@ -25,6 +25,7 @@ import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { COACHES } from './ElevationScreen'
 import { PARTNERS } from '../data/lifestylePartners'
 import { getPosts, calcReadTime, formatDate } from '../data/blogPosts'
+import { isRealDeal } from '../lib/adBoard'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
@@ -101,19 +102,26 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 
     case 'cover':
       return (
-        <LinearGradient colors={[shade(colors.chromeBg, -12), colors.chromeBg, shade(colors.chromeBg, 10)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.coverPage]}>
-          <View style={styles.coverBadge}><Text style={styles.coverBadgeText}>{issueLabel}</Text></View>
-          <View style={{ flex: 1 }} />
-          <UBPLogo height={30} color={colors.chromeFg} />
-          <View style={styles.coverRule} />
-          <Text style={styles.coverTitle}>The{'\n'}Weekly{'\n'}Blueprint</Text>
-          <Text style={styles.coverSub}>{theme || 'The structure behind your success.'}</Text>
-          <View style={{ flex: 1 }} />
-          <View style={styles.coverSwipeHint}>
-            <Text style={styles.coverSwipeText}>Swipe to open</Text>
-            <ChevronRight size={13} color="rgba(245,240,232,0.6)" />
-          </View>
-        </LinearGradient>
+        <TouchableOpacity activeOpacity={0.96} style={{ flex: 1 }} onPress={() => onJump(1)} accessibilityRole="button" accessibilityLabel="Open the issue">
+          <LinearGradient colors={['#0F2240', '#1B3659', '#26486F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pageInner, styles.coverPage]}>
+            <View style={styles.coverSpineBand} pointerEvents="none">
+              {[0, 1, 2].map(i => <View key={i} style={styles.coverStitch} />)}
+            </View>
+            <View style={styles.coverFrame} pointerEvents="none" />
+            <View style={styles.coverBadge}><Text style={styles.coverBadgeText}>{issueLabel}</Text></View>
+            <View style={{ flex: 1 }} />
+            <UBPLogo height={30} color="#F5F0E8" />
+            <View style={styles.coverRule} />
+            <Text style={styles.coverTitle}>The{'\n'}Weekly{'\n'}Blueprint</Text>
+            <Text style={styles.coverSub}>{theme || 'The structure behind your success.'}</Text>
+            <View style={{ flex: 1 }} />
+            <View style={styles.coverOpenBtn}>
+              <Text style={styles.coverOpenText}>Open the issue</Text>
+              <ChevronRight size={16} color="#1E3A5F" strokeWidth={2.4} />
+            </View>
+            <Text style={styles.coverSwipeText}>Or swipe to turn the page</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       )
 
     case 'contents':
@@ -121,17 +129,19 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
         <View style={styles.pageInner}>
           <Text style={styles.pageKicker}>YOUR BLUEPRINT THIS WEEK</Text>
           <Text style={styles.pageHeading}>What's inside</Text>
-          <View style={{ gap: 2, marginTop: 22 }}>
-            {page.entries.map(e => (
-              <TouchableOpacity key={e.label} style={styles.tocRow} activeOpacity={0.7} onPress={() => onJump(e.page)}>
-                <View style={styles.tocIconBox}><e.Icon size={14} color={colors.textPrimary} /></View>
-                <Text style={styles.tocLabel} numberOfLines={1}>{e.label}</Text>
-                <Text style={styles.tocPageNum}>{e.page + 1}</Text>
-                <ChevronRight size={13} color={colors.light} />
-              </TouchableOpacity>
-            ))}
+          <View style={styles.tocSheet}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {page.entries.map((e, n) => (
+                <TouchableOpacity key={e.label} style={[styles.tocRow, n > 0 && styles.tocRowBorder]} activeOpacity={0.7} onPress={() => onJump(e.page)}>
+                  <Text style={styles.tocNum}>{String(n + 1).padStart(2, '0')}</Text>
+                  <Text style={styles.tocLabel} numberOfLines={1}>{e.label}</Text>
+                  <View style={styles.tocLeader} />
+                  <Text style={styles.tocPageNum}>{e.page + 1}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
-          <Text style={styles.tocHint}>Tap a section to jump straight there.</Text>
+          <Text style={styles.tocHint}>Tap a section to turn straight to it.</Text>
         </View>
       )
 
@@ -685,19 +695,58 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
   }
 }
 
-// ── Page wrapper — swipe/turn animation (unchanged) ──────────────────────────
+// ── Page wrapper: a real page turn ─────────────────────────────────────────
+// Every page is pinned to the same spot (translateX cancels the scroll), with
+// page 1 on top. As you swipe, the top page hinges on its left edge like a
+// page in a book, swings away and fades, and the page beneath is already
+// there, lit up as the shadow of the turning page slides off it. The cover
+// turns the same way, so opening the issue feels like opening a book.
 
-function MagazinePage({ page, index, scrollX, navigation, onJump, onOpenPost, data, isPro }) {
-  const { colors } = useTheme()
+function MagazinePage({ page, index, count, active, scrollX, navigation, onJump, onOpenPost, data, isPro }) {
+  const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
-  const inputRange = [(index - 1) * SCREEN_W, index * SCREEN_W, (index + 1) * SCREEN_W]
-  const rotateY = scrollX.interpolate({ inputRange, outputRange: ['6deg', '0deg', '-6deg'], extrapolate: 'clamp' })
-  const scale   = scrollX.interpolate({ inputRange, outputRange: [0.95, 1, 0.95], extrapolate: 'clamp' })
-  const opacity = scrollX.interpolate({ inputRange, outputRange: [0.75, 1, 0.75], extrapolate: 'clamp' })
+  const pin = Animated.subtract(scrollX, index * SCREEN_W)
+  // progress: below 0 the page is waiting underneath, 0 to 1 it is turning.
+  const p = [-1, 0, 0.7, 1]
+  const rotateY = scrollX.interpolate({
+    inputRange: [(index - 1) * SCREEN_W, index * SCREEN_W, (index + 1) * SCREEN_W],
+    outputRange: ['0deg', '0deg', '-105deg'], extrapolate: 'clamp',
+  })
+  const opacity = scrollX.interpolate({
+    inputRange: p.map(v => (index + v) * SCREEN_W),
+    outputRange: [0, 1, 1, 0], extrapolate: 'clamp',
+  })
+  const shade = scrollX.interpolate({
+    inputRange: [(index - 1) * SCREEN_W, (index - 0.5) * SCREEN_W, index * SCREEN_W],
+    outputRange: [0, 0.28, 0], extrapolate: 'clamp',
+  })
+  const edge = scrollX.interpolate({
+    inputRange: [index * SCREEN_W, (index + 0.5) * SCREEN_W],
+    outputRange: [0, 0.35], extrapolate: 'clamp',
+  })
 
   return (
-    <Animated.View style={[styles.page, { transform: [{ perspective: 900 }, { rotateY }, { scale }], opacity }]}>
+    <Animated.View
+      pointerEvents={active ? 'auto' : 'none'}
+      style={[
+        styles.page,
+        {
+          position: 'absolute', left: 0, top: 0, bottom: 0,
+          zIndex: count - index,
+          backgroundColor: colors.background,
+          transformOrigin: 'left center',
+          transform: [{ translateX: pin }, { perspective: 1100 }, { rotateY }],
+          opacity,
+        },
+      ]}
+    >
       <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
+      {/* The shadow of the page turning above this one. */}
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: shade }]} />
+      {/* The page darkens as it swings away from the light. */}
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: edge }]} />
+      {/* The fold at the spine. */}
+      <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
     </Animated.View>
   )
 }
@@ -789,7 +838,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
       // still render.
       const [issueRes, dealsRes, marketplaceRes, liveAdsRes, progressRes] = await Promise.allSettled([
         supabase.rpc('get_current_weekly_issue'),
-        supabase.from('deals').select('*, partners(name, type)').eq('active', true),
+        supabase.from('deals').select('*, partners(*)').eq('active', true),
         supabase.from('ads').select('*').eq('active', true).contains('boards', ['marketplace']),
         supabase.from('ads').select('*').eq('active', true).overlaps('boards', ['cross-ireland', 'campus', 'course']),
         user?.id
@@ -814,7 +863,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
       setScreenData({
         issue,
         content,
-        deals: (dealsRes.status === 'fulfilled' ? dealsRes.value.data : null) || [],
+        deals: ((dealsRes.status === 'fulfilled' ? dealsRes.value.data : null) || []).filter(isRealDeal),
         coaches: [c1, c2].filter(Boolean),
         foundationTopics: fTopics,
         lifestylePartners: PARTNERS.filter(p => p.filterKey === 'fashion' && p.status === 'live'),
@@ -909,11 +958,14 @@ export default function WeeklyBlueprintScreen({ navigation }) {
               { useNativeDriver: true, listener: e => setPageIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W)) },
             )}
           >
+            <View style={{ width: SCREEN_W * PAGES.length, height: '100%' }}>
             {PAGES.map((page, i) => (
               <MagazinePage
                 key={i}
                 page={page}
                 index={i}
+                count={PAGES.length}
+                active={i === pageIndex}
                 scrollX={scrollX}
                 navigation={navigation}
                 onJump={jumpTo}
@@ -922,6 +974,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
                 isPro={isPro}
               />
             ))}
+            </View>
           </Animated.ScrollView>
 
           <View style={[styles.pagerControls, { paddingBottom: insets.bottom + 12 }]}>
@@ -979,6 +1032,7 @@ function __gs_styles(colors) {
   postBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.chromeBg },
 
   page: { width: SCREEN_W, flex: 1 },
+  spine: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 10 },
   pageInner: { flex: 1, backgroundColor: colors.background, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xl },
   pageKicker: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, letterSpacing: 1, textTransform: 'uppercase' },
   pageKickerLight: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: 'rgba(245,240,232,0.6)', letterSpacing: 1, textTransform: 'uppercase', marginTop: 14 },
@@ -988,22 +1042,30 @@ function __gs_styles(colors) {
   needHelpLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary, marginBottom: 10 },
 
   // Cover / closing
-  coverPage: { alignItems: 'flex-start' },
+  coverPage: { alignItems: 'flex-start', paddingLeft: 52, paddingRight: 28 },
   coverBadge: { backgroundColor: 'rgba(245,240,232,0.12)', borderWidth: 1, borderColor: 'rgba(245,240,232,0.25)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 },
   coverBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, color: 'rgba(245,240,232,0.75)', letterSpacing: 1 },
   coverRule: { width: 40, height: 2, borderRadius: 1, backgroundColor: 'rgba(245,240,232,0.35)', marginTop: 18 },
   coverTitle: { fontFamily: fonts.serif, fontSize: 42, color: colors.chromeFg, marginTop: 16, lineHeight: 48 },
   coverSub: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.6)', marginTop: 14, lineHeight: 21, maxWidth: '86%' },
+  coverSpineBand: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 26, backgroundColor: 'rgba(0,0,0,0.22)', justifyContent: 'space-evenly', alignItems: 'center' },
+  coverStitch: { width: 1.5, height: 46, backgroundColor: 'rgba(245,240,232,0.28)' },
+  coverFrame: { position: 'absolute', left: 38, right: 14, top: 14, bottom: 14, borderWidth: 1, borderColor: 'rgba(245,240,232,0.22)', borderRadius: 6 },
+  coverOpenBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F5F0E8', borderRadius: 24, height: 46, paddingLeft: 20, paddingRight: 14, alignSelf: 'flex-start', marginBottom: 14 },
+  coverOpenText: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: '#1E3A5F' },
   coverSwipeHint: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   coverSwipeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: 'rgba(245,240,232,0.6)' },
   backCoverText: { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.65)', marginTop: 14, lineHeight: 22, textAlign: 'center' },
   closingBig: { fontFamily: fonts.serif, fontSize: 28, color: colors.chromeFg, marginTop: 14 },
 
   // TOC
-  tocRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.08)' },
-  tocIconBox: { width: 30, height: 30, borderRadius: 8, backgroundColor: 'rgba(30,58,95,0.06)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  tocLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary, flex: 1 },
-  tocPageNum: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, fontVariant: ['tabular-nums'] },
+  tocSheet: { flex: 1, marginTop: 20, backgroundColor: colors.surface, borderRadius: 14, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 16 },
+  tocRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14 },
+  tocRowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+  tocNum: { fontFamily: fonts.serif, fontSize: 15, color: colors.textSecondary, width: 24 },
+  tocLabel: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, flexShrink: 1 },
+  tocLeader: { flex: 1, borderBottomWidth: 1, borderStyle: 'dotted', borderBottomColor: colors.border, marginTop: 6 },
+  tocPageNum: { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, minWidth: 22, textAlign: 'right' },
   tocHint: { fontFamily: fonts.sans, fontSize: 12, color: colors.light, marginTop: 18, lineHeight: 17, fontStyle: 'italic' },
 
   // Deals

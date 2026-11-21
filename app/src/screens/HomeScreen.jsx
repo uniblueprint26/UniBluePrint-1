@@ -14,7 +14,7 @@ import ActiveMemberBadge from '../components/ui/ActiveMemberBadge'
 import EmptyState from '../components/ui/EmptyState'
 import UBPLogo from '../components/ui/UBPLogo'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
-import TodayDigestCard from '../components/ui/TodayDigestCard'
+import HomeDigest from '../components/home/HomeDigest'
 import StoryRail from '../components/home/StoryRail'
 import NextUpRow from '../components/home/NextUpRow'
 import { routeExists } from '../components/home/routeExists'
@@ -30,7 +30,7 @@ import {
   FeedPostCard, BuzzingHighlightCard, AdCard, SuggestedProfilesCard,
 } from '../components/feed/FeedKit'
 import {
-  fetchFeedPage, fetchBuzzingHighlight, fetchActivePlacement,
+  mixRealAndUbp, fetchFeedPage, fetchBuzzingHighlight, fetchActivePlacement,
   fetchMyReactions, setReaction, clearReaction, buildFeedRenderList,
   fetchSuggestedProfiles, fetchSavedPostIds, savePost, unsavePost, DEFAULT_BUZZ_WINDOW,
 } from '../lib/feed'
@@ -38,6 +38,9 @@ import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { useNotificationPrefs } from '../lib/notificationPrefs'
+import { syncBudgetNudges } from '../lib/budgetNudges'
+import { fetchRealDealCount } from '../lib/adBoard'
 import { useConnect } from '../hooks/useConnect'
 import { useBlockedIds } from '../lib/reporting'
 
@@ -337,7 +340,7 @@ export default function HomeScreen({ navigation }) {
   const feedRenderItems = useMemo(() => {
     const notBlocked = p => !p?.user_id || !blockedIds.has(p.user_id)
     const base = postsOn
-      ? buildFeedRenderList(feedPosts.filter(notBlocked), { buzzingHighlight: notBlocked(buzzingHighlight) ? buzzingHighlight : null, placement, suggestedProfiles })
+      ? buildFeedRenderList(mixRealAndUbp(feedPosts.filter(notBlocked), FEED_PAGE_SIZE), { buzzingHighlight: notBlocked(buzzingHighlight) ? buzzingHighlight : null, placement, suggestedProfiles })
       : []
     if (inlineKeys.length === 0) return base
     let seen = 0
@@ -411,9 +414,7 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     if (!user?.id) return
     let cancelled = false
-    supabase.from('deals').select('id', { count: 'exact', head: true }).eq('active', true)
-      .then(({ count }) => { if (!cancelled) setActiveDealsCount(count || 0) })
-      .catch(() => {})
+    fetchRealDealCount().then(n => { if (!cancelled) setActiveDealsCount(n) }).catch(() => {})
     return () => { cancelled = true }
   }, [user?.id])
 
@@ -454,6 +455,11 @@ export default function HomeScreen({ navigation }) {
   // only appears for a monthly budget saved in Budgeting.
   const goalSummary = useGoalSummary(user?.id)
   const budgetLeft = useBudgetLeft(user?.id)
+  // Budget nudges are scheduled on this phone, only when the member switched them on.
+  const { prefs: notifPrefs } = useNotificationPrefs(user?.id)
+  useEffect(() => {
+    if (user?.id && notifPrefs.budget_nudges) syncBudgetNudges(user.id, notifPrefs)
+  }, [user?.id, notifPrefs, budgetLeft])
   const calendarReady = routeExists(navigation, 'Calendar')
   const calendarSummary = useCalendarSummary(user?.id)
   const calendarValue = calendarSummary.todayCount > 0
@@ -591,11 +597,15 @@ export default function HomeScreen({ navigation }) {
     if (key === 'digest') {
       return (
         <View style={{ paddingHorizontal: spacing.md }}>
-          <TodayDigestCard
+          <HomeDigest
             eyebrow={`Today · ${formatEyebrowDate()}`}
             title={digestTitle}
             stats={[...digestStats, ...personalStats]}
-          />
+            nextUpLabel={nextUp ? `Next up: ${nextUp.title}${nextUp.timeLabel ? ` at ${nextUp.timeLabel}` : ''}${nextUp.inLabel ? `, ${nextUp.inLabel}` : ''}.` : null}
+            onEditHome={() => setEditOpen(true)}
+          >
+            <GoalsGrid navigation={navigation} userId={user?.id} name={firstName} />
+          </HomeDigest>
         </View>
       )
     }
@@ -607,7 +617,6 @@ export default function HomeScreen({ navigation }) {
         </View>
       )
     }
-    if (key === 'goals') return <GoalsGrid navigation={navigation} userId={user?.id} name={firstName} />
     return null
   }
 

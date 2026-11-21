@@ -35,7 +35,7 @@ export default function StoryRail({ navigation, name }) {
   const { width } = useWindowDimensions()
   // Foundation is left out while it is closed on iOS and Android.
   const pillarKeys = usePillarOrder(['compass'])
-  const count = pillarKeys.length + 1 // Budget comes first
+  const count = pillarKeys.length + 1 // Budget comes last
   // Size the items to fit, never narrower than 52 (the row then scrolls) or wider than 66.
   const item = Math.max(52, Math.min(66, Math.floor((width - SIDE * 2 - GAP * (count - 1)) / count)))
   const ring = Math.min(62, item - 2)
@@ -50,19 +50,6 @@ export default function StoryRail({ navigation, name }) {
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.row}>
-      <TouchableOpacity
-        style={s.item}
-        activeOpacity={0.8}
-        onPress={openBudget}
-        accessibilityRole="button"
-        accessibilityLabel="Budget"
-      >
-        <View style={[s.ring, { borderColor: gold, backgroundColor: isDark ? colors.surface : gold + '14' }]}>
-          <Wallet size={Math.round(ring * 0.4)} color={gold} strokeWidth={1.7} />
-        </View>
-        <Text style={s.label}>Budget</Text>
-      </TouchableOpacity>
-
       {pillarKeys.map(key => {
         const p = PILLARS[key]
         const c = ringColor(p, colors, isDark)
@@ -83,6 +70,19 @@ export default function StoryRail({ navigation, name }) {
           </TouchableOpacity>
         )
       })}
+
+      <TouchableOpacity
+        style={s.item}
+        activeOpacity={0.8}
+        onPress={openBudget}
+        accessibilityRole="button"
+        accessibilityLabel="Budget"
+      >
+        <View style={[s.ring, { borderColor: gold, backgroundColor: isDark ? colors.surface : gold + '14' }]}>
+          <Wallet size={Math.round(ring * 0.4)} color={gold} strokeWidth={1.7} />
+        </View>
+        <Text style={s.label}>Budget</Text>
+      </TouchableOpacity>
     </ScrollView>
   )
 }

@@ -7,6 +7,7 @@ import { Smile, ExternalLink, Users, MessageCircle, Send, Bookmark, Play, Plus, 
 import { fonts, radius, spacing, shadows, sheen } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { MOODS, moodDef } from '../../constants/moods'
+import UbpStamp from '../ui/UbpStamp'
 import { BUZZ_WINDOWS, CAMPUS_PULSE_MIN_THREADS, getPostImages } from '../../lib/feed'
 import PostGallery from './PostGallery'
 import { PILLARS, AUDIENCES } from '../../constants/pillars'
@@ -347,7 +348,7 @@ function PostHeader({ post, k }) {
         <Text style={k.timestamp}>{timeAgo(post.created_at)}</Text>
       </View>
       {ubp && (
-        <View style={k.ubpTag}><Text style={k.ubpTagText}>From UBP</Text></View>
+        <UbpStamp />
       )}
       {!ubp && (
         <ReportButton
