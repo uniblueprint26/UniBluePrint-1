@@ -21,6 +21,7 @@ import Button from '../components/ui/Button'
 import CourseBoardPickerModal from '../components/courseConnect/CourseBoardPickerModal'
 import InterestsModal from '../components/profile/InterestsModal'
 import { MoodPulse } from '../components/feed/FeedKit'
+import LiveRail from '../components/live/LiveRail'
 import { fetchMoodPulse, DEFAULT_BUZZ_WINDOW } from '../lib/feed'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
@@ -570,6 +571,8 @@ export default function CourseConnectScreen({ navigation }) {
             )}
           </View>
         </ScreenHeader>
+
+        <LiveRail audience="course" navigation={navigation} />
 
         <View style={styles.content}>
 

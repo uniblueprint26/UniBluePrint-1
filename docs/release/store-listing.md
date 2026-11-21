@@ -288,7 +288,7 @@ User generated content policy: filtering, report on every item, block, a moderat
 
 Account deletion: in the app under Profile, then Privacy and Data, then Delete account. Account deletion web page: see the Data safety form.
 
-Permissions: location (only when the person taps Find Near Me) and notifications. No camera or microphone permission is requested. Photos use the system photo picker.
+Permissions: location (only when the person taps Find Near Me), notifications, and the camera (only inside Live, a camera moment posted by members aged 18 or over; the app never records in the background). No microphone permission is requested. Photos use the system photo picker.
 ```
 
 ---

@@ -9,7 +9,7 @@ import {
   User, GraduationCap, Users, HelpCircle, Info,
   Bell, Lock, LifeBuoy, LogOut, ChevronRight,
   Star, FileText, Calendar, BookOpen, X, Compass, Menu, Tag, Check, Briefcase, Heart, Eye,
-  Palette, Sun, Moon, Smartphone, Share2, MapPin, Bookmark,
+  Palette, Sun, Moon, Smartphone, Share2, MapPin, Bookmark, Radio,
 } from 'lucide-react-native'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -97,6 +97,7 @@ const ACCOUNT_LINKS = [
   { Icon: Heart,     label: 'Interests',       sub: null,                                action: 'interests' },
   { Icon: Eye,      label: 'Directory Profile', sub: null,                              action: 'directoryProfile' },
   { Icon: Bookmark, label: 'Saved Posts',     sub: 'Posts you’ve bookmarked from the feed', action: 'savedPosts' },
+  { Icon: Radio,    label: 'Live archive',    sub: 'Your Live moments, private to you',  action: 'liveArchive' },
   { Icon: Bell,     label: 'Notifications',   sub: 'Push alerts and in-app reminders',  action: 'notifications' },
   { Icon: Palette,  label: 'Appearance',      sub: null,                                action: 'appearance' },
   { Icon: Compass,  label: 'How UniBlueprint Works', sub: 'Replay the app walkthrough', screen: 'BlueprintTour' },
@@ -1360,6 +1361,7 @@ export default function ProfileScreen({ navigation }) {
                   // below (that row used to be a dead tap, screen: null).
                   else if (action === 'notifications') navigation.getParent()?.navigate('Home', { screen: 'Notifications' })
                   else if (action === 'savedPosts') navigation.getParent()?.navigate('Home', { screen: 'SavedPosts' })
+                  else if (action === 'liveArchive') navigation.getParent()?.navigate('Home', { screen: 'LiveArchive' })
                   else if (screen) navigation.navigate(screen)
                 }}
               >

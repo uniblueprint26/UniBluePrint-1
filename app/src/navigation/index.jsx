@@ -59,6 +59,10 @@ import CareerReadinessScreen from '../screens/CareerReadinessScreen'
 import ComposerScreen       from '../screens/ComposerScreen'
 import CommentThreadScreen  from '../screens/CommentThreadScreen'
 import SavedPostsScreen     from '../screens/SavedPostsScreen'
+import LiveCaptureScreen    from '../screens/LiveCaptureScreen'
+import LiveComposeScreen    from '../screens/LiveComposeScreen'
+import LiveViewerScreen     from '../screens/LiveViewerScreen'
+import LiveArchiveScreen    from '../screens/LiveArchiveScreen'
 
 // Foundation Blueprint generator intake — all 8 services on the same
 // QuestionFlow + *_documents-shaped table + submit_document_for_review +
@@ -186,6 +190,10 @@ function HomeStack() {
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />
       <Stack.Screen name="Composer"      component={ComposerScreen}     options={{ presentation: 'modal' }} />
       <Stack.Screen name="CommentThread" component={CommentThreadScreen} />
+      <Stack.Screen name="LiveCapture"   component={LiveCaptureScreen}   options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="LiveCompose"   component={LiveComposeScreen}   />
+      <Stack.Screen name="LiveViewer"    component={LiveViewerScreen}    options={{ presentation: 'modal' }} />
+      <Stack.Screen name="LiveArchive"   component={LiveArchiveScreen}   />
       <Stack.Screen name="SavedPosts"    component={SavedPostsScreen}    />
       <Stack.Screen name="Compass"       component={CompassScreen}      />
       <Stack.Screen name="MyOutputs"     component={Gated.MyOutputsScreen}    />

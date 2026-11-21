@@ -38,6 +38,10 @@ const googleMapsKey = String(process.env.GOOGLE_MAPS_ANDROID_API_KEY || '').trim
 
 const PHOTO_LIBRARY_TEXT =
   'UniBlueprint needs access to your photo library so you can choose a profile picture or an image for an ad post.'
+// Live (a camera moment) is the only place the camera is used. The words match
+// what the explainer screen says before the system prompt.
+const CAMERA_TEXT =
+  'UniBlueprint uses your camera only when you open Live. It takes the shot with the back and front cameras and never records in the background.'
 const LOCATION_TEXT =
   'UniBlueprint uses your location, only when you tap "Find Near Me", to show Lifestyle partners and coaches near you on the map.'
 
@@ -58,6 +62,7 @@ module.exports = {
     bundleIdentifier: 'com.uniblueprint.app',
     infoPlist: {
       NSPhotoLibraryUsageDescription: PHOTO_LIBRARY_TEXT,
+      NSCameraUsageDescription: CAMERA_TEXT,
       NSLocationWhenInUseUsageDescription: LOCATION_TEXT,
     },
     config: {
@@ -66,7 +71,10 @@ module.exports = {
     // What the app collects, as Apple's privacy manifest wants it. Everything is
     // linked to the account and none of it is used for tracking.
     //   Email, name, user id: sign up and the account.
-    //   Photos or videos: profile picture, post photos, clips.
+    //   Photos or videos: profile picture, post photos, clips, and Live camera
+    //   moments (a back and a front camera photo, shown for 24 hours, then kept
+    //   in a private archive only the poster can see). The camera is used only
+    //   inside Live and no microphone is used, so no extra category is needed.
     //   Other user content: posts, comments, profile text, listings.
     //   Other data types: date of birth, course, college and interests on the profile.
     //   Emails or text messages: chat messages between members.
@@ -107,15 +115,15 @@ module.exports = {
       backgroundColor: '#F5F0E8',
     },
     package: 'com.uniblueprint.app',
-    // Only location (Find Near Me). Photo picking uses the system picker. Camera,
-    // microphone and write storage are never used, so they are blocked even if a
-    // library asks for them.
+    // Location (Find Near Me) and the camera (Live only). Photo picking uses the
+    // system picker. The microphone and write storage are never used, so they are
+    // blocked even if a library asks for them.
     permissions: [
       'ACCESS_COARSE_LOCATION',
       'ACCESS_FINE_LOCATION',
+      'CAMERA',
     ],
     blockedPermissions: [
-      'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
       'android.permission.WRITE_EXTERNAL_STORAGE',
     ],
@@ -161,12 +169,23 @@ module.exports = {
       },
     ],
     [
-      // Photo library only. No camera and no microphone strings or permissions.
+      // Photo library only. The picker never opens the camera (Live has its own
+      // camera screen), and it uses the same camera words so the two plugins
+      // never write different text for the same permission.
       'expo-image-picker',
       {
         photosPermission: PHOTO_LIBRARY_TEXT,
-        cameraPermission: false,
+        cameraPermission: CAMERA_TEXT,
         microphonePermission: false,
+      },
+    ],
+    [
+      // Camera for Live only. No microphone and no audio recording.
+      'expo-camera',
+      {
+        cameraPermission: CAMERA_TEXT,
+        microphonePermission: false,
+        recordAudioAndroid: false,
       },
     ],
     '@sentry/react-native',
