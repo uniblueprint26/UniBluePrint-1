@@ -182,6 +182,9 @@ export default function LifestyleWellbeingScreen({ navigation }) {
             Real, verified Irish support services, organised so you can actually find what you need,
             not one long list to scroll past.
           </Text>
+          <Text style={[styles.heroSub, { marginTop: 8 }]}>
+            Not medical advice. Speak to your doctor or a counsellor about your own health.
+          </Text>
         </View>
 
         <View style={styles.content}>

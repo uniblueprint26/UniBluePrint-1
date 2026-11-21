@@ -56,7 +56,7 @@ export default function CookieBanner() {
           cursor: 'default',
         }}>
           <input type="checkbox" checked disabled style={{ marginTop: '3px' }} />
-          <span><strong>Strictly necessary</strong> — always on, required for sign-in and core functionality.</span>
+          <span><strong>Strictly necessary</strong>, always on, required for sign-in and core functionality.</span>
         </label>
         <label style={{
           display: 'flex', alignItems: 'flex-start', gap: '10px',
@@ -69,7 +69,7 @@ export default function CookieBanner() {
             onChange={e => setAnalyticsChecked(e.target.checked)}
             style={{ marginTop: '3px' }}
           />
-          <span><strong>Analytics</strong> — Google Analytics, helps us understand how the Platform is used. See the{' '}
+          <span><strong>Analytics</strong>, Google Analytics, helps us understand how the Platform is used. See the{' '}
             <Link to="/cookies" style={{ color: '#1E3A5F', fontWeight: '600', textDecoration: 'underline' }}>Cookie Policy</Link>.
           </span>
         </label>

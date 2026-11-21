@@ -193,8 +193,8 @@ export default function CoverLetterBuilderPage() {
     setSubmitting(true)
     setError('')
     try {
-      const serviceName = tier === 'premium' ? 'Cover Letter Assistance — Premium' : 'Cover Letter Assistance — Standard'
-      const subId = await submitForReview('cover_letters', letter.id, serviceName, `Cover Letter — ${form.target_role} at ${form.target_company}`, tier)
+      const serviceName = tier === 'premium' ? 'Cover Letter Assistance, Premium' : 'Cover Letter Assistance, Standard'
+      const subId = await submitForReview('cover_letters', letter.id, serviceName, `Cover Letter, ${form.target_role} at ${form.target_company}`, tier)
       setSubmissionId(subId)
       setSubmitted(true)
     } catch (err) {
@@ -221,7 +221,7 @@ export default function CoverLetterBuilderPage() {
         </Link>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F' }}>Cover Letter Builder</h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', marginTop: '8px', marginBottom: '28px', lineHeight: 1.7 }}>
-          Written for one specific role at one specific company — never a generic template.
+          Written for one specific role at one specific company, never a generic template.
         </p>
 
         {error && <ErrorBanner message={error} />}
@@ -242,7 +242,7 @@ export default function CoverLetterBuilderPage() {
             onComplete={handleGenerate}
             completing={generating}
             completeLabel="Generate my cover letter"
-            strapline="The more you give us, the better your output — this takes about 4 minutes, and everything is saved as you go."
+            strapline="The more you give us, the better your output, this takes about 4 minutes, and everything is saved as you go."
             initialStepKey={form._current_step}
           />
         ) : submitted ? (
@@ -315,11 +315,11 @@ function profileCheckRows(profileKnown) {
 /** Rows for the closing "here's what we'll build from" summary step. */
 function summaryRows(form, tier) {
   return [
-    ['Applying for', `${form.target_role || '—'} at ${form.target_company || '—'}`],
+    ['Applying for', `${form.target_role || 'Not given'} at ${form.target_company || 'Not given'}`],
     ['Industry', form.industry || 'Not specified'],
-    ['Experience', form.has_no_experience ? 'None yet — building around projects and coursework' : 'Provided'],
+    ['Experience', form.has_no_experience ? 'None yet, building around projects and coursework' : 'Provided'],
     ['Tone', form.tone],
-    ['Turnaround', tier === 'premium' ? 'Premium — same day' : 'Standard — 48 hours'],
+    ['Turnaround', tier === 'premium' ? 'Premium, same day' : 'Standard, 48 hours'],
   ]
 }
 
@@ -337,7 +337,7 @@ function useCoverLetterSteps({ form, profileKnown, tier, setTier }) {
       key: 'profile_check',
       title: 'Here\'s what we already know',
       skip: () => !hasKnownProfile,
-      render: () => <SummaryRows intro="From your Career Profile — you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet — that's fine, we'll capture it as we go." />,
+      render: () => <SummaryRows intro="From your Career Profile, you'll get the chance to update anything on the next few screens." rows={profileCheckRows(profileKnown)} emptyLabel="Not much on file yet, that's fine, we'll capture it as we go." />,
     },
     {
       key: 'target_role',
@@ -366,7 +366,7 @@ function useCoverLetterSteps({ form, profileKnown, tier, setTier }) {
       key: 'background_summary',
       title: 'A little about your background',
       optional: true,
-      whyItHelps: 'a sentence or two of context — we\'ll pull the rest from your relevant experience.',
+      whyItHelps: 'a sentence or two of context, we\'ll pull the rest from your relevant experience.',
       render: ({ form: f, set }) => (
         <FormTextarea id="background_summary" value={f.background_summary} onChange={set('background_summary')} rows={3} maxLength={LIMITS.LONG} />
       ),
@@ -374,7 +374,7 @@ function useCoverLetterSteps({ form, profileKnown, tier, setTier }) {
     {
       key: 'relevant_experience',
       title: 'What\'s your most relevant experience for this role?',
-      validate: (f) => (!f.relevant_experience?.trim() ? 'This is the real evidence your letter is built on — required.' : ''),
+      validate: (f) => (!f.relevant_experience?.trim() ? 'This is the real evidence your letter is built on, required.' : ''),
       render: ({ form: f, set }) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <FormCheckbox
@@ -386,8 +386,8 @@ function useCoverLetterSteps({ form, profileKnown, tier, setTier }) {
           <div>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280', marginBottom: '10px' }}>
               {f.has_no_experience
-                ? 'College projects, societies, volunteering, and part-time work all count — this is the real evidence your letter will be built on.'
-                : 'The one or two things most relevant to this specific role — we\'ll go deep on these rather than summarising everything.'}
+                ? 'College projects, societies, volunteering, and part-time work all count, this is the real evidence your letter will be built on.'
+                : 'The one or two things most relevant to this specific role, we\'ll go deep on these rather than summarising everything.'}
             </p>
             <FormTextarea id="relevant_experience" value={f.relevant_experience} onChange={set('relevant_experience')} rows={4} required maxLength={LIMITS.LONG} />
           </div>
@@ -407,7 +407,7 @@ function useCoverLetterSteps({ form, profileKnown, tier, setTier }) {
       key: 'unsure_about',
       title: 'Anything you\'re unsure how to present?',
       optional: true,
-      whyItHelps: 'a gap, a career change, an unconventional path — tell us and we\'ll frame it honestly rather than skip it.',
+      whyItHelps: 'a gap, a career change, an unconventional path, tell us and we\'ll frame it honestly rather than skip it.',
       render: ({ form: f, set }) => (
         <FormTextarea id="unsure_about" value={f.unsure_about} onChange={set('unsure_about')} rows={4} maxLength={LIMITS.LONG} />
       ),

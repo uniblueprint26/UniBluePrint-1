@@ -77,7 +77,7 @@ export default function CvPreview({ cvDoc }) {
                 {gen.experience_section.map((role, i) => (
                   <div key={i} style={{ marginBottom: '14px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, fontSize: '14px' }}>
-                      <span>{role.job_title} — {role.company}</span>
+                      <span>{role.job_title}, {role.company}</span>
                       <span style={{ color: '#6B7280', fontWeight: 400 }}>{role.dates}</span>
                     </div>
                     <ul style={bulletList}>{role.bullets?.map((b, j) => <li key={j} style={bodyText}>{b}</li>)}</ul>

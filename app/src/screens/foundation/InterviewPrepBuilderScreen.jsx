@@ -24,11 +24,11 @@ const INTERVIEW_TYPES = [
   { value: 'behavioural', label: 'Behavioural / competency-based' },
   { value: 'technical', label: 'Technical' },
   { value: 'strengths_based', label: 'Strengths-based' },
-  { value: 'blended', label: 'Blended (mix of all — most common)' },
+  { value: 'blended', label: 'Blended (mix of all, most common)' },
 ]
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -47,7 +47,7 @@ const STEPS = [
   {
     key: '_targeting',
     title: 'What role is this interview for?',
-    subtitle: 'Target role is required — it decides the whole prep pack, right down to the format we prepare you for.',
+    subtitle: 'Target role is required, it decides the whole prep pack, right down to the format we prepare you for.',
     render: (_, __, values, setValue) => (
       <View style={{ gap: 14 }}>
         <View><FieldLabel required>Target role</FieldLabel><FormTextInput value={values.target_role} onChangeText={t => setValue('target_role', t)} placeholder="e.g. Marketing Intern" /></View>
@@ -60,21 +60,21 @@ const STEPS = [
   {
     key: 'interview_type',
     title: 'What kind of interview is this?',
-    subtitle: 'Behavioural asks about past examples, technical is role-specific problem-solving, strengths-based is about what energises you, blended is a realistic mix — most large graduate employers use blended.',
+    subtitle: 'Behavioural asks about past examples, technical is role-specific problem-solving, strengths-based is about what energises you, blended is a realistic mix, most large graduate employers use blended.',
     render: (value, onChange) => <ChoiceGrid options={INTERVIEW_TYPES} value={value} onChange={onChange} />,
     validate: value => (value ? null : 'Please choose one.'),
   },
   {
     key: 'background_summary',
     title: 'Your relevant background',
-    subtitle: 'A short summary of your relevant background for this interview — leave blank and we\'ll pull from your profile.',
+    subtitle: 'A short summary of your relevant background for this interview, leave blank and we\'ll pull from your profile.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." minHeight={120} />,
   },
   {
     key: 'unsure_about',
     title: 'Anything you\'re unsure how to prepare for?',
-    subtitle: 'A format you\'ve never done, a weak area, a gap you don\'t know how to field — tell us and your Handler will double-check it specifically.',
+    subtitle: 'A format you\'ve never done, a weak area, a gap you don\'t know how to field, tell us and your Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
@@ -154,7 +154,7 @@ export default function InterviewPrepBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'interview_prep_packs',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Interview Preparation — Premium Pack' : 'Interview Preparation — Standard Pack',
+      p_service_name: v.tier === 'premium' ? 'Interview Preparation, Premium Pack' : 'Interview Preparation, Standard Pack',
       p_notes: null,
       p_tier: v.tier,
     })

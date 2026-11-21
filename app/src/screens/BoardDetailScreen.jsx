@@ -46,6 +46,7 @@ import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import { EventsView, RidesView, LostFoundView, AccommodationView } from '../components/campusConnect/BoardViews'
 import { PrimaryButton } from '../components/campusConnect/CampusKit'
 import { openRoomy } from './RoomyPartnerScreen'
+import { ROOMY } from '../constants/partnerBrands'
 import { useBlockedIds } from '../lib/reporting'
 import { useReport } from '../components/safety/ReportProvider'
 import PostFormModal from '../components/campusConnect/PostFormModal'
@@ -113,7 +114,7 @@ export default function BoardDetailScreen({ navigation, route }) {
   const backFallbackRoute = registry === 'course' ? 'CourseConnect' : registry === 'marketplace' ? 'Marketplace' : 'CampusConnect'
   const safeGoBack = useSafeGoBack(navigation, backFallbackRoute)
   const insets = useSafeAreaInsets()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { openReport, openBlock } = useReport()
   const blockedIds = useBlockedIds(user?.id)
 
@@ -244,7 +245,8 @@ export default function BoardDetailScreen({ navigation, route }) {
   const customView = registry === 'campus' && ['events', 'carpool', 'lost-found', 'accommodation'].includes(board.key)
 
   function hasCampus() {
-    return !!user?.user_metadata?.institution
+    const p = profile || {}
+    return !!(user?.user_metadata?.institution || p.campus_community || p.institution || p.training_provider || p.trade || p.industry)
   }
 
   function requireCampus(action) {
@@ -296,7 +298,7 @@ export default function BoardDetailScreen({ navigation, route }) {
 
   function handleClubRequestPosted() {
     setClubRequestOpen(false)
-    Alert.alert('Thanks!', 'Your request has been sent — the UniBlueprint team will review it and add the society if it fits.')
+    Alert.alert('Thanks!', 'Your request has been sent, the UniBlueprint team will review it and add the society if it fits.')
   }
 
   async function removeRow(id) {
@@ -945,7 +947,7 @@ export default function BoardDetailScreen({ navigation, route }) {
     return (
       <View style={styles.roomyPanel}>
         <Text style={styles.roomyLabel}>FROM ROOMY.IE</Text>
-        <Text style={styles.roomySub}>An external accommodation partner — browse their live listings without leaving your campus board search.</Text>
+        <Text style={styles.roomySub}>An external accommodation partner, browse their live listings without leaving your campus board search.</Text>
         <View style={{ gap: 10, marginTop: 12 }}>
           {listings.map(l => (
             <View key={l.title} style={styles.roomyCard}>
@@ -1017,7 +1019,7 @@ export default function BoardDetailScreen({ navigation, route }) {
           {customView ? null : loading ? (
             <ActivityIndicator size="small" color={colors.textPrimary} style={{ marginTop: spacing.xl }} />
           ) : filteredRows.length === 0 ? (
-            <Text style={styles.emptyText}>Nothing here yet — be the first to post.</Text>
+            <Text style={styles.emptyText}>Nothing here yet, be the first to post.</Text>
           ) : (
             <View style={{ gap: 10, marginTop: spacing.md }}>
               {filteredRows.map(renderCard)}
@@ -1104,7 +1106,7 @@ export default function BoardDetailScreen({ navigation, route }) {
             <AlertCircle size={22} color={colors.gold} />
             <Text style={styles.exampleTitle}>This is an example project</Text>
             <Text style={styles.exampleBody}>
-              It's shown to illustrate what Project Collaboration looks like. There's no real team to join yet — real
+              It's shown to illustrate what Project Collaboration looks like. There's no real team to join yet, real
               student-posted projects will appear here and above this example set as soon as they're posted.
             </Text>
             <TouchableOpacity style={styles.exampleBtn} activeOpacity={0.85} onPress={() => setExampleSheetOpen(false)}>
@@ -1162,7 +1164,7 @@ export default function BoardDetailScreen({ navigation, route }) {
                     </Card>
                   )
                 })}
-                {solutions.length === 0 && <Text style={styles.emptyText}>No solutions yet — share what worked for you.</Text>}
+                {solutions.length === 0 && <Text style={styles.emptyText}>No solutions yet, share what worked for you.</Text>}
               </View>
             </ScrollView>
           )}
@@ -1250,7 +1252,7 @@ function __gs_styles(colors) {
   aggregateTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
 
   roomyPanel: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(30,58,95,0.08)', ...shadows.card },
-  roomyLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.goldDeep, letterSpacing: 0.8 },
+  roomyLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: ROOMY.teal, letterSpacing: 0.8 },
   roomySub: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 6, lineHeight: 18 },
   roomyCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surfaceAlt, borderRadius: radius.card, padding: 12 },
   roomyCardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },

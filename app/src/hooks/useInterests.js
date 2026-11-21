@@ -69,7 +69,7 @@ export function useInterests() {
     const clean = normalizeInterestLabel(label)
     if (!clean) return { error: new Error('Enter an interest first.') }
     if (list.some(l => l.toLowerCase() === clean.toLowerCase())) return { error: null } // already set
-    if (list.length >= MAX_INTERESTS) return { error: new Error(`You can have up to ${MAX_INTERESTS} interests — remove one to add another.`) }
+    if (list.length >= MAX_INTERESTS) return { error: new Error(`You can have up to ${MAX_INTERESTS} interests, remove one to add another.`) }
     return updateInterests([...list, clean])
   }
 

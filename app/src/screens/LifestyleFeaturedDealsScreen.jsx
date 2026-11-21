@@ -90,7 +90,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       {/* Explicit flex:1 on the FlatList itself (not just contentContainerStyle)
-          — the same fix every screen-root ScrollView in this app needs, and
+, the same fix every screen-root ScrollView in this app needs, and
           FlatList wraps one internally, so it needs it too. */}
       <FlatList
         style={styles.list}

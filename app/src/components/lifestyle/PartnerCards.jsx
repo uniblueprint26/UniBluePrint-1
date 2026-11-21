@@ -585,7 +585,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
           )}
 
           {/* flexBasis: 0 (not plain flex: 1, whose basis defaults to
-              'auto') — inside a maxHeight-only parent, a flex:1 child's
+              'auto'), inside a maxHeight-only parent, a flex:1 child's
               auto basis can size to its own content instead of the
               remaining sheet space on native Yoga, so everything below
               the deal pill (About, Gallery, contact) silently never

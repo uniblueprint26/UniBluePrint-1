@@ -119,7 +119,7 @@ export default function PipelineStatusTimeline({ submissionId }) {
             </p>
           ) : approachingDeadline ? (
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9C6B26', marginTop: '4px' }}>
-              Your output is on its way — we are reviewing now.
+              Your output is on its way, we are reviewing now.
             </p>
           ) : null}
         </div>

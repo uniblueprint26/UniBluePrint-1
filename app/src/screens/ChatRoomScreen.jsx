@@ -33,6 +33,8 @@ import { useChat } from '../hooks/useChat'
 import { supabase } from '../lib/supabase'
 import ReportButton from '../components/safety/ReportButton'
 import { useReport } from '../components/safety/ReportProvider'
+import { blockUser } from '../lib/reporting'
+import { moderationMessage } from '../lib/moderation'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -98,8 +100,9 @@ export default function ChatRoomScreen({ navigation, route }) {
     setSending(true)
     try {
       await sendMessage(text)
-    } catch {
+    } catch (e) {
       setInput(text) // restore on failure so the user doesn't lose their message
+      Alert.alert('Message not sent', moderationMessage(e, 'Please check your connection and try again.'))
     } finally {
       setSending(false)
     }
@@ -144,18 +147,17 @@ export default function ChatRoomScreen({ navigation, route }) {
 
     Alert.alert(
       'Block this user?',
-      `You won't see messages from ${otherName || 'this person'} again, and in a direct chat they won't be able to message you. This doesn't remove them from a shared group chat — use Report for that instead.`,
+      `You won't see messages from ${otherName || 'this person'} again, and in a direct chat they won't be able to message you. This doesn't remove them from a shared group chat, use Report for that instead.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Block',
           style: 'destructive',
           onPress: async () => {
-            const { error: blockErr } = await supabase.from('blocked_users').insert({
-              blocker_id: userId, blocked_id: otherId,
-            })
-            // 23505 = already blocked (unique constraint) — not a real failure
-            const failed = blockErr && blockErr.code !== '23505'
+            // blockUser also refreshes the cached blocked list, so their posts
+            // and comments disappear straight away.
+            const { ok } = await blockUser(userId, otherId)
+            const failed = !ok
             Alert.alert(
               failed ? 'Something went wrong' : 'Blocked',
               failed ? 'Please try again.' : `You won't see messages from ${otherName || 'this person'} again.`

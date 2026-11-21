@@ -30,8 +30,8 @@ import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/use
 const EMPTY_QUESTION = { question_text: '' }
 
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -68,7 +68,7 @@ const STEPS = [
   {
     key: 'questions',
     title: 'The form\'s questions',
-    subtitle: 'Add every question from the application form — we\'ll draft an answer for each, in your own real evidence.',
+    subtitle: 'Add every question from the application form, we\'ll draft an answer for each, in your own real evidence.',
     render: (value, onChange) => (
       <RepeatingList
         entries={value}
@@ -89,7 +89,7 @@ const STEPS = [
   {
     key: 'unsure_about',
     title: 'Anything you\'re unsure how to present?',
-    subtitle: 'A gap, a weak-fit story, a question you don\'t know how to angle — tell us and your Handler will double-check it specifically.',
+    subtitle: 'A gap, a weak-fit story, a question you don\'t know how to angle, tell us and your Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
@@ -196,7 +196,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'application_forms',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'Application Form Assistance — Premium' : 'Application Form Assistance — Standard',
+      p_service_name: v.tier === 'premium' ? 'Application Form Assistance, Premium' : 'Application Form Assistance, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

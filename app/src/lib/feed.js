@@ -3,6 +3,7 @@
 // and promoted placements ("Ad" cards). Kept separate from HomeScreen.jsx so
 // the screen stays about layout, not query shape.
 
+import { assertTextClean } from './moderation'
 import { supabase } from './supabase'
 
 export const BUZZ_WINDOWS = [
@@ -173,6 +174,7 @@ export async function fetchComments(postId) {
 }
 
 export async function createComment({ postId, userId, body }) {
+  assertTextClean(body)
   const { data, error } = await supabase
     .from('feed_comments')
     .insert({ post_id: postId, user_id: userId, body })
@@ -290,6 +292,28 @@ export async function createPost({ userId, photoUrls, photoUrl, caption, audienc
 
 export async function createClip({ userId, videoUrl, caption, audience }) {
   await createFeedPost({ userId, postType: 'clip', audience, video_url: videoUrl, body: caption || null })
+}
+
+// Real member posts and UBP posts (no author) take turns, one then one, within
+// each loaded page, so Home never shows a wall of either. Each side keeps its
+// own newest first order. When one side runs out the other carries on. Pages
+// are mixed on their own so earlier posts do not jump when more load.
+export function mixRealAndUbp(posts, pageSize = 20) {
+  const out = []
+  for (let i = 0; i < posts.length; i += pageSize) {
+    const page = posts.slice(i, i + pageSize)
+    const real = page.filter(p => p.user_id)
+    const ubp = page.filter(p => !p.user_id)
+    let a = 0, b = 0
+    const realFirst = !ubp.length || !real.length || new Date(real[0].created_at) >= new Date(ubp[0].created_at)
+    let turn = realFirst ? 'real' : 'ubp'
+    while (a < real.length || b < ubp.length) {
+      if ((turn === 'real' && a < real.length) || b >= ubp.length) out.push(real[a++])
+      else out.push(ubp[b++])
+      turn = turn === 'real' ? 'ubp' : 'real'
+    }
+  }
+  return out
 }
 
 // Build the render list for the main feed: reverse-chronological posts with

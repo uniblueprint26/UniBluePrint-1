@@ -127,3 +127,19 @@ export function checkText(text) {
 
 // The one calm line shown to the person.
 export const GUIDELINES_MESSAGE = "That doesn't meet our community guidelines. Please reword it."
+
+// Throws an Error carrying the calm line if any of the texts fails the check.
+// Use it at the top of any submit path that sends member text to the database.
+export function assertTextClean(...texts) {
+  for (const t of texts) {
+    if (t && !checkText(String(t)).ok) throw new Error(GUIDELINES_MESSAGE)
+  }
+}
+
+// The line to show for a failed write: the calm guidelines line when either
+// this check or the database guard refused the text, otherwise `fallback`.
+export function moderationMessage(err, fallback) {
+  const msg = String(err?.message || '')
+  if (msg === GUIDELINES_MESSAGE || /feed_text_guard/.test(msg)) return GUIDELINES_MESSAGE
+  return fallback
+}

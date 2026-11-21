@@ -90,6 +90,16 @@ import CompassScreen        from '../screens/CompassScreen'
 import MyBlueprintScreen    from '../screens/MyBlueprintScreen'
 import ExploreScreen        from '../screens/ExploreScreen'
 import ExploreListScreen    from '../screens/ExploreListScreen'
+import ExploreBundleScreen from '../screens/explore/ExploreBundleScreen'
+import GradeCalculatorScreen from '../screens/explore/GradeCalculatorScreen'
+import ExamClashScreen from '../screens/explore/ExamClashScreen'
+import GoalCountdownScreen from '../screens/explore/GoalCountdownScreen'
+import TransportScreen from '../screens/explore/TransportScreen'
+import InternshipsScreen from '../screens/explore/InternshipsScreen'
+import ScholarshipsScreen from '../screens/explore/ScholarshipsScreen'
+import KoboPartnerScreen from '../screens/explore/KoboPartnerScreen'
+import ScoutPartnerScreen from '../screens/explore/ScoutPartnerScreen'
+import RoomyPartnerScreen from '../screens/explore/RoomyPartnerScreen'
 
 // Priority — UniBlueprint's events arm (demo build for Ross)
 import PrioritiesScreen        from '../screens/PrioritiesScreen'
@@ -201,6 +211,16 @@ function HomeStack() {
       <Stack.Screen name="MyBlueprint"   component={MyBlueprintScreen}  />
       <Stack.Screen name="Explore"       component={ExploreScreen}      />
       <Stack.Screen name="ExploreList"   component={ExploreListScreen}  />
+      <Stack.Screen name="ExploreBundle" component={ExploreBundleScreen} />
+      <Stack.Screen name="GradeCalculator" component={GradeCalculatorScreen} />
+      <Stack.Screen name="ExamClash" component={ExamClashScreen} />
+      <Stack.Screen name="GoalCountdown" component={GoalCountdownScreen} />
+      <Stack.Screen name="Transport" component={TransportScreen} />
+      <Stack.Screen name="Internships" component={InternshipsScreen} />
+      <Stack.Screen name="Scholarships" component={ScholarshipsScreen} />
+      <Stack.Screen name="KoboPartner" component={KoboPartnerScreen} />
+      <Stack.Screen name="ScoutPartner" component={ScoutPartnerScreen} />
+      <Stack.Screen name="RoomyPartner" component={RoomyPartnerScreen} />
       <Stack.Screen name="CoachProfile"  component={CoachProfileScreen} />
       <Stack.Screen name="CoachBooking"  component={CoachBookingScreen} />
       <Stack.Screen name="ChatRoom"      component={ChatRoomScreen}     />

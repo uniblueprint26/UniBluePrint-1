@@ -76,7 +76,7 @@ FRIENDS ONLY
 Keep a post between you and the people who follow you back.
 
 ELEVATION
-Find verified coaches in fitness, academic grinds, trading and marketing. Read their profiles and send a message.
+Find coaches in fitness, academic grinds and marketing. Read their profiles and send a message.
 
 LIFESTYLE
 Student deals from Irish partners, mental health and wellbeing support, and a budgeting tool built around what life really costs.
@@ -152,9 +152,9 @@ Minimum age is 18. The app asks for date of birth at sign up and blocks anyone u
 | Gambling | No |
 | Alcohol, tobacco, drugs | No |
 | Violence or sexual content | No |
-| Financial features | None (no payments, no loans, no crypto) |
+| Financial features | No payments, loans, trading or crypto in the app. There is a budgeting tool and a grants and schemes guide, so answer the form honestly: pick the closest "Other" or "Budgeting" option if offered. No investing content and no financial promotions |
 | Government app | No |
-| Health app | No |
+| Health app | Not a medical app. The Lifestyle section lists helplines and wellbeing tips and says "Not medical advice". Fill the Health apps declaration for the wellbeing content if the form asks |
 
 ---
 
@@ -258,7 +258,7 @@ Post (the plus). Opens the composer for a Take, a Post or a Clip. Course Connect
 Messages. Chats, message requests and Discover (find people).
 Profile. Your profile, plan status, Privacy and Data, help and sign out.
 
-Payments. UniBlueprint does not sell anything inside the app. Pro membership is managed on our website. The app shows no prices and has no purchase buttons. Foundation orders are not open in this version and are not shown. Coaching sessions with a coach are arranged with the coach directly and are real world services, not digital goods.
+Payments. UniBlueprint does not sell anything inside the app. Pro membership is managed on our website. The app shows no UniBlueprint prices and has no purchase buttons. Coaches and partners may show their own prices for real world services. Foundation orders are not open in this version and are not shown. Coaching sessions with a coach are arranged with the coach directly and are real world services, not digital goods.
 
 User generated content. Members can post, comment and message. To test the safety tools:
 1. On Home, tap the flag on any post. Choose a reason, then Send report. The sheet then offers Block.
@@ -284,7 +284,7 @@ The account is over 18 and has full access.
 
 Navigation: five tabs. Home, Ad Board, Post (plus), Messages, Profile. See the Apple notes above for what each does.
 
-Payments policy: the app does not sell digital goods or subscriptions and does not link to a purchase page. It shows no prices for UniBlueprint plans. Pro membership is managed on our website by people who already hold it. Foundation orders are not open in this version.
+Payments policy: the app does not sell digital goods or subscriptions and does not link to a purchase page. It shows no prices for UniBlueprint plans. Coaches and partners show their own prices for real world services. Pro is free for every account until 31 January 2027. Pro membership is managed on our website by people who already hold it. Foundation orders are not open in this version.
 
 User generated content policy: filtering, report on every item, block, a moderation contact and 24 hour review are all in the app. See the content moderation statement. Report is the flag icon on posts, comments, messages and profiles. Block is offered in the same sheet. Contact: desmond@uniblueprint.ie.
 

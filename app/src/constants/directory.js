@@ -48,12 +48,12 @@ export const STATUS_LABEL_BY_KEY = Object.fromEntries(STATUS_OPTIONS.map(s => [s
 export const VISIBILITY_OPTIONS = [
   {
     key:   'public',
-    label: 'Public — visible in Directory search',
+    label: 'Public, visible in Directory search',
     sub:   'Other UniBlueprint students can find and message you.',
   },
   {
     key:   'private',
-    label: 'Private — hidden from Directory search',
+    label: 'Private, hidden from Directory search',
     sub:   "You won't appear in anyone's Directory search or results.",
   },
 ]

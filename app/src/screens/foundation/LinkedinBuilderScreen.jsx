@@ -27,8 +27,8 @@ const TONES = [
   { value: 'modern', label: 'Modern' },
 ]
 const TIERS = [
-  { value: 'standard', label: 'Standard — delivered within 48 hours' },
-  { value: 'premium', label: 'Premium — priority queue, delivered within 24 hours', accent: true },
+  { value: 'standard', label: 'Standard, delivered within 48 hours' },
+  { value: 'premium', label: 'Premium, priority queue, delivered within 24 hours', accent: true },
 ]
 
 function isBlank(v) {
@@ -53,21 +53,21 @@ function getSteps(colors) {
   {
     key: 'current_status',
     title: 'How should we introduce you?',
-    subtitle: 'Your year and course, or your current role — this is what a recruiter sees you as right now.',
+    subtitle: 'Your year and course, or your current role, this is what a recruiter sees you as right now.',
     render: (value, onChange) => <FormTextInput value={value} onChangeText={onChange} placeholder="e.g. Final-year Computer Science student at UCD" />,
     validate: value => (isBlank(value) ? 'Please tell us how to introduce you.' : null),
   },
   {
     key: 'has_no_experience',
     title: 'Do you have relevant work experience yet?',
-    subtitle: 'No experience? Your headline and About section carry the profile instead — a real, recruiter-recognised shape for a student profile, not a lesser one.',
+    subtitle: 'No experience? Your headline and About section carry the profile instead, a real, recruiter-recognised shape for a student profile, not a lesser one.',
     render: (value, onChange) => <YesNoToggle value={value === null ? null : !value} onChange={v => onChange(!v)} yesLabel="Yes, I do" noLabel="Not yet" />,
     validate: value => (value === null ? 'Please choose one.' : null),
   },
   {
     key: '_targeting',
     title: 'What are you aiming for?',
-    subtitle: 'Target industry is required — it decides which keywords and skills we prioritise.',
+    subtitle: 'Target industry is required, it decides which keywords and skills we prioritise.',
     render: (_, __, values, setValue) => (
       <View style={{ gap: 14 }}>
         <View><FieldLabel required>Target industry</FieldLabel><FormTextInput value={values.target_industry} onChangeText={t => setValue('target_industry', t)} placeholder="e.g. Tech, Finance, Marketing" /></View>
@@ -79,20 +79,20 @@ function getSteps(colors) {
   {
     key: 'key_skills',
     title: 'Your key skills',
-    subtitle: 'Add at least 3 — we\'ll suggest relevant industry skills on top of these.',
+    subtitle: 'Add at least 3, we\'ll suggest relevant industry skills on top of these.',
     render: (value, onChange) => <TagInput values={value} onChange={onChange} placeholder="e.g. Python, Public Speaking" />,
-    validate: value => ((value || []).length >= 3 ? null : 'Add at least 3 skills — or go back and we\'ll top up from your profile if it has some.'),
+    validate: value => ((value || []).length >= 3 ? null : 'Add at least 3 skills, or go back and we\'ll top up from your profile if it has some.'),
   },
   {
     key: 'experience',
     title: 'Your experience',
-    subtitle: 'A short summary of your roles or internships — leave blank and we\'ll pull from your profile instead.',
+    subtitle: 'A short summary of your roles or internships, leave blank and we\'ll pull from your profile instead.',
     optional: true,
     render: (value, onChange, values) => (
       <View>
         {values.has_no_experience && (
           <Text style={{ fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginBottom: 12, fontStyle: 'italic' }}>
-            You said you don't have experience yet — feel free to skip this.
+            You said you don't have experience yet, feel free to skip this.
           </Text>
         )}
         <FormTextArea value={value} onChangeText={onChange} placeholder="What have you done so far?" minHeight={120} />
@@ -102,21 +102,21 @@ function getSteps(colors) {
   {
     key: 'notable_achievements',
     title: 'Anything you want to highlight?',
-    subtitle: 'Projects, awards, societies — things worth featuring or pinning to your profile.',
+    subtitle: 'Projects, awards, societies, things worth featuring or pinning to your profile.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Tell us what you're proud of..." />,
   },
   {
     key: 'target_connections',
     title: 'Who are you trying to reach?',
-    subtitle: 'Recruiters in a specific field, clients, collaborators — whoever you want your profile to speak to.',
+    subtitle: 'Recruiters in a specific field, clients, collaborators, whoever you want your profile to speak to.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
   {
     key: 'unsure_about',
     title: 'Anything you\'re unsure how to present?',
-    subtitle: 'A gap, a career change, something unconventional — tell us and your Handler will double-check it specifically.',
+    subtitle: 'A gap, a career change, something unconventional, tell us and your Handler will double-check it specifically.',
     optional: true,
     render: (value, onChange) => <FormTextArea value={value} onChangeText={onChange} placeholder="Optional..." />,
   },
@@ -203,7 +203,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
     const { error: submitErr } = await supabase.rpc('submit_document_for_review', {
       p_table: 'linkedin_documents',
       p_document_id: doc.id,
-      p_service_name: v.tier === 'premium' ? 'LinkedIn Optimisation — Premium' : 'LinkedIn Optimisation — Standard',
+      p_service_name: v.tier === 'premium' ? 'LinkedIn Optimisation, Premium' : 'LinkedIn Optimisation, Standard',
       p_notes: null,
       p_tier: v.tier,
     })

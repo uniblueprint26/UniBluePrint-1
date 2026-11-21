@@ -49,7 +49,7 @@ const BUNDLE = {
 const BUNDLE_TWO = {
   name:     'Complete Platform Bundle',
   price:    '€90',
-  includes: 'All 6 assessments — Subject Interest Test · Course Compass · Learning Style Test · Apprenticeship Compass · Career Investigations · CV Builder',
+  includes: 'All 6 assessments, Subject Interest Test · Course Compass · Learning Style Test · Apprenticeship Compass · Career Investigations · CV Builder',
   url:      'https://coursecompass.ie/pricing',
 }
 
@@ -181,7 +181,7 @@ const FREE_TOOLS = [
     key:  'riasec',
     label: 'Free RIASEC Career Test',
     Icon: Sparkles,
-    sub:  'A 5-minute interest inventory — get your three-letter Holland Code and the CAO course areas that typically fit. No account needed.',
+    sub:  'A 5-minute interest inventory, get your three-letter Holland Code and the CAO course areas that typically fit. No account needed.',
     url:  'https://coursecompass.ie/riasec-test-ireland',
   },
   {
@@ -275,7 +275,7 @@ function FreeToolRow({ tool }) {
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
-export default function CompassScreen({ navigation }) {
+export default function CompassScreen({ navigation, route }) {
   const { colors } = useTheme()
   const s = __gs_s(colors)
   const insets = useSafeAreaInsets()
@@ -286,7 +286,7 @@ export default function CompassScreen({ navigation }) {
 
       {/* ── Scrollable content ──
           The navy hero block below is the FIRST CHILD of the ScrollView, not
-          a fixed sibling above it — same pattern as Campus Connect and
+          a fixed sibling above it, same pattern as Campus Connect and
           Lifestyle, the two screens in this family that never showed the
           native sticky-header bug. Root cause (confirmed by structural
           comparison across every affected/unaffected screen): a fixed
@@ -313,7 +313,7 @@ export default function CompassScreen({ navigation }) {
         {/* ── Integrated header + hero — branded as CourseCompass's own
             space (navy/sky/orange, Crimson Pro + Outfit), not UniBlueprint's
             navy/cream, since it's their product we're handing off to. See
-            constants/partnerBrands.js — same reusable pattern queued for the
+            constants/partnerBrands.js, same reusable pattern queued for the
             next partner integration ("Priority"). ── */}
         <PartnerBrandedHeader
           brand={COURSE_COMPASS}
@@ -326,6 +326,23 @@ export default function CompassScreen({ navigation }) {
         />
 
         <View style={s.content}>
+
+          {/* Opened from Explore, Study, Course swap: point at the free first step. */}
+          {route?.params?.from === 'course-swap' && (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => Linking.openURL('https://coursecompass.ie/courses')}
+              accessibilityRole="link"
+              accessibilityLabel="From Course swap. Start with CAO Course Search, it is free"
+              style={{ borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: 16, marginBottom: 20 }}
+            >
+              <Text style={{ fontFamily: COURSE_COMPASS.fonts.bodySemiBold, fontSize: 11, letterSpacing: 1.2, color: colors.textSecondary }}>FROM COURSE SWAP</Text>
+              <Text style={{ fontFamily: COURSE_COMPASS.fonts.headingBold, fontSize: 20, lineHeight: 26, color: colors.textPrimary, marginTop: 6 }}>Start here: CAO Course Search</Text>
+              <Text style={{ fontFamily: COURSE_COMPASS.fonts.body, fontSize: 14, lineHeight: 21, color: colors.textSecondary, marginTop: 4 }}>
+                Free. Look through every CAO listed course before you decide on a change.
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* ── Featured bundles ── */}
           {/* iOS: no purchase CTAs or prices in the app — hide the bundles

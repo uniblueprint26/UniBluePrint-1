@@ -4,6 +4,7 @@ import { Clock, MapPin, Search, Flag, MessageCircle, Trash2, CalendarPlus, Image
 import { Card, Chip, Pill, Stamp, EmptyNote, PrimaryButton, useTone } from './CampusKit'
 import Sheet from './Sheet'
 import { RoomyMark } from './RoomyMark'
+import { ROOMY } from '../../constants/partnerBrands'
 import { EXAMPLE_EVENTS, EXAMPLE_RIDES, EXAMPLE_LOST_FOUND } from '../../constants/campusExamples'
 import { formatCarpoolDays } from '../../constants/campusBoards'
 import { nextSevenDays, dowOfIso, timeAgo } from '../../lib/campus'
@@ -317,7 +318,7 @@ export function LostFoundView({ rows, user, onPost, onReport, onBlock, onRemove,
 
 // ── Accommodation (Roomy.ie partner first, then member posts) ──────────────
 export function AccommodationView({ rows, user, onPost, onReport, onBlock, onRemove, onChat, onRoomy, onRoomyPage }) {
-  const { colors, accent, tint } = useTone()
+  const { colors, accent, tint, isDark } = useTone()
   const [f, setF] = useState('all')
   const shown = rows.filter(r => f === 'all' || r.post_type === f)
   return (
@@ -326,7 +327,7 @@ export function AccommodationView({ rows, user, onPost, onReport, onBlock, onRem
         <View style={s.top}>
           <RoomyMark size={52} />
           <View style={{ flex: 1 }}>
-            <Text style={[s.small, { color: accent, fontFamily: fonts.sansBold, letterSpacing: 0.8 }]}>ACCOMMODATION PARTNER</Text>
+            <Text style={[s.small, { color: isDark ? ROOMY.mint : ROOMY.teal, fontFamily: fonts.sansBold, letterSpacing: 0.8 }]}>ACCOMMODATION PARTNER</Text>
             <Text style={[s.title, { color: colors.textPrimary }]}>Roomy.ie</Text>
           </View>
         </View>

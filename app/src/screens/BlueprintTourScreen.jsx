@@ -50,7 +50,7 @@ function __gs_STEPS(colors, foundationOpen) {
   {
     key: 'foundation', accent: '#2563EB', Icon: FileText,
     title: 'Foundation Blueprint', tagline: 'Your Profile Builders',
-    body: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you — not AI output on its own, real human review.',
+    body: 'Every career document you need: CV, cover letter, LinkedIn, portfolio, application answers, interview prep, personal statements. Built with you, then reviewed by a real trained Campus Handler before it ever reaches you, not AI output on its own, real human review.',
     chips: [
       'CV Optimisation', 'Portfolio Building', 'LinkedIn Optimisation', 'Cover Letter Assistance',
       'Personal Statement', 'Application Form Assistance', 'Interview Preparation', 'Job Search Support',
@@ -171,7 +171,7 @@ function __gs_STEPS(colors, foundationOpen) {
   {
     key: 'done', accent: colors.navy, Icon: CheckCircle,
     title: 'You’re set', tagline: null,
-    body: 'That’s the whole map. Everything you just saw is real and ready for you — this tour just used sample content so nothing depended on your account yet. Come back to this any time from Profile, then How UniBlueprint Works.',
+    body: 'That’s the whole map. Everything you just saw is real and ready for you, this tour just used sample content so nothing depended on your account yet. Come back to this any time from Profile, then How UniBlueprint Works.',
     mock: null,
   },
   ]

@@ -229,7 +229,7 @@ function EnquiryModal({ visible, onClose, coach, userId, onSent, navigation }) {
               <SharePrompt
                 visible={!sharePromptDismissed}
                 text={sharePromptText}
-                fallbackText={`Just enquired with ${coach.name} — tell your feed about it!`}
+                fallbackText={`Just enquired with ${coach.name}, tell your feed about it!`}
                 prefill={{
                   initialTab: 'thread',
                   initialMood: 'buzzing',
@@ -607,7 +607,7 @@ export default function CoachProfileScreen({ route, navigation }) {
 
       {/* ── Scrollable content ──
           The navy header below is the FIRST CHILD of the ScrollView, not a
-          fixed sibling above it — same pattern as Campus Connect and
+          fixed sibling above it, same pattern as Campus Connect and
           Lifestyle, the two screens in this family that never showed the
           native sticky-header bug. Root cause (confirmed by structural
           comparison across every affected/unaffected screen): a fixed
@@ -618,7 +618,7 @@ export default function CoachProfileScreen({ route, navigation }) {
           Architecture that pass can resolve after the ScrollView sibling
           has already committed its frame sized against the header's
           stale/interim height, so content renders under or over the
-          header — self-correcting on any later layout pass
+          header, self-correcting on any later layout pass
           (background/foreground), matching the previously reported symptom
           exactly (this is the "Elevation coach profiles" case of that
           report). Making the header scroll with the page removes the
@@ -670,7 +670,7 @@ export default function CoachProfileScreen({ route, navigation }) {
         </View>
 
         {/* ── Identity ──
-            Price chip always reads "Starting from" — every coach shows
+            Price chip always reads "Starting from", every coach shows
             either a real € price or the single standard fallback phrase
             ("Available on request"); see the COACHES data in
             ElevationScreen.jsx. Kept structurally identical across all
@@ -755,8 +755,8 @@ export default function CoachProfileScreen({ route, navigation }) {
         )}
 
         {/* ── Pricing & Booking (coach's existing items, plus their own
-            active intro call offer as one more row — see displayPricelist
-            above) — fully visible to free users, but blurred with a lock
+            active intro call offer as one more row, see displayPricelist
+            above), fully visible to free users, but blurred with a lock
             overlay over the real numbers and the booking CTA; Pro members
             see it exactly as before, un-blurred. ── */}
         {!coach.shell && displayPricelist && displayPricelist.length > 0 && showPricing && (

@@ -44,7 +44,7 @@ export const INDUSTRY_QUESTIONNAIRES = {
   ],
   'Construction and Architecture': [
     { key: 'RIAI or SCSI registration status', placeholder: 'e.g. "architectural graduate, working toward RIAI registration"' },
-    { key: 'Highest project stage worked on', placeholder: 'e.g. "RIBA Stage 4" — see the wording convention on naming this precisely' },
+    { key: 'Highest project stage worked on', placeholder: 'e.g. "RIBA Stage 4", see the wording convention on naming this precisely' },
   ],
   'Social Work and Community': [
     { key: 'CORU registration status', placeholder: 'e.g. "registered with the Social Workers Registration Board" / "application in progress"' },
@@ -59,7 +59,7 @@ export const INDUSTRY_QUESTIONNAIRES = {
     { key: 'Enterprise type or specialism', placeholder: 'e.g. "spring-calving dairy", "large animal practice"' },
   ],
   'Skilled Trades and Apprenticeships': [
-    { key: 'Trade and current phase', placeholder: 'e.g. "Electrical, Phase 4" — see the wording convention on naming this precisely' },
+    { key: 'Trade and current phase', placeholder: 'e.g. "Electrical, Phase 4", see the wording convention on naming this precisely' },
     { key: 'Registration status (Safe Electric / RGII)', placeholder: 'e.g. "not yet applicable, apprentice" / "registered on qualification"' },
   ],
   'Insurance and Actuarial': [

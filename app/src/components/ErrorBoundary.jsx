@@ -20,7 +20,7 @@ function ErrorFallback({ onReload }) {
       <Text style={styles.title}>Something went wrong</Text>
       <Text style={styles.body}>
         UniBlueprint ran into a problem and couldn't show this screen. Reloading usually
-        fixes it — your data is safe.
+        fixes it, your data is safe.
       </Text>
       <TouchableOpacity style={styles.reloadBtn} activeOpacity={0.85} onPress={onReload}>
         <Text style={styles.reloadBtnText}>Reload</Text>

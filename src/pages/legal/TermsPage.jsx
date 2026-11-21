@@ -30,7 +30,7 @@ export default function TermsPage() {
           Terms of Service
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
-          Last updated: September 2026
+          Last updated: November 2026
         </p>
       </section>
 
@@ -115,8 +115,20 @@ export default function TermsPage() {
 
             <Section title="8. Community Features">
               <p style={P}>Campus Connect and Course Connect are community features provided free of charge to all UniBlueprint users. These features allow you to post, browse, and engage with content created by other users at your institution or on your course.</p>
-              <p style={P}>By using community features, you agree to our Community Standards, which prohibit harassment, hate speech, spam, the posting of false or misleading information, sharing the personal details of others without consent, and any other conduct that is harmful, offensive, or unlawful.</p>
-              <p style={P}>UniBlueprint moderates community boards and reserves the right to remove any content that violates our Community Standards at any time, without notice. Repeated violations may result in temporary suspension or permanent termination of your Account.</p>
+              <h3 style={H3}>8.1 Community Standards</h3>
+              <p style={P}>By using community features, you agree to these Community Standards. There is no tolerance for objectionable content or abusive users. You must not post or send:</p>
+              <ul style={{ ...P, paddingLeft: '20px' }}>
+                <li style={LI}>Harassment, bullying, threats or encouragement of self-harm;</li>
+                <li style={LI}>Hate speech, slurs, or content that targets a person or group for who they are;</li>
+                <li style={LI}>Sexual, violent or graphic content, or anything involving a person under 18;</li>
+                <li style={LI}>Spam, scams, false or misleading information, or impersonation;</li>
+                <li style={LI}>The personal details of others without their consent;</li>
+                <li style={LI}>Anything else that is harmful, offensive or unlawful.</li>
+              </ul>
+              <h3 style={H3}>8.2 Reporting and blocking</h3>
+              <p style={P}>Every post, comment, message, listing and profile has a Report option, and you can block any member. Blocking hides their content from you and stops them messaging you. Reports go to the UniBlueprint team. We aim to review every report within 24 hours. You can also email support@uniblueprint.ie.</p>
+              <h3 style={H3}>8.3 What we do</h3>
+              <p style={P}>UniBlueprint filters text for the strongest language, reviews reports, and may remove any content that breaks these Community Standards at any time, without notice. Repeated or serious violations may result in temporary suspension or permanent removal of your Account. UniBlueprint is for people aged 18 and over.</p>
             </Section>
 
             <Section title="9. Campus Ambassadors, Handlers, and Coaches">

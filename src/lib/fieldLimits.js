@@ -40,7 +40,7 @@ export const LIMITS = {
 export function checkLengths(fields) {
   for (const [label, value, limit] of fields) {
     if (typeof value === 'string' && value.length > limit) {
-      return `${label} is too long — ${value.length.toLocaleString()} characters, limit is ${limit.toLocaleString()}. Please shorten it and try again.`
+      return `${label} is too long, ${value.length.toLocaleString()} characters, limit is ${limit.toLocaleString()}. Please shorten it and try again.`
     }
   }
   return ''

@@ -16,7 +16,7 @@ export default function ProfilePrefillNote() {
     }}>
       We've filled in what we already know from your{' '}
       <Link to="/foundation/career-profile" style={{ color: '#1E3A5F', fontWeight: 600 }}>Career Profile</Link>.
-      Change anything here — what you type on this form is what we'll use.
+      Change anything here, what you type on this form is what we'll use.
     </div>
   )
 }

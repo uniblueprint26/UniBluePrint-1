@@ -2,17 +2,14 @@ import { View, Text, StyleSheet } from 'react-native'
 import { Check } from 'lucide-react-native'
 import { fonts } from '../../constants/theme'
 import { useAdTokens } from './adTheme'
+import UbpStamp from '../ui/UbpStamp'
 
 // Small pills that say who a listing is from. Seeded content UBP wrote carries
 // "From UBP" (or "Posted by UBP" on the UBP basket); real student content
 // never does.
 export function UbpTag({ label = 'FROM UBP' }) {
-  const t = useAdTokens()
-  return (
-    <View style={[s.pill, { backgroundColor: t.accentTint }]}>
-      <Text style={[s.pillText, { color: t.accentText }]}>{label}</Text>
-    </View>
-  )
+  // Title case reads better inside the stamp's spaced capitals.
+  return <UbpStamp label={String(label).toLowerCase().replace(/^./, c => c.toUpperCase()).replace(/ubp/i, 'UBP')} />
 }
 
 // Quiet, neutral pill: "Posted by a student".
@@ -25,14 +22,9 @@ export function QuietTag({ label }) {
   )
 }
 
-// Obvious but calm: used on example cards that are not real listings.
-export function ExampleTag({ label }) {
-  const t = useAdTokens()
-  return (
-    <View style={[s.pill, s.exampleBorder, { borderColor: t.colors.textSecondary }]}>
-      <Text style={[s.pillText, { color: t.colors.textPrimary }]}>{label}</Text>
-    </View>
-  )
+// Obvious but calm: the Example stamp, on cards that are not real listings.
+export function ExampleTag() {
+  return <UbpStamp example />
 }
 
 // A plain chip: an industry, or a type such as "Placement".

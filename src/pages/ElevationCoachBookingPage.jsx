@@ -222,7 +222,7 @@ export default function ElevationCoachBookingPage() {
         ) : (
           <FormCard
             title="Request a session"
-            subtitle="Pick a date and preferred time. This sends a request, it isn't confirmed until the coach accepts — pricing and payment are arranged directly with them."
+            subtitle="Pick a date and preferred time. This sends a request, it isn't confirmed until the coach accepts, pricing and payment are arranged directly with them."
           >
             {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
@@ -280,7 +280,7 @@ export default function ElevationCoachBookingPage() {
                 ) : (
                   <>
                     <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#9CA3AF', fontStyle: 'italic', marginTop: 0 }}>
-                      Preferred times — {coachName} will confirm what actually works.
+                      Preferred times, {coachName} will confirm what actually works.
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                       {TIME_SLOTS.map(t => {

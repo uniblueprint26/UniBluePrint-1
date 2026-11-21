@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
+import { EXAMPLE_SOCIETIES } from '../../constants/exampleSocieties'
 
 // Societies come from two places and are shown as one list:
 //   1. clubs_societies: societies that students or colleges have signed up
@@ -108,7 +109,19 @@ export async function fetchSocieties() {
   if (!ok(clubsRes) && !ok(contentRes)) throw new Error('societies unavailable')
   const clubs = ok(clubsRes) ? clubsRes.value.data.map(fromClub) : []
   const content = ok(contentRes) ? contentRes.value.data.map(fromExplore) : []
-  return mergeSocieties(clubs, content)
+  const examples = EXAMPLE_SOCIETIES.map((e, i) => ({
+    id: `example-${i}`,
+    name: e.name,
+    institution: '',
+    tags: [e.tag],
+    description: e.description,
+    url: null,
+    example: true,
+    ubp: true,
+    signedUp: false,
+  }))
+  // Real societies first. An example drops out once a real one has its name.
+  return mergeSocieties(clubs, [...content, ...examples])
 }
 
 export function useSocieties() {

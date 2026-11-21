@@ -1,76 +1,58 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Search, ChevronRight, X } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
-import { SectionTitle, GroupCard, RowDivider, PartnerCard, pillarTone } from '../components/explore/ExploreParts'
-import { useSocieties } from '../components/explore/societies'
+import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import { SectionTitle, GroupCard, RowDivider, pillarTone } from '../components/explore/ExploreParts'
+import PartnerStrip from '../components/explore/PartnerStrip'
 import { PILLARS } from '../constants/pillars'
 import { usePillarOrder } from '../hooks/usePillarOrder'
-import { EXPLORE_GROUPS, PARTNERS, countLabel } from '../constants/exploreCatalog'
+import { EXPLORE_BUNDLES, COMING_SOON_BUNDLE, countLabel } from '../constants/exploreCatalog'
+import { useComingSoonEnabled, COMING_SOON_COPY, COMING_SOON_TITLE } from '../constants/comingSoon'
+import { useKindCounts, openExploreRow } from '../lib/explore/exploreRows'
 import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { supabase } from '../lib/supabase'
 
 const GOLD = '#B4923A'
 
-// How many published rows each explore_content kind has, for the quiet
-// "24 listings" text. Counts stay empty if the query fails: nothing breaks.
-function useKindCounts() {
-  const [counts, setCounts] = useState({})
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        const { data, error } = await supabase
-          .from('explore_content')
-          .select('kind')
-          .eq('status', 'published')
-        if (cancelled || error || !data) return
-        const next = {}
-        data.forEach(r => { next[r.kind] = (next[r.kind] || 0) + 1 })
-        setCounts(next)
-      } catch { /* counts are optional */ }
-    })()
-    return () => { cancelled = true }
-  }, [])
-  return counts
-}
-
+// Explore: a partner strip that swipes by itself, the pillars, and a handful of
+// bundle tiles. Each bundle opens its own page, so no list here is long.
 export default function ExploreScreen({ navigation }) {
   const { colors, isDark } = useTheme()
   const insets = useSafeAreaInsets()
   const counts = useKindCounts()
   const pillarKeys = usePillarOrder()
-  const societies = useSocieties()
+  const comingSoonOn = useComingSoonEnabled()
   const [query, setQuery] = useState('')
+  const [sheet, setSheet] = useState(null)
+
+  const bundles = useMemo(
+    () => (comingSoonOn ? [...EXPLORE_BUNDLES, COMING_SOON_BUNDLE] : EXPLORE_BUNDLES),
+    [comingSoonOn],
+  )
 
   const q = query.trim().toLowerCase()
-  const groups = useMemo(() => {
-    if (!q) return EXPLORE_GROUPS
-    return EXPLORE_GROUPS
-      .map(g => ({ ...g, rows: g.rows.filter(r => r.name.toLowerCase().includes(q)) }))
-      .filter(g => g.rows.length > 0)
-  }, [q])
+  const matches = useMemo(() => {
+    if (!q) return []
+    const out = []
+    bundles.forEach(b => b.rows.forEach(r => {
+      if (`${r.name} ${r.hint || ''}`.toLowerCase().includes(q)) out.push({ ...r, bundle: b.title })
+    }))
+    return out
+  }, [q, bundles])
 
-  function openRow(row) {
-    if (row.kind) {
-      navigation.navigate('ExploreList', { kind: row.kind })
-    } else if (row.adBoardBasket) {
-      // The Ad Board is another tab. initial: false keeps its main page under
-      // the basket, so Back lands there and not on nothing.
-      navigation.getParent()?.navigate('AdBoard', {
-        screen: 'AdBoardBasket',
-        params: { basket: row.adBoardBasket },
-        initial: false,
-      })
-    } else if (row.route) {
-      navigation.navigate(row.route, row.params)
-    }
+  function openBundle(b) {
+    navigation.navigate('ExploreBundle', { bundleKey: b.key })
   }
 
   function openPartner(p) {
-    navigation.navigate(p.action.route)
+    navigation.navigate(p.action.route, p.action.params)
+  }
+
+  function openRow(row) {
+    if (row.comingSoon) setSheet(row)
+    else openExploreRow(navigation, row)
   }
 
   return (
@@ -104,20 +86,34 @@ export default function ExploreScreen({ navigation }) {
 
         {!q && (
           <>
-            {/* Our partners */}
+            {/* Our partners: swipes by itself */}
             <View style={s.block}>
               <SectionTitle>Our partners</SectionTitle>
+              <PartnerStrip onOpen={openPartner} />
             </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={s.partnerRow}
-              style={s.partnerScroll}
-            >
-              {PARTNERS.map(p => (
-                <PartnerCard key={p.key} partner={p} onPress={() => openPartner(p)} />
-              ))}
-            </ScrollView>
+
+            {/* Bundles */}
+            <View style={s.block}>
+              <SectionTitle>Explore</SectionTitle>
+              <View style={s.grid}>
+                {bundles.map(b => (
+                  <TouchableOpacity
+                    key={b.key}
+                    activeOpacity={0.8}
+                    onPress={() => openBundle(b)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${b.title}. ${b.blurb}`}
+                    style={[s.tile, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                  >
+                    <View style={[s.tileIcon, { backgroundColor: colors.tabFill }]}>
+                      <b.Icon size={22} color={colors.textPrimary} strokeWidth={1.7} />
+                    </View>
+                    <Text style={[s.tileTitle, { color: colors.textPrimary }]} numberOfLines={2}>{b.title}</Text>
+                    <Text style={[s.tileBlurb, { color: colors.textSecondary }]} numberOfLines={2}>{b.blurb}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
             {/* Pillars */}
             <View style={s.block}>
@@ -147,99 +143,50 @@ export default function ExploreScreen({ navigation }) {
           </>
         )}
 
-        {groups.map(g => (
-          <View key={g.key} style={s.block}>
-            <SectionTitle>{g.title}</SectionTitle>
+        {!!q && matches.length > 0 && (
+          <View style={s.block}>
             <GroupCard>
-              {g.rows.map((row, i) => (
+              {matches.map((row, i) => (
                 <View key={row.key}>
                   {i > 0 && <RowDivider />}
-                  <CatalogRow
-                    row={row}
-                    count={row.key === 'societies' ? societies.items.length : (row.kind ? counts[row.kind] : 0)}
-                    onPress={() => openRow(row)}
-                  />
-                  {row.key === 'societies' && !q && societies.status === 'ready' && societies.items.length > 0 && (
-                    <SocietiesPreview items={societies.items} onOpen={() => openRow(row)} />
-                  )}
+                  <SearchRow row={row} count={countLabel(counts[row.kind], row.unit)} onPress={() => openRow(row)} />
                 </View>
               ))}
             </GroupCard>
           </View>
-        ))}
+        )}
 
-        {!!q && groups.length === 0 && (
+        {!!q && matches.length === 0 && (
           <View style={s.noMatch}>
             <Text style={[s.noMatchTitle, { color: colors.textPrimary }]}>Nothing matches</Text>
             <Text style={[s.noMatchText, { color: colors.textSecondary }]}>Try a different word, like "discounts" or "budget".</Text>
           </View>
         )}
       </ScrollView>
+
+      {comingSoonOn ? (
+        <ComingSoonSheet visible={!!sheet} onClose={() => setSheet(null)} title={sheet?.name || COMING_SOON_TITLE} message={COMING_SOON_COPY} />
+      ) : null}
     </View>
   )
 }
 
-function CatalogRow({ row, count, onPress }) {
+function SearchRow({ row, count, onPress }) {
   const { colors } = useTheme()
   const iconColor = row.money ? GOLD : colors.textPrimary
   const tile = row.money ? 'rgba(180,146,58,0.16)' : colors.tabFill
-  const right = row.statusText || countLabel(count, row.unit)
   return (
-    <TouchableOpacity
-      activeOpacity={0.75}
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={row.name}
-      style={s.row}
-    >
+    <TouchableOpacity activeOpacity={0.75} onPress={onPress} accessibilityRole="button" accessibilityLabel={`${row.name}, in ${row.bundle}`} style={s.row}>
       <View style={[s.rowIcon, { backgroundColor: tile }]}>
         <row.Icon size={18} color={iconColor} strokeWidth={1.7} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={[s.rowName, { color: colors.textPrimary, fontFamily: fonts.sansSemiBold }]} numberOfLines={1}>{row.name}</Text>
+        <Text style={[s.rowName, { color: colors.textPrimary }]} numberOfLines={1}>{row.name}</Text>
+        <Text style={[s.rowHint, { color: colors.textSecondary }]} numberOfLines={1}>{row.bundle}</Text>
       </View>
-      {!!right && <Text style={[s.rowStatus, { color: colors.textSecondary }]}>{right}</Text>}
+      {!!count && <Text style={[s.rowStatus, { color: colors.textSecondary }]}>{count}</Text>}
       <ChevronRight size={18} color={colors.textTertiary} strokeWidth={1.8} />
     </TouchableOpacity>
-  )
-}
-
-// A short sideways peek at the first six societies, under the Societies row.
-function SocietiesPreview({ items, onOpen }) {
-  const { colors } = useTheme()
-  const first = items.slice(0, 6)
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={s.prevRow}
-      style={s.prevScroll}
-    >
-      {first.map(it => {
-        const line = it.institution || it.tags[0] || ''
-        return (
-          <TouchableOpacity
-            key={it.id}
-            activeOpacity={0.8}
-            onPress={onOpen}
-            accessibilityRole="button"
-            accessibilityLabel={`${it.name}${line ? `, ${line}` : ''}`}
-            style={[s.prevCard, { backgroundColor: colors.background, borderColor: colors.border }]}
-          >
-            <View style={[s.prevInitial, { backgroundColor: colors.tabFill }]}>
-              <Text style={[s.prevInitialText, { color: colors.textPrimary }]}>{it.name.charAt(0).toUpperCase()}</Text>
-            </View>
-            <Text style={[s.prevName, { color: colors.textPrimary }]} numberOfLines={2}>{it.name}</Text>
-            <Text style={[s.prevLine, { color: colors.textSecondary }]} numberOfLines={1}>{line || ' '}</Text>
-            {it.example && (
-              <View style={[s.prevTag, { backgroundColor: colors.tabFill }]}>
-                <Text style={[s.prevTagText, { color: colors.textSecondary }]}>Example</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        )
-      })}
-    </ScrollView>
   )
 }
 
@@ -255,8 +202,11 @@ const s = StyleSheet.create({
   },
   searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 15, height: 48, outlineStyle: 'none' },
 
-  partnerScroll: { marginHorizontal: -16 },
-  partnerRow: { paddingHorizontal: 16, gap: 12, paddingVertical: 4 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  tile: { width: '47.8%', flexGrow: 1, borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, padding: 16, minHeight: 148 },
+  tileIcon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  tileTitle: { fontFamily: fonts.serif, fontSize: 20, lineHeight: 25, marginTop: 14 },
+  tileBlurb: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 18, marginTop: 4 },
 
   pillarRow: { flexDirection: 'row', justifyContent: 'space-between' },
   pillarItem: { width: 56, alignItems: 'center', gap: 6 },
@@ -265,17 +215,8 @@ const s = StyleSheet.create({
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, paddingHorizontal: 14, minHeight: 56 },
   rowIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  rowName: { fontSize: 15 },
-
-  prevScroll: { marginBottom: 14 },
-  prevRow: { paddingHorizontal: 14, gap: 10 },
-  prevCard: { width: 148, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, padding: 12 },
-  prevInitial: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
-  prevInitialText: { fontFamily: fonts.serif, fontSize: 16 },
-  prevName: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, lineHeight: 18, marginTop: 10, minHeight: 36 },
-  prevLine: { fontFamily: fonts.sans, fontSize: 12, marginTop: 2 },
-  prevTag: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, marginTop: 8 },
-  prevTagText: { fontFamily: fonts.sansSemiBold, fontSize: 10.5 },
+  rowName: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  rowHint: { fontFamily: fonts.sans, fontSize: 12.5, marginTop: 1 },
   rowStatus: { fontFamily: fonts.sans, fontSize: 13 },
 
   noMatch: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 },

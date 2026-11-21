@@ -24,6 +24,7 @@
   <url><loc>https://uniblueprint.ie/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://uniblueprint.ie/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://uniblueprint.ie/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://uniblueprint.ie/delete-account</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://uniblueprint.ie/cookies</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://uniblueprint.ie/refund-policy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://uniblueprint.ie/accessibility</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>

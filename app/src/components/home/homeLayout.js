@@ -7,19 +7,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 // above the feed.
 
 export const HOME_SECTIONS = [
-  { key: 'digest', label: "Today's Digest", hint: 'Unread, deals, goals and posts today' },
+  { key: 'digest', label: "Today's Digest", hint: 'Slim until you tap it. Holds your goals' },
   { key: 'nextUp', label: 'Next up', hint: 'Your next event. Only shows when you have one' },
   { key: 'posts',  label: 'Posts', hint: 'Your feed' },
-  { key: 'goals',  label: 'Your goals', hint: 'Shows after your first few posts' },
 ]
 
 // Default: digest, next up, then posts with your goals tucked in after the
 // first few posts.
 export const DEFAULT_HOME_LAYOUT = [
   { key: 'digest', on: true },
-  { key: 'nextUp', on: true },
+  { key: 'nextUp', on: false },
   { key: 'posts',  on: true },
-  { key: 'goals',  on: true },
 ]
 
 // How many posts show before an inline section (your goals) in the feed.

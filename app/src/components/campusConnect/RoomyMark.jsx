@@ -1,17 +1,14 @@
-import { View, Text } from 'react-native'
-import { fonts } from '../../constants/theme'
+import { Image, View } from 'react-native'
+import { ROOMY } from '../../constants/partnerBrands'
 
-// Roomy.ie partner mark. The founder has permission to use Roomy's logo; the
-// file has not been added to the repo yet, so this is a plain neutral tile
-// until it is. To use the real logo, drop it in app/assets/partners/roomy/
-// and swap this component for an Image.
+// Roomy.ie partner logo (square, from app/assets/partners/roomy/logo.png).
 export function RoomyMark({ size = 48 }) {
   return (
     <View
-      accessibilityLabel="Roomy.ie"
-      style={{ width: size, height: size, borderRadius: size * 0.28, backgroundColor: '#1E3A5F', alignItems: 'center', justifyContent: 'center' }}
+      accessibilityLabel="Roomy.ie logo"
+      style={{ width: size, height: size, borderRadius: size * 0.22, overflow: 'hidden', backgroundColor: ROOMY.deep }}
     >
-      <Text style={{ fontFamily: fonts.serif, color: '#FFFFFF', fontSize: size * 0.5, lineHeight: size * 0.62, includeFontPadding: false }}>R</Text>
+      <Image source={require('../../../assets/partners/roomy/logo.png')} style={{ width: size, height: size }} resizeMode="cover" />
     </View>
   )
 }

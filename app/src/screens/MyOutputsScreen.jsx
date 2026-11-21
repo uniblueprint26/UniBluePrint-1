@@ -105,7 +105,7 @@ function OutputRow({ row, isLast, onPress }) {
           expired ? (
             <View style={styles.reviewBadge}>
               <Archive size={10} color={EXPIRED_COLOR.fg} strokeWidth={2.2} />
-              <Text style={[styles.reviewBadgeText, { color: EXPIRED_COLOR.fg }]}>Wallet storage expired — content cleared</Text>
+              <Text style={[styles.reviewBadgeText, { color: EXPIRED_COLOR.fg }]}>Wallet storage expired, content cleared</Text>
             </View>
           ) : (
             <View style={styles.reviewBadge}>
@@ -207,7 +207,7 @@ export default function MyOutputsScreen({ navigation }) {
         ) : (
           <>
             {/* MyOutputs is the one screen most students will treat as their
-                own dashboard — give it the same stat-tile authority the
+                own dashboard, give it the same stat-tile authority the
                 portal dashboards have, not just a flat list. */}
             <StatTileRow style={{ marginBottom: spacing.md }}>
               <StatTile icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary} value={queuedCount} label="Queued" border />
