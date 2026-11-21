@@ -4,16 +4,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import { CheckCircle, FileText, Inbox, Clock, UserCheck, ChevronRight, Archive } from 'lucide-react-native'
 import Card from '../components/ui/Card'
-import ScreenHeader from '../components/ui/ScreenHeader'
-import StatTile, { StatTileRow } from '../components/ui/StatTile'
-import UBPLogo from '../components/ui/UBPLogo'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import { envelopePaper } from '../components/foundation/envelopePaper'
 import Button from '../components/ui/Button'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../hooks/useAppFlags'
 
 // "My Outputs" — a student's own submission history and completed
@@ -69,69 +66,55 @@ const VIEWABLE_DOCUMENT_TABLES = new Set([
 // stage on the way to delivery.
 const EXPIRED_COLOR = { fg: '#6B7280', bg: 'rgba(107,114,128,0.12)' }
 
-function OutputRow({ row, isLast, onPress }) {
-  const { colors } = useTheme()
+function OutputRow({ row, onPress }) {
+  const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
+  const paper = envelopePaper(isDark)
   const delivered = row.stage === 'delivered'
-  // wallet_scrubbed_at is only ever set once expire_wallet_outputs() has
-  // actually cleared this row's document content (20261015130000_output_
-  // wallet_retention.sql) — a delivered row with it set still exists here,
-  // it just has nothing left to show, so this reads as its own state
-  // rather than a blank "Delivered" row.
+  // wallet_scrubbed_at is only set once the wallet content was cleared.
   const expired = delivered && !!row.wallet_scrubbed_at
-  const stageColor = expired ? EXPIRED_COLOR : (STAGE_COLOR[row.stage] || STAGE_COLOR.submitted)
-  const canOpen = delivered && VIEWABLE_DOCUMENT_TABLES.has(row.document_table)
+  const canOpen = delivered && !expired && VIEWABLE_DOCUMENT_TABLES.has(row.document_table)
   const Wrapper = canOpen ? TouchableOpacity : View
+  const stageText = expired ? 'Expired' : (STAGE_LABEL[row.stage] || row.stage)
+  const dotColor = expired ? colors.light : delivered ? (isDark ? '#7FD6A3' : '#2E8F5B') : row.stage === 'in_review' ? (isDark ? '#8FB0E8' : '#3B6BC4') : colors.light
+  const sealed = row.stage === 'in_review' || row.stage === 'assigned'
   return (
     <Wrapper
-      style={[styles.row, !isLast && styles.rowDivider, expired && styles.rowExpired]}
-      {...(canOpen ? { onPress, activeOpacity: 0.7, accessibilityRole: 'button', accessibilityLabel: `Open ${row.services?.name || 'your document'}` } : {})}
+      style={[styles.card, { backgroundColor: paper.body, borderColor: paper.edge }, expired && styles.rowExpired]}
+      {...(canOpen ? { onPress, activeOpacity: 0.8, accessibilityRole: 'button', accessibilityLabel: `Open ${row.services?.name || 'your document'}` } : {})}
     >
-      <View style={[styles.rowIcon, { backgroundColor: expired ? EXPIRED_COLOR.bg : (delivered ? '#F0FDF4' : '#EFF6FF') }]}>
-        {expired
-          ? <Archive size={16} color={EXPIRED_COLOR.fg} strokeWidth={1.8} />
-          : delivered
-            ? <CheckCircle size={16} color="#15803D" strokeWidth={1.8} />
-            : <FileText size={16} color={colors.textPrimary} strokeWidth={1.8} />}
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.rowTitle, expired && styles.rowTitleExpired]} numberOfLines={1}>{row.services?.name || 'Service'}</Text>
-        <Text style={styles.rowMeta}>
-          {row.tier === 'premium' ? 'Premium' : 'Standard'} · Submitted {formatDate(row.submitted_at)}
-          {delivered ? ` · Delivered ${formatDate(row.delivered_at)}` : ''}
-          {delivered && !expired ? ` · ${storageNote(row)}` : ''}
-        </Text>
-        {delivered && (
-          expired ? (
-            <View style={styles.reviewBadge}>
-              <Archive size={10} color={EXPIRED_COLOR.fg} strokeWidth={2.2} />
-              <Text style={[styles.reviewBadgeText, { color: EXPIRED_COLOR.fg }]}>Wallet storage expired, content cleared</Text>
-            </View>
-          ) : (
-            <View style={styles.reviewBadge}>
-              <UserCheck size={10} color={colors.textPrimary} strokeWidth={2.2} />
-              <Text style={styles.reviewBadgeText}>Reviewed by your Campus Handler</Text>
-            </View>
-          )
-        )}
-      </View>
-      <View style={styles.rowTrailing}>
-        <View style={[styles.stagePill, { backgroundColor: stageColor.bg }]}>
-          <Text style={[styles.stagePillText, { color: stageColor.fg }]}>{expired ? 'Expired' : (STAGE_LABEL[row.stage] || row.stage)}</Text>
+      <View style={styles.glyph}>
+        <View style={[styles.glyphBody, { backgroundColor: paper.flap, borderColor: paper.edge }]}>
+          {delivered && !expired && <View style={[styles.glyphLetter, { backgroundColor: paper.letter, borderColor: paper.edge }]} />}
+          {sealed && <View style={[styles.glyphSeal, { backgroundColor: paper.sealBg }]} />}
         </View>
-        {canOpen && <ChevronRight size={16} color={colors.light} strokeWidth={2} />}
       </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={[styles.rowTitle, expired && styles.rowTitleExpired]} numberOfLines={2}>{row.services?.name || 'Service'}</Text>
+        <Text style={styles.rowMeta}>
+          {delivered ? `Delivered ${formatDate(row.delivered_at)}` : `Submitted ${formatDate(row.submitted_at)}`}
+          {row.tier === 'premium' ? ' (Premium)' : ''}
+        </Text>
+        <View style={styles.chipRow}>
+          <View style={[styles.chip, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(30,58,95,0.07)' }]}>
+            <View style={[styles.chipDot, { backgroundColor: dotColor }]} />
+            <Text style={styles.chipText}>{stageText}</Text>
+          </View>
+        </View>
+        {delivered && !expired && <Text style={styles.rowNote}>{storageNote(row)}</Text>}
+        {expired && <Text style={styles.rowNote}>Wallet storage expired, content cleared</Text>}
+      </View>
+      {canOpen && <ChevronRight size={18} color={colors.textSecondary} strokeWidth={2} />}
     </Wrapper>
   )
 }
 
 export default function MyOutputsScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
   const { enabled: orderingOpen } = useFoundationOrdering()
-  const safeGoBack = useSafeGoBack(navigation)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -164,41 +147,42 @@ export default function MyOutputsScreen({ navigation }) {
   const queuedCount = rows.filter(r => ['submitted', 'in_queue', 'assigned'].includes(r.stage)).length
   const inReviewCount = rows.filter(r => r.stage === 'in_review').length
 
+  const paper = envelopePaper(isDark)
+  const onItsWay = rows.filter(r => r.stage !== 'delivered')
+  const ready = rows.filter(r => r.stage === 'delivered')
+  const openRow = row => navigation.navigate('OutputDetail', {
+    documentTable: row.document_table,
+    documentId: row.document_id,
+    serviceName: row.services?.name || 'Your document',
+    deliveredAt: row.delivered_at,
+    expiresAt: row.expires_at,
+    walletScrubbedAt: row.wallet_scrubbed_at,
+  })
+
   return (
     <View style={styles.screen}>
-      <ScreenHeader
-        variant="navy"
-        onBack={safeGoBack}
-        backLabel="Home"
-        logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
-        eyebrow="MY OUTPUTS"
-        title="Your Completed Documents"
-        subtitle={deliveredCount > 0
-          ? `${deliveredCount} document${deliveredCount !== 1 ? 's' : ''} delivered so far.`
-          : 'Every service you order and everything a Campus Handler delivers back to you shows up here.'}
-        style={styles.heroBlock}
-        titleStyle={styles.heroTitle}
-      />
-
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />}
       >
+        <PageTitle title="Outputs" subtitle="Your finished documents, checked by a real person." style={{ paddingHorizontal: 0 }} />
+
         {loading ? (
           <Text style={styles.loadingText}>Loading your outputs...</Text>
         ) : rows.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <FileText size={36} color="rgba(30,58,95,0.2)" />
+            <FileText size={36} color={colors.textSecondary} />
             <Text style={styles.emptyTitle}>Nothing here yet.</Text>
             <Text style={styles.emptySub}>
               {orderingOpen
-                ? "Order a CV, cover letter, or any other Foundation Blueprint service and it'll be tracked here from submission to delivery."
+                ? 'Order a CV, cover letter, or any other Foundation service and it will be tracked here from submission to delivery.'
                 : `${FOUNDATION_ORDERING_LINE}. You can start your answers now and they are saved as a draft.`}
             </Text>
             <Button
-              label="Go to Foundation Blueprint"
+              label="Go to Foundation"
               onPress={() => navigation.navigate('Foundation')}
               variant="primary"
               style={styles.emptyBtn}
@@ -206,31 +190,31 @@ export default function MyOutputsScreen({ navigation }) {
           </Card>
         ) : (
           <>
-            {/* MyOutputs is the one screen most students will treat as their
-                own dashboard, give it the same stat-tile authority the
-                portal dashboards have, not just a flat list. */}
-            <StatTileRow style={{ marginBottom: spacing.md }}>
-              <StatTile icon={Inbox} iconBg="#EFF6FF" iconColor={colors.textPrimary} value={queuedCount} label="Queued" border />
-              <StatTile icon={Clock} iconBg="#FEF9C3" iconColor={colors.goldDeep} value={inReviewCount} label="In Review" border />
-              <StatTile icon={CheckCircle} iconBg="#F0FDF4" iconColor={colors.success} value={deliveredCount} label="Delivered" />
-            </StatTileRow>
-            <Card style={{ padding: 0 }}>
-              {rows.map((row, i) => (
-                <OutputRow
-                  key={row.id}
-                  row={row}
-                  isLast={i === rows.length - 1}
-                  onPress={() => navigation.navigate('OutputDetail', {
-                    documentTable: row.document_table,
-                    documentId: row.document_id,
-                    serviceName: row.services?.name || 'Your document',
-                    deliveredAt: row.delivered_at,
-                    expiresAt: row.expires_at,
-                    walletScrubbedAt: row.wallet_scrubbed_at,
-                  })}
-                />
+            <View style={[styles.counts, { backgroundColor: paper.body, borderColor: paper.edge }]}>
+              {[[queuedCount, 'In queue'], [inReviewCount, 'In review'], [deliveredCount, 'Delivered']].map(([n, label], i) => (
+                <View key={label} style={[styles.countCell, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: paper.edge }]}>
+                  <Text style={styles.countNum}>{n}</Text>
+                  <Text style={styles.countLabel}>{label}</Text>
+                </View>
               ))}
-            </Card>
+            </View>
+
+            {onItsWay.length > 0 && (
+              <>
+                <Text style={styles.groupLabel}>{`ON ITS WAY  ${onItsWay.length}`}</Text>
+                <View style={{ gap: 12 }}>
+                  {onItsWay.map(row => <OutputRow key={row.id} row={row} onPress={() => openRow(row)} />)}
+                </View>
+              </>
+            )}
+            {ready.length > 0 && (
+              <>
+                <Text style={styles.groupLabel}>{`READY TO READ  ${ready.length}`}</Text>
+                <View style={{ gap: 12 }}>
+                  {ready.map(row => <OutputRow key={row.id} row={row} onPress={() => openRow(row)} />)}
+                </View>
+              </>
+            )}
           </>
         )}
       </ScrollView>
@@ -248,7 +232,7 @@ function getStyles(colors) {
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView reliably
   // fills the space below the fixed header on native.
   scrollView: { flex: 1 },
-  scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
+  scroll: { paddingHorizontal: spacing.md, paddingTop: 0 },
   loadingText: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 40 },
 
   emptyCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },
@@ -256,19 +240,24 @@ function getStyles(colors) {
   emptySub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19, paddingHorizontal: 12 },
   emptyBtn: { marginTop: 10, ...shadows.card },
 
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
-  rowDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
-  // Muted whole-row treatment for an expired output — content cleared, not
-  // just another "delivered" row (see EXPIRED_COLOR / storageNote above).
+  card: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 20, borderWidth: 1 },
   rowExpired: { opacity: 0.6 },
-  rowIcon: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
-  rowTitleExpired: { color: colors.muted },
-  rowMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, marginTop: 2 },
-  reviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
-  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.textPrimary },
-  rowTrailing: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 },
-  stagePill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
-  stagePillText: { fontFamily: fonts.sansSemiBold, fontSize: 10 },
+  glyph: { width: 54, alignItems: 'center' },
+  glyphBody: { width: 50, height: 36, borderRadius: 7, borderWidth: 1, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
+  glyphLetter: { position: 'absolute', top: -7, width: 32, height: 14, borderRadius: 3, borderWidth: 1 },
+  glyphSeal: { width: 14, height: 14, borderRadius: 7, marginTop: 6 },
+  rowTitle: { fontFamily: fonts.sansSemiBold, fontSize: 17, color: colors.textPrimary },
+  rowTitleExpired: { color: colors.textSecondary },
+  rowMeta: { fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, marginTop: 3 },
+  chipRow: { flexDirection: 'row', marginTop: 10 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
+  chipDot: { width: 8, height: 8, borderRadius: 4 },
+  chipText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.textPrimary },
+  rowNote: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textSecondary, marginTop: 8 },
+  counts: { flexDirection: 'row', borderRadius: 22, borderWidth: 1, paddingVertical: 20, marginTop: 6 },
+  countCell: { flex: 1, alignItems: 'center' },
+  countNum: { fontFamily: fonts.serif, fontSize: 40, lineHeight: 46, color: colors.textPrimary },
+  countLabel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textSecondary, marginTop: 2 },
+  groupLabel: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1.1, color: colors.textSecondary, marginTop: 26, marginBottom: 12 },
   })
 }

@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useState, useRef } from 'react'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid, TagInput, YesNoToggle } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
@@ -35,7 +36,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_current_headline', label: 'Current headline', title: 'What is your headline now?', kind: 'text', subtitle: 'Paste it if you have one. We will show what to change and why.', placeholder: 'Optional' },
+  { key: 'x_current_about', label: 'Current About section', title: 'Paste your current About section', kind: 'text', subtitle: 'Optional. If you have none, skip this and we will write one from your answers.', minHeight: 160 },
+  { key: 'x_open_to', label: 'Open to', title: 'What are you open to right now?', kind: 'choice', options: [{ value: 'jobs', label: 'Jobs' }, { value: 'internships', label: 'Internships' }, { value: 'freelance', label: 'Freelance work' }, { value: 'mentoring', label: 'Mentoring' }, { value: 'networking', label: 'Networking only' }] },
+  { key: 'x_keywords', label: 'Keywords', title: 'Keywords you want to be found for', kind: 'line', subtitle: 'The words a recruiter would type to find someone like you. Separate them with commas.', placeholder: 'e.g. data analysis, SQL, stakeholder reporting' },
+  { key: 'x_projects', label: 'Projects', title: 'Projects, publications or work you can link to', kind: 'text', subtitle: 'Anything with a result or a link that backs up your profile.' },
+  { key: 'x_certifications', label: 'Certifications', title: 'Certifications, licences and volunteering', kind: 'text', subtitle: 'Include the year if you remember it.' },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   current_status: '',
   has_no_experience: null,
   target_role: '', target_industry: '',
@@ -159,6 +171,7 @@ export default function LinkedinBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       current_status: v.current_status,
       has_no_experience: !!v.has_no_experience,
       key_skills: v.key_skills,
@@ -219,7 +232,8 @@ export default function LinkedinBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="LinkedIn Optimisation"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}

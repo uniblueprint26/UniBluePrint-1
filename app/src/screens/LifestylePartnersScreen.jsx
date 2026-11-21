@@ -21,8 +21,8 @@
 import { useMemo, useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, Lock } from 'lucide-react-native'
-import UBPLogo from '../components/ui/UBPLogo'
+import { Lock } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import SectionHeader from '../components/ui/SectionHeader'
 import ComingSoonSheet from '../components/ui/ComingSoonSheet'
 import { useComingSoonEnabled, COMING_SOON_COPY } from '../constants/comingSoon'
@@ -34,8 +34,6 @@ import {
 import RedemptionCodeSheet from '../components/lifestyle/RedemptionCodeSheet'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { PARTNERS } from '../data/lifestylePartners'
 
 const CATEGORY_KEYS = FILTERS.filter(f => f.key !== 'all').map(f => f.key)
@@ -45,7 +43,6 @@ export default function LifestylePartnersScreen({ navigation, route }) {
   const styles = __gs_styles(colors)
   const partnerStyles = getPartnerStyles(colors)
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation)
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const comingSoonOn = useComingSoonEnabled()
   const [expandPartnerId, setExpandPartnerId] = useState(null)
@@ -96,35 +93,14 @@ export default function LifestylePartnersScreen({ navigation, route }) {
 
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
       <View style={{ flex: 1 }}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Integrated header + hero ── */}
-          <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-            <View style={styles.navRow}>
-              <TouchableOpacity
-                style={styles.backBtn}
-                onPress={safeGoBack}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Go back"
-              >
-                <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-                <Text style={styles.backBtnText}>Home</Text>
-              </TouchableOpacity>
-              <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
-              <View style={{ width: 70 }} />
-            </View>
-
-            <Text style={styles.heroEyebrow}>LIFESTYLE · EXPLORE</Text>
-            <Text style={styles.heroTitle}>Explore</Text>
-            <Text style={styles.heroSub}>
-              Every confirmed Lifestyle Blueprint partner and deal, on the map and by category below.
-            </Text>
-          </View>
+          <PageTitle title="Our partners" subtitle="Every real Lifestyle partner and local discount, on the map and by category." />
 
           <View style={styles.section}>
             {/* Map — always visible here, not behind a toggle. */}
@@ -228,7 +204,7 @@ function __gs_styles(colors) {
   heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginBottom: 10 },
   heroSub:   { fontFamily: fonts.sans, fontSize: 14, color: 'rgba(245,240,232,0.72)', lineHeight: 22 },
 
-  section: { paddingHorizontal: spacing.md, marginTop: spacing.xl },
+  section: { paddingHorizontal: spacing.md, marginTop: spacing.md },
   mapSection: {
     backgroundColor: colors.chromeBg, borderRadius: radius.card,
     padding: spacing.md,

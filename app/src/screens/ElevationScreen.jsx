@@ -10,8 +10,8 @@ import {
 } from 'lucide-react-native'
 
 import Card from '../components/ui/Card'
-import ScreenHeader from '../components/ui/ScreenHeader'
-import UBPLogo from '../components/ui/UBPLogo'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
+import { PILLARS } from '../constants/pillars'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
@@ -412,10 +412,6 @@ function CoachCard({ coach, navigation, index = 0 }) {
       <View style={styles.cardSlot}>
         {/* A second, slightly rotated sheet behind the real card — gives the
             list a stacked-dossier depth instead of flat rows. */}
-        <View style={[styles.cardSheet, styles.cardSheetShell]} />
-        <View style={[styles.indexTab, styles.indexTabShell]}>
-          <Text style={styles.indexTabText}>{indexLabel}</Text>
-        </View>
         <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
           <Card style={[styles.coachCard, styles.coachCardShell]}>
             <View style={styles.coachTop}>
@@ -463,10 +459,6 @@ function CoachCard({ coach, navigation, index = 0 }) {
 
   return (
     <View style={styles.cardSlot}>
-      <View style={styles.cardSheet} />
-      <View style={styles.indexTab}>
-        <Text style={styles.indexTabText}>{indexLabel}</Text>
-      </View>
     <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
       <Card style={styles.coachCard}>
         {/* Swiping pictures sit above the coach name. Only the real images
@@ -551,7 +543,7 @@ function CoachCard({ coach, navigation, index = 0 }) {
               {pricePreview.map(p => (
                 <View key={p.label} style={styles.priceTile}>
                   <Text style={styles.priceTileLabel} numberOfLines={1}>{p.label}</Text>
-                  <Text style={styles.priceTileValue}>{p.price}</Text>
+                  <Text style={[styles.priceTileValue, /€/.test(String(p.price)) && { color: colors.goldText }]}>{p.price}</Text>
                 </View>
               ))}
             </View>
@@ -564,7 +556,7 @@ function CoachCard({ coach, navigation, index = 0 }) {
           <View style={styles.coachFooter}>
             <View style={styles.footerPrice}>
               <Text style={styles.fromLabel}>Starting from</Text>
-              <Text style={styles.fromPrice}>{coach.from}</Text>
+              <Text style={[styles.fromPrice, /€/.test(String(coach.from)) && { color: colors.goldText }]}>{coach.from}</Text>
             </View>
             <View style={styles.profileBtn}>
               <Text style={styles.profileBtnText}>View Profile</Text>
@@ -724,7 +716,8 @@ function GroupHeader({ label, count, first }) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ElevationScreen({ navigation }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
+  const elevAccent = isDark ? '#B7A3F0' : PILLARS.elevation.color
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -773,6 +766,7 @@ export default function ElevationScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
 
       {/* ── Scrollable content ──
           The navy hero block below is the FIRST CHILD of the ScrollView, not
@@ -801,17 +795,9 @@ export default function ElevationScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Integrated header + hero (single navy block) ── */}
-        <ScreenHeader
-          variant="navy"
-          onBack={safeGoBack}
-          backLabel="Home"
-          logoCenter={<UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />}
-          eyebrow="ELEVATION BLUEPRINT"
-          title="Our Coaches"
-          subtitle="Coaches across fitness, academic grinds, finance, and marketing. Every coach is reviewed before joining the platform."
-          style={styles.heroBlock}
-          titleStyle={styles.heroTitle}
+        <PageTitle
+          title="Elevation"
+          right={<View style={[styles.pillarMark, { backgroundColor: elevAccent + '2E' }]}><PILLARS.elevation.Icon size={22} color={elevAccent} strokeWidth={1.8} /></View>}
         />
 
         <View style={styles.content}>
@@ -828,13 +814,17 @@ export default function ElevationScreen({ navigation }) {
             />
           ) : (
           <>
-          {/* Browse by service — a single row of filter pills. With the
-              Round 2 category merge (Fitness+Sports+Yoga, Creative into
-              Marketing) there are only 4 real categories left; a compact
-              pill row reads far cleaner at that count than the old 2-column
-              tile grid, which left an awkward lone tile dangling on its own
-              row. See the FILTERS comment above for the full reasoning. */}
-          <Text style={styles.serviceGridLabel}>Browse by Service</Text>
+          {/* Find me a coach first, then browse. */}
+          <View style={styles.findCard}>
+            <Text style={styles.findTitle}>Find me a coach</Text>
+            <Text style={styles.findSub}>Tell us what you need and we will match you with a verified coach.</Text>
+            <TouchableOpacity style={styles.findBtn} activeOpacity={0.85} onPress={() => setFindCoachOpen(true)} accessibilityRole="button" accessibilityLabel="Send a request">
+              <Send size={16} color={colors.accentFg} />
+              <Text style={styles.findBtnText}>Send a request</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.browseTitle}>Browse coaches</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -847,6 +837,8 @@ export default function ElevationScreen({ navigation }) {
                 style={[styles.filterPill, active === filter && styles.filterPillActive]}
                 activeOpacity={0.85}
                 onPress={() => setActive(filter)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active === filter }}
               >
                 <Icon size={15} color={active === filter ? colors.accentFg : colors.textPrimary} strokeWidth={2} />
                 <Text style={[styles.filterPillLabel, active === filter && styles.filterPillLabelActive]}>{label}</Text>
@@ -855,47 +847,16 @@ export default function ElevationScreen({ navigation }) {
           </ScrollView>
 
           <Text style={styles.resultsCount}>
-            {visible.length} coach{visible.length !== 1 ? 'es' : ''} available
+            {visible.length} coach{visible.length !== 1 ? 'es' : ''}
           </Text>
 
-          {/* Academic banner for filtered view */}
           {active === 'Academic Grinds' && academicBanner}
 
-          <View style={{ marginTop: spacing.sm }}>
-            {active === 'All' ? (
-              /* Grouped view */
-              GROUPS.map((group, gi) => {
-                const groupCoaches = COACHES.filter(c => group.filters.includes(c.filter)).map(withVerified)
-                if (groupCoaches.length === 0) return null
-                return (
-                  <View key={group.label}>
-                    {/* Academic banner inline before its group */}
-                    {group.label === 'Academic Grinds' && academicBanner}
-                    <GroupHeader label={group.label} count={groupCoaches.length} first={gi === 0} />
-                    <View style={{ gap: 22, marginBottom: 4 }}>
-                      {groupCoaches.map((coach, i) => (
-                        <CoachCard key={coach.id} coach={coach} navigation={navigation} index={i} />
-                      ))}
-                    </View>
-                  </View>
-                )
-              })
-            ) : (
-              /* Flat filtered view */
-              <View style={{ gap: 22 }}>
-                {visible.map((coach, i) => (
-                  <CoachCard key={coach.id} coach={coach} navigation={navigation} index={i} />
-                ))}
-              </View>
-            )}
+          <View style={{ marginTop: spacing.sm, gap: 20 }}>
+            {visible.map((coach, i) => (
+              <CoachCard key={coach.id} coach={coach} navigation={navigation} index={i} />
+            ))}
           </View>
-
-          <Button
-            label="Book a Coach"
-            onPress={() => setFindCoachOpen(true)}
-            variant="primary"
-            style={styles.primaryBtn}
-          />
           </>
           )}
 
@@ -926,6 +887,13 @@ function __gs_styles(colors) {
     paddingBottom: spacing.md,
   },
   heroTitle: { fontFamily: fonts.serif, fontSize: 34, color: colors.chromeFg, marginTop: 6, marginBottom: 10 },
+  pillarMark: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: PILLARS.elevation.color + '22', marginBottom: 2 },
+  findCard: { padding: 18, borderRadius: radius.card, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, ...shadows.card },
+  findTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary },
+  findSub: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 20, color: colors.textSecondary, marginTop: 6 },
+  findBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingHorizontal: 18, paddingVertical: 12, borderRadius: radius.button, backgroundColor: colors.accentBg },
+  findBtnText: { fontFamily: fonts.sansBold, fontSize: 15, color: colors.accentFg },
+  browseTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.textPrimary, marginTop: spacing.xl, marginBottom: 12 },
 
   // Filter pills — single horizontal row, replacing the old 2-column tile
   // grid now that only 4 real categories remain post-merge (see FILTERS).
@@ -951,7 +919,7 @@ function __gs_styles(colors) {
   // available viewport, which is what let the header float over content.
   scrollView: { flex: 1 },
   scroll:  {},
-  content: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
+  content: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
 
   resultsCount: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginBottom: 4 },
 
@@ -976,7 +944,7 @@ function __gs_styles(colors) {
   // Coach cards — stacked-paper "catalogue" treatment: a slightly rotated
   // sheet peeks out behind the real Card, and a small "N°0X" index tab pokes
   // above it, so the list reads as a curated dossier rather than flat rows.
-  cardSlot:   { position: 'relative', paddingTop: 14 },
+  cardSlot:   { position: 'relative' },
   cardSheet: {
     position: 'absolute', top: 20, left: 10, right: 10, bottom: -6,
     backgroundColor: colors.surfaceAlt, borderRadius: radius.card,
@@ -1011,7 +979,7 @@ function __gs_styles(colors) {
   // Tagline — a gold-accented pull-quote (real italic serif face) rather
   // than a plain synthetic-italic caption.
   taglineQuote:     { flexDirection: 'row', gap: 10, marginTop: 10 },
-  taglineQuoteBar:  { width: 2.5, borderRadius: 2, backgroundColor: colors.gold },
+  taglineQuoteBar:  { width: 2.5, borderRadius: 2, backgroundColor: PILLARS.elevation.color },
   taglineQuoteText: { flex: 1, fontFamily: fonts.serifItalic, fontSize: 14.5, color: colors.textPrimary, lineHeight: 20 },
   coachBio:      { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, lineHeight: 20, marginTop: 10 },
 

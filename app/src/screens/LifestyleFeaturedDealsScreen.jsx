@@ -36,8 +36,8 @@ import {
   View, Text, TouchableOpacity, StyleSheet, FlatList,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronLeft, ChevronRight } from 'lucide-react-native'
-import UBPLogo from '../components/ui/UBPLogo'
+import { ChevronRight } from 'lucide-react-native'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import SectionHeader from '../components/ui/SectionHeader'
 import {
   PartnerDetailSheet, PartnerExpandCard,
@@ -48,8 +48,6 @@ import {
 import RedemptionCodeSheet from '../components/lifestyle/RedemptionCodeSheet'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { PARTNERS } from '../data/lifestylePartners'
 
 export default function LifestyleFeaturedDealsScreen({ navigation }) {
@@ -57,7 +55,6 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
   const styles = __gs_styles(colors)
   const collectionStyles = getCollectionStyles(colors)
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation)
   const [detailPartnerId, setDetailPartnerId] = useState(null)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [codePartnerId, setCodePartnerId] = useState(null)
@@ -89,6 +86,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
       {/* Explicit flex:1 on the FlatList itself (not just contentContainerStyle)
 , the same fix every screen-root ScrollView in this app needs, and
           FlatList wraps one internally, so it needs it too. */}
@@ -105,32 +103,7 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
-            {/* ── Integrated header + hero ── */}
-            <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-              <View style={styles.navRow}>
-                <TouchableOpacity
-                  style={styles.backBtn}
-                  onPress={safeGoBack}
-                  activeOpacity={0.7}
-                  accessibilityRole="button"
-                  accessibilityLabel="Go back"
-                >
-                  <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-                  <Text style={styles.backBtnText}>Home</Text>
-                </TouchableOpacity>
-                <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
-                <View style={{ width: 70 }} />
-              </View>
-
-              <Text style={styles.heroEyebrow}>LIFESTYLE · THE COLLECTION</Text>
-              <Text style={styles.heroTitle}>The Collection</Text>
-              <Text style={styles.heroTagline}>Curated by UniBlueprint</Text>
-              <Text style={styles.heroSub}>
-                Real products from real partners, curated into one collection. No checkout here, every
-                item ends with a direct message to the person behind it.
-              </Text>
-            </View>
-
+            <PageTitle title="The Collection" subtitle="Real products from real partners. No checkout here, every item ends with a direct message to the person behind it." />
             <View style={styles.content}>
               {/* Hero product spot */}
               <TouchableOpacity activeOpacity={0.9} onPress={() => setExpandPartnerId(HERO.id)}>

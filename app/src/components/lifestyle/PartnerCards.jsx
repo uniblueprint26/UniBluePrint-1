@@ -9,6 +9,7 @@
  * split into their own screens.
  */
 import { useState, useEffect, useRef } from 'react'
+import { PictureSwiper } from './PartnerPicture'
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
@@ -535,10 +536,9 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.detailBackdrop} onPress={onClose}>
         <Pressable
-          style={[styles.detailSheet, { height: Math.round(winHeight * 0.85), paddingBottom: insets.bottom + 12 }]}
+          style={[styles.detailSheet, { height: Math.round(winHeight * 0.92), paddingBottom: insets.bottom + 12 }]}
           onPress={e => e.stopPropagation?.()}
         >
-          <View style={styles.detailHandle} />
           <TouchableOpacity
             style={styles.detailCloseBtn}
             onPress={onClose}
@@ -549,9 +549,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
             <X size={16} color={colors.muted} />
           </TouchableOpacity>
 
-          {partner.hero && (
-            <PartnerHeroImage source={partner.hero} aspectRatio={4 / 3} style={styles.detailHero} />
-          )}
+          <PictureSwiper partner={partner} height={190} style={styles.detailHero} />
 
           <View style={styles.detailHeaderRow}>
             <PartnerLogo partner={partner} size={52} />
@@ -564,23 +562,11 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
             </View>
             <FollowButton partnerId={partner.id} />
           </View>
-          <View style={[styles.detailAccentLine, { backgroundColor: accent }]} />
 
           {partner.deal && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <View style={styles.dealPill}>
-                <Text style={styles.dealPillText}>{partner.deal}</Text>
-              </View>
-              {onShowCode && (
-                <TouchableOpacity
-                  style={styles.showCodeBtn}
-                  activeOpacity={0.8}
-                  onPress={() => { onClose(); onShowCode(partner.id) }}
-                >
-                  <Ticket size={12} color={colors.chromeFg} />
-                  <Text style={styles.showCodeBtnText}>Show code</Text>
-                </TouchableOpacity>
-              )}
+            <View style={styles.dealCard}>
+              <Text style={styles.dealCardLabel}>LOCAL DEAL</Text>
+              <Text style={styles.dealCardText}>{partner.deal}</Text>
             </View>
           )}
 
@@ -592,49 +578,6 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
               rendered/scrolled into view on a real device. */}
           <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0, marginTop: 10 }}>
             <ScrollView style={styles.detailScroll} contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
-              {partner.credentials && (
-                <Text style={styles.credentialsText}>{partner.credentials}</Text>
-              )}
-
-              <View style={styles.expandDivider} />
-
-              {partner.description && (
-                <>
-                  <Text style={styles.expandLabel}>ABOUT</Text>
-                  <Text style={styles.expandBody}>{partner.description}</Text>
-                </>
-              )}
-
-              {partner.gallery && partner.gallery.length > 0 && (
-                <>
-                  <Text style={[styles.expandLabel, { marginTop: 16 }]}>GALLERY</Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.galleryRow}
-                  >
-                    {partner.gallery.map((src, i) => (
-                      <PartnerHeroImage
-                        key={i}
-                        source={src}
-                        aspectRatio={3 / 4}
-                        style={styles.galleryThumb}
-                      />
-                    ))}
-                  </ScrollView>
-                </>
-              )}
-
-              {partner.services && (
-                <View style={styles.servicePills}>
-                  {partner.services.map(s => (
-                    <View key={s} style={styles.servicePill}>
-                      <Text style={styles.servicePillText}>{s}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
               {partner.pricelist && (
                 <>
                   <Text style={[styles.expandLabel, { marginTop: 16 }]}>PRICING</Text>
@@ -672,6 +615,29 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
                   <Text style={[styles.expandLabel, { marginTop: 16 }]}>HOW TO START</Text>
                   <Text style={styles.expandBody}>{partner.howToStart}</Text>
                 </>
+              )}
+
+              {partner.credentials && (
+                <Text style={styles.credentialsText}>{partner.credentials}</Text>
+              )}
+
+              <View style={styles.expandDivider} />
+
+              {partner.description && (
+                <>
+                  <Text style={styles.expandLabel}>ABOUT</Text>
+                  <Text style={styles.expandBody}>{partner.description}</Text>
+                </>
+              )}
+
+              {partner.services && (
+                <View style={styles.servicePills}>
+                  {partner.services.map(s => (
+                    <View key={s} style={styles.servicePill}>
+                      <Text style={styles.servicePillText}>{s}</Text>
+                    </View>
+                  ))}
+                </View>
               )}
 
               {partner.hours && (
@@ -725,6 +691,18 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
               )}
             </ScrollView>
           </View>
+          {partner.deal && onShowCode && (
+            <TouchableOpacity
+              style={styles.showCodeBar}
+              activeOpacity={0.85}
+              onPress={() => { onClose(); onShowCode(partner.id) }}
+              accessibilityRole="button"
+              accessibilityLabel="Show code"
+            >
+              <Ticket size={18} color={colors.accentFg} />
+              <Text style={styles.showCodeBarText}>Show code</Text>
+            </TouchableOpacity>
+          )}
         </Pressable>
       </Pressable>
     </Modal>
@@ -953,6 +931,7 @@ export function getPartnerStyles(colors) {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
   },
   detailSheet: {
+    overflow: "hidden",
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.card + 4,
     borderTopRightRadius: radius.card + 4,
@@ -972,7 +951,18 @@ export function getPartnerStyles(colors) {
   },
   // Detail sheet hero — inset (not edge-bled) so its own rounded corners sit
   // cleanly inside the sheet's padding, above the logo/name row.
-  detailHero: { marginBottom: 14 },
+  detailHero: { marginBottom: 14, marginHorizontal: -18, marginTop: -12 },
+  dealCard: {
+    marginTop: 14, padding: 14, borderRadius: radius.card,
+    backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border,
+  },
+  dealCardLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1, color: colors.textSecondary },
+  dealCardText: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 28, color: colors.goldText, marginTop: 4 },
+  showCodeBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    height: 54, borderRadius: radius.button, backgroundColor: colors.accentBg, marginTop: 10,
+  },
+  showCodeBarText: { fontFamily: fonts.sansBold, fontSize: 16, color: colors.accentFg },
   detailHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 34 },
   detailBrandName: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },
   detailAccentLine: { height: 3, borderRadius: 2, marginTop: 14 },

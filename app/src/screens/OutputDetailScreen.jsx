@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Share } from 'react-native'
-import { Share2, AlertCircle, Archive } from 'lucide-react-native'
-import ScreenHeader from '../components/ui/ScreenHeader'
+import { Share2, AlertCircle, Archive, MailOpen, CalendarCheck, Lock } from 'lucide-react-native'
+import AppHeader from '../components/ui/AppHeader'
+import { envelopePaper } from '../components/foundation/envelopePaper'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
@@ -53,8 +54,9 @@ function storageNote(expiresAt) {
 }
 
 export default function OutputDetailScreen({ navigation, route }) {
-  const { colors } = useTheme()
-  const styles = getStyles(colors)
+  const { colors, isDark } = useTheme()
+  const styles = getStyles(colors, isDark)
+  const paper = envelopePaper(isDark)
   const { documentTable, documentId, serviceName, deliveredAt, expiresAt, walletScrubbedAt } = route.params || {}
   const contentColumn = CONTENT_COLUMN[documentTable]
   const safeGoBack = useSafeGoBack(navigation, 'MyOutputs')
@@ -116,20 +118,33 @@ export default function OutputDetailScreen({ navigation, route }) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader
-        variant="navy"
-        onBack={safeGoBack}
-        backLabel="My Outputs"
-        eyebrow={isExpired ? 'EXPIRED' : 'DELIVERED'}
-        title={serviceName || 'Your document'}
-        subtitle={deliveredAt
-          ? `Delivered ${formatDate(deliveredAt)}${!isExpired ? ` · ${storageNote(expiresAt)}` : ''}`
-          : undefined}
-        style={styles.heroBlock}
-        titleStyle={styles.heroTitle}
-      />
+      <AppHeader navigation={navigation} showBack />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.envHead}>
+          <View style={[styles.envMark, { backgroundColor: paper.body, borderColor: paper.edge }]}>
+            <MailOpen size={26} color={colors.textPrimary} strokeWidth={1.6} />
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.envKicker}>{isExpired ? 'EXPIRED' : 'DELIVERED'}</Text>
+            <Text style={styles.envTitle}>{serviceName || 'Your document'}</Text>
+          </View>
+        </View>
+        {!!deliveredAt && (
+          <View style={styles.chips}>
+            <View style={[styles.infoChip, { backgroundColor: colors.tabFill }]}>
+              <CalendarCheck size={14} color={colors.textSecondary} />
+              <Text style={styles.infoChipText}>{`Delivered ${formatDate(deliveredAt)}`}</Text>
+            </View>
+            {!isExpired && (
+              <View style={[styles.infoChip, { backgroundColor: colors.tabFill }]}>
+                <Lock size={14} color={colors.textSecondary} />
+                <Text style={styles.infoChipText}>{storageNote(expiresAt)}</Text>
+              </View>
+            )}
+          </View>
+        )}
+
         {status === 'loading' && (
           <ActivityIndicator color={colors.textPrimary} style={{ marginTop: 40 }} />
         )}
@@ -187,11 +202,11 @@ export default function OutputDetailScreen({ navigation, route }) {
 
         {status === 'ok' && (
           <>
-            <Card style={styles.textCard}>
+            <View style={styles.page}>
               <Text selectable style={styles.bodyText}>{text}</Text>
-            </Card>
+            </View>
             <Text style={styles.scopeNote}>
-              Plain text only, for now, copy or share it anywhere you need it below.
+              Plain text, ready to copy or share anywhere you need it.
             </Text>
           </>
         )}
@@ -206,18 +221,25 @@ export default function OutputDetailScreen({ navigation, route }) {
   )
 }
 
-function getStyles(colors) {
+function getStyles(colors, isDark) {
+  const paper = envelopePaper(isDark)
   return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
 
-  heroBlock: { backgroundColor: colors.chromeBg, paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.chromeFg, marginTop: 6 },
+  envHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  envMark: { width: 56, height: 56, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  envKicker: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1.1, color: colors.textSecondary },
+  envTitle: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 33, color: colors.textPrimary, marginTop: 2 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 16, marginBottom: 6 },
+  infoChip: { flexDirection: 'row', alignItems: 'center', gap: 7, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  infoChipText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
+  page: { marginTop: 14, padding: 22, borderRadius: 18, backgroundColor: paper.letter, borderWidth: 1, borderColor: paper.edge },
 
   scrollView: { flex: 1 },
-  scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+  scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.xl },
 
   textCard: { padding: 18 },
-  bodyText: { fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary, lineHeight: 22 },
+  bodyText: { fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, lineHeight: 24 },
   scopeNote: { fontFamily: fonts.sans, fontSize: 11, color: colors.muted, textAlign: 'center', marginTop: 14 },
 
   messageCard: { alignItems: 'center', paddingVertical: 36, gap: 8 },

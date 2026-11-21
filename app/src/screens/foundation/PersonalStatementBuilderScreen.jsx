@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
+import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
 import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
@@ -34,7 +35,18 @@ function isBlank(v) {
   return typeof v !== 'string' || v.trim().length === 0
 }
 
+// Extra detailed questions, asked just before delivery. Optional, so nobody is blocked.
+const EXTRAS = [
+  { key: 'x_limit', label: 'Length limit', title: 'What is the length limit?', kind: 'line', subtitle: 'Characters, words or lines. Check the application guidance.', placeholder: 'e.g. 4000 characters' },
+  { key: 'x_enjoy', label: 'Subjects you enjoy', title: 'Which subjects, modules or topics do you enjoy most, and why?', kind: 'text', subtitle: 'Name specific ones and what you liked about them.' },
+  { key: 'x_awards', label: 'Awards and achievements', title: 'Awards, grades or achievements worth mentioning', kind: 'text', subtitle: 'Include the year and what it was for.' },
+  { key: 'x_skills', label: 'Skills', title: 'Skills you have built that suit this course', kind: 'text', subtitle: 'For example writing, coding, leading a team, working with the public.' },
+  { key: 'x_style', label: 'Style', title: 'How should it sound?', kind: 'choice', options: [{ value: 'personal', label: 'Personal and warm' }, { value: 'formal', label: 'Formal' }, { value: 'balanced', label: 'Balanced' }] },
+  { key: 'x_leave_out', label: 'Leave out', title: 'Anything we should leave out?', kind: 'text', placeholder: 'Optional' },
+]
+
 const DEFAULT_VALUES = {
+  ...extraDefaults(EXTRAS),
   pathway: null,
   target_course: '', target_institution: '',
   background_and_motivation: '',
@@ -132,6 +144,7 @@ export default function PersonalStatementBuilderScreen({ navigation }) {
     if (!user) throw new Error('You need to be signed in to submit a request.')
 
     const input = {
+      extra_detail: extraDetail(v, EXTRAS),
       background_and_motivation: v.background_and_motivation,
       relevant_experience: v.relevant_experience || null,
       life_work_experience: v.life_work_experience || null,
@@ -192,7 +205,8 @@ export default function PersonalStatementBuilderScreen({ navigation }) {
   return (
     <>
       <QuestionFlow
-        steps={STEPS}
+        steps={[...STEPS.slice(0, -1), ...extraSteps(EXTRAS), STEPS[STEPS.length - 1]]}
+        serviceTitle="Personal Statement"
         values={values}
         onChange={onChange}
         onComplete={handleComplete}
