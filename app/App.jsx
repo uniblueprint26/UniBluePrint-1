@@ -26,6 +26,7 @@ import { navigationRef } from './src/navigation/navigationRef'
 import LoadingScreen from './src/components/ui/LoadingScreen'
 import ErrorBoundary from './src/components/ErrorBoundary'
 import ReportProvider from './src/components/safety/ReportProvider'
+import OfflineBanner from './src/components/ui/OfflineBanner'
 import { refreshAppFlags } from './src/hooks/useAppFlags'
 import { installWebAlert } from './src/lib/webAlert'
 
@@ -183,6 +184,7 @@ function AppChrome() {
       <NavigationContainer ref={navigationRef} linking={linking} fallback={null}>
         <RootNavigator />
       </NavigationContainer>
+      <OfflineBanner />
     </ReportProvider>
   )
 }

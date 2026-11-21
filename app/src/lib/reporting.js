@@ -90,3 +90,17 @@ export function onBlockedChange(fn) {
   listeners.add(fn)
   return () => { listeners.delete(fn) }
 }
+
+// Unblocks one person. Resolves { ok: true } or { ok: false }.
+export async function unblockUser(blockerId, blockedId) {
+  if (!blockerId || !blockedId) return { ok: false }
+  try {
+    const { error } = await supabase.from('blocked_users').delete().eq('blocker_id', blockerId).eq('blocked_id', blockedId)
+    if (error) return { ok: false }
+    blocked = new Set([...blocked].filter(id => id !== blockedId))
+    emit()
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
