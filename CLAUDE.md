@@ -11,7 +11,7 @@ Read this before writing any user-facing copy or designing any screen.
 - **Friends only**: mutual follows.
 
 ## Pillars, names and icons
-Foundation = file/envelope, Elevation = arrow, Lifestyle = heart, Campus Connect = building, Course Connect = Irish flag. Post types are Mood Board, Post, Clip, Live. Never use the word "Thread" in the UI.
+Foundation = file/envelope, Elevation = arrow, Lifestyle = heart, Campus Connect = building, Course Connect = Irish flag. Post types are Take, Post, Clip, Live. "Mood Board" now names only the mood picker that goes with a Take (3 happy, 3 in between and 3 bad words first, then "More feelings"). Takes are the founder's version of threads. Never use the word "Thread" in the UI.
 
 ## Copy and look
 Plain, short sentences. No em-dashes. Clean, never bunched up. Gold is only for money. Light and dark must both work. Seeded content is labelled "From UBP" or "Posted by UBP".

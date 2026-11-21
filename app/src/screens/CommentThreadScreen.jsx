@@ -15,7 +15,8 @@ import { moodDef } from '../constants/moods'
 import { timeAgo } from '../components/feed/FeedKit'
 import ReportButton from '../components/safety/ReportButton'
 import { useBlockedIds } from '../lib/reporting'
-import { fetchPostById, fetchComments, createComment, deleteComment } from '../lib/feed'
+import { fetchPostById, fetchComments, createComment, deleteComment, getPostImages } from '../lib/feed'
+import PostGallery from '../components/feed/PostGallery'
 
 function initialsOf(name) {
   if (!name) return '?'
@@ -64,14 +65,14 @@ function PostPreview({ post, colors }) {
           <ReportButton
             target={{
               contentType: 'feed_post', contentId: post.id, reportedUserId: post.user_id, userName: post.author_name,
-              noun: post.post_type === 'clip' ? 'clip' : post.post_type === 'post' ? 'post' : 'mood board',
+              noun: post.post_type === 'clip' ? 'clip' : post.post_type === 'post' ? 'post' : 'take',
             }}
           />
         )}
       </View>
       {!!post.body && <Text style={styles.bodyText}>{post.body}</Text>}
-      {post.post_type === 'post' && !!post.photo_url && (
-        <Image source={{ uri: post.photo_url }} style={styles.photo} resizeMode="cover" />
+      {post.post_type === 'post' && (
+        <PostGallery images={getPostImages(post)} style={{ marginTop: 12 }} height={240} />
       )}
     </View>
   )

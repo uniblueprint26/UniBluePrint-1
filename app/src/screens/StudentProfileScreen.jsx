@@ -181,6 +181,7 @@ function PostsSection({ userId, userName, colors }) {
           .from('feed_posts')
           .select('id, post_type, body, mood, created_at')
           .eq('user_id', userId)
+          .in('post_type', ['thread', 'post', 'clip'])
           .order('created_at', { ascending: false })
           .limit(10)
         if (cancelled) return
@@ -239,7 +240,7 @@ function PostsSection({ userId, userName, colors }) {
                   size={13}
                   target={{
                     contentType: 'feed_post', contentId: p.id, reportedUserId: userId, userName,
-                    noun: p.post_type === 'clip' ? 'clip' : p.post_type === 'post' ? 'post' : 'mood board',
+                    noun: p.post_type === 'clip' ? 'clip' : p.post_type === 'post' ? 'post' : 'take',
                   }}
                 />
               </View>

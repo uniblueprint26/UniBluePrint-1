@@ -40,10 +40,16 @@ export function windowStartDate(windowId) {
   }
 }
 
+// Live moments have their own rails and screens, so the main feed leaves them
+// out. Listed as the three older kinds (not "not live") so this query works
+// whether or not the live value exists in the database yet.
+export const MAIN_FEED_KINDS = ['thread', 'post', 'clip']
+
 export async function fetchFeedPage({ before = null, limit = 20 } = {}) {
   let q = supabase
     .from('feed_posts')
     .select('*')
+    .in('post_type', MAIN_FEED_KINDS)
     .order('created_at', { ascending: false })
     .limit(limit)
   if (before) q = q.lt('created_at', before)
@@ -56,7 +62,7 @@ export async function fetchFeedPage({ before = null, limit = 20 } = {}) {
 // window (ties broken by recency).
 export async function fetchBuzzingHighlight(windowId) {
   const since = windowStartDate(windowId).toISOString()
-  let q = supabase.from('feed_posts').select('*').gte('created_at', since)
+  let q = supabase.from('feed_posts').select('*').in('post_type', MAIN_FEED_KINDS).gte('created_at', since)
   q = windowId === 'today'
     ? q.order('created_at', { ascending: false })
     : q.order('reaction_count', { ascending: false }).order('created_at', { ascending: false })
@@ -255,13 +261,31 @@ export async function createFeedPost({ userId, postType, audience, ...fields }) 
   if (error) throw error
 }
 
-// Mood Board is post_type 'thread' in the database.
+// A Take is post_type 'thread' in the database. (The word Thread is never shown.)
 export async function createThread({ userId, mood, body, audience }) {
   await createFeedPost({ userId, postType: 'thread', audience, mood, body })
 }
 
-export async function createPost({ userId, photoUrl, caption, audience }) {
-  await createFeedPost({ userId, postType: 'post', audience, photo_url: photoUrl, body: caption || null })
+// Most pictures one Post can carry. Matches the check in
+// 20261120300000_feed_post_images.sql.
+export const MAX_POST_IMAGES = 6
+
+// Every picture of a post, in order. Older single picture posts have only
+// photo_url, so they come back as a list of one.
+export function getPostImages(post) {
+  if (!post) return []
+  if (Array.isArray(post.image_urls) && post.image_urls.length > 0) return post.image_urls.filter(Boolean)
+  return post.photo_url ? [post.photo_url] : []
+}
+
+// photoUrls is the list in the member's order. photo_url is written as the
+// first one (the cover) so older readers still work.
+export async function createPost({ userId, photoUrls, photoUrl, caption, audience }) {
+  const urls = (photoUrls && photoUrls.length ? photoUrls : [photoUrl]).filter(Boolean).slice(0, MAX_POST_IMAGES)
+  await createFeedPost({
+    userId, postType: 'post', audience,
+    photo_url: urls[0], image_urls: urls, body: caption || null,
+  })
 }
 
 export async function createClip({ userId, videoUrl, caption, audience }) {

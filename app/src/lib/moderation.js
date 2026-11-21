@@ -1,4 +1,4 @@
-// Text moderation for anything a person types and posts (Mood Board text,
+// Text moderation for anything a person types and posts (Take text,
 // Post captions, Clip captions). Pure JS, no dependencies.
 //
 //   checkText('some text') -> { ok: true, reason: null }
