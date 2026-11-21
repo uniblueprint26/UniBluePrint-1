@@ -1300,9 +1300,8 @@ function InvestmentTabContent({ navigation }) {
         {INVEST_TERMS.map(t => <SUSITerm key={t.term} item={t} />)}
       </View>
 
-      {/* PLACEHOLDER: the investment guidance partner link. The founder will confirm
-          the Zainab Ade link. Nothing shows here until ZAINAB_ADE_LINK is set in
-          components/budgeting/InvestmentPartnerPlaceholder.jsx. */}
+      {/* Investment guidance points only to the finance coach in Elevation: opens
+          her coach profile (Zainab Adeyemi, Soft Life Investing). */}
       <InvestmentPartnerPlaceholder />
 
       {/* Strengthened risk disclosure */}
