@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { CheckCircle2, UserCheck } from 'lucide-react-native'
+import { Mail, Check, UserCheck } from 'lucide-react-native'
 import { fonts, radius, spacing, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
-import BlueprintGrid from '../../components/ui/BlueprintGrid'
 import Button from '../../components/ui/Button'
 import SharePrompt from '../../components/feed/SharePrompt'
 
@@ -60,81 +59,93 @@ export default function GenerationSubmittedScreen({ navigation, route }) {
 
   const barWidth = progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] })
 
-  return (
-    <View style={[styles.screen, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
-      <BlueprintGrid color="rgba(30,58,95,0.05)" />
+  const when = isPremium ? 'Delivered within 24 hours' : 'Delivered within 48 hours'
 
-      <View style={styles.iconWrap}>
+  return (
+    <View style={[styles.screen, { paddingTop: insets.top + 56, paddingBottom: insets.bottom + 20 }]}>
+      <View style={{ flex: 1, width: '100%' }}>
         {phase === 'loading' ? (
           <View style={styles.loadingRing}>
             <Text style={styles.loadingLabel} numberOfLines={1}>
-              Finalising your {serviceTitle || 'request'}…
+              Sealing your {serviceTitle || 'request'}
             </Text>
             <View style={styles.barTrack}>
               <Animated.View style={[styles.barFill, { width: barWidth }]} />
             </View>
           </View>
         ) : (
-          <Animated.View style={{ transform: [{ scale: checkScale }] }}>
-            <CheckCircle2 size={56} color={colors.success} />
+          <Animated.View style={{ opacity: contentOpacity, transform: [{ translateY: contentTranslateY }] }}>
+            <View style={styles.paper}>
+              <Animated.View style={[styles.sealEnvelope, { transform: [{ scale: checkScale }] }]}>
+                <Mail size={26} color={colors.accentFg} strokeWidth={1.6} />
+                <View style={styles.sealTick}><Check size={11} color={colors.accentBg} strokeWidth={3.5} /></View>
+              </Animated.View>
+              <Text style={styles.title}>Submitted for review</Text>
+              <Text style={styles.body}>Your {serviceTitle || 'request'} is on its way to a Campus Handler.</Text>
+
+              <View style={styles.route}>
+                {[
+                  { t: 'Submitted', d: 'Your answers are in.', state: 'done' },
+                  { t: 'With a Campus Handler', d: 'Reviewed by a real person, never AI only.', state: 'now' },
+                  { t: when, d: 'We will tell you with a push notification, in Outputs and in your Notifications.', state: 'next' },
+                ].map((r, i, arr) => (
+                  <View key={r.t} style={styles.routeRow}>
+                    <View style={styles.routeRail}>
+                      <View style={[styles.dot, r.state === 'done' && styles.dotDone, r.state === 'now' && styles.dotNow]}>
+                        {r.state === 'done' && <Check size={13} color={colors.accentFg} strokeWidth={3} />}
+                        {r.state === 'now' && <View style={styles.dotCore} />}
+                      </View>
+                      {i < arr.length - 1 && <View style={styles.routeLine} />}
+                    </View>
+                    <View style={styles.routeText}>
+                      <Text style={styles.routeTitle}>{r.t}</Text>
+                      <Text style={styles.routeDesc}>{r.d}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+            <Text style={styles.subBody}>No need to keep this screen open.</Text>
           </Animated.View>
         )}
       </View>
 
-      <Animated.View style={{ opacity: contentOpacity, transform: [{ translateY: contentTranslateY }], alignItems: 'center' }}>
-        <Text style={styles.title}>Submitted for review</Text>
-        <Text style={styles.body}>
-          Your {serviceTitle || 'request'} has been generated and is now with a trained Campus Handler for review —{' '}
-          {isPremium ? 'delivered within 24 hours (priority queue).' : 'delivered within 48 hours.'}
-        </Text>
-
-        <View style={styles.reviewBadge}>
-          <UserCheck size={14} color={colors.textPrimary} strokeWidth={2} />
-          <Text style={styles.reviewBadgeText}>Reviewed by a real Campus Handler, never AI-only</Text>
-        </View>
-
-        <Text style={styles.subBody}>
-          We'll let you know the moment it's ready, a push notification plus an update in My Outputs and your Notifications. No need to keep this screen open.
-        </Text>
-
-        <Button
-          label="Back to Foundation Blueprint"
-          onPress={() => navigation.navigate('Foundation')}
-          variant="primary"
-          style={styles.primaryBtn}
-        />
-
-        <TouchableOpacity
-          style={styles.secondaryBtn}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('MyOutputs')}
-        >
-          <Text style={styles.secondaryBtnText}>Go to My Outputs</Text>
-        </TouchableOpacity>
-
-        {phase === 'done' && (
-          <SharePrompt
-            visible={!promptDismissed}
-            prefill={{
-              initialTab: 'thread',
-              initialMood: 'delira',
-              initialText: `Just submitted my ${serviceTitle || 'Foundation Blueprint output'} 🎉`,
-            }}
-            onShare={(prefill) => navigation.navigate('Composer', prefill)}
-            onDismiss={() => setPromptDismissed(true)}
+      {phase === 'done' && (
+        <View style={{ width: '100%' }}>
+          <Button
+            label="Back to Foundation"
+            onPress={() => navigation.navigate('Foundation')}
+            variant="primary"
+            style={styles.primaryBtn}
           />
-        )}
-      </Animated.View>
+          <TouchableOpacity style={styles.secondaryBtn} activeOpacity={0.85} onPress={() => navigation.navigate('MyOutputs')} accessibilityRole="button">
+            <Text style={styles.secondaryBtnText}>Go to Outputs</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {phase === 'done' && (
+        <SharePrompt
+          visible={!promptDismissed}
+          prefill={{
+            initialTab: 'thread',
+            initialMood: 'delira',
+            initialText: `Just submitted my ${serviceTitle || 'Foundation output'}`,
+          }}
+          onShare={(prefill) => navigation.navigate('Composer', prefill)}
+          onDismiss={() => setPromptDismissed(true)}
+        />
+      )}
     </View>
   )
 }
 
 function getStyles(colors) {
   return StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background, paddingHorizontal: spacing.lg, alignItems: 'center' },
+  screen: { flex: 1, backgroundColor: colors.background, paddingHorizontal: spacing.md, alignItems: 'center' },
   iconWrap: { marginBottom: spacing.lg, minHeight: 56, justifyContent: 'center', alignItems: 'center' },
 
-  loadingRing: { alignItems: 'center', gap: 12 },
+  loadingRing: { alignItems: 'center', gap: 12, marginTop: 120 },
   loadingLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted },
   barTrack: {
     width: 180, height: 6, borderRadius: 3,
@@ -142,21 +153,35 @@ function getStyles(colors) {
   },
   barFill: { height: '100%', borderRadius: 3, backgroundColor: colors.accentBg },
 
-  title: { fontFamily: fonts.serif, fontSize: 26, color: colors.textPrimary, textAlign: 'center' },
-  body: { fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, textAlign: 'center', marginTop: 12, lineHeight: 22 },
-
-  reviewBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 7,
-    backgroundColor: colors.surface, borderRadius: radius.pill,
-    paddingHorizontal: 14, paddingVertical: 8, marginTop: 16,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)',
+  paper: {
+    backgroundColor: colors.surface, borderRadius: 24, borderWidth: 1, borderColor: colors.border,
+    paddingHorizontal: 22, paddingTop: 48, paddingBottom: 24, marginTop: 28, ...shadows.card,
   },
-  reviewBadgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.textPrimary },
-
-  subBody: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center', marginTop: 14, lineHeight: 19 },
-  primaryBtn: { marginTop: spacing.xl, ...shadows.card },
-
-  secondaryBtn: { alignItems: 'center', marginTop: spacing.lg },
-  secondaryBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
+  sealEnvelope: {
+    position: 'absolute', top: -30, alignSelf: 'center', width: 62, height: 62, borderRadius: 31,
+    backgroundColor: colors.accentBg, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 5, borderColor: colors.background,
+  },
+  sealTick: {
+    position: 'absolute', right: 8, bottom: 8, width: 18, height: 18, borderRadius: 9,
+    backgroundColor: colors.accentFg, alignItems: 'center', justifyContent: 'center',
+  },
+  title: { fontFamily: fonts.serif, fontSize: 30, lineHeight: 36, color: colors.textPrimary, textAlign: 'center' },
+  body: { fontFamily: fonts.sans, fontSize: 16, color: colors.textSecondary, textAlign: 'center', marginTop: 10, lineHeight: 23 },
+  route: { marginTop: 26 },
+  routeRow: { flexDirection: 'row', gap: 14 },
+  routeRail: { alignItems: 'center', width: 28 },
+  dot: { width: 28, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  dotDone: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  dotNow: { borderColor: colors.accentBg },
+  dotCore: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.accentBg },
+  routeLine: { flex: 1, width: 2, backgroundColor: colors.border, marginVertical: 2, minHeight: 22 },
+  routeText: { flex: 1, paddingBottom: 18 },
+  routeTitle: { fontFamily: fonts.sansSemiBold, fontSize: 17, color: colors.textPrimary },
+  routeDesc: { fontFamily: fonts.sans, fontSize: 15, lineHeight: 22, color: colors.textSecondary, marginTop: 3 },
+  subBody: { fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: 16 },
+  primaryBtn: { ...shadows.card },
+  secondaryBtn: { alignItems: 'center', justifyContent: 'center', height: 54, marginTop: 10, borderRadius: radius.button, backgroundColor: colors.tabFill },
+  secondaryBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.textPrimary },
   })
 }
