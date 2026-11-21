@@ -20,13 +20,11 @@ import {
   ChevronLeft, ChevronRight, PiggyBank, Tag, ShoppingBag,
   Target, ShieldCheck, Plane, GraduationCap, Heart, Home as HomeIcon, Laptop, ArrowRight,
 } from 'lucide-react-native'
-import UBPLogo from '../components/ui/UBPLogo'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { formatNumber } from '../utils/formatNumber'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -46,7 +44,6 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation)
   const { user } = useAuth()
 
   const [loaded, setLoaded] = useState(false)
@@ -110,35 +107,13 @@ export default function LifestyleBudgetingPreviewScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Integrated header + hero ── */}
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={safeGoBack}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Home</Text>
-            </TouchableOpacity>
-            <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
-            <View style={{ width: 70 }} />
-          </View>
-
-          <Text style={styles.heroEyebrow}>LIFESTYLE · BUDGETING</Text>
-          <Text style={styles.heroTitle}>Budgeting</Text>
-          <Text style={styles.heroSub}>
-            A quick look at where you stand, straight from your saved budget. Open the full tool to
-            edit anything below.
-          </Text>
-        </View>
+        <PageTitle title="Budgeting" subtitle="A quick look at where you stand. Open the full tool to edit anything." />
 
         <View style={styles.content}>
 

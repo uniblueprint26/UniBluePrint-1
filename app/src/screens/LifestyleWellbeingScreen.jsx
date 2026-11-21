@@ -23,13 +23,11 @@ import {
   Siren, GraduationCap, LifeBuoy, Utensils, CloudRain, ShieldAlert, UserRound, Sun, MessagesSquare,
   BookOpen, Sparkles, FileText, Clock,
 } from 'lucide-react-native'
-import UBPLogo from '../components/ui/UBPLogo'
+import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import Card from '../components/ui/Card'
 import SectionHeader from '../components/ui/SectionHeader'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { goToHome } from '../navigation/helpers'
-import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 
 // Icon + accent per category — crisis kept separate (always-open, its own
@@ -148,44 +146,19 @@ export default function LifestyleWellbeingScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
-  const safeGoBack = useSafeGoBack(navigation)
   const [openCategoryKey, setOpenCategoryKey] = useState(null)
   const openCategory = OTHER_CATEGORIES.find(c => c.key === openCategoryKey) || null
 
   return (
     <View style={styles.screen}>
+      <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Integrated header + hero ── */}
-        <View style={[styles.heroBlock, { paddingTop: insets.top + 8 }]}>
-          <View style={styles.navRow}>
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={safeGoBack}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
-              <Text style={styles.backBtnText}>Home</Text>
-            </TouchableOpacity>
-            <UBPLogo height={33} color={colors.chromeFg} onPress={() => goToHome(navigation)} />
-            <View style={{ width: 70 }} />
-          </View>
-
-          <Text style={styles.heroEyebrow}>LIFESTYLE · WELLBEING</Text>
-          <Text style={styles.heroTitle}>Wellbeing</Text>
-          <Text style={styles.heroSub}>
-            Real, verified Irish support services, organised so you can actually find what you need,
-            not one long list to scroll past.
-          </Text>
-          <Text style={[styles.heroSub, { marginTop: 8 }]}>
-            Not medical advice. Speak to your doctor or a counsellor about your own health.
-          </Text>
-        </View>
+        <PageTitle title="Wellbeing" subtitle="Real, verified Irish support services, easy to find." />
+        <Text style={styles.disclaimer}>Not medical advice. Speak to your doctor or a counsellor about your own health.</Text>
 
         <View style={styles.content}>
 
@@ -237,6 +210,7 @@ export default function LifestyleWellbeingScreen({ navigation }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 function __gs_styles(colors) {
   return StyleSheet.create({
+  disclaimer: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, color: colors.textSecondary, paddingHorizontal: 16, marginTop: 4 },
   screen: { flex: 1, backgroundColor: colors.background },
 
   heroBlock: {
