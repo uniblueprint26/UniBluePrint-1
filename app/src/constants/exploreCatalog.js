@@ -34,7 +34,7 @@ export const EXPLORE_BUNDLES = [
       { key: 'scholarships', name: 'Scholarships', hint: 'Real funding, with short guides', Icon: GraduationCap, route: 'Scholarships', statusText: 'Guides' },
       { key: 'course-swap', name: 'Course swap', hint: 'Thinking of changing course? Opens Course Compass', Icon: ArrowRightLeft, route: 'Compass', params: { from: 'course-swap' } },
       { key: 'peer-tutoring', name: 'Peer tutoring', hint: 'Find a tutor or offer your help', Icon: Users, adBoardBasket: 'tutors' },
-      { key: 'lecture-notes', name: 'Lecture notes', hint: 'Share and find notes', Icon: StickyNote, route: 'BoardDetail', params: { boardKey: 'notes', registry: 'course' } },
+      { key: 'lecture-notes', name: 'Study resources', hint: 'Notes, past papers and links', Icon: StickyNote, route: 'StudyResources', params: { scope: 'course' } },
     ],
   },
   {

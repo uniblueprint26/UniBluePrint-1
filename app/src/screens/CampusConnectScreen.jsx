@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   Armchair, Car, CalendarDays, GraduationCap, Search, Users, Plus, Ticket, ChevronRight,
-  Building2, MapPin, DoorOpen, Footprints, CloudSun, Bus, Trophy, MessageCircle,
+  Building2, MapPin, DoorOpen, Footprints, CloudSun, Bus, Trophy, MessageCircle, FileText,
 } from 'lucide-react-native'
 
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
@@ -45,7 +45,7 @@ const TOOLKIT = [
 ]
 
 export default function CampusConnectScreen({ navigation }) {
-  const { colors, accent } = useTone('campus')
+  const { colors, accent, tint } = useTone('campus')
   const insets = useSafeAreaInsets()
   const campus = useCampus()
   const { userType } = useUserType()
@@ -91,6 +91,15 @@ export default function CampusConnectScreen({ navigation }) {
 
         <View style={s.body}>
           <PulseQuestions navigation={navigation} audience="campus" />
+
+          <Card onPress={() => navigation.navigate('StudyResources', { scope: 'campus' })} accessibilityLabel="Open Study resources" style={s.resCard}>
+            <View style={[s.resIcon, { backgroundColor: tint }]}><FileText size={20} color={accent} strokeWidth={1.8} /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.resTitle, { color: colors.textPrimary }]}>Study resources</Text>
+              <Text style={[s.resSub, { color: colors.textSecondary }]}>Notes, past papers and links. Add your own.</Text>
+            </View>
+            <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.8} />
+          </Card>
 
           <SectionRow title="Boards" action="All 14" onAction={() => navigation.navigate('CampusBoards')} />
           <TileGrid items={boardTiles} onPress={t => navigation.navigate('BoardDetail', { boardKey: t.key })} />
@@ -151,6 +160,10 @@ export default function CampusConnectScreen({ navigation }) {
 
 const s = StyleSheet.create({
   screen: { flex: 1 },
+  resCard: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8 },
+  resIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  resTitle: { fontFamily: fonts.sansSemiBold, fontSize: 16, lineHeight: 22 },
+  resSub: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, marginTop: 2 },
   community: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingTop: 6, paddingBottom: 12 },
   communityText: { fontFamily: fonts.sans, fontSize: 14, flexShrink: 1 },
   body: { paddingHorizontal: 16 },
