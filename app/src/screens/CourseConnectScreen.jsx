@@ -39,6 +39,8 @@ import { supabase } from '../lib/supabase'
 import {
   USER_TYPE_STUDENT, USER_TYPE_APPRENTICE, USER_TYPE_GAP_YEAR, USER_TYPE_WORKER,
 } from '../constants/userTypes'
+import ErrorState from '../components/ui/ErrorState'
+import SlowLoad from '../components/ui/SlowLoad'
 
 // ─── Reframe, round 3: interests + real popularity, not stages ─────────────
 // Round 2 (the journey_stage system: 4 self-reported "stages", a Your Stage
@@ -404,7 +406,12 @@ export default function CourseConnectScreen({ navigation }) {
   const [allTools, setAllTools] = useState(false)
 
   const [moodPulse, setMoodPulse] = useState({ total: 0, counts: {} })
-  useEffect(() => { fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(setMoodPulse).catch(() => {}) }, [])
+  const [pulseState, setPulseState] = useState('loading')
+  const [pulseTries, setPulseTries] = useState(0)
+  useEffect(() => {
+    setPulseState('loading')
+    fetchMoodPulse(DEFAULT_BUZZ_WINDOW).then(v => { setMoodPulse(v); setPulseState('ok') }).catch(() => setPulseState('failed'))
+  }, [pulseTries])
   const { interests } = useInterests()
 
   // Real activity counts for the tile lines (last 30 days).
@@ -476,8 +483,13 @@ export default function CourseConnectScreen({ navigation }) {
   return (
     <View style={[s.screen, { backgroundColor: colors.background }]}>
       <AppHeader navigation={navigation} showBack />
+      <SlowLoad loading={pulseState === 'loading'} />
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 120 }} showsVerticalScrollIndicator={false}>
         <PageTitle title="Course Connect" />
+
+        {pulseState === 'failed' && (
+          <ErrorState title="Could not load Course Connect" body="Activity counts may be missing. Check your connection and try again." onRetry={() => setPulseTries(n => n + 1)} style={{ paddingVertical: 8 }} />
+        )}
         <View style={s.sub}>
           <IrishFlag size={14} />
           <Text style={[s.subText, { color: colors.textSecondary }]}>Everyone on the same course of life.</Text>

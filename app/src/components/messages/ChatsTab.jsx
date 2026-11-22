@@ -7,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext'
 import { PILLARS } from '../../constants/pillars'
 import { avatarColorFor } from '../directory/helpers'
 import { timeAgo, roomInitials } from './format'
+import ErrorState from '../ui/ErrorState'
 
 // Pinned rows come from the user's real rooms only: a society chat (a Campus
 // Connect club room) and a course group chat (a Course Connect board room).
@@ -61,11 +62,14 @@ function Row({ room, pin, isLast, onPress }) {
   )
 }
 
-export default function ChatsTab({ rooms, loading, onOpenRoom, onFindPeople, bottomPad }) {
+export default function ChatsTab({ rooms, loading, failed, onRetry, onOpenRoom, onFindPeople, bottomPad }) {
   const { colors } = useTheme()
 
   if (loading) {
     return <View style={s.loading}><ActivityIndicator color={colors.textPrimary} /></View>
+  }
+  if (rooms.length === 0 && failed) {
+    return <ErrorState title="Could not load your chats" onRetry={onRetry} />
   }
   if (rooms.length === 0) {
     return (

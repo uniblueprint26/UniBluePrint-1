@@ -15,6 +15,7 @@ import { PILLARS } from '../constants/pillars'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
+import SlowLoad from '../components/ui/SlowLoad'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
@@ -391,182 +392,51 @@ function CoachPhotoStrip({ photos }) {
   )
 }
 
-function CoachCard({ coach, navigation, index = 0 }) {
+// Two column grid card (round three pick). The swipe-paged pictures stay
+// above the coach name, then name, one specialty and the starting price.
+// Services, bio and the full price list live on the coach profile.
+function CoachCard({ coach, navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const comingSoonOn = useComingSoonEnabled()
-  function handlePress() {
-    navigation.navigate('CoachProfile', { coach })
-  }
-
-  // Cosmetic catalogue index — "N°01", "N°02"... computed purely from this
-  // card's position in whichever list is currently rendering it (resets per
-  // group in the grouped "All" view, continuous in the flat filtered view).
-  // Display-only; never stored or sent anywhere.
-  const indexLabel = `N°${String(index + 1).padStart(2, '0')}`
-
   if (coach.shell && !comingSoonOn) return null
-
-  if (coach.shell) {
-    return (
-      <View style={styles.cardSlot}>
-        {/* A second, slightly rotated sheet behind the real card — gives the
-            list a stacked-dossier depth instead of flat rows. */}
-        <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
-          <Card style={[styles.coachCard, styles.coachCardShell]}>
-            <View style={styles.coachTop}>
-              <View style={styles.coachAvatarWrap}>
-                <View style={[styles.coachAvatar, { backgroundColor: '#F5F0E8' }]}>
-                  <User size={26} color={colors.light} />
-                </View>
-              </View>
-              <View style={{ flex: 1, marginLeft: 14 }}>
-                <Text style={styles.coachName}>{coach.name}</Text>
-                <Text style={styles.coachCategory}>{coach.category}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                  <MapPin size={11} color={colors.muted} />
-                  <Text style={styles.coachLocation}>{coach.location}</Text>
-                </View>
-              </View>
-              <View style={styles.shellBadge}>
-                <Text style={styles.shellBadgeText}>Coming Soon</Text>
-              </View>
-            </View>
-            <Text style={styles.shellMessage}>{coach.shellMessage}</Text>
-            <View style={styles.coachFooter}>
-              <View style={styles.footerPrice}>
-                <Text style={styles.fromLabel}>Starting from</Text>
-                <Text style={styles.fromPrice}>{coach.from}</Text>
-              </View>
-              <View style={styles.profileBtnMuted}>
-                <Text style={styles.profileBtnMutedText}>View Profile</Text>
-              </View>
-            </View>
-          </Card>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
-  // Coaches with a real multi-entry pricelist (distinct from the single
-  // `from` string most coaches have) get the first two entries previewed as
-  // a side-by-side tile pair on the card itself — previously pricelist only
-  // ever showed on CoachProfileScreen. Presented as two plain options, not
-  // a "standard vs premium" split — pricelist ordering isn't actually
-  // tiered, so labelling one "premium" would misrepresent the data.
-  const pricePreview = Array.isArray(coach.pricelist) ? coach.pricelist.slice(0, 2) : null
   const photos = [coach.heroImage, ...(coach.gallery || [])].filter(Boolean)
-
+  const isMoney = /€/.test(String(coach.from))
   return (
-    <View style={styles.cardSlot}>
-    <TouchableOpacity activeOpacity={0.88} onPress={handlePress}>
-      <Card style={styles.coachCard}>
-        {/* Swiping pictures sit above the coach name. Only the real images
-            supplied for this coach are shown (hero first, then gallery). */}
-        {photos.length > 0 && <CoachPhotoStrip photos={photos} />}
-
-        {/* Header */}
-        <View style={[styles.coachTop, photos.length > 0 && { marginTop: 14 }]}>
-          {photos.length === 0 && (
-            <View style={styles.coachAvatarWrap}>
-              <View style={styles.coachAvatar}>
-                <User size={26} color={colors.light} />
-              </View>
-              <View style={styles.coachOnlineDot} />
-            </View>
-          )}
-          <View style={{ flex: 1, marginLeft: photos.length === 0 ? 14 : 0 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <Text style={styles.coachName}>{coach.name}</Text>
-              <VerifiedBadge verified={coach.verified} compact />
-            </View>
-            {coach.title && (
-              <Text style={styles.coachTitle} numberOfLines={2}>{coach.title}</Text>
-            )}
-            {/* One clear specialty tag per card — coach.cardTag overrides
-                coach.category for coaches whose real category is a compound
-                string (e.g. multiple specialties joined by "·"); every other
-                coach's category is already a single specialty and is used
-                as-is. The full category still shows on the profile page. */}
-            <Text style={styles.coachCategory}>{coach.cardTag || coach.category}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
-              <MapPin size={11} color={colors.muted} />
-              <Text style={styles.coachLocation}>{coach.location}</Text>
-            </View>
-            {coach.badge && (
-              <View style={styles.mentorPill}>
-                <Text style={styles.mentorPillText}>{coach.badge}</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Tagline — a gold-accented pull-quote rather than a plain italic
-            caption, giving it more weight as the card's one editorial line. */}
-        {coach.tagline && (
-          <View style={styles.taglineQuote}>
-            <View style={styles.taglineQuoteBar} />
-            <Text style={styles.taglineQuoteText}>{coach.tagline}</Text>
-          </View>
-        )}
-
-        {/* Bio, preview, 3 lines max */}
-        <Text style={styles.coachBio} numberOfLines={3}>{coach.bio}</Text>
-
-        {/* Services menu: the coach's real listed services, first 5 plus a
-            count. Nothing is added that is not in the coach's data. */}
-        {Array.isArray(coach.services) && coach.services.length > 0 && (
-          <View style={styles.serviceMenu}>
-            <Text style={styles.serviceMenuLabel}>Services</Text>
-            {coach.services.slice(0, 5).map(s => (
-              <View key={s} style={styles.serviceMenuRow}>
-                <View style={styles.serviceMenuDot} />
-                <Text style={styles.serviceMenuText}>{s}</Text>
-              </View>
-            ))}
-            {coach.services.length > 5 && (
-              <Text style={styles.serviceMenuMore}>+{coach.services.length - 5} more on the profile</Text>
-            )}
-          </View>
-        )}
-
-        {/* Footer — every coach shows the same "Starting from" label plus
-            either a real € price or the single standard fallback phrase
-            ("Available on request") for enquiry/booking-link-only coaches;
-            see the COACHES data above. The price side is flex:1 + wrapping
-            so a longer fallback string (or a future long price string) wraps
-            onto a second line instead of running behind the View Profile
-            button, the fixed-width overlap bug this replaces. */}
-        {pricePreview ? (
-          <View style={styles.priceFooter}>
-            <View style={styles.priceTileRow}>
-              {pricePreview.map(p => (
-                <View key={p.label} style={styles.priceTile}>
-                  <Text style={styles.priceTileLabel} numberOfLines={1}>{p.label}</Text>
-                  <Text style={[styles.priceTileValue, /€/.test(String(p.price)) && { color: colors.goldText }]}>{p.price}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={styles.profileBtnWide}>
-              <Text style={styles.profileBtnText}>View Profile</Text>
-              <ChevronRight size={13} color={colors.accentFg} strokeWidth={2.5} />
-            </View>
-          </View>
+    <TouchableOpacity
+      style={styles.gridSlot}
+      activeOpacity={0.88}
+      onPress={() => navigation.navigate('CoachProfile', { coach })}
+      accessibilityRole="button"
+      accessibilityLabel={`${coach.name}, ${coach.cardTag || coach.category}. View profile`}
+    >
+      <Card style={[styles.gridCard, coach.shell && styles.coachCardShell]}>
+        {photos.length > 0 ? (
+          <CoachPhotoStrip photos={photos} />
         ) : (
-          <View style={styles.coachFooter}>
-            <View style={styles.footerPrice}>
-              <Text style={styles.fromLabel}>Starting from</Text>
-              <Text style={[styles.fromPrice, /€/.test(String(coach.from)) && { color: colors.goldText }]}>{coach.from}</Text>
-            </View>
-            <View style={styles.profileBtn}>
-              <Text style={styles.profileBtnText}>View Profile</Text>
-              <ChevronRight size={13} color={colors.accentFg} strokeWidth={2.5} />
-            </View>
+          <View style={styles.gridAvatar}>
+            <User size={30} color={colors.light} />
           </View>
         )}
+        <View style={styles.gridText}>
+          <View style={styles.gridNameRow}>
+            <Text style={styles.gridName} numberOfLines={2}>{coach.name}</Text>
+            <VerifiedBadge verified={coach.verified} compact />
+          </View>
+          <Text style={styles.gridCategory} numberOfLines={2}>{coach.cardTag || coach.category}</Text>
+          {coach.shell ? (
+            <Text style={styles.gridPrice}>Coming Soon</Text>
+          ) : (
+            <Text
+              style={[styles.gridPrice, isMoney && { color: colors.goldText, fontFamily: fonts.sansSemiBold }]}
+              numberOfLines={2}
+            >
+              {isMoney ? coach.from : 'On request'}
+            </Text>
+          )}
+        </View>
       </Card>
     </TouchableOpacity>
-    </View>
   )
 }
 
@@ -767,6 +637,7 @@ export default function ElevationScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader navigation={navigation} showBack />
+      <SlowLoad loading={proLoading} />
 
       {/* ── Scrollable content ──
           The navy hero block below is the FIRST CHILD of the ScrollView, not
@@ -852,9 +723,9 @@ export default function ElevationScreen({ navigation }) {
 
           {active === 'Academic Grinds' && academicBanner}
 
-          <View style={{ marginTop: spacing.sm, gap: 20 }}>
-            {visible.map((coach, i) => (
-              <CoachCard key={coach.id} coach={coach} navigation={navigation} index={i} />
+          <View style={styles.coachGrid}>
+            {visible.map(coach => (
+              <CoachCard key={coach.id} coach={coach} navigation={navigation} />
             ))}
           </View>
           </>
@@ -961,6 +832,15 @@ function __gs_styles(colors) {
   indexTabShell: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: 'rgba(30,58,95,0.1)' },
   indexTabText: { fontFamily: fonts.sansBold, fontSize: 10.5, color: colors.accentFg, letterSpacing: 0.4 },
 
+  coachGrid:  { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14, marginTop: spacing.sm },
+  gridSlot:   { width: '48%' },
+  gridCard:   { padding: 10, marginBottom: 0, flex: 1 },
+  gridAvatar: { aspectRatio: 1, borderRadius: 12, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  gridText:   { paddingHorizontal: 4, paddingTop: 10, paddingBottom: 4, gap: 4 },
+  gridNameRow:{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  gridName:   { fontFamily: fonts.serif, fontSize: 16, color: colors.textPrimary, lineHeight: 21 },
+  gridCategory:{ fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, lineHeight: 17 },
+  gridPrice:  { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted, marginTop: 6 },
   coachCard:       { padding: 18, marginBottom: 0 },
   coachCardShell:  { borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(30,58,95,0.14)' },
   coachTop:        { flexDirection: 'row', alignItems: 'flex-start' },
@@ -987,7 +867,7 @@ function __gs_styles(colors) {
   mentorPillText: { fontFamily: fonts.sansSemiBold, fontSize: 9, color: '#15803D', letterSpacing: 0.3, textTransform: 'uppercase' },
 
   photoStrip:     { borderRadius: radius.card, overflow: 'hidden', backgroundColor: colors.surfaceAlt },
-  photoFrame:     { aspectRatio: 4 / 3, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  photoFrame:     { aspectRatio: 1, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   photoImage:     { width: '100%', height: '100%' },
   photoDots:      { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8 },
   photoDot:       { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },

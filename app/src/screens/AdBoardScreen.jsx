@@ -27,6 +27,7 @@ import Notice from '../components/ads/Notice'
 import useListingActions from '../components/ads/useListingActions'
 import AdBoardBasketScreen from './AdBoardBasketScreen'
 import { useAdTokens } from '../components/ads/adTheme'
+import SlowLoad from '../components/ui/SlowLoad'
 import { AD_BOARD_KINDS, fetchListings, fetchCurrentIssue, ubpItems } from '../lib/adBoard'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
 import { BASKETS, UBP_PLACEMENTS } from '../constants/adBoardContent'
@@ -40,6 +41,7 @@ export default function AdBoardScreen({ navigation }) {
 
   const [counts, setCounts] = useState({})        // basket key -> number
   const [failed, setFailed] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [issue, setIssue] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [overlay, setOverlay] = useState(null)    // basket key, when drawn in place
@@ -65,6 +67,7 @@ export default function AdBoardScreen({ navigation }) {
     setFailed(results.every(r => r.failed))
     setIssue(issueRes)
     setRefreshing(false)
+    setLoaded(true)
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -151,6 +154,8 @@ export default function AdBoardScreen({ navigation }) {
       </ScrollView>
 
       {modals}
+
+      <SlowLoad loading={!loaded} />
 
       {overlay && (
         <View style={StyleSheet.absoluteFill}>

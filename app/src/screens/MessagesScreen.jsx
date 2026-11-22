@@ -13,6 +13,7 @@ import { useMessageRequests } from '../components/messages/useMessageRequests'
 import { useFollows } from '../components/messages/useFollows'
 import { useDirectoryData } from '../components/directory/useDirectoryData'
 import { useTheme } from '../context/ThemeContext'
+import SlowLoad from '../components/ui/SlowLoad'
 
 // Messages: Chats, Discover (find people, follow them) and Requests (nobody
 // can message you until you accept). People used to live in the Directory
@@ -26,7 +27,7 @@ export default function MessagesScreen({ navigation, route }) {
   // The tab can be set again from a notification tap while this screen is open.
   useEffect(() => { if (route?.params?.tab) setTab(route.params.tab) }, [route?.params?.tab])
 
-  const { rooms, loading: roomsLoading } = useChatRooms()
+  const { rooms, loading: roomsLoading, failed: roomsFailed, reload: reloadRooms } = useChatRooms()
   const requestsState = useMessageRequests()
   const follows = useFollows()
   // One Directory fetch feeds both Discover and the Requests suggestions.
@@ -93,6 +94,8 @@ export default function MessagesScreen({ navigation, route }) {
           <ChatsTab
             rooms={rooms}
             loading={roomsLoading}
+            failed={roomsFailed}
+            onRetry={reloadRooms}
             onOpenRoom={openRoom}
             onFindPeople={() => setTab('discover')}
             bottomPad={bottomPad}
@@ -112,6 +115,8 @@ export default function MessagesScreen({ navigation, route }) {
           />
         )}
       </View>
+
+      <SlowLoad loading={tab === 'chats' && roomsLoading} />
 
       <NewMessageSheet
         visible={composeVisible}

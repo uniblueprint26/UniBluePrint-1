@@ -14,6 +14,8 @@ import LiveRail from '../components/live/LiveRail'
 import { MoodPulse } from '../components/feed/FeedKit'
 import { fetchMoodPulse, DEFAULT_BUZZ_WINDOW } from '../lib/feed'
 import { useCampus, useBoardCounts, countLine, useCampusMemberCount } from '../lib/campus'
+import ErrorState from '../components/ui/ErrorState'
+import SlowLoad from '../components/ui/SlowLoad'
 import { useUserType } from '../hooks/useUserType'
 import { fonts } from '../constants/theme'
 import { priorityColors, priorityFonts } from '../constants/priorityTheme'
@@ -68,12 +70,17 @@ export default function CampusConnectScreen({ navigation }) {
   return (
     <View style={[s.screen, { backgroundColor: colors.background }]}>
       <AppHeader navigation={navigation} showBack />
+      <SlowLoad loading={counts.__loading} />
       <ScrollView
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <PageTitle title="Campus Connect" subtitle="Everyone in the same situation as you." />
+
+        {counts.__failed && (
+          <ErrorState title="Could not load Campus Connect" body="Board counts may be missing. Check your connection and try again." onRetry={counts.__reload} style={{ paddingVertical: 8 }} />
+        )}
 
         <View style={s.community}>
           <Building2 size={16} color={colors.textSecondary} strokeWidth={1.8} />

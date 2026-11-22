@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, Linking, Image,
-  Animated, Dimensions, StyleSheet, Platform,
+  Animated, Dimensions, StyleSheet, Platform, AccessibilityInfo,
 } from 'react-native'
+import Reanimated, {
+  useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, interpolate, Extrapolation, runOnJS,
+} from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Clipboard from 'expo-clipboard'
@@ -74,6 +77,8 @@ const FOUNDATION_TOPICS = [
 ]
 
 const { width: SCREEN_W } = Dimensions.get('window')
+// The true page turn needs reanimated. If it is missing, the hinge and fade runs.
+const TURN_OK = typeof Reanimated?.View !== 'undefined' && typeof useSharedValue === 'function'
 
 // ── Small shared bits ───────────────────────────────────────────────────────
 
@@ -718,7 +723,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 // in is first in the shadow of the turning one, then lights up. The cover
 // turns the same way, so opening the issue feels like opening a book.
 
-function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpenPost, data, isPro }) {
+function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpenPost, data, isPro, reduce }) {
   const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
   const W = SCREEN_W
@@ -727,6 +732,16 @@ function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpen
   const opacity = scrollX.interpolate({ inputRange: range, outputRange: [0.9, 1, 0.5], extrapolate: 'clamp' })
   const inShadow = scrollX.interpolate({ inputRange: range, outputRange: [0.32, 0, 0], extrapolate: 'clamp' })
   const outShade = scrollX.interpolate({ inputRange: range, outputRange: [0, 0, 0.4], extrapolate: 'clamp' })
+
+  if (reduce) {
+    // Reduced motion: plain paging, no turn, no fade, no shading.
+    return (
+      <View pointerEvents={active ? 'auto' : 'none'} style={[styles.page, { backgroundColor: colors.background }]}>
+        <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
+        <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
+      </View>
+    )
+  }
 
   return (
     <Animated.View
@@ -747,6 +762,54 @@ function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpen
       {/* The fold at the spine. */}
       <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
     </Animated.View>
+  )
+}
+
+// ── True page turn (reanimated) ─────────────────────────────────────────────
+// Every page is pinned to the same spot on screen, stacked with the earlier
+// pages on top. As you swipe, the top page swings about its left edge (the
+// spine) like a leaf of a book, to the far side, and reveals the next page
+// that was lying underneath. The turning page darkens as it lifts and the
+// page underneath starts in its shadow. Runs on the UI thread. Used when
+// reduced motion is off; otherwise the hinge and fade version above is used.
+
+function TurnPage({ page, index, total, active, turnX, navigation, onJump, onOpenPost, data, isPro }) {
+  const { colors, isDark } = useTheme()
+  const styles = __gs_styles(colors)
+  const W = SCREEN_W
+
+  const pageStyle = useAnimatedStyle(() => {
+    const p = turnX.value / W - index // 0 when this page is the open one
+    const angle = interpolate(p, [0, 1], [0, -180], Extrapolation.CLAMP)
+    return {
+      zIndex: total - index,
+      opacity: p <= -1 || p >= 0.5 ? 0 : 1,
+      transform: [
+        { translateX: turnX.value - index * W },
+        { perspective: 1200 },
+        { rotateY: `${angle}deg` },
+      ],
+    }
+  })
+  // Darkens as the page lifts, and the page underneath starts in shadow.
+  const shadeStyle = useAnimatedStyle(() => {
+    const p = turnX.value / W - index
+    return { opacity: p >= 0 ? interpolate(p, [0, 0.5], [0, 0.4], Extrapolation.CLAMP) : interpolate(p, [-1, 0], [0.35, 0], Extrapolation.CLAMP) }
+  })
+
+  return (
+    <Reanimated.View
+      pointerEvents={active ? 'auto' : 'none'}
+      style={[
+        styles.page,
+        { backgroundColor: colors.background, transformOrigin: 'left center', backfaceVisibility: 'hidden' },
+        pageStyle,
+      ]}
+    >
+      <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
+      <Reanimated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }, shadeStyle]} />
+      <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
+    </Reanimated.View>
   )
 }
 
@@ -827,6 +890,18 @@ export default function WeeklyBlueprintScreen({ navigation }) {
   })
   const scrollRef = useRef(null)
   const scrollX = useRef(new Animated.Value(0)).current
+  const turnX = useSharedValue(0)
+  const [reduce, setReduce] = useState(false)
+  useEffect(() => {
+    let alive = true
+    AccessibilityInfo.isReduceMotionEnabled?.().then(v => { if (alive) setReduce(!!v) }).catch(() => {})
+    const sub = AccessibilityInfo.addEventListener?.('reduceMotionChanged', v => setReduce(!!v))
+    return () => { alive = false; sub?.remove?.() }
+  }, [])
+  const turnScroll = useAnimatedScrollHandler(e => {
+    turnX.value = e.contentOffset.x
+    runOnJS(setPageIndex)(Math.round(e.contentOffset.x / SCREEN_W))
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -954,6 +1029,59 @@ export default function WeeklyBlueprintScreen({ navigation }) {
         </View>
       ) : (
         <>
+          {reduce ? (
+            <ScrollView
+              ref={scrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              style={{ flex: 1 }}
+              onScroll={e => setPageIndex(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W))}
+            >
+              {PAGES.map((page, i) => (
+                <MagazinePage
+                  key={i}
+                  page={page}
+                  index={i}
+                  active={i === pageIndex}
+                  scrollX={scrollX}
+                  navigation={navigation}
+                  onJump={jumpTo}
+                  onOpenPost={() => { setModalVisible(true) }}
+                  data={screenData}
+                  isPro={isPro}
+                  reduce
+                />
+              ))}
+            </ScrollView>
+          ) : TURN_OK ? (
+            <Reanimated.ScrollView
+              ref={scrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              style={{ flex: 1 }}
+              onScroll={turnScroll}
+            >
+              {PAGES.map((page, i) => (
+                <TurnPage
+                  key={i}
+                  page={page}
+                  index={i}
+                  total={PAGES.length}
+                  active={i === pageIndex}
+                  turnX={turnX}
+                  navigation={navigation}
+                  onJump={jumpTo}
+                  onOpenPost={() => { setModalVisible(true) }}
+                  data={screenData}
+                  isPro={isPro}
+                />
+              ))}
+            </Reanimated.ScrollView>
+          ) : (
           <Animated.ScrollView
             ref={scrollRef}
             horizontal
@@ -981,6 +1109,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
               />
             ))}
           </Animated.ScrollView>
+          )}
 
           <View style={[styles.pagerControls, { paddingBottom: insets.bottom + 12 }]}>
             <TouchableOpacity

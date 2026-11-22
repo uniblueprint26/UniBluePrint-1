@@ -63,8 +63,11 @@ function getActiveRouteName(state) {
 }
 
 function DrawerRow({ item, isActive, onPress }) {
-  const { colors } = useTheme()
-  const accent = item.color || colors.textPrimary
+  const { colors, isDark } = useTheme()
+  // The deep navy and purple pillar colours vanish on the dark drawer, so use
+  // lighter tints of the same hues there.
+  const DARK_TINT = { foundation: '#9DB9E3', elevation: '#B7A3F0' }
+  const accent = (isDark && DARK_TINT[item.key]) || item.color || colors.textPrimary
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -73,7 +76,7 @@ function DrawerRow({ item, isActive, onPress }) {
       accessibilityLabel={item.label}
       style={[styles.rowOuter, isActive && { backgroundColor: colors.tabFill }]}
     >
-      <View style={[styles.tile, { backgroundColor: item.color ? item.color + '22' : colors.tabFill }]}>
+      <View style={[styles.tile, { backgroundColor: item.color ? accent + '22' : colors.tabFill }]}>
         <item.Icon size={21} color={accent} strokeWidth={1.8} />
       </View>
       <Text style={[styles.rowLabel, { color: colors.textPrimary }, isActive && { fontFamily: fonts.sansSemiBold }]} numberOfLines={1}>

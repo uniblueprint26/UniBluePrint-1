@@ -43,6 +43,8 @@ import { syncBudgetNudges } from '../lib/budgetNudges'
 import { fetchRealDealCount } from '../lib/adBoard'
 import { useConnect } from '../hooks/useConnect'
 import { useBlockedIds } from '../lib/reporting'
+import ErrorState from '../components/ui/ErrorState'
+import SlowLoad from '../components/ui/SlowLoad'
 
 // How many posts a single feed page fetches — both the first load and every
 // onEndReached page after it. Real pagination via fetchFeedPage's `before`
@@ -666,12 +668,10 @@ export default function HomeScreen({ navigation }) {
             </Text>
           )}
           {failedFeed && (
-            <EmptyState
-              icon={WifiOff}
+            <ErrorState
               title="Could not load your feed"
-              subtitle="Check your connection and try again."
-              ctaLabel="Try again"
-              onCtaPress={loadFeed}
+              body="Check your connection and try again."
+              onRetry={loadFeed}
               style={{ paddingTop: 8 }}
             />
           )}
@@ -797,6 +797,7 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <EditHomeSheet visible={editOpen} layout={layout} onChange={setLayout} onClose={() => setEditOpen(false)} />
+      <SlowLoad loading={loadingFeed} />
     </View>
   )
 }

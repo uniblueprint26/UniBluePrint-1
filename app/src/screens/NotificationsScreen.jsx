@@ -12,6 +12,8 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { goToRelatedEntity } from '../lib/notificationRouting'
+import ErrorState from '../components/ui/ErrorState'
+import SlowLoad from '../components/ui/SlowLoad'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
 
 // ── Notification categories ─────────────────────────────────────────────────
@@ -191,6 +193,7 @@ export default function NotificationsScreen({ navigation }) {
     [allNotifications, foundationOpen],
   )
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
   async function fetchNotifications() {
@@ -201,7 +204,7 @@ export default function NotificationsScreen({ navigation }) {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50)
-    if (!error && data) setNotifications(data)
+    if (!error && data) { setNotifications(data); setLoadFailed(false) } else if (error) setLoadFailed(true)
     setLoading(false)
     setRefreshing(false)
   }
@@ -301,10 +304,14 @@ export default function NotificationsScreen({ navigation }) {
           ) : (
             <Text style={styles.noUnread}>Nothing unread. You are all caught up.</Text>
           )
+        ) : loadFailed ? (
+          <ErrorState title="Could not load your notifications" onRetry={() => { setLoading(true); fetchNotifications() }} />
         ) : (
           <EmptyState />
         )}
       </ScrollView>
+
+      <SlowLoad loading={loading} />
 
       <NotificationPrefsSheet
         visible={prefsOpen}
