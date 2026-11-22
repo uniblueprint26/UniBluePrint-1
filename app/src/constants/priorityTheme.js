@@ -21,8 +21,7 @@
 //
 // FIXED 2026-11-12: `priorityColors` below used to hold the original
 // placeholder (pre-correction) gold-as-primary-accent tokens, used as the
-// workhorse accent across PrioritiesScreen.jsx, PriorityEventScreen.jsx and
-// PriorityCheckoutScreen.jsx (flagship gradient, CTA buttons, price text,
+// workhorse accent across the Priority screens (CTA buttons, price text,
 // active states) — that didn't match the real identity above. It's now
 // DERIVED from `priorityChrome` below, so all three screens pick up the
 // real black+chrome/silver identity with no changes to the screens
@@ -44,9 +43,9 @@
 //     genre accent colours are a reasonable extension for telling the three
 //     pools apart at a glance, not challenged by the identity correction
 //     above — no change needed there.
-//   — the flagship concept in flight is a New Year's Refreshers launch,
-//     ticketed through the UBP app itself, with tiered pricing
-//     (Super Early Bird → 1st Release → Final Release).
+//   — events are real rows in the database, added by staff. Tickets are
+//     bought on the UniBlueprint website, not in the app. Nothing in this
+//     file or the app is event data.
 
 // Verified real chrome/silver identity, confirmed directly from the
 // "Priority Inventory" artifact's own markup (see the correction note

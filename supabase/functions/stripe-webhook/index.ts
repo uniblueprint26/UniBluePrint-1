@@ -19,7 +19,9 @@
 //   https://<project-ref>.supabase.co/functions/v1/stripe-webhook
 // subscribed to: checkout.session.completed, checkout.session.expired,
 // customer.subscription.updated, customer.subscription.deleted,
-// invoice.payment_failed, account.updated
+// invoice.payment_failed, account.updated, charge.refunded
+// (charge.refunded is for Priority tickets: a full refund marks the order
+// refunded and voids its unused tickets. Add it in the Stripe dashboard.)
 // (checkout.session.expired is new as of task #95 — needed so an
 // abandoned Foundation checkout doesn't leave its foundation_payments row
 // stuck on 'pending' forever. This needs an actual Stripe dashboard
@@ -61,6 +63,12 @@
 //                                            webhook itself inserts the real
 //                                            content row (see
 //                                            markBoardListingPaymentPaid below).
+//   'payment', kind 'priority_ticket'     -> Priority event tickets
+//                                            (create-priority-checkout-session).
+//                                            Marks the priority_orders row paid
+//                                            and creates one priority_tickets
+//                                            row per quantity, all inside the
+//                                            priority_fulfil_order SQL function.
 
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -402,6 +410,63 @@ async function markBoardListingPaymentFailed(paymentId: string) {
   // roll back — the student can simply fill the form in again.
 }
 
+// Priority event tickets. All the real work is in SQL functions (migration
+// 20261119120000_priority_ticketing.sql) so it is one transaction per step and
+// safe to repeat:
+//   priority_fulfil_order         locks the order, marks it paid, creates only
+//                                 the tickets that are still missing. A retried
+//                                 webhook delivery creates nothing extra.
+//   priority_cancel_pending_order moves a pending order to cancelled (only).
+//   priority_refund_order         marks the order refunded and voids unused
+//                                 tickets. Repeating it changes nothing.
+// These THROW on a database error so the handler returns 500 and Stripe
+// retries, rather than leaving a paid order without tickets.
+async function fulfilPriorityOrder(orderId: string, paymentIntentId: string | null) {
+  const { data, error } = await supabase.rpc('priority_fulfil_order', {
+    p_order_id: orderId,
+    p_payment_intent: paymentIntentId,
+  })
+  if (error) throw new Error(`priority_fulfil_order failed for ${orderId}: ${error.message}`)
+  console.log(`[stripe-webhook] priority order ${orderId} fulfilled, ${data ?? 0} new tickets`)
+}
+
+async function cancelPriorityOrder(orderId: string) {
+  const { error } = await supabase.rpc('priority_cancel_pending_order', { p_order_id: orderId })
+  if (error) throw new Error(`priority_cancel_pending_order failed for ${orderId}: ${error.message}`)
+}
+
+// charge.refunded fires for every kind of charge on the account. Only a full
+// refund of a Priority order does anything; every other charge matches no
+// priority_orders row and is ignored.
+async function handlePriorityChargeRefunded(charge: Stripe.Charge) {
+  const paymentIntentId = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id ?? null
+  if (!paymentIntentId) return
+  const orderIdFromMetadata = charge.metadata?.kind === 'priority_ticket' ? charge.metadata?.priority_order_id : undefined
+
+  if (!charge.refunded) {
+    // A partial refund. The order and tickets stay as they are. Needs a human.
+    if (orderIdFromMetadata) {
+      console.warn('[stripe-webhook] partial refund on a Priority order, tickets left valid', orderIdFromMetadata, charge.amount_refunded, '/', charge.amount)
+    }
+    return
+  }
+
+  // Make sure the order knows its payment intent even if the completed event
+  // has not been processed yet (events can arrive out of order).
+  if (orderIdFromMetadata) {
+    const { error: linkErr } = await supabase
+      .from('priority_orders')
+      .update({ stripe_payment_intent: paymentIntentId })
+      .eq('id', orderIdFromMetadata)
+      .is('stripe_payment_intent', null)
+    if (linkErr) console.error('[stripe-webhook] could not store payment intent on Priority order', orderIdFromMetadata, linkErr)
+  }
+
+  const { data, error } = await supabase.rpc('priority_refund_order', { p_payment_intent: paymentIntentId })
+  if (error) throw new Error(`priority_refund_order failed for ${paymentIntentId}: ${error.message}`)
+  if (data) console.log(`[stripe-webhook] Priority refund for ${paymentIntentId}, ${data} tickets voided`)
+}
+
 Deno.serve(async req => {
   const signature = req.headers.get('stripe-signature')
   const body = await req.text()
@@ -431,6 +496,21 @@ Deno.serve(async req => {
               break
             }
             await markCoachPaymentPaid(paymentId, session.metadata?.booking_id, paymentIntentId)
+            break
+          }
+
+          if (kind === 'priority_ticket') {
+            // Priority event tickets. Only a paid session creates tickets.
+            const orderId = session.metadata?.priority_order_id
+            if (!orderId) {
+              console.error('checkout.session.completed (priority_ticket) missing priority_order_id metadata', session.id)
+              break
+            }
+            if (session.payment_status !== 'paid') {
+              console.warn('checkout.session.completed (priority_ticket) not paid yet', session.id, session.payment_status)
+              break
+            }
+            await fulfilPriorityOrder(orderId, paymentIntentId)
             break
           }
 
@@ -489,6 +569,9 @@ Deno.serve(async req => {
           if (session.metadata?.kind === 'coach_booking') {
             const paymentId = session.metadata?.coach_payment_id
             if (paymentId) await markCoachPaymentFailed(paymentId)
+          } else if (session.metadata?.kind === 'priority_ticket') {
+            const orderId = session.metadata?.priority_order_id
+            if (orderId) await cancelPriorityOrder(orderId)
           } else if (session.metadata?.kind === 'board_listing_payment') {
             const paymentId = session.metadata?.board_listing_payment_id
             if (paymentId) await markBoardListingPaymentFailed(paymentId)
@@ -533,6 +616,14 @@ Deno.serve(async req => {
         // this needs to actually arrive here.
         const account = event.data.object as Stripe.Account
         await handleConnectAccountUpdated(account)
+        break
+      }
+
+      case 'charge.refunded': {
+        // Priority ticket refunds (a full refund voids the tickets). Other
+        // charges match nothing and are ignored. Needs this event added to
+        // the Stripe dashboard's webhook subscription list.
+        await handlePriorityChargeRefunded(event.data.object as Stripe.Charge)
         break
       }
 

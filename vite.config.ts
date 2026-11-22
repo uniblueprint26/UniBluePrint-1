@@ -25,6 +25,7 @@ const ROUTES = [
   "/course-compass",
   "/budgeting",
   "/ad-board",
+  "/priority",
   "/partners",
   "/pricing",
   "/free-trial",
