@@ -77,6 +77,7 @@ const PriorityPage = lazy(() => import('./pages/priority/PriorityPage'))
 const PriorityEventPage = lazy(() => import('./pages/priority/PriorityEventPage'))
 const PrioritySuccessPage = lazy(() => import('./pages/priority/PrioritySuccessPage'))
 const PriorityTicketsPage = lazy(() => import('./pages/priority/PriorityTicketsPage'))
+const PriorityTermsPage = lazy(() => import('./pages/priority/PriorityTermsPage'))
 
 const BlogPage = lazy(() => import('./pages/blog/BlogPage'))
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'))
@@ -128,7 +129,7 @@ function AppRoutes() {
         <Route path="/partners" element={<PartnersPage />} />
         {/* Priority ticketing. Browsing and buying start without a login (buying
             asks you to sign in). /priority/success and /priority/tickets are
-            matched before /priority/:slug, so those two words are not valid
+            matched before /priority/:slug, so those words (and terms) are not valid
             event slugs (the database refuses them). */}
         <Route path="/priority" element={<PriorityPage />} />
         <Route path="/priority/success" element={<PrioritySuccessPage />} />
@@ -140,6 +141,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/priority/terms" element={<PriorityTermsPage />} />
         <Route path="/priority/:slug" element={<PriorityEventPage />} />
         <Route path="/join" element={<JoinPage />} />
         <Route path="/contributors" element={<ContributorsLandingPage />} />

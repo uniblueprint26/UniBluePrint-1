@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { SUPPORT_EMAIL } from '../../lib/site'
+import { PRIORITY_TERMS } from '../../data/priorityTerms'
 
 const H  = { fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', marginBottom: '12px' }
 const H3 = { fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', marginBottom: '8px', marginTop: '20px' }
@@ -203,7 +204,19 @@ export default function TermsPage() {
               <p style={P}><strong style={{ color: '#1E3A5F' }}>Force majeure.</strong> UniBlueprint will not be liable for any delay or failure to perform its obligations where such failure results from circumstances beyond its reasonable control, including but not limited to acts of God, power failures, server outages at third-party providers, or internet disruptions. We will restore the service as soon as reasonably practicable.</p>
             </Section>
 
-            <Section title="19. Contact Us">
+            <Section title="19. Priority Event Tickets">
+              <p style={P}>
+                Tickets to Priority events are sold on our website under the{' '}
+                <Link to="/priority/terms" style={{ color: '#1E3A5F', fontWeight: '500' }}>Terms of sale for Priority tickets</Link>. In short:
+              </p>
+              <ul style={{ ...P, paddingLeft: '20px' }}>
+                {PRIORITY_TERMS.map(t => (
+                  <li key={t.title} style={LI}><strong style={{ color: '#1E3A5F' }}>{t.title}.</strong> {t.text}</li>
+                ))}
+              </ul>
+            </Section>
+
+            <Section title="20. Contact Us">
               <p style={P}>
                 If you have any questions about these Terms, please contact us at{' '}
                 <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>

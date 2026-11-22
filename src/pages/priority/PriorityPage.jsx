@@ -7,6 +7,7 @@ import {
   PC, CHROME_TEXT, FONT_SERIF, FONT_SANS,
   fetchPublicEvents, formatEventDate, formatTime, formatPrice, genreLabel,
 } from '../../lib/priority'
+import { PRIORITY_ANNOUNCED } from '../../data/priorityTerms'
 
 function EventCard({ event }) {
   const prices = (event.tiers || []).map(t => t.price_cents)
@@ -89,7 +90,7 @@ export default function PriorityPage() {
           Priority
         </h1>
         <p style={{ fontFamily: FONT_SANS, fontSize: '17px', lineHeight: 1.6, color: PC.muted, maxWidth: '560px', margin: '16px 0 0' }}>
-          Nights out across Ireland. All events are 18+.
+          Nights out across Ireland. All events are 18+. No booking fee.
         </p>
 
         <div style={{ marginTop: '48px' }}>
@@ -108,6 +109,26 @@ export default function PriorityPage() {
             </div>
           )}
         </div>
+
+        <div style={{ marginTop: '56px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.2em', color: PC.silver, margin: 0 }}>ANNOUNCED</p>
+          <p style={{ color: PC.muted, fontSize: '15px', lineHeight: 1.6, margin: '8px 0 0', maxWidth: '520px' }}>
+            Dates and venues are still to be confirmed. Tickets are not on sale yet.
+          </p>
+          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', marginTop: '20px' }}>
+            {PRIORITY_ANNOUNCED.map(a => (
+              <div key={a.id} style={{ padding: '20px', borderRadius: '18px', border: `1px solid ${PC.border}`, background: PC.card }}>
+                <h2 style={{ fontFamily: FONT_SERIF, fontSize: '22px', fontWeight: 700, margin: 0, lineHeight: 1.2 }}>{a.title}</h2>
+                <p style={{ color: PC.muted, fontSize: '14px', margin: '10px 0 0' }}>{a.where}</p>
+                <p style={{ color: PC.muted, fontSize: '14px', margin: '4px 0 0' }}>Date ??  Venue ??</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p style={{ fontSize: '14px', color: PC.faint, margin: '40px 0 0' }}>
+          <Link to="/priority/terms" style={{ color: PC.silver }}>Terms of sale for Priority tickets</Link>
+        </p>
       </PriorityShell>
     </>
   )

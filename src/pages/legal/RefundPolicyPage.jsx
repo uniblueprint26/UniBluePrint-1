@@ -139,7 +139,14 @@ export default function RefundPolicyPage() {
               </ul>
             </Section>
 
-            <Section title="13. Contact Us">
+            <Section title="13. Priority Event Tickets">
+              <p style={P}>
+                Priority event tickets are not refundable if you change your mind. If an event is cancelled, you are refunded the ticket price. There is no booking fee. Read the full{' '}
+                <Link to="/priority/terms" style={{ color: '#1E3A5F', fontWeight: '500' }}>Terms of sale for Priority tickets</Link>.
+              </p>
+            </Section>
+
+            <Section title="14. Contact Us">
               <p style={P}>
                 For any refund-related queries, email{' '}
                 <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>

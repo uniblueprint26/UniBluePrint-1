@@ -9,7 +9,7 @@ export const EXAMPLE_EVENTS = [
   { id: 'ex-pri-sli', name: "Priority New Year's Refresher", where: 'Sligo', organiser: 'Priority', priority: true },
   { id: 'ex-pri-dub', name: "Priority New Year's Refresher", where: 'Dublin', organiser: 'Priority', priority: true },
   { id: 'ex-pri-lim', name: "Priority New Year's Refresher", where: 'Limerick', organiser: 'Priority', priority: true },
-  { id: 'ex-pri-bt', name: "Priority Black Tie, Valentine's", where: 'Sligo', organiser: 'Priority', priority: true },
+  { id: 'ex-pri-bt', name: "Priority Black Tie", where: 'Sligo', organiser: 'Priority', priority: true },
   { id: 'ex-law', name: 'Law Society mixer', where: 'Student centre', organiser: 'Law Society', free: true },
   { id: 'ex-careers', name: 'Careers fair', where: 'Sports hall', organiser: 'Careers Service', free: true },
 ]

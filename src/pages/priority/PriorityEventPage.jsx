@@ -9,6 +9,7 @@ import {
   fetchEventBySlug, fetchRemaining, startPriorityCheckout,
   formatEventDate, formatTime, formatPrice, genreLabel, tierState,
 } from '../../lib/priority'
+import { PRIORITY_TERMS_SHORT } from '../../data/priorityTerms'
 
 const label = { fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', color: PC.silver, margin: '0 0 12px' }
 
@@ -262,6 +263,13 @@ export default function PriorityEventPage() {
                   </Notice>
                 </div>
 
+                <div style={{ marginTop: '16px', padding: '16px 18px', borderRadius: '14px', border: `1px solid ${PC.border}`, background: PC.card }}>
+                  <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', color: PC.silver, margin: 0 }}>BEFORE YOU PAY</p>
+                  <ul style={{ margin: '10px 0 0', paddingLeft: '18px', color: PC.muted, fontSize: '14px', lineHeight: 1.7 }}>
+                    {PRIORITY_TERMS_SHORT.map(line => <li key={line}>{line}</li>)}
+                  </ul>
+                </div>
+
                 {error && <div style={{ marginTop: '16px' }}><Notice tone="bad" role="alert">{error}</Notice></div>}
 
                 <button
@@ -274,9 +282,9 @@ export default function PriorityEventPage() {
                 </button>
 
                 <p style={{ fontSize: '13px', lineHeight: 1.6, color: PC.faint, margin: '16px 0 0', textAlign: 'center' }}>
-                  You pay securely with Stripe. By buying you agree to our{' '}
-                  <Link to="/terms" style={{ color: PC.silver }}>Terms</Link> and{' '}
-                  <Link to="/refund-policy" style={{ color: PC.silver }}>Refund Policy</Link>.
+                  You pay securely with Stripe. By buying you agree to the{' '}
+                  <Link to="/priority/terms" style={{ color: PC.silver }}>Terms of sale for Priority tickets</Link>{' '}
+                  and our <Link to="/terms" style={{ color: PC.silver }}>Terms of Service</Link>.
                 </p>
               </>
             )}
