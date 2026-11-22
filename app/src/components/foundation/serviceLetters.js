@@ -198,10 +198,10 @@ export const SERVICE_LETTERS = {
       'A 7 day action plan, and a tip for tracking your applications',
     ],
     steps: [
-      'You answer questions about your field, who you are (student, apprentice, young worker or 5th or 6th year), the opportunity you want, and how your search has gone so far.',
+      'You answer questions about your field, who you are (student, apprentice, worker or returning to education), the opportunity you want, and how your search has gone so far.',
       REVIEW_STEP,
     ],
-    webStep: 'You answer questions on uniblueprint.ie about your field, who you are (student, apprentice, young worker or 5th or 6th year), the opportunity you want, and how your search has gone so far.',
+    webStep: 'You answer questions on uniblueprint.ie about your field, who you are (student, apprentice, worker or returning to education), the opportunity you want, and how your search has gone so far.',
     receive: 'Your plan arrives in Outputs, ready to copy or share.',
     different: [
       'Personal to you. It starts from where you are: just starting, applying with no interviews, or getting interviews with no offers.',

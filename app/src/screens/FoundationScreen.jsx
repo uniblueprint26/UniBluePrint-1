@@ -131,7 +131,7 @@ const CC_TOOLS = [
   { name: 'Learning Style Test',    icon: GraduationCap, url: 'https://coursecompass.ie/learning-style-test',     desc: 'Understand how you learn best' },
   { name: 'PLC Compass',            icon: Map,           url: 'https://coursecompass.ie/plc-compass-test',        desc: 'Explore PLC pathway options' },
   { name: 'Apprenticeship Compass', icon: Wrench,        url: 'https://coursecompass.ie/apprentice-compass-test', desc: 'Find the right apprenticeship' },
-  { name: '5th & 6th Year Bundle',  icon: Package,       url: 'https://coursecompass.ie/bundles/senior-cycle',    desc: 'Full senior cycle guidance suite' },
+  { name: 'Pathway Bundle',         icon: Package,       url: 'https://coursecompass.ie/bundles/senior-cycle',    desc: 'Course, PLC and apprenticeship guidance together' },
 ]
 
 // ─── Where each service starts, and where its progress is tracked ─────────────
