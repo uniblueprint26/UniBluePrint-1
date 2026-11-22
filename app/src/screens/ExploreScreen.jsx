@@ -11,6 +11,8 @@ import { usePillarOrder } from '../hooks/usePillarOrder'
 import { EXPLORE_BUNDLES, COMING_SOON_BUNDLE, countLabel } from '../constants/exploreCatalog'
 import { useComingSoonEnabled, COMING_SOON_COPY, COMING_SOON_TITLE } from '../constants/comingSoon'
 import { useKindCounts, openExploreRow } from '../lib/explore/exploreRows'
+import ErrorState from '../components/ui/ErrorState'
+import SlowLoad from '../components/ui/SlowLoad'
 import { fonts } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 
@@ -58,12 +60,17 @@ export default function ExploreScreen({ navigation }) {
   return (
     <View style={[s.screen, { backgroundColor: colors.background }]}>
       <AppHeader navigation={navigation} showBack />
+      <SlowLoad loading={counts.__loading} />
       <ScrollView
         contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <PageTitle title="Explore" style={s.title} />
+
+        {counts.__failed && (
+          <ErrorState title="Could not load Explore" body="Counts and offers may be missing. Check your connection and try again." onRetry={counts.__reload} style={{ paddingVertical: 8 }} />
+        )}
 
         <View style={[s.search, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Search size={18} color={colors.textSecondary} strokeWidth={1.8} />

@@ -39,20 +39,26 @@ export function initialsOf(name) {
 // Returns { [boardKey]: { total, week } }. Empty until loaded or on error.
 export function useBoardCounts() {
   const [counts, setCounts] = useState({})
+  const [status, setStatus] = useState({ loading: true, failed: false })
+  const [tries, setTries] = useState(0)
   useEffect(() => {
     let cancelled = false
+    setStatus({ loading: true, failed: false })
     ;(async () => {
       try {
         const { data, error } = await supabase.rpc('campus_board_counts')
-        if (cancelled || error || !Array.isArray(data)) return
+        if (cancelled) return
+        if (error || !Array.isArray(data)) { setStatus({ loading: false, failed: true }); return }
         const next = {}
         data.forEach(r => { next[r.board_key] = { total: Number(r.total) || 0, week: Number(r.this_week) || 0 } })
         setCounts(next)
-      } catch { /* counts are optional */ }
+        setStatus({ loading: false, failed: false })
+      } catch { if (!cancelled) setStatus({ loading: false, failed: true }) }
     })()
     return () => { cancelled = true }
-  }, [])
-  return counts
+  }, [tries])
+  // __loading, __failed and __reload are status fields for the screen, not boards.
+  return { ...counts, __loading: status.loading, __failed: status.failed, __reload: () => setTries(n => n + 1) }
 }
 
 export function countLine(c) {

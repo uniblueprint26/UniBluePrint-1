@@ -12,16 +12,19 @@ export function useChatRooms() {
   const userId = user?.id
   const [rooms, setRooms] = useState([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
   const load = useCallback(async () => {
     if (!userId) { setLoading(false); return }
+    setFailed(false)
     try {
       const { data: participantRows, error: partErr } = await supabase
         .from('chat_participants')
         .select('room_id, last_read_at, chat_rooms(id, name, context_type, context_id, created_at)')
         .eq('user_id', userId)
 
-      if (partErr || !participantRows?.length) { setRooms([]); return }
+      if (partErr) { setFailed(true); setRooms([]); return }
+      if (!participantRows?.length) { setRooms([]); return }
 
       const roomIds = participantRows.map(p => p.room_id)
 
@@ -77,6 +80,7 @@ export function useChatRooms() {
 
       setRooms(list)
     } catch {
+      setFailed(true)
       setRooms([])
     } finally {
       setLoading(false)
@@ -85,5 +89,5 @@ export function useChatRooms() {
 
   useFocusEffect(useCallback(() => { load() }, [load]))
 
-  return { rooms, loading, reload: load }
+  return { rooms, loading, failed, reload: load }
 }

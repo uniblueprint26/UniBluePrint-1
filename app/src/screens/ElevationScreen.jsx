@@ -15,6 +15,7 @@ import { PILLARS } from '../constants/pillars'
 import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
+import SlowLoad from '../components/ui/SlowLoad'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
@@ -636,6 +637,7 @@ export default function ElevationScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader navigation={navigation} showBack />
+      <SlowLoad loading={proLoading} />
 
       {/* ── Scrollable content ──
           The navy hero block below is the FIRST CHILD of the ScrollView, not

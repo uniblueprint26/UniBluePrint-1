@@ -69,6 +69,8 @@ function deriveTitle(situation) {
  *  Challenge / Achievement, single-select. */
 function RadioOptions({ options, value, onChange }) {
   const { colors } = useTheme()
+  const { isDark } = useTheme()
+  const paper = envelopePaper(isDark)
   const styles = getStyles(colors)
   return (
     <View style={{ gap: 10 }}>
@@ -80,14 +82,15 @@ function RadioOptions({ options, value, onChange }) {
             key={opt.value}
             activeOpacity={0.8}
             onPress={() => onChange(opt.value)}
-            style={[styles.radioRow, active && styles.radioRowActive]}
+            style={[styles.radioRow, { backgroundColor: paper.letter, borderColor: paper.edge }, active && { borderColor: colors.accentBg, borderWidth: 2 }]}
             accessibilityRole="radio"
             accessibilityState={{ checked: active }}
           >
-            <View style={[styles.radioCircle, active && styles.radioCircleActive]}>
-              {active && <View style={styles.radioDot} />}
-            </View>
-            {!!Icon && <Icon size={16} color={active ? colors.accentBg : colors.muted} style={{ marginRight: 4 }} />}
+            {!!Icon && (
+              <View style={[styles.radioSeal, { backgroundColor: active ? paper.sealBg : paper.body, borderColor: paper.edge }]}>
+                <Icon size={14} color={active ? paper.sealFg : colors.textPrimary} strokeWidth={2} />
+              </View>
+            )}
             <Text style={[styles.radioLabel, active && styles.radioLabelActive]}>{opt.label}</Text>
           </TouchableOpacity>
         )
@@ -147,6 +150,7 @@ const ADD_STEPS = [
 export default function EvidenceBankScreen({ navigation }) {
   const { colors, isDark } = useTheme()
   const styles = getStyles(colors)
+  const paper = envelopePaper(isDark)
   const { user } = useAuth()
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)
@@ -325,10 +329,15 @@ export default function EvidenceBankScreen({ navigation }) {
         </View>
 
         <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-          <Text style={styles.flowTitle} accessibilityRole="header">{step.title}</Text>
-          {!!step.subtitle && <Text style={styles.flowSubtitle}>{step.subtitle}</Text>}
-          <View style={{ marginTop: spacing.lg }}>
-            {step.render(addValues[step.key], v => setAddField(step.key, v))}
+          <View style={[styles.paperCard, { backgroundColor: paper.body, borderColor: paper.edge }]}>
+            <View style={[styles.paperSeal, { backgroundColor: paper.sealBg }]}>
+              <Text style={[styles.paperSealText, { color: paper.sealFg }]}>{addStep + 1}</Text>
+            </View>
+            <Text style={styles.flowTitle} accessibilityRole="header">{step.title}</Text>
+            {!!step.subtitle && <Text style={styles.flowSubtitle}>{step.subtitle}</Text>}
+            <View style={{ marginTop: spacing.lg }}>
+              {step.render(addValues[step.key], v => setAddField(step.key, v))}
+            </View>
           </View>
           {!!addError && (
             <View style={styles.errorBox} accessibilityLiveRegion="polite" accessibilityRole="alert">
@@ -357,6 +366,7 @@ export default function EvidenceBankScreen({ navigation }) {
 
   // ── Story detail / edit ──────────────────────────────────────────────────
   if (mode === 'detail' && selectedStory && detailDraft) {
+    const DetailIcon = categoryMeta(detailDraft.category).icon
     return (
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
@@ -370,7 +380,10 @@ export default function EvidenceBankScreen({ navigation }) {
         </View>
 
         <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-          <View style={{ gap: 14 }}>
+          <View style={[styles.paperCard, { backgroundColor: paper.body, borderColor: paper.edge, gap: 18 }]}>
+            <View style={[styles.paperSeal, { backgroundColor: paper.sealBg, marginBottom: 0 }]}>
+              <DetailIcon size={16} color={paper.sealFg} strokeWidth={2} />
+            </View>
             <View>
               <FieldLabel required>Title</FieldLabel>
               <FormTextInput value={detailDraft.title} onChangeText={t => setDetailField('title', t)} />
@@ -426,7 +439,6 @@ export default function EvidenceBankScreen({ navigation }) {
 
   // ── List view ──────────────────────────────────────────────────────────
   const storiesCount = stories.length
-  const paper = envelopePaper(isDark)
   return (
     <View style={styles.screen}>
       <AppHeader navigation={navigation} showBack />
@@ -595,6 +607,10 @@ function getStyles(colors) {
   radioCircleActive: { borderColor: colors.accentBg },
   radioDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.accentBg },
   radioLabel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted, flex: 1 },
+  radioSeal: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  paperCard: { borderRadius: 22, borderWidth: 1, padding: 20 },
+  paperSeal: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
+  paperSealText: { fontFamily: fonts.sansBold, fontSize: 14 },
   radioLabelActive: { color: colors.accentBg, fontFamily: fonts.sansSemiBold },
 
   // Guided add-flow chrome (mirrors QuestionFlow's own styling)
