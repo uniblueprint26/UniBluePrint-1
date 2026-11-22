@@ -77,6 +77,13 @@ const SITUATIONS = [
   },
 ]
 
+// Who are you, in three groups (the founder's onboarding look).
+const SITUATION_GROUPS = [
+  { title: 'Studying', keys: ['in_college', 'plc', 'prospective'] },
+  { title: 'Working and training', keys: ['apprenticeship', 'working'] },
+  { title: 'In between', keys: ['gap_year', 'recent_grad', 'other'] },
+]
+
 // Step 3 availability selector uses the shared STATUS_OPTIONS (see
 // constants/directory.js) — the same "what are you open to" concept the
 // Directory Profile settings screen edits later, backed by profiles.statuses.
@@ -95,12 +102,13 @@ function StepDots({ current, total }) {
   const { colors } = useTheme()
   const dot = __gs_dot(colors)
   return (
-    <View style={dot.row}>
+    <View
+      style={dot.row}
+      accessibilityRole="progressbar"
+      accessibilityValue={{ min: 1, max: total, now: current }}
+    >
       {Array.from({ length: total }).map((_, i) => (
-        <View
-          key={i}
-          style={[dot.pip, i + 1 === current && dot.pipActive, i + 1 < current && dot.pipDone]}
-        />
+        <View key={i} style={[dot.pip, i + 1 <= current && dot.pipDone]} />
       ))}
     </View>
   )
@@ -108,10 +116,9 @@ function StepDots({ current, total }) {
 
 function __gs_dot(colors) {
   return StyleSheet.create({
-  row:      { flexDirection: 'row', gap: 6, alignSelf: 'center', marginBottom: spacing.xl },
-  pip:      { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(30,58,95,0.18)' },
-  pipActive:{ width: 20, backgroundColor: colors.accentBg },
-  pipDone:  { backgroundColor: 'rgba(30,58,95,0.45)' },
+  row:      { flexDirection: 'row', gap: 10, marginBottom: spacing.lg },
+  pip:      { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
+  pipDone:  { backgroundColor: colors.accentBg },
   })
 }
 
@@ -436,12 +443,16 @@ export default function SignUpScreen({ navigation }) {
             onPress={goBack}
             style={styles.backBtn}
             activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <ChevronLeft size={20} color={colors.chromeFg} strokeWidth={2} />
+            <ChevronLeft size={24} color={colors.textPrimary} strokeWidth={2} />
           </TouchableOpacity>
-          <UBPLogo height={33} color={colors.chromeFg} />
+          <View style={styles.headerLogo}>
+            <UBPLogo height={30} color={colors.textPrimary} />
+          </View>
+          <View style={styles.backBtn} />
         </View>
 
         <View style={styles.body}>
@@ -642,31 +653,40 @@ export default function SignUpScreen({ navigation }) {
                 This sets the words we use for you, like what Campus Connect is called. You can change it later in Settings.
               </Text>
 
-              <View style={styles.situationList}>
-                {SITUATIONS.map(s => {
-                  const isSelected = situation === s.key
-                  return (
-                    <TouchableOpacity
-                      key={s.key}
-                      style={[styles.situationCard, isSelected && styles.situationCardActive]}
-                      activeOpacity={0.8}
-                      onPress={() => { setSituation(s.key); setError('') }}
-                    >
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.situationLabel, isSelected && styles.situationLabelActive]}>
-                          {s.label}
-                        </Text>
-                        <Text style={[styles.situationSub, isSelected && styles.situationSubActive]}>
-                          {s.sub}
-                        </Text>
-                      </View>
-                      <View style={[styles.situationRadio, isSelected && styles.situationRadioActive]}>
-                        {isSelected && <Check size={12} color={colors.accentFg} strokeWidth={3} />}
-                      </View>
-                    </TouchableOpacity>
-                  )
-                })}
-              </View>
+              {SITUATION_GROUPS.map(g => (
+                <View key={g.title}>
+                  <Text style={styles.groupLabel}>{g.title}</Text>
+                  <View style={styles.situationGroup}>
+                    {g.keys.map((k, n) => {
+                      const s = SITUATIONS.find(x => x.key === k)
+                      if (!s) return null
+                      const isSelected = situation === s.key
+                      return (
+                        <TouchableOpacity
+                          key={s.key}
+                          style={[
+                            styles.situationRow,
+                            n > 0 && styles.situationRowDivider,
+                            isSelected && styles.situationRowActive,
+                          ]}
+                          activeOpacity={0.8}
+                          onPress={() => { setSituation(s.key); setError('') }}
+                          accessibilityRole="radio"
+                          accessibilityState={{ checked: isSelected }}
+                        >
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.situationLabel}>{s.label}</Text>
+                            {isSelected && !!s.sub && <Text style={styles.situationSub}>{s.sub}</Text>}
+                          </View>
+                          <View style={[styles.situationRadio, isSelected && styles.situationRadioActive]}>
+                            {isSelected && <Check size={13} color={colors.accentFg} strokeWidth={3} />}
+                          </View>
+                        </TouchableOpacity>
+                      )
+                    })}
+                  </View>
+                </View>
+              ))}
 
               <TouchableOpacity
                 style={[styles.primaryBtn, { marginTop: spacing.xl }]}
@@ -1242,22 +1262,17 @@ function __gs_styles(colors) {
   scroll: { flexGrow: 1 },
 
   header: {
-    backgroundColor: colors.chromeBg,
+    backgroundColor: colors.background,
     paddingHorizontal: spacing.md,
-    paddingBottom: 28,
+    paddingBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
   },
-  backBtn: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: 'rgba(245,240,232,0.10)',
-    borderWidth: 1, borderColor: 'rgba(245,240,232,0.16)',
-    alignItems: 'center', justifyContent: 'center',
-  },
+  headerLogo: { flex: 1, alignItems: 'center' },
+  backBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   logo: { fontFamily: fonts.serif, fontSize: 20, color: colors.chromeFg },
 
-  body: { paddingHorizontal: spacing.md, paddingTop: spacing.xl },
+  body: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
 
   stepLabel: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
   title:     { fontFamily: fonts.serif, fontSize: 30, color: colors.textPrimary, lineHeight: 36 },
@@ -1278,7 +1293,7 @@ function __gs_styles(colors) {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: colors.surface, borderRadius: radius.button,
     paddingHorizontal: 14, minHeight: 52,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.12)',
+    borderWidth: 1, borderColor: colors.border,
     ...shadows.card,
   },
   inputWrapOpen: {
@@ -1304,7 +1319,7 @@ function __gs_styles(colors) {
   instDropdown: {
     backgroundColor: colors.surface,
     borderWidth: 1, borderTopWidth: 0,
-    borderColor: 'rgba(30,58,95,0.12)',
+    borderColor: colors.border,
     borderBottomLeftRadius: radius.button,
     borderBottomRightRadius: radius.button,
     ...shadows.elevated,
@@ -1328,7 +1343,7 @@ function __gs_styles(colors) {
   instHint: {
     backgroundColor: colors.surface,
     borderWidth: 1, borderTopWidth: 0,
-    borderColor: 'rgba(30,58,95,0.12)',
+    borderColor: colors.border,
     borderBottomLeftRadius: radius.button, borderBottomRightRadius: radius.button,
     paddingHorizontal: 14, paddingVertical: 12,
   },
@@ -1338,18 +1353,32 @@ function __gs_styles(colors) {
   infoCard: {
     backgroundColor: '#EFF6FF', borderRadius: radius.card,
     padding: 14, marginTop: spacing.md,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.10)',
+    borderWidth: 1, borderColor: colors.border,
   },
   // infoCard's background is a fixed pale blue in both modes — needs a
   // fixed dark text color, not textPrimary (cream in dark mode).
   infoText: { fontFamily: fonts.sans, fontSize: 13, color: colors.navy, lineHeight: 20 },
 
   // Situation selector
+  groupLabel: {
+    fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.textSecondary,
+    textTransform: 'uppercase', letterSpacing: 1.1, marginTop: spacing.lg, marginBottom: 10, marginLeft: 4,
+  },
+  situationGroup: {
+    backgroundColor: colors.surface, borderRadius: 20, overflow: 'hidden',
+    borderWidth: 1, borderColor: colors.border,
+  },
+  situationRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    paddingHorizontal: 18, paddingVertical: 17, minHeight: 58,
+  },
+  situationRowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+  situationRowActive: { backgroundColor: colors.tabFill },
   situationList: { gap: 10, marginTop: spacing.lg },
   situationCard: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     backgroundColor: colors.surface, borderRadius: radius.card,
-    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
+    borderWidth: 1.5, borderColor: colors.border,
     paddingHorizontal: 16, paddingVertical: 14,
     ...shadows.card,
   },
@@ -1363,7 +1392,7 @@ function __gs_styles(colors) {
   situationSubActive: { color: colors.muted },
   situationRadio: {
     width: 22, height: 22, borderRadius: 11,
-    borderWidth: 2, borderColor: 'rgba(30,58,95,0.20)',
+    borderWidth: 1.5, borderColor: colors.light,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   situationRadioActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
@@ -1435,7 +1464,7 @@ function __gs_styles(colors) {
   statusOption: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     backgroundColor: colors.surface, borderRadius: radius.card,
-    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.10)',
+    borderWidth: 1.5, borderColor: colors.border,
     paddingHorizontal: 16, paddingVertical: 14,
     ...shadows.card,
   },
