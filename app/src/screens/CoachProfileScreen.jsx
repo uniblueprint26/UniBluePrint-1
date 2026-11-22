@@ -666,7 +666,7 @@ export default function CoachProfileScreen({ route, navigation }) {
               </View>
             )}
             {coach.bio && (
-              <View style={styles.section}>
+              <View style={[styles.section, !coach.tagline && { marginTop: 22 }]}>
                 <Text style={styles.sectionLabel}>About</Text>
                 <Text style={styles.bioText}>{coach.bio}</Text>
               </View>

@@ -279,8 +279,8 @@ function getStyles(colors) {
   },
 
   circle: {
-    backgroundColor: 'rgba(30,58,95,0.06)',
-    borderWidth: 1.5, borderColor: 'rgba(30,58,95,0.12)',
+    backgroundColor: colors.tabFill,
+    borderWidth: 1.5, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center',
     overflow: 'hidden',
   },
@@ -297,7 +297,7 @@ function getStyles(colors) {
   cancelBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     borderRadius: radius.pill,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
+    borderWidth: 1, borderColor: colors.border,
     paddingHorizontal: 14, paddingVertical: 9,
   },
   cancelBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.muted },
@@ -314,7 +314,7 @@ function getStyles(colors) {
   changeBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     borderRadius: radius.pill,
-    borderWidth: 1, borderColor: 'rgba(30,58,95,0.15)',
+    borderWidth: 1, borderColor: colors.border,
     paddingHorizontal: 16, paddingVertical: 8,
   },
   changeBtnText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },

@@ -24,7 +24,7 @@ function lighten(hex, amt) {
 }
 function ringColor(pillar, colors, isDark) {
   if (!isDark) return pillar.color
-  return NAVY_PILLARS.has(pillar.key) ? colors.textPrimary : lighten(pillar.color, 0.35)
+  return NAVY_PILLARS.has(pillar.key) ? colors.textPrimary : lighten(pillar.color, pillar.key === 'elevation' ? 0.55 : 0.35)
 }
 
 const SIDE = 16
