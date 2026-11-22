@@ -5,6 +5,7 @@ import { ToolScreen, Eyebrow, Btn, openLink } from '../../components/explore/Too
 import { SCHOLARSHIP_GUIDES, SCHOLARSHIPS_CHECKED } from '../../constants/scholarshipGuides'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { SUPPORT_EMAIL } from '../../constants/site'
 
 // Scholarships. Real Irish scholarships, grants and bursaries with a short
 // guide each: who can apply, what it is worth, how to apply, and the official
@@ -59,7 +60,7 @@ export default function ScholarshipsScreen({ navigation }) {
         )
       })}
       <Text style={[s.foot, { color: colors.textSecondary }]}>
-        Know a scholarship we should add? Email support@uniblueprint.ie and we will check it before we list it.
+        Know a scholarship we should add? Email {SUPPORT_EMAIL} and we will check it before we list it.
       </Text>
     </ToolScreen>
   )

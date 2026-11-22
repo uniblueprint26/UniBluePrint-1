@@ -9,6 +9,7 @@ import { useTheme } from '../context/ThemeContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { SUPPORT_EMAIL } from '../constants/site'
 
 const FAQS = [
   {
@@ -37,12 +38,12 @@ const FAQS = [
   },
   {
     q: 'How do I cancel or get a refund?',
-    a: 'If you are not satisfied with a service, contact us within 48 hours of delivery at support@uniblueprint.ie and we will work with you to resolve it.',
+    a: `If you are not satisfied with a service, contact us within 48 hours of delivery at ${SUPPORT_EMAIL} and we will work with you to resolve it.`,
     link: { label: 'Read our refund policy', url: WEBSITE_LINKS.refundPolicy },
   },
   {
     q: 'Can I become a Campus Handler or Coach?',
-    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at support@uniblueprint.ie.',
+    a: 'Yes. We are always looking for motivated students and professionals to join our team. Tap "Become a Coach" in the Profile section to apply. For Campus Handler applications, contact us directly at ' + SUPPORT_EMAIL + '.',
   },
   {
     q: 'Which universities does UniBlueprint cover?',
@@ -124,9 +125,9 @@ export default function FAQsScreen({ navigation }) {
             We're happy to help. Reach out at{' '}
             <Text
               style={styles.contactEmail}
-              onPress={() => Linking.openURL('mailto:support@uniblueprint.ie')}
+              onPress={() => Linking.openURL('mailto:' + SUPPORT_EMAIL)}
             >
-              support@uniblueprint.ie
+              {SUPPORT_EMAIL}
             </Text>
           </Text>
         </Card>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { SUPPORT_EMAIL } from '../../lib/site'
 
 const H  = { fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', marginBottom: '12px' }
 const H3 = { fontFamily: "'DM Serif Display', serif", fontSize: '17px', color: '#1E3A5F', marginBottom: '8px', marginTop: '20px' }
@@ -82,7 +83,7 @@ export default function TermsPage() {
               <p style={P}>You are responsible for maintaining the security and confidentiality of your account credentials, including your password. You must not share your credentials with any other person. You are solely liable for all activity that occurs under your Account.</p>
               <p style={P}>
                 If you become aware of any unauthorised use of your Account, you must notify us immediately at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>.
                 {' '}UniBlueprint will not be liable for any loss arising from unauthorised use of your Account where you have failed to maintain the security of your credentials.
               </p>
             </Section>
@@ -126,7 +127,7 @@ export default function TermsPage() {
                 <li style={LI}>Anything else that is harmful, offensive or unlawful.</li>
               </ul>
               <h3 style={H3}>8.2 Reporting and blocking</h3>
-              <p style={P}>Every post, comment, message, listing and profile has a Report option, and you can block any member. Blocking hides their content from you and stops them messaging you. Reports go to the UniBlueprint team. We aim to review every report within 24 hours. You can also email support@uniblueprint.ie.</p>
+              <p style={P}>Every post, comment, message, listing and profile has a Report option, and you can block any member. Blocking hides their content from you and stops them messaging you. Reports go to the UniBlueprint team. We aim to review every report within 24 hours. You can also email {SUPPORT_EMAIL}.</p>
               <h3 style={H3}>8.3 What we do</h3>
               <p style={P}>UniBlueprint filters text for the strongest language, reviews reports, and may remove any content that breaks these Community Standards at any time, without notice. Repeated or serious violations may result in temporary suspension or permanent removal of your Account. UniBlueprint is for people aged 18 and over.</p>
             </Section>
@@ -205,7 +206,7 @@ export default function TermsPage() {
             <Section title="19. Contact Us">
               <p style={P}>
                 If you have any questions about these Terms, please contact us at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>
                 {' '}or via the{' '}
                 <Link to="/contact" style={{ color: '#1E3A5F', fontWeight: '500' }}>Contact page</Link>.
               </p>

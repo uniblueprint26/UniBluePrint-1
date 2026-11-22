@@ -7,6 +7,7 @@ import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, getUTM, parseDbError, sendFormConfirmation, notifyTeam,
 } from '../components/ui/Form'
+import { SUPPORT_EMAIL } from '../lib/site'
 
 // general_enquiries, partnership_enquiries, and team_applications (all 3 forms below) are
 // already migrated — see supabase/migrations/20260824120000_website_public_forms.sql for
@@ -434,8 +435,8 @@ export default function ContactPage() {
             textAlign: 'center', marginTop: '20px',
           }}>
             You can also reach us at{' '}
-            <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>
-              support@uniblueprint.ie
+            <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>
+              {SUPPORT_EMAIL}
             </a>
           </p>
         </div>

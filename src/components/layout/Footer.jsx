@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Instagram } from 'lucide-react'
 import UBPLogo from '../ui/UBPLogo'
+import { SUPPORT_EMAIL } from '../../lib/site'
 
 // ─── TikTok SVG (not in lucide-react) ─────────────────────────────────────────
 function TikTokIcon({ size = 18 }) {
@@ -242,7 +243,7 @@ export default function Footer() {
 
             <div className="footer-legal-right">
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: 'rgba(245,240,232,0.4)' }}>
-                support@uniblueprint.ie
+                {SUPPORT_EMAIL}
               </span>
             </div>
           </div>

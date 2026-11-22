@@ -9,6 +9,7 @@ import { MENTAL_HEALTH_CATEGORIES } from '../data/mentalHealthSupport'
 import { useFoundationOrdering } from '../hooks/useAppFlags'
 import { useTheme } from '../context/ThemeContext'
 import { fonts } from '../constants/theme'
+import { SUPPORT_EMAIL } from '../constants/site'
 
 // For parents. A plain, read only page for a parent or guardian who wants to
 // see what UniBlueprint is. It is only reachable from inside an adult account
@@ -100,7 +101,7 @@ export default function ParentInfoScreen({ navigation }) {
         <Bullet text="Every post can be reported, and any member can be blocked." />
         <Bullet text="Posts are checked for harmful language before they go up." />
         <Bullet text="A member can delete their account and their data from Privacy and Data in their profile." />
-        <Bullet text="If you think someone under 18 is using the app, tell us at support@uniblueprint.ie and we will act on it." last />
+        <Bullet text={`If you think someone under 18 is using the app, tell us at ${SUPPORT_EMAIL} and we will act on it.`} last />
       </Section>
 
       <Section title="Support and helplines">
@@ -110,7 +111,7 @@ export default function ParentInfoScreen({ navigation }) {
             <Row key={c.name} title={c.name} sub={`${c.number}. ${c.hours}`} Icon={Phone} onPress={() => Linking.openURL(c.link).catch(() => {})} last={i === crisis.length - 1} />
           ))}
         </View>
-        <Row title="UniBlueprint support" sub="support@uniblueprint.ie" Icon={Mail} onPress={() => Linking.openURL('mailto:support@uniblueprint.ie').catch(() => {})} last top />
+        <Row title="UniBlueprint support" sub={SUPPORT_EMAIL} Icon={Mail} onPress={() => Linking.openURL('mailto:' + SUPPORT_EMAIL).catch(() => {})} last top />
       </Section>
     </ToolScreen>
   )

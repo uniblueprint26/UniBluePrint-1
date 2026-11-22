@@ -19,7 +19,7 @@ The brief said a parent looks at UBP "for their child, who accesses UBP through 
 2. "Members must be 18 or over. We do not allow under 18s on UniBlueprint."
 3. "Every post can be reported, and any member can be blocked."
 4. "Posts are checked for harmful language before they go up." (Checked on the phone and again on the server for the text fields covered by the text guard. Not every field is covered, so Legal may want a softer line.)
-5. "If you think someone under 18 is using the app, tell us at support@uniblueprint.ie and we will act on it." Needs a named process and an owner for that inbox.
+5. "If you think someone under 18 is using the app, tell us at desmond@uniblueprint.ie and we will act on it." Needs a named process and an owner for that inbox.
 6. The helplines are the verified list already in app/src/data/mentalHealthSupport.js. Childline (ISPCC) is not listed. Add it only after the number is verified.
 
 ## Questions for Legal
