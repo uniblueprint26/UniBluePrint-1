@@ -421,6 +421,83 @@ function AddToGoalSheet({ visible, goal, onClose, onAdded }) {
   )
 }
 
+// ─── Add Expense: an inline bottom sheet. Pick a category (or write your
+// own), enter the amount, and it is added to that line in the list below. ────
+function AddExpenseSheet({ visible, onClose, categories, onAdd }) {
+  const { colors } = useTheme()
+  const sheet = __gs_sheet(colors)
+  const styles = __gs_styles(colors)
+  const [label,  setLabel]  = useState('')
+  const [amount, setAmount] = useState('')
+  const [error,  setError]  = useState('')
+
+  useEffect(() => { if (visible) { setLabel(''); setAmount(''); setError('') } }, [visible])
+
+  function submit() {
+    const val = parseFloat(amount)
+    if (!label.trim()) { setError('Pick a category or write one.'); return }
+    if (!val || val <= 0) { setError('Enter an amount greater than €0.'); return }
+    onAdd(label.trim(), val)
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={sheet.backdrop}>
+        <View style={sheet.sheet}>
+          <View style={sheet.headerRow}>
+            <Text style={sheet.title}>Add expense</Text>
+            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Close">
+              <X size={18} color={colors.muted} />
+            </TouchableOpacity>
+          </View>
+          <Text style={sheet.label}>Category</Text>
+          <View style={sheet.chipRow}>
+            {categories.map(c => {
+              const on = label === c
+              return (
+                <TouchableOpacity
+                  key={c}
+                  style={[sheet.chip, on && sheet.chipActive]}
+                  activeOpacity={0.85}
+                  onPress={() => setLabel(c)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: on }}
+                >
+                  <Text style={[sheet.chipText, on && sheet.chipTextActive]}>{c}</Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+          <TextInput
+            style={[sheet.input, { marginTop: 12 }]}
+            value={label}
+            onChangeText={setLabel}
+            placeholder="Or write your own"
+            placeholderTextColor={colors.light}
+            maxLength={40}
+          />
+          <Text style={[sheet.label, { marginTop: 16 }]}>Amount</Text>
+          <View style={[styles.lineItemInput, sheet.amountInput]}>
+            <Text style={[styles.lineItemCurrency, { fontSize: 20 }]}>€</Text>
+            <TextInput
+              style={[styles.lineItemAmount, { fontSize: 22 }]}
+              value={amount}
+              onChangeText={v => setAmount(v.replace(/[^0-9.]/g, ''))}
+              keyboardType="decimal-pad"
+              placeholder="0"
+              placeholderTextColor={colors.light}
+            />
+          </View>
+          {!!error && <Text style={sheet.error}>{error}</Text>}
+          <TouchableOpacity style={sheet.submitBtn} activeOpacity={0.85} onPress={submit} accessibilityRole="button">
+            <Text style={sheet.submitBtnText}>Add expense</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+}
+
 // ─── Add Goal — name, target amount, optional deadline, icon selection ────
 function AddGoalSheet({ visible, onClose, onCreate }) {
   const { colors } = useTheme()
@@ -706,6 +783,7 @@ function BudgetTab({ navigation }) {
   const [goalsLoaded,  setGoalsLoaded]  = useState(false)
   const [addToGoal,    setAddToGoal]    = useState(null)  // goal object, or null when closed
   const [addGoalOpen,  setAddGoalOpen]  = useState(false)
+  const [addExpenseOpen, setAddExpenseOpen] = useState(false)
 
   // Load any previously saved budget the first time this tab mounts — keyed
   // per-user so a different account signing in on the same device never
@@ -847,10 +925,20 @@ function BudgetTab({ navigation }) {
     setIncome([...income, { id: nextId, label: 'Other income', amount: '' }])
   }
 
-  function addExpense() {
-    nextId++
-    setExpenses([...expenses, { id: nextId, label: 'Other expense', amount: '' }])
+  // Adds to the matching category line, or starts a new line for a new name.
+  function addExpenseEntry(label, value) {
+    const key = label.toLowerCase()
+    const hit = expenses.find(e => e.label.toLowerCase() === key)
+    if (hit) {
+      const sum = (parseFloat(hit.amount) || 0) + value
+      setExpenses(expenses.map(e => e.id === hit.id ? { ...e, amount: String(Math.round(sum * 100) / 100) } : e))
+    } else {
+      nextId++
+      setExpenses([...expenses, { id: nextId, label, amount: String(value) }])
+    }
+    setAddExpenseOpen(false)
   }
+  function addExpense() { setAddExpenseOpen(true) }
 
   function removeIncome(id)  { setIncome(income.filter(i => i.id !== id)) }
   function removeExpense(id) { setExpenses(expenses.filter(i => i.id !== id)) }
@@ -1089,6 +1177,12 @@ function BudgetTab({ navigation }) {
         goal={addToGoal}
         onClose={() => setAddToGoal(null)}
         onAdded={handleContributionAdded}
+      />
+      <AddExpenseSheet
+        visible={addExpenseOpen}
+        onClose={() => setAddExpenseOpen(false)}
+        categories={[...new Set([...DEFAULT_EXPENSES.map(e => e.label), ...expenses.map(e => e.label)])]}
+        onAdd={addExpenseEntry}
       />
       <AddGoalSheet
         visible={addGoalOpen}
@@ -1747,5 +1841,13 @@ function __gs_sheet(colors) {
     backgroundColor: colors.accentBg, borderRadius: radius.button, paddingVertical: 15, marginTop: 22,
   },
   submitBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.accentFg },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: {
+    paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+  },
+  chipActive: { backgroundColor: colors.accentBg, borderColor: colors.accentBg },
+  chipText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.textPrimary },
+  chipTextActive: { color: colors.accentFg },
   })
 }
