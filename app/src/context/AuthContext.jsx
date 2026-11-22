@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
       .from('profiles')
       .select(`
         id, full_name, avatar_url, user_type, interests, date_of_birth,
-        discoverable, course, year_of_study, institution, statuses, bio, social_links,
+        discoverable, course, year_of_study, institution, training_provider, industry, campus_community, statuses, bio, social_links,
         directory_credentials, directory_hide_location
       `)
       .eq('id', userId)

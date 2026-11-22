@@ -9,14 +9,21 @@ import { INSTITUTIONS } from '../data/institutions'
 // ranked. The database enforces the same floor (campus_ranking).
 export const RANKING_MIN_MEMBERS = 25
 
-// The member's campus. profiles.institution is what the server reads, so it is
-// preferred; user metadata is the fallback for accounts made before that.
+// The member's campus community. Students have a campus (profiles.institution).
+// Apprentices have a training provider and workers have an industry, and those
+// are their community. The server reads the same order in my_institution():
+// campus_community, then institution, then training_provider, then industry.
+// User metadata is the fallback for accounts made before the profile columns.
 export function useCampus() {
   const { user, profile } = useAuth()
   const meta = user?.user_metadata || {}
-  const institution = (profile?.institution || meta.institution || '').trim() || null
+  const pick = (...vals) => vals.map(v => (typeof v === 'string' ? v.trim() : '')).find(Boolean) || null
+  const institution = pick(
+    profile?.campus_community, profile?.institution, profile?.training_provider, profile?.industry,
+    meta.institution, meta.training_provider, meta.industry,
+  )
   const found = institution ? INSTITUTIONS.find(i => i.name === institution) : null
-  const short = meta.institution_short || found?.short || institution
+  const short = (found && meta.institution_short) || found?.short || institution
   return { institution, short, city: found?.city || null, hasCampus: !!institution }
 }
 

@@ -73,7 +73,7 @@ export default function CommuteBuddyScreen({ navigation }) {
     setBusy(false)
     if (error) {
       const m = String(error.message)
-      setMsg(m.includes('feed_text_guard') ? GUIDELINES_MESSAGE : m.includes('campus_required') ? 'Choose your campus first.' : 'Could not post that. Please try again.')
+      setMsg(m.includes('feed_text_guard') ? GUIDELINES_MESSAGE : m.includes('campus_required') ? 'Choose your campus, training provider or industry first.' : 'Could not post that. Please try again.')
       return
     }
     setOpen(false); setArea(''); setLine(''); setTime(''); setNote('')

@@ -116,7 +116,7 @@ export default function StudyRoomsScreen({ navigation }) {
     setBusy(false)
     if (error) {
       const em = String(error.message)
-      setMsg(em.includes('feed_text_guard') ? GUIDELINES_MESSAGE : em.includes('campus_required') ? 'Choose your campus first.' : 'Could not share that. Please try again.')
+      setMsg(em.includes('feed_text_guard') ? GUIDELINES_MESSAGE : em.includes('campus_required') ? 'Choose your campus, training provider or industry first.' : 'Could not share that. Please try again.')
       return
     }
     setShareOpen(false); setRoom(''); setNote('')

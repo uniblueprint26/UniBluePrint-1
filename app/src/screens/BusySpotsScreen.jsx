@@ -136,7 +136,7 @@ export default function BusySpotsScreen({ navigation }) {
     setBusy(false)
     if (error) {
       const m = String(error.message)
-      setMsg(m.includes('feed_text_guard') ? GUIDELINES_MESSAGE : m.includes('campus_required') ? 'Choose your campus first.' : m.includes('duplicate') ? 'That spot is already on the list.' : 'Could not add that. Please try again.')
+      setMsg(m.includes('feed_text_guard') ? GUIDELINES_MESSAGE : m.includes('campus_required') ? 'Choose your campus, training provider or industry first.' : m.includes('duplicate') ? 'That spot is already on the list.' : 'Could not add that. Please try again.')
       return
     }
     setAddOpen(false); setName(''); setKind('study')
