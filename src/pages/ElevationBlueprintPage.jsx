@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, ExternalLink } from 'lucide-react'
-import { COACHES } from '../data/coaches'
+import { ArrowRight } from 'lucide-react'
+import { COACH_CATEGORIES, COACH_FILTERS, COACH_STEPS } from '../data/coaches'
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
@@ -23,15 +23,10 @@ const PAGE_STYLES = `
     .ebp-hero-inner { flex-direction: column; }
     .ebp-hero-phone { display: none; }
   }
+  .ebp-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 800px; margin: 64px auto 0; }
+  @media (max-width: 639px) { .ebp-steps-grid { grid-template-columns: 1fr; } }
   .ebp-filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 36px; }
 `
-
-// ─── Coaches (aligned to app ElevationScreen) ─────────────────────────────────
-// The coach data itself now lives in ../data/coaches.js — shared with each
-// coach's own shareable preview page (ElevationCoachProfilePage.jsx) so
-// that page and this grid never drift apart.
-
-const COACH_FILTERS = ['All', 'Fitness', 'Academic Grinds', 'Finance', 'Marketing', 'Career']
 
 // ─── PhoneMockup ──────────────────────────────────────────────────────────────
 
@@ -57,10 +52,10 @@ export function ElevationScreen() {
       <div style={{ padding: '10px', borderRadius: '10px', background: 'rgba(245,240,232,0.1)', border: '1px solid rgba(245,240,232,0.14)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,240,232,0.3),rgba(245,240,232,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>M</span>
+            <span style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Serif Display',serif" }}>C</span>
           </div>
           <div>
-            <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Milan</p>
+            <p style={{ color: '#F5F0E8', fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>Your coach</p>
             <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: '9px', fontFamily: "'DM Sans',sans-serif" }}>Uni Coach, Personal Training</p>
           </div>
         </div>
@@ -111,178 +106,27 @@ function PhoneMockup() {
   )
 }
 
-// ─── CoachCard ────────────────────────────────────────────────────────────────
+// ─── CategoryCard ────────────────────────────────────────────────────────
 
-function CoachCard({ id, name, via, photo, category, location, services, accent, shell, href, badge, from, crossLinkHref, crossLinkLabel }) {
-  const [hovered, setHovered] = useState(false)
-  const initial = name.charAt(0).toUpperCase()
-
-  const inner = (
-    <div
-      id={`coach-${id}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: '#FFFFFF',
-        borderRadius: '14px',
-        boxShadow: hovered
-          ? '0 12px 36px rgba(30,58,95,0.14), 0 2px 8px rgba(30,58,95,0.06)'
-          : '0 2px 12px rgba(30,58,95,0.07)',
-        overflow: 'hidden',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-        transition: 'box-shadow 200ms ease, transform 200ms ease',
-        borderTop: `3px solid ${accent}`,
-        display: 'flex',
-        flexDirection: 'column',
-        opacity: shell ? 0.72 : 1,
-        cursor: href ? 'pointer' : 'default',
-        height: '100%',
-      }}
-    >
-      {/* Avatar area */}
-      <div style={{
-        position: 'relative', height: '132px',
-        background: photo ? '#0c1520' : 'linear-gradient(135deg, #EAF0F8 0%, #D9E4F0 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        {photo ? (
-          <img
-            src={photo}
-            alt={`${name} logo`}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            loading="lazy"
-          />
-        ) : (
-          <div style={{
-            width: '68px', height: '68px', borderRadius: '50%',
-            background: accent,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: `0 4px 20px ${accent}44`,
-          }}>
-            <span style={{ fontFamily: "'DM Serif Display',serif", fontSize: '26px', color: '#F5F0E8', lineHeight: 1 }}>
-              {initial}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Category / location strip, sits below the photo, never overlaps it */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
-        padding: '8px 14px', background: `${accent}0D`, borderBottom: `1px solid ${accent}1A`,
-      }}>
-        <span style={{
-          color: accent, fontFamily: "'DM Sans',sans-serif", fontSize: '10px', fontWeight: '700',
-          letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {category}
-        </span>
-        <span style={{
-          fontFamily: "'DM Sans',sans-serif", fontSize: '10px', color: '#9CA3AF',
-          flexShrink: 0,
-        }}>
-          {location}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '19px', color: '#1E3A5F', margin: 0 }}>
-          {name}
-        </p>
-        {via && (
-          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: '#9CA3AF', margin: '2px 0 0' }}>
-            {via}
-          </p>
-        )}
-        {from && (
-          <p style={{
-            fontFamily: "'DM Sans',sans-serif", fontSize: '12.5px', margin: '3px 0 0',
-            color: from === 'Enquire in the app' ? '#9CA3AF' : accent,
-            fontWeight: from === 'Enquire in the app' ? 500 : 700,
-            fontStyle: from === 'Enquire in the app' ? 'italic' : 'normal',
-          }}>
-            {from}
-          </p>
-        )}
-        {badge && (
-          <span style={{
-            display: 'inline-block', marginTop: '8px', alignSelf: 'flex-start',
-            background: '#F0FDF4', color: '#15803D', borderRadius: '20px',
-            padding: '3px 10px', fontFamily: "'DM Sans',sans-serif",
-            fontSize: '9px', fontWeight: '700', letterSpacing: '0.04em',
-            textTransform: 'uppercase', width: 'fit-content',
-          }}>
-            {badge}
-          </span>
-        )}
-        {shell ? (
-          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '12px', color: '#9CA3AF', marginTop: '10px', fontStyle: 'italic' }}>
-            Full profile coming soon.
-          </p>
-        ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px', flex: 1 }}>
-            {services.map(s => (
-              <span key={s} style={{
-                background: `${accent}0D`, color: accent,
-                borderRadius: '6px', padding: '4px 10px',
-                fontFamily: "'DM Sans',sans-serif", fontSize: '11px', fontWeight: '500',
-                border: `1px solid ${accent}1A`,
-              }}>
-                {s}
-              </span>
-            ))}
-          </div>
-        )}
-        <div style={{
-          marginTop: '14px', borderTop: '1px solid rgba(30,58,95,0.07)', paddingTop: '12px',
-          display: 'flex', alignItems: 'center', gap: '5px',
-        }}>
-          {href ? (
-            <>
-              <ExternalLink size={11} color={accent} />
-              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: accent, fontWeight: '600' }}>
-                Visit Course Compass
-              </span>
-            </>
-          ) : (
-            <Link
-              to={`/elevation/coach/${id}`}
-              onClick={e => e.stopPropagation()}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none' }}
-            >
-              <ArrowRight size={11} color={accent} />
-              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: accent, fontWeight: '600' }}>
-                View &amp; share this coach
-              </span>
-            </Link>
-          )}
-        </div>
-        {crossLinkHref && (
-          <Link
-            to={crossLinkHref}
-            onClick={e => e.stopPropagation()}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '8px', textDecoration: 'none' }}
-          >
-            <ArrowRight size={11} color={accent} />
-            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', color: accent, fontWeight: '600' }}>
-              {crossLinkLabel}
-            </span>
-          </Link>
-        )}
-      </div>
+function CategoryCard({ title, blurb, accent }) {
+  return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: '14px',
+      boxShadow: '0 2px 12px rgba(30,58,95,0.07)',
+      borderTop: `3px solid ${accent}`,
+      padding: '24px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box',
+    }}>
+      <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '20px', color: '#1E3A5F', margin: 0 }}>
+        {title}
+      </p>
+      <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.65, margin: '10px 0 0', flex: 1 }}>
+        {blurb}
+      </p>
+      <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '12px', fontWeight: 600, color: accent, margin: '16px 0 0' }}>
+        Meet them in the app
+      </p>
     </div>
   )
-
-  if (href) {
-    return (
-      <Link to={href} style={{ textDecoration: 'none', display: 'block' }}>
-        {inner}
-      </Link>
-    )
-  }
-  return inner
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -291,15 +135,15 @@ export default function ElevationBlueprintPage() {
   const [activeFilter, setActiveFilter] = useState('All')
 
   const visible = activeFilter === 'All'
-    ? COACHES
-    : COACHES.filter(c => c.filter === activeFilter)
+    ? COACH_CATEGORIES
+    : COACH_CATEGORIES.filter(c => c.filter === activeFilter)
 
   return (
     <>
       <Helmet>
-        <title>Meet Our Coaches | UniBlueprint</title>
+        <title>Uni Coaches | UniBlueprint</title>
         <meta name="description" content="Uni Coaches delivering personal training, career coaching, finance, creative skills, and more across Ireland. Book directly in the app." />
-        <meta property="og:title" content="Meet Our Coaches | UniBlueprint" />
+        <meta property="og:title" content="Uni Coaches | UniBlueprint" />
         <meta property="og:description" content="Uni Coaches delivering personal training, career coaching, finance, creative skills, and more across Ireland." />
         <style>{PAGE_STYLES}</style>
       </Helmet>
@@ -336,7 +180,7 @@ export default function ElevationBlueprintPage() {
               fontSize: 'clamp(28px,3.5vw,46px)', color: '#F5F0E8',
               marginTop: '10px', lineHeight: 1.12,
             }}>
-              Meet Our Coaches
+              Uni Coaches
             </h1>
             <p style={{
               fontFamily: "'DM Sans',sans-serif",
@@ -344,7 +188,7 @@ export default function ElevationBlueprintPage() {
               marginTop: '14px', lineHeight: 1.7,
             }}>
               Coaches across Ireland in fitness, career, finance, creative skills, and more.
-              Find your coach and book directly in the app.
+              Meet them in the app, where every coach has their own profile.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
               {[
@@ -405,11 +249,11 @@ export default function ElevationBlueprintPage() {
           {/* Grid */}
           {visible.length === 0 ? (
             <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '15px', color: '#9CA3AF', textAlign: 'center', padding: '48px 0' }}>
-              No coaches in this category yet.
+              Nothing in this category yet.
             </p>
           ) : (
             <div className="ebp-coaches-grid">
-              {visible.map(c => <CoachCard key={c.id} {...c} />)}
+              {visible.map(c => <CategoryCard key={c.id} {...c} />)}
             </div>
           )}
 
@@ -417,8 +261,18 @@ export default function ElevationBlueprintPage() {
             fontFamily: "'DM Sans',sans-serif", fontSize: '12px', color: '#9CA3AF',
             textAlign: 'center', marginTop: '40px', lineHeight: 1.6,
           }}>
-            Full profiles, bios, pricing, and booking are inside the UniBlueprint app.
+            Names, profiles, pricing and booking are inside the UniBlueprint app.
           </p>
+
+          <div className="ebp-steps-grid">
+            {COACH_STEPS.map(st => (
+              <div key={st.n}>
+                <p style={{ fontFamily: "'DM Serif Display',serif", fontSize: '28px', color: '#1E3A5F', margin: 0 }}>{st.n}</p>
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '15px', fontWeight: 600, color: '#1E3A5F', margin: '6px 0 0' }}>{st.title}</p>
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.6, margin: '6px 0 0' }}>{st.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
