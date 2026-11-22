@@ -4,12 +4,13 @@ import { ToolScreen, Card, Btn, LinkRow, openLink } from '../../components/explo
 import { SCOUT } from '../../constants/partnerBrands'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
+import { SUPPORT_EMAIL } from '../../constants/site'
 
 // Internships. First a "Looking to work at UBP?" block, then ScoutByRohi as the
 // headline tracker, then other listing sites as plain links. Every link opens
 // in the browser and UBP takes no applications.
 
-const MAIL = 'mailto:support@uniblueprint.ie?subject=' + encodeURIComponent('Looking to work at UBP')
+const MAIL = 'mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent('Looking to work at UBP')
 
 const SITES = [
   { key: 'gradireland', title: 'gradireland', sub: 'Graduate jobs and schemes in Ireland', url: 'https://gradireland.com', Icon: GraduationCap },

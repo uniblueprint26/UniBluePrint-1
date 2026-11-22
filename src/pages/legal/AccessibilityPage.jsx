@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { SUPPORT_EMAIL } from '../../lib/site'
 
 const H = { fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', marginBottom: '12px' }
 const P = { fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.8, marginBottom: '12px' }
@@ -64,7 +65,7 @@ export default function AccessibilityPage() {
             <Section title="How to Request Accessible Content">
               <p style={P}>
                 If you need content in an accessible format, for example a service output in plain text or a screen-reader-friendly layout, please contact us at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>
                 {' '}with a description of what you need and your preferred format. We will do our best to provide an accessible version within 5 business days.
               </p>
             </Section>
@@ -73,7 +74,7 @@ export default function AccessibilityPage() {
               <p style={P}>If you experience an accessibility barrier on the UniBlueprint platform, or have feedback on how we can improve, please contact us:</p>
               <p style={P}>
                 Email:{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>
               </p>
               <p style={P}>
                 Contact form:{' '}

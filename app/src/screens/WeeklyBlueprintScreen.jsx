@@ -27,6 +27,7 @@ import { PARTNERS } from '../data/lifestylePartners'
 import { getPosts, calcReadTime, formatDate } from '../data/blogPosts'
 import { isRealDeal } from '../lib/adBoard'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
+import { SUPPORT_EMAIL } from '../constants/site'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
 // A fixed 26-page structure (see the spec Desmond sent — same page order
@@ -502,7 +503,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
           )}
           <View style={{ flex: 1 }} />
           <Text style={styles.needHelpLabel}>Think you could contribute to UBP?</Text>
-          <TouchableOpacity style={styles.adRightCta} activeOpacity={0.85} onPress={() => Linking.openURL('mailto:support@uniblueprint.ie?subject=' + encodeURIComponent('Join the UniBlueprint Team'))}>
+          <TouchableOpacity style={styles.adRightCta} activeOpacity={0.85} onPress={() => Linking.openURL('mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent('Join the UniBlueprint Team'))}>
             <Text style={styles.adRightCtaText}>Join the Team</Text>
             <ChevronRight size={14} color={colors.accentFg} />
           </TouchableOpacity>

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { ExternalLink, Handshake, Instagram, Phone, Mail, Link2, ArrowRight, Lock } from 'lucide-react'
-import energieLogo from '../assets/energie-fitness-logo-cropped.jpg'
-import whipWizardzLogo from '../assets/whip-wizardz-logo-transparent.png'
+import { ExternalLink, Handshake, Dumbbell, Sparkles, Camera, UtensilsCrossed, Car, TrendingUp, Scissors, Shirt } from 'lucide-react'
+
+// The website names no individual lifestyle partners or coaches. Their names,
+// photos and deals live in the app, so this page never needs updating when
+// one joins or leaves. Only platform partners (below) are named here.
 
 const COURSECOMPASS_URL = 'https://coursecompass.ie/course-compass'
 
@@ -16,320 +17,68 @@ const CC_TOOLS = [
   { name: '5th & 6th Year Bundle',  description: 'Senior cycle tools, bundled together.',         url: 'https://coursecompass.ie/bundles/senior-cycle' },
 ]
 
-// ─── Live partners: full cards ──────────────────────────────────────────────────
-const LIVE_PARTNERS = [
+
+// Platform partners: products other teams build that sit alongside UBP.
+const PLATFORM_PARTNERS = [
   {
-    id: 'mpfitness',
-    name: 'MPFitness',
-    initials: 'MP',
-    initBg: '#15803D',
-    category: 'Personal Training',
-    description: 'Certified Personal Trainer and Advanced Nutrition Coach. Full client packages built around your goals, lifestyle, and schedule, combining personalised training with nutrition coaching. Competition athlete mindset for every client.',
-    instagram: 'milanpir_fitness',
-  },
-  {
-    id: 'energie',
-    name: 'Energie Fitness',
-    logo: energieLogo,
-    category: 'Gym Membership',
-    description: 'Full gym access at an exclusive member rate versus the standard rate. Joining fee reduced too. Set up in person at any Energie Fitness location. Open Monday to Friday 6am to 10pm, weekends 9am to 5pm.',
-  },
-  {
-    id: 'jmc',
-    name: 'JMC Fitness',
-    // Tried a transparent/cropped export off src/assets/jmc-fitness-logo.png.jpeg
-    // (gradient navy background, no flat colour to key out) -- the gold
-    // wordmark came out too faint to read at this card's 56x56 badge size,
-    // worse than the plain initials badge below. Needs a vendor-provided
-    // cutout, not another automated attempt.
-    logo: null,
-    initials: 'JMC', initBg: '#166534', // temp fallback until a real cutout lands
-    category: 'Sports Coaching',
-    description: 'Elite sports coaching with fully personalised programmes. Online coaching, in-person training on North Dublin 4G astro, dietary guidance, specialist football coaching, and connections to professional agents.',
-  },
-  {
-    id: 'nyz3ditz',
-    name: 'Nyz3ditz',
-    // Tried a transparent export off src/assets/nyz3ditz-logo.png.jpeg (flat
-    // black background keys out cleanly) but the logo is a thin serif
-    // wordmark with no icon mark -- it reads as an empty smear at this
-    // card's 56x56 badge size regardless of background. The initials badge
-    // below is the better outcome at this size, not a stopgap.
-    logo: null,
-    initials: 'N3', initBg: '#C2410C',
-    category: 'Photography & Video',
-    description: 'Professional photography and videography mentorship from Nathan Yanzo. Monthly subscriptions include Zoom mentorship calls and editing guidance. One-to-one shoot sessions also available for those building their creative portfolio.',
-    instagram: 'Nyz3ditz',
-    phone: '+353857272875',
-  },
-  {
-    id: 'whipwizardz',
-    name: 'Whip Wizardz',
-    logo: whipWizardzLogo,
-    category: 'Automotive',
-    description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Vehicle sales and sourcing, inspections, repairs, bodywork, detailing, import services, and consignment, all with student-friendly pricing.',
-  },
-  {
-    id: 'nailnurse',
-    name: 'The Nail Nurse',
-    initials: 'NN',
-    initBg: '#BE185D',
-    category: 'Nail Tech · Galway',
-    description: 'Professional nail technician based in Galway. Full range of nail treatments at student-friendly prices. Student discount with valid ID.',
-    instagram: 'theenailnurse__',
-  },
-  {
-    id: 'leva',
-    name: 'LEVA Impact',
-    initials: 'LI',
-    initBg: '#0369A1',
-    category: 'Digital Marketing & Design',
-    description: 'Freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, content creation, UGC coordination, AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
-    instagram: 'leva.impact',
-    tiktok: 'leva.media',
-    phone: '089 966 2635',
-    website: 'https://alexleva.myportfolio.com/home-page',
-    crossLinkHref: '/elevation-blueprint#coach-10',
-    crossLinkLabel: "Also a UniBlueprint Uni Coach, see Alex's profile",
-  },
-  {
-    id: 'henrysisters',
-    name: 'Henry Sisters Co',
-    initials: 'HS',
-    initBg: '#92400E',
-    category: 'Creative Content Creation',
-    description: 'Creative content studio based in County Mayo. Photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. A creative eye and professional finish for brands, businesses, and events.',
-    instagram: 'henrysistersco',
-    email: 'henrysistersco@gmail.com',
-  },
-  {
-    id: 'camila',
-    name: 'Camila Aruk',
-    initials: 'CA',
-    initBg: '#B91C1C',
-    category: 'Personal Training · Muay Thai · Yoga',
-    description: 'Certified Personal Trainer and Sport Nutritionist Coach based in Dublin 8, Muay Thai, yoga, and functional training alongside physique development, weight loss, and muscle building. Online and in person, built around realistic, sustainable routines.',
-    instagram: 'camilaaruk.coach',
-    email: 'camila.coachfitness@gmail.com',
-    phone: '0838602227',
-  },
-  {
-    id: 'saiemsent',
-    name: 'Saiemsent',
-    initials: 'SS',
-    initBg: '#0369A1',
-    category: 'Clothing',
-    description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures, bold graphics, unique silhouettes, and experimental details, building a visual identity for Irish fashion rooted in individuality and self-expression.',
-    instagram: 'saiemsent',
-    tiktok: 'saiemsent',
-    website: 'https://saiemsent.ie',
-  },
-  {
-    id: 'elect',
-    name: 'Elect',
-    initials: 'EL',
-    initBg: '#111827',
-    category: 'Clothing Brand',
-    description: 'Irish Christian streetwear brand built around faith, purpose, and individuality, modern, high-quality clothing inspired by Scripture and Christian values, with a meaning behind every piece.',
-    instagram: 'elect_co',
-    tiktok: 'elect_co',
-    email: 'electgodschosen@gmail.com',
-  },
-  {
-    id: 'eabakeditt',
-    name: 'Eabakeditt',
-    initials: 'EB',
-    initBg: '#B45309',
-    category: 'Home Baking · Dublin 15',
-    description: 'Home baking business in Mulhuddart, Dublin 15, brownies, blondies, cookies, cupcakes, and fully customisable cakes made with love and care for every occasion. Every item on the menu is customisable, with pricing adjusted accordingly.',
-    instagram: 'eabakeditt',
-    tiktok: 'eabakedittt',
-    phone: '0899485617',
-    email: 'lizawakz@yahoo.com',
-  },
-  {
-    id: 'ilashedbydiya',
-    name: 'ilashedbydiya',
-    initials: 'ID',
-    initBg: '#9333EA',
-    category: 'Lash Tech · Dundalk',
-    description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions as well as lash lifts.',
-    instagram: 'ilashedbydiya',
-    tiktok: 'ilashedbydiya',
-    phone: '0899428910',
-    email: 'ilashedbydiya@gmail.com',
-  },
-  {
-    id: 'roomy',
     name: 'Roomy.ie',
-    initials: 'RM',
-    initBg: '#0891B2',
-    category: 'Housing Platform',
-    description: 'Modern housing platform making it simpler, safer, and more transparent to find a room or home in Ireland, connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
-    instagram: 'Roomy.ie',
-    phone: '+353899809654',
-    email: 'admin@roomy.ie',
-    website: 'https://roomy.ie',
+    category: 'Housing',
+    description: 'A housing platform that makes it simpler, safer and more transparent to find a room or home in Ireland. It connects room seekers with landlords nationwide.',
+    href: 'https://roomy.ie',
+    cta: 'Visit Roomy.ie',
   },
   {
-    id: 'royaltyproductions',
-    name: 'Royalty Productions',
-    initials: 'RP',
-    initBg: '#78350F',
-    category: 'Photography · Dublin',
-    description: 'Dublin-based photography service capturing events, graduations, portraits, personal branding, and creative shoots with a natural, professional finish, imagery clients are genuinely excited to share and use.',
-    instagram: 'royalty.productions1',
-    phone: '085 185 2451',
-    email: 'chidoziemenyoazu1@gmail.com',
+    name: 'ScoutByRohi',
+    category: 'Internships and graduate schemes',
+    description: "An Irish internship and graduate scheme tracker. Listings come from employers' own careers pages and every one links to the official application. Live beta.",
+    href: 'https://scoutbyrohi.com/tracker',
+    cta: 'Visit ScoutByRohi',
   },
   {
-    id: 'veeslash',
-    name: 'Vees Lash Studio',
-    initials: 'VL',
-    initBg: '#DB2777',
-    category: 'Lash Tech · Galway',
-    description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
-    phone: '+3530852758798',
-    email: 'vickylukau123@gmail.com',
+    name: 'Kobo',
+    category: 'Sending money home',
+    description: 'An app to send euros from Ireland to family in Nigeria. Kobo is not a bank. It is in closed beta with test money only, and the waitlist is open.',
+    href: 'https://kobopayments.com/waitlist',
+    cta: 'Join the Kobo waitlist',
   },
   {
-    id: 'cutbyire',
-    name: 'CutbyIre',
-    initials: 'CI',
-    initBg: '#374151',
-    category: 'Barber · Sligo',
-    description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, kids cuts, and a home service for an extra fee depending on distance.',
-    instagram: 'cutbyire',
-  },
-  {
-    id: 'poiemadexigns',
-    name: 'Poiema Dexigns',
-    initials: 'PD',
-    initBg: '#1D4ED8',
-    category: 'Web Design & Branding',
-    description: 'Creative web design and branding studio building modern, user-friendly websites and cohesive visual identities for businesses, churches, and entrepreneurs, from full brand identities to logo design and website builds.',
-    instagram: 'poiema_dexigns',
-    email: 'oedesignns@gmail.com',
-    phone: '+353834801235',
-    website: 'https://www.olaoluwaesho.com/',
-  },
-  {
-    id: 'madebykelan',
-    name: 'Made By Kelan',
-    initials: 'MK',
-    initBg: '#1E3A5F',
-    category: 'Photography & Video · Co. Mayo',
-    description: 'Photography and videography from Co. Mayo, events, filming, and promotional content, including work with Machenry and the Dogroses folk band and promotional content for Cadell Bar in Galway City.',
-    instagram: 'made_by_kelan',
-    email: 'kelanhenry1@gmail.com',
-    phone: '0830416835',
-  },
-  {
-    id: 'clarasbeautyroom',
-    name: "Clara's Beauty Room",
-    initials: 'CB',
-    initBg: '#EC4899',
-    category: 'Nail Tech · Mayo',
-    description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac. Booking via Instagram DM.',
-    instagram: 'claras_beauty_room',
-  },
-  {
-    id: 'lashesbysteph',
-    name: 'Lashes By Steph',
-    initials: 'LS',
-    initBg: '#7C3AED',
-    category: 'Lash Tech · Kildare',
-    description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets. Booking via Instagram DM.',
-    instagram: 'lashedbystephhx',
-  },
-  {
-    id: 'coded69studios',
-    name: 'Coded69 Studios',
-    initials: 'C6',
-    initBg: '#312E81',
-    category: 'Photography, Printing & Studio Rental · Tallaght',
-    description: 'Professional photography and digital printing services alongside creative space rental, based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74. Their mission is to serve people, businesses, and communities with images of the highest calibre, building a strong connection with every client to understand their vision and goals.',
-    instagram: 'coded69studios',
-    phone: '0897011898',
-    email: 'info@coded69studios.com',
-    website: 'https://www.coded69studios.com',
-  },
-  {
-    id: 'zvisionapparel',
-    name: 'Z Vision Apparel',
-    initials: 'ZV',
-    initBg: '#065F46',
-    category: 'Custom Embroidery & Clothing · Co. Mayo',
-    description: 'Personalised clothing business based in Co. Mayo, focused mainly on embroidery. Has worked with a number of businesses around Mayo, including McHughs, Angels Garage, and Apache Pizza, along with many other small businesses. Bring a logo or design and have it embroidered onto a shirt or hoodie.',
-    instagram: 'zvision.apparel',
-    email: 'zvisionapparel@gmail.com',
-    phone: '+353877021874',
-  },
-  {
-    id: 'pouvoirs',
-    name: 'Pouvoirs Gallery',
-    initials: 'PG',
-    initBg: '#4B5563',
-    category: 'Fashion',
-    description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
-  },
-  {
-    id: 'dylanpower',
-    name: 'Dylan Power',
-    initials: 'DP',
-    initBg: '#374151',
-    category: 'Sports Photography',
-    description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
+    name: 'Priority Events',
+    category: 'Events',
+    description: 'Nights out and live music across Ireland, for people aged 18 and over. Tickets are sold on this website.',
+    to: '/priority',
+    cta: 'See Priority events',
   },
 ]
 
-// ─── More partners: everyone else, confirmed and onboarding, locked until launch
-const COMING_SOON_PARTNERS = [
-  { name: 'Manni The Barber',            category: 'Barber · Dundalk' },
-  { name: 'MM Cutz',                     category: 'Barber · Dublin' },
-  { name: 'Cut by Alind',                category: 'Barber · Mayo' },
-  { name: 'Hair by Lucy Staunton Kelly', category: 'Hair' },
-  { name: 'Angelic Touch',               category: 'Hair' },
-  { name: 'Ocean1',                      category: 'Clothing' },
-  { name: 'Archangel',                   category: 'Clothing Brand' },
-  { name: 'Fortesce',                    category: 'Clothing' },
-  { name: 'Street Clothing',             category: 'Clothing' },
-  { name: 'Timing',                      category: 'Clothing' },
-  { name: 'Lume',                        category: 'Food & Drink' },
-  { name: 'N-joy',                       category: 'Food & Drink' },
-  { name: 'Tuck Inn',                    category: 'Food & Drink' },
-  { name: 'The Coffee Spot',             category: 'Food & Drink' },
-  { name: 'Island Sips',                 category: 'Food & Drink' },
-  { name: 'JoyofFoods',                  category: 'Food & Drink' },
-  { name: 'The Drogheda Foodie',         category: 'Food & Drink' },
-  { name: 'Hardluck Club',               category: 'Food & Drink' },
-  { name: 'Purple Brunch',               category: 'Food & Drink' },
-  { name: 'Chloe May House',             category: 'Lash Tech' },
-  { name: 'Lash Lux Dublin',             category: 'Lash Tech' },
-  { name: 'Dolled by M',                 category: 'Nail Tech' },
-  { name: 'Eve Burac',                   category: 'Nail Tech' },
-  { name: 'Erin Burke Makeup',           category: 'Makeup' },
-  { name: 'Nicole',                      category: 'Makeup' },
-  { name: 'Wzorek',                      category: 'Makeup' },
-  { name: 'Makeup By Kasia',             category: 'Makeup' },
-  { name: 'Carolynes Beauty Studio',     category: 'Beauty Studio' },
-  { name: 'The PK Glam',                 category: 'Beauty' },
+const LIFESTYLE_CATEGORIES = [
+  { label: 'Fitness and PT',    Icon: Dumbbell },
+  { label: 'Beauty',            Icon: Sparkles },
+  { label: 'Hair and styling',  Icon: Scissors },
+  { label: 'Photography',       Icon: Camera },
+  { label: 'Food and drink',    Icon: UtensilsCrossed },
+  { label: 'Clothing',          Icon: Shirt },
+  { label: 'Automotive',        Icon: Car },
+  { label: 'Digital marketing', Icon: TrendingUp },
+]
+
+const HOW_IT_WORKS = [
+  { n: 1, title: 'Local businesses join', desc: 'Businesses across Ireland offer a deal to UniBlueprint members.' },
+  { n: 2, title: 'You find them in the app', desc: 'Browse by category and county. Each partner has their own profile and deal.' },
+  { n: 3, title: 'Show your badge', desc: 'Unlock the deal in the app and show it to the partner to claim your saving.' },
 ]
 
 const PAGE_STYLES = `
-  .partners-live-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1040px; margin: 32px auto 0; }
-  .partners-soon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1040px; margin: 24px auto 0; }
   .partner-tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  @media (max-width: 900px) { .partners-live-grid { grid-template-columns: repeat(2, 1fr); } .partners-soon-grid { grid-template-columns: repeat(3, 1fr); } }
+  .partner-platform-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 900px; margin: 32px auto 0; }
+  .partner-cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 900px; margin: 32px auto 0; }
+  .partner-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 900px; margin: 40px auto 0; }
+  @media (max-width: 900px) { .partner-cat-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 640px) {
-    /* Each live partner card holds a full pricelist and credentials block,
-       too dense for 2-up without overflowing, unlike the lighter cards
-       elsewhere, so this one stays single column. */
-    .partners-live-grid { grid-template-columns: 1fr; }
-    .partners-soon-grid { grid-template-columns: repeat(2, 1fr); }
     .partner-tools-grid { grid-template-columns: repeat(2, 1fr); }
+    .partner-platform-grid { grid-template-columns: 1fr; }
+    .partner-steps-grid { grid-template-columns: 1fr; }
   }
-  @media (max-width: 440px) { .partners-soon-grid { gap: 8px; } .partner-tools-grid { gap: 8px; } }
+  @media (max-width: 440px) { .partner-tools-grid { gap: 8px; } .partner-cat-grid { gap: 8px; } }
 `
 
 function SectionLabel({ children, light }) {
@@ -369,246 +118,29 @@ function ToolCard({ name, description, url }) {
   )
 }
 
-// Slides through every live partner (name masked, category real), an
-// iPhone-mockup-style cycle, ending on a final "and much, much more" slide
-// rather than looping straight back to the start.
-const SHOWCASE_SLIDES = [
-  ...LIVE_PARTNERS.map((p, i) => ({ name: '?'.repeat(3 + (i % 4)), category: p.category, final: false })),
-  { name: null, category: null, final: true },
-]
 
-function PartnerShowcaseMockup() {
-  const [index, setIndex] = useState(0)
-  const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-  useEffect(() => {
-    if (reduceMotion) return
-    const id = setInterval(() => setIndex(i => (i + 1) % SHOWCASE_SLIDES.length), 2600)
-    return () => clearInterval(id)
-  }, [reduceMotion])
-
-  const slide = SHOWCASE_SLIDES[index]
-
+function PlatformCard({ name, category, description, href, to, cta }) {
+  const linkStyle = {
+    display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '16px',
+    fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#1E3A5F', textDecoration: 'none',
+  }
   return (
     <div style={{
-      width: 230, borderRadius: '44px', background: '#0c1520', padding: '8px',
-      boxShadow: '0 40px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.07)',
-      margin: '32px auto 0', position: 'relative',
+      background: '#FFFFFF', borderRadius: '14px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+      padding: '28px', textAlign: 'left', display: 'flex', flexDirection: 'column',
     }}>
-      <div style={{ borderRadius: '36px', overflow: 'hidden', width: 214, height: 320, background: '#1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        {slide.final ? (
-          <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#F5F0E8', textAlign: 'center', lineHeight: 1.3 }}>
-            ...and much,<br />much more.
-          </p>
-        ) : (
-          <div key={index} style={{ textAlign: 'center' }}>
-            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '26px', color: '#F5F0E8', margin: 0 }}>{slide.name}</p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: 'rgba(245,240,232,0.55)', marginTop: '8px' }}>{slide.category}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function LivePartnerCard({ id, name, initials, initBg, category, description, deal, logo, instagram, tiktok, phone, email, website, crossLinkHref, crossLinkLabel }) {
-  return (
-    <div id={id} style={{
-      position: 'relative',
-      background: '#FFFFFF', borderRadius: '14px',
-      boxShadow: '0px 2px 14px rgba(30,58,95,0.09)',
-      padding: '24px 20px',
-      display: 'flex', flexDirection: 'column',
-      scrollMarginTop: '96px',
-    }}>
-      {/* Pro badge */}
-      <span style={{
-        position: 'absolute', top: '12px', right: '12px',
-        background: '#1E3A5F', color: '#F5F0E8',
-        borderRadius: '4px', padding: '3px 8px',
-        fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '700',
-      }}>
-        Pro Deal
-      </span>
-
-      {/* Logo / initials */}
-      <div style={{
-        width: '56px', height: '56px', borderRadius: '12px',
-        background: logo ? '#F5F0E8' : (initBg || '#F5F0E8'),
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        {logo ? (
-          <img src={logo} alt={name} style={{ width: '56px', height: '56px', objectFit: 'contain' }} />
-        ) : (
-          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#FFFFFF' }}>{initials}</span>
-        )}
-      </div>
-
-      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '20px', color: '#1E3A5F', marginTop: '14px' }}>{name}</p>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-        <span style={{
-          background: '#F5F0E8', color: '#1E3A5F', borderRadius: '6px', padding: '3px 10px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '11px',
-        }}>
-          {category}
-        </span>
-        {deal && (
-          <span style={{
-            background: 'rgba(20,90,62,0.1)', color: '#145A3E', borderRadius: '6px', padding: '3px 10px',
-            fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '600',
-          }}>
-            {deal}
-          </span>
-        )}
-      </div>
-
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#6B7280',
-        marginTop: '12px', lineHeight: 1.65, flex: 1,
-      }}>
-        {description}
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+        {category}
       </p>
-
-      {/* Contact chips */}
-      {(instagram || tiktok || phone || email || website) && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
-          {instagram && (
-            <a
-              href={`https://instagram.com/${instagram}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
-                padding: '5px 12px', textDecoration: 'none',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
-              }}
-            >
-              <Instagram size={12} />
-              @{instagram}
-            </a>
-          )}
-          {tiktok && (
-            <a
-              href={`https://www.tiktok.com/@${tiktok}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
-                padding: '5px 12px', textDecoration: 'none',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
-              }}
-            >
-              <Link2 size={12} />
-              TikTok @{tiktok}
-            </a>
-          )}
-          {phone && (
-            <a
-              href={`tel:${phone.replace(/\s/g, '')}`}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
-                padding: '5px 12px', textDecoration: 'none',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
-              }}
-            >
-              <Phone size={12} />
-              {phone}
-            </a>
-          )}
-          {email && (
-            <a
-              href={`mailto:${email}`}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
-                padding: '5px 12px', textDecoration: 'none',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
-              }}
-            >
-              <Mail size={12} />
-              Email
-            </a>
-          )}
-          {website && (
-            <a
-              href={website}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                background: '#1E3A5F', color: '#F5F0E8', borderRadius: '20px',
-                padding: '5px 12px', textDecoration: 'none',
-                fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
-              }}
-            >
-              <Link2 size={12} />
-              Website
-            </a>
-          )}
-        </div>
+      <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', color: '#1E3A5F', margin: '8px 0 0' }}>{name}</h3>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.65, margin: '10px 0 0', flex: 1 }}>{description}</p>
+      {to ? (
+        <Link to={to} style={linkStyle}>{cta} →</Link>
+      ) : (
+        <a href={href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+          {cta} <ExternalLink size={14} aria-hidden="true" />
+        </a>
       )}
-
-      <Link
-        to="/lifestyle-blueprint"
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          height: '40px', padding: '0 20px', marginTop: '16px',
-          background: '#1E3A5F', color: '#F5F0E8', borderRadius: '8px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '600',
-          textDecoration: 'none', alignSelf: 'flex-start',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-      >
-        View in Lifestyle Blueprint →
-      </Link>
-
-      {crossLinkHref && (
-        <Link
-          to={crossLinkHref}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '5px',
-            marginTop: '10px', textDecoration: 'none',
-          }}
-        >
-          <ArrowRight size={11} color="#1E3A5F" />
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#1E3A5F', fontWeight: '600' }}>
-            {crossLinkLabel}
-          </span>
-        </Link>
-      )}
-    </div>
-  )
-}
-
-function ComingSoonCard({ name, category }) {
-  return (
-    <div style={{
-      background: '#FFFFFF', borderRadius: '10px',
-      border: '1px solid rgba(30,58,95,0.08)',
-      padding: '14px 16px',
-    }}>
-      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#1E3A5F', margin: 0 }}>{name}</p>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', gap: '8px', flexWrap: 'wrap' }}>
-        <span style={{
-          background: '#F5F0E8', color: '#6B7280', borderRadius: '4px', padding: '2px 8px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '10px',
-        }}>
-          {category}
-        </span>
-        <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: '3px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#9CA3AF',
-        }}>
-          <Lock size={9} />
-          Locked
-        </span>
-      </div>
     </div>
   )
 }
@@ -626,7 +158,7 @@ export default function PartnersPage() {
 
       <div style={{ background: '#F5F0E8' }}>
 
-        {/* ── SECTION 1, HERO ───────────────────────────────────────────── */}
+        {/* HERO */}
         <section style={{ background: '#FFFFFF', padding: '80px 24px', textAlign: 'center' }}>
           <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '48px', color: '#1E3A5F', lineHeight: 1.15 }}>
             Our Partners
@@ -634,7 +166,6 @@ export default function PartnersPage() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#6B7280', margin: '16px auto 0', maxWidth: '600px', lineHeight: 1.7 }}>
             The businesses, brands, and platforms that make UniBlueprint stronger for every young person across Ireland, whatever pathway they are on.
           </p>
-          <PartnerShowcaseMockup />
         </section>
 
         {/* ── SECTION 2, TECHNOLOGY PARTNERS ───────────────────────────── */}
@@ -696,32 +227,53 @@ export default function PartnersPage() {
           </div>
         </section>
 
-        {/* ── SECTION 3, LIVE PARTNERS ─────────────────────────────────── */}
-        <section style={{ padding: '80px 24px' }}>
-          <SectionLabel>Live Partners</SectionLabel>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '36px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
-            Real deals, right now
+        {/* PLATFORM PARTNERS */}
+        <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
+          <SectionLabel>Platform Partners</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '32px', color: '#1E3A5F', marginTop: '8px' }}>
+            Built to work alongside us
           </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', textAlign: 'center', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
-            Every partner below is live today, verified, real, and offering something to UniBlueprint Pro subscribers.
-          </p>
-          <div className="partners-live-grid">
-            {LIVE_PARTNERS.map(p => <LivePartnerCard key={p.id} {...p} />)}
+          <div className="partner-platform-grid">
+            {PLATFORM_PARTNERS.map(p => <PlatformCard key={p.name} {...p} />)}
           </div>
         </section>
 
-        {/* ── SECTION 4, COMING SOON PARTNERS ──────────────────────────── */}
-        <section style={{ padding: '0 24px 80px' }}>
-          <SectionLabel>Coming Soon</SectionLabel>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', textAlign: 'center', marginTop: '8px' }}>
-            Confirmed and on the way
+        {/* LIFESTYLE PARTNERS */}
+        <section style={{ padding: '0 24px 80px', textAlign: 'center' }}>
+          <SectionLabel>Lifestyle Partners</SectionLabel>
+          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '32px', color: '#1E3A5F', marginTop: '8px' }}>
+            Deals from local businesses
           </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', textAlign: 'center', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
-            Already signed on, unlocking as UniBlueprint launches.
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#6B7280', margin: '12px auto 0', maxWidth: '560px', lineHeight: 1.7 }}>
+            Businesses across Ireland offer deals to UniBlueprint members. Meet them in the app, where every partner has their own profile.
           </p>
-          <div className="partners-soon-grid">
-            {COMING_SOON_PARTNERS.map(p => <ComingSoonCard key={p.name} {...p} />)}
+          <div className="partner-cat-grid">
+            {LIFESTYLE_CATEGORIES.map(({ label, Icon }) => (
+              <div key={label} style={{
+                background: '#FFFFFF', borderRadius: '12px', boxShadow: '0px 2px 12px rgba(30,58,95,0.08)',
+                padding: '20px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+              }}>
+                <Icon size={22} color="#1E3A5F" aria-hidden="true" />
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#1E3A5F' }}>{label}</span>
+              </div>
+            ))}
           </div>
+          <div className="partner-steps-grid">
+            {HOW_IT_WORKS.map(st => (
+              <div key={st.n} style={{ textAlign: 'left' }}>
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', color: '#1E3A5F', margin: 0 }}>{st.n}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: 600, color: '#1E3A5F', margin: '6px 0 0' }}>{st.title}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6B7280', lineHeight: 1.6, margin: '6px 0 0' }}>{st.desc}</p>
+              </div>
+            ))}
+          </div>
+          <Link to="/lifestyle-blueprint" style={{
+            display: 'inline-flex', alignItems: 'center', height: '48px', padding: '0 24px', marginTop: '36px',
+            background: '#1E3A5F', color: '#F5F0E8', borderRadius: '8px', textDecoration: 'none',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '15px', fontWeight: 600,
+          }}>
+            See Lifestyle Blueprint
+          </Link>
         </section>
 
         {/* ── SECTION 5, BECOME A PARTNER ───────────────────────────────── */}

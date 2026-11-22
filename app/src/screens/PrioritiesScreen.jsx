@@ -1,73 +1,80 @@
-import { useState, useMemo } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
-  ChevronLeft, MapPin, Calendar, Disc3, Music2, Guitar, Sparkles, Ticket,
+  ChevronLeft, ChevronRight, MapPin, Calendar, Disc3, Music2, Guitar, Sparkles, Ticket,
 } from 'lucide-react-native'
 
 import { priorityColors as pc, priorityFonts as pf, priorityGenres } from '../constants/priorityTheme'
-import { PRIORITY_EVENTS } from '../constants/priorityEvents'
+import {
+  PRIORITY_FILTERS, PRIORITY_ANNOUNCED, PRIORITY_URLS, fetchPriorityEvents, formatEventDate, formatPriceCents, cheapestTierCents,
+} from '../constants/priorityEvents'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
-// ─── Priority — UniBlueprint's events arm ──────────────────────────────────
-// Demo screen for Ross. Every event listed here is invented demo content
-// (see src/constants/priorityEvents.js) — real cities, fake nights, so this
-// can never be mistaken for a live booking. Brand treatment is Priority's
-// own (dark + gold), deliberately not UBP's navy/cream — see the note at
-// the top of priorityTheme.js for exactly what's real vs. a reasonable
-// extension made for this demo.
+// ─── Priority, UniBlueprint's events arm ───────────────────────────────────
+// Real events from the database (priority_events). When there are none on sale
+// the screen says so plainly. Tickets are bought on the website, so nothing
+// here takes payment. Brand treatment is Priority's own (black and silver),
+// deliberately not UBP's navy and cream. See priorityTheme.js.
 
 const GENRE_ICON = { house: Disc3, afrobeats: Music2, folk: Guitar }
 
-const FILTERS = [
-  { key: 'all',       label: 'All' },
-  { key: 'house',     label: 'House' },
-  { key: 'afrobeats', label: 'Afrobeats' },
-  { key: 'folk',      label: 'Folk' },
-]
+function genreOf(event) {
+  return priorityGenres[String(event.genre || '').toLowerCase()] || null
+}
 
 function EventCard({ event, onPress }) {
-  const genre = priorityGenres[event.genre]
-  const GenreIcon = GENRE_ICON[event.genre] || Sparkles
-  const fromPrice = Math.min(...event.tiers.map(t => t.price))
+  const genre = genreOf(event)
+  const GenreIcon = GENRE_ICON[String(event.genre || '').toLowerCase()] || Sparkles
+  const from = cheapestTierCents(event)
+  const soldOut = event.status === 'sold_out'
+  const art = genre
+    ? [shade(genre.color, -22), genre.color, shade(genre.color, 20)]
+    : [pc.goldDeep, pc.gold, pc.goldLight]
+  const onLight = !genre
 
   return (
-    <TouchableOpacity activeOpacity={0.88} onPress={onPress} style={styles.card}>
-      <LinearGradient
-        colors={event.flagship
-          ? [pc.goldDeep, pc.gold, pc.goldLight]
-          : [shade(genre.color, -22), genre.color, shade(genre.color, 20)]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.cardArt}
-      >
+    <TouchableOpacity
+      activeOpacity={0.88}
+      onPress={onPress}
+      style={styles.card}
+      accessibilityRole="button"
+      accessibilityLabel={`${event.title}, ${formatEventDate(event.starts_at)}`}
+    >
+      <LinearGradient colors={art} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cardArt}>
         <View style={styles.cardArtTopRow}>
           <View style={styles.genrePill}>
-            <GenreIcon size={11} color={event.flagship ? pc.bg : '#fff'} strokeWidth={2.2} />
-            <Text style={[styles.genrePillText, event.flagship && { color: pc.bg }]}>{genre.tag}</Text>
+            <GenreIcon size={11} color={onLight ? pc.bg : '#fff'} strokeWidth={2.2} />
+            <Text style={[styles.genrePillText, onLight && { color: pc.bg }]}>
+              {(genre?.tag || String(event.genre || '').toUpperCase())}
+            </Text>
           </View>
-          {event.flagship && (
-            <View style={styles.flagshipPill}><Text style={styles.flagshipPillText}>FLAGSHIP LAUNCH</Text></View>
+          {soldOut && (
+            <View style={styles.soldPill}><Text style={styles.soldPillText}>SOLD OUT</Text></View>
           )}
         </View>
         <GenreIcon size={46} color="rgba(255,255,255,0.22)" strokeWidth={1.3} style={styles.cardArtWatermark} />
-        <Text style={[styles.cardArtTitle, event.flagship && { color: pc.bg }]} numberOfLines={2}>{event.title}</Text>
+        <Text style={[styles.cardArtTitle, onLight && { color: pc.bg }]} numberOfLines={2}>{event.title}</Text>
       </LinearGradient>
 
       <View style={styles.cardBody}>
         <View style={styles.cardMetaRow}>
           <Calendar size={13} color={pc.textMuted} strokeWidth={2} />
-          <Text style={styles.cardMetaText}>{event.dateLabel}</Text>
+          <Text style={styles.cardMetaText}>{formatEventDate(event.starts_at)}</Text>
         </View>
         <View style={styles.cardMetaRow}>
           <MapPin size={13} color={pc.textMuted} strokeWidth={2} />
-          <Text style={styles.cardMetaText} numberOfLines={1}>{event.venue} · {event.city}</Text>
+          <Text style={styles.cardMetaText} numberOfLines={1}>{event.venue}, {event.city}</Text>
         </View>
         <View style={styles.cardFooterRow}>
-          <Text style={styles.cardPrice}>From €{fromPrice.toFixed(2)}</Text>
+          <Text style={styles.cardPrice}>
+            {from != null && !soldOut && !NATIVE_NEUTRAL_BILLING ? `Tickets from ${formatPriceCents(from)}` : ' '}
+          </Text>
           <View style={styles.cardCta}>
-            <Ticket size={12} color={pc.bg} strokeWidth={2.4} />
-            <Text style={styles.cardCtaText}>Get tickets</Text>
+            <Text style={styles.cardCtaText}>View event</Text>
+            <ChevronRight size={13} color={pc.textPrimary} strokeWidth={2.4} />
           </View>
         </View>
       </View>
@@ -86,19 +93,37 @@ function shade(hex, percent) {
 
 export default function PrioritiesScreen({ navigation }) {
   const insets = useSafeAreaInsets()
+  const safeGoBack = useSafeGoBack(navigation)
   const [filter, setFilter] = useState('all')
+  const [allEvents, setAllEvents] = useState(null) // null while loading
+  const [failed, setFailed] = useState(false)
+
+  const load = useCallback(async () => {
+    setFailed(false)
+    setAllEvents(null)
+    try {
+      setAllEvents(await fetchPriorityEvents())
+    } catch (err) {
+      console.warn('[PrioritiesScreen] could not load events', err)
+      setFailed(true)
+      setAllEvents([])
+    }
+  }, [])
+
+  useEffect(() => { load() }, [load])
 
   const events = useMemo(() => {
-    if (filter === 'all') return PRIORITY_EVENTS
-    return PRIORITY_EVENTS.filter(e => e.genre === filter)
-  }, [filter])
+    if (!allEvents) return []
+    if (filter === 'all') return allEvents
+    return allEvents.filter(e => String(e.genre || '').toLowerCase() === filter)
+  }, [allEvents, filter])
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backBtn}
-          onPress={() => navigation.goBack()}
+          onPress={safeGoBack}
           activeOpacity={0.75}
           accessibilityRole="button"
           accessibilityLabel="Back"
@@ -106,51 +131,102 @@ export default function PrioritiesScreen({ navigation }) {
           <ChevronLeft size={20} color={pc.textPrimary} strokeWidth={2.2} />
         </TouchableOpacity>
         <View style={{ flex: 1 }} />
+        <TouchableOpacity
+          style={styles.ticketsBtn}
+          onPress={() => navigation.navigate('PriorityTickets')}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="My tickets"
+        >
+          <Ticket size={14} color={pc.textPrimary} strokeWidth={2.2} />
+          <Text style={styles.ticketsBtnText}>My tickets</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         <Text style={styles.brandEyebrow}>UNIBLUEPRINT PRESENTS</Text>
         <Text style={styles.brandTitle}>Priority</Text>
         <Text style={styles.brandSub}>
-          House, Afrobeats and Folk nights across Ireland, ticketed through the UBP app.
+          Nights out across Ireland. All events are 18+, with no booking fee. You buy tickets on the UniBlueprint website.
         </Text>
 
-        <View style={styles.demoBanner}>
-          <Text style={styles.demoBannerText}>
-            Demo content, every event below is invented for this preview, not a real booking.
-          </Text>
-        </View>
+        {allEvents === null ? (
+          <View style={styles.centerBlock}>
+            <ActivityIndicator color={pc.gold} />
+          </View>
+        ) : failed ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>We could not load events.</Text>
+            <Text style={styles.emptySub}>Check your connection and try again.</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={load} activeOpacity={0.85} accessibilityRole="button">
+              <Text style={styles.retryBtnText}>Try again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : allEvents.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No Priority events on sale right now.</Text>
+            <Text style={styles.emptySub}>New nights appear here first.</Text>
+          </View>
+        ) : (
+          <>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 24 }}
+              contentContainerStyle={{ gap: 8, paddingRight: 20 }}
+            >
+              {PRIORITY_FILTERS.map(f => {
+                const active = filter === f.key
+                return (
+                  <TouchableOpacity
+                    key={f.key}
+                    onPress={() => setFilter(f.key)}
+                    activeOpacity={0.8}
+                    style={[styles.filterChip, active && styles.filterChipActive]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{f.label}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </ScrollView>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginTop: 20 }}
-          contentContainerStyle={{ gap: 8, paddingRight: 20 }}
-        >
-          {FILTERS.map(f => {
-            const active = filter === f.key
-            return (
-              <TouchableOpacity
-                key={f.key}
-                onPress={() => setFilter(f.key)}
-                activeOpacity={0.8}
-                style={[styles.filterChip, active && styles.filterChipActive]}
-              >
-                <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{f.label}</Text>
-              </TouchableOpacity>
-            )
-          })}
-        </ScrollView>
+            {events.length === 0 ? (
+              <Text style={styles.noMatch}>No events in this genre right now.</Text>
+            ) : (
+              <View style={styles.grid}>
+                {events.map(event => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onPress={() => navigation.navigate('PriorityEvent', { slug: event.slug })}
+                  />
+                ))}
+              </View>
+            )}
+          </>
+        )}
 
-        <View style={styles.grid}>
-          {events.map(event => (
-            <EventCard
-              key={event.id}
-              event={event}
-              onPress={() => navigation.navigate('PriorityEvent', { eventId: event.id })}
-            />
+        <Text style={styles.announcedLabel}>ANNOUNCED</Text>
+        <Text style={styles.announcedSub}>Dates and venues are still to be confirmed. Tickets are not on sale yet.</Text>
+        <View style={{ gap: 12, marginTop: 14 }}>
+          {PRIORITY_ANNOUNCED.map(a => (
+            <View key={a.id} style={styles.announcedCard}>
+              <Text style={styles.announcedTitle}>{a.title}</Text>
+              <Text style={styles.announcedMeta}>{a.where}</Text>
+              <Text style={styles.announcedMeta}>Date ??  Venue ??</Text>
+            </View>
           ))}
         </View>
+
+        <TouchableOpacity
+          onPress={() => Linking.openURL(PRIORITY_URLS.terms).catch(() => {})}
+          accessibilityRole="link"
+          style={styles.termsLinkRow}
+        >
+          <Text style={styles.termsLinkText}>Terms of sale for Priority tickets</Text>
+        </TouchableOpacity>
 
         <View style={{ height: 24 }} />
       </ScrollView>
@@ -167,17 +243,39 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
     backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border,
   },
+  ticketsBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 36, borderRadius: 18,
+    backgroundColor: pc.card, borderWidth: 1, borderColor: pc.borderStrong,
+  },
+  ticketsBtnText: { fontFamily: pf.sansSemiBold, fontSize: 13, color: pc.textPrimary },
   scroll: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 12 },
 
   brandEyebrow: { fontFamily: pf.sansBold, fontSize: 11, letterSpacing: 2, color: pc.gold },
   brandTitle: { fontFamily: pf.serif, fontSize: 40, color: pc.textPrimary, marginTop: 4 },
-  brandSub: { fontFamily: pf.sans, fontSize: 14, color: pc.textMuted, marginTop: 6, lineHeight: 20 },
+  brandSub: { fontFamily: pf.sans, fontSize: 14, color: pc.textMuted, marginTop: 8, lineHeight: 21 },
 
-  demoBanner: {
-    marginTop: 16, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10,
-    backgroundColor: 'rgba(185,185,180,0.12)', borderWidth: 1, borderColor: pc.borderStrong,
+  announcedLabel: { fontFamily: pf.sansBold, fontSize: 11, letterSpacing: 2, color: pc.gold, marginTop: 36 },
+  announcedSub: { fontFamily: pf.sans, fontSize: 13.5, lineHeight: 20, color: pc.textMuted, marginTop: 6 },
+  announcedCard: {
+    padding: 18, borderRadius: 16, backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border,
   },
-  demoBannerText: { fontFamily: pf.sansMedium, fontSize: 12, color: pc.goldLight, lineHeight: 17 },
+  announcedTitle: { fontFamily: pf.serif, fontSize: 20, color: pc.textPrimary },
+  announcedMeta: { fontFamily: pf.sans, fontSize: 13.5, color: pc.textMuted, marginTop: 4 },
+  termsLinkRow: { marginTop: 24, minHeight: 36, justifyContent: 'center' },
+  termsLinkText: { fontFamily: pf.sansSemiBold, fontSize: 13.5, color: pc.gold },
+  centerBlock: { paddingVertical: 56, alignItems: 'center' },
+  emptyCard: {
+    marginTop: 28, padding: 28, borderRadius: 18, alignItems: 'center',
+    backgroundColor: pc.surface, borderWidth: 1, borderColor: pc.border,
+  },
+  emptyTitle: { fontFamily: pf.serif, fontSize: 20, lineHeight: 27, color: pc.textPrimary, textAlign: 'center' },
+  emptySub: { fontFamily: pf.sans, fontSize: 14, lineHeight: 21, color: pc.textMuted, marginTop: 8, textAlign: 'center' },
+  retryBtn: {
+    marginTop: 18, paddingHorizontal: 20, paddingVertical: 11, borderRadius: 12,
+    borderWidth: 1, borderColor: pc.borderStrong,
+  },
+  retryBtnText: { fontFamily: pf.sansSemiBold, fontSize: 13.5, color: pc.textPrimary },
+  noMatch: { fontFamily: pf.sans, fontSize: 14, color: pc.textMuted, marginTop: 24 },
 
   filterChip: {
     paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18,
@@ -187,7 +285,7 @@ const styles = StyleSheet.create({
   filterChipText: { fontFamily: pf.sansSemiBold, fontSize: 12.5, color: pc.textMuted },
   filterChipTextActive: { color: pc.bg },
 
-  grid: { marginTop: 18, gap: 14 },
+  grid: { marginTop: 20, gap: 16 },
 
   card: {
     borderRadius: 18, backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border, overflow: 'hidden',
@@ -200,18 +298,15 @@ const styles = StyleSheet.create({
     borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.28)',
   },
   genrePillText: { fontFamily: pf.sansBold, fontSize: 10, letterSpacing: 1, color: '#fff' },
-  flagshipPill: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, backgroundColor: 'rgba(11,11,16,0.85)' },
-  flagshipPillText: { fontFamily: pf.sansBold, fontSize: 9.5, letterSpacing: 0.6, color: pc.goldLight },
+  soldPill: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, backgroundColor: 'rgba(11,11,16,0.85)' },
+  soldPillText: { fontFamily: pf.sansBold, fontSize: 9.5, letterSpacing: 0.6, color: pc.danger },
   cardArtTitle: { fontFamily: pf.serif, fontSize: 26, color: '#fff', lineHeight: 28 },
 
-  cardBody: { padding: 14, gap: 6 },
+  cardBody: { padding: 16, gap: 8 },
   cardMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  cardMetaText: { fontFamily: pf.sans, fontSize: 12.5, color: pc.textMuted },
-  cardFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
-  cardPrice: { fontFamily: pf.sansBold, fontSize: 15, color: pc.textPrimary },
-  cardCta: {
-    flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: pc.gold,
-    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10,
-  },
-  cardCtaText: { fontFamily: pf.sansBold, fontSize: 12, color: pc.bg },
+  cardMetaText: { fontFamily: pf.sans, fontSize: 12.5, color: pc.textMuted, flex: 1 },
+  cardFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+  cardPrice: { fontFamily: pf.sansSemiBold, fontSize: 13, color: pc.textPrimary },
+  cardCta: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  cardCtaText: { fontFamily: pf.sansBold, fontSize: 12.5, color: pc.textPrimary },
 })

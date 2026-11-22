@@ -5,9 +5,13 @@
 
 export const SITE_URL = 'https://uniblueprint.ie'
 
-// Where people write to about content or people that worry them. Shown under
-// Privacy and data. Reports sent from inside the app also reach this team.
-export const MODERATION_EMAIL = 'desmond@uniblueprint.ie'
+// The one support and moderation mailbox. Help, FAQs, Parent info, Privacy and
+// data and the report and block copy all read this. The website has its own
+// copy in src/lib/site.js. Change both together.
+export const SUPPORT_EMAIL = 'desmond@uniblueprint.ie'
+// Where people write to about content or people that worry them. Reports sent
+// from inside the app also reach this team.
+export const MODERATION_EMAIL = SUPPORT_EMAIL
 
 export const WEBSITE_LINKS = {
   terms:         `${SITE_URL}/terms`,

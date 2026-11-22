@@ -8,6 +8,7 @@ import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useFoundationEnabled, useFoundationOrdering } from '../hooks/useAppFlags'
+import { SUPPORT_EMAIL } from '../constants/site'
 
 const TOPICS = [
   {
@@ -92,7 +93,7 @@ export default function HelpScreen({ navigation }) {
           <TouchableOpacity
             style={styles.contactBtn}
             activeOpacity={0.8}
-            onPress={() => Linking.openURL('mailto:support@uniblueprint.ie')}
+            onPress={() => Linking.openURL('mailto:' + SUPPORT_EMAIL)}
           >
             <Text style={styles.contactBtnText}>Email</Text>
           </TouchableOpacity>
@@ -139,9 +140,9 @@ export default function HelpScreen({ navigation }) {
             Email us at{' '}
             <Text
               style={styles.footerLink}
-              onPress={() => Linking.openURL('mailto:support@uniblueprint.ie')}
+              onPress={() => Linking.openURL('mailto:' + SUPPORT_EMAIL)}
             >
-              support@uniblueprint.ie
+              {SUPPORT_EMAIL}
             </Text>{' '}
             and we'll get back to you as quickly as possible.
           </Text>

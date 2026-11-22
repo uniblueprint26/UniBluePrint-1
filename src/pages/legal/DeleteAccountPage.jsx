@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { GdprForm } from './PrivacyPage'
+import { SUPPORT_EMAIL } from '../../lib/site'
 
 // Public account deletion page. Google Play asks for a web link that explains
 // how to delete an account and its data, for people who may have uninstalled
@@ -58,7 +59,7 @@ export default function DeleteAccountPage() {
             </Section>
 
             <Section title="Cannot sign in, or removed the app?">
-              <p style={P}>Send us a request below. Use the email address on your account. We may ask you to confirm it is you. We will delete your account within 30 days. You can also email <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.</p>
+              <p style={P}>Send us a request below. Use the email address on your account. We may ask you to confirm it is you. We will delete your account within 30 days. You can also email <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>.</p>
               <GdprForm defaultRequestType="deletion" />
             </Section>
 

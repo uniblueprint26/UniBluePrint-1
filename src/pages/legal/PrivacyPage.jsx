@@ -9,6 +9,7 @@ import {
   FormCard, FormField, FormInput, FormTextarea, FormSelect,
   SubmitButton, SuccessCard, ErrorBanner, FormConsent, parseDbError,
 } from '../../components/ui/Form'
+import { SUPPORT_EMAIL } from '../../lib/site'
 
 // GDPR request workflow:
 // 1. New row inserted into gdpr_requests (name/email for anonymous website
@@ -308,7 +309,7 @@ export default function PrivacyPage() {
               <p style={P}>UniBlueprint Limited is the data controller for personal data collected through the UniBlueprint platform. We are a company registered in Ireland under company number 826545, with our registered office at Ballyhaunis Road, Claremorris, Co. Mayo, F12 V0F9, Ireland, and we operate under the EU General Data Protection Regulation (GDPR) 2016/679 and the Irish Data Protection Act 2018.</p>
               <p style={P}>
                 For privacy-related queries, contact us at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>.
                 {' '}For GDPR requests, use the form at the bottom of this page.
               </p>
             </Section>
@@ -395,7 +396,7 @@ export default function PrivacyPage() {
               </ul>
               <p style={P}>
                 To exercise any of these rights, use the request form at the bottom of this page or contact us at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>.
                 {' '}We will respond within 30 days as required by GDPR Article 12. We may need to verify your identity before processing your request.
               </p>
             </Section>
@@ -409,7 +410,7 @@ export default function PrivacyPage() {
             </Section>
 
             <Section title="10. Children's Privacy">
-              <p style={P}>UniBlueprint is not directed at children under 18 years of age. We do not knowingly collect personal data from anyone under 18. If you become aware that a person under 18 has provided personal data to UniBlueprint without appropriate consent, please contact us at <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a> and we will take steps to delete that data promptly.</p>
+              <p style={P}>UniBlueprint is not directed at children under 18 years of age. We do not knowingly collect personal data from anyone under 18. If you become aware that a person under 18 has provided personal data to UniBlueprint without appropriate consent, please contact us at <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a> and we will take steps to delete that data promptly.</p>
               <p style={P}>You can delete your account at any time from the UniBlueprint app (Profile, Privacy and Data, Delete) or by following the steps on our <Link to="/delete-account" style={{ color: '#1E3A5F', fontWeight: '500' }}>Delete your account</Link> page.</p>
             </Section>
 
@@ -424,7 +425,7 @@ export default function PrivacyPage() {
 
             <Section title="13. Data Protection Officer">
               <p style={P}>UniBlueprint Limited does not currently have an appointed Data Protection Officer. Under GDPR Article 37, a DPO is required only where processing is carried out by a public authority, where core activities consist of large-scale systematic monitoring of individuals, or where core activities involve large-scale processing of special categories of data. UniBlueprint does not meet any of these criteria at this time.</p>
-              <p style={P}>All data protection matters are handled directly by the UniBlueprint team. For any privacy-related query or GDPR rights request, contact us at <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.</p>
+              <p style={P}>All data protection matters are handled directly by the UniBlueprint team. For any privacy-related query or GDPR rights request, contact us at <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>.</p>
             </Section>
 
             <Section title="14. How to Make a Complaint">
@@ -434,13 +435,13 @@ export default function PrivacyPage() {
                 21 Fitzwilliam Square South, Dublin 2, D02 RD28<br />
                 <a href="https://www.dataprotection.ie" target="_blank" rel="noopener noreferrer" style={{ color: '#1E3A5F', fontWeight: '500' }}>dataprotection.ie</a>
               </p>
-              <p style={P}>We encourage you to contact us first at <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>, we will do our best to resolve your concern quickly and fairly.</p>
+              <p style={P}>We encourage you to contact us first at <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>, we will do our best to resolve your concern quickly and fairly.</p>
             </Section>
 
             <Section title="15. Contact Us">
               <p style={P}>
                 For any privacy-related queries, please contact us at{' '}
-                <a href="mailto:support@uniblueprint.ie" style={{ color: '#1E3A5F', fontWeight: '500' }}>support@uniblueprint.ie</a>.
+                <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: '#1E3A5F', fontWeight: '500' }}>{SUPPORT_EMAIL}</a>.
                 {' '}For GDPR rights requests, use the form below.
               </p>
             </Section>

@@ -1,14 +1,17 @@
-import { useState, useMemo } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { useState, useEffect, useCallback } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Alert, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
-  ChevronLeft, MapPin, Calendar, Clock, Minus, Plus, Disc3, Music2, Guitar,
-  Sparkles, Users,
+  ChevronLeft, MapPin, Calendar, Clock, Disc3, Music2, Guitar, Sparkles, Users, ExternalLink,
 } from 'lucide-react-native'
 
 import { priorityColors as pc, priorityFonts as pf, priorityGenres } from '../constants/priorityTheme'
-import { findPriorityEvent } from '../constants/priorityEvents'
+import {
+  PRIORITY_URLS, PRIORITY_TERMS_SHORT, PRIORITY_TERMS_CONTACT, fetchPriorityEvent, formatEventDate, formatEventTime, formatPriceCents,
+} from '../constants/priorityEvents'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 const GENRE_ICON = { house: Disc3, afrobeats: Music2, folk: Guitar }
 
@@ -21,64 +24,89 @@ function shade(hex, percent) {
   return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`
 }
 
-// ─── Priority — Event detail + ticket selection ────────────────────────────
-// Second step of the demo purchase flow: pick a tier, pick a quantity, see
-// a running total, then "Continue to Checkout". No order is created here —
-// PriorityCheckoutScreen is the one screen that touches "payment".
+// Plain words for where a ticket type is in its sale window.
+function tierNote(tier, now) {
+  if (tier.sale_starts_at && new Date(tier.sale_starts_at) > now) return `On sale ${formatEventDate(tier.sale_starts_at)}`
+  if (tier.sale_ends_at && new Date(tier.sale_ends_at) <= now) return 'This release has closed'
+  return ''
+}
+
+// ─── Priority, event detail ────────────────────────────────────────────────
+// Reads one event and its ticket types from the database. Prices are shown for
+// information only. Tickets are bought on the website: "Get tickets" opens
+// uniblueprint.ie/priority/<slug>. Nothing is bought in the app.
 
 export default function PriorityEventScreen({ route, navigation }) {
   const insets = useSafeAreaInsets()
-  const event = findPriorityEvent(route?.params?.eventId)
+  const safeGoBack = useSafeGoBack(navigation)
+  const slug = route?.params?.slug
 
-  const [tierId, setTierId] = useState(event?.tiers?.[0]?.id)
-  const [qty, setQty] = useState(1)
+  const [event, setEvent] = useState(undefined) // undefined loading, null not found
+  const [failed, setFailed] = useState(false)
 
-  const tier = useMemo(() => event?.tiers.find(t => t.id === tierId), [event, tierId])
-  const total = (tier?.price || 0) * qty
+  const load = useCallback(async () => {
+    setFailed(false)
+    setEvent(undefined)
+    try {
+      setEvent(slug ? await fetchPriorityEvent(slug) : null)
+    } catch (err) {
+      console.warn('[PriorityEventScreen] could not load event', err)
+      setFailed(true)
+      setEvent(null)
+    }
+  }, [slug])
 
-  if (!event) {
+  useEffect(() => { load() }, [load])
+
+  async function getTickets() {
+    try {
+      await Linking.openURL(PRIORITY_URLS.event(slug))
+    } catch {
+      Alert.alert('Could not open the website', `Go to ${PRIORITY_URLS.events} in your browser to get tickets.`)
+    }
+  }
+
+  if (event === undefined) {
     return (
-      <View style={[styles.screen, { paddingTop: insets.top, alignItems: 'center', justifyContent: 'center' }]}>
-        <Text style={styles.notFoundText}>Event not found.</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 12 }}>
-          <Text style={{ color: pc.gold, fontFamily: pf.sansSemiBold }}>Go back</Text>
+      <View style={[styles.screen, styles.center, { paddingTop: insets.top }]}>
+        <ActivityIndicator color={pc.gold} />
+      </View>
+    )
+  }
+
+  if (event === null) {
+    return (
+      <View style={[styles.screen, styles.center, { paddingTop: insets.top, paddingHorizontal: 32 }]}>
+        <Text style={styles.notFoundText}>
+          {failed ? 'We could not load this event.' : 'We could not find that event.'}
+        </Text>
+        <TouchableOpacity onPress={failed ? load : safeGoBack} style={{ marginTop: 14 }} accessibilityRole="button">
+          <Text style={{ color: pc.gold, fontFamily: pf.sansSemiBold }}>{failed ? 'Try again' : 'Go back'}</Text>
         </TouchableOpacity>
       </View>
     )
   }
 
-  const genre = priorityGenres[event.genre]
-  const GenreIcon = GENRE_ICON[event.genre] || Sparkles
-
-  function dec() { setQty(q => Math.max(1, q - 1)) }
-  function inc() { setQty(q => Math.min(8, q + 1)) }
-
-  function continueToCheckout() {
-    if (!tier) {
-      Alert.alert('Pick a ticket type', 'Choose a ticket tier before continuing.')
-      return
-    }
-    navigation.navigate('PriorityCheckout', {
-      eventId: event.id,
-      tierId: tier.id,
-      qty,
-    })
-  }
+  const now = new Date()
+  const genreKey = String(event.genre || '').toLowerCase()
+  const genre = priorityGenres[genreKey] || null
+  const GenreIcon = GENRE_ICON[genreKey] || Sparkles
+  const art = genre
+    ? [shade(genre.color, -22), genre.color, shade(genre.color, 20)]
+    : [pc.goldDeep, pc.gold, pc.goldLight]
+  const onLight = !genre
+  const ageMin = Math.max(event.age_min || 18, 18)
+  const ended = event.status === 'ended' || new Date(event.starts_at) <= now
+  const soldOut = event.status === 'sold_out'
+  const canGet = !ended && !soldOut
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <LinearGradient
-          colors={event.flagship
-            ? [pc.goldDeep, pc.gold, pc.goldLight]
-            : [shade(genre.color, -22), genre.color, shade(genre.color, 20)]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.hero}
-        >
+        <LinearGradient colors={art} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() => navigation.goBack()}
+            onPress={safeGoBack}
             activeOpacity={0.75}
             accessibilityRole="button"
             accessibilityLabel="Back"
@@ -87,90 +115,108 @@ export default function PriorityEventScreen({ route, navigation }) {
           </TouchableOpacity>
           <GenreIcon size={64} color="rgba(255,255,255,0.22)" strokeWidth={1.2} style={styles.heroWatermark} />
           <View style={{ flex: 1 }} />
-          <View style={styles.genrePill}>
-            <GenreIcon size={11} color={event.flagship ? pc.bg : '#fff'} strokeWidth={2.2} />
-            <Text style={[styles.genrePillText, event.flagship && { color: pc.bg }]}>{genre.tag}</Text>
+          <View style={styles.pillRow}>
+            <View style={styles.genrePill}>
+              <GenreIcon size={11} color={onLight ? pc.bg : '#fff'} strokeWidth={2.2} />
+              <Text style={[styles.genrePillText, onLight && { color: pc.bg }]}>
+                {genre?.tag || String(event.genre || '').toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.genrePill}>
+              <Text style={[styles.genrePillText, onLight && { color: pc.bg }]}>{ageMin}+</Text>
+            </View>
           </View>
-          <Text style={[styles.heroTitle, event.flagship && { color: pc.bg }]}>{event.title}</Text>
+          <Text style={[styles.heroTitle, onLight && { color: pc.bg }]}>{event.title}</Text>
         </LinearGradient>
 
         <View style={styles.body}>
-          <View style={styles.demoBanner}>
-            <Text style={styles.demoBannerText}>Demo event — invented for this preview, not a real booking.</Text>
-          </View>
-
           <View style={styles.metaCard}>
             <View style={styles.metaRow}>
               <Calendar size={15} color={pc.gold} strokeWidth={2} />
-              <Text style={styles.metaText}>{event.dateLabel}</Text>
+              <Text style={styles.metaText}>{formatEventDate(event.starts_at)}</Text>
             </View>
             <View style={styles.metaRow}>
               <Clock size={15} color={pc.gold} strokeWidth={2} />
-              <Text style={styles.metaText}>{event.doorsLabel}</Text>
+              <Text style={styles.metaText}>
+                {event.doors_at ? `Doors ${formatEventTime(event.doors_at)}` : `Starts ${formatEventTime(event.starts_at)}`}
+              </Text>
             </View>
             <View style={styles.metaRow}>
               <MapPin size={15} color={pc.gold} strokeWidth={2} />
-              <Text style={styles.metaText}>{event.venue} · {event.address}</Text>
+              <Text style={styles.metaText}>
+                {event.venue}{event.address ? `, ${event.address}` : ''}, {event.city}
+              </Text>
             </View>
           </View>
 
-          <Text style={styles.blurb}>{event.blurb}</Text>
+          {!!event.blurb && <Text style={styles.blurb}>{event.blurb}</Text>}
 
           {!!event.lineup?.length && (
             <View style={styles.lineupRow}>
               <Users size={14} color={pc.textMuted} strokeWidth={2} />
-              <Text style={styles.lineupText}>{event.lineup.join(' · ')}</Text>
+              <Text style={styles.lineupText}>{event.lineup.join(', ')}</Text>
             </View>
           )}
 
-          <Text style={styles.sectionLabel}>SELECT TICKET TYPE</Text>
-          <View style={{ gap: 10 }}>
-            {event.tiers.map(t => {
-              const active = t.id === tierId
-              return (
-                <TouchableOpacity
-                  key={t.id}
-                  onPress={() => setTierId(t.id)}
-                  activeOpacity={0.85}
-                  style={[styles.tierRow, active && styles.tierRowActive]}
-                >
-                  <View style={[styles.radioOuter, active && styles.radioOuterActive]}>
-                    {active && <View style={styles.radioInner} />}
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.tierLabel}>{t.label}</Text>
-                    {!!t.note && <Text style={styles.tierNote}>{t.note}</Text>}
-                  </View>
-                  <Text style={styles.tierPrice}>€{t.price.toFixed(2)}</Text>
-                </TouchableOpacity>
-              )
-            })}
+          {event.tiers.length > 0 && (
+            <>
+              <Text style={styles.sectionLabel}>TICKET TYPES</Text>
+              <View style={{ gap: 10 }}>
+                {event.tiers.map(t => {
+                  const note = tierNote(t, now)
+                  return (
+                    <View key={t.id} style={styles.tierRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.tierLabel}>{t.label}</Text>
+                        {!!note && <Text style={styles.tierNote}>{note}</Text>}
+                      </View>
+                      {!NATIVE_NEUTRAL_BILLING && <Text style={styles.tierPrice}>{formatPriceCents(t.price_cents)}</Text>}
+                    </View>
+                  )
+                })}
+              </View>
+            </>
+          )}
+
+          <Text style={styles.sectionLabel}>TERMS OF SALE</Text>
+          <View style={styles.termsCard}>
+            {PRIORITY_TERMS_SHORT.map(line => (
+              <Text key={line} style={styles.termsLine}>{line}</Text>
+            ))}
+            <Text style={styles.termsLine}>{PRIORITY_TERMS_CONTACT}</Text>
+            <TouchableOpacity
+              onPress={() => Linking.openURL(PRIORITY_URLS.terms).catch(() => {})}
+              accessibilityRole="link"
+              accessibilityLabel="Read the full terms of sale on the website"
+              style={styles.termsLink}
+            >
+              <Text style={styles.termsLinkText}>Read the full terms of sale</Text>
+              <ExternalLink size={13} color={pc.gold} strokeWidth={2.2} />
+            </TouchableOpacity>
           </View>
 
-          <Text style={styles.sectionLabel}>QUANTITY</Text>
-          <View style={styles.qtyRow}>
-            <TouchableOpacity onPress={dec} style={styles.qtyBtn} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Decrease quantity">
-              <Minus size={16} color={pc.textPrimary} strokeWidth={2.4} />
-            </TouchableOpacity>
-            <Text style={styles.qtyValue}>{qty}</Text>
-            <TouchableOpacity onPress={inc} style={styles.qtyBtn} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Increase quantity">
-              <Plus size={16} color={pc.textPrimary} strokeWidth={2.4} />
-            </TouchableOpacity>
-            <Text style={styles.qtyHint}>Up to 8 tickets per order</Text>
-          </View>
-
-          <View style={{ height: 110 }} />
+          <View style={{ height: 150 }} />
         </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        <View>
-          <Text style={styles.footerTotalLabel}>Total</Text>
-          <Text style={styles.footerTotalValue}>€{total.toFixed(2)}</Text>
-        </View>
-        <TouchableOpacity style={styles.footerCta} activeOpacity={0.88} onPress={continueToCheckout}>
-          <Text style={styles.footerCtaText}>Continue to Checkout</Text>
-        </TouchableOpacity>
+        {canGet ? (
+          <>
+            <TouchableOpacity
+              style={styles.footerCta}
+              activeOpacity={0.88}
+              onPress={getTickets}
+              accessibilityRole="link"
+              accessibilityLabel="Get tickets on the UniBlueprint website"
+            >
+              <Text style={styles.footerCtaText}>Get tickets</Text>
+              <ExternalLink size={16} color={pc.bg} strokeWidth={2.4} />
+            </TouchableOpacity>
+            <Text style={styles.footerHint}>Opens uniblueprint.ie. 18 plus. No refunds unless the event is cancelled.</Text>
+          </>
+        ) : (
+          <Text style={styles.footerClosed}>{ended ? 'This event has ended.' : 'This event is sold out.'}</Text>
+        )}
       </View>
     </View>
   )
@@ -178,7 +224,8 @@ export default function PriorityEventScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: pc.bg },
-  notFoundText: { fontFamily: pf.sans, color: pc.textMuted },
+  center: { alignItems: 'center', justifyContent: 'center' },
+  notFoundText: { fontFamily: pf.sans, color: pc.textMuted, textAlign: 'center' },
 
   hero: { minHeight: 200, padding: 18, paddingTop: 14, overflow: 'hidden' },
   heroWatermark: { position: 'absolute', right: 16, bottom: 16 },
@@ -186,66 +233,57 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.28)',
   },
+  pillRow: { flexDirection: 'row', gap: 8, marginTop: 6 },
   genrePill: {
     flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4,
-    borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.28)', alignSelf: 'flex-start', marginTop: 6,
+    borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.28)', alignSelf: 'flex-start',
   },
   genrePillText: { fontFamily: pf.sansBold, fontSize: 10, letterSpacing: 1, color: '#fff' },
   heroTitle: { fontFamily: pf.serif, fontSize: 32, color: '#fff', marginTop: 8 },
 
   body: { padding: 20 },
-  demoBanner: {
-    paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, marginBottom: 16,
-    backgroundColor: 'rgba(185,185,180,0.12)', borderWidth: 1, borderColor: pc.borderStrong,
-  },
-  demoBannerText: { fontFamily: pf.sansMedium, fontSize: 12, color: pc.goldLight, lineHeight: 17 },
 
   metaCard: {
     backgroundColor: pc.card, borderRadius: 14, borderWidth: 1, borderColor: pc.border,
-    padding: 14, gap: 10,
+    padding: 16, gap: 12,
   },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontFamily: pf.sansMedium, fontSize: 13.5, color: pc.textPrimary, flex: 1 },
+  metaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  metaText: { fontFamily: pf.sansMedium, fontSize: 13.5, lineHeight: 19, color: pc.textPrimary, flex: 1 },
 
-  blurb: { fontFamily: pf.sans, fontSize: 14, color: pc.textMuted, lineHeight: 21, marginTop: 16 },
-  lineupRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 },
-  lineupText: { fontFamily: pf.sans, fontSize: 12.5, color: pc.textFaint },
+  blurb: { fontFamily: pf.sans, fontSize: 14.5, color: pc.textMuted, lineHeight: 22, marginTop: 20 },
+  lineupRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: 14 },
+  lineupText: { fontFamily: pf.sans, fontSize: 13, lineHeight: 19, color: pc.textMuted, flex: 1 },
 
   sectionLabel: {
     fontFamily: pf.sansBold, fontSize: 11.5, letterSpacing: 1.2, color: pc.gold,
-    marginTop: 26, marginBottom: 12,
+    marginTop: 32, marginBottom: 14,
   },
 
   tierRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 14,
     backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border,
   },
-  tierRowActive: { borderColor: pc.gold, backgroundColor: pc.cardAlt },
-  radioOuter: {
-    width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: pc.textFaint,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  radioOuterActive: { borderColor: pc.gold },
-  radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: pc.gold },
   tierLabel: { fontFamily: pf.sansSemiBold, fontSize: 14.5, color: pc.textPrimary },
-  tierNote: { fontFamily: pf.sans, fontSize: 11.5, color: pc.textFaint, marginTop: 2 },
-  tierPrice: { fontFamily: pf.sansBold, fontSize: 16, color: pc.textPrimary },
-
-  qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  qtyBtn: {
-    width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
+  tierNote: { fontFamily: pf.sans, fontSize: 12, color: pc.textMuted, marginTop: 3 },
+  termsCard: {
+    padding: 16, borderRadius: 14, gap: 8,
     backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border,
   },
-  qtyValue: { fontFamily: pf.sansBold, fontSize: 18, color: pc.textPrimary, minWidth: 24, textAlign: 'center' },
-  qtyHint: { fontFamily: pf.sans, fontSize: 11.5, color: pc.textFaint, marginLeft: 8 },
+  termsLine: { fontFamily: pf.sans, fontSize: 13.5, lineHeight: 20, color: pc.textMuted },
+  termsLink: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, minHeight: 32 },
+  termsLinkText: { fontFamily: pf.sansSemiBold, fontSize: 13.5, color: pc.gold },
+  tierPrice: { fontFamily: pf.sansBold, fontSize: 15, color: pc.textPrimary },
 
   footer: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 14,
+    position: 'absolute', left: 0, right: 0, bottom: 0,
+    paddingHorizontal: 20, paddingTop: 14,
     backgroundColor: pc.surface, borderTopWidth: 1, borderTopColor: pc.border,
   },
-  footerTotalLabel: { fontFamily: pf.sans, fontSize: 11.5, color: pc.textMuted },
-  footerTotalValue: { fontFamily: pf.serif, fontSize: 22, color: pc.textPrimary, marginTop: 1 },
-  footerCta: { backgroundColor: pc.gold, paddingHorizontal: 22, paddingVertical: 14, borderRadius: 14 },
-  footerCtaText: { fontFamily: pf.sansBold, fontSize: 14, color: pc.bg },
+  footerCta: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: pc.gold, paddingVertical: 15, borderRadius: 14,
+  },
+  footerCtaText: { fontFamily: pf.sansBold, fontSize: 15, color: pc.bg },
+  footerHint: { fontFamily: pf.sans, fontSize: 12, color: pc.textMuted, textAlign: 'center', marginTop: 10 },
+  footerClosed: { fontFamily: pf.sansSemiBold, fontSize: 14, color: pc.textMuted, textAlign: 'center', paddingVertical: 8 },
 })

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ArrowRight, UtensilsCrossed, Dumbbell, ShoppingBag, Heart, Camera, TrendingUp, Car, Scissors, Palette, Trophy, Sparkles, Leaf } from 'lucide-react'
-import PartnerMap from '../components/PartnerMap'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -131,7 +130,7 @@ const FEATURES = [
   { Icon: UtensilsCrossed, title: 'Food & Drink',    desc: 'Discounts at restaurants and cafes across Ireland.' },
   { Icon: Dumbbell,        title: 'Fitness',          desc: 'Reduced gym memberships and class passes.' },
   { Icon: ShoppingBag,     title: 'Shopping',         desc: 'Discounts at clothing and lifestyle brands.' },
-  { Icon: Car,             title: 'Automotive',       desc: 'Exclusive vehicle and driving deals through Whip Wizards.' },
+  { Icon: Car,             title: 'Automotive',       desc: 'Exclusive vehicle and driving deals from partners in the app.' },
   { Icon: Palette,         title: 'Creative & Media', desc: 'Exclusive deals from photographers, videographers, digital marketers and creative professionals.' },
   { Icon: Heart,           title: 'Mental Health',    desc: 'Free resources, helplines, and wellbeing tools.', free: true },
 ]
@@ -147,27 +146,27 @@ const DEALS = {
     { brand: 'Healthy Bowl Partner', deal: 'Free delivery over €15',     locked: true },
   ],
   'Fitness': [
-    { brand: 'MPFitness',           deal: 'Up to ?% off membership',   locked: true },
-    { brand: 'Energie Fitness',     deal: 'First session free',         locked: true },
-    { brand: 'JMC Fitness',         deal: 'Deal details being confirmed', locked: true },
+    { brand: 'Gym Partner',          deal: 'Up to ?% off membership',   locked: true },
+    { brand: 'Gym Partner',          deal: 'First session free',         locked: true },
+    { brand: 'Coaching Partner',     deal: 'Deal details being confirmed', locked: true },
   ],
   'Shopping': [
-    { brand: 'Saiemsent',           deal: 'Up to ?% off clothing',      locked: true },
-    { brand: 'Elect',               deal: 'Up to ?% off clothing',      locked: true },
+    { brand: 'Clothing Partner',     deal: 'Up to ?% off clothing',      locked: true },
+    { brand: 'Clothing Partner',     deal: 'Up to ?% off clothing',      locked: true },
     { brand: 'Tech Retailer',       deal: '?% off laptops and devices', locked: true },
   ],
   'Automotive': [
-    { brand: 'Whip Wizards',        deal: 'Up to ?% off car detailing', locked: true },
-    { brand: 'Whip Wizards',        deal: 'Up to ?% off driving lessons', locked: true },
-    { brand: 'Whip Wizards',        deal: 'Up to ?% off car servicing', locked: true },
+    { brand: 'Car Care Partner',     deal: 'Up to ?% off car detailing', locked: true },
+    { brand: 'Car Care Partner',     deal: 'Up to ?% off driving lessons', locked: true },
+    { brand: 'Car Care Partner',     deal: 'Up to ?% off car servicing', locked: true },
   ],
   'Creative & Media': [
     { brand: 'Creative Partner',    deal: 'Up to ?% off photography',   locked: true },
     { brand: 'Video Partner',       deal: 'Up to ?% off videography',   locked: true },
     { brand: 'Marketing Partner',   deal: 'Up to ?% off design work',   locked: true },
-    { brand: 'LEVA Impact',         deal: 'Free marketing for a week',  locked: true },
-    { brand: 'Henry Sisters',       deal: '10% off',                    locked: true },
-    { brand: 'Royalty Productions', deal: '10% off',                    locked: true },
+    { brand: 'Digital Marketing Partner', deal: 'Free marketing for a week',  locked: true },
+    { brand: 'Creative Partner',     deal: '10% off',                    locked: true },
+    { brand: 'Media Partner',        deal: '10% off',                    locked: true },
   ],
   'Mental Health': [
     { brand: 'Samaritans Ireland', deal: 'Free. Call 116 123. Available 24 hours.',     locked: false },
@@ -182,17 +181,16 @@ const DEALS = {
 }
 
 // The 6 headline deals, cycled in a slideshow and repeated beside the map's
-// service categories below. Three name a real partner outright (Energie
-// Fitness, LEVA Impact, Roomie); the other three mask the partner name with
-// "???" while keeping the real deal, matching the mystery-marketing style
-// used across this page.
+// service categories below. The website names categories only, plus Roomy.ie.
+// Individual partners are shown in the app so this page never needs updating
+// when a partner joins or leaves.
 const HEADLINE_DEALS = [
-  { name: 'Energie Fitness', category: 'Gym Membership',      deal: 'Gym membership',                          accent: '#166534' },
-  { name: 'LEVA Impact',     category: 'Digital Marketing',   deal: 'Free marketing from a digital marketing company', accent: '#4C1D95' },
-  { name: 'Roomie',          category: 'Housing Listings',    deal: 'Free listings',                            accent: '#0369A1' },
-  { name: '???',             category: 'Clothing',            deal: '10% off clothes',                          accent: '#1D4ED8' },
-  { name: '??????',          category: 'Photography',         deal: '10% off photography',                      accent: '#C2410C' },
-  { name: '????',            category: 'Nails, student ID required', deal: 'Nails discount',                    accent: '#BE185D' },
+  { name: 'Gym Partner',     category: 'Gym Membership',      deal: 'Gym membership',                          accent: '#166534' },
+  { name: 'Marketing Partner', category: 'Digital Marketing',   deal: 'Free marketing from a digital marketing company', accent: '#4C1D95' },
+  { name: 'Roomy.ie',         category: 'Housing Listings',    deal: 'Free listings',                            accent: '#0369A1' },
+  { name: 'Clothing Partner', category: 'Clothing',            deal: '10% off clothes',                          accent: '#1D4ED8' },
+  { name: 'Photo Partner',    category: 'Photography',         deal: '10% off photography',                      accent: '#C2410C' },
+  { name: 'Beauty Partner',   category: 'Nails, student ID required', deal: 'Nails discount',                    accent: '#BE185D' },
 ]
 
 function PartnerSlideshow() {
@@ -220,7 +218,7 @@ function PartnerSlideshow() {
         transition: 'background 300ms ease',
       }}>
         <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: '#F5F0E8' }}>
-          {slide.name === '???' || slide.name === '??????' || slide.name === '????' ? '?' : slide.name.charAt(0)}
+          {slide.name.charAt(0)}
         </span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -522,24 +520,13 @@ export default function LifestyleBlueprintPage() {
 
           {/* Header */}
           <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
-            <SectionLabel light>Where we are</SectionLabel>
+            <SectionLabel light>Across Ireland</SectionLabel>
             <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(26px, 3.5vw, 40px)', color: '#F5F0E8', marginTop: '10px', lineHeight: 1.12 }}>
-              Every county. Every category.
+              Every category, in one place.
             </h2>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.5)', marginTop: '12px', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
-              Lifestyle Blueprint covers the full range, fitness, beauty, photography, food, and more. Tap a pin to see who's live and who's on the way.
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: 'rgba(245,240,232,0.6)', marginTop: '12px', maxWidth: '460px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
+              Lifestyle Blueprint covers fitness, beauty, photography, food and more. Meet the partners near you in the app, where the list is always up to date.
             </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 700,
-              color: '#C9A24B', marginTop: '14px', textTransform: 'uppercase', letterSpacing: '0.06em',
-            }}>
-              55+ live partners across every county
-            </p>
-          </div>
-
-          {/* The map itself, the centrepiece, not a thumbnail */}
-          <div style={{ marginTop: 48 }}>
-            <PartnerMap />
           </div>
 
           {/* Phone mockup + category chips, secondary row underneath */}

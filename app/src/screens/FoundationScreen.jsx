@@ -20,6 +20,7 @@ import { supabase } from '../lib/supabase'
 import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import { useFoundationOrdering } from '../hooks/useAppFlags'
+import { SUPPORT_EMAIL } from '../constants/site'
 
 
 // iOS: Foundation Blueprint services are pay-per-service digital documents
@@ -389,7 +390,7 @@ export default function FoundationScreen({ navigation, route }) {
           <TouchableOpacity
             style={styles.contact}
             activeOpacity={0.7}
-            onPress={() => Linking.openURL('mailto:support@uniblueprint.ie?subject=' + encodeURIComponent('Foundation Blueprint request'))}
+            onPress={() => Linking.openURL('mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent('Foundation Blueprint request'))}
             accessibilityRole="button"
           >
             <Text style={styles.contactText}>Something else in mind? Get in touch</Text>
