@@ -34,6 +34,9 @@ export default function useListingActions(navigation, { onAdClosed } = {}) {
 
   function openItem(item) {
     if (item.action === 'link') return openLink(item.link)
+    if (item.action === 'partnerPage') {
+      return openInHomeStack(navigation, 'LifestylePartners', { highlightId: item.partnerId })
+    }
     if (item.action === 'partner') {
       return setContactAd({
         id: item.id,

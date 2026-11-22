@@ -52,7 +52,7 @@ const NON_UNIVERSITY_TYPE = [
   { value: 'university_student', label: 'University / college student' },
   { value: 'apprentice', label: 'Apprentice' },
   { value: 'young_worker', label: 'Young worker looking to progress' },
-  { value: 'secondary_student', label: '5th or 6th year student' },
+  { value: 'secondary_student', label: 'Repeating the Leaving Cert or returning to education' },
 ]
 const TIERS = [
   { value: 'standard', label: 'Standard, delivered within 48 hours' },

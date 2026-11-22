@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  View, Text, ScrollView, TouchableOpacity, Linking,
+  View, Text, ScrollView, TouchableOpacity, Linking, Image,
   Animated, Dimensions, StyleSheet, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
+import * as Clipboard from 'expo-clipboard'
 import {
   Plus, ChevronRight, ChevronLeft, Megaphone, Tag, Star, Crown, Menu,
   MapPin, Users, Wallet, Newspaper, Award, Heart, Clock, BookOpen,
@@ -26,6 +27,7 @@ import { COACHES } from './ElevationScreen'
 import { PARTNERS } from '../data/lifestylePartners'
 import { getPosts, calcReadTime, formatDate } from '../data/blogPosts'
 import { isRealDeal } from '../lib/adBoard'
+import { getPartnerDeals, isListedPartner } from '../lib/partnerDeals'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 import { SUPPORT_EMAIL } from '../constants/site'
 
@@ -157,17 +159,31 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
           <Text style={styles.pageHeading}>{page.type === 'deals-1' ? 'Deals & Discounts' : 'More partners, more savings'}</Text>
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 18 }}>
             {slice.length === 0 ? (
-              <EmptyNote>No live deals to show right now — check back soon.</EmptyNote>
+              <EmptyNote>No live deals to show right now. Check back soon.</EmptyNote>
             ) : slice.map(d => (
-              <View key={d.id} style={styles.dealRow}>
+              <View key={d.key} style={styles.dealRow}>
+                {d.logo ? (
+                  <View style={styles.dealLogo}><Image source={d.logo} style={styles.dealLogoImg} resizeMode="contain" /></View>
+                ) : d.initials ? (
+                  <View style={[styles.dealLogo, { backgroundColor: d.initBg }]}><Text style={styles.dealMono}>{d.initials}</Text></View>
+                ) : null}
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.dealBrand}>{d.partners?.name || 'UniBlueprint Partner'}</Text>
-                  <Text style={styles.dealTitle}>{d.title}</Text>
+                  <Text style={styles.dealBrand}>{d.brand}</Text>
+                  <Text style={styles.dealTitle}>{d.text}</Text>
                   {!!d.description && <Text style={styles.dealDesc} numberOfLines={2}>{d.description}</Text>}
+                  {!!d.code && (
+                    <View style={styles.dealCodeRow}>
+                      <Text style={styles.dealCode} selectable>{d.code}</Text>
+                      <TouchableOpacity
+                        onPress={() => { Clipboard.setStringAsync(d.code).catch(() => {}) }}
+                        accessibilityRole="button" accessibilityLabel={`Copy code ${d.code}`}
+                        style={styles.dealCopy}
+                      >
+                        <Text style={styles.dealCopyText}>Copy</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
-                {d.discount_percent != null && (
-                  <View style={styles.dealPercentBadge}><Text style={styles.dealPercentText}>{d.discount_percent}%</Text></View>
-                )}
               </View>
             ))}
           </ScrollView>
@@ -846,7 +862,16 @@ export default function WeeklyBlueprintScreen({ navigation }) {
       setScreenData({
         issue,
         content,
-        deals: ((dealsRes.status === 'fulfilled' ? dealsRes.value.data : null) || []).filter(isRealDeal),
+        // Real partner deals from the roster first, then any real database rows for partners not already listed.
+        deals: [
+          ...getPartnerDeals(),
+          ...((dealsRes.status === 'fulfilled' ? dealsRes.value.data : null) || [])
+            .filter(r => isRealDeal(r) && !isListedPartner(r.partners))
+            .map(r => ({
+              key: `db-deal:${r.id}`, brand: r.partners?.name || 'UniBlueprint Partner', text: r.title,
+              description: r.description || null, percent: r.discount_percent || 0, code: null, logo: null,
+            })),
+        ],
         coaches: [c1, c2].filter(Boolean),
         foundationTopics: fTopics,
         lifestylePartners: PARTNERS.filter(p => p.filterKey === 'fashion' && p.status === 'live'),
@@ -1052,6 +1077,13 @@ function __gs_styles(colors) {
   dealRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(30,58,95,0.06)' },
   dealBrand: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5 },
   dealTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary, marginTop: 2 },
+  dealLogo: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
+  dealLogoImg: { width: 38, height: 38 },
+  dealMono: { fontFamily: fonts.sansBold, fontSize: 14, color: '#FFFFFF' },
+  dealCodeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' },
+  dealCode: { fontFamily: fonts.sansSemiBold, fontSize: 12.5, color: colors.textPrimary, backgroundColor: colors.surfaceAlt, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, overflow: 'hidden' },
+  dealCopy: { backgroundColor: colors.accentBg, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6 },
+  dealCopyText: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.accentFg },
   dealDesc: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.muted, marginTop: 3, lineHeight: 17 },
   dealPercentBadge: { backgroundColor: colors.surfaceAlt, borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   dealPercentText: { fontFamily: fonts.sansBold, fontSize: 13, color: colors.textPrimary },

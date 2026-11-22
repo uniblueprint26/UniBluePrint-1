@@ -150,7 +150,7 @@ export default function AboutScreen({ navigation }) {
         <Text style={[styles.sectionEyebrow, { color: colors.textTertiary, marginTop: spacing.xl }]}>OUR MISSION</Text>
         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>The structure behind your success, for every young person in Ireland.</Text>
         <Text style={[styles.para, { color: colors.textSecondary }]}>
-          UniBlueprint exists because young people in Ireland have always deserved proper, structured support, across every pathway, not just university. Whether you are doing your Leaving Cert, heading into college, taking an apprenticeship, or already in work and looking for what comes next, the platform is built around you.
+          UniBlueprint exists because young people in Ireland have always deserved proper, structured support, across every pathway, not just university. Whether you are repeating the Leaving Cert as an adult, heading into college as a mature student, taking an apprenticeship, or already in work and looking for what comes next, the platform is built around you.
         </Text>
         <Text style={[styles.para, { color: colors.textSecondary }]}>
           We built it honestly. From a small town in Mayo, with a team assembled over voice messages and late-night calls. Real people reviewing every submission. Real coaches delivering every session. A free tier that actually gives you something. And every step of it documented so you can see exactly how it was built.

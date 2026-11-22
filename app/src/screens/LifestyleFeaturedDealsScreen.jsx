@@ -31,16 +31,17 @@
  * contact/claim flow either way. No in-app checkout anywhere on this
  * screen, by design.
  */
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
 import {
   View, Text, TouchableOpacity, StyleSheet, FlatList,
 } from 'react-native'
+import * as Clipboard from 'expo-clipboard'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChevronRight } from 'lucide-react-native'
+import { ChevronRight, Copy, Check } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import SectionHeader from '../components/ui/SectionHeader'
 import {
-  PartnerDetailSheet, PartnerExpandCard,
+  PartnerDetailSheet, PartnerExpandCard, PartnerLogo,
 } from '../components/lifestyle/PartnerCards'
 import {
   HERO, GRID, DealTile, ProductPlaceholder, getCollectionStyles,
@@ -49,12 +50,76 @@ import RedemptionCodeSheet from '../components/lifestyle/RedemptionCodeSheet'
 import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { PARTNERS } from '../data/lifestylePartners'
+import { getPartnerDeals } from '../lib/partnerDeals'
+
+// One real partner deal: logo, partner name, the deal exactly as the partner
+// wrote it, and a code with a Copy button when the deal has one.
+function PartnerDealRow({ deal, partner, onPress, colors }) {
+  const [copied, setCopied] = useState(false)
+  const timer = useRef(null)
+  useEffect(() => () => clearTimeout(timer.current), [])
+  async function copy() {
+    try { await Clipboard.setStringAsync(deal.code) } catch { return }
+    setCopied(true)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setCopied(false), 1800)
+  }
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${deal.brand}: ${deal.text}. View partner`}
+      style={[dealStyles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}
+    >
+      <PartnerLogo partner={partner} size={48} />
+      <View style={dealStyles.body}>
+        <Text style={[dealStyles.brand, { color: colors.textPrimary }]} numberOfLines={1}>{deal.brand}</Text>
+        <Text style={[dealStyles.text, { color: colors.textPrimary }]}>{deal.text}</Text>
+        {!!deal.code && (
+          <View style={dealStyles.codeRow}>
+            <View style={[dealStyles.codeBox, { backgroundColor: colors.tabFill, borderColor: colors.border }]}>
+              <Text style={[dealStyles.codeLabel, { color: colors.textSecondary }]}>Code</Text>
+              <Text style={[dealStyles.codeText, { color: colors.textPrimary }]} numberOfLines={1} selectable>{deal.code}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={copy}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={copied ? 'Code copied' : `Copy code ${deal.code}`}
+              style={[dealStyles.copyBtn, { backgroundColor: colors.accentBg }]}
+            >
+              {copied ? <Check size={14} color={colors.accentFg} strokeWidth={2.6} /> : <Copy size={14} color={colors.accentFg} strokeWidth={2.2} />}
+              <Text style={[dealStyles.copyText, { color: colors.accentFg }]}>{copied ? 'Copied' : 'Copy'}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <Text style={[dealStyles.view, { color: colors.textSecondary }]}>View partner page</Text>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
+const dealStyles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, padding: 16, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth },
+  body: { flex: 1, minWidth: 0 },
+  brand: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
+  text: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 20, marginTop: 4 },
+  codeRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  codeBox: { flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, height: 34, borderRadius: 10, borderWidth: StyleSheet.hairlineWidth },
+  codeLabel: { fontFamily: fonts.sansMedium, fontSize: 11.5 },
+  codeText: { flexShrink: 1, fontFamily: fonts.sansSemiBold, fontSize: 13, letterSpacing: 0.3 },
+  copyBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, height: 34, paddingHorizontal: 12, borderRadius: 17 },
+  copyText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5 },
+  view: { fontFamily: fonts.sansMedium, fontSize: 12.5, marginTop: 10 },
+})
 
 export default function LifestyleFeaturedDealsScreen({ navigation }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const collectionStyles = getCollectionStyles(colors)
   const insets = useSafeAreaInsets()
+  const partnerDeals = useRef(getPartnerDeals()).current
   const [detailPartnerId, setDetailPartnerId] = useState(null)
   const [expandPartnerId, setExpandPartnerId] = useState(null)
   const [codePartnerId, setCodePartnerId] = useState(null)
@@ -127,6 +192,21 @@ export default function LifestyleFeaturedDealsScreen({ navigation }) {
         }
         ListFooterComponent={
           <View style={styles.content}>
+            <SectionHeader eyebrow="Partner deals" title="Deals from our partners" style={{ marginTop: spacing.md, marginBottom: spacing.md }} />
+            <View style={{ gap: 12 }}>
+              {partnerDeals.map(d => (
+                <PartnerDealRow
+                  key={d.key}
+                  deal={d}
+                  partner={PARTNERS.find(p => p.id === d.partnerId)}
+                  colors={colors}
+                  onPress={() => navigation.navigate('LifestylePartners', { highlightId: d.partnerId })}
+                />
+              ))}
+              {partnerDeals.length === 0 && (
+                <Text style={styles.footerNoteText}>No live deals yet. Real offers from our Lifestyle partners appear here as soon as they are live.</Text>
+              )}
+            </View>
             <View style={styles.footerNote}>
               <Text style={styles.footerNoteText}>
                 Tap any item for a quick look, then view the full listing for credentials, pricing,

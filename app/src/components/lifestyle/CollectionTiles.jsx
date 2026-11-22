@@ -133,7 +133,7 @@ export function ProductPlaceholder({ partner, hero }) {
 // passed `revealed` straight away for a short, already-on-screen preview
 // like the hub's), then stays put. ──────────────────────────────────────────
 export function DealTile({ item, revealed, onPress }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const styles = getCollectionStyles(colors)
   const opacity = useRef(new Animated.Value(0)).current
   const scale = useRef(new Animated.Value(0.92)).current
@@ -156,7 +156,7 @@ export function DealTile({ item, revealed, onPress }) {
           <Text style={styles.tileBrand} numberOfLines={1}>{item.partner.brand}</Text>
           <Text style={styles.tileProduct} numberOfLines={2}>{item.productLabel}</Text>
           {item.partner.deal ? (
-            <Text style={styles.tileDeal} numberOfLines={1}>{item.partner.deal}</Text>
+            <Text style={[styles.tileDeal, isDark && { color: colors.success }]} numberOfLines={1}>{item.partner.deal}</Text>
           ) : (
             <Text style={styles.tileCategory} numberOfLines={1}>{item.partner.category}</Text>
           )}

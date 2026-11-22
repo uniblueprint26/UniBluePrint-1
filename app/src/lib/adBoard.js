@@ -22,6 +22,7 @@ import { supabase } from './supabase'
 import { UBP_CARDS, UBP_PLACEMENTS, EXAMPLE_TUTORS, EXAMPLE_LISTINGS, PLACEMENT_URL } from '../constants/adBoardContent'
 import { isFoundationEnabledNow } from '../hooks/useAppFlags'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { getPartnerDeals, isListedPartner } from './partnerDeals'
 
 export const AD_BOARD_KINDS = ['deals', 'jobs', 'tutors', 'marketplace']
 
@@ -147,8 +148,9 @@ export function isRealDeal(row) {
 
 /** How many real deals are live. Same rule as the Deals basket. */
 export async function fetchRealDealCount() {
-  const rows = await read('deals', '*, partners(*)', q => q.eq('active', true))
-  return rows.filter(isRealDeal).length
+  let rows = []
+  try { rows = await read('deals', '*, partners(*)', q => q.eq('active', true)) } catch { /* roster only */ }
+  return getPartnerDeals().length + rows.filter(r => isRealDeal(r) && !isListedPartner(r.partners)).length
 }
 
 function fromDeal(row) {
@@ -177,6 +179,34 @@ function fromDeal(row) {
       row.valid_until ? { label: 'Valid until', value: shortDate(row.valid_until) } : null,
     ]),
   })
+}
+
+// A real partner deal from the roster. The text is shown as the partner wrote it.
+function fromPartnerDeal(d) {
+  return {
+    key: d.key,
+    id: d.key,
+    source: 'partner_roster',
+    createdAt: null,
+    origin: null,
+    reviewed: false,
+    ownerId: null,
+    posterName: null,
+    raw: d,
+    meta: compact([d.county && !String(d.category || '').includes(d.county) ? `${d.category || 'Partner'} · ${d.county}` : d.category]),
+    details: [],
+    price: null,
+    kind: 'deals',
+    visual: 'deal',
+    typeLabel: 'Lifestyle',
+    title: d.text,
+    from: d.brand,
+    code: d.code,
+    partner: { name: d.brand, logoUrl: null, logo: d.logo, initials: d.initials, initBg: d.initBg, slug: d.partnerId },
+    partnerId: d.partnerId,
+    hint: 'View partner page',
+    action: 'partnerPage',
+  }
 }
 
 function fromMarketplaceListing(row) {
@@ -260,7 +290,15 @@ async function read(table, select, filter) {
 
 const SOURCES = {
   // partners(*) so a pillar column on partners is picked up if it exists.
-  deals: async () => (await read('deals', '*, partners(*)', q => q.eq('active', true))).map(fromDeal).filter(Boolean),
+  // Real partner deals first (from the partner roster), then any real database
+  // rows for partners that are not already listed, so nothing shows twice.
+  deals: async () => {
+    const own = getPartnerDeals().map(fromPartnerDeal)
+    let rows = []
+    try { rows = await read('deals', '*, partners(*)', q => q.eq('active', true)) } catch { /* the roster still shows */ }
+    const extra = rows.filter(r => !isListedPartner(r.partners)).map(fromDeal).filter(Boolean)
+    return [...own, ...extra]
+  },
   listings: async () => (await read('marketplace_listings', '*', q => q.eq('status', 'active'))).map(fromMarketplaceListing),
   skillsOther: async () => (await read('marketplace_skills', '*', q => q.eq('status', 'active')))
     .filter(r => r.category !== TUTORING_CATEGORY).map(r => fromSkill(r, 'marketplace')),
@@ -289,7 +327,8 @@ export async function fetchListings(kind) {
   const results = await Promise.allSettled(names.map(n => SOURCES[n]()))
   const ok = results.filter(r => r.status === 'fulfilled')
   const items = ok.flatMap(r => r.value)
-  items.sort((a, b) => {
+  // Deals keep their own order: codes, discounts, then prices.
+  if (kind !== 'deals') items.sort((a, b) => {
     return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
   })
   return { items, failed: names.length > 0 && ok.length === 0 }

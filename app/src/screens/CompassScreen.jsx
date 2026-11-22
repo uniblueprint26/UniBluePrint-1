@@ -38,7 +38,7 @@ const IS_IOS = NATIVE_NEUTRAL_BILLING
 // Prices sourced from the live site, confirm before each release.
 
 const BUNDLE = {
-  name:     'Senior Cycle Bundle',
+  name:     'Pathway Bundle',
   price:    '€49.99',
   includes: 'Course Compass · PLC Compass · Apprenticeship Compass · Learning Style Test · Career Investigations',
   url:      'https://coursecompass.ie',
@@ -86,8 +86,8 @@ const TOOLS = [
     label:    'SUBJECT INTEREST TEST',
     Icon:     BookOpen,
     color:    '#FFF7ED',
-    headline: 'Choose Leaving Cert subjects you will actually enjoy',
-    sub:      'A quick assessment that identifies which Leaving Cert subjects align with your genuine interests and natural strengths.',
+    headline: 'Find the subjects that suit you',
+    sub:      'A quick assessment that shows which subjects match your interests and strengths. Useful if you are repeating the Leaving Cert, starting as a mature student or returning to education.',
     url:      'https://coursecompass.ie/subject-interest-test',
   },
   {
@@ -114,7 +114,7 @@ const TOOLS = [
     Icon:     FileText,
     color:    '#F5F0E8',
     headline: 'Build a CV that clears ATS filters and gets noticed',
-    sub:      'Guided CV creation with real-time ATS scoring, designed specifically for school leavers and early-career applicants.',
+    sub:      'Guided CV creation with real-time ATS scoring, built for first time applicants, career changers and anyone returning to work or study.',
     url:      'https://coursecompass.ie/cv-builder-test',
   },
   {
@@ -430,6 +430,16 @@ export default function CompassScreen({ navigation, route }) {
               Pricing and tool availability set by CourseCompass. All tools open on coursecompass.ie in your device browser.
             </Text>
           </View>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={s.sampleLink}
+            onPress={() => navigation?.navigate('ParentInfo')}
+            accessibilityRole="link"
+          >
+            <Text style={s.sampleLinkText}>Parent or guardian? Read the For parents page</Text>
+            <ChevronRight size={13} color={colors.textPrimary} />
+          </TouchableOpacity>
 
         </View>
       </ScrollView>
