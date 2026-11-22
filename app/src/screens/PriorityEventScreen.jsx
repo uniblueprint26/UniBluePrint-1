@@ -8,8 +8,9 @@ import {
 
 import { priorityColors as pc, priorityFonts as pf, priorityGenres } from '../constants/priorityTheme'
 import {
-  PRIORITY_URLS, fetchPriorityEvent, formatEventDate, formatEventTime, formatPriceCents,
+  PRIORITY_URLS, PRIORITY_TERMS_SHORT, PRIORITY_TERMS_CONTACT, fetchPriorityEvent, formatEventDate, formatEventTime, formatPriceCents,
 } from '../constants/priorityEvents'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 
 const GENRE_ICON = { house: Disc3, afrobeats: Music2, folk: Guitar }
@@ -169,13 +170,30 @@ export default function PriorityEventScreen({ route, navigation }) {
                         <Text style={styles.tierLabel}>{t.label}</Text>
                         {!!note && <Text style={styles.tierNote}>{note}</Text>}
                       </View>
-                      <Text style={styles.tierPrice}>{formatPriceCents(t.price_cents)}</Text>
+                      {!NATIVE_NEUTRAL_BILLING && <Text style={styles.tierPrice}>{formatPriceCents(t.price_cents)}</Text>}
                     </View>
                   )
                 })}
               </View>
             </>
           )}
+
+          <Text style={styles.sectionLabel}>TERMS OF SALE</Text>
+          <View style={styles.termsCard}>
+            {PRIORITY_TERMS_SHORT.map(line => (
+              <Text key={line} style={styles.termsLine}>{line}</Text>
+            ))}
+            <Text style={styles.termsLine}>{PRIORITY_TERMS_CONTACT}</Text>
+            <TouchableOpacity
+              onPress={() => Linking.openURL(PRIORITY_URLS.terms).catch(() => {})}
+              accessibilityRole="link"
+              accessibilityLabel="Read the full terms of sale on the website"
+              style={styles.termsLink}
+            >
+              <Text style={styles.termsLinkText}>Read the full terms of sale</Text>
+              <ExternalLink size={13} color={pc.gold} strokeWidth={2.2} />
+            </TouchableOpacity>
+          </View>
 
           <View style={{ height: 150 }} />
         </View>
@@ -194,7 +212,7 @@ export default function PriorityEventScreen({ route, navigation }) {
               <Text style={styles.footerCtaText}>Get tickets</Text>
               <ExternalLink size={16} color={pc.bg} strokeWidth={2.4} />
             </TouchableOpacity>
-            <Text style={styles.footerHint}>Opens uniblueprint.ie. You buy tickets on the website.</Text>
+            <Text style={styles.footerHint}>Opens uniblueprint.ie. 18 plus. No refunds unless the event is cancelled.</Text>
           </>
         ) : (
           <Text style={styles.footerClosed}>{ended ? 'This event has ended.' : 'This event is sold out.'}</Text>
@@ -247,6 +265,13 @@ const styles = StyleSheet.create({
   },
   tierLabel: { fontFamily: pf.sansSemiBold, fontSize: 14.5, color: pc.textPrimary },
   tierNote: { fontFamily: pf.sans, fontSize: 12, color: pc.textMuted, marginTop: 3 },
+  termsCard: {
+    padding: 16, borderRadius: 14, gap: 8,
+    backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border,
+  },
+  termsLine: { fontFamily: pf.sans, fontSize: 13.5, lineHeight: 20, color: pc.textMuted },
+  termsLink: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, minHeight: 32 },
+  termsLinkText: { fontFamily: pf.sansSemiBold, fontSize: 13.5, color: pc.gold },
   tierPrice: { fontFamily: pf.sansBold, fontSize: 15, color: pc.textPrimary },
 
   footer: {

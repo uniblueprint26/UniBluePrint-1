@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import {
@@ -8,9 +8,10 @@ import {
 
 import { priorityColors as pc, priorityFonts as pf, priorityGenres } from '../constants/priorityTheme'
 import {
-  PRIORITY_FILTERS, fetchPriorityEvents, formatEventDate, formatPriceCents, cheapestTierCents,
+  PRIORITY_FILTERS, PRIORITY_ANNOUNCED, PRIORITY_URLS, fetchPriorityEvents, formatEventDate, formatPriceCents, cheapestTierCents,
 } from '../constants/priorityEvents'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 // ─── Priority, UniBlueprint's events arm ───────────────────────────────────
 // Real events from the database (priority_events). When there are none on sale
@@ -69,7 +70,7 @@ function EventCard({ event, onPress }) {
         </View>
         <View style={styles.cardFooterRow}>
           <Text style={styles.cardPrice}>
-            {from != null && !soldOut ? `Tickets from ${formatPriceCents(from)}` : ' '}
+            {from != null && !soldOut && !NATIVE_NEUTRAL_BILLING ? `Tickets from ${formatPriceCents(from)}` : ' '}
           </Text>
           <View style={styles.cardCta}>
             <Text style={styles.cardCtaText}>View event</Text>
@@ -146,7 +147,7 @@ export default function PrioritiesScreen({ navigation }) {
         <Text style={styles.brandEyebrow}>UNIBLUEPRINT PRESENTS</Text>
         <Text style={styles.brandTitle}>Priority</Text>
         <Text style={styles.brandSub}>
-          Nights out across Ireland. All events are 18+. You buy tickets on the UniBlueprint website.
+          Nights out across Ireland. All events are 18+, with no booking fee. You buy tickets on the UniBlueprint website.
         </Text>
 
         {allEvents === null ? (
@@ -207,6 +208,26 @@ export default function PrioritiesScreen({ navigation }) {
           </>
         )}
 
+        <Text style={styles.announcedLabel}>ANNOUNCED</Text>
+        <Text style={styles.announcedSub}>Dates and venues are still to be confirmed. Tickets are not on sale yet.</Text>
+        <View style={{ gap: 12, marginTop: 14 }}>
+          {PRIORITY_ANNOUNCED.map(a => (
+            <View key={a.id} style={styles.announcedCard}>
+              <Text style={styles.announcedTitle}>{a.title}</Text>
+              <Text style={styles.announcedMeta}>{a.where}</Text>
+              <Text style={styles.announcedMeta}>Date ??  Venue ??</Text>
+            </View>
+          ))}
+        </View>
+
+        <TouchableOpacity
+          onPress={() => Linking.openURL(PRIORITY_URLS.terms).catch(() => {})}
+          accessibilityRole="link"
+          style={styles.termsLinkRow}
+        >
+          <Text style={styles.termsLinkText}>Terms of sale for Priority tickets</Text>
+        </TouchableOpacity>
+
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>
@@ -233,6 +254,15 @@ const styles = StyleSheet.create({
   brandTitle: { fontFamily: pf.serif, fontSize: 40, color: pc.textPrimary, marginTop: 4 },
   brandSub: { fontFamily: pf.sans, fontSize: 14, color: pc.textMuted, marginTop: 8, lineHeight: 21 },
 
+  announcedLabel: { fontFamily: pf.sansBold, fontSize: 11, letterSpacing: 2, color: pc.gold, marginTop: 36 },
+  announcedSub: { fontFamily: pf.sans, fontSize: 13.5, lineHeight: 20, color: pc.textMuted, marginTop: 6 },
+  announcedCard: {
+    padding: 18, borderRadius: 16, backgroundColor: pc.card, borderWidth: 1, borderColor: pc.border,
+  },
+  announcedTitle: { fontFamily: pf.serif, fontSize: 20, color: pc.textPrimary },
+  announcedMeta: { fontFamily: pf.sans, fontSize: 13.5, color: pc.textMuted, marginTop: 4 },
+  termsLinkRow: { marginTop: 24, minHeight: 36, justifyContent: 'center' },
+  termsLinkText: { fontFamily: pf.sansSemiBold, fontSize: 13.5, color: pc.gold },
   centerBlock: { paddingVertical: 56, alignItems: 'center' },
   emptyCard: {
     marginTop: 28, padding: 28, borderRadius: 18, alignItems: 'center',

@@ -139,3 +139,22 @@ A proper scanning screen is the next job. These two functions are what it will c
 - If a payment arrives after the hold expired, the order is still honoured because the money was taken. That can very rarely mean one extra ticket over capacity. Check the dashboard if a night is nearly full.
 - The success page waits up to about a minute for the webhook to create tickets. If the webhook is not set up, no tickets appear. Test this first.
 - The app has no QR library, so the QR code is on the website. If you want it in the app, add `react-native-qrcode-svg` (it uses `react-native-svg`, already installed).
+
+## Founder decisions made on 22 November
+
+- No booking fee. The customer pays the ticket price only.
+- Refunds only if the event is cancelled. This is shown before payment, on `/priority/terms`, in the Terms of Service and the Refund Policy, and in the app event screen.
+- Priority Events takes the money and handles its own VAT. UBP is only the ticket shop.
+- New optional column `priority_events.stripe_account_id` (migration `20261121200000_priority_stripe_connect.sql`, run after the ticketing migration). When set, checkout is a destination charge to that Stripe connected account with no application fee. When empty, money lands in the UBP Stripe account as before. The column is hidden from the public.
+- Contact for tickets is desmond@uniblueprint.ie.
+- The app hides ticket prices on iOS and Android (`NATIVE_NEUTRAL_BILLING`). Tickets link out to the website.
+- Announced, not on sale: New Year's Refresher (Galway, Sligo, Dublin, Limerick) and Black Tie (Sligo), dates and venues shown as ??. No events are seeded. Real events come from `priority_events` only.
+
+### Stripe Connect steps for the founder
+
+1. In the Stripe dashboard, set up Connect on the UBP account (platform profile).
+2. Priority Events creates or links a connected account (Express is simplest) and finishes onboarding until charges and payouts are enabled.
+3. Copy the connected account id (starts `acct_`) into `priority_events.stripe_account_id` for each Priority event.
+4. Agree VAT and settlement terms with Priority Events and your accountant.
+5. For a cancelled event, refund in the Stripe dashboard and tick "Reverse transfer" so the money comes back from the connected account. A full refund cancels the tickets automatically.
+6. Test with one cheap ticket before the first real sale.

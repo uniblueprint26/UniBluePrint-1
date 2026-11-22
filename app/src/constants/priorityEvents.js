@@ -10,14 +10,32 @@
 // constants/platformPolicy.js: tickets are not a digital good, so they are not
 // hidden on iOS or Android. They are still never bought in the app.
 
-import { SITE_URL } from './site'
+import { SITE_URL, SUPPORT_EMAIL } from './site'
 import { supabase } from '../lib/supabase'
 
 export const PRIORITY_URLS = {
   events: `${SITE_URL}/priority`,
   tickets: `${SITE_URL}/priority/tickets`,
+  terms: `${SITE_URL}/priority/terms`,
   event: slug => `${SITE_URL}/priority/${encodeURIComponent(slug)}`,
 }
+
+// Terms of sale for Priority tickets. Same wording as the website
+// (src/data/priorityTerms.js). Keep both in step. Plain words, no dashes.
+export const PRIORITY_TERMS_SHORT = [
+  '18 plus only. You pay the ticket price, with no booking fee.',
+  'No refunds if you change your mind. If the event is cancelled, you are refunded.',
+  'Your ticket is issued after payment is confirmed.',
+  'Priority Events organises the event. UniBlueprint is only the ticket shop.',
+]
+export const PRIORITY_TERMS_CONTACT = `Questions about a ticket? Email ${SUPPORT_EMAIL}.`
+
+// Announced by Priority. No dates or venues are set yet, so they show ??.
+// These are not events on sale. Real events come from the database only.
+export const PRIORITY_ANNOUNCED = [
+  { id: 'refresher', title: "New Year's Refresher", where: 'Galway, Sligo, Dublin and Limerick' },
+  { id: 'black-tie', title: 'Black Tie', where: 'Sligo' },
+]
 
 // Genre filter chips. These match the genres Priority runs. An event with a
 // genre not listed here still shows under All.
