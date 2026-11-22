@@ -20,13 +20,14 @@ export const UNIVERSITIES = [
   'Dundalk Institute of Technology', 'Other',
 ]
 
-export const LC_YEAR_GROUPS = ['Junior Cycle', '3rd Year', '4th Year (TY)', '5th Year', '6th Year']
+// Stored under the year_group key. Options are for adult learners: mature students, repeat sitters, returning to education.
+export const LC_YEAR_GROUPS = ['Mature student', 'Repeat sitter', 'Returning to education', 'Any adult learner']
 const RATING_5 = ['1, Very low', '2, Low', '3, Moderate', '4, High', '5, Very high']
 
 // ─── Category groups (for landing page display) ────────────────────────────────
 
 export const CATEGORY_GROUPS = [
-  { id: 'leaving-cert', label: 'Leaving Cert Hub' },
+  { id: 'leaving-cert', label: 'Leaving Cert for Adult Learners' },
   { id: 'notes-course', label: 'Shared Notes & Course Connect' },
   { id: 'campus', label: 'Campus Life' },
   { id: 'careers', label: 'Careers & Community' },
@@ -41,7 +42,7 @@ export const CONTRIBUTOR_CATEGORIES = [
     id: 'leaving_cert_notes',
     group: 'leaving-cert',
     icon: BookOpen,
-    label: 'Leaving Cert Notes',
+    label: 'Leaving Cert Notes (adult learners)',
     description: 'Subject notes, chapter summaries, revision guides, essay plans, sample answers, flashcards and more.',
     fields: [
       { key: 'subject', label: 'Subject', type: 'select', options: LC_SUBJECTS, required: true },
@@ -49,14 +50,14 @@ export const CONTRIBUTOR_CATEGORIES = [
         'Subject notes', 'Chapter summary', 'Revision guide', 'Essay plan', 'Sample answer',
         'Exam technique', 'Study schedule', 'Flashcards', 'Key quotes', 'Formula sheet',
       ] },
-      { key: 'year_group', label: 'Recommended year group', type: 'select', options: LC_YEAR_GROUPS },
+      { key: 'year_group', label: 'Best suited to', type: 'select', options: LC_YEAR_GROUPS },
     ],
   },
   {
     id: 'leaving_cert_resource',
     group: 'leaving-cert',
     icon: Link2,
-    label: 'Leaving Cert Resources',
+    label: 'Leaving Cert Resources (adult learners)',
     description: 'Websites, YouTube channels, study apps, AI tools, revision platforms and past paper resources.',
     fields: [
       { key: 'subject', label: 'Subject', type: 'select', options: LC_SUBJECTS, required: true },
@@ -66,14 +67,14 @@ export const CONTRIBUTOR_CATEGORIES = [
       ] },
       { key: 'what_used_for', label: 'What did you use it for?', type: 'textarea', required: true },
       { key: 'why_helped', label: 'Why did it help?', type: 'textarea', required: true },
-      { key: 'year_group', label: 'Recommended year group', type: 'select', options: LC_YEAR_GROUPS },
+      { key: 'year_group', label: 'Best suited to', type: 'select', options: LC_YEAR_GROUPS },
     ],
   },
   {
     id: 'leaving_cert_subject_review',
     group: 'leaving-cert',
     icon: MessageSquareQuote,
-    label: 'Leaving Cert Subject Reviews',
+    label: 'Leaving Cert Subject Reviews (adult learners)',
     description: 'Difficulty, workload, best revision methods and exam preparation advice for a subject.',
     fields: [
       { key: 'subject', label: 'Subject', type: 'select', options: LC_SUBJECTS, required: true },
@@ -88,8 +89,8 @@ export const CONTRIBUTOR_CATEGORIES = [
     id: 'leaving_cert_experience',
     group: 'leaving-cert',
     icon: Compass,
-    label: 'Leaving Cert Experiences',
-    description: 'How you prepared, study routines, mistakes to avoid, and CAO or transition advice.',
+    label: 'Leaving Cert Experiences (adult learners)',
+    description: 'How you prepared as a mature student or repeat sitter, study routines, mistakes to avoid, and CAO or transition advice.',
     fields: [
       { key: 'how_prepared', label: 'How did you prepare?', type: 'textarea', required: true },
       { key: 'study_routine', label: 'Your study routine', type: 'textarea' },

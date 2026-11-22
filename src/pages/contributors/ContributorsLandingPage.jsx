@@ -91,7 +91,7 @@ const FAQS = [
   },
   {
     q: 'How do I contribute?',
-    a: 'Sign up, then head to the Upload Centre in your Contributor Dashboard. Choose a category, from Leaving Cert Notes to Course Reviews to Careers & Opportunities, and fill in the structured form.',
+    a: 'Sign up, then head to the Upload Centre in your Contributor Dashboard. Choose a category, from Leaving Cert Notes (adult learners) to Course Reviews to Careers & Opportunities, and fill in the structured form.',
   },
   {
     q: 'How is the €100 winner chosen?',
@@ -99,7 +99,7 @@ const FAQS = [
   },
   {
     q: 'What content is accepted?',
-    a: 'Notes, resources, reviews, experiences, events, opportunities and more, across the Leaving Cert Hub, Course Connect, Campus Life, and Careers categories. Every submission is reviewed before it goes live.',
+    a: 'Notes, resources, reviews, experiences, events, opportunities and more, across Leaving Cert for Adult Learners, Course Connect, Campus Life, and Careers categories. Every submission is reviewed before it goes live.',
   },
   {
     q: 'Can I upload anonymously?',
@@ -370,7 +370,7 @@ export default function ContributorsLandingPage() {
               Content categories
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B7280', margin: '12px auto 0', maxWidth: '600px', lineHeight: 1.7 }}>
-              From Leaving Cert revision to career opportunities, every category supports a different stage of the student journey.
+              From Leaving Cert revision for adult learners to career opportunities, every category supports a different stage of the student journey.
             </p>
           </div>
 
