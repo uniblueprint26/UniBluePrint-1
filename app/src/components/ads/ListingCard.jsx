@@ -1,7 +1,42 @@
+import { useState, useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
+import * as Clipboard from 'expo-clipboard'
+import { Copy, Check } from 'lucide-react-native'
 import { fonts, shadows } from '../../constants/theme'
 import { useAdTokens } from './adTheme'
 import { UbpTag, QuietTag, ExampleTag, Chip, ReviewedMark } from './OriginTag'
+
+// A deal code with a Copy button. Used by partner deals.
+function CodeRow({ code, t }) {
+  const { colors } = t
+  const [copied, setCopied] = useState(false)
+  const timer = useRef(null)
+  useEffect(() => () => clearTimeout(timer.current), [])
+  async function copy() {
+    try { await Clipboard.setStringAsync(code) } catch { return }
+    setCopied(true)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setCopied(false), 1800)
+  }
+  return (
+    <View style={s.codeRow}>
+      <View style={[s.codeBox, { backgroundColor: colors.tabFill, borderColor: colors.border }]}>
+        <Text style={[s.codeLabel, { color: colors.textSecondary }]}>Code</Text>
+        <Text style={[s.codeText, { color: colors.textPrimary }]} numberOfLines={1} selectable>{code}</Text>
+      </View>
+      <TouchableOpacity
+        onPress={copy}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={copied ? 'Code copied' : `Copy code ${code}`}
+        style={[s.copyBtn, { backgroundColor: t.accent }]}
+      >
+        {copied ? <Check size={14} color={t.accentInk} strokeWidth={2.6} /> : <Copy size={14} color={t.accentInk} strokeWidth={2.2} />}
+        <Text style={[s.copyText, { color: t.accentInk }]}>{copied ? 'Copied' : 'Copy'}</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
 
 // One listing: type tile, a type chip with who posted it, title, "From ..." and
 // one meta line, price on the right. Calm, one line each.
@@ -19,14 +54,20 @@ export default function ListingCard({ item, onPress }) {
   const v = t.visual(item.visual)
   const TileIcon = v.Icon
   const logo = item.partner?.logoUrl
+  const logoSource = item.partner?.logo || null
+  const monogram = !logo && !logoSource && item.partner?.initials ? item.partner : null
   const tappable = !item.example && !!onPress
 
   const body = (
     <>
-      <View style={[s.tile, { backgroundColor: v.bg }]}>
-        {logo
-          ? <Image source={{ uri: logo }} style={s.logo} resizeMode="contain" />
-          : <TileIcon size={24} color={v.fg} strokeWidth={1.8} />}
+      <View style={[s.tile, { backgroundColor: logoSource ? '#FFFFFF' : monogram ? monogram.initBg : v.bg }]}>
+        {logoSource
+          ? <Image source={typeof logoSource === 'string' ? { uri: logoSource } : logoSource} style={s.logoFill} resizeMode="contain" />
+          : logo
+            ? <Image source={{ uri: logo }} style={s.logo} resizeMode="contain" />
+            : monogram
+              ? <Text style={s.monogram}>{monogram.initials}</Text>
+              : <TileIcon size={24} color={v.fg} strokeWidth={1.8} />}
       </View>
 
       <View style={s.body}>
@@ -48,6 +89,7 @@ export default function ListingCard({ item, onPress }) {
         {item.meta?.length > 0 && (
           <Text style={[s.meta, { color: colors.textSecondary }]} numberOfLines={2}>{item.meta.join(' · ')}</Text>
         )}
+        {!!item.code && <CodeRow code={item.code} t={t} />}
         {!!item.exampleLine && <Text style={[s.exampleLine, { color: colors.textSecondary }]}>{item.exampleLine}</Text>}
         {!!item.hint && <Text style={[s.hint, { color: t.accentText }]}>{item.hint}</Text>}
       </View>
@@ -85,6 +127,14 @@ const s = StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, padding: 16, borderRadius: 20 },
   tile: { width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   logo: { width: 36, height: 36 },
+  logoFill: { width: 46, height: 46 },
+  monogram: { fontFamily: fonts.sansBold, fontSize: 15, color: '#FFFFFF', letterSpacing: 0.4 },
+  codeRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  codeBox: { flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, height: 34, borderRadius: 10, borderWidth: StyleSheet.hairlineWidth },
+  codeLabel: { fontFamily: fonts.sansMedium, fontSize: 11.5 },
+  codeText: { flexShrink: 1, fontFamily: fonts.sansSemiBold, fontSize: 13, letterSpacing: 0.3 },
+  copyBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, height: 34, paddingHorizontal: 12, borderRadius: 17 },
+  copyText: { fontFamily: fonts.sansSemiBold, fontSize: 12.5 },
   body: { flex: 1, minWidth: 0 },
   topLine: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 8, rowGap: 4 },
   type: { fontFamily: fonts.sansSemiBold, fontSize: 12 },
