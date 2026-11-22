@@ -84,6 +84,7 @@ export function formatPrice(cents) {
 
 // 'on_sale' | 'upcoming' | 'closed' | 'sold_out' for one tier.
 export function tierState(tier, event, remaining, now = new Date()) {
+  if (event.status === 'cancelled') return 'closed'
   if (event.status === 'sold_out' || (remaining != null && remaining <= 0)) return 'sold_out'
   if (tier.sale_starts_at && new Date(tier.sale_starts_at) > now) return 'upcoming'
   if (tier.sale_ends_at && new Date(tier.sale_ends_at) <= now) return 'closed'
@@ -95,7 +96,7 @@ export async function fetchPublicEvents() {
   const { data, error } = await supabase
     .from('priority_events')
     .select('id, slug, title, genre, city, venue, address, starts_at, doors_at, age_min, blurb, lineup, image_url, status, tiers:priority_ticket_tiers(id, label, price_cents, sale_starts_at, sale_ends_at, sort)')
-    .in('status', ['on_sale', 'sold_out'])
+    .in('status', ['on_sale', 'sold_out', 'cancelled'])
     .gt('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
   if (error) throw error

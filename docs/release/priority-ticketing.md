@@ -56,6 +56,7 @@ Dashboard steps:
 3. Open `priority_ticket_tiers`, add one row per ticket type, with `event_id` set to the new event's `id`.
 4. Check the event on `/priority/<slug>` as staff. Then change `status` to `on_sale`. It appears on the website and the app straight away.
 5. When all tickets are gone, set `status` to `sold_out`. After the night, set it to `ended`.
+6. If an event is cancelled, set `status` to `cancelled` (needs migration `20261121500000_priority_event_cancelled_status.sql`). Buying closes and the website and app show "Cancelled, refunds issued" with the refund terms. Then refund each order in Stripe. A full refund voids the tickets through the `charge.refunded` webhook.
 
 Notes:
 

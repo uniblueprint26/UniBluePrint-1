@@ -9,7 +9,7 @@ import {
   fetchEventBySlug, fetchRemaining, startPriorityCheckout,
   formatEventDate, formatTime, formatPrice, genreLabel, tierState,
 } from '../../lib/priority'
-import { PRIORITY_TERMS_SHORT } from '../../data/priorityTerms'
+import { PRIORITY_TERMS_SHORT, PRIORITY_CANCELLED_TITLE, PRIORITY_CANCELLED_TEXT } from '../../data/priorityTerms'
 
 const label = { fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', color: PC.silver, margin: '0 0 12px' }
 
@@ -90,8 +90,9 @@ export default function PriorityEventPage() {
   const qty = Math.min(Math.max(quantity, 1), Math.max(maxForTier, 1))
   const total = tier ? tier.price_cents * qty : 0
   const ageMin = Math.max(event?.age_min || 18, 18)
+  const cancelled = event?.status === 'cancelled'
   const ended = event?.status === 'ended' || (event && new Date(event.starts_at) <= now)
-  const canBuy = !!event && event.status === 'on_sale' && !ended && !!tier
+  const canBuy = !!event && event.status === 'on_sale' && !cancelled && !ended && !!tier
 
   async function handleBuy() {
     setError('')
@@ -153,7 +154,8 @@ export default function PriorityEventPage() {
               <StatusPill>{genreLabel(event.genre)}</StatusPill>
               <StatusPill>{ageMin}+ only</StatusPill>
               {event.status === 'sold_out' && <StatusPill tone="bad">Sold out</StatusPill>}
-              {ended && <StatusPill tone="bad">Ended</StatusPill>}
+              {cancelled && <StatusPill tone="bad">Cancelled</StatusPill>}
+              {ended && !cancelled && <StatusPill tone="bad">Ended</StatusPill>}
             </div>
             <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 900, fontSize: 'clamp(34px, 6vw, 52px)', lineHeight: 1.1, margin: 0 }}>
               {event.title}
@@ -185,7 +187,12 @@ export default function PriorityEventPage() {
 
           {/* Buy panel */}
           <aside style={{ flex: '1 1 340px', minWidth: 0, maxWidth: '460px', padding: '28px', borderRadius: '20px', background: PC.surface, border: `1px solid ${PC.borderStrong}` }}>
-            {ended ? (
+            {cancelled ? (
+              <Notice tone="bad">
+                <strong style={{ display: 'block', marginBottom: '6px' }}>{PRIORITY_CANCELLED_TITLE}</strong>
+                {PRIORITY_CANCELLED_TEXT}
+              </Notice>
+            ) : ended ? (
               <Notice>This event has ended.</Notice>
             ) : event.status === 'sold_out' ? (
               <Notice>This event is sold out.</Notice>

@@ -28,6 +28,11 @@ export const PRIORITY_TERMS = [
   },
 ]
 
+// Shown instead of the Buy panel when an event is cancelled.
+export const PRIORITY_CANCELLED_TITLE = 'Cancelled, refunds issued'
+export const PRIORITY_CANCELLED_TEXT =
+  'This event has been cancelled. Ticket buying is closed. If you had a ticket, you get a refund of the ticket price to the card you paid with. Refunds are issued by Priority Events and can take a few days to show.'
+
 // The lines shown right above the Buy button, before anyone pays.
 export const PRIORITY_TERMS_SHORT = [
   '18 plus only. You pay the ticket price, with no booking fee.',

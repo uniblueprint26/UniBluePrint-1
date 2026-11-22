@@ -8,7 +8,7 @@ import {
 
 import { priorityColors as pc, priorityFonts as pf, priorityGenres } from '../constants/priorityTheme'
 import {
-  PRIORITY_URLS, PRIORITY_TERMS_SHORT, PRIORITY_TERMS_CONTACT, fetchPriorityEvent, formatEventDate, formatEventTime, formatPriceCents,
+  PRIORITY_URLS, PRIORITY_TERMS_SHORT, PRIORITY_TERMS_CONTACT, PRIORITY_CANCELLED_TITLE, PRIORITY_CANCELLED_TEXT, fetchPriorityEvent, formatEventDate, formatEventTime, formatPriceCents,
 } from '../constants/priorityEvents'
 import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
@@ -98,7 +98,8 @@ export default function PriorityEventScreen({ route, navigation }) {
   const ageMin = Math.max(event.age_min || 18, 18)
   const ended = event.status === 'ended' || new Date(event.starts_at) <= now
   const soldOut = event.status === 'sold_out'
-  const canGet = !ended && !soldOut
+  const cancelled = event.status === 'cancelled'
+  const canGet = !ended && !soldOut && !cancelled
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -215,7 +216,14 @@ export default function PriorityEventScreen({ route, navigation }) {
             <Text style={styles.footerHint}>Opens uniblueprint.ie. 18 plus. No refunds unless the event is cancelled.</Text>
           </>
         ) : (
-          <Text style={styles.footerClosed}>{ended ? 'This event has ended.' : 'This event is sold out.'}</Text>
+          cancelled ? (
+            <>
+              <Text style={styles.footerClosed}>{PRIORITY_CANCELLED_TITLE}</Text>
+              <Text style={styles.footerHint}>{PRIORITY_CANCELLED_TEXT}</Text>
+            </>
+          ) : (
+            <Text style={styles.footerClosed}>{ended ? 'This event has ended.' : 'This event is sold out.'}</Text>
+          )
         )}
       </View>
     </View>

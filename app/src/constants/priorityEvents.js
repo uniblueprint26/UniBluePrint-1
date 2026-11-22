@@ -28,6 +28,9 @@ export const PRIORITY_TERMS_SHORT = [
   'Your ticket is issued after payment is confirmed.',
   'Priority Events organises the event. UniBlueprint is only the ticket shop.',
 ]
+export const PRIORITY_CANCELLED_TITLE = 'Cancelled, refunds issued'
+export const PRIORITY_CANCELLED_TEXT =
+  'This event has been cancelled. Ticket buying is closed. If you had a ticket, you get a refund of the ticket price to the card you paid with. Refunds can take a few days to show.'
 export const PRIORITY_TERMS_CONTACT = `Questions about a ticket? Email ${SUPPORT_EMAIL}.`
 
 // Announced by Priority. No dates or venues are set yet, so they show ??.
@@ -55,7 +58,7 @@ export async function fetchPriorityEvents() {
   const { data, error } = await supabase
     .from('priority_events')
     .select(`${EVENT_COLUMNS}, tiers:priority_ticket_tiers(id, label, price_cents, sale_starts_at, sale_ends_at, sort)`)
-    .in('status', ['on_sale', 'sold_out'])
+    .in('status', ['on_sale', 'sold_out', 'cancelled'])
     .gt('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
   if (error) throw error

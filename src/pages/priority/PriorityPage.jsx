@@ -13,6 +13,7 @@ function EventCard({ event }) {
   const prices = (event.tiers || []).map(t => t.price_cents)
   const from = prices.length ? Math.min(...prices) : null
   const soldOut = event.status === 'sold_out'
+  const cancelled = event.status === 'cancelled'
 
   return (
     <Link
@@ -31,9 +32,9 @@ function EventCard({ event }) {
         <div style={{ position: 'absolute', left: '16px', top: '16px' }}>
           <StatusPill>{genreLabel(event.genre)}</StatusPill>
         </div>
-        {soldOut && (
+        {(soldOut || cancelled) && (
           <div style={{ position: 'absolute', right: '16px', top: '16px' }}>
-            <StatusPill tone="bad">Sold out</StatusPill>
+            <StatusPill tone="bad">{cancelled ? 'Cancelled, refunds issued' : 'Sold out'}</StatusPill>
           </div>
         )}
       </div>

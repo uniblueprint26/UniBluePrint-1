@@ -30,6 +30,7 @@ function EventCard({ event, onPress }) {
   const GenreIcon = GENRE_ICON[String(event.genre || '').toLowerCase()] || Sparkles
   const from = cheapestTierCents(event)
   const soldOut = event.status === 'sold_out'
+  const cancelled = event.status === 'cancelled'
   const art = genre
     ? [shade(genre.color, -22), genre.color, shade(genre.color, 20)]
     : [pc.goldDeep, pc.gold, pc.goldLight]
@@ -51,8 +52,8 @@ function EventCard({ event, onPress }) {
               {(genre?.tag || String(event.genre || '').toUpperCase())}
             </Text>
           </View>
-          {soldOut && (
-            <View style={styles.soldPill}><Text style={styles.soldPillText}>SOLD OUT</Text></View>
+          {(soldOut || cancelled) && (
+            <View style={styles.soldPill}><Text style={styles.soldPillText}>{cancelled ? 'CANCELLED, REFUNDS ISSUED' : 'SOLD OUT'}</Text></View>
           )}
         </View>
         <GenreIcon size={46} color="rgba(255,255,255,0.22)" strokeWidth={1.3} style={styles.cardArtWatermark} />
