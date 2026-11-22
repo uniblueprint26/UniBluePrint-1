@@ -65,7 +65,7 @@ create table if not exists public.busy_spots (
   institution text not null,
   name text not null check (char_length(btrim(name)) between 2 and 60),
   kind text not null default 'other' check (kind in ('study','food','gym','other')),
-  created_by uuid references auth.users(id) on delete set null default (select auth.uid()),
+  created_by uuid references auth.users(id) on delete set null default auth.uid(),
   is_ubp boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -75,7 +75,7 @@ create index if not exists busy_spots_created_by_idx on public.busy_spots (creat
 create table if not exists public.busy_spot_reports (
   id uuid primary key default gen_random_uuid(),
   spot_id uuid not null references public.busy_spots(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade default (select auth.uid()),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   level text not null check (level in ('quiet','busy','packed')),
   created_at timestamptz not null default now()
 );
@@ -173,7 +173,7 @@ grant select on public.busy_spot_status to authenticated;
 create table if not exists public.study_room_shares (
   id uuid primary key default gen_random_uuid(),
   institution text not null,
-  user_id uuid not null references auth.users(id) on delete cascade default (select auth.uid()),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   room text not null check (char_length(btrim(room)) between 2 and 60),
   starts_at timestamptz not null,
   ends_at timestamptz not null,
@@ -319,7 +319,7 @@ create trigger study_room_shares_notify after update of status on public.study_r
 create table if not exists public.commute_buddy_posts (
   id uuid primary key default gen_random_uuid(),
   institution text not null,
-  user_id uuid not null references auth.users(id) on delete cascade default (select auth.uid()),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   mode text not null check (mode in ('bus','train','luas_dart','walk','cycle')),
   from_area text not null check (char_length(btrim(from_area)) between 2 and 60),
   line text check (line is null or char_length(line) <= 60),

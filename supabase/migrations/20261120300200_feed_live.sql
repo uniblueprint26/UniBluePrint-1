@@ -24,7 +24,7 @@ alter table public.feed_posts
 
 create index if not exists feed_posts_live_rail_idx
   on public.feed_posts (expires_at desc)
-  where post_type::text = 'live';
+  where post_type = 'live';
 create index if not exists feed_posts_live_path_idx on public.feed_posts (live_path) where live_path is not null;
 create index if not exists feed_posts_live_front_path_idx on public.feed_posts (live_front_path) where live_front_path is not null;
 
