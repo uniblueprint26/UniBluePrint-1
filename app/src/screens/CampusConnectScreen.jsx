@@ -17,6 +17,7 @@ import { useCampus, useBoardCounts, countLine, useCampusMemberCount } from '../l
 import ErrorState from '../components/ui/ErrorState'
 import SlowLoad from '../components/ui/SlowLoad'
 import { useUserType } from '../hooks/useUserType'
+import { usePriorityEnabled } from '../hooks/useAppFlags'
 import { fonts } from '../constants/theme'
 import { priorityColors, priorityFonts } from '../constants/priorityTheme'
 
@@ -50,6 +51,7 @@ export default function CampusConnectScreen({ navigation }) {
   const { colors, accent, tint } = useTone('campus')
   const insets = useSafeAreaInsets()
   const campus = useCampus()
+  const priorityOn = usePriorityEnabled()
   const { userType } = useUserType()
   const counts = useBoardCounts()
   const members = useCampusMemberCount(campus.institution)
@@ -132,6 +134,7 @@ export default function CampusConnectScreen({ navigation }) {
             <MoodPulse pulse={moodPulse} title="Campus Mood" />
           </View>
 
+          {priorityOn && (
           <TouchableOpacity
             style={pc.card}
             activeOpacity={0.9}
@@ -150,6 +153,7 @@ export default function CampusConnectScreen({ navigation }) {
             <Text style={pc.headline}>House, Afrobeats and Folk nights</Text>
             <Text style={pc.sub}>Campus nightlife and live music across Ireland.</Text>
           </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
 

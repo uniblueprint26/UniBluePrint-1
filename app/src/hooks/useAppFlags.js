@@ -16,6 +16,9 @@ import { IS_NATIVE } from '../constants/platformPolicy'
 //                                       reads "Ordering opens in January".
 //   coming_soon_tiles            false  Coming soon tiles, sheets and labels
 //                                       are hidden while this is false.
+//   priority_enabled             false  Priority events tiles and screens show. Turn on
+//                                       when the Priority tables, checkout function and
+//                                       Stripe Connect account are live.
 //   pro_free_until               date   Every signed in account counts as Pro
 //                                       up to the end of this day (YYYY-MM-DD).
 
@@ -25,6 +28,7 @@ const FLAG_DEFAULTS = {
   foundation_visible: true,
   foundation_ordering_enabled: false,
   coming_soon_tiles: false,
+  priority_enabled: false,
   pro_free_until: PRO_FREE_UNTIL_DEFAULT,
 }
 
@@ -91,6 +95,11 @@ export function useAppFlag(key) {
 // Is Foundation visible to this person? Defaults to true. On iOS and Android
 // the row `foundation_visible` can switch it off remotely. Web always shows it.
 // `loading` is always false: the default is "visible", so nothing needs to wait.
+// Are Priority events switched on? False until the founder turns the flag on.
+export function usePriorityEnabled() {
+  return useAppFlag('priority_enabled').value
+}
+
 export function useFoundationEnabled() {
   const { value } = useAppFlag('foundation_visible')
   if (!IS_NATIVE) return { enabled: true, loading: false }

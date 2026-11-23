@@ -4,6 +4,7 @@ import { PartnerCard } from './ExploreParts'
 import { STRIP_PARTNERS, LIFESTYLE_STRIP_IDS } from '../../constants/exploreCatalog'
 import { PARTNERS as LIFESTYLE_PARTNERS } from '../../data/lifestylePartners'
 import { useTheme } from '../../context/ThemeContext'
+import { usePriorityEnabled } from '../../hooks/useAppFlags'
 
 // The partner strip on Explore. It swipes by itself, one card at a time, and
 // stops for a while as soon as the member touches it. If the phone is set to
@@ -24,6 +25,7 @@ export default function PartnerStrip({ onOpen }) {
   const [active, setActive] = useState(0)
   const [reduceMotion, setReduceMotion] = useState(false)
 
+  const priorityOn = usePriorityEnabled()
   const items = useMemo(() => {
     const lifestyle = LIFESTYLE_STRIP_IDS
       .map(id => LIFESTYLE_PARTNERS.find(p => p.id === id && p.status === 'live' && p.logo))
@@ -48,8 +50,9 @@ export default function PartnerStrip({ onOpen }) {
         ctaFont: 'DMSans_600SemiBold',
         action: { route: 'LifestylePartners', params: { highlightId: p.id } },
       }))
-    return [...STRIP_PARTNERS, ...lifestyle]
-  }, [colors])
+    const base = priorityOn ? STRIP_PARTNERS : STRIP_PARTNERS.filter(p => p.key !== 'priority')
+    return [...base, ...lifestyle]
+  }, [colors, priorityOn])
 
   useEffect(() => {
     let alive = true
