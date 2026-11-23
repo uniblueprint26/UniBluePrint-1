@@ -47,6 +47,7 @@ import LifestyleBudgetingPreviewScreen from '../screens/LifestyleBudgetingPrevie
 import AdBoardScreen       from '../screens/AdBoardScreen'
 import AdBoardBasketScreen from '../screens/AdBoardBasketScreen'
 import WeeklyBlueprintScreen from '../screens/WeeklyBlueprintScreen'
+import AwardsVotingScreen from '../screens/AwardsVotingScreen'
 import BlogScreen          from '../screens/BlogScreen'
 import MarketplaceScreen   from '../screens/MarketplaceScreen'
 import ArticleScreen       from '../screens/ArticleScreen'
@@ -285,6 +286,7 @@ function AdBoardStack() {
       <Stack.Screen name="AdBoardMain"  component={AdBoardScreen} />
       <Stack.Screen name="AdBoardBasket" component={AdBoardBasketScreen} />
       <Stack.Screen name="WeeklyBlueprint" component={WeeklyBlueprintScreen} />
+      <Stack.Screen name="AwardsVoting" component={AwardsVotingScreen} />
       <Stack.Screen name="Blog"         component={BlogScreen} />
       <Stack.Screen name="Marketplace"  component={MarketplaceScreen} />
       <Stack.Screen name="BoardDetail"  component={BoardDetailScreen} />
