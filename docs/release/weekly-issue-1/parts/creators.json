@@ -1,0 +1,328 @@
+{
+  "pages": [
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top 10 Irish creators (female)",
+      "body": "Chosen by UBP from published rankings and coverage. In no particular order, so not a ranking. These ten are also the nominees for the UBP Awards creator category. Follower counts are from official profiles on 23 November 2026 unless dated otherwise.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Alice Kelly",
+          "blurb": "Kildare baker with over 2 million followers. Her debut cookbook came out July 2026.",
+          "source": "RTÉ, Dubray Books",
+          "sourceUrl": "https://www.dubraybooks.ie/product/from-scratch-9781068405051"
+        },
+        {
+          "rank": 2,
+          "title": "Fiona Bergin",
+          "blurb": "Kilkenny farming creator with about 458,000 followers. Face of Agri Aware's 2025 farm safety campaign.",
+          "source": "Irish Examiner, influencer.ie",
+          "sourceUrl": "https://www.irishexaminer.com/farming/arid-41707214.html"
+        },
+        {
+          "rank": 3,
+          "title": "Jane Ní Luasa (Gaeilge le Jane)",
+          "blurb": "Raised in the Cork Gaeltacht, she teaches Irish online. 71,900 followers.",
+          "source": "TheJournal.ie",
+          "sourceUrl": "https://www.thejournal.ie/teaching-irish-by-tiktok-6782902-Aug2025/"
+        },
+        {
+          "rank": 4,
+          "title": "Justine Stafford",
+          "blurb": "Meath comedian, writer and presenter known for character sketches. 332,200 followers.",
+          "source": "Wikipedia, influencer.ie",
+          "sourceUrl": "https://en.wikipedia.org/wiki/Justine_Stafford"
+        },
+        {
+          "rank": 5,
+          "title": "Kayleigh Trappe",
+          "blurb": "Monaghan comedian whose lip syncs and skits make Ireland laugh. 217,400 followers.",
+          "source": "Wikipedia",
+          "sourceUrl": "https://en.wikipedia.org/wiki/Kayleigh_Trappe"
+        },
+        {
+          "rank": 6,
+          "title": "Lauren Whelan",
+          "blurb": "Carlow creator of makeup, hair and style videos. 1.7 million followers.",
+          "source": "Irish Times, influencer.ie",
+          "sourceUrl": "https://www.irishtimes.com/health/your-wellness/2022/06/28/influencer-lauren-whelan-says-begrudgery-in-ireland-is-stopping-young-people-from-starting-tiktok-careers"
+        },
+        {
+          "rank": 7,
+          "title": "Mary-Claire Fitzpatrick",
+          "blurb": "Laois comedian and presenter with a new 2026 podcast, Herself and Herself. 199,600 followers.",
+          "source": "Irish Farmers Journal",
+          "sourceUrl": "https://www.farmersjournal.ie/life/features/herself-herself-common-sense-craic-and-no-filter-908404"
+        },
+        {
+          "rank": 8,
+          "title": "Maura Higgins",
+          "blurb": "Longford creator and presenter named to TIME100 Creators 2026. 1.6 million TikTok followers.",
+          "source": "Hot Press",
+          "sourceUrl": "https://www.hotpress.com/film-tv/maura-higgins-makes-prestigious-time100-creators-list-23151502"
+        },
+        {
+          "rank": 9,
+          "title": "Miriam Mullins",
+          "blurb": "Cork comedy skits, lip syncs and lifestyle videos. 2.2 million TikTok followers.",
+          "source": "Irish Examiner, influencer.ie",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41725938.html"
+        },
+        {
+          "rank": 10,
+          "title": "Roz Purcell",
+          "blurb": "Tipperary broadcaster and Hike Life author who spotlighted her home county for Fáilte Ireland.",
+          "source": "RTÉ",
+          "sourceUrl": "https://www.rte.ie/lifestyle/travel/2026/0508/1572374-roz-purcells-guide-to-a-great-weekend-in-tipperary/"
+        }
+      ],
+      "source": "influencer.ie and Irish coverage",
+      "sourceUrl": "https://influencer.ie/platform/tiktok/",
+      "image": null
+    },
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top 10 Irish creators (male)",
+      "body": "Chosen by UBP from published rankings and coverage. In no particular order, so not a ranking. These ten are also the nominees for the UBP Awards creator category. Cairde and the Gardiner Brothers are groups of lads, so they sit here. Follower counts are from official profiles on 23 November 2026 unless dated otherwise.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Cairde",
+          "blurb": "Seven Irish dancers from Clare, Cork and Galway. 3.2 million TikTok followers.",
+          "source": "Wikipedia, influencer.ie",
+          "sourceUrl": "https://en.wikipedia.org/wiki/Cairde"
+        },
+        {
+          "rank": 2,
+          "title": "Cian Twomey",
+          "blurb": "Cork sketch comedian famous for his Emily character videos. About 6 million Facebook followers.",
+          "source": "influencer.ie, Irish Examiner",
+          "sourceUrl": "https://influencer.ie/influencers/cian-twomey/"
+        },
+        {
+          "rank": 3,
+          "title": "Ciaran McDonnell",
+          "blurb": "Comedy skits and accent videos. About 967,000 TikTok followers.",
+          "source": "Favikon",
+          "sourceUrl": "https://www.favikon.com/blog/top-tiktokers-ireland"
+        },
+        {
+          "rank": 4,
+          "title": "Eric Roberts",
+          "blurb": "Donegal comedy and lifestyle creator and children's author. 796,000 TikTok followers.",
+          "source": "HerFamily, influencer.ie",
+          "sourceUrl": "https://www.herfamily.ie/news/irish-influencer-eric-roberts-publishes-his-first-childrens-book-458202"
+        },
+        {
+          "rank": 5,
+          "title": "Gardiner Brothers",
+          "blurb": "Irish dancing brothers raised in Galway. 4.1 million TikTok followers.",
+          "source": "Irish Times, RTÉ",
+          "sourceUrl": "https://www.irishtimes.com/life-and-style/people/we-consider-it-a-sport-the-irish-dancing-brothers-taking-over-tiktok-1.4499145"
+        },
+        {
+          "rank": 6,
+          "title": "James Doyle (Protein Bor Papi)",
+          "blurb": "Mullingar fitness creator behind the Protein Bor catchphrase. More than 1.7 million TikTok followers.",
+          "source": "RTÉ, influencer.ie",
+          "sourceUrl": "https://www.rte.ie/lifestyle/living/2022/0802/1313559-protein-bor-meet-the-mullingar-man-behind-tiktoks-viral-trend"
+        },
+        {
+          "rank": 7,
+          "title": "John Nellis",
+          "blurb": "Football creator from Newcastle, County Down, and 2026 Strictly contestant. 2.6 million TikTok followers.",
+          "source": "The Independent, Hello!",
+          "sourceUrl": "https://newswav.com/article/john-nellis-from-youtube-sensation-to-strictly-come-dancing-A2609_za4FgA"
+        },
+        {
+          "rank": 8,
+          "title": "Matthew Weldon",
+          "blurb": "Dublin antique jeweller sharing tips and facts. 216,300 TikTok followers.",
+          "source": "RTÉ",
+          "sourceUrl": "https://www.rte.ie/culture/2025/1219/1545046-10-irish-tiktokers-you-should-follow"
+        },
+        {
+          "rank": 9,
+          "title": "Séaghan Ó Súilleabháin (The Kerry Cowboy)",
+          "blurb": "Kerry farmer sharing farm life and Irish language and culture. 213,700 TikTok followers.",
+          "source": "Irish Farmers Journal, TikTok",
+          "sourceUrl": "https://farmersjournal.ie/the-kerry-cowboy-i-answer-questions-from-all-over-the-world-780555"
+        },
+        {
+          "rank": 10,
+          "title": "Tadhg Fleming",
+          "blurb": "Kerry comedy creator known for skits with his dad. 3.1 million TikTok followers.",
+          "source": "Irish Examiner, influencer.ie",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41665034.html"
+        }
+      ],
+      "source": "influencer.ie and Irish coverage",
+      "sourceUrl": "https://influencer.ie/platform/tiktok/",
+      "image": null
+    }
+  ],
+  "awards": [
+    {
+      "key": "creator-female",
+      "title": "Creator (female)",
+      "nominees": [
+        {
+          "key": "alice-kelly",
+          "name": "Alice Kelly",
+          "why": "Horsebox baker with 2.1 million followers and a 2026 cookbook.",
+          "source": "RTÉ, Dubray Books",
+          "sourceUrl": "https://www.dubraybooks.ie/product/from-scratch-9781068405051"
+        },
+        {
+          "key": "fiona-bergin",
+          "name": "Fiona Bergin",
+          "why": "Kilkenny farm creator who fronted a farm safety campaign.",
+          "source": "Irish Examiner, influencer.ie",
+          "sourceUrl": "https://www.irishexaminer.com/farming/arid-41707214.html"
+        },
+        {
+          "key": "jane-ni-luasa",
+          "name": "Jane Ní Luasa (Gaeilge le Jane)",
+          "why": "Teaches Irish on TikTok, bringing the language out of the textbook.",
+          "source": "TheJournal.ie",
+          "sourceUrl": "https://www.thejournal.ie/teaching-irish-by-tiktok-6782902-Aug2025/"
+        },
+        {
+          "key": "justine-stafford",
+          "name": "Justine Stafford",
+          "why": "Meath comedian known for character sketches, with 332,200 followers.",
+          "source": "Wikipedia, influencer.ie",
+          "sourceUrl": "https://en.wikipedia.org/wiki/Justine_Stafford"
+        },
+        {
+          "key": "kayleigh-trappe",
+          "name": "Kayleigh Trappe",
+          "why": "Monaghan comedian famous for lip syncs and skits.",
+          "source": "Wikipedia",
+          "sourceUrl": "https://en.wikipedia.org/wiki/Kayleigh_Trappe"
+        },
+        {
+          "key": "lauren-whelan",
+          "name": "Lauren Whelan",
+          "why": "Carlow makeup, hair and style creator with 1.7 million followers.",
+          "source": "Irish Times, influencer.ie",
+          "sourceUrl": "https://www.irishtimes.com/health/your-wellness/2022/06/28/influencer-lauren-whelan-says-begrudgery-in-ireland-is-stopping-young-people-from-starting-tiktok-careers"
+        },
+        {
+          "key": "mary-claire-fitzpatrick",
+          "name": "Mary-Claire Fitzpatrick",
+          "why": "Laois comedian behind the 2026 podcast Herself and Herself.",
+          "source": "Irish Farmers Journal",
+          "sourceUrl": "https://www.farmersjournal.ie/life/features/herself-herself-common-sense-craic-and-no-filter-908404"
+        },
+        {
+          "key": "maura-higgins",
+          "name": "Maura Higgins",
+          "why": "Longford star named to TIME100 Creators 2026.",
+          "source": "Hot Press",
+          "sourceUrl": "https://www.hotpress.com/film-tv/maura-higgins-makes-prestigious-time100-creators-list-23151502"
+        },
+        {
+          "key": "miriam-mullins",
+          "name": "Miriam Mullins",
+          "why": "Cork comedy creator with 2.2 million TikTok followers.",
+          "source": "Irish Examiner, influencer.ie",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41725938.html"
+        },
+        {
+          "key": "roz-purcell",
+          "name": "Roz Purcell",
+          "why": "Tipperary broadcaster and Hike Life author who championed her home county.",
+          "source": "RTÉ",
+          "sourceUrl": "https://www.rte.ie/lifestyle/travel/2026/0508/1572374-roz-purcells-guide-to-a-great-weekend-in-tipperary/"
+        }
+      ]
+    },
+    {
+      "key": "creator-male",
+      "title": "Creator (male)",
+      "nominees": [
+        {
+          "key": "cairde",
+          "name": "Cairde",
+          "why": "Seven Irish dancers with 3.2 million TikTok followers.",
+          "source": "Wikipedia, influencer.ie",
+          "sourceUrl": "https://en.wikipedia.org/wiki/Cairde"
+        },
+        {
+          "key": "cian-twomey",
+          "name": "Cian Twomey",
+          "why": "Cork sketch comedian behind the Emily character videos.",
+          "source": "influencer.ie, Irish Examiner",
+          "sourceUrl": "https://influencer.ie/influencers/cian-twomey/"
+        },
+        {
+          "key": "ciaran-mcdonnell",
+          "name": "Ciaran McDonnell",
+          "why": "Comedy creator with 967,000 followers and 47 million likes.",
+          "source": "Favikon",
+          "sourceUrl": "https://www.favikon.com/blog/top-tiktokers-ireland"
+        },
+        {
+          "key": "eric-roberts",
+          "name": "Eric Roberts",
+          "why": "Donegal comedy creator and children's author with 796,000 followers.",
+          "source": "HerFamily, influencer.ie",
+          "sourceUrl": "https://www.herfamily.ie/news/irish-influencer-eric-roberts-publishes-his-first-childrens-book-458202"
+        },
+        {
+          "key": "gardiner-brothers",
+          "name": "Gardiner Brothers",
+          "why": "Irish dancing brothers with 4.1 million TikTok followers.",
+          "source": "Irish Times, RTÉ",
+          "sourceUrl": "https://www.irishtimes.com/life-and-style/people/we-consider-it-a-sport-the-irish-dancing-brothers-taking-over-tiktok-1.4499145"
+        },
+        {
+          "key": "james-doyle",
+          "name": "James Doyle (Protein Bor Papi)",
+          "why": "Mullingar creator behind the Protein Bor catchphrase.",
+          "source": "RTÉ, influencer.ie",
+          "sourceUrl": "https://www.rte.ie/lifestyle/living/2022/0802/1313559-protein-bor-meet-the-mullingar-man-behind-tiktoks-viral-trend"
+        },
+        {
+          "key": "john-nellis",
+          "name": "John Nellis",
+          "why": "Football creator and 2026 Strictly Come Dancing contestant.",
+          "source": "The Independent, Hello!",
+          "sourceUrl": "https://newswav.com/article/john-nellis-from-youtube-sensation-to-strictly-come-dancing-A2609_za4FgA"
+        },
+        {
+          "key": "matthew-weldon",
+          "name": "Matthew Weldon",
+          "why": "Dublin antique jeweller nominated at the 2025 TikTok Awards.",
+          "source": "RTÉ",
+          "sourceUrl": "https://www.rte.ie/culture/2025/1219/1545046-10-irish-tiktokers-you-should-follow"
+        },
+        {
+          "key": "seaghan-o-suilleabhain",
+          "name": "Séaghan Ó Súilleabháin (The Kerry Cowboy)",
+          "why": "Kerry farmer sharing farm life, Irish language and culture.",
+          "source": "Irish Farmers Journal, TikTok",
+          "sourceUrl": "https://farmersjournal.ie/the-kerry-cowboy-i-answer-questions-from-all-over-the-world-780555"
+        },
+        {
+          "key": "tadhg-fleming",
+          "name": "Tadhg Fleming",
+          "why": "Kerry comedy creator known for skits with his dad.",
+          "source": "Irish Examiner, influencer.ie",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41665034.html"
+        }
+      ]
+    }
+  ]
+}
