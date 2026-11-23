@@ -19,6 +19,9 @@ import { IS_NATIVE } from '../constants/platformPolicy'
 //   priority_enabled             false  Priority events tiles and screens show. Turn on
 //                                       when the Priority tables, checkout function and
 //                                       Stripe Connect account are live.
+//   awards_voting_opens          iso    UBP Awards voting opens (ISO timestamp). Missing means closed.
+//   awards_voting_closes         iso    UBP Awards voting closes (ISO timestamp). Missing means closed.
+//   awards_results_visible       false  Results are for founder and operations only until true.
 //   pro_free_until               date   Every signed in account counts as Pro
 //                                       up to the end of this day (YYYY-MM-DD).
 
@@ -29,6 +32,7 @@ const FLAG_DEFAULTS = {
   foundation_ordering_enabled: false,
   coming_soon_tiles: false,
   priority_enabled: false,
+  awards_results_visible: false,
   pro_free_until: PRO_FREE_UNTIL_DEFAULT,
 }
 
@@ -154,5 +158,23 @@ export function useProFree() {
     until: u.day,
     label: `${d} ${MONTHS[m - 1]} ${y}`,
     labelShort: `${d} ${MONTHS[m - 1]}`,
+  }
+}
+
+// UBP Awards voting window, read from two ISO timestamp flags. Either one
+// missing or not a valid date gives null, and the screen treats that as closed
+// (the database function makes the same choice). Re-renders when the flags arrive.
+function parseIso(v) {
+  if (typeof v !== 'string') return null
+  const d = new Date(v)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+export function useAwardsWindow() {
+  useAppFlag('awards_results_visible')
+  return {
+    opens: parseIso(cache.values.awards_voting_opens),
+    closes: parseIso(cache.values.awards_voting_closes),
+    loading: cache.status !== 'ready',
   }
 }

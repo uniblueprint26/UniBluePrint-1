@@ -70,7 +70,7 @@ export const linking = {
             },
           },
           AdBoard: {
-            screens: { AdBoardMain: 'ad-board', WeeklyBlueprint: 'weekly-blueprint', Blog: 'blog', Marketplace: 'marketplace' },
+            screens: { AdBoardMain: 'ad-board', WeeklyBlueprint: 'weekly-blueprint', AwardsVoting: 'awards-voting', Blog: 'blog', Marketplace: 'marketplace' },
           },
           Messages: {
             screens: { MessagesMain: 'messages' },
