@@ -1,0 +1,990 @@
+{
+  "sections": [
+    {
+      "key": "top10",
+      "title": "Top 10s"
+    },
+    {
+      "key": "awards",
+      "title": "UBP Awards"
+    }
+  ],
+  "pages": [
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top 10 sport moments of 2026",
+      "body": "Chosen by UBP from published coverage. Good news only. Not an official ranking.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Katie Taylor says goodbye at Croke Park",
+          "blurb": "Katie Taylor wins her last fight at Croke Park before more than 80,000 fans.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+        },
+        {
+          "rank": 2,
+          "title": "Mayo win the All-Ireland",
+          "blurb": "Mayo beat Kerry to win a fourth All-Ireland title, 75 years after their third.",
+          "source": "Irish Echo",
+          "sourceUrl": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+        },
+        {
+          "rank": 3,
+          "title": "Rory McIlroy retains the Masters",
+          "blurb": "Rory McIlroy retains the Masters, finishing one shot clear of Scottie Scheffler.",
+          "source": "The National",
+          "sourceUrl": "https://www.thenationalnews.com/sport/2026/04/13/how-2026-masters-champion-rory-mcilroy-won-his-six-majors"
+        },
+        {
+          "rank": 4,
+          "title": "Galway win the ladies football final",
+          "blurb": "Galway win the All-Ireland ladies football title for the first time since 2004.",
+          "source": "Hogan Stand",
+          "sourceUrl": "https://hoganstand.com/Article/Index/341258"
+        },
+        {
+          "rank": 5,
+          "title": "Cork win the camogie final",
+          "blurb": "Cork edge Galway by a point before a record 33,419 camogie crowd.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/"
+        },
+        {
+          "rank": 6,
+          "title": "Mark English and Rhasidat Adeleke in Birmingham",
+          "blurb": "Mark English wins European 800m gold and Rhasidat Adeleke 200m silver on one night.",
+          "source": "Athletics Ireland",
+          "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/"
+        },
+        {
+          "rank": 7,
+          "title": "Kate O'Connor is European heptathlon champion",
+          "blurb": "Kate O'Connor wins European heptathlon gold in Birmingham with 6,751 points.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/sport/athletics/2026/08/15/kate-oconnor-in-heptathlon-gold-medal-position-with-one-event-left-at-european-championships/"
+        },
+        {
+          "rank": 8,
+          "title": "Limerick win the All-Ireland hurling final",
+          "blurb": "Limerick beat Galway to win the All-Ireland hurling final on 19 July.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/07/20/all-ireland-final-key-moments-dominance-either-side-of-half-time-sees-limerick-to-victory/"
+        },
+        {
+          "rank": 9,
+          "title": "Troy Parrott wins the Dutch Cup",
+          "blurb": "Troy Parrott scores in AZ Alkmaar's Dutch Cup final win, his first senior trophy.",
+          "source": "RTÉ Sport",
+          "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0419/1569074-parrott-helps-az-alkmaar-to-dutch-cup-glory/"
+        },
+        {
+          "rank": 10,
+          "title": "Ben Lynch reaches an Olympic final",
+          "blurb": "Ben Lynch becomes the first Irish skier in an Olympic final and finishes eighth.",
+          "source": "Olympic Federation of Ireland",
+          "sourceUrl": "https://olympics.ie/eighth-in-olympic-final-for-freestyle-skier-ben-lynch-at-the-winter-olympics/"
+        }
+      ],
+      "source": "Various, see each item",
+      "sourceUrl": "",
+      "image": null
+    },
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top 10 big moments for the country",
+      "body": "Chosen by UBP from published coverage. Good news only. Not an official ranking.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Jessie Buckley wins an Oscar",
+          "blurb": "Jessie Buckley becomes the first Irish winner of the Best Actress Oscar for Hamnet.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+        },
+        {
+          "rank": 2,
+          "title": "Katie Taylor's farewell",
+          "blurb": "Katie Taylor retires as a three time undisputed world champion at Croke Park.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+        },
+        {
+          "rank": 3,
+          "title": "Mayo end the wait",
+          "blurb": "Mayo win their fourth All-Ireland football title, the first since 1951.",
+          "source": "Irish Echo",
+          "sourceUrl": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+        },
+        {
+          "rank": 4,
+          "title": "Solar power surges",
+          "blurb": "Grid solar tops 1 gigawatt in April. Installed solar passes 3 gigawatts by August.",
+          "source": "EirGrid and Anglo Celt",
+          "sourceUrl": "https://www.eirgrid.ie/news/multiple-renewable-energy-records-ireland-first-half-2026"
+        },
+        {
+          "rank": 5,
+          "title": "A record crowd for camogie",
+          "blurb": "A record 33,419 fans watch the camogie final at Croke Park.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/"
+        },
+        {
+          "rank": 6,
+          "title": "Young Scientist winner",
+          "blurb": "Aoibheann Daly, 15, from Tralee wins Young Scientist with an AI brain tumour tool.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/science/2026/01/09/young-scientist-winner-scoops-prize-for-brain-cancer-diagnostic-tool"
+        },
+        {
+          "rank": 7,
+          "title": "U2 are back at number one",
+          "blurb": "U2 score their eleventh Irish number one album with Carnaval De Luz.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/carnaval-de-luz-gives-u2-their-eleventh-1-album/"
+        },
+        {
+          "rank": 8,
+          "title": "First graduates of an inclusive programme",
+          "blurb": "Twelve students become the first graduates of TU Dublin's Independent Living Skills programme.",
+          "source": "TU Dublin",
+          "sourceUrl": "https://www.tudublin.ie/explore/news/2026-archive/twelve-tu-dublin-students-make-history-as-first-graduates-of-inclusive-education-programme.php"
+        },
+        {
+          "rank": 9,
+          "title": "Student fee cut",
+          "blurb": "Budget 2027 cuts the student contribution by 150 euro, to 2,350 euro.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/your-money/2026/10/06/students-set-for-lower-fees-as-budget-brings-increase-in-education-spending/"
+        },
+        {
+          "rank": 10,
+          "title": "Apprenticeships keep growing",
+          "blurb": "Ireland now has 30,536 apprentices working with 10,191 companies.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/ireland/education/2026/06/26/the-exponential-growth-of-apprenticeships-in-ireland/"
+        }
+      ],
+      "source": "Various, see each item",
+      "sourceUrl": "",
+      "image": null
+    },
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top 10 Irish songs and albums of 2026",
+      "body": "Built from the weekly IRMA charts up to 20 November 2026. The year end charts are not out yet.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Amble: The Swell",
+          "blurb": "First Irish number one single, ending an eleven week run by Rein Me In.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/amble-score-their-first-irish-1-single-as-the-swell-ends-rein-me-ins-11-week-run/"
+        },
+        {
+          "rank": 2,
+          "title": "Kingfishr: The Sun Will Never Settle",
+          "blurb": "Their second Irish number one single, after Killeagh's 17 weeks on top.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/kingfishr-earn-their-second-1-single-with-the-sun-will-never-settle🌞/"
+        },
+        {
+          "rank": 3,
+          "title": "Fontaines D.C.: Dopamine Chamber",
+          "blurb": "Goes to number one on the Irish albums chart, their second chart topper.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/fontaines-d-c-top-albums-chart-with-dopamine-chamber-as-tate-mcrae-lands-her-first-1-single/"
+        },
+        {
+          "rank": 4,
+          "title": "U2: Carnaval De Luz",
+          "blurb": "Their eleventh Irish number one album, and first new album in nine years.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/carnaval-de-luz-gives-u2-their-eleventh-1-album/"
+        },
+        {
+          "rank": 5,
+          "title": "Dermot Kennedy: The Weight of the Woods",
+          "blurb": "Debuts at number one, his third Irish chart topper in a row.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/dermot-kennedy-achieves-his-third-consecutive-irish-1-album/"
+        },
+        {
+          "rank": 6,
+          "title": "Niall Horan: Dinner Party",
+          "blurb": "Debuts at number one, his fourth Irish number one album in a row.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/niall-horan-lands-his-fourth-irish-1-albu-with-dinner-party/"
+        },
+        {
+          "rank": 7,
+          "title": "CMAT: Euro-Country",
+          "blurb": "Wins the Ivor Novello for Best Album, her first Ivor win.",
+          "source": "RTÉ Entertainment",
+          "sourceUrl": "https://www.rte.ie/entertainment/2026/0521/1574622-cmat-wins-ivor-novello-award-for-best-album/"
+        },
+        {
+          "rank": 8,
+          "title": "Keywest: One More For The Road",
+          "blurb": "Number one on the Irish albums chart as a CD only release.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/keywest-top-the-albums-chart-with-one-more-for-the-road/"
+        },
+        {
+          "rank": 9,
+          "title": "BASHT.: Poor Advice",
+          "blurb": "Debut album tops the Independent chart and enters the main chart at number seven.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/basht-top-the-independent-chart-with-debut-album-poor-advice/"
+        },
+        {
+          "rank": 10,
+          "title": "The Mary Wallopers: Paddywhackery",
+          "blurb": "Trad folk album enters the Irish chart at number four.",
+          "source": "IRMA",
+          "sourceUrl": "https://www.irma.ie/news/paddywhackery-by-the-mary-wallopers-lands-at-4-this-week-my-body-isnt-ready-by-sombr-reaches-1/"
+        }
+      ],
+      "source": "IRMA",
+      "sourceUrl": "https://www.irma.ie/news/",
+      "image": null
+    },
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top 10 Irish films and TV of 2026",
+      "body": "Based on the 2026 IFTAs, the Oscars and the Irish Examiner mid year lists. Not an official ranking.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Hamnet",
+          "blurb": "Jessie Buckley wins the Oscar for Hamnet, which also took four IFTAs.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+        },
+        {
+          "rank": 2,
+          "title": "Christy",
+          "blurb": "Christy wins Best Film at the IFTAs, plus Director, Casting and Editing.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41797583.html"
+        },
+        {
+          "rank": 3,
+          "title": "Blue Lights",
+          "blurb": "Blue Lights, in its third series, wins Best Drama at the IFTAs.",
+          "source": "RTÉ Entertainment",
+          "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+        },
+        {
+          "rank": 4,
+          "title": "Saipan",
+          "blurb": "Éanna Hardwicke wins the IFTA for Lead Actor as Roy Keane in Saipan.",
+          "source": "RTÉ Entertainment",
+          "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+        },
+        {
+          "rank": 5,
+          "title": "House of Guinness",
+          "blurb": "Anthony Boyle wins Lead Actor in a Drama at the IFTAs for House of Guinness.",
+          "source": "RTÉ Entertainment",
+          "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+        },
+        {
+          "rank": 6,
+          "title": "Trespasses",
+          "blurb": "Trespasses wins IFTAs for script, lead actress Lola Petticrew, and makeup and hair.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/culture/2026/02/20/iftas-2026-jessie-buckley-ciaran-hinds-and-cork-drama-christy-take-prizes/"
+        },
+        {
+          "rank": 7,
+          "title": "Avatar: Fire and Ash",
+          "blurb": "Tallaght's Richard Baneham wins his third Oscar, for the effects in Avatar: Fire and Ash.",
+          "source": "Irish Times",
+          "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+        },
+        {
+          "rank": 8,
+          "title": "Hokum",
+          "blurb": "Damian McCarthy's horror Hokum, shot in West Cork, stars Adam Scott.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41876651.html"
+        },
+        {
+          "rank": 9,
+          "title": "Power Ballad",
+          "blurb": "John Carney's comedy Power Ballad stars Paul Rudd as a wedding singer.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41876651.html"
+        },
+        {
+          "rank": 10,
+          "title": "A Quiet Love",
+          "blurb": "A Quiet Love, told entirely in Irish Sign Language, is on RTÉ Player.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41876651.html"
+        }
+      ],
+      "source": "Various, see each item",
+      "sourceUrl": "",
+      "image": null
+    },
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "Ranked by reach",
+      "heading": "Top 10 Irish content creators of 2026",
+      "body": "Ordered by reported reach on each creator's main platform, as published by influencer.ie. The order is indicative, not exact.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Jacksepticeye",
+          "blurb": "Gaming YouTuber from Offaly with about 31.2M subscribers as of May 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/influencers/jacksepticeye/"
+        },
+        {
+          "rank": 2,
+          "title": "Daithí De Nogla",
+          "blurb": "Gaming YouTuber with about 7.4M subscribers as of May 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+        },
+        {
+          "rank": 3,
+          "title": "Cian Twomey",
+          "blurb": "Cork sketch comedian with about 6M Facebook followers as of August 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+        },
+        {
+          "rank": 4,
+          "title": "Adam B",
+          "blurb": "Comedy and family YouTuber with about 5.54M followers as of July 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+        },
+        {
+          "rank": 5,
+          "title": "Maura Higgins",
+          "blurb": "Longford creator and presenter, named to the 2026 TIME100 Creators list.",
+          "source": "Irish Examiner",
+          "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41879839.html"
+        },
+        {
+          "rank": 6,
+          "title": "Gardiner Brothers",
+          "blurb": "Galway Irish dancers with about 4.1M TikTok followers as of May 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/platform/tiktok/"
+        },
+        {
+          "rank": 7,
+          "title": "Paul Olima",
+          "blurb": "Fitness and comedy creator with about 4M Instagram followers as of July 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+        },
+        {
+          "rank": 8,
+          "title": "Terroriser",
+          "blurb": "Gaming YouTuber with about 3.92M followers as of July 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+        },
+        {
+          "rank": 9,
+          "title": "CallMeKevin",
+          "blurb": "Gaming and comedy YouTuber with about 3.66M followers as of July 2026.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+        },
+        {
+          "rank": 10,
+          "title": "Eoin Reardon",
+          "blurb": "Cork woodworker restoring hand tools, with about 3.5M TikTok followers.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/influencers/eoin-reardon/"
+        }
+      ],
+      "source": "influencer.ie",
+      "sourceUrl": "https://influencer.ie/top/influencers-ireland/",
+      "image": null
+    },
+    {
+      "section": "top10",
+      "kind": "top10",
+      "kicker": "UBP picks",
+      "heading": "Top positive moments people shared in 2026",
+      "body": "Eight moments we could confirm in published coverage. Chosen by UBP, not a public ranking.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [
+        {
+          "rank": 1,
+          "title": "Rock Choir sings Dreams at the Giant's Causeway",
+          "blurb": "More than 500 singers, over 10 million views, and praise from The Cranberries.",
+          "source": "RTÉ Entertainment",
+          "sourceUrl": "https://www.rte.ie/entertainment/2026/0330/1565968-irish-choir-goes-viral-with-giants-causeway-video/"
+        },
+        {
+          "rank": 2,
+          "title": "Irish fans in Birmingham",
+          "blurb": "Organisers wrote that Irish fans may be the best fans in Europe.",
+          "source": "AP via La Nación",
+          "sourceUrl": "https://www.lanacion.com.ar/usa/irish-fans-praised-for-standout-support-of-their-athletes-at-european-championships-in-birmingham-nid16082026/"
+        },
+        {
+          "rank": 3,
+          "title": "Gardiner Brothers keep dancing",
+          "blurb": "Galway dancers who went viral worldwide now have about 4.1M TikTok followers.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/platform/tiktok/"
+        },
+        {
+          "rank": 4,
+          "title": "Pint of Plane",
+          "blurb": "A Cork woodworker restoring old tools has about 3.5M TikTok followers.",
+          "source": "influencer.ie",
+          "sourceUrl": "https://influencer.ie/influencers/eoin-reardon/"
+        },
+        {
+          "rank": 5,
+          "title": "Jazzy and Calvin Harris",
+          "blurb": "Satisfy reached number nine on the UK Official Trending Chart.",
+          "source": "Hot Press",
+          "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+        },
+        {
+          "rank": 6,
+          "title": "Kettama at Coachella",
+          "blurb": "Irish DJ Kettama played Coachella in 2026 and charted in the UK.",
+          "source": "Hot Press",
+          "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+        },
+        {
+          "rank": 7,
+          "title": "Children of Prague",
+          "blurb": "RTÉ said the fans' singing in Prague became a tourist attraction.",
+          "source": "RTÉ News",
+          "sourceUrl": "https://www.rte.ie/news/2026/0328/1565579-children-of-prague"
+        },
+        {
+          "rank": 8,
+          "title": "Troy Parrott thanks the fans",
+          "blurb": "After the play-off, Troy Parrott backed his teammates and told fans they would be back.",
+          "source": "RTÉ Sport",
+          "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0326/1565431-thank-you-stick-with-us-parrott-tells-irish-fans"
+        }
+      ],
+      "source": "Various, see each item",
+      "sourceUrl": "",
+      "image": null
+    },
+    {
+      "section": "awards",
+      "kind": "awards",
+      "kicker": "From UBP",
+      "heading": "UBP Awards",
+      "body": "Nominees are listed in no particular order. Voting opens on 26 December 2026 and closes on 3 January 2027.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "categories": [
+        {
+          "key": "creator-female",
+          "title": "Creator (female)",
+          "nominees": [
+            {
+              "key": "annalivia-hynds",
+              "name": "Annalivia Hynds",
+              "why": "Family creator with about 793k TikTok followers as of July 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/influencers/annalivia-hynds/"
+            },
+            {
+              "key": "fiona-bergin",
+              "name": "Fiona Bergin",
+              "why": "Kilkenny dairy farmer and actress with about 460k TikTok followers.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/platform/tiktok/"
+            },
+            {
+              "key": "lauren-whelan",
+              "name": "Lauren Whelan",
+              "why": "Carlow beauty creator with about 1.7M TikTok followers as of July 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/influencers/lauren-whelan/"
+            },
+            {
+              "key": "maura-higgins",
+              "name": "Maura Higgins",
+              "why": "Longford creator named to the 2026 TIME100 Creators list.",
+              "source": "Irish Examiner",
+              "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41879839.html"
+            },
+            {
+              "key": "miriam-mullins",
+              "name": "Miriam Mullins",
+              "why": "Cork comedy creator with about 2.2M TikTok followers as of July 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/influencers/miriam-mullins/"
+            }
+          ]
+        },
+        {
+          "key": "creator-male",
+          "title": "Creator (male)",
+          "nominees": [
+            {
+              "key": "callmekevin",
+              "name": "CallMeKevin",
+              "why": "Gaming and comedy YouTuber with about 3.66M followers as of July 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+            },
+            {
+              "key": "cian-twomey",
+              "name": "Cian Twomey",
+              "why": "Cork sketch comedian with about 6M Facebook followers as of August 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+            },
+            {
+              "key": "daithi-de-nogla",
+              "name": "Daithí De Nogla",
+              "why": "Gaming YouTuber with about 7.4M subscribers as of May 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
+            },
+            {
+              "key": "eoin-reardon",
+              "name": "Eoin Reardon",
+              "why": "Cork woodworker with about 3.5M TikTok followers as of July 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/influencers/eoin-reardon/"
+            },
+            {
+              "key": "jacksepticeye",
+              "name": "Jacksepticeye",
+              "why": "Offaly gaming YouTuber with about 31.2M subscribers as of May 2026.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/influencers/jacksepticeye/"
+            }
+          ]
+        },
+        {
+          "key": "actor-female",
+          "title": "Actor (female)",
+          "nominees": [
+            {
+              "key": "alison-oliver",
+              "name": "Alison Oliver",
+              "why": "Won IFTA Supporting Actress in a Drama for Task.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "jessie-buckley",
+              "name": "Jessie Buckley",
+              "why": "Won the Best Actress Oscar and the IFTA for Hamnet.",
+              "source": "Irish Times",
+              "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+            },
+            {
+              "key": "kerry-condon",
+              "name": "Kerry Condon",
+              "why": "Won IFTA Supporting Actress in a Film for F1.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "lola-petticrew",
+              "name": "Lola Petticrew",
+              "why": "Won IFTA Lead Actress in a Drama for Trespasses.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "louisa-harland",
+              "name": "Louisa Harland",
+              "why": "Won the 2026 IFTA Rising Star award.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            }
+          ]
+        },
+        {
+          "key": "actor-male",
+          "title": "Actor (male)",
+          "nominees": [
+            {
+              "key": "anthony-boyle",
+              "name": "Anthony Boyle",
+              "why": "Won IFTA Lead Actor in a Drama for House of Guinness.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "chris-walley",
+              "name": "Chris Walley",
+              "why": "Won IFTA Supporting Actor in a Drama for The Young Offenders.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "ciaran-hinds",
+              "name": "Ciarán Hinds",
+              "why": "Received the IFTA Lifetime Achievement Award in 2026.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "eanna-hardwicke",
+              "name": "Éanna Hardwicke",
+              "why": "Won IFTA Lead Actor for playing Roy Keane in Saipan.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            },
+            {
+              "key": "paul-mescal",
+              "name": "Paul Mescal",
+              "why": "Won IFTA Supporting Actor for Hamnet.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+            }
+          ]
+        },
+        {
+          "key": "sports-female",
+          "title": "Sports person (female)",
+          "nominees": [
+            {
+              "key": "ellen-walshe",
+              "name": "Ellen Walshe",
+              "why": "Won two golds at the European Aquatics Championships in Paris.",
+              "source": "Irish News",
+              "sourceUrl": "https://www.irishnews.com/sport/ellen-walshe-wins-gold-in-the-200m-individual-medley-at-the-european-aquatics-championships-U3KUPKXO6FBWRKXC73MVDPJEDI/"
+            },
+            {
+              "key": "kate-oconnor",
+              "name": "Kate O'Connor",
+              "why": "Won European heptathlon gold in Birmingham with 6,751 points.",
+              "source": "Irish Times",
+              "sourceUrl": "https://www.irishtimes.com/sport/athletics/2026/08/15/kate-oconnor-in-heptathlon-gold-medal-position-with-one-event-left-at-european-championships/"
+            },
+            {
+              "key": "katie-taylor",
+              "name": "Katie Taylor",
+              "why": "Won her final fight at a sellout Croke Park, then retired.",
+              "source": "Irish Examiner",
+              "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+            },
+            {
+              "key": "rhasidat-adeleke",
+              "name": "Rhasidat Adeleke",
+              "why": "Won European 200m silver in Birmingham.",
+              "source": "Athletics Ireland",
+              "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/"
+            },
+            {
+              "key": "roisin-ni-riain",
+              "name": "Róisín Ní Riain",
+              "why": "Defended her European para swimming 100m backstroke title in September.",
+              "source": "Irish Times",
+              "sourceUrl": "https://www.irishtimes.com/sport/2026/09/10/roisin-ni-riain-wins-gold-in-100m-backstroke-at-european-championships/"
+            }
+          ]
+        },
+        {
+          "key": "sports-male",
+          "title": "Sports person (male)",
+          "nominees": [
+            {
+              "key": "ben-lynch",
+              "name": "Ben Lynch",
+              "why": "First Irish skier in an Olympic final, finishing eighth.",
+              "source": "Olympic Federation of Ireland",
+              "sourceUrl": "https://olympics.ie/eighth-in-olympic-final-for-freestyle-skier-ben-lynch-at-the-winter-olympics/"
+            },
+            {
+              "key": "mark-english",
+              "name": "Mark English",
+              "why": "Won European 800m gold in Birmingham.",
+              "source": "Athletics Ireland",
+              "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/"
+            },
+            {
+              "key": "rhys-mcclenaghan",
+              "name": "Rhys McClenaghan",
+              "why": "Won pommel horse gold at the Antalya World Cup in March.",
+              "source": "Irish Examiner",
+              "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41810378.html"
+            },
+            {
+              "key": "rory-mcilroy",
+              "name": "Rory McIlroy",
+              "why": "Retained the Masters at Augusta, one shot clear.",
+              "source": "The National",
+              "sourceUrl": "https://www.thenationalnews.com/sport/2026/04/13/how-2026-masters-champion-rory-mcilroy-won-his-six-majors"
+            },
+            {
+              "key": "troy-parrott",
+              "name": "Troy Parrott",
+              "why": "Scored in the Dutch Cup final, his first senior trophy.",
+              "source": "RTÉ Sport",
+              "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0419/1569074-parrott-helps-az-alkmaar-to-dutch-cup-glory/"
+            }
+          ]
+        },
+        {
+          "key": "rock-indie",
+          "title": "Rock and indie band",
+          "nominees": [
+            {
+              "key": "basht",
+              "name": "BASHT.",
+              "why": "Debut album Poor Advice tops the Independent Albums Chart.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/basht-top-the-independent-chart-with-debut-album-poor-advice/"
+            },
+            {
+              "key": "fontaines-dc",
+              "name": "Fontaines D.C.",
+              "why": "Dopamine Chamber goes to number one on the Irish albums chart.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/fontaines-d-c-top-albums-chart-with-dopamine-chamber-as-tate-mcrae-lands-her-first-1-single/"
+            },
+            {
+              "key": "just-mustard",
+              "name": "Just Mustard",
+              "why": "WE WERE JUST HERE shortlisted for Irish Album of the Year.",
+              "source": "RTÉ Culture",
+              "sourceUrl": "https://www.rte.ie/culture/2026/0305/1561810-cmat-and-amble-win-big-at-rte-choice-music-awards"
+            },
+            {
+              "key": "sprints",
+              "name": "SPRINTS",
+              "why": "All That Is Over shortlisted for Irish Album of the Year.",
+              "source": "RTÉ Culture",
+              "sourceUrl": "https://www.rte.ie/culture/2026/0305/1561810-cmat-and-amble-win-big-at-rte-choice-music-awards"
+            },
+            {
+              "key": "u2",
+              "name": "U2",
+              "why": "Carnaval De Luz is their eleventh Irish number one album.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/carnaval-de-luz-gives-u2-their-eleventh-1-album/"
+            }
+          ]
+        },
+        {
+          "key": "pop-singer-songwriter",
+          "title": "Pop and singer songwriter",
+          "nominees": [
+            {
+              "key": "cmat",
+              "name": "CMAT",
+              "why": "Won the Ivor Novello for Best Album and Choice Music Prize.",
+              "source": "RTÉ Entertainment",
+              "sourceUrl": "https://www.rte.ie/entertainment/2026/0521/1574622-cmat-wins-ivor-novello-award-for-best-album/"
+            },
+            {
+              "key": "dermot-kennedy",
+              "name": "Dermot Kennedy",
+              "why": "The Weight of the Woods debuts at number one in Ireland.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/dermot-kennedy-achieves-his-third-consecutive-irish-1-album/"
+            },
+            {
+              "key": "keywest",
+              "name": "Keywest",
+              "why": "Reached number one with a CD only album, no streaming.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/keywest-top-the-albums-chart-with-one-more-for-the-road/"
+            },
+            {
+              "key": "niall-horan",
+              "name": "Niall Horan",
+              "why": "Dinner Party debuts at number one, his fourth in a row.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/niall-horan-lands-his-fourth-irish-1-albu-with-dinner-party/"
+            }
+          ]
+        },
+        {
+          "key": "rap-hiphop-rnb",
+          "title": "Rap, hip hop and R&B",
+          "nominees": [
+            {
+              "key": "bricknasty",
+              "name": "Bricknasty",
+              "why": "Shortlisted for Breakthrough Artist, blending soul, hip hop and experimental sounds.",
+              "source": "RTÉ Culture",
+              "sourceUrl": "https://www.rte.ie/culture/2026/0120/1554171-rte-choice-music-prize-breakthrough-artist-of-the-year-shortlist/"
+            },
+            {
+              "key": "khakikid",
+              "name": "KhakiKid",
+              "why": "Dublin rapper shortlisted for Choice Music Prize Breakthrough Artist of the Year.",
+              "source": "RTÉ Culture",
+              "sourceUrl": "https://www.rte.ie/culture/2026/0120/1554171-rte-choice-music-prize-breakthrough-artist-of-the-year-shortlist/"
+            }
+          ]
+        },
+        {
+          "key": "trad-folk-dance",
+          "title": "Trad, folk and dance or electronic",
+          "nominees": [
+            {
+              "key": "amble",
+              "name": "Amble",
+              "why": "Won Choice Music Prize Song of the Year and Breakthrough Artist.",
+              "source": "RTÉ Culture",
+              "sourceUrl": "https://www.rte.ie/culture/2026/0305/1561810-cmat-and-amble-win-big-at-rte-choice-music-awards"
+            },
+            {
+              "key": "jazzy",
+              "name": "Jazzy",
+              "why": "Satisfy with Calvin Harris reached number nine on the UK Trending Chart.",
+              "source": "Hot Press",
+              "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+            },
+            {
+              "key": "kettama",
+              "name": "Kettama",
+              "why": "Played Coachella in 2026 and charted on the UK Trending Chart.",
+              "source": "Hot Press",
+              "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+            },
+            {
+              "key": "kingfishr",
+              "name": "Kingfishr",
+              "why": "Second Irish number one single with The Sun Will Never Settle.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/kingfishr-earn-their-second-1-single-with-the-sun-will-never-settle🌞/"
+            },
+            {
+              "key": "rois",
+              "name": "RÓIS",
+              "why": "Shortlisted for Choice Music Prize Irish Artist of the Year.",
+              "source": "RTÉ Culture",
+              "sourceUrl": "https://www.rte.ie/culture/2026/0120/1554165-rte-choice-music-prize-reveals-irish-artist-of-the-year-shortlist/"
+            }
+          ]
+        },
+        {
+          "key": "song-of-the-year",
+          "title": "Song of the year",
+          "nominees": [
+            {
+              "key": "comes-and-goes",
+              "name": "Comes and Goes (Kettama)",
+              "why": "Reached number three on the Irish Homegrown Chart.",
+              "source": "Hot Press",
+              "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+            },
+            {
+              "key": "marianne",
+              "name": "Marianne (Fontaines D.C.)",
+              "why": "Number four on the Irish Singles Chart and number one on Homegrown.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/fontaines-d-c-top-albums-chart-with-dopamine-chamber-as-tate-mcrae-lands-her-first-1-single/"
+            },
+            {
+              "key": "satisfy",
+              "name": "Satisfy (Jazzy and Calvin Harris)",
+              "why": "Reached number nine on the UK Official Trending Chart.",
+              "source": "Hot Press",
+              "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+            },
+            {
+              "key": "the-sun-will-never-settle",
+              "name": "The Sun Will Never Settle (Kingfishr)",
+              "why": "Went to number one on the Irish singles chart.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/kingfishr-earn-their-second-1-single-with-the-sun-will-never-settle🌞/"
+            },
+            {
+              "key": "the-swell",
+              "name": "The Swell (Amble)",
+              "why": "Amble's first Irish number one single, now platinum.",
+              "source": "IRMA",
+              "sourceUrl": "https://www.irma.ie/news/amble-score-their-first-irish-1-single-as-the-swell-ends-rein-me-ins-11-week-run/"
+            }
+          ]
+        },
+        {
+          "key": "moment-of-the-year",
+          "title": "Moment of the year",
+          "nominees": [
+            {
+              "key": "buckley-oscar",
+              "name": "Jessie Buckley wins the Best Actress Oscar",
+              "why": "First Irish winner in that category, for Hamnet.",
+              "source": "Irish Times",
+              "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+            },
+            {
+              "key": "mayo-all-ireland",
+              "name": "Mayo win the All-Ireland",
+              "why": "Their fourth title, 75 years after their third.",
+              "source": "Irish Echo",
+              "sourceUrl": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+            },
+            {
+              "key": "mcilroy-masters",
+              "name": "Rory McIlroy retains the Masters",
+              "why": "Won the Masters again, finishing one shot clear.",
+              "source": "The National",
+              "sourceUrl": "https://www.thenationalnews.com/sport/2026/04/13/how-2026-masters-champion-rory-mcilroy-won-his-six-majors"
+            },
+            {
+              "key": "oconnor-heptathlon",
+              "name": "Kate O'Connor wins European heptathlon gold",
+              "why": "Won in Birmingham in front of a loud Irish crowd.",
+              "source": "Irish Times",
+              "sourceUrl": "https://www.irishtimes.com/sport/athletics/2026/08/15/kate-oconnor-in-heptathlon-gold-medal-position-with-one-event-left-at-european-championships/"
+            },
+            {
+              "key": "taylor-farewell",
+              "name": "Katie Taylor says goodbye at Croke Park",
+              "why": "Final fight won before more than 80,000 fans.",
+              "source": "Irish Examiner",
+              "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+            }
+          ]
+        }
+      ],
+      "source": "Various, see each nominee",
+      "sourceUrl": "",
+      "image": null
+    }
+  ]
+}
