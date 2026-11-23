@@ -67,6 +67,7 @@ export const linking = {
               Budgeting:     'budgeting',
               SplitBill:     'split-the-bill',
               Calendar:      'calendar',
+              TimeCapsule:   'time-capsule',
             },
           },
           AdBoard: {

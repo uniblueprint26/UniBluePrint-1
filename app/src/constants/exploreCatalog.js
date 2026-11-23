@@ -1,7 +1,7 @@
 import {
   GraduationCap, Users, StickyNote, Calculator, CalendarClock, ArrowRightLeft,
   Tag, ShieldCheck, Leaf, Search, Bus, Wallet, Briefcase, CheckCheck, Hourglass,
-  Building2, Flag, Sparkles, BookOpen, Radio, CircleHelp, LayoutGrid, Handshake, Receipt,
+  Building2, Flag, Sparkles, BookOpen, Radio, CircleHelp, LayoutGrid, Handshake, Receipt, Mail,
 } from 'lucide-react-native'
 import { COURSE_COMPASS, KOBO, SCOUT, ROOMY } from './partnerBrands'
 import { priorityChrome } from './priorityTheme'
@@ -70,6 +70,7 @@ export const EXPLORE_BUNDLES = [
     Icon: Flag,
     rows: [
       { key: 'goal-countdown', name: 'Goal countdown', hint: 'Count down to anything you choose', Icon: Hourglass, route: 'GoalCountdown' },
+      { key: 'time-capsule', name: 'Note to your 2027 self', hint: 'Write it now, read it on 1 January', Icon: Mail, route: 'TimeCapsule' },
       { key: 'freshers', name: 'Freshers guide', hint: 'Tick things off as you go', Icon: CheckCheck, kind: 'freshers', statusText: 'Checklist' },
     ],
   },
