@@ -96,6 +96,7 @@ import ExploreBundleScreen from '../screens/explore/ExploreBundleScreen'
 import GradeCalculatorScreen from '../screens/explore/GradeCalculatorScreen'
 import ExamClashScreen from '../screens/explore/ExamClashScreen'
 import GoalCountdownScreen from '../screens/explore/GoalCountdownScreen'
+import TimeCapsuleScreen from '../screens/explore/TimeCapsuleScreen'
 import TransportScreen from '../screens/explore/TransportScreen'
 import InternshipsScreen from '../screens/explore/InternshipsScreen'
 import ScholarshipsScreen from '../screens/explore/ScholarshipsScreen'
@@ -225,6 +226,7 @@ function HomeStack() {
       <Stack.Screen name="GradeCalculator" component={GradeCalculatorScreen} />
       <Stack.Screen name="ExamClash" component={ExamClashScreen} />
       <Stack.Screen name="GoalCountdown" component={GoalCountdownScreen} />
+      <Stack.Screen name="TimeCapsule" component={TimeCapsuleScreen} />
       <Stack.Screen name="Transport" component={TransportScreen} />
       <Stack.Screen name="Internships" component={InternshipsScreen} />
       <Stack.Screen name="Scholarships" component={ScholarshipsScreen} />
