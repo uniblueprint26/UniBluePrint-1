@@ -1,0 +1,402 @@
+{
+  "sections": [
+    {
+      "key": "sport",
+      "title": "Sport"
+    },
+    {
+      "key": "records",
+      "title": "Records and firsts"
+    }
+  ],
+  "pages": [
+    {
+      "section": "sport",
+      "kind": "section",
+      "kicker": "Sport",
+      "heading": "Sport",
+      "body": "Big days at Croke Park, a big year for women's sport and a few firsts. We also remember Ciara Mageean, our European 1500m champion, who died on 1 November, aged 34.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "RTE Sport",
+      "sourceUrl": "https://www.rte.ie/sport/athletics/2026/1101/1597514-irish-olympian-and-european-champion-ciara-mageean-dies/",
+      "image": null,
+      "alsoSources": [
+        {
+          "source": "World Athletics",
+          "url": "https://worldathletics.org/news/news/ciara-mageean-obituary"
+        }
+      ],
+      "note": "Mageean mention is in the divider body only. A full tribute page is for the tribute writer."
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "5 September",
+      "heading": "Katie Taylor says goodbye at Croke Park",
+      "body": "Around 80,000 people filled Croke Park for Katie Taylor's last fight. She beat Flora Pili of France by unanimous decision, with two judges scoring it one hundred points to ninety. Asked for something inspiring afterwards, she said \"Let me just look around.\" She retired as a three time undisputed world champion. What a way to finish.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "Irish Times",
+      "sourceUrl": "https://www.irishtimes.com/sport/boxing/2026/09/05/eternal-katie-taylor-does-it-her-own-way-to-the-last-as-she-defeats-pili-in-croke-park-farewell/",
+      "image": {
+        "url": "https://commons.wikimedia.org/wiki/File:Katie_Taylor_2012_(2).jpg",
+        "credit": "Katie Taylor at the 2012 Olympics. Photo: cormac70 from London, CC BY 2.0, via Wikimedia Commons",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+        "author": "cormac70 from London",
+        "note": ""
+      },
+      "alsoSources": [
+        {
+          "source": "Irish Examiner",
+          "url": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+        },
+        {
+          "source": "The42",
+          "url": "https://www.the42.ie/article.php?id=7061918"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "26 July",
+      "heading": "Mayo end 75 years of waiting",
+      "body": "Seventy five years is a long time to wait for a cup. Mayo finally won the Sam Maguire on 26 July, beating Kerry by one goal and twenty points to one goal and seventeen. It is their fourth All-Ireland title. They fought back from seven points down, and Tommy Conroy kicked the last point. The cup is heading west.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "RTE Sport",
+      "sourceUrl": "https://www.rte.ie/sport/football/2026/0726/1585135-mayo-end-75-years-of-hurt-by-downing-kerry/",
+      "image": {
+        "url": "https://commons.wikimedia.org/wiki/File:2026_All_Ireland_Football_Final.png",
+        "credit": "The Artane Band leads Mayo and Kerry around Croke Park before the 2026 final. Photo: Seankivlehan, CC BY-SA 4.0, via Wikimedia Commons",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "author": "Seankivlehan",
+        "note": ""
+      },
+      "alsoSources": [
+        {
+          "source": "Irish Echo",
+          "url": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+        },
+        {
+          "source": "Irish News",
+          "url": "https://www.irishnews.com/gaa/gaelic-football/how-mayo-won-the-all-ireland-the-complete-story-of-how-andy-morans-side-ended-the-countys-75-year-longing-for-sam-maguire-JIJGIFSCS5FEBJL4RIXCHGORQQ/"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "19 July",
+      "heading": "Limerick lift the Liam MacCarthy again",
+      "body": "Limerick beat Galway in the All-Ireland hurling final at Croke Park on 19 July, one goal and twenty nine points to one goal and eighteen. They led by five at half time. Then Cathal O'Neill's goal in the 43rd minute, set up by Aaron Gillane, put the game out of reach. An eleven point win and a very happy Treaty county.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "HoganStand",
+      "sourceUrl": "https://hoganstand.com/Article/Index/341113",
+      "image": {
+        "url": "https://commons.wikimedia.org/wiki/File:LiamMacCarthy_Cup.jpg",
+        "credit": "The Liam MacCarthy Cup, photographed in 2011. Photo: Fti74, CC BY-SA 3.0, via Wikimedia Commons",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "author": "Fti74",
+        "note": ""
+      },
+      "alsoSources": [
+        {
+          "source": "Irish Times",
+          "url": "https://www.irishtimes.com/sport/gaelic-games/2026/07/20/all-ireland-final-key-moments-dominance-either-side-of-half-time-sees-limerick-to-victory/"
+        },
+        {
+          "source": "Irish Echo",
+          "url": "https://www.irishecho.com/2026/7/limerick-overpower-galway-in-all-ireland"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "2 August",
+      "heading": "Galway are ladies football champions at last",
+      "body": "Galway waited 22 years for this one. On 2 August they beat Kerry at Croke Park in the All-Ireland ladies football final, two goals and seven points to twelve points. Leanne Coen scored both goals and Eva Noone kicked the winning point late on. Kerry had a late effort ruled out, so it was nerves right to the whistle.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "HoganStand",
+      "sourceUrl": "https://hoganstand.com/Article/Index/341258",
+      "image": null,
+      "alsoSources": [
+        {
+          "source": "gaa.ie",
+          "url": "https://www.gaa.ie/article/glory-for-galway-at-croke-park"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "9 August",
+      "heading": "A record crowd for camogie",
+      "body": "A crowd of 33,419 came to Croke Park for the camogie final, a record for a camogie match played on its own. They saw Cork edge Galway by two goals and fourteen points to nineteen points. Saoirse McCarthy and Orlaith Cahalane scored second half goals, and the O'Duffy Cup went to Cork for a record 31st time.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "Irish Times",
+      "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/",
+      "image": {
+        "url": "https://commons.wikimedia.org/wiki/File:Croke_park_all_ireland.jpg",
+        "credit": "Croke Park, Dublin. Photo: Tolivero, public domain, via Wikimedia Commons",
+        "licence": "Public domain",
+        "licenceUrl": "https://commons.wikimedia.org/wiki/File:Croke_park_all_ireland.jpg",
+        "author": "Tolivero",
+        "note": ""
+      },
+      "alsoSources": [
+        {
+          "source": "HoganStand",
+          "url": "https://hoganstand.com/Article/Index/341336"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "17 May",
+      "heading": "Ireland women fill the Aviva",
+      "body": "A record 31,294 people watched Ireland women beat Scotland fifty four points to five at the Aviva Stadium, the first stand alone women's Test played there. Ireland scored eight tries and led forty seven to nil at half time. The win secured third place in the Six Nations and Ireland's first three win championship since 2020.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "RTE Sport",
+      "sourceUrl": "https://www.rte.ie/sport/rugby/2026/0517/1573800-ireland-mark-historic-aviva-appearance-with-dominant-win/",
+      "image": {
+        "url": "https://commons.wikimedia.org/wiki/File:Aviva_Stadium_and_Dublin_City_at_Dusk.jpg",
+        "credit": "Aviva Stadium, Dublin, at dusk. Photo: David Kernan, CC BY 4.0, via Wikimedia Commons",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "author": "David Kernan",
+        "note": ""
+      },
+      "alsoSources": [
+        {
+          "source": "RTE Sport",
+          "url": "https://www.rte.ie/sport/rugby/2026/0518/1573923-highly-satisfying-finish-caps-off-another-w6n-of-growth/"
+        },
+        {
+          "source": "Irish Examiner",
+          "url": "https://www.irishexaminer.com/sport/rugby/arid-41846457.html"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "February and March",
+      "heading": "Triple Crown and a near miss",
+      "body": "Ireland won the Triple Crown, beating Scotland forty three to twenty one in Dublin on 14 March. Earlier they set a Twickenham record, scoring 42 points against England. The title slipped away when France beat England forty eight to forty six, with a Thomas Ramos penalty on the very last kick. Ireland finished second, and nobody would call that a bad year.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "RTE Sport",
+      "sourceUrl": "https://www.rte.ie/sport/six-nations/2026/0314/1563388-impressive-ireland-win-triple-crown-to-stay-in-6n-hunt/",
+      "image": null,
+      "alsoSources": [
+        {
+          "source": "The42",
+          "url": "https://www.the42.ie/ireland-scotland-2026-report-6985164-Mar2026/"
+        },
+        {
+          "source": "Sky Sports",
+          "url": "https://www.skysports.com/rugby-union/england-vs-ireland/110510"
+        },
+        {
+          "source": "Irish Examiner",
+          "url": "https://www.irishexaminer.com/sport/rugby/arid-41810474.html"
+        },
+        {
+          "source": "Irish Times",
+          "url": "https://www.irishtimes.com/sport/rugby/2026/03/14/live-france-v-england-updates-eyes-on-stade-de-france-as-ireland-remain-in-title-hunt/"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "August",
+      "heading": "Birmingham: gold, silver and gold",
+      "body": "At the European Championships in Birmingham, Mark English won the 800m in 1:45.26, the first Irish man to win an individual European outdoor title. Twenty two minutes later Rhasidat Adeleke took 200m silver in an Irish record 22.28. Then Kate O'Connor won the heptathlon with an Irish record 6,751 points. Not a bad week at the office.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "Athletics Ireland",
+      "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/",
+      "image": null,
+      "alsoSources": [
+        {
+          "source": "Irish Times",
+          "url": "https://www.irishtimes.com/sport/athletics/2026/08/14/in-22-magical-minutes-mark-english-and-rhasidat-adeleke-had-sealed-their-legacies/"
+        },
+        {
+          "source": "Irish News",
+          "url": "https://www.irishnews.com/sport/kate-oconnor-wins-heptathlon-gold-in-birmingham-after-solid-800m-final-performance-GWICPDNVHFFSTMCROMVJ6VQBAQ/"
+        }
+      ]
+    },
+    {
+      "section": "sport",
+      "kind": "story",
+      "kicker": "Troy Parrott",
+      "heading": "A big year for Troy Parrott",
+      "body": "On 19 April Troy Parrott won his first senior trophy, scoring and setting up a goal as AZ Alkmaar beat NEC five to one in the Dutch Cup final. Before that, Ireland led Czechia two to nil in a World Cup playoff but lost on penalties. Parrott told fans, \"stick with us.\" In August he joined Real Betis for a reported 20 million euro.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "RTE Sport",
+      "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0419/1569074-parrott-helps-az-alkmaar-to-dutch-cup-glory/",
+      "image": null,
+      "alsoSources": [
+        {
+          "source": "RTE Sport",
+          "url": "https://www.rte.ie/sport/soccer/2026/0326/1565431-thank-you-stick-with-us-parrott-tells-irish-fans"
+        },
+        {
+          "source": "Irish Times",
+          "url": "https://www.irishtimes.com/sport/soccer/2026/08/20/troy-parrott-shakes-off-setbacks-of-injury-and-burden-of-expectation-with-real-betis-move/"
+        }
+      ]
+    },
+    {
+      "section": "records",
+      "kind": "section",
+      "kicker": "Records and firsts",
+      "heading": "Records and firsts",
+      "body": "Every year has a few moments that go in the trophy cabinet. Here are Ireland's records and firsts of 2026, from the stage to the stadium.",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [],
+      "items": [],
+      "source": "",
+      "sourceUrl": "",
+      "image": null,
+      "alsoSources": []
+    },
+    {
+      "section": "records",
+      "kind": "list",
+      "kicker": "Trophy cabinet",
+      "heading": "Records and firsts: everyday Ireland",
+      "body": "",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [
+        "Jessie Buckley became the first Irish woman to win the Best Actress Oscar, on 15 March.",
+        "Summer was provisionally the hottest on record, at 16.28 degrees. The old record was 16.19, set in 2025.",
+        "July was Dublin Airport's busiest month ever, with 3,839,635 passengers.",
+        "Wind power hit a record 3,898 megawatts on 14 February. Solar passed one gigawatt for the first time on 20 April.",
+        "A record 70,411 students got their Leaving Cert results in August.",
+        "Irish agri-food exports reached a record 20.8 billion euro for 2025."
+      ],
+      "items": [],
+      "source": "RTE",
+      "sourceUrl": "https://www.rte.ie/entertainment/2026/0315/1563605-jessie-buckley-makes-history-with-oscar-win",
+      "image": null,
+      "bulletSources": [
+        {
+          "source": "RTE",
+          "url": "https://www.rte.ie/entertainment/2026/0315/1563605-jessie-buckley-makes-history-with-oscar-win"
+        },
+        {
+          "source": "Irish Times",
+          "url": "https://www.irishtimes.com/ireland/2026/09/02/new-record-in-2026-marks-hottest-irish-summer/"
+        },
+        {
+          "source": "Dublin Airport",
+          "url": "https://www.dublinairport.com/latest-news/2026/08/10/busiest-month-in-dublin-airport-s-history-as-3-8-million-passengers-travelled-in-july"
+        },
+        {
+          "source": "EirGrid",
+          "url": "https://www.eirgrid.ie/news/multiple-renewable-energy-records-ireland-first-half-2026"
+        },
+        {
+          "source": "Echo",
+          "url": "https://www.echolive.ie/nationalnews/arid-41899252.html"
+        },
+        {
+          "source": "Irish Examiner",
+          "url": "https://www.irishexaminer.com/farming/arid-41935236.html"
+        }
+      ],
+      "alsoSources": []
+    },
+    {
+      "section": "records",
+      "kind": "list",
+      "kicker": "Trophy cabinet",
+      "heading": "Records and firsts: sport",
+      "body": "",
+      "stat": "",
+      "statLabel": "",
+      "bullets": [
+        "Ireland scored a record 42 points and won by a record 21 at Twickenham, beating England on 21 February.",
+        "Ireland beat India at cricket for the first time in any format, by 34 runs at Stormont in June.",
+        "A record 31,294 watched Ireland women at the Aviva, the first stand alone women's Test there.",
+        "A record 33,419 watched the camogie final at Croke Park.",
+        "Mark English became the first Irish man to win an individual European outdoor title.",
+        "Rhasidat Adeleke (200m) and Kate O'Connor (heptathlon) both set Irish records in Birmingham.",
+        "Rory McIlroy won the Masters again, the fourth player to win it back to back."
+      ],
+      "items": [],
+      "source": "Sky Sports",
+      "sourceUrl": "https://www.skysports.com/rugby-union/england-vs-ireland/110510",
+      "image": null,
+      "bulletSources": [
+        {
+          "source": "Sky Sports",
+          "url": "https://www.skysports.com/rugby-union/england-vs-ireland/110510"
+        },
+        {
+          "source": "Irish Examiner",
+          "url": "https://www.irishexaminer.com/sport/othersport/arid-41869968.html"
+        },
+        {
+          "source": "RTE Sport",
+          "url": "https://www.rte.ie/sport/rugby/2026/0517/1573800-ireland-mark-historic-aviva-appearance-with-dominant-win/"
+        },
+        {
+          "source": "HoganStand",
+          "url": "https://hoganstand.com/Article/Index/341336"
+        },
+        {
+          "source": "Athletics Ireland",
+          "url": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/"
+        },
+        {
+          "source": "Irish News",
+          "url": "https://www.irishnews.com/sport/kate-oconnor-wins-heptathlon-gold-in-birmingham-after-solid-800m-final-performance-GWICPDNVHFFSTMCROMVJ6VQBAQ/"
+        },
+        {
+          "source": "Al Jazeera",
+          "url": "https://www.aljazeera.com/sports/2026/4/13/rory-mcilroy-wins-masters-to-become-fourth-back-to-back-champion"
+        }
+      ],
+      "alsoSources": []
+    }
+  ]
+}
