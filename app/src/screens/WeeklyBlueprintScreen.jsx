@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, Linking, Image,
   Animated, Dimensions, StyleSheet, Platform, AccessibilityInfo,
@@ -33,8 +33,16 @@ import { isRealDeal } from '../lib/adBoard'
 import { getPartnerDeals, isListedPartner } from '../lib/partnerDeals'
 import { CATEGORY, CURATED_ADS } from '../data/adBoardAds'
 import { SUPPORT_EMAIL } from '../constants/site'
+import { WrappedPage, WrappedCover } from '../components/wrapped/WrappedPages'
+import { normaliseWrapped } from '../lib/wrapped'
 
 // ─── The Weekly Blueprint ───────────────────────────────────────────────────
+// Issue 1 is the one time Ireland Wrapped look back: when issue.content.wrapped
+// has pages (see docs/release/weekly-issue-1/wrapped-schema.md) they sit after
+// the cover and contents, drawn by components/wrapped/WrappedPages.jsx. Only
+// pages near the open one are mounted, so about 100 pages stay light. Standard
+// editorial pages are left out when the issue has no content for them.
+//
 // A fixed 26-page structure (see the spec Desmond sent — same page order
 // every week, content rotates). Most pages pull from data that's real
 // elsewhere in the app already (coaches, Lifestyle partners, Foundation
@@ -78,6 +86,8 @@ const FOUNDATION_TOPICS = [
 
 const { width: SCREEN_W } = Dimensions.get('window')
 // The true page turn needs reanimated. If it is missing, the hinge and fade runs.
+// Only pages this close to the open one are mounted (the issue can be about 100 pages).
+const NEAR = 2
 const TURN_OK = typeof Reanimated?.View !== 'undefined' && typeof useSharedValue === 'function'
 
 // ── Small shared bits ───────────────────────────────────────────────────────
@@ -132,16 +142,33 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
         </TouchableOpacity>
       )
 
+    // Ireland Wrapped cover (issue data: theme and issue number).
+    case 'wrapped-cover':
+      return <WrappedCover wrapped={data.wrapped} issue={issue} onOpen={() => onJump(1)} />
+
+    // One Wrapped page. page.w is the cleaned page, page.section its section.
+    case 'wrapped':
+      return (
+        <WrappedPage
+          page={page.w}
+          section={page.section}
+          navigation={navigation}
+          allPages={data.wrapped}
+          pageKey={`${issue?.id || 'issue'}:${page.n}`}
+        />
+      )
+
     case 'contents':
       return (
         <View style={styles.pageInner}>
-          <Text style={styles.pageKicker}>YOUR BLUEPRINT THIS WEEK</Text>
+          <Text style={styles.pageKicker}>{data.wrapped ? 'EVERYTHING IN THIS ISSUE' : 'YOUR BLUEPRINT THIS WEEK'}</Text>
           <Text style={styles.pageHeading}>What's inside</Text>
           <View style={styles.tocSheet}>
             <ScrollView showsVerticalScrollIndicator={false}>
               {page.entries.map((e, n) => (
-                <TouchableOpacity key={e.label} style={[styles.tocRow, n > 0 && styles.tocRowBorder]} activeOpacity={0.7} onPress={() => onJump(e.page)}>
+                <TouchableOpacity key={`${n}:${e.label}`} style={[styles.tocRow, n > 0 && styles.tocRowBorder]} activeOpacity={0.7} onPress={() => onJump(e.page)}>
                   <Text style={styles.tocNum}>{String(n + 1).padStart(2, '0')}</Text>
+                  {!!e.accent && <View style={[styles.tocDot, { backgroundColor: e.accent }]} />}
                   <Text style={styles.tocLabel} numberOfLines={1}>{e.label}</Text>
                   <View style={styles.tocLeader} />
                   <Text style={styles.tocPageNum}>{e.page + 1}</Text>
@@ -723,7 +750,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
 // in is first in the shadow of the turning one, then lights up. The cover
 // turns the same way, so opening the issue feels like opening a book.
 
-function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpenPost, data, isPro, reduce }) {
+function MagazinePage({ page, index, active, near, scrollX, navigation, onJump, onOpenPost, data, isPro, reduce }) {
   const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
   const W = SCREEN_W
@@ -737,7 +764,7 @@ function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpen
     // Reduced motion: plain paging, no turn, no fade, no shading.
     return (
       <View pointerEvents={active ? 'auto' : 'none'} style={[styles.page, { backgroundColor: colors.background }]}>
-        <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
+        {near ? <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} /> : null}
         <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
       </View>
     )
@@ -756,7 +783,7 @@ function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpen
         },
       ]}
     >
-      <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
+      {near ? <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} /> : null}
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: inShadow }]} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: outShade }]} />
       {/* The fold at the spine. */}
@@ -773,7 +800,7 @@ function MagazinePage({ page, index, active, scrollX, navigation, onJump, onOpen
 // page underneath starts in its shadow. Runs on the UI thread. Used when
 // reduced motion is off; otherwise the hinge and fade version above is used.
 
-function TurnPage({ page, index, total, active, turnX, navigation, onJump, onOpenPost, data, isPro }) {
+function TurnPage({ page, index, total, active, near, turnX, navigation, onJump, onOpenPost, data, isPro }) {
   const { colors, isDark } = useTheme()
   const styles = __gs_styles(colors)
   const W = SCREEN_W
@@ -806,7 +833,7 @@ function TurnPage({ page, index, total, active, turnX, navigation, onJump, onOpe
         pageStyle,
       ]}
     >
-      <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} />
+      {near ? <PageContent page={page} navigation={navigation} onJump={onJump} onOpenPost={onOpenPost} data={data} isPro={isPro} /> : null}
       <Reanimated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }, shadeStyle]} />
       <View pointerEvents="none" style={[styles.spine, { backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(30,58,95,0.10)' }]} />
     </Reanimated.View>
@@ -821,52 +848,77 @@ function TurnPage({ page, index, total, active, turnX, navigation, onJump, onOpe
 //  - ubp-board + week-ahead (two short bullet-list pages, identical layout)
 //    combined onto one page as two stacked sections.
 
-function buildPages(foundationOpen) {
+// An editorial slot only gets a page when the issue has something for it.
+// Before this, an empty slot showed an "nothing published yet" note.
+const hasLines = v => Array.isArray(v?.lines) && v.lines.some(l => typeof l === 'string' && l.trim())
+const lineCount = v => (Array.isArray(v?.lines) ? v.lines.filter(l => typeof l === 'string' && l.trim()).length : 0)
+const hasText = v => typeof v === 'string' && v.trim().length > 0
+
+function buildPages(foundationOpen, content = {}, wrapped = null) {
+  const c = content || {}
+  const ss = c.student_spotlight || {}
+  const hasWrapped = !!(wrapped && wrapped.pages && wrapped.pages.length)
+
+  const wrappedPages = hasWrapped
+    ? wrapped.pages.map((w, n) => ({ type: 'wrapped', w, n, section: wrapped.sections.find(sec => sec.key === w.section) || null }))
+    : []
+
   const all = [
-    { type: 'cover' },
+    { type: hasWrapped ? 'wrapped-cover' : 'cover' },
     { type: 'contents', entries: [] },
+    ...wrappedPages,
     { type: 'deals-1' }, { type: 'deals-2' }, { type: 'deal-room' },
     { type: 'coach-1' }, { type: 'coach-2' },
     { type: 'foundation-1' }, { type: 'foundation-2' },
-    { type: 'campus-events-1' }, { type: 'campus-events-2' }, { type: 'off-campus' },
-    { type: 'student-spotlight-grid' }, { type: 'student-spotlight-featured' },
-    { type: 'campus-guide' },
+    ...(hasLines(c.campus_events) ? [{ type: 'campus-events-1' }] : []),
+    ...(lineCount(c.campus_events) >= 2 ? [{ type: 'campus-events-2' }] : []),
+    ...(hasLines(c.campus_events) ? [{ type: 'off-campus' }] : []),
+    ...(hasLines(ss) ? [{ type: 'student-spotlight-grid' }] : []),
+    ...(hasText(ss.featuredName) ? [{ type: 'student-spotlight-featured' }] : []),
+    ...(hasText(c.campus_guide?.title) ? [{ type: 'campus-guide' }] : []),
     { type: 'lifestyle-edit' },
     { type: 'blog' },
     { type: 'marketplace' },
-    { type: 'team' },
-    { type: 'money-moves' },
-    { type: 'coach-board' },
-    { type: 'ubp-board-week-ahead' },
+    ...(hasText(c.team?.name) ? [{ type: 'team' }] : []),
+    ...(hasText(c.money_moves?.tip) ? [{ type: 'money-moves' }] : []),
+    ...(hasLines(c.coach_board) ? [{ type: 'coach-board' }] : []),
+    ...(hasLines(c.ubp_board) || hasLines(c.week_ahead) ? [{ type: 'ubp-board-week-ahead' }] : []),
     { type: 'ad-board' },
-    { type: 'blueprint-feature' },
-    { type: 'founders-note' },
+    ...(hasText(c.blueprint_feature?.title) ? [{ type: 'blueprint-feature' }] : []),
+    ...(hasText(c.founders_note?.body) ? [{ type: 'founders-note' }] : []),
     { type: 'closing' },
   ]
   // The two Foundation pages are left out while Foundation is closed on iOS and Android.
   const pages = foundationOpen ? all : all.filter(p => !p.type.startsWith('foundation-'))
   const toc = pages[1]
   const idx = t => pages.findIndex(p => p.type === t)
-  toc.entries.push(
-    { label: 'Deals & Discounts', Icon: Star,          page: idx('deals-1') },
-    { label: 'Coach Spotlights',  Icon: GraduationCap,  page: idx('coach-1') },
-    ...(foundationOpen ? [{ label: 'Foundation Focus',  Icon: Award,          page: idx('foundation-1') }] : []),
-    { label: 'Campus Connect',    Icon: Building2,      page: idx('campus-events-1') },
-    { label: 'Student Spotlight', Icon: Newspaper,      page: idx('student-spotlight-grid') },
-    { label: 'Campus Guide',      Icon: MapPin,         page: idx('campus-guide') },
-    { label: 'Lifestyle Edit',    Icon: Sparkles,       page: idx('lifestyle-edit') },
-    { label: 'Blog',              Icon: BookOpen,       page: idx('blog') },
-    { label: 'Marketplace',       Icon: ShoppingBag,    page: idx('marketplace') },
-    { label: 'UBP Team',          Icon: Users,          page: idx('team') },
-    { label: 'Money Moves',       Icon: Wallet,         page: idx('money-moves') },
-    { label: 'Coach Board',       Icon: Heart,          page: idx('coach-board') },
-    { label: 'Ad Board',          Icon: Tag,            page: idx('ad-board') },
-  )
+  const has = t => idx(t) !== -1
+
+  // Wrapped sections first (each jumps to its first page), then the standard entries.
+  if (hasWrapped) {
+    wrapped.sections.forEach(sec => {
+      const at = pages.findIndex(p => p.type === 'wrapped' && p.w.section === sec.key)
+      if (at !== -1) toc.entries.push({ label: sec.title, page: at, accent: sec.accent })
+    })
+  }
+  const std = [
+    { label: 'Deals & Discounts', Icon: Star,          t: 'deals-1' },
+    { label: 'Coach Spotlights',  Icon: GraduationCap,  t: 'coach-1' },
+    { label: 'Foundation Focus',  Icon: Award,          t: 'foundation-1' },
+    { label: 'Campus Connect',    Icon: Building2,      t: 'campus-events-1' },
+    { label: 'Student Spotlight', Icon: Newspaper,      t: 'student-spotlight-grid' },
+    { label: 'Campus Guide',      Icon: MapPin,         t: 'campus-guide' },
+    { label: 'Lifestyle Edit',    Icon: Sparkles,       t: 'lifestyle-edit' },
+    { label: 'Blog',              Icon: BookOpen,       t: 'blog' },
+    { label: 'Marketplace',       Icon: ShoppingBag,    t: 'marketplace' },
+    { label: 'UBP Team',          Icon: Users,          t: 'team' },
+    { label: 'Money Moves',       Icon: Wallet,         t: 'money-moves' },
+    { label: 'Coach Board',       Icon: Heart,          t: 'coach-board' },
+    { label: 'Ad Board',          Icon: Tag,            t: 'ad-board' },
+  ]
+  std.forEach(e => { if (has(e.t)) toc.entries.push({ label: e.label, Icon: e.Icon, page: idx(e.t) }) })
   return pages
 }
-
-const PAGES_WITH_FOUNDATION = buildPages(true)
-const PAGES_WITHOUT_FOUNDATION = buildPages(false)
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
@@ -879,15 +931,18 @@ export default function WeeklyBlueprintScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const { user, isPro } = useAuth()
   const { enabled: foundationOpen } = useFoundationEnabled()
-  const PAGES = foundationOpen ? PAGES_WITH_FOUNDATION : PAGES_WITHOUT_FOUNDATION
   const [modalVisible, setModalVisible] = useState(false)
   const [pageIndex, setPageIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [progressReady, setProgressReady] = useState(false)
   const [screenData, setScreenData] = useState({
-    issue: null, content: {}, deals: [], coaches: [], foundationTopics: FOUNDATION_TOPICS.slice(0, 2),
+    issue: null, content: {}, wrapped: null, deals: [], coaches: [], foundationTopics: FOUNDATION_TOPICS.slice(0, 2),
     lifestylePartners: [], marketplaceAds: [], curatedAds: CURATED_ADS, liveBoardAds: [],
   })
+  const PAGES = useMemo(
+    () => buildPages(foundationOpen, screenData.content, screenData.wrapped),
+    [foundationOpen, screenData.content, screenData.wrapped],
+  )
   const scrollRef = useRef(null)
   const scrollX = useRef(new Animated.Value(0)).current
   const turnX = useSharedValue(0)
@@ -921,8 +976,16 @@ export default function WeeklyBlueprintScreen({ navigation }) {
       ])
       if (cancelled) return
 
-      const issue = (issueRes.status === 'fulfilled' ? issueRes.value.data?.[0] : null) || null
-      const content = issue?.content || {}
+      let issue = (issueRes.status === 'fulfilled' ? issueRes.value.data?.[0] : null) || null
+      let content = issue?.content || {}
+      // Development only: EXPO_PUBLIC_WRAPPED_FIXTURE=1 loads sample Wrapped pages.
+      if (__DEV__ && process.env.EXPO_PUBLIC_WRAPPED_FIXTURE === '1') {
+        const fx = require('../dev/wrappedFixture.json')
+        content = { ...content, wrapped: fx.wrapped }
+        issue = issue || { id: 'fixture', issue_number: 1, theme: fx.theme, content }
+      }
+      // Ireland Wrapped pages (issue.content.wrapped). Absent or empty means the magazine is as it always was.
+      const wrapped = normaliseWrapped(content.wrapped)
       const issueNumber = issue?.issue_number ?? 1
 
       const eligibleCoaches = COACHES.filter(c => !c.shell && c.bio)
@@ -937,6 +1000,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
       setScreenData({
         issue,
         content,
+        wrapped,
         // Real partner deals from the roster first, then any real database rows for partners not already listed.
         deals: [
           ...getPartnerDeals(),
@@ -961,7 +1025,8 @@ export default function WeeklyBlueprintScreen({ navigation }) {
       const progress = progressRes.status === 'fulfilled' ? progressRes.value.data : null
       let startPage = 0
       if (progress && issue && progress.issue_id === issue.id) {
-        startPage = Math.min(Math.max(progress.last_page, 0), PAGES.length - 1)
+        const total = buildPages(foundationOpen, content, wrapped).length
+        startPage = Math.min(Math.max(progress.last_page, 0), total - 1)
       }
       setPageIndex(startPage)
       setLoading(false)
@@ -991,7 +1056,11 @@ export default function WeeklyBlueprintScreen({ navigation }) {
   }, [pageIndex, progressReady, user?.id, screenData.issue?.id])
 
   function jumpTo(index) {
-    scrollRef.current?.scrollTo({ x: index * SCREEN_W, animated: true })
+    // A long jump (say from the contents page into the middle of Wrapped) goes
+    // straight there, so the pages in between are not mounted on the way.
+    const far = Math.abs(index - pageIndex) > NEAR
+    scrollRef.current?.scrollTo({ x: index * SCREEN_W, animated: !far })
+    if (far) setPageIndex(index)
   }
 
   return (
@@ -1045,6 +1114,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
                   page={page}
                   index={i}
                   active={i === pageIndex}
+                  near={Math.abs(i - pageIndex) <= NEAR}
                   scrollX={scrollX}
                   navigation={navigation}
                   onJump={jumpTo}
@@ -1072,6 +1142,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
                   index={i}
                   total={PAGES.length}
                   active={i === pageIndex}
+                  near={Math.abs(i - pageIndex) <= NEAR}
                   turnX={turnX}
                   navigation={navigation}
                   onJump={jumpTo}
@@ -1100,6 +1171,7 @@ export default function WeeklyBlueprintScreen({ navigation }) {
                 page={page}
                 index={i}
                 active={i === pageIndex}
+                near={Math.abs(i - pageIndex) <= NEAR}
                 scrollX={scrollX}
                 navigation={navigation}
                 onJump={jumpTo}
@@ -1196,6 +1268,7 @@ function __gs_styles(colors) {
   tocSheet: { flex: 1, marginTop: 20, backgroundColor: colors.surface, borderRadius: 14, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 16 },
   tocRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14 },
   tocRowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+  tocDot: { width: 8, height: 8, borderRadius: 4, marginLeft: -4 },
   tocNum: { fontFamily: fonts.serif, fontSize: 15, color: colors.textSecondary, width: 24 },
   tocLabel: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, flexShrink: 1 },
   tocLeader: { flex: 1, borderBottomWidth: 1, borderStyle: 'dotted', borderBottomColor: colors.border, marginTop: 6 },

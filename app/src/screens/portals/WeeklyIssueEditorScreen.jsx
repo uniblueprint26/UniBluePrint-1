@@ -136,6 +136,11 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
   const [savedFlash, setSavedFlash] = useState(null)
   const [dirtyPages, setDirtyPages] = useState(new Set()) // page_keys edited since their last save
   const hasUnsavedChanges = dirtyPages.size > 0
+  // Ireland Wrapped pages are edited as raw JSON (page_key 'wrapped'), kept
+  // as text here so a half typed edit is never lost. Shape: see
+  // docs/release/weekly-issue-1/wrapped-schema.md
+  const [wrappedText, setWrappedText] = useState('')
+  const [wrappedError, setWrappedError] = useState('')
 
   // Guard against losing up to 10 cards' worth of unsaved edits to a
   // hardware-back press or an iOS swipe-back gesture while any page is
@@ -168,6 +173,8 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
     const byKey = {}
     for (const row of data || []) byKey[row.page_key] = row.content
     setContent(byKey)
+    setWrappedError('')
+    setWrappedText(byKey.wrapped && typeof byKey.wrapped === 'object' && Object.keys(byKey.wrapped).length ? JSON.stringify(byKey.wrapped, null, 2) : '')
   }
 
   function closeIssue() {
@@ -244,6 +251,48 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
     setDirtyPages(prev => { const next = new Set(prev); next.delete(pageKey); return next })
     setSavedFlash(pageKey)
     setTimeout(() => setSavedFlash(f => f === pageKey ? null : f), 1800)
+  }
+
+  // Check the text is JSON of the right shape and say clearly what is wrong.
+  function checkWrapped(text) {
+    const t = (text || '').trim()
+    if (!t) return { ok: true, value: {} }
+    let parsed
+    try { parsed = JSON.parse(t) } catch (e) {
+      return { ok: false, message: `This is not valid JSON. ${e && e.message ? e.message : ''}`.trim() }
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ok: false, message: 'The top level must be an object like { "sections": [], "pages": [] }.' }
+    }
+    if (!Array.isArray(parsed.pages)) return { ok: false, message: 'Missing "pages". It must be a list.' }
+    if (parsed.sections !== undefined && !Array.isArray(parsed.sections)) return { ok: false, message: '"sections" must be a list.' }
+    return { ok: true, value: parsed }
+  }
+
+  async function saveWrapped() {
+    if (!activeIssue) return
+    const res = checkWrapped(wrappedText)
+    if (!res.ok) {
+      setWrappedError(res.message)
+      Alert.alert('Wrapped pages not saved', res.message)
+      return
+    }
+    setWrappedError('')
+    setSaving('wrapped')
+    const { error } = await supabase
+      .from('weekly_issue_content')
+      .upsert({ issue_id: activeIssue.id, page_key: 'wrapped', content: res.value }, { onConflict: 'issue_id,page_key' })
+    setSaving(null)
+    if (error) { Alert.alert('Could not save', 'Please try again.'); return }
+    setDirtyPages(prev => { const next = new Set(prev); next.delete('wrapped'); return next })
+    setSavedFlash('wrapped')
+    setTimeout(() => setSavedFlash(f => f === 'wrapped' ? null : f), 1800)
+  }
+
+  function onWrappedChange(text) {
+    setWrappedText(text)
+    if (wrappedError) setWrappedError('')
+    setDirtyPages(prev => (prev.has('wrapped') ? prev : new Set(prev).add('wrapped')))
   }
 
   function setFieldValue(pageKey, fieldKey, value) {
@@ -350,6 +399,38 @@ export default function WeeklyIssueEditorScreen({ navigation }) {
               </TouchableOpacity>
             </Card>
           ))}
+
+          <Card style={{ marginBottom: 16 }}>
+            <Text style={s.pageLabel}>Wrapped pages (JSON)</Text>
+            <Text style={[s.fieldHint, { marginTop: 6 }]}>
+              Ireland Wrapped pages. When this has pages, they sit after the contents page and before the usual pages. Leave it empty for a normal issue. Shape: sections and pages, as in wrapped-schema.md.
+            </Text>
+            <TextInput
+              style={[s.input, s.textArea, s.mono, { minHeight: 220, marginTop: 8 }, !!wrappedError && s.inputError]}
+              value={wrappedText}
+              onChangeText={onWrappedChange}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+              textAlignVertical="top"
+              placeholder={'{ "sections": [], "pages": [] }'}
+              placeholderTextColor={colors.light}
+              accessibilityLabel="Wrapped pages JSON"
+            />
+            {!!wrappedError && <Text style={s.errorText} accessibilityLiveRegion="polite">{wrappedError}</Text>}
+            <TouchableOpacity
+              style={[s.saveBtn, saving === 'wrapped' && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              onPress={saveWrapped}
+              disabled={saving === 'wrapped'}
+            >
+              {savedFlash === 'wrapped'
+                ? <><CheckCircle2 size={14} color={colors.accentFg} /><Text style={s.saveBtnText}>Saved</Text></>
+                : <><Save size={14} color={colors.accentFg} /><Text style={s.saveBtnText}>{saving === 'wrapped' ? 'Saving…' : 'Save'}</Text></>
+              }
+            </TouchableOpacity>
+          </Card>
         </ScrollView>
         </KeyboardAvoidingView>
       )}
@@ -393,6 +474,9 @@ function __gs_s(colors) {
     fontFamily: fonts.sans, fontSize: 14, color: colors.textPrimary,
   },
   textArea: { minHeight: 72 },
+  mono: { fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', fontSize: 12.5, lineHeight: 18 },
+  inputError: { borderColor: colors.destructive, borderWidth: 1.5 },
+  errorText: { fontFamily: fonts.sansMedium, fontSize: 12.5, color: colors.destructive, marginTop: 8, lineHeight: 18 },
   publishRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 18, paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(30,58,95,0.08)' },
 
   saveBtn: {
