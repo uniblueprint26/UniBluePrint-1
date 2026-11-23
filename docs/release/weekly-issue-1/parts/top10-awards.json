@@ -142,10 +142,10 @@
         },
         {
           "rank": 6,
-          "title": "Young Scientist winner",
-          "blurb": "Aoibheann Daly, 15, from Tralee wins Young Scientist with an AI brain tumour tool.",
+          "title": "A record Leaving Cert year",
+          "blurb": "Leaving Cert participation hits a record 70,411, the highest in the exam's 100 year history.",
           "source": "Irish Times",
-          "sourceUrl": "https://www.irishtimes.com/science/2026/01/09/young-scientist-winner-scoops-prize-for-brain-cancer-diagnostic-tool"
+          "sourceUrl": "https://www.irishtimes.com/ireland/education/2026/08/21/covid-impacts-and-enhanced-grades-five-takeaways-from-2026-leaving-cert-results/"
         },
         {
           "rank": 7,
@@ -313,7 +313,7 @@
         {
           "rank": 6,
           "title": "Trespasses",
-          "blurb": "Trespasses wins IFTAs for script, lead actress Lola Petticrew, and makeup and hair.",
+          "blurb": "Trespasses wins IFTAs for script, lead performance in a drama, and makeup and hair.",
           "source": "Irish Times",
           "sourceUrl": "https://www.irishtimes.com/culture/2026/02/20/iftas-2026-jessie-buckley-ciaran-hinds-and-cork-drama-christy-take-prizes/"
         },
@@ -439,8 +439,8 @@
       "section": "top10",
       "kind": "top10",
       "kicker": "UBP picks",
-      "heading": "Top positive moments people shared in 2026",
-      "body": "Eight moments we could confirm in published coverage. Chosen by UBP, not a public ranking.",
+      "heading": "Top 10 positive moments of 2026",
+      "body": "Ten good news moments confirmed in published coverage. Chosen by UBP, not a public ranking.",
       "stat": "",
       "statLabel": "",
       "bullets": [],
@@ -500,6 +500,20 @@
           "blurb": "After the play-off, Troy Parrott backed his teammates and told fans they would be back.",
           "source": "RTÉ Sport",
           "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0326/1565431-thank-you-stick-with-us-parrott-tells-irish-fans"
+        },
+        {
+          "rank": 9,
+          "title": "LauraLynn 24 Hour Challenge",
+          "blurb": "Over 700 people raised 205,995 euro in 24 hours for children's palliative care.",
+          "source": "LauraLynn",
+          "sourceUrl": "https://www.lauralynn.ie/news/24-hour-challenge-raises-over-eur205000"
+        },
+        {
+          "rank": 10,
+          "title": "Athletics Ireland hits a record",
+          "blurb": "Athletics Ireland reaches an all time high of 76,507 registered members.",
+          "source": "Athletics Ireland",
+          "sourceUrl": "https://www.athleticsireland.ie/athletics-ireland-celebrates-record-membership-growth-in-2026/"
         }
       ],
       "source": "Various, see each item",
@@ -563,13 +577,6 @@
           "title": "Creator (male)",
           "nominees": [
             {
-              "key": "callmekevin",
-              "name": "CallMeKevin",
-              "why": "Gaming and comedy YouTuber with about 3.66M followers as of July 2026.",
-              "source": "influencer.ie",
-              "sourceUrl": "https://influencer.ie/top/influencers-ireland/"
-            },
-            {
               "key": "cian-twomey",
               "name": "Cian Twomey",
               "why": "Cork sketch comedian with about 6M Facebook followers as of August 2026.",
@@ -589,6 +596,13 @@
               "why": "Cork woodworker with about 3.5M TikTok followers as of July 2026.",
               "source": "influencer.ie",
               "sourceUrl": "https://influencer.ie/influencers/eoin-reardon/"
+            },
+            {
+              "key": "garron-noone",
+              "name": "Garron Noone",
+              "why": "Mayo comedy and food creator with about 3.0M Instagram followers.",
+              "source": "influencer.ie",
+              "sourceUrl": "https://influencer.ie/influencers/garron-noone/"
             },
             {
               "key": "jacksepticeye",
@@ -611,6 +625,13 @@
               "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
             },
             {
+              "key": "carolyn-bracken",
+              "name": "Carolyn Bracken",
+              "why": "Nominated for IFTA Lead Actress in a Film for Horseshoe.",
+              "source": "Irish Times",
+              "sourceUrl": "https://www.irishtimes.com/culture/film/2026/01/20/iftas-2026-top-two-films-scoop-26-nominations-as-steve-coogan-goes-up-against-daniel-day-lewis/"
+            },
+            {
               "key": "jessie-buckley",
               "name": "Jessie Buckley",
               "why": "Won the Best Actress Oscar and the IFTA for Hamnet.",
@@ -621,13 +642,6 @@
               "key": "kerry-condon",
               "name": "Kerry Condon",
               "why": "Won IFTA Supporting Actress in a Film for F1.",
-              "source": "RTÉ Entertainment",
-              "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
-            },
-            {
-              "key": "lola-petticrew",
-              "name": "Lola Petticrew",
-              "why": "Won IFTA Lead Actress in a Drama for Trespasses.",
               "source": "RTÉ Entertainment",
               "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
             },
@@ -816,6 +830,13 @@
               "sourceUrl": "https://www.rte.ie/entertainment/2026/0521/1574622-cmat-wins-ivor-novello-award-for-best-album/"
             },
             {
+              "key": "declan-orourke",
+              "name": "Declan O'Rourke",
+              "why": "Oceanic reached number seven on the Irish albums chart.",
+              "source": "Official Charts",
+              "sourceUrl": "https://www.officialcharts.com/albums/declan-orourke-oceanic/"
+            },
+            {
               "key": "dermot-kennedy",
               "name": "Dermot Kennedy",
               "why": "The Weight of the Woods debuts at number one in Ireland.",
@@ -845,9 +866,23 @@
             {
               "key": "bricknasty",
               "name": "Bricknasty",
-              "why": "Shortlisted for Breakthrough Artist, blending soul, hip hop and experimental sounds.",
+              "why": "Shortlisted for Breakthrough Artist and nominated at the 2026 Independent Music Awards.",
               "source": "RTÉ Culture",
               "sourceUrl": "https://www.rte.ie/culture/2026/0120/1554171-rte-choice-music-prize-breakthrough-artist-of-the-year-shortlist/"
+            },
+            {
+              "key": "denise-chaila",
+              "name": "Denise Chaila",
+              "why": "Toured An Seo in September with Cork and Limerick dates.",
+              "source": "Irish Examiner",
+              "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41911261.html"
+            },
+            {
+              "key": "f3miii",
+              "name": "F3MIII",
+              "why": "Featured on Take a Trip, number 16 on the Homegrown Chart.",
+              "source": "Official Charts",
+              "sourceUrl": "https://www.officialcharts.com/charts/irish-homegrown-chart/20261023/irishart/"
             },
             {
               "key": "khakikid",
