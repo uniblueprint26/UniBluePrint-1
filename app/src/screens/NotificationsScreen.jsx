@@ -53,6 +53,7 @@ const CATEGORY_META = {
   foundation_open:        { label: 'FOUNDATION', Icon: P.foundation.Icon, pillar: 'foundation' },
   job_application_reminder: { label: 'FOUNDATION', Icon: P.foundation.Icon, pillar: 'foundation' },
   checkin_reminder:       { label: 'FOUNDATION', Icon: P.foundation.Icon, pillar: 'foundation' },
+  ticket_reassigned:      { label: 'FOUNDATION', Icon: P.foundation.Icon, pillar: 'foundation' },
   weekly_summary:         { label: 'WEEKLY',     Icon: BookOpen, tone: 'neutral' },
   // Ad Board
   weekly_blueprint:    { label: 'AD BOARD',   Icon: Tag,           tone: 'adboard' },
@@ -87,7 +88,7 @@ function metaFor(category, colors, isDark) {
 
 // Notifications that open Foundation. They are hidden while Foundation is
 // closed on iOS and Android.
-const FOUNDATION_CATEGORIES = new Set(['foundation_blueprint', 'job_application_reminder'])
+const FOUNDATION_CATEGORIES = new Set(['foundation_blueprint', 'job_application_reminder', 'ticket_reassigned'])
 const FOUNDATION_ENTITIES = new Set(['submission', 'job_application'])
 function isFoundationNotification(n) {
   return FOUNDATION_CATEGORIES.has(n.category) || FOUNDATION_ENTITIES.has(n.related_entity_type)
