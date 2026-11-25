@@ -144,12 +144,16 @@ module.exports = {
       'ACCESS_FINE_LOCATION',
       'READ_CALENDAR',
       'CAMERA',
+      // Android 13 and above need this declared before the app can ask to send notifications.
+      'POST_NOTIFICATIONS',
     ],
     blockedPermissions: [
       'android.permission.RECORD_AUDIO',
       'android.permission.WRITE_EXTERNAL_STORAGE',
       // The Calendar only reads this phone's calendar. It never writes to it.
       'android.permission.WRITE_CALENDAR',
+      // Added by default for development tools. Not needed and not wanted in a store build.
+      'android.permission.SYSTEM_ALERT_WINDOW',
     ],
     // Push notifications on Android need Firebase. Add the file as an EAS file
     // variable named GOOGLE_SERVICES_JSON.
@@ -190,6 +194,13 @@ module.exports = {
       'expo-location',
       {
         locationWhenInUsePermission: LOCATION_TEXT,
+        // When in use only. These three would otherwise be written with the
+        // generic text "Allow UniBlueprint to access your location" and a
+        // reviewer would ask why Always and motion access are in the app.
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        motionUsagePermission: false,
+        locationFullAccuracyPermission: false,
       },
     ],
     [
