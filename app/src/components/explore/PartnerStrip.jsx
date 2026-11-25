@@ -5,6 +5,7 @@ import { STRIP_PARTNERS, LIFESTYLE_STRIP_IDS } from '../../constants/exploreCata
 import { PARTNERS as LIFESTYLE_PARTNERS } from '../../data/lifestylePartners'
 import { useTheme } from '../../context/ThemeContext'
 import { usePriorityEnabled } from '../../hooks/useAppFlags'
+import { useComingSoonEnabled } from '../../constants/comingSoon'
 
 // The partner strip on Explore. It swipes by itself, one card at a time, and
 // stops for a while as soon as the member touches it. If the phone is set to
@@ -26,6 +27,8 @@ export default function PartnerStrip({ onOpen }) {
   const [reduceMotion, setReduceMotion] = useState(false)
 
   const priorityOn = usePriorityEnabled()
+  // Kobo is a closed beta waitlist, so it is a coming soon item. Hidden unless the flag is on.
+  const comingSoonOn = useComingSoonEnabled()
   const items = useMemo(() => {
     const lifestyle = LIFESTYLE_STRIP_IDS
       .map(id => LIFESTYLE_PARTNERS.find(p => p.id === id && p.status === 'live' && p.logo))
@@ -50,9 +53,9 @@ export default function PartnerStrip({ onOpen }) {
         ctaFont: 'DMSans_600SemiBold',
         action: { route: 'LifestylePartners', params: { highlightId: p.id } },
       }))
-    const base = priorityOn ? STRIP_PARTNERS : STRIP_PARTNERS.filter(p => p.key !== 'priority')
+    const base = STRIP_PARTNERS.filter(p => (priorityOn || p.key !== 'priority') && (comingSoonOn || p.key !== 'kobo'))
     return [...base, ...lifestyle]
-  }, [colors, priorityOn])
+  }, [colors, priorityOn, comingSoonOn])
 
   useEffect(() => {
     let alive = true

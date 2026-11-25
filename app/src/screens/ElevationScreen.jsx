@@ -24,6 +24,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
 import { useComingSoonEnabled } from '../constants/comingSoon'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 // Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
@@ -401,7 +402,9 @@ function CoachCard({ coach, navigation }) {
   const comingSoonOn = useComingSoonEnabled()
   if (coach.shell && !comingSoonOn) return null
   const photos = [coach.heroImage, ...(coach.gallery || [])].filter(Boolean)
-  const isMoney = /€/.test(String(coach.from))
+  // Euro amounts show on the website only. On iOS and Android every coach
+  // card reads "On request" (founder decision, neutral billing).
+  const isMoney = !NATIVE_NEUTRAL_BILLING && /€/.test(String(coach.from))
   return (
     <TouchableOpacity
       style={styles.gridSlot}
@@ -688,7 +691,7 @@ export default function ElevationScreen({ navigation }) {
           {/* Find me a coach first, then browse. */}
           <View style={styles.findCard}>
             <Text style={styles.findTitle}>Find me a coach</Text>
-            <Text style={styles.findSub}>Tell us what you need and we will match you with a verified coach.</Text>
+            <Text style={styles.findSub}>Tell us what you need and we will match you with a coach.</Text>
             <TouchableOpacity style={styles.findBtn} activeOpacity={0.85} onPress={() => setFindCoachOpen(true)} accessibilityRole="button" accessibilityLabel="Send a request">
               <Send size={16} color={colors.accentFg} />
               <Text style={styles.findBtnText}>Send a request</Text>

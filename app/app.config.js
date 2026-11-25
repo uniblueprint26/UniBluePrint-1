@@ -17,10 +17,14 @@
 
 const IS_PRODUCTION_BUILD = process.env.EAS_BUILD_PROFILE === 'production'
 
+// The Maps key is only used by the Android build, so an iOS build does not need
+// it. EAS sets EAS_BUILD_PLATFORM to ios or android. Locally it is unset, and
+// then every key is checked.
+const BUILD_PLATFORM = process.env.EAS_BUILD_PLATFORM
 const REQUIRED_FOR_PRODUCTION = [
   'EXPO_PUBLIC_SUPABASE_URL',
   'EXPO_PUBLIC_SUPABASE_ANON_KEY',
-  'GOOGLE_MAPS_ANDROID_API_KEY',
+  ...(BUILD_PLATFORM === 'ios' ? [] : ['GOOGLE_MAPS_ANDROID_API_KEY']),
 ]
 
 if (IS_PRODUCTION_BUILD) {
@@ -144,12 +148,18 @@ module.exports = {
       'ACCESS_FINE_LOCATION',
       'READ_CALENDAR',
       'CAMERA',
+      // Android 13 and above need this declared before the app can ask to send notifications.
+      'POST_NOTIFICATIONS',
     ],
     blockedPermissions: [
       'android.permission.RECORD_AUDIO',
       'android.permission.WRITE_EXTERNAL_STORAGE',
       // The Calendar only reads this phone's calendar. It never writes to it.
       'android.permission.WRITE_CALENDAR',
+      // Added by default for development tools. Not needed and not wanted in a store build.
+      'android.permission.SYSTEM_ALERT_WINDOW',
+      // The app has no ad network, so it never reads the advertising ID. Blocking it keeps the Play Console answer a plain No.
+      'com.google.android.gms.permission.AD_ID',
     ],
     // Push notifications on Android need Firebase. Add the file as an EAS file
     // variable named GOOGLE_SERVICES_JSON.
@@ -190,6 +200,13 @@ module.exports = {
       'expo-location',
       {
         locationWhenInUsePermission: LOCATION_TEXT,
+        // When in use only. These three would otherwise be written with the
+        // generic text "Allow UniBlueprint to access your location" and a
+        // reviewer would ask why Always and motion access are in the app.
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        motionUsagePermission: false,
+        locationFullAccuracyPermission: false,
       },
     ],
     [

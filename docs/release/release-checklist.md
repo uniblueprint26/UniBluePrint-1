@@ -25,23 +25,17 @@ Company details to use on every form, exactly as written:
 
 ## B. Database (Supabase)
 
-Already applied in production: the new look backend, moods, text guard, `app_flags`, `content_reports` and the age 18 check (`20261119090000`, `20261119100000`, `20261119110000`). Do not run those again.
+Status on 25 November 2026: almost everything is applied in production (the new look backend, flags, reports, age 18, campus community, text guard, calendar, Live, campus toolkit, split the bill, release flags, pillar notifications, shared resources). Do not run those again.
 
-New and not yet applied. Apply in this order through the Supabase dashboard or CLI (the build does not apply them). Each file has a header that says what it changes and how to undo it.
-
-1. `20261120000100` profiles campus community (trade, training provider, industry, Campus Connect group).
-2. `20261120000200` sign up saves the whole profile and the terms and privacy consent. The app and website now send `user_type`, `discoverable`, `terms_version` and `privacy_version`.
-3. `20261120000300` chat counterparty RPC and consent for direct chats. The app now calls `join_chat_counterparty`, and Home Connect sends a request.
-4. `20261120000400` to `20261120001100`: staff access to reports, text guard on all member text, audience aware read policies, date of birth required once the flag is on, bucket limits, revoke anon on internal functions, drop probe leftovers, new app flags (Pro free until 31 January 2027, coming soon tiles off, Foundation visible, ordering closed).
-5. `20261120600000` release flags.
-
-Apply 1 and 2 before the app build goes to testers. Then flip `require_dob_on_signup` only after the website sign up has been live a day (it now collects a date of birth).
+Still to apply: `20261121500100`, `20261124100000` (time capsule), `20261124000000` (award votes), and the three Priority files only when Priority goes live. The exact order, the flags to set and the evidence are in `docs/release/store-readiness.md` section 5.
 
 After applying, check:
 
-* `select * from app_flags;` shows `foundation_enabled` false.
+* `select * from app_flags;` shows `coming_soon_tiles` false and the flags in the readiness file.
 * A signed in test user can insert into `content_reports` as themselves and cannot read another person's report.
-* Decide who handles reports. Operations and founder users get a notification for each one. Reports are read in the `content_reports` table until you build a screen for them.
+* Decide who handles reports. Founder, operations, legal and moderator users can read them with `staff_list_content_reports` or in the `content_reports` table. There is no screen for reports yet.
+
+Flip `require_dob_on_signup` only after the website sign up has been live a day (it collects a date of birth).
 
 ## C. Keys and services
 
@@ -152,7 +146,7 @@ These are things I found while preparing the release. None of them stops the bui
 1. **"Coming soon" rows.** Explore has about 20 rows tagged SOON (for example Grade calculator, Jobs board, Campus Radio), the Kobo partner card says Soon, and a few screens say "coming soon" (Ad Board Deals, My Blueprint Live archive, the Live popup). Apple can reject an app for placeholder features. Hide those rows on iOS and Android before you submit, or accept the risk.
 2. **Priority events.** The fake events and the demo checkout have been removed. Events now come from the database and tickets are bought on the website, so the app only links out. Before you submit, apply the migration and deploy the two functions in `docs/release/priority-ticketing.md`. Until you add a real event, the Priority screen shows "No Priority events on sale right now."
 3. **Leaving Cert and 5th or 6th year members.** The app has content for people still at school, but the minimum age is now 18. Check that this still makes sense.
-4. **Coaching.** The Book a Coach link and prices stay on iOS and Android only for coaches that are clearly in person (Fitness coaches whose category does not say online). Online coaches, trading, marketing and grinds show no price and no booking link, and can be messaged. Confirm that is what you want.
+4. **Coaching.** Decided: iOS and Android show no euro amounts for coaches at all, only on the website. The Book a Coach link (opens uniblueprint.ie) stays only for clearly in person Fitness coaches. Everyone else can be messaged.
 5. **Plan status text.** For people who are not on Pro, iOS and Android show "Manage your plan on uniblueprint.ie" as plain text, with no link. Apple has accepted this wording before. Google may read it as steering. Remove the line from the Pricing, Profile and Pro gate screens if Google objects.
 6. **Dark mode.** `userInterfaceStyle` was `light`, which locks iOS to light mode. It is now `automatic` so the Appearance setting works. Change it back in `app/app.config.js` if you want light only.
 7. **Chat and feed blocking.** Blocking hides a person's feed posts and comments inside the app, and blocks direct messages in the database. Feed hiding is done in the app, not in the database. A signed in person can still read those posts through the API.
