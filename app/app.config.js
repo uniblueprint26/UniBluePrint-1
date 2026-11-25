@@ -154,6 +154,8 @@ module.exports = {
       'android.permission.WRITE_CALENDAR',
       // Added by default for development tools. Not needed and not wanted in a store build.
       'android.permission.SYSTEM_ALERT_WINDOW',
+      // The app has no ad network, so it never reads the advertising ID. Blocking it keeps the Play Console answer a plain No.
+      'com.google.android.gms.permission.AD_ID',
     ],
     // Push notifications on Android need Firebase. Add the file as an EAS file
     // variable named GOOGLE_SERVICES_JSON.
