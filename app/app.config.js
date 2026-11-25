@@ -17,10 +17,14 @@
 
 const IS_PRODUCTION_BUILD = process.env.EAS_BUILD_PROFILE === 'production'
 
+// The Maps key is only used by the Android build, so an iOS build does not need
+// it. EAS sets EAS_BUILD_PLATFORM to ios or android. Locally it is unset, and
+// then every key is checked.
+const BUILD_PLATFORM = process.env.EAS_BUILD_PLATFORM
 const REQUIRED_FOR_PRODUCTION = [
   'EXPO_PUBLIC_SUPABASE_URL',
   'EXPO_PUBLIC_SUPABASE_ANON_KEY',
-  'GOOGLE_MAPS_ANDROID_API_KEY',
+  ...(BUILD_PLATFORM === 'ios' ? [] : ['GOOGLE_MAPS_ANDROID_API_KEY']),
 ]
 
 if (IS_PRODUCTION_BUILD) {
