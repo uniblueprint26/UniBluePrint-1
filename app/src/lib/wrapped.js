@@ -14,7 +14,15 @@ export const WRAPPED_SITE = 'uniblueprint.ie'
 export const WRAPPED_KINDS = [
   'section', 'story', 'stat', 'list', 'quote', 'collage', 'tribute', 'credits',
   'top10', 'month', 'quiz', 'county', 'awards', 'playlist', 'ubp', 'moment', 'capsule',
+  'recap', 'timeline', 'finale',
 ]
+
+// Names a `ubp` page may use in its `screenshot` key instead of an https URL.
+// Each name maps to a picture bundled with the app (see SCREENSHOT_SOURCES in
+// components/wrapped/WrappedPages.jsx). A name that is not on this list is
+// ignored, so a typo shows the clean illustration instead of a broken picture.
+// New bundled pictures need a new build, so most screenshots should be https URLs.
+export const SCREENSHOT_ASSETS = ['ubp-logo', 'app-icon']
 
 const MAX_PAGES = 200
 const MAX_SECTIONS = 40
@@ -108,6 +116,25 @@ function cleanCta(c) {
   return { label, route, url }
 }
 
+function isHttps(v) { return typeof v === 'string' && /^https:\/\//i.test(v.trim()) }
+
+// A ubp page screenshot: { uri } for an https URL, { asset } for an allowed
+// bundled name, or null.
+function cleanScreenshot(v) {
+  if (typeof v !== 'string') return null
+  const t = v.trim()
+  if (!t || t.length > 600) return null
+  if (isHttps(t)) return { uri: t }
+  return SCREENSHOT_ASSETS.includes(t) ? { asset: t } : null
+}
+
+// A page number to jump to: the number shown at the top right of the magazine
+// (the cover is page 1). Anything else gives null, so the row is not tappable.
+function cleanJump(v) {
+  const n = Number(v)
+  return Number.isInteger(n) && n >= 1 && n <= 999 ? n : null
+}
+
 function strList(v, max, len) {
   return arr(v).map(x => cap(typeof x === 'object' && x ? (x.text || x.title || '') : x, len)).filter(Boolean).slice(0, max)
 }
@@ -131,6 +158,32 @@ function cleanItems(kind, page) {
         if (!question || options.length < 2 || !Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= options.length) return null
         return { question, options, answerIndex, note: cap(it.note, 240) }
       }).filter(Boolean).slice(0, 6)
+    case 'month':
+      return items.map(it => (it && typeof it === 'object') ? ({
+        kicker: cap(it.kicker, 40),
+        heading: cap(it.heading, 140),
+        body: capBody(it.body, 600),
+        source: cap(it.source, 80),
+        sourceUrl: isHttp(it.sourceUrl) ? it.sourceUrl.trim() : null,
+      }) : null).filter(it => it && it.kicker && it.heading).slice(0, 3)
+    case 'recap':
+      return items.map(it => (it && typeof it === 'object') ? ({
+        date: cap(it.date, 24),
+        text: cap(it.text, 150),
+      }) : null).filter(it => it && it.text).slice(0, 12)
+    case 'timeline':
+      return items.map(it => (it && typeof it === 'object') ? ({
+        date: cap(it.date, 20),
+        text: cap(it.text, 110),
+        page: cleanJump(it.page),
+      }) : null).filter(it => it && it.date && it.text).slice(0, 12)
+    case 'finale':
+      return items.map(it => (it && typeof it === 'object') ? ({
+        section: cap(it.section, 30),
+        title: cap(it.title, 70),
+        text: cap(it.text, 110),
+        page: cleanJump(it.page),
+      }) : null).filter(it => it && (it.title || it.text)).slice(0, 12)
     case 'county':
       return items.map(it => (it && typeof it === 'object') ? ({
         county: cap(it.county, 40),
@@ -187,6 +240,7 @@ export function cleanPage(raw) {
     sourceUrl: isHttp(raw.sourceUrl) ? raw.sourceUrl.trim() : null,
     gaeilge: cap(raw.gaeilge, 60),
     image: cleanImage(raw.image),
+    screenshot: kind === 'ubp' ? cleanScreenshot(raw.screenshot) : null,
     cta: cleanCta(raw.cta),
     items: cleanItems(kind, raw),
     categories: kind === 'awards' ? cleanCategories(raw) : [],
@@ -202,7 +256,10 @@ export function cleanPage(raw) {
     case 'tribute': if (!page.heading && !page.body) return null; break
     case 'credits': break
     case 'top10': if (page.items.length === 0) return null; break
-    case 'month': if (!page.kicker || !page.heading) return null; break
+    case 'month': if (page.items.length === 0 && (!page.kicker || !page.heading)) return null; break
+    case 'recap': if (page.items.length === 0) return null; break
+    case 'timeline': if (page.items.length === 0) return null; break
+    case 'finale': if (page.items.length === 0) return null; break
     case 'quiz': if (page.items.length === 0) return null; break
     case 'county': if (page.items.length === 0) return null; break
     case 'awards': if (page.categories.length === 0) return null; break
@@ -217,8 +274,14 @@ export function cleanPage(raw) {
 // Clean the whole wrapped block. Returns null when there is nothing to show,
 // so the magazine behaves exactly as before.
 export function normaliseWrapped(raw) {
+  try { return normaliseWrappedUnsafe(raw) } catch { return null }
+}
+
+function normaliseWrappedUnsafe(raw) {
   if (!raw || typeof raw !== 'object') return null
-  const pages = arr(raw.pages).slice(0, MAX_PAGES).map(cleanPage).filter(Boolean)
+  // One bad page never takes the others with it.
+  const safeClean = p => { try { return cleanPage(p) } catch { return null } }
+  const pages = arr(raw.pages).slice(0, MAX_PAGES).map(safeClean).filter(Boolean)
   if (pages.length === 0) return null
 
   const declared = arr(raw.sections).map(s => (s && typeof s === 'object' && typeof s.key === 'string' && s.key.trim()) ? ({
@@ -253,7 +316,11 @@ export function coverSnippets(wrapped, max = 6) {
     const stat = own.find(p => p.kind === 'stat')
     const story = own.find(p => p.kind === 'story' || p.kind === 'month' || p.kind === 'quote' || p.kind === 'tribute')
     if (stat) out.push({ key: s.key, label: s.title, big: stat.stat, text: stat.statLabel, accent: s.accent })
-    else if (story && (story.heading || story.body)) out.push({ key: s.key, label: s.title, big: '', text: cap(story.kind === 'quote' ? story.body : (story.heading || story.body), 60), accent: s.accent })
+    else if (story) {
+      const first = story.kind === 'month' && story.items.length ? story.items[0] : null
+      const line = story.kind === 'quote' ? story.body : (story.heading || (first && first.heading) || story.body)
+      if (line) out.push({ key: s.key, label: s.title, big: '', text: cap(line, 60), accent: s.accent })
+    }
     if (out.length >= max) break
   }
   return out

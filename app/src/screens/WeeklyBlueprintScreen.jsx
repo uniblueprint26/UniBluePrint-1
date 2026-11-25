@@ -155,6 +155,7 @@ function PageContent({ page, navigation, onJump, onOpenPost, data, isPro }) {
           navigation={navigation}
           allPages={data.wrapped}
           pageKey={`${issue?.id || 'issue'}:${page.n}`}
+          onJump={onJump}
         />
       )
 
@@ -1055,7 +1056,11 @@ export default function WeeklyBlueprintScreen({ navigation }) {
     return () => clearTimeout(t)
   }, [pageIndex, progressReady, user?.id, screenData.issue?.id])
 
-  function jumpTo(index) {
+  function jumpTo(rawIndex) {
+    // Page numbers in Wrapped data can be wrong, so the target is kept in range.
+    const last = Math.max(0, PAGES.length - 1)
+    const n = Math.floor(Number(rawIndex))
+    const index = Number.isFinite(n) ? Math.max(0, Math.min(last, n)) : 0
     // A long jump (say from the contents page into the middle of Wrapped) goes
     // straight there, so the pages in between are not mounted on the way.
     const far = Math.abs(index - pageIndex) > NEAR

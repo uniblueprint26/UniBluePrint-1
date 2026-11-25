@@ -1,359 +1,603 @@
 {
- "theme": "Ireland 2026",
- "wrapped": {
-  "sections": [
-   {
-    "key": "opening",
-    "title": "Opening",
-    "accent": "#2E7D5B"
-   },
-   {
-    "key": "months",
-    "title": "Month by month",
-    "accent": "#C96A42"
-   },
-   {
-    "key": "sport",
-    "title": "Sport",
-    "accent": "#3F6FB5"
-   },
-   {
-    "key": "culture",
-    "title": "Culture",
-    "accent": "#8A5A9E"
-   },
-   {
-    "key": "tens",
-    "title": "Top 10s and quiz",
-    "accent": "#D9596B"
-   },
-   {
-    "key": "counties",
-    "title": "County by county",
-    "accent": "#2E8FA3"
-   },
-   {
-    "key": "awards",
-    "title": "UBP Awards",
-    "accent": "#5B4B8A"
-   },
-   {
-    "key": "ahead",
-    "title": "Looking ahead",
-    "accent": "#4A8B3F"
-   },
-   {
-    "key": "close",
-    "title": "Closing",
-    "accent": "#B5543C"
-   }
-  ],
-  "pages": [
-   {
-    "section": "opening",
-    "kind": "section",
-    "kicker": "Part one",
-    "heading": "The year at a glance",
-    "body": "Example divider. A calm start to the look back.",
-    "gaeilge": "Bliain faoi bhláth"
-   },
-   {
-    "section": "opening",
-    "kind": "ubp",
-    "heading": "Meet UniBlueprint",
-    "body": "Example feature page. One short idea, one button.",
-    "cta": {
-     "label": "Open the Ad Board",
-     "route": "AdBoardMain"
-    }
-   },
-   {
-    "section": "opening",
-    "kind": "stat",
-    "heading": "Example stat page",
-    "stat": "1,234",
-    "statLabel": "example things happened this year",
-    "source": "Example outlet"
-   },
-   {
-    "section": "months",
-    "kind": "month",
-    "kicker": "January",
-    "heading": "An example moment from the month",
-    "body": "Example body text for a month page. It stays short, warm and plain, and it can run to a few lines without any trouble at all.",
-    "source": "Example outlet",
-    "image": {
-     "url": "https://upload.wikimedia.org/fixture/example-photo.jpg",
-     "credit": "Example Author, Wikimedia Commons",
-     "licence": "CC BY SA 4.0"
-    }
-   },
-   {
-    "section": "sport",
-    "kind": "story",
-    "kicker": "Sport",
-    "heading": "An example sport story with a picture",
-    "body": "Example story body. It has a picture above with a credit line below, and the text sits under the heading. It can be a little longer so we can see how it wraps on a small phone at a larger font size.",
-    "source": "Example outlet",
-    "image": {
-     "url": "https://upload.wikimedia.org/fixture/example-photo.jpg",
-     "credit": "Example Author, Wikimedia Commons",
-     "licence": "CC BY SA 4.0"
-    }
-   },
-   {
-    "section": "sport",
-    "kind": "list",
-    "heading": "Example list",
-    "bullets": [
-     "First example point",
-     "Second example point that runs a little longer so it wraps onto two lines",
-     "Third example point"
-    ]
-   },
-   {
-    "section": "culture",
-    "kind": "quote",
-    "heading": "Example Speaker",
-    "body": "A short example quote goes here.",
-    "source": "Example outlet"
-   },
-   {
-    "section": "culture",
-    "kind": "collage",
-    "heading": "Example collage",
-    "items": [
-     "Example one",
-     "Example two",
-     "Example three",
-     "Example four",
-     "Example five",
-     "Example six",
-     "Example seven",
-     "Example eight",
-     "Example nine",
-     "Example ten",
-     "Example eleven",
-     "Example twelve"
-    ]
-   },
-   {
-    "section": "tens",
-    "kind": "top10",
-    "kicker": "Top 10",
-    "heading": "Example top 10 songs",
-    "items": [
-     {
-      "rank": 1,
-      "title": "Example title 1",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 2,
-      "title": "Example title 2",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 3,
-      "title": "Example title 3",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 4,
-      "title": "Example title 4",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 5,
-      "title": "Example title 5",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 6,
-      "title": "Example title 6",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 7,
-      "title": "Example title 7",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 8,
-      "title": "Example title 8",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 9,
-      "title": "Example title 9",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     },
-     {
-      "rank": 10,
-      "title": "Example title 10",
-      "blurb": "A short example blurb about this one.",
-      "source": "Example outlet"
-     }
-    ]
-   },
-   {
-    "section": "tens",
-    "kind": "quiz",
-    "heading": "Example quiz",
-    "items": [
-     {
-      "question": "Example question one?",
-      "options": [
-       "Option A",
-       "Option B",
-       "Option C"
-      ],
-      "answerIndex": 1,
-      "note": "Example note that explains the right answer."
-     },
-     {
-      "question": "Example question two?",
-      "options": [
-       "Yes",
-       "No",
-       "Maybe",
-       "Not sure"
-      ],
-      "answerIndex": 0,
-      "note": "Another short example note."
-     }
-    ]
-   },
-   {
-    "section": "counties",
-    "kind": "county",
-    "items": [
-     {
-      "county": "Example County One",
-      "line": "An example line about this county, kept short and warm.",
-      "source": "Example outlet"
-     },
-     {
-      "county": "Example County Two",
-      "line": "Another example line about a second county on the same page.",
-      "source": "Example outlet"
-     }
-    ]
-   },
-   {
-    "section": "awards",
-    "kind": "awards",
-    "heading": "UBP Awards",
-    "body": "Example awards page. Nominees are in no particular order.",
-    "categories": [
-     {
-      "key": "c1",
-      "title": "Example category one",
-      "nominees": [
-       {
-        "name": "Example Nominee A",
-        "why": "Example reason in a few words",
+  "theme": "Ireland 2026",
+  "wrapped": {
+    "sections": [
+      {
+        "key": "opening",
+        "title": "Opening",
+        "accent": "#2E7D5B"
+      },
+      {
+        "key": "months",
+        "title": "Month by month",
+        "accent": "#C96A42"
+      },
+      {
+        "key": "sport",
+        "title": "Sport",
+        "accent": "#3F6FB5"
+      },
+      {
+        "key": "culture",
+        "title": "Culture",
+        "accent": "#8A5A9E"
+      },
+      {
+        "key": "tens",
+        "title": "Top 10s and quiz",
+        "accent": "#D9596B"
+      },
+      {
+        "key": "counties",
+        "title": "County by county",
+        "accent": "#2E8FA3"
+      },
+      {
+        "key": "awards",
+        "title": "UBP Awards",
+        "accent": "#5B4B8A"
+      },
+      {
+        "key": "ahead",
+        "title": "Looking ahead",
+        "accent": "#4A8B3F"
+      },
+      {
+        "key": "close",
+        "title": "Closing",
+        "accent": "#B5543C"
+      }
+    ],
+    "pages": [
+      {
+        "section": "opening",
+        "kind": "section",
+        "kicker": "Part one",
+        "heading": "The year at a glance",
+        "body": "Example divider. A calm start to the look back.",
+        "gaeilge": "Bliain faoi bhláth"
+      },
+      {
+        "section": "opening",
+        "kind": "ubp",
+        "heading": "Meet UniBlueprint",
+        "body": "Example feature page. One short idea, one button, and a phone frame for the app screenshot.",
+        "cta": {
+          "label": "Open the Ad Board",
+          "route": "AdBoardMain"
+        },
+        "screenshot": "app-icon"
+      },
+      {
+        "section": "opening",
+        "kind": "ubp",
+        "heading": "A page with no screenshot",
+        "body": "With no screenshot the page shows a clean illustration block instead.",
+        "cta": {
+          "label": "Open the Ad Board",
+          "route": "AdBoardMain"
+        }
+      },
+      {
+        "section": "opening",
+        "kind": "stat",
+        "heading": "Example stat page",
+        "stat": "1,234",
+        "statLabel": "example things happened this year",
         "source": "Example outlet"
-       },
-       {
-        "name": "Example Nominee B",
-        "why": "Another example reason",
+      },
+      {
+        "section": "months",
+        "kind": "timeline",
+        "kicker": "Month by month",
+        "heading": "The year in twelve lines",
+        "items": [
+          {
+            "date": "January",
+            "text": "Example line for January, short and plain.",
+            "page": 8
+          },
+          {
+            "date": "February",
+            "text": "Example line for February, short and plain.",
+            "page": 12
+          },
+          {
+            "date": "March",
+            "text": "Example line for March, short and plain."
+          },
+          {
+            "date": "April",
+            "text": "Example line for April, short and plain."
+          },
+          {
+            "date": "May",
+            "text": "Example line for May, short and plain."
+          },
+          {
+            "date": "June",
+            "text": "Example line for June, short and plain."
+          },
+          {
+            "date": "July",
+            "text": "Example line for July, short and plain."
+          },
+          {
+            "date": "August",
+            "text": "Example line for August, short and plain."
+          },
+          {
+            "date": "September",
+            "text": "Example line for September, which jumps to the quiz.",
+            "page": 16
+          },
+          {
+            "date": "October",
+            "text": "Example line for October, which jumps to the awards.",
+            "page": 18
+          },
+          {
+            "date": "November",
+            "text": "Example line for November, which jumps to the recap.",
+            "page": 12
+          },
+          {
+            "date": "December",
+            "text": "Example line for December, with a page number that is wrong.",
+            "page": "abc"
+          }
+        ]
+      },
+      {
+        "section": "months",
+        "kind": "month",
+        "items": [
+          {
+            "kicker": "January",
+            "heading": "An example moment from January",
+            "body": "Example body text for the first month on a page that holds two months. It stays short and plain.",
+            "source": "Example outlet",
+            "sourceUrl": "https://example.com/january"
+          },
+          {
+            "kicker": "February",
+            "heading": "An example moment from February",
+            "body": "Example body text for the second month. Each month has its own source line and its own Your take button.",
+            "source": "Example outlet"
+          }
+        ]
+      },
+      {
+        "section": "months",
+        "kind": "month",
+        "kicker": "January",
+        "heading": "An example moment from the month",
+        "body": "Example body text for a month page. It stays short, warm and plain, and it can run to a few lines without any trouble at all.",
+        "source": "Example outlet",
+        "image": {
+          "url": "https://upload.wikimedia.org/fixture/example-photo.jpg",
+          "credit": "Example Author, Wikimedia Commons",
+          "licence": "CC BY SA 4.0"
+        }
+      },
+      {
+        "section": "sport",
+        "kind": "story",
+        "kicker": "Sport",
+        "heading": "An example sport story with a picture",
+        "body": "Example story body. It has a picture above with a credit line below, and the text sits under the heading. It can be a little longer so we can see how it wraps on a small phone at a larger font size.",
+        "source": "Example outlet",
+        "image": {
+          "url": "https://upload.wikimedia.org/fixture/example-photo.jpg",
+          "credit": "Example Author, Wikimedia Commons",
+          "licence": "CC BY SA 4.0"
+        }
+      },
+      {
+        "section": "sport",
+        "kind": "list",
+        "heading": "Example list",
+        "bullets": [
+          "First example point",
+          "Second example point that runs a little longer so it wraps onto two lines",
+          "Third example point"
+        ]
+      },
+      {
+        "section": "sport",
+        "kind": "recap",
+        "kicker": "At a glance",
+        "heading": "Sport in 2026",
+        "items": [
+          {
+            "date": "5 Feb",
+            "text": "Example result, one short line like a scoreboard"
+          },
+          {
+            "date": "21 Feb",
+            "text": "Example result for a second match"
+          },
+          {
+            "date": "14 Mar",
+            "text": "Example result with a slightly longer line so we can see it wrap onto two lines"
+          },
+          {
+            "date": "2 May",
+            "text": "Example result for a fourth entry"
+          },
+          {
+            "date": "12 to 14 Jun",
+            "text": "Example result for something over a few days"
+          },
+          {
+            "date": "30 Jul",
+            "text": "Example result for a sixth entry"
+          },
+          {
+            "date": "4 Sep",
+            "text": "Example result for a seventh entry"
+          },
+          {
+            "date": "18 Oct",
+            "text": "Example result for an eighth entry"
+          },
+          {
+            "date": "29 Nov",
+            "text": "Example result for the last entry"
+          }
+        ]
+      },
+      {
+        "section": "culture",
+        "kind": "quote",
+        "heading": "Example Speaker",
+        "body": "A short example quote goes here.",
         "source": "Example outlet"
-       },
-       {
-        "name": "Example Nominee C",
-        "why": "A third example reason",
-        "source": "Example outlet"
-       }
-      ]
-     },
-     {
-      "key": "c2",
-      "title": "Example category two",
-      "nominees": [
-       {
-        "name": "Example Nominee D",
-        "why": "Example reason",
-        "source": "Example outlet"
-       },
-       {
-        "name": "Example Nominee E",
-        "why": "Example reason",
-        "source": "Example outlet"
-       }
-      ]
-     }
+      },
+      {
+        "section": "culture",
+        "kind": "collage",
+        "heading": "Example collage",
+        "items": [
+          "Example one",
+          "Example two",
+          "Example three",
+          "Example four",
+          "Example five",
+          "Example six",
+          "Example seven",
+          "Example eight",
+          "Example nine",
+          "Example ten",
+          "Example eleven",
+          "Example twelve"
+        ]
+      },
+      {
+        "section": "tens",
+        "kind": "top10",
+        "kicker": "Top 10",
+        "heading": "Example top 10 songs",
+        "items": [
+          {
+            "rank": 1,
+            "title": "Example title 1",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 2,
+            "title": "Example title 2",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 3,
+            "title": "Example title 3",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 4,
+            "title": "Example title 4",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 5,
+            "title": "Example title 5",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 6,
+            "title": "Example title 6",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 7,
+            "title": "Example title 7",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 8,
+            "title": "Example title 8",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 9,
+            "title": "Example title 9",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          },
+          {
+            "rank": 10,
+            "title": "Example title 10",
+            "blurb": "A short example blurb about this one.",
+            "source": "Example outlet"
+          }
+        ]
+      },
+      {
+        "section": "tens",
+        "kind": "quiz",
+        "heading": "Example quiz",
+        "items": [
+          {
+            "question": "Example question one?",
+            "options": [
+              "Option A",
+              "Option B",
+              "Option C"
+            ],
+            "answerIndex": 1,
+            "note": "Example note that explains the right answer."
+          },
+          {
+            "question": "Example question two?",
+            "options": [
+              "Yes",
+              "No",
+              "Maybe",
+              "Not sure"
+            ],
+            "answerIndex": 0,
+            "note": "Another short example note."
+          }
+        ]
+      },
+      {
+        "section": "counties",
+        "kind": "county",
+        "items": [
+          {
+            "county": "Example County One",
+            "line": "An example line about this county, kept short and warm.",
+            "source": "Example outlet"
+          },
+          {
+            "county": "Example County Two",
+            "line": "Another example line about a second county on the same page.",
+            "source": "Example outlet"
+          }
+        ]
+      },
+      {
+        "section": "awards",
+        "kind": "awards",
+        "heading": "UBP Awards",
+        "body": "Example awards page. Nominees are in no particular order.",
+        "categories": [
+          {
+            "key": "c1",
+            "title": "Example category one",
+            "nominees": [
+              {
+                "name": "Example Nominee A",
+                "why": "Example reason in a few words",
+                "source": "Example outlet"
+              },
+              {
+                "name": "Example Nominee B",
+                "why": "Another example reason",
+                "source": "Example outlet"
+              },
+              {
+                "name": "Example Nominee C",
+                "why": "A third example reason",
+                "source": "Example outlet"
+              }
+            ]
+          },
+          {
+            "key": "c2",
+            "title": "Example category two",
+            "nominees": [
+              {
+                "name": "Example Nominee D",
+                "why": "Example reason",
+                "source": "Example outlet"
+              },
+              {
+                "name": "Example Nominee E",
+                "why": "Example reason",
+                "source": "Example outlet"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section": "ahead",
+        "kind": "playlist",
+        "heading": "Example playlist",
+        "items": [
+          {
+            "title": "Example Song One",
+            "artist": "Example Artist",
+            "url": "https://example.com/one"
+          },
+          {
+            "title": "Example Song Two",
+            "artist": "Example Artist Two",
+            "url": "https://example.com/two"
+          },
+          {
+            "title": "Example Song Three",
+            "artist": "Example Artist Three",
+            "url": "https://example.com/three"
+          }
+        ]
+      },
+      {
+        "section": "ahead",
+        "kind": "capsule",
+        "heading": "Note to your 2027 self",
+        "body": "Example capsule page. Write a note now and read it on 1 January.",
+        "cta": {
+          "label": "Write your note"
+        }
+      },
+      {
+        "section": "close",
+        "kind": "finale",
+        "kicker": "The year",
+        "heading": "Ireland 2026 at a glance",
+        "items": [
+          {
+            "section": "Sport",
+            "title": "Example headline one",
+            "text": "A short line of detail.",
+            "page": 12
+          },
+          {
+            "section": "Culture",
+            "title": "Example headline two",
+            "text": "A short line of detail.",
+            "page": 13
+          },
+          {
+            "section": "Top 10s and quiz",
+            "title": "Example headline three",
+            "text": "A short line of detail.",
+            "page": 15
+          },
+          {
+            "section": "County by county",
+            "title": "Example headline four",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "UBP Awards",
+            "title": "Example headline five",
+            "text": "A short line of detail.",
+            "page": 18
+          },
+          {
+            "section": "Looking ahead",
+            "title": "Example headline six",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "Money",
+            "title": "Example headline seven",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "Education",
+            "title": "Example headline eight",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "Records",
+            "title": "Example headline nine",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "Numbers",
+            "title": "Example headline ten",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "Months",
+            "title": "Example headline eleven",
+            "text": "A short line of detail."
+          },
+          {
+            "section": "Opening",
+            "title": "Example headline twelve",
+            "text": "A short line of detail."
+          }
+        ]
+      },
+      {
+        "section": "close",
+        "kind": "tribute",
+        "kicker": "In memory",
+        "heading": "An example tribute page",
+        "body": "Example tribute text. Quiet and short, with no picture."
+      },
+      {
+        "section": "close",
+        "kind": "moment",
+        "heading": "Add your moment",
+        "body": "Example prompt. What was your moment of 2026? Share it as a Take."
+      },
+      {
+        "section": "close",
+        "kind": "credits",
+        "heading": "Thank you",
+        "body": "Example credits page.",
+        "bullets": [
+          "Made by the UBP team",
+          "Example contributor"
+        ]
+      },
+      {
+        "section": "ahead",
+        "kind": "mystery",
+        "heading": "Unknown kinds are ignored"
+      },
+      "not a page",
+      {
+        "kind": "recap",
+        "heading": "No rows",
+        "items": []
+      },
+      {
+        "kind": "month",
+        "items": [
+          "x",
+          3,
+          null,
+          {
+            "kicker": "No heading"
+          }
+        ]
+      },
+      {
+        "kind": "finale",
+        "items": "not a list"
+      },
+      {
+        "kind": "timeline",
+        "items": [
+          {
+            "date": "January"
+          }
+        ]
+      },
+      "not an object",
+      null,
+      {
+        "kind": "ubp",
+        "heading": "Bad screenshot name, shows the illustration",
+        "screenshot": "nope",
+        "section": "opening"
+      }
     ]
-   },
-   {
-    "section": "ahead",
-    "kind": "playlist",
-    "heading": "Example playlist",
-    "items": [
-     {
-      "title": "Example Song One",
-      "artist": "Example Artist",
-      "url": "https://example.com/one"
-     },
-     {
-      "title": "Example Song Two",
-      "artist": "Example Artist Two",
-      "url": "https://example.com/two"
-     },
-     {
-      "title": "Example Song Three",
-      "artist": "Example Artist Three",
-      "url": "https://example.com/three"
-     }
-    ]
-   },
-   {
-    "section": "ahead",
-    "kind": "capsule",
-    "heading": "Note to your 2027 self",
-    "body": "Example capsule page. Write a note now and read it on 1 January.",
-    "cta": {
-     "label": "Write your note"
-    }
-   },
-   {
-    "section": "close",
-    "kind": "tribute",
-    "kicker": "In memory",
-    "heading": "An example tribute page",
-    "body": "Example tribute text. Quiet and short, with no picture."
-   },
-   {
-    "section": "close",
-    "kind": "moment",
-    "heading": "Add your moment",
-    "body": "Example prompt. What was your moment of 2026? Share it as a Take."
-   },
-   {
-    "section": "close",
-    "kind": "credits",
-    "heading": "Thank you",
-    "body": "Example credits page.",
-    "bullets": [
-     "Made by the UBP team",
-     "Example contributor"
-    ]
-   },
-   {
-    "section": "ahead",
-    "kind": "mystery",
-    "heading": "Unknown kinds are ignored"
-   },
-   "not a page"
-  ]
- }
+  }
 }

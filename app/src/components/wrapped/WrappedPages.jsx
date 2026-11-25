@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { Component, useState, useRef, useEffect } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, Image, Linking, Share,
   StyleSheet, useWindowDimensions,
@@ -14,8 +14,16 @@ import { fonts, spacing, radius } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import {
   accentFill, onColor, mixHex, cap, coverSnippets, pictureCredits, issueCode,
-  shareText, openTakeComposer, hasRoute, goToRoute, WRAPPED_TAG,
+  shareText, openTakeComposer, hasRoute, goToRoute, WRAPPED_TAG, WRAPPED_SITE, DEFAULT_ACCENTS,
 } from '../../lib/wrapped'
+import { shareCard } from '../../lib/shareCard'
+
+// Pictures bundled with the app that a ubp page can name in its `screenshot`
+// key. The names must match SCREENSHOT_ASSETS in lib/wrapped.js.
+const SCREENSHOT_SOURCES = {
+  'ubp-logo': require('../../../assets/ubp-logo.png'),
+  'app-icon': require('../../../assets/icon.png'),
+}
 
 // ─── Ireland Wrapped pages ──────────────────────────────────────────────────
 // One component per page kind, all driven by the cleaned data from
@@ -62,16 +70,21 @@ function Btn({ label, Icon, onPress, variant = 'primary', colors, accessibilityL
   )
 }
 
-// Share through the system share sheet. A page card image needs
-// react-native-view-shot, which is not installed, so this shares short text
-// that ends with the site name. If the sheet is not available (web), the text
-// is copied instead.
+// Share through the system share sheet. Pages that pass `cardRef` to Frame are
+// shared as a picture of the page card (react-native-view-shot). If that is not
+// possible (web, or a build without the native module) it shares short text
+// that ends with the site name. If the sheet is not available, the text is
+// copied instead.
 function useShare() {
   const [note, setNote] = useState('')
   const timer = useRef(null)
+  const cardRef = useRef(null)
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
   const share = async (title, line) => {
     const message = shareText(title, line)
+    try {
+      if (await shareCard(cardRef, { message, title: cap(title, 60) })) return
+    } catch {}
     try {
       await Share.share({ message })
     } catch {
@@ -83,7 +96,17 @@ function useShare() {
       } catch {}
     }
   }
-  return { share, note }
+  return { share, note, cardRef }
+}
+
+// The foot of a share card: the UBP mark, From UBP, and where to find us.
+function CardFooter({ colors }) {
+  return (
+    <View style={[base.cardFoot, { borderTopColor: colors.border }]}>
+      <FromUBP colors={colors} />
+      <Text style={[base.cardFootText, { color: colors.textSecondary }]}>{WRAPPED_TAG}, {WRAPPED_SITE}</Text>
+    </View>
+  )
 }
 
 function FromUBP({ colors }) {
@@ -145,20 +168,32 @@ function Pic({ image, a, Icon = Sparkles, height = 170, label }) {
 
 // The page frame: scrolls when the content is long, actions pinned to the end.
 // `pinned` keeps the actions on screen under a long page (top 10, quiz, awards).
-function Frame({ colors, children, actions, note, pinned }) {
+// `cardRef` makes the content a share card: it is wrapped in a view the page can
+// be captured from, with the UBP footer inside the picture.
+function Frame({ colors, children, actions, note, pinned, cardRef }) {
   const noteEl = note ? <Text style={[base.note, { color: colors.textSecondary }]} accessibilityLiveRegion="polite">{note}</Text> : null
   return (
     <View style={[base.frame, { backgroundColor: colors.background }]}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={base.frameScroll}
+        contentContainerStyle={[base.frameScroll, cardRef && base.frameScrollCard]}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
       >
-        {children}
-        <View style={{ flex: 1, minHeight: 20 }} />
-        {!pinned && noteEl}
-        {!pinned && actions ? <View style={base.actions}>{actions}</View> : null}
+        {cardRef ? (
+          <View ref={cardRef} collapsable={false} style={[base.card, { backgroundColor: colors.background }]}>
+            {children}
+            <View style={{ flex: 1, minHeight: 20 }} />
+            <CardFooter colors={colors} />
+          </View>
+        ) : (
+          <>
+            {children}
+            <View style={{ flex: 1, minHeight: 20 }} />
+          </>
+        )}
+        {!pinned && noteEl && cardRef ? <View style={base.cardPad}>{noteEl}</View> : (!pinned && noteEl)}
+        {!pinned && actions ? <View style={[base.actions, cardRef && base.cardPad]}>{actions}</View> : null}
       </ScrollView>
       {pinned && actions ? (
         <View style={[base.pinBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
@@ -210,11 +245,12 @@ function statSize(len) {
 
 function StatPage({ page, section }) {
   const a = useAccent(section?.accent)
-  const { share, note } = useShare()
+  const { share, note, cardRef } = useShare()
   const size = statSize(page.stat.length)
   return (
     <Frame
       colors={a.colors}
+      cardRef={cardRef}
       note={note}
       actions={<Btn colors={a.colors} variant="secondary" Icon={Share2} label="Share outside UBP" onPress={() => share(`${page.stat} ${page.statLabel}`.trim(), page.heading)} />}
     >
@@ -233,7 +269,6 @@ function StatPage({ page, section }) {
         {!!page.body && <Text style={[base.body, { color: a.colors.textSecondary }]}>{page.body}</Text>}
       </View>
       <SourceLine page={page} colors={a.colors} />
-      <FromUBP colors={a.colors} />
     </Frame>
   )
 }
@@ -354,11 +389,11 @@ function TakeAndShare({ a, navigation, title, line, share }) {
 
 function Top10Page({ page, section, navigation }) {
   const a = useAccent(section?.accent)
-  const { share, note } = useShare()
+  const { share, note, cardRef } = useShare()
   const title = page.heading || 'Top 10'
   const line = page.items.slice(0, 3).map(it => `${it.rank}. ${it.title}`).join(', ')
   return (
-    <Frame pinned colors={a.colors} note={note} actions={<TakeAndShare a={a} navigation={navigation} title={title} line={line} share={share} />}>
+    <Frame pinned cardRef={cardRef} colors={a.colors} note={note} actions={<TakeAndShare a={a} navigation={navigation} title={title} line={line} share={share} />}>
       <Kicker color={a.text}>{page.kicker || section?.title}</Kicker>
       <Text style={[base.heading, { color: a.colors.textPrimary }]} accessibilityRole="header">{title}</Text>
       <View style={{ marginTop: spacing.md }}>
@@ -373,24 +408,62 @@ function Top10Page({ page, section, navigation }) {
           </View>
         ))}
       </View>
-      <View style={{ marginTop: spacing.md }}><FromUBP colors={a.colors} /></View>
     </Frame>
   )
 }
 
 function MonthPage({ page, section, navigation }) {
   const a = useAccent(section?.accent)
-  const { share, note } = useShare()
+  const { share, note, cardRef } = useShare()
   const title = `${page.kicker}: ${page.heading}`
   return (
-    <Frame colors={a.colors} note={note} actions={<TakeAndShare a={a} navigation={navigation} title={title} line={cap(page.body, 110)} share={share} />}>
+    <Frame colors={a.colors} cardRef={cardRef} note={note} actions={<TakeAndShare a={a} navigation={navigation} title={title} line={cap(page.body, 110)} share={share} />}>
       <Text style={[base.monthName, { color: a.text }]} numberOfLines={1} adjustsFontSizeToFit accessibilityRole="header">{page.kicker}</Text>
       <View style={[base.monthBar, { backgroundColor: a.fill }]} />
       <Pic image={page.image} a={a} Icon={Sparkles} height={120} label={page.heading} />
       <Text style={[base.heading, { color: a.colors.textPrimary }]}>{page.heading}</Text>
       {!!page.body && <Text style={[base.body, { color: a.colors.textSecondary }]}>{page.body}</Text>}
       <SourceLine page={page} colors={a.colors} />
-      <View style={{ marginTop: spacing.md }}><FromUBP colors={a.colors} /></View>
+    </Frame>
+  )
+}
+
+// Two months on one page: each item stacked with its own source line and a
+// small Give your take button. One Share button for the whole page.
+function MonthStackPage({ page, section, navigation }) {
+  const a = useAccent(section?.accent)
+  const { share, note, cardRef } = useShare()
+  const title = page.items.map(it => it.kicker).join(' and ')
+  const line = page.items.map(it => it.heading).join('. ')
+  return (
+    <Frame
+      pinned
+      cardRef={cardRef}
+      colors={a.colors}
+      note={note}
+      actions={<Btn colors={a.colors} variant="secondary" Icon={Share2} label="Share outside UBP" onPress={() => share(title, line)} />}
+    >
+      {page.items.map((it, i) => (
+        <View key={i} style={i > 0 && [base.stackGap, { borderTopColor: a.colors.border }]}>
+          <Text style={[base.monthNameSm, { color: a.text }]} numberOfLines={1} adjustsFontSizeToFit accessibilityRole="header">{it.kicker}</Text>
+          <View style={[base.monthBar, { backgroundColor: a.fill }]} />
+          <Text style={[base.stackHeading, { color: a.colors.textPrimary }]}>{it.heading}</Text>
+          {!!it.body && <Text style={[base.body, { color: a.colors.textSecondary }]}>{it.body}</Text>}
+          <View style={base.stackFoot}>
+            <View style={{ flex: 1, flexBasis: 120 }}><SourceLine page={it} colors={a.colors} /></View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => openTakeComposer(navigation, `${it.kicker}: ${it.heading}`)}
+              accessibilityRole="button"
+              accessibilityLabel={`Give your take on ${it.kicker}`}
+              style={[base.nomBtn, { borderColor: a.colors.border, marginTop: 10 }]}
+            >
+              <MessageSquarePlus size={14} color={a.colors.textPrimary} strokeWidth={2.2} />
+              <Text style={[base.nomBtnText, { color: a.colors.textPrimary }]}>Your take</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))}
     </Frame>
   )
 }
@@ -440,10 +513,11 @@ function QuizQuestion({ q, qkey, a }) {
 
 function QuizPage({ page, section, pageKey }) {
   const a = useAccent(section?.accent)
-  const { share, note } = useShare()
+  const { share, note, cardRef } = useShare()
   return (
     <Frame
       pinned
+      cardRef={cardRef}
       colors={a.colors}
       note={note}
       actions={<Btn colors={a.colors} variant="secondary" Icon={Share2} label="Share outside UBP" onPress={() => share(page.heading || 'Ireland 2026 quiz', 'Think you know your Irish year? Have a go.')} />}
@@ -453,7 +527,6 @@ function QuizPage({ page, section, pageKey }) {
       <View style={{ gap: 14, marginTop: spacing.md }}>
         {page.items.map((q, i) => <QuizQuestion key={i} q={q} qkey={`${pageKey}:${i}`} a={a} />)}
       </View>
-      <View style={{ marginTop: spacing.md }}><FromUBP colors={a.colors} /></View>
     </Frame>
   )
 }
@@ -561,32 +634,194 @@ function PlaylistPage({ page, section }) {
   )
 }
 
+// The scoreboard: one line per moment, dates in a fixed column on the left.
+function RecapPage({ page, section }) {
+  const a = useAccent(section?.accent)
+  const { share, note, cardRef } = useShare()
+  const title = page.heading || 'At a glance'
+  const line = page.items.length ? cap(page.items[0].text, 110) : ''
+  return (
+    <Frame
+      pinned
+      cardRef={cardRef}
+      colors={a.colors}
+      note={note}
+      actions={<Btn colors={a.colors} variant="secondary" Icon={Share2} label="Share outside UBP" onPress={() => share(title, line)} />}
+    >
+      <Kicker color={a.text}>{page.kicker || 'At a glance'}</Kicker>
+      <Text style={[base.heading, { color: a.colors.textPrimary }]} accessibilityRole="header">{title}</Text>
+      <View style={[base.monthBar, { backgroundColor: a.fill, marginTop: 10, marginBottom: 6 }]} />
+      <View style={{ marginTop: spacing.sm }}>
+        {page.items.map((it, i) => (
+          <View key={i} style={[base.recapRow, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: a.colors.border }]}>
+            <Text style={[base.recapDate, { color: a.text }]} numberOfLines={3}>{it.date}</Text>
+            <Text style={[base.recapText, { color: a.colors.textPrimary }]}>{it.text}</Text>
+          </View>
+        ))}
+      </View>
+    </Frame>
+  )
+}
+
+// The whole year on one page. A row jumps to its page when it has a page number.
+function TimelinePage({ page, section, onJump }) {
+  const a = useAccent(section?.accent)
+  return (
+    <Frame colors={a.colors}>
+      <Kicker color={a.text}>{page.kicker || section?.title}</Kicker>
+      {!!page.heading && <Text style={[base.heading, { color: a.colors.textPrimary, fontSize: 24, lineHeight: 30 }]} accessibilityRole="header">{page.heading}</Text>}
+      <View style={{ marginTop: spacing.sm }}>
+        {page.items.map((it, i) => {
+          const jump = it.page && typeof onJump === 'function' ? () => onJump(it.page - 1) : null
+          const row = (
+            <>
+              <Text style={[base.tlDate, { color: a.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{it.date}</Text>
+              <Text style={[base.tlText, { color: a.colors.textPrimary }]}>{it.text}</Text>
+              <View style={base.tlSlot}>{jump ? <ChevronRight size={16} color={a.colors.textSecondary} strokeWidth={2} /> : null}</View>
+            </>
+          )
+          const rowStyle = [base.tlRow, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: a.colors.border }]
+          return jump ? (
+            <TouchableOpacity
+              key={i}
+              activeOpacity={0.7}
+              onPress={jump}
+              accessibilityRole="button"
+              accessibilityLabel={`${it.date}. ${it.text}. Go to page ${it.page}`}
+              style={rowStyle}
+            >
+              {row}
+            </TouchableOpacity>
+          ) : (
+            <View key={i} style={rowStyle}>{row}</View>
+          )
+        })}
+      </View>
+    </Frame>
+  )
+}
+
+// The year at a glance: a grid of tiles, one headline per section.
+function FinalePage({ page, section, allPages, onJump }) {
+  const a = useAccent(section?.accent)
+  const { isDark } = a
+  const { share, note, cardRef } = useShare()
+  const { width } = useWindowDimensions()
+  const gap = 10
+  const tileW = Math.floor((width - spacing.lg * 2 - gap) / 2)
+  const sections = (allPages && Array.isArray(allPages.sections)) ? allPages.sections : []
+  const title = page.heading || 'Ireland 2026 at a glance'
+  const line = page.items.slice(0, 3).map(it => it.title || it.text).join(', ')
+  // A tile takes the colour of the section it names, else a default accent.
+  const accentFor = (it, i) => {
+    const key = (it.section || '').toLowerCase()
+    const hit = key ? sections.find(sec => sec.key.toLowerCase() === key || sec.title.toLowerCase() === key) : null
+    return hit ? hit.accent : DEFAULT_ACCENTS[i % DEFAULT_ACCENTS.length]
+  }
+  return (
+    <Frame
+      pinned
+      cardRef={cardRef}
+      colors={a.colors}
+      note={note}
+      actions={<Btn colors={a.colors} variant="secondary" Icon={Share2} label="Share outside UBP" onPress={() => share(title, line)} />}
+    >
+      <Kicker color={a.text}>{page.kicker || section?.title}</Kicker>
+      <Text style={[base.heading, { color: a.colors.textPrimary }]} accessibilityRole="header">{title}</Text>
+      <View style={[base.finaleGrid, { gap }]}>
+        {page.items.map((it, i) => {
+          const fill = accentFill(accentFor(it, i), isDark)
+          const ink = onColor(fill)
+          const jump = it.page && typeof onJump === 'function' ? () => onJump(it.page - 1) : null
+          const inner = (
+            <>
+              {(it.section || jump) ? (
+                <View style={base.finaleHead}>
+                  <Text style={[base.finaleSection, { color: ink }]} numberOfLines={2}>{it.section}</Text>
+                  {jump ? <ChevronRight size={15} color={ink} strokeWidth={2.4} /> : null}
+                </View>
+              ) : null}
+              {!!it.title && <Text style={[base.finaleTitle, { color: ink }]}>{it.title}</Text>}
+              {!!it.text && <Text style={[base.finaleText, { color: ink }]}>{it.text}</Text>}
+            </>
+          )
+          const tileStyle = [base.finaleTile, { width: tileW, backgroundColor: fill }]
+          return jump ? (
+            <TouchableOpacity
+              key={i}
+              activeOpacity={0.85}
+              onPress={jump}
+              accessibilityRole="button"
+              accessibilityLabel={`${it.section ? `${it.section}. ` : ''}${it.title} ${it.text}. Go to page ${it.page}`.replace(/\s+/g, ' ').trim()}
+              style={tileStyle}
+            >
+              {inner}
+            </TouchableOpacity>
+          ) : (
+            <View key={i} style={tileStyle}>{inner}</View>
+          )
+        })}
+      </View>
+    </Frame>
+  )
+}
+
 function runCta(navigation, cta) {
   if (!cta) return
   if (cta.route && hasRoute(navigation, cta.route)) { goToRoute(navigation, cta.route); return }
   if (cta.url) Linking.openURL(cta.url).catch(() => {})
 }
 
+// The phone frame for a ubp page: the screenshot inside a phone outline, or a
+// clean illustration block when there is no screenshot (or it will not load).
+function PhoneShot({ page, a }) {
+  const [failed, setFailed] = useState(false)
+  const shot = page.screenshot
+  const source = shot
+    ? (shot.uri ? { uri: shot.uri } : (SCREENSHOT_SOURCES[shot.asset] || null))
+    : (page.image ? { uri: page.image.url } : null)
+  const { colors } = a
+  if (!source || failed) {
+    return (
+      <View
+        style={[base.illus, { backgroundColor: a.fill }]}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <View style={[base.illusBig, { backgroundColor: mixHex(a.fill, 0.2) }]} />
+        <View style={[base.illusSmall, { backgroundColor: mixHex(a.fill, -0.16) }]} />
+        <View style={[base.illusIcon, { backgroundColor: colors.background }]}>
+          <Smartphone size={34} color={a.text} strokeWidth={1.6} />
+        </View>
+      </View>
+    )
+  }
+  return (
+    <View style={[base.phone, { borderColor: colors.textPrimary, backgroundColor: colors.surfaceSunk }]}>
+      <Image
+        source={source}
+        style={base.phoneImg}
+        resizeMode="cover"
+        onError={() => setFailed(true)}
+        accessibilityLabel={`${page.heading} in the app`}
+      />
+      <View style={[base.phoneNotch, { backgroundColor: colors.textPrimary }]} />
+    </View>
+  )
+}
+
 function UbpPage({ page, section, navigation }) {
   const a = useAccent(section?.accent)
   const cta = page.cta && ((page.cta.route && hasRoute(navigation, page.cta.route)) || page.cta.url) ? page.cta : null
   return (
-    <Frame colors={a.colors} actions={cta ? <Btn colors={a.colors} Icon={ChevronRight} label={cta.label} onPress={() => runCta(navigation, cta)} /> : null}>
+    <Frame pinned colors={a.colors} actions={cta ? <Btn colors={a.colors} Icon={ChevronRight} label={cta.label} onPress={() => runCta(navigation, cta)} /> : null}>
       <View style={[base.ubpBadge, { backgroundColor: a.colors.accentBg }]}>
         <Text style={[base.ubpBadgeText, { color: a.colors.accentFg }]}>From UBP</Text>
       </View>
       <Text style={[base.heading, { color: a.colors.textPrimary }]} accessibilityRole="header">{page.heading}</Text>
       {!!page.body && <Text style={[base.body, { color: a.colors.textSecondary }]}>{page.body}</Text>}
       <View style={base.shotWrap}>
-        {page.image ? (
-          <Pic image={page.image} a={a} Icon={Smartphone} height={240} label={`${page.heading} in the app`} />
-        ) : (
-          <View style={[base.shotFrame, { borderColor: a.colors.border, backgroundColor: a.colors.surface }]} accessibilityLabel="App screenshot goes here">
-            <View style={[base.shotNotch, { backgroundColor: a.colors.border }]} />
-            <Smartphone size={30} color={a.text} strokeWidth={1.5} />
-            <Text style={[base.shotText, { color: a.colors.textSecondary }]}>App screenshot</Text>
-          </View>
-        )}
+        <PhoneShot page={page} a={a} />
       </View>
     </Frame>
   )
@@ -673,8 +908,30 @@ export function WrappedCover({ wrapped, issue, onOpen }) {
 
 // ── Router ──────────────────────────────────────────────────────────────────
 
-export function WrappedPage({ page, section, navigation, allPages, pageKey }) {
-  if (!page) return null
+// A page that fails to draw shows an empty page instead of taking the whole
+// magazine down with it.
+class PageBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false } }
+  static getDerivedStateFromError() { return { failed: true } }
+  componentDidCatch(error) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) console.warn('Wrapped page failed to draw', error)
+  }
+  render() {
+    if (this.state.failed) return <View style={{ flex: 1 }} />
+    return this.props.children
+  }
+}
+
+export function WrappedPage(props) {
+  if (!props || !props.page) return null
+  return (
+    <PageBoundary key={props.pageKey}>
+      <WrappedPageInner {...props} />
+    </PageBoundary>
+  )
+}
+
+function WrappedPageInner({ page, section, navigation, allPages, pageKey, onJump }) {
   switch (page.kind) {
     case 'section': return <SectionPage page={page} section={section} />
     case 'story': return <StoryPage page={page} section={section} />
@@ -685,7 +942,10 @@ export function WrappedPage({ page, section, navigation, allPages, pageKey }) {
     case 'tribute': return <TributePage page={page} section={section} />
     case 'credits': return <CreditsPage page={page} pics={pictureCredits(allPages)} />
     case 'top10': return <Top10Page page={page} section={section} navigation={navigation} />
-    case 'month': return <MonthPage page={page} section={section} navigation={navigation} />
+    case 'month':
+      return page.items && page.items.length
+        ? <MonthStackPage page={page} section={section} navigation={navigation} />
+        : <MonthPage page={page} section={section} navigation={navigation} />
     case 'quiz': return <QuizPage page={page} section={section} pageKey={pageKey} />
     case 'county': return <CountyPage page={page} section={section} />
     case 'awards': return <AwardsPage page={page} section={section} navigation={navigation} />
@@ -693,6 +953,9 @@ export function WrappedPage({ page, section, navigation, allPages, pageKey }) {
     case 'ubp': return <UbpPage page={page} section={section} navigation={navigation} />
     case 'moment': return <MomentPage page={page} section={section} navigation={navigation} />
     case 'capsule': return <CapsulePage page={page} section={section} navigation={navigation} />
+    case 'recap': return <RecapPage page={page} section={section} />
+    case 'timeline': return <TimelinePage page={page} section={section} onJump={onJump} />
+    case 'finale': return <FinalePage page={page} section={section} allPages={allPages} onJump={onJump} />
     default: return null
   }
 }
@@ -702,6 +965,12 @@ export function WrappedPage({ page, section, navigation, allPages, pageKey }) {
 const base = StyleSheet.create({
   frame: { flex: 1 },
   frameScroll: { flexGrow: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.lg + 8 },
+  // A share card carries its own padding so the picture has margins all round.
+  frameScrollCard: { paddingHorizontal: 0, paddingTop: 0 },
+  cardPad: { paddingHorizontal: spacing.lg },
+  card: { flexGrow: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.md },
+  cardFoot: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', columnGap: 12, rowGap: 4, marginTop: spacing.md, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
+  cardFootText: { fontFamily: fonts.sans, fontSize: 11.5, marginTop: 8, flexShrink: 1 },
   actions: { gap: 10, marginTop: spacing.md },
   pinBar: { paddingHorizontal: spacing.lg, paddingTop: 12, paddingBottom: 14, borderTopWidth: StyleSheet.hairlineWidth },
   pinRow: { flexDirection: 'row', gap: 10 },
@@ -783,12 +1052,37 @@ const base = StyleSheet.create({
   songArtist: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 18, marginTop: 1 },
   playBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 
+  monthNameSm: { fontFamily: fonts.serif, fontSize: 38, lineHeight: 44, textTransform: 'uppercase' },
+  stackHeading: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 29, marginTop: 4 },
+  stackGap: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: spacing.xl, paddingTop: spacing.xl },
+  stackFoot: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', columnGap: 12 },
+
+  recapRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, paddingVertical: 11 },
+  recapDate: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, lineHeight: 21, width: 82, flexShrink: 0 },
+  recapText: { fontFamily: fonts.sans, fontSize: 14.5, lineHeight: 21, flex: 1, flexShrink: 1 },
+
+  tlRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, minHeight: 44 },
+  tlDate: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', width: 84, flexShrink: 0 },
+  tlText: { fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 18, flex: 1, flexShrink: 1 },
+  tlSlot: { width: 16, alignItems: 'center', justifyContent: 'center' },
+
+  finaleGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.md },
+  finaleTile: { borderRadius: 14, paddingHorizontal: 12, paddingVertical: 12 },
+  finaleHead: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6, marginBottom: 5 },
+  finaleSection: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', opacity: 0.85, flex: 1, flexShrink: 1 },
+  finaleTitle: { fontFamily: fonts.serif, fontSize: 16, lineHeight: 21 },
+  finaleText: { fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 17, marginTop: 4, opacity: 0.95 },
+
   ubpBadge: { alignSelf: 'flex-start', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5, marginBottom: 10 },
   ubpBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 0.8, textTransform: 'uppercase' },
   shotWrap: { alignItems: 'center', marginTop: spacing.lg },
-  shotFrame: { width: 150, height: 250, borderRadius: 26, borderWidth: 2, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  shotNotch: { position: 'absolute', top: 10, width: 44, height: 5, borderRadius: 3 },
-  shotText: { fontFamily: fonts.sansMedium, fontSize: 12 },
+  phone: { width: 172, height: 352, borderRadius: 30, borderWidth: 4, overflow: 'hidden' },
+  phoneImg: { width: '100%', height: '100%' },
+  phoneNotch: { position: 'absolute', top: 8, alignSelf: 'center', width: 52, height: 6, borderRadius: 3, opacity: 0.85 },
+  illus: { width: '100%', height: 190, borderRadius: radius.card, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  illusBig: { position: 'absolute', width: 220, height: 220, borderRadius: 110, top: -70, right: -60 },
+  illusSmall: { position: 'absolute', width: 140, height: 140, borderRadius: 70, bottom: -50, left: -30 },
+  illusIcon: { width: 76, height: 76, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 
   momentIcon: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
 

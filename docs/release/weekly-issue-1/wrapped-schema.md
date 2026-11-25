@@ -32,7 +32,7 @@ Every page: `kind` (required), `section` (a key from `sections`), `kicker`, `hea
 
 `image` is optional: `{ "url": "https://...", "credit": "Name, Wikimedia Commons", "licence": "CC BY SA 4.0" }`. The credit and licence print under the picture. Only openly licensed images. With no image the page uses a colour block with an icon. Tributes never show a picture.
 
-Limits: heading 140 characters, body 1200, kicker 60, stat 14, at most 200 pages. Longer text is cut. Unknown kinds, pages that are not objects, and pages missing what they need are skipped.
+Limits: heading 140 characters, body 1200, kicker 60, stat 14, at most 200 pages. Recap text 150 characters, timeline text 110, finale title 70 and text 110. Longer text is cut. Unknown kinds, pages that are not objects, and pages missing what they need are skipped.
 
 ## Kinds
 
@@ -47,19 +47,34 @@ Limits: heading 140 characters, body 1200, kicker 60, stat 14, at most 200 pages
 | `tribute` | `heading`, `body`, `kicker` | Quiet, muted colours, no picture. |
 | `credits` | `heading`, `body`, `bullets` | Picture credits from every page are added automatically. |
 | `top10` | `heading`, `items` | Each item `{ "rank", "title", "blurb", "source" }`. Give your take and Share buttons. |
-| `month` | `kicker` (the month name), `heading`, `body`, `source`, `image` | Give your take and Share buttons. |
+| `month` | `kicker` (the month name), `heading`, `body`, `source`, `image` | Give your take and Share buttons. For two months on one page use `items` instead, see below. |
 | `quiz` | `heading`, `items` | Each item `{ "question", "options" (2 to 4), "answerIndex", "note" }`. Tap an option to see right or wrong and the note. Share button. |
 | `county` | `items` | Two per page. Each `{ "county", "line", "source" }`. |
 | `awards` | `heading`, `body`, `categories` | Each category `{ "key", "title", "nominees": [ { "name", "why", "source" } ] }`. Every nominee has Give your take. Vote button shows only when a route named `AwardsVoting` exists. Share button. |
 | `playlist` | `heading`, `items` | Each `{ "title", "artist", "url" }`. The play button opens the url. |
-| `ubp` | `heading`, `body`, `image`, `cta` | A "From UBP" feature page. `image` is the app screenshot (a phone outline shows until it is set). `cta` is `{ "label", "route" }` or `{ "label", "url" }`; the button shows only if the route exists or a url is given. |
+| `ubp` | `heading`, `body`, `screenshot`, `cta` | A "From UBP" feature page. `screenshot` is an https URL or a bundled picture name (see below), shown inside a phone frame. With no screenshot, or one that will not load, a clean illustration block shows instead. `image` (an object with `url`) still works as an older way to give the screenshot. `cta` is `{ "label", "route" }` or `{ "label", "url" }`; the button shows only if the route exists or a url is given. |
 | `moment` | `heading`, `body`, `cta.label` | "Add your moment" opens the Take composer with the tag. |
+| `recap` | `heading` ("Sport in 2026"), `kicker` ("At a glance"), `items` | Scoreboard page that ends a section. Each item `{ "date", "text" }`, 6 to 9 rows (up to 12 are drawn). Dates sit in a fixed left column in the section colour. Share button. |
+| `timeline` | `heading`, `kicker`, `items` | The whole year on one page. Each item `{ "date" ("January"), "text" (max 12 words), "page" }`, up to 12 rows. `page` is optional: when it is a whole number the row is tappable and jumps to that page. |
+| `finale` | `heading` ("Ireland 2026 at a glance"), `kicker`, `items` | A grid of up to 12 tiles. Each item `{ "section", "title", "text", "page" }`. `section` is the small label and also picks the tile colour when it matches a section `key` or `title`. `page` is optional: the tile jumps to that page. Share button. The UBP mark and "From UBP" sit at the foot. |
 | `capsule` | `heading`, `body`, `cta.label` | The button opens the route `TimeCapsule`, and is hidden if that route does not exist. |
+
+### Page numbers (`page`)
+
+`page` is the number shown at the top of the magazine ("12 / 94"): the cover is page 1, the contents page is page 2, the first Wrapped page is page 3, and so on. It must be a whole number from 1 to 999. A missing, wrong or out of range number means the row or tile is simply not tappable (a number past the last page jumps to the last page). Check the numbers once the page order is final.
+
+### Two months on one `month` page
+
+Give `items` instead of `kicker` and `heading`: `"items": [ { "kicker": "January", "heading": "...", "body": "...", "source": "Outlet", "sourceUrl": "https://..." }, { "kicker": "February", ... } ]`. Up to three are drawn, stacked, each with its own source line (linked when `sourceUrl` is set) and its own Give your take button, and one Share button for the page. An item needs `kicker` and `heading`, otherwise it is dropped. A page with a `kicker` and `heading` and no `items` is the single month page it always was.
+
+### `ubp` screenshot names
+
+`screenshot` is either a URL starting `https://` or one of the names in `SCREENSHOT_ASSETS` in `app/src/lib/wrapped.js` (today `ubp-logo` and `app-icon`, pictures already in the app). Anything else is ignored and the illustration shows. Bundled pictures can only change with a new app build, so use https URLs for real app screenshots.
 
 ## Share and Give your take
 
 - Give your take opens the existing Take composer (Home stack `Composer`, `initialTab: 'thread'`) with the page title and the tag "Ireland Wrapped 2026" already in the text. Nothing new is posted by the magazine itself.
-- Share outside UBP opens the phone share sheet with short text that ends "Ireland Wrapped 2026. From UBP, uniblueprint.ie". `react-native-view-shot` is not installed, so the page is not shared as a picture. Adding it needs a native module, so it is left for after the release decision. On web the text is copied instead.
+- Share outside UBP on stat, top 10, month, recap, finale and quiz pages takes a picture of the page (with the UBP mark, "From UBP" and "Ireland Wrapped 2026, uniblueprint.ie" at the foot) and opens the phone share sheet with it, using `react-native-view-shot` (and `expo-sharing` on Android, which cannot attach a file through the built in share). If the native module is missing (an older development client, or web) or the capture fails, it falls back to the short text that ends "Ireland Wrapped 2026. From UBP, uniblueprint.ie", and if the sheet cannot open the text is copied. Other pages (awards) share text only.
 
 ## Standard pages are skipped when empty
 
