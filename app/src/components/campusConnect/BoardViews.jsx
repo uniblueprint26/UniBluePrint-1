@@ -9,6 +9,7 @@ import { EXAMPLE_EVENTS, EXAMPLE_RIDES, EXAMPLE_LOST_FOUND } from '../../constan
 import { formatCarpoolDays } from '../../constants/campusBoards'
 import { nextSevenDays, dowOfIso, timeAgo } from '../../lib/campus'
 import { fonts } from '../../constants/theme'
+import { usePriorityEnabled } from '../../hooks/useAppFlags'
 
 // Board views for Campus Connect (founder picks r3-12 to r3-15): Events as date
 // cards, Ride shares as route cards with a seven day row, Lost and found as a
@@ -52,12 +53,15 @@ function Actions({ item, own, user, onReport, onBlock, onRemove, type, extra }) 
 export function EventsView({ rows, user, onPost, onReport, onBlock, onRemove }) {
   const { colors, accent, tint } = useTone()
   const [f, setF] = useState('all')
+  // Priority nights are examples with no date or venue yet. They show only
+  // when the Priority flag is on, so a store reviewer never sees question marks.
+  const priorityOn = usePriorityEnabled()
   const real = useMemo(() => {
     return rows
       .filter(r => f === 'all' || (f === 'free' && !r.is_ticketed) || (f === 'ticketed' && r.is_ticketed) || (f === 'society' && /society|soc\b|club/i.test(r.organiser || '')))
       .sort((a, b) => String(a.event_date || '9').localeCompare(String(b.event_date || '9')))
   }, [rows, f])
-  const examples = rows.length < 3 && (f === 'all' || f === 'free' || f === 'ticketed') ? EXAMPLE_EVENTS.filter(e => f === 'all' || (f === 'free' ? e.free : !e.free && !e.priority)) : []
+  const examples = rows.length < 3 && (f === 'all' || f === 'free' || f === 'ticketed') ? EXAMPLE_EVENTS.filter(e => (priorityOn || !e.priority) && (f === 'all' || (f === 'free' ? e.free : !e.free && !e.priority))) : []
 
   return (
     <View>
