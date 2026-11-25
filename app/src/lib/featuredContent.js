@@ -5,6 +5,7 @@ import { PARTNERS } from '../data/lifestylePartners'
 import { CAMPUS_BOARDS } from '../constants/campusBoards'
 import { COURSE_BOARDS } from '../constants/courseConnectBoards'
 import { isFoundationEnabledNow } from '../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 // ─── Home dashboard "Trending Right Now" carousel — resolving real, live
 // content (renamed from "Spotlight" in Phase 20) ───────────────────────────
@@ -35,7 +36,8 @@ function foundationService(row) {
     title: svc.title,
     subtitle: row.caption || svc.tagline,
     body: svc.description,
-    priceLabel: `From ${svc.priceStd}`,
+    // Euro amounts show on the website only (neutral billing on iOS and Android).
+    priceLabel: NATIVE_NEUTRAL_BILLING ? null : `From ${svc.priceStd}`,
     tint: svc.color,
     ctaLabel: row.cta_label || 'View service',
     nav: { screen: 'Foundation' },
@@ -64,7 +66,7 @@ async function coach(row) {
     title: c.name,
     subtitle: row.caption || c.tagline || c.title || c.category,
     body: c.category,
-    priceLabel: c.from || null,
+    priceLabel: NATIVE_NEUTRAL_BILLING ? null : (c.from || null),
     photoUrl,
     initials: initialsOf(c.name),
     ctaLabel: row.cta_label || 'View coach',

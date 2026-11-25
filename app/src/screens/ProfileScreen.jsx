@@ -18,6 +18,7 @@ import { useDirectoryProfile } from '../hooks/useDirectoryProfile'
 import { useReferrals } from '../hooks/useReferrals'
 import { supabase } from '../lib/supabase'
 import { useProFree } from '../hooks/useAppFlags'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import { openInHomeStack } from '../navigation/helpers'
 
 // Round three pick A: serif title with an Edit profile button, avatar and name
@@ -60,7 +61,9 @@ export default function ProfileScreen({ navigation }) {
     ? `Pro is free for everyone until ${proFreeLabelShort}.`
     : (isPro || isComplimentaryPro)
       ? 'Thanks for being a member.'
-      : 'Try Pro free. Services are half price during the trial.'
+      : NATIVE_NEUTRAL_BILLING
+        ? 'Your plan is managed on uniblueprint.ie.'
+        : 'Try Pro free. Services are half price during the trial.'
 
   useEffect(() => {
     if (!user?.id) return

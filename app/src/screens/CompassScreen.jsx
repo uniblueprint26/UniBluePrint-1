@@ -409,9 +409,9 @@ export default function CompassScreen({ navigation, route }) {
           {/* ── Free tools ── */}
           <View style={[s.toolsHeader, { marginTop: spacing.xl }]}>
             <Text style={s.toolsEyebrow}>FREE TOOLS</Text>
-            <Text style={s.toolsTitle}>No purchase needed</Text>
+            <Text style={s.toolsTitle}>{IS_IOS ? 'Free to use' : 'No purchase needed'}</Text>
             <Text style={s.freeIntro}>
-              A handful of CourseCompass tools are free to use right now, no account or payment required.
+              {IS_IOS ? 'A handful of CourseCompass tools are free to use right now, no account required.' : 'A handful of CourseCompass tools are free to use right now, no account or payment required.'}
             </Text>
           </View>
 
@@ -427,7 +427,7 @@ export default function CompassScreen({ navigation, route }) {
           {/* ── Footer note ── */}
           <View style={s.footerNote}>
             <Text style={s.footerNoteText}>
-              Pricing and tool availability set by CourseCompass. All tools open on coursecompass.ie in your device browser.
+              {IS_IOS ? 'Tool availability is set by CourseCompass.' : 'Pricing and tool availability set by CourseCompass.'} All tools open on coursecompass.ie in your device browser.
             </Text>
           </View>
 

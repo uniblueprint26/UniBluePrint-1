@@ -547,8 +547,10 @@ export default function CoachProfileScreen({ route, navigation }) {
   // all but an active intro call still gets a (single-row) Pricing section.
   // Neutral billing on iOS and Android: prices and the booking link are only
   // shown for coaches that are clearly delivered in person.
-  const showPricing = !NATIVE_NEUTRAL_BILLING || isRealWorldCoach(coach)
-  const showBooking = showPricing
+  // Euro amounts show on the website only (founder decision). In person
+  // coaches keep the booking link, which opens uniblueprint.ie.
+  const showPricing = !NATIVE_NEUTRAL_BILLING
+  const showBooking = !NATIVE_NEUTRAL_BILLING || isRealWorldCoach(coach)
   const introRow = introOffer
     ? { label: introCallLabel(introOffer), price: introOffer.price_cents > 0 ? formatEuro(introOffer.price_cents) : 'Free' }
     : null
@@ -597,10 +599,13 @@ export default function CoachProfileScreen({ route, navigation }) {
   const pricelistRows = displayPricelist && displayPricelist.length > 0 && showPricing ? displayPricelist : null
   const hasServices = coach.services && coach.services.length > 0
   const hasPrices = !coach.shell && (!!pricelistRows || (coach.pricingNote && showPricing))
+  const hasPricesTab = hasPrices || (NATIVE_NEUTRAL_BILLING && !coach.shell)
   const tabs = [
     { key: 'about', label: 'About' },
     ...(hasServices ? [{ key: 'services', label: 'Services' }] : []),
-    ...(hasPrices ? [{ key: 'prices', label: 'Prices' }] : []),
+    // On iOS and Android there are no euro amounts, so this tab only holds
+    // the coach rating and is called Rating.
+    ...(hasPricesTab ? [{ key: 'prices', label: hasPrices ? 'Prices' : 'Rating' }] : []),
   ]
   const activeTab = tabs.some(t => t.key === tab) ? tab : 'about'
   const pics = [coach.photoUrl, ...(coach.gallery || [])].filter(Boolean)
@@ -767,9 +772,9 @@ export default function CoachProfileScreen({ route, navigation }) {
           </View>
         )}
 
-        {activeTab === 'prices' && hasPrices && (
+        {activeTab === 'prices' && hasPricesTab && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Prices and booking</Text>
+            <Text style={styles.sectionLabel}>{hasPrices ? 'Prices and booking' : 'Rating'}</Text>
             {pricelistRows ? (
               <ProBlurLock styles={styles} isPro={hasProAccess} onUnlock={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
                 <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -781,9 +786,9 @@ export default function CoachProfileScreen({ route, navigation }) {
                   ))}
                 </View>
               </ProBlurLock>
-            ) : (
+            ) : showPricing && coach.pricingNote ? (
               <View style={styles.noteCard}><Text style={styles.noteText}>{coach.pricingNote}</Text></View>
-            )}
+            ) : null}
             {user?.id && myRating ? (
               <View style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <View style={[pb.rateIcon, { backgroundColor: purple + '22' }]}><Star size={18} color={purple} fill={purple} /></View>
