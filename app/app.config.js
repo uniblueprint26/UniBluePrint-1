@@ -56,6 +56,13 @@ module.exports = {
   slug: 'uniblueprint',
   scheme: 'uniblueprint',
   version: '1.0.0',
+  // Over the air updates (expo-updates). JS and asset changes can reach phones without a store review.
+  // The runtime version follows the app version, so an update only reaches builds it was made for.
+  runtimeVersion: { policy: 'appVersion' },
+  updates: {
+    url: 'https://u.expo.dev/69a062e2-f045-44c6-aeed-81e557ab3575',
+    fallbackToCacheTimeout: 0,
+  },
   sdkVersion: '58.0.0',
   orientation: 'portrait',
   // "automatic" so the in-app Appearance setting (System, Light, Dark) can follow
