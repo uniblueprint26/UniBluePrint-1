@@ -1,5 +1,7 @@
 # Explore seed content
 
+Note, 26 November 2026: for launch, use the migration `supabase/migrations/20261125200100_seed_explore_content.sql` instead of running `explore_content_seed.sql` by hand. It carries the same researched rows except the scholarships (no screen reads them) and the six "Example:" societies (the app draws its own examples). It is safe to run more than once. Do not run both. See `docs/release/seed-and-reviewer.md`.
+
 Seed data for the `explore_content` table (kinds: scholarships, discounts, support, societies, volunteering, freshers).
 
 ## The table
