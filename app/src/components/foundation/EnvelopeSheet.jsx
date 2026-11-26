@@ -10,7 +10,6 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { fonts } from '../../constants/theme'
 import { envelopePaper, FLAP_DEPTH } from './envelopePaper'
 import { STATUS_TEXT } from './EnvelopeTile'
-import { FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 
 // The opened envelope. Tapping an envelope in the grid mounts this: the flap
 // rotates open on its top edge, the letter slides up out of the envelope and
@@ -26,7 +25,7 @@ import { FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
 const NATIVE = Platform.OS !== 'web'
 
 export default function EnvelopeSheet({
-  service, status, isIOS, orderingOpen = true, weekend, primary, secondary, onClose, colors, isDark,
+  service, status, orderingOpen = false, teaser = null, weekend, primary, secondary, onClose, colors, isDark,
 }) {
   const paper = envelopePaper(isDark)
   const insets = useSafeAreaInsets()
@@ -91,14 +90,19 @@ export default function EnvelopeSheet({
   const contentOpacity = letter.interpolate({ inputRange: [0.45, 1], outputRange: [0, 1], extrapolate: 'clamp' })
 
   const { Icon, letter: copy } = service
-  // Android and web answer the questions on the website. iOS keeps the
-  // neutral wording that never points to the website as a place to buy.
-  const firstStep = copy ? (!isIOS && orderingOpen && copy.webStep) || copy.steps[0] : null
+  // `orderingOpen` is only ever true on the web build, once the founder opens
+  // ordering. Everywhere else (always on iOS and Android) the letter says
+  // nothing about prices, timings or the website: answers are saved to the
+  // member's Blueprint.
+  const firstStep = copy ? (orderingOpen && copy.webStep) || copy.steps[0] : null
+  const lastStep = orderingOpen
+    ? `${copy?.receive} ${weekend ? 'Standard is within 48 hours. Premium is by the end of Monday.' : 'Standard is within 48 hours. Premium is within 24 hours.'}`
+    : 'Your answers are saved to your Blueprint. You can come back to read them and change them any time.'
   const steps = copy
     ? [
         firstStep,
         ...copy.steps.slice(1),
-        `${copy.receive} ${weekend ? 'Standard is within 48 hours. Premium is by the end of Monday.' : 'Standard is within 48 hours. Premium is within 24 hours.'}`,
+        lastStep,
       ]
     : []
   const statusColor = status === 'delivered' ? (isDark ? '#7FD6A3' : '#2E8F5B') : colors.textSecondary
@@ -215,13 +219,11 @@ export default function EnvelopeSheet({
                 </View>
 
                 {!orderingOpen ? (
-                  <Text style={[s.iosNote, { color: colors.textPrimary, fontFamily: fonts.sansMedium }]}>
-                    {FOUNDATION_ORDERING_LINE}
-                  </Text>
-                ) : isIOS ? (
-                  <Text style={[s.iosNote, { color: paper.letterText2 }]}>
-                    {service.title} is not available to order in the app. Orders you already have show under Outputs.
-                  </Text>
+                  teaser ? (
+                    <Text style={[s.iosNote, { color: colors.textPrimary, fontFamily: fonts.sansMedium }]}>
+                      {teaser}
+                    </Text>
+                  ) : null
                 ) : (
                   <View style={s.tiers}>
                     <View style={[s.tier, { borderColor: paper.edge }]}>

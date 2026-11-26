@@ -7,11 +7,11 @@ import { envelopePaper } from './envelopePaper'
 // One sealed envelope in the Foundation grid. Closed, with the service icon
 // on the seal at the flap's point and the service name on the paper below.
 // `status` is only passed when the app really tracks one for this service
-// ('in_progress' or 'delivered'); nothing is shown otherwise.
+// ('saved', 'in_progress' or 'delivered'); nothing is shown otherwise.
 const HEIGHT = 158
 const TILE_FLAP_DEPTH = 0.5
 
-export const STATUS_TEXT = { in_progress: 'In progress', delivered: 'Delivered' }
+export const STATUS_TEXT = { saved: 'Saved', in_progress: 'In progress', delivered: 'Delivered' }
 
 export default function EnvelopeTile({ title, Icon, status, width, onPress, colors, isDark }) {
   const paper = envelopePaper(isDark)

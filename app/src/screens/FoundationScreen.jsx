@@ -5,7 +5,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import {
   FileText, Linkedin, Award, MessageSquare, Search, Briefcase, PenLine,
   Compass, GraduationCap, Map, Wrench, Package, Archive, FolderOpen,
-  ChevronRight, ExternalLink, Target, ClipboardList,
+  ChevronRight, ExternalLink, Target, ClipboardList, BookOpen, Building2,
 } from 'lucide-react-native'
 
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
@@ -18,26 +18,19 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
-import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+import { loadSavedStamps } from '../lib/foundationSaved'
+import { serviceKeyForTitle } from '../constants/foundationServices'
 import { useFoundationOrdering } from '../hooks/useAppFlags'
 import { SUPPORT_EMAIL } from '../constants/site'
 
 
-// iOS: Foundation Blueprint services are pay-per-service digital documents
-// (a CV, a cover letter, etc.) — App Store 3.1.1 — so no price, "Order"
-// button or in-app submit path renders here on iOS, same decision and same
-// conservative no-tappable-link pattern as PricingScreen's Pro/Premium
-// gating (Platform.OS === 'ios'). On Android and web the order button hands
-// the person to the service's page on uniblueprint.ie, where the questions
-// are answered and the order is placed; the in-app builder screens stay
-// registered but no button here opens them. Elevation
-// Blueprint (ElevationScreen.jsx) is different: coaching sessions are a
-// real-world service, exempt under 3.1.3(e), so that one links out instead
-// of hiding — see CoachProfileScreen.jsx and constants/site.js.
-// Update: neutral billing now covers Android as well (constants/platformPolicy.js),
-// so on iOS and Android there is no order button here and no link to the website.
-// IS_IOS keeps its old name but now means neutral billing.
-const IS_IOS = NATIVE_NEUTRAL_BILLING
+// Store review period: on iOS and Android this screen never shows a price, an
+// order or purchase button, or a link to buy on the website. useFoundationOrdering()
+// is false on native whatever the remote flag says, so each envelope offers
+// "Start your answers" (or "View and edit your answers" once saved). Finishing a
+// builder saves the answers to the member's Blueprint. The web build is unchanged:
+// it keeps the tier prices and the order button once app_flags
+// foundation_ordering_enabled is true. See docs/release/foundation-review-mode.md.
 
 // ─── Career services ──────────────────────────────────────────────────────────
 // Exported (same pattern as ElevationScreen's COACHES) so other real-data
@@ -162,9 +155,10 @@ export default function FoundationScreen({ navigation, route }) {
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
-  // Ordering opens in January. Until the flag says so, no order button shows
-  // and a person can start their answers, which are saved as a draft.
-  const { enabled: orderingOpen } = useFoundationOrdering()
+  // orderingOpen is only ever true on the web build. Everywhere else a person
+  // starts their answers and they are saved to their Blueprint.
+  const { enabled: orderingOpen, teaser } = useFoundationOrdering()
+  const [saved, setSaved] = useState({})
   const [selected, setSelected] = useState(null)
   const [gridWidth, setGridWidth] = useState(0)
   const [rows, setRows] = useState([])
@@ -187,7 +181,10 @@ export default function FoundationScreen({ navigation, route }) {
       if (!error && Array.isArray(data)) setRows(data)
     } catch { /* leave envelopes without a status */ }
   }, [user?.id])
-  useFocusEffect(useCallback(() => { loadProgress() }, [loadProgress]))
+  useFocusEffect(useCallback(() => {
+    loadProgress()
+    loadSavedStamps(user?.id).then(setSaved)
+  }, [loadProgress, user?.id]))
 
   // Search opens a service straight away: Foundation with params.open set to
   // the service title.
@@ -202,7 +199,7 @@ export default function FoundationScreen({ navigation, route }) {
   function progressFor(title) {
     const table = BUILDER_BY_TITLE[title]?.table
     const mine = rows.filter(r => r.document_table === table)
-    if (mine.length === 0) return { status: null, row: null }
+    if (mine.length === 0) return { status: saved[serviceKeyForTitle(title)] ? 'saved' : null, row: null }
     // A delivered document is never downgraded by a newer pending one.
     const delivered = mine.find(r => r.stage === 'delivered')
     if (delivered) return { status: 'delivered', row: delivered }
@@ -211,16 +208,16 @@ export default function FoundationScreen({ navigation, route }) {
 
   const tileWidth = gridWidth > 0 ? Math.floor((gridWidth - GAP) / 2) : 160
 
-  // Android and web only. Never called on iOS, where Apple does not allow an
-  // external purchase link (see IS_IOS above). A service with no website page
-  // falls back to the contact page, never to pricing.
+  // Web build only (orderAction returns null whenever orderingOpen is false, and
+  // it is always false on iOS and Android). A service with no website page falls
+  // back to the contact page, never to pricing.
   function continueOnWebsite(title) {
     setSelected(null)
     Linking.openURL(foundationHandoffUrl(title)).catch(() => {})
   }
 
   function orderAction(title) {
-    if (IS_IOS || !orderingOpen) return null
+    if (!orderingOpen) return null
     const hasPage = !!FOUNDATION_WEBSITE_LINKS[title]
     return {
       label: hasPage ? 'Continue on uniblueprint.ie' : 'Contact us to order',
@@ -234,8 +231,8 @@ export default function FoundationScreen({ navigation, route }) {
 
   function sheetActions(service) {
     const { status, row } = progressFor(service.title)
-    // iOS: no order path in the app (App Store 3.1.1), only for a service the
-    // user has not started. Viewing progress or a delivered document is fine.
+    // No order path on iOS and Android. Viewing progress or a delivered
+    // document is fine.
     const order = orderAction(service.title)
     if (status === 'delivered' && row) {
       return {
@@ -263,8 +260,18 @@ export default function FoundationScreen({ navigation, route }) {
       }
     }
     if (!orderingOpen) {
-      // Not open for orders yet. The builder saves a draft as the person goes.
+      // Not taking orders in the app. The builder saves the answers to the
+      // member's Blueprint. Once saved, the button reopens them to read or edit.
       const builder = BUILDER_BY_TITLE[service.title]
+      if (status === 'saved') {
+        return {
+          status,
+          primary: builder
+            ? { label: 'View and edit your answers', onPress: () => { setSelected(null); navigation.navigate(builder.screen, { review: true }) } }
+            : null,
+          secondary: null,
+        }
+      }
       return {
         status: null,
         primary: builder
@@ -358,6 +365,22 @@ export default function FoundationScreen({ navigation, route }) {
               </View>
               <ChevronRight size={16} color={colors.textSecondary} />
             </TouchableOpacity>
+            <TouchableOpacity style={styles.rowCard} activeOpacity={0.85} onPress={() => navigation.navigate('ExampleLibrary')} accessibilityRole="button">
+              <View style={styles.rowIcon}><BookOpen size={18} color={colors.textPrimary} strokeWidth={1.8} /></View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Example library</Text>
+                <Text style={styles.rowSub}>See what good looks like.</Text>
+              </View>
+              <ChevronRight size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rowCard} activeOpacity={0.85} onPress={() => navigation.navigate('IndustryGuide')} accessibilityRole="button">
+              <View style={styles.rowIcon}><Building2 size={18} color={colors.textPrimary} strokeWidth={1.8} /></View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Industry guides</Text>
+                <Text style={styles.rowSub}>How each field screens applications.</Text>
+              </View>
+              <ChevronRight size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
           </View>
 
           {/* Reference Desk. Course Compass opens in-app, branded in
@@ -403,8 +426,8 @@ export default function FoundationScreen({ navigation, route }) {
           key={selected.title}
           service={{ ...selected, Icon: selected.icon, letter: SERVICE_LETTERS[selected.title] }}
           status={sheet.status}
-          isIOS={IS_IOS}
           orderingOpen={orderingOpen}
+          teaser={teaser}
           weekend={isWeekendWindow}
           primary={sheet.primary}
           secondary={sheet.secondary}

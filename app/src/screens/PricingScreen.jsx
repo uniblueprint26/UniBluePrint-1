@@ -94,9 +94,10 @@ export default function PricingScreen({ navigation }) {
   const insets = useSafeAreaInsets()
   const safeGoBack = useSafeGoBack(navigation)
   const { subscription } = useAuth()
-  // Foundation lines are left out while Foundation is closed on iOS and Android.
+  // Foundation lines are left out while Foundation is closed, and always on iOS and
+  // Android, where they would describe a paid service (pay per service, a discount).
   const { enabled: foundationOpen } = useFoundationEnabled()
-  const noFoundation = f => foundationOpen || !/Foundation/.test(f)
+  const noFoundation = f => (foundationOpen && !IS_IOS) || !/Foundation/.test(f)
   const freeFeatures = FREE_FEATURES.filter(noFoundation)
   const proFeatures = PRO_FEATURES.filter(noFoundation)
   const scrollRef = useRef(null)

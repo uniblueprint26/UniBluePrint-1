@@ -31,9 +31,13 @@ import Button from '../ui/Button'
 // pattern as WeeklyIssueEditorScreen's usePreventRemove — losing up to 15
 // steps of answers to an accidental gesture otherwise had no warning at all.
 //
-// `closedNote` (optional string): when set, the last step shows this plain line
-// ("Ordering opens in January") instead of the submit button. Answers are
-// already saved as a draft by the caller, so the person can close the flow.
+// `saveMode` (optional): the app is not taking an order (always the case on iOS
+// and Android). The delivery step ('tier') is dropped and a plain review step
+// is added at the end: "Check your answers", then a "Save to my Blueprint"
+// button that calls `onSaveAnswers(values)` instead of `onComplete`. Answers
+// autosave as the person goes, so leaving early never asks to discard.
+// `initialReview` (optional): open on the review step, to read or edit answers
+// that were saved earlier.
 const REVIEW_LABELS = {
   _personal: 'About you', has_no_experience: 'Experience', years_experience_band: 'Experience',
   education: 'Education', experience: 'Work', _skills: 'Skills', key_skills: 'Skills', _targeting: 'Aiming for',
@@ -82,7 +86,7 @@ function summarise(step, values) {
 function reviewRows(steps, values) {
   const rows = []
   steps.forEach((st, i) => {
-    if (st.key === 'tier') return
+    if (st.key === 'tier' || st.key === '_review') return
     const text = summarise(st, values)
     if (!text) return
     rows.push({ index: i, label: labelFor(st), text })
@@ -90,11 +94,14 @@ function reviewRows(steps, values) {
   return rows
 }
 
-export default function QuestionFlow({ steps, values, onChange, onComplete, onExit, navigation, submitLabel = 'Submit', closedNote = null, serviceTitle = null, SealIcon = FileText }) {
+const SAVE_REVIEW_STEP = { key: '_review', title: 'Check your answers' }
+
+export default function QuestionFlow({ steps: stepsProp, values, onChange, onComplete, onSaveAnswers, onExit, navigation, submitLabel = 'Submit', saveMode = false, initialReview = false, serviceTitle = null, SealIcon = FileText }) {
+  const steps = saveMode ? [...stepsProp.filter(st => st.key !== 'tier'), SAVE_REVIEW_STEP] : stepsProp
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(() => (saveMode && initialReview ? steps.length - 1 : 0))
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [returnToReview, setReturnToReview] = useState(false)
@@ -102,14 +109,17 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
 
   const step = steps[index]
   const isLast = index === steps.length - 1
-  const reviewMode = isLast && step.key === 'tier'
+  const reviewMode = isLast && (step.key === 'tier' || step.key === '_review')
+  // Opened straight on the review step: the header closes the page instead of
+  // stepping back through the questions.
+  const closeFromReview = saveMode && initialReview && isLast
 
   // Past the first question, assume there's something worth not losing —
   // deliberately simple (no deep-diffing every field's shape across all 8
   // builders) rather than a precise "did anything actually change" check.
   const hasProgress = index > 0
 
-  usePreventRemove(!!navigation && hasProgress && !closedNote, ({ data }) => {
+  usePreventRemove(!!navigation && hasProgress && !saveMode, ({ data }) => {
     Alert.alert(
       'Discard this request?',
       'You’ll lose your answers so far if you leave now.',
@@ -121,8 +131,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
   })
 
   function confirmDiscardThenExit() {
-    // With ordering closed the answers are already saved as a draft.
-    if (!hasProgress || closedNote) { onExit?.(); return }
+    // In save mode the answers are already saved as the person goes.
+    if (!hasProgress || saveMode) { onExit?.(); return }
     Alert.alert(
       'Discard this request?',
       'You’ll lose your answers so far if you leave now.',
@@ -141,7 +151,6 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
     }
     setError(null)
     if (isLast) {
-      if (closedNote) return
       handleSubmit()
     } else if (returnToReview) {
       setReturnToReview(false)
@@ -159,7 +168,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
 
   function goBack() {
     setError(null)
-    if (index === 0) { confirmDiscardThenExit(); return }
+    if (index === 0 || closeFromReview) { confirmDiscardThenExit(); return }
     setIndex(i => i - 1)
   }
 
@@ -174,7 +183,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
     setSubmitting(true)
     setError(null)
     try {
-      await onComplete(values)
+      await (saveMode ? onSaveAnswers(values) : onComplete(values))
       // On success the caller navigates away (replace), so no need to reset
       // submittingRef — this instance is done either way.
     } catch (err) {
@@ -196,9 +205,9 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
           activeOpacity={0.7}
           style={styles.headerBtn}
           accessibilityRole="button"
-          accessibilityLabel={index === 0 ? 'Close' : 'Go back to previous question'}
+          accessibilityLabel={index === 0 || closeFromReview ? 'Close' : 'Go back to previous question'}
         >
-          {index === 0
+          {index === 0 || closeFromReview
             ? <X size={22} color={colors.textPrimary} />
             : <ChevronLeft size={24} color={colors.textPrimary} />}
         </TouchableOpacity>
@@ -228,8 +237,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
 
           {reviewMode ? (
             <>
-              <Text style={styles.title} accessibilityRole="header">Check, then send</Text>
-              <Text style={styles.subtitle}>A Campus Handler checks it first. It is never AI only.</Text>
+              <Text style={styles.title} accessibilityRole="header">{saveMode ? 'Check your answers' : 'Check, then send'}</Text>
+              <Text style={styles.subtitle}>{saveMode ? 'Change anything you like. Your answers are saved to your Blueprint when you finish.' : 'A Campus Handler checks it first. It is never AI only.'}</Text>
               <View style={styles.reviewList}>
                 {reviewRows(steps, values).map((r, n, arr) => (
                   <View key={r.index} style={[styles.reviewRow, n < arr.length - 1 && styles.reviewRowBorder]}>
@@ -241,8 +250,8 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
                   </View>
                 ))}
               </View>
-              <Text style={styles.deliveryLabel}>DELIVERY</Text>
-              <View style={styles.tierRow}>
+              {!saveMode && <Text style={styles.deliveryLabel}>DELIVERY</Text>}
+              {!saveMode && <View style={styles.tierRow}>
                 {[['standard', 'Standard', 'Within 48 hours', null], ['premium', 'Premium', 'Within 24 hours', Zap]].map(([val, name, when, Icon]) => {
                   const active = values.tier === val
                   return (
@@ -264,7 +273,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
                     </TouchableOpacity>
                   )
                 })}
-              </View>
+              </View>}
             </>
           ) : (
             <>
@@ -284,7 +293,7 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
         </View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: reviewMode && !closedNote ? 6 : insets.bottom + 12 }]}>
+      <View style={[styles.footer, { paddingBottom: reviewMode && !saveMode ? 6 : insets.bottom + 12 }]}>
         {step.optional && !isLast && (
           <TouchableOpacity
             onPress={() => { setError(null); setIndex(i => i + 1) }}
@@ -295,25 +304,15 @@ export default function QuestionFlow({ steps, values, onChange, onComplete, onEx
             <Text style={styles.skipBtnText}>Skip</Text>
           </TouchableOpacity>
         )}
-        {isLast && closedNote ? (
-          <View style={styles.closedWrap}>
-            <Text style={styles.closedNote} accessibilityRole="text">{closedNote}</Text>
-            <Text style={styles.closedSub}>Your answers are saved as a draft.</Text>
-            <TouchableOpacity onPress={() => onExit?.()} activeOpacity={0.7} style={styles.closedBtn} accessibilityRole="button">
-              <Text style={styles.closedBtnText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <Button
-            label={isLast ? submitLabel : 'Continue'}
-            onPress={goNext}
-            variant="primary"
-            loading={submitting}
-            style={styles.nextBtn}
-          />
-        )}
+        <Button
+          label={isLast ? (saveMode ? 'Save to my Blueprint' : submitLabel) : 'Continue'}
+          onPress={goNext}
+          variant="primary"
+          loading={submitting}
+          style={styles.nextBtn}
+        />
       </View>
-      {reviewMode && !closedNote && (
+      {reviewMode && !saveMode && (
         <View style={[styles.secureRow, { paddingBottom: insets.bottom + 8 }]}>
           <Lock size={14} color={colors.textSecondary} />
           <Text style={styles.secureText}>You pay securely in your browser next.</Text>
@@ -386,10 +385,5 @@ function __gs_styles(colors) {
   skipBtn: { paddingVertical: 14, paddingHorizontal: 4 },
   skipBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
   nextBtn: { flex: 1, ...shadows.card },
-  closedWrap: { flex: 1, alignItems: 'center', gap: 4, paddingVertical: 4 },
-  closedNote: { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.textPrimary, textAlign: 'center' },
-  closedSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, textAlign: 'center' },
-  closedBtn: { paddingVertical: 10, paddingHorizontal: 16, marginTop: 4 },
-  closedBtnText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.textPrimary },
   })
 }

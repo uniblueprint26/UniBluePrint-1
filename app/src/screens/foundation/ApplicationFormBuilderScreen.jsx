@@ -13,9 +13,8 @@ import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/E
 import RepeatingList from '../../components/forms/RepeatingList'
 import EmptyState from '../../components/ui/EmptyState'
 import { FieldLabel, FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
-import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
-import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
+import { useFoundationBuilder } from '../../hooks/useFoundationBuilder'
 
 // Application Form Assistance intake — same CV Optimisation pattern (QuestionFlow +
 // an application_forms-shaped table + submit_document_for_review + a generate-*
@@ -113,7 +112,7 @@ const STEPS = [
   },
 ]
 
-export default function ApplicationFormBuilderScreen({ navigation }) {
+export default function ApplicationFormBuilderScreen({ navigation, route }) {
   const { colors } = useTheme()
   const styles = getStyles(colors)
   const { user } = useAuth()
@@ -122,7 +121,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:application_form:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
-  const { enabled: orderingOpen } = useFoundationOrdering()
+  const { saveMode, initialReview, saveAnswers } = useFoundationBuilder('application_form', navigation, route)
 
   // generate-application-answers hard-requires at least one Evidence Bank
   // story to draft from ("Add at least one story..." 422 if the bank is
@@ -150,12 +149,6 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     checkEvidenceBank()
     return () => { active = false }
   }, [user])
-
-  // iOS and Android never order in the app. While ordering is closed the builder
-  // opens for everyone, saves a draft and shows "Ordering opens in January".
-  if (IS_IOS && orderingOpen) {
-    return <FoundationIOSNotice navigation={navigation} serviceTitle="Application Form Assistance" />
-  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))
@@ -222,7 +215,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     navigation.replace('GenerationSubmitted', { serviceTitle: 'Application Form Assistance', tier: v.tier })
   }
 
-  if (evidenceCheck === 'loading') {
+  if (evidenceCheck === 'loading' && !saveMode) {
     return (
       <View style={styles.loadingScreen}>
         <ActivityIndicator color={colors.textPrimary} />
@@ -230,7 +223,7 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
     )
   }
 
-  if (evidenceCheck === 'empty') {
+  if (evidenceCheck === 'empty' && !saveMode) {
     return (
       <View style={[styles.gateScreen, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
         <View style={styles.gateHeader}>
@@ -266,9 +259,11 @@ export default function ApplicationFormBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
-        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
+        saveMode={saveMode}
+        initialReview={initialReview}
+        onSaveAnswers={saveAnswers}
       />
-      <FoundationCheckoutModal ref={checkoutRef} />
+      {!saveMode && <FoundationCheckoutModal ref={checkoutRef} />}
     </>
   )
 }

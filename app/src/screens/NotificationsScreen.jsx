@@ -15,6 +15,7 @@ import { goToRelatedEntity } from '../lib/notificationRouting'
 import ErrorState from '../components/ui/ErrorState'
 import SlowLoad from '../components/ui/SlowLoad'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { IS_NATIVE } from '../constants/platformPolicy'
 
 // ── Notification categories ─────────────────────────────────────────────────
 // public.notifications.category holds many fine-grained keys (welcome,
@@ -190,7 +191,9 @@ export default function NotificationsScreen({ navigation }) {
   const [allNotifications, setNotifications] = useState([])
   const { enabled: foundationOpen } = useFoundationEnabled()
   const notifications = useMemo(
-    () => (foundationOpen ? allNotifications : allNotifications.filter(n => !isFoundationNotification(n))),
+    () => (foundationOpen ? allNotifications : allNotifications.filter(n => !isFoundationNotification(n)))
+      // "Foundation ordering is open" tells people to order. It never shows on iOS and Android.
+      .filter(n => !(IS_NATIVE && n.category === 'foundation_open')),
     [allNotifications, foundationOpen],
   )
   const [loading, setLoading] = useState(true)

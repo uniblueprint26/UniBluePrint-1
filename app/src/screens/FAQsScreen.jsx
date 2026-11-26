@@ -9,6 +9,7 @@ import { useTheme } from '../context/ThemeContext'
 import { WEBSITE_LINKS } from '../constants/site'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useFoundationEnabled } from '../hooks/useAppFlags'
+import { IS_NATIVE } from '../constants/platformPolicy'
 import { SUPPORT_EMAIL } from '../constants/site'
 
 const FAQS = [
@@ -54,14 +55,17 @@ const FAQS = [
 // Questions about Foundation and its Campus Handlers. Left out while Foundation
 // is closed on iOS and Android.
 const FOUNDATION_FAQS = new Set(['How do Foundation Blueprint services work?', 'What is a Campus Handler?'])
+const FOUNDATION_FAQ_NATIVE = 'You answer a short set of questions, one at a time. Your answers are saved to your Blueprint, so you can come back to read them and change them whenever you like. Foundation also has an example library and industry guides.'
 const FIRST_FAQ_WITHOUT_FOUNDATION =
   'Yes. UniBlueprint is free to join. Campus boards, Course Connect and Lifestyle deals are available to all members.'
 
 export default function FAQsScreen({ navigation }) {
   const { colors } = useTheme()
   const { enabled: foundationOpen } = useFoundationEnabled()
+  // iOS and Android never mention delivery tiers or timings: no ordering in the app.
+  const baseFaqs = IS_NATIVE ? FAQS.map(f => (f.q === 'How do Foundation Blueprint services work?' ? { ...f, a: FOUNDATION_FAQ_NATIVE } : f.q === 'Is UniBlueprint free to use?' ? { ...f, a: FIRST_FAQ_WITHOUT_FOUNDATION } : f)) : FAQS
   const faqs = foundationOpen
-    ? FAQS
+    ? baseFaqs
     : FAQS.filter(f => !FOUNDATION_FAQS.has(f.q)).map((f, i) => (i === 0 ? { ...f, a: FIRST_FAQ_WITHOUT_FOUNDATION } : f))
   const styles = getStyles(colors)
   const [open, setOpen] = useState(null)

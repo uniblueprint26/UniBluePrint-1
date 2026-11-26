@@ -11,9 +11,11 @@ import { IS_NATIVE } from '../constants/platformPolicy'
 // answer is cached for 10 minutes and a failed one is retried after a minute.
 //
 //   foundation_visible           true   Foundation shows everywhere in the app.
-//   foundation_ordering_enabled  false  Foundation orders are open. While this
-//                                       is false every order or checkout button
-//                                       reads "Ordering opens in January".
+//   foundation_ordering_enabled  false  Foundation orders are open on the WEB build.
+//                                       The iOS and Android apps never order, so they
+//                                       ignore it (see useFoundationOrdering). While it
+//                                       is false the web shows "Ordering opens in January"
+//                                       and every builder saves answers to the Blueprint.
 //   coming_soon_tiles            false  Coming soon tiles, sheets and labels
 //                                       are hidden while this is false.
 //   priority_enabled             false  Priority events tiles and screens show. Turn on
@@ -116,17 +118,26 @@ export function isFoundationEnabledNow() {
 }
 
 // Can Foundation be ordered yet? Defaults to false until the table says true.
-// While false, show FOUNDATION_ORDERING_LINE where an order or checkout button
-// would be. `loading` is true until the first answer.
+//
+// iOS and Android NEVER order and never show an order or purchase action, a
+// price or a website link for Foundation, whatever this flag says. The app takes
+// no payment. On native the flag only matters to the website. So:
+//   enabled   true only on the web build and only when the flag is true.
+//   saveMode  true whenever the app does not order (always on native, and on
+//             web while the flag is false). In save mode every builder ends by
+//             saving the answers to the member's Blueprint.
+//   teaser    "Ordering opens in January", for the web build only while the
+//             flag is false. Always null on iOS and Android.
 export const FOUNDATION_ORDERING_LINE = 'Ordering opens in January'
 
 export function useFoundationOrdering() {
   const { value, loading } = useAppFlag('foundation_ordering_enabled')
-  return { enabled: value, loading }
+  const enabled = !IS_NATIVE && value
+  return { enabled, loading, saveMode: !enabled, teaser: !IS_NATIVE && !value ? FOUNDATION_ORDERING_LINE : null }
 }
 
 export function isFoundationOrderingEnabledNow() {
-  return getAppFlag('foundation_ordering_enabled')
+  return !IS_NATIVE && getAppFlag('foundation_ordering_enabled')
 }
 
 // Pro is free for every signed in account until this day (inclusive, UTC).

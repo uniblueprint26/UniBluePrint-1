@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { COACHES, coachSlug } from '../screens/ElevationScreen'
 import { isFoundationEnabledNow } from '../hooks/useAppFlags'
+import { IS_NATIVE } from '../constants/platformPolicy'
 
 // ── Deep-link routing ────────────────────────────────────────────────────────
 // notifications.related_entity_type/related_entity_id are generic (an
@@ -35,7 +36,7 @@ export async function goToRelatedEntity(navigation, notif, userId) {
 
   // Notifications with no row to open go to the screen for their category.
   if (!type || !id) {
-    if (notif.category === 'foundation_open' && isFoundationEnabledNow()) navigation.navigate('Foundation')
+    if (notif.category === 'foundation_open' && isFoundationEnabledNow() && !IS_NATIVE) navigation.navigate('Foundation')
     else if (notif.category === 'weekly_blueprint') navigation.navigate('AdBoard', { screen: 'WeeklyBlueprint' })
     return
   }

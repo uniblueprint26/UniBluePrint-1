@@ -321,7 +321,8 @@ export const ALL_POSTS = [
 //     article, which quotes Pro prices, is left out.
 // On the web build every article is shown in full, as before.
 const FOUNDATION_ONLY_SLUGS = new Set(['foundation-blueprint-explained', 'uniblueprint-launches-september-2026'])
-const PRICING_ONLY_SLUGS = new Set(['uniblueprint-launches-september-2026'])
+// Quotes service prices, tiers and ordering steps, so it is left out of the iOS and Android apps.
+const PRICING_ONLY_SLUGS = new Set(['uniblueprint-launches-september-2026', 'foundation-blueprint-explained'])
 const FOUNDATION_TEXT = /Foundation Blueprint|Campus Handler|Optimisation service|trained eye/
 
 function sectionText(sec) {

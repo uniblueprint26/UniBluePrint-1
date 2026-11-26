@@ -89,6 +89,9 @@ import JobSearchSupportBuilderScreen  from '../screens/foundation/JobSearchSuppo
 import EvidenceBankScreen             from '../screens/foundation/EvidenceBankScreen'
 import ApplicationTrackerScreen       from '../screens/foundation/ApplicationTrackerScreen'
 import GenerationSubmittedScreen      from '../screens/foundation/GenerationSubmittedScreen'
+import FoundationSavedScreen          from '../screens/foundation/FoundationSavedScreen'
+import ExampleLibraryScreen           from '../screens/foundation/ExampleLibraryScreen'
+import IndustryGuideScreen            from '../screens/foundation/IndustryGuideScreen'
 import CompassScreen        from '../screens/CompassScreen'
 import MyBlueprintScreen    from '../screens/MyBlueprintScreen'
 import ExploreScreen        from '../screens/ExploreScreen'
@@ -163,6 +166,9 @@ const Gated = {
   EvidenceBankScreen: foundationGated(EvidenceBankScreen),
   ApplicationTrackerScreen: foundationGated(ApplicationTrackerScreen),
   GenerationSubmittedScreen: foundationGated(GenerationSubmittedScreen),
+  FoundationSavedScreen: foundationGated(FoundationSavedScreen),
+  ExampleLibraryScreen: foundationGated(ExampleLibraryScreen),
+  IndustryGuideScreen: foundationGated(IndustryGuideScreen),
 }
 
 const Tab    = createBottomTabNavigator()
@@ -261,6 +267,9 @@ function HomeStack() {
       <Stack.Screen name="EvidenceBank"              component={Gated.EvidenceBankScreen}             options={{ presentation: 'modal' }} />
       <Stack.Screen name="ApplicationTracker"        component={Gated.ApplicationTrackerScreen}       options={{ presentation: 'modal' }} />
       <Stack.Screen name="GenerationSubmitted"      component={Gated.GenerationSubmittedScreen}      options={{ presentation: 'modal', gestureEnabled: false }} />
+      <Stack.Screen name="FoundationSaved"          component={Gated.FoundationSavedScreen}          options={{ presentation: 'modal', gestureEnabled: false }} />
+      <Stack.Screen name="ExampleLibrary"           component={Gated.ExampleLibraryScreen}           />
+      <Stack.Screen name="IndustryGuide"            component={Gated.IndustryGuideScreen}            />
 
       {/* Dual Portal — The Blueprint Studio (Handlers) / The Elevation Studio (Coaches) */}
       <Stack.Screen name="StudioQueue"      component={StudioQueueScreen}   />
