@@ -5,9 +5,8 @@ import { useDraftAutosave } from '../../hooks/useDraftAutosave'
 import QuestionFlow from '../../components/forms/QuestionFlow'
 import { extraDefaults, extraSteps, extraDetail } from '../../components/forms/ExtraSteps'
 import { FormTextInput, FormTextArea, ChoiceGrid } from '../../components/forms/FormControls'
-import FoundationIOSNotice, { IS_IOS } from '../../components/ui/FoundationIOSNotice'
 import FoundationCheckoutModal from '../../components/foundation/FoundationCheckoutModal'
-import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../../hooks/useAppFlags'
+import { useFoundationBuilder } from '../../hooks/useFoundationBuilder'
 import { useSafeGoBack } from '../../hooks/useSafeGoBack'
 
 // Portfolio Building intake — simplest of the Foundation Blueprint services,
@@ -93,19 +92,13 @@ const STEPS = [
   },
 ]
 
-export default function PortfolioPlanBuilderScreen({ navigation }) {
+export default function PortfolioPlanBuilderScreen({ navigation, route }) {
   const { user } = useAuth()
   const [values, setValues] = useState(DEFAULT_VALUES)
   const { clearDraft } = useDraftAutosave(user ? `foundation_draft:portfolio_plan:${user.id}` : null, values, setValues)
   const checkoutRef = useRef(null)
-  const { enabled: orderingOpen } = useFoundationOrdering()
+  const { saveMode, initialReview, saveAnswers } = useFoundationBuilder('portfolio_plan', navigation, route)
   const safeGoBack = useSafeGoBack(navigation)
-
-  // iOS and Android never order in the app. While ordering is closed the builder
-  // opens for everyone, saves a draft and shows "Ordering opens in January".
-  if (IS_IOS && orderingOpen) {
-    return <FoundationIOSNotice navigation={navigation} serviceTitle="Portfolio Building" />
-  }
 
   function onChange(key, v) {
     setValues(prev => ({ ...prev, [key]: v }))
@@ -181,9 +174,11 @@ export default function PortfolioPlanBuilderScreen({ navigation }) {
         onExit={safeGoBack}
         navigation={navigation}
         submitLabel="Submit for review"
-        closedNote={orderingOpen ? null : FOUNDATION_ORDERING_LINE}
+        saveMode={saveMode}
+        initialReview={initialReview}
+        onSaveAnswers={saveAnswers}
       />
-      <FoundationCheckoutModal ref={checkoutRef} />
+      {!saveMode && <FoundationCheckoutModal ref={checkoutRef} />}
     </>
   )
 }

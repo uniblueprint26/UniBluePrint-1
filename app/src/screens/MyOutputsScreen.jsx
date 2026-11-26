@@ -11,7 +11,7 @@ import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { useFoundationOrdering, FOUNDATION_ORDERING_LINE } from '../hooks/useAppFlags'
+import { useFoundationOrdering } from '../hooks/useAppFlags'
 
 // "My Outputs" — a student's own submission history and completed
 // documents. A delivered row opens OutputDetailScreen for the generated
@@ -114,7 +114,7 @@ export default function MyOutputsScreen({ navigation }) {
   const styles = getStyles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
-  const { enabled: orderingOpen } = useFoundationOrdering()
+  const { enabled: orderingOpen, teaser } = useFoundationOrdering()
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -179,7 +179,7 @@ export default function MyOutputsScreen({ navigation }) {
             <Text style={styles.emptySub}>
               {orderingOpen
                 ? 'Order a CV, cover letter, or any other Foundation service and it will be tracked here from submission to delivery.'
-                : `${FOUNDATION_ORDERING_LINE}. You can start your answers now and they are saved as a draft.`}
+                : `${teaser ? `${teaser}. ` : ''}You can start your answers in Foundation now. They are saved to your Blueprint.`}
             </Text>
             <Button
               label="Go to Foundation"

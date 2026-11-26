@@ -27,13 +27,12 @@ export const WEBSITE_LINKS = {
 // Foundation builder screens, mirrored on the website (src/pages/
 // foundation/*PageJsx). Foundation services are completed on the website, not
 // in the app builders.
-//   Android and web: the order button opens the service's page here
-//     (see foundationHandoffUrl below).
-//   iOS: Foundation is pay-per-service digital content (App Store 3.1.1) and
-//     Apple prohibits external purchase links and calls to action outside the
-//     US storefront without an entitlement. So on iOS this map is only used
-//     for plain, non-tappable display text (FoundationIOSNotice). Never open
-//     these URLs from an iOS code path.
+//   Web build only: the order button opens the service's page here (see
+//     foundationHandoffUrl below), and only while app_flags
+//     foundation_ordering_enabled is true.
+//   iOS and Android: never. The app takes no payment and shows no order button,
+//     price or link to buy on the website. Do not open or display these URLs
+//     from a native code path (see constants/platformPolicy.js).
 // Keep this map's keys in sync with FoundationScreen.jsx's BUILDER_BY_TITLE
 // (same service titles).
 export const FOUNDATION_WEBSITE_LINKS = {
@@ -47,9 +46,9 @@ export const FOUNDATION_WEBSITE_LINKS = {
   'Job Search Support':            `${SITE_URL}/foundation/job-search-support`,
 }
 
-// Where the Android and web order button for a Foundation service goes: the
+// Where the web order button for a Foundation service goes: the
 // service's website builder page, or the contact page if the title has no page
-// yet (never the pricing page). Not for iOS.
+// yet (never the pricing page). Web build only, never iOS or Android.
 export function foundationHandoffUrl(title) {
   return FOUNDATION_WEBSITE_LINKS[title] || WEBSITE_LINKS.contact
 }

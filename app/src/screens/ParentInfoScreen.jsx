@@ -26,7 +26,7 @@ const PREVIEW = 5
 
 export default function ParentInfoScreen({ navigation }) {
   const { colors } = useTheme()
-  const { enabled: orderingOpen } = useFoundationOrdering()
+  const { teaser } = useFoundationOrdering()
   const [allCoaches, setAllCoaches] = useState(false)
   const [allPartners, setAllPartners] = useState(false)
 
@@ -64,7 +64,7 @@ export default function ParentInfoScreen({ navigation }) {
             <View key={t} style={[s.tag, { backgroundColor: colors.tabFill }]}><Text style={[s.tagText, { color: colors.textPrimary }]}>{t}</Text></View>
           ))}
         </View>
-        {!orderingOpen && <Body secondary style={{ marginTop: 12 }}>Ordering opens in January.</Body>}
+        {!!teaser && <Body secondary style={{ marginTop: 12 }}>Ordering opens in January.</Body>}
       </Section>
 
       <Section title="Elevation coaches">

@@ -8,6 +8,7 @@ import { fonts, spacing, radius } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { useSafeGoBack } from '../hooks/useSafeGoBack'
 import { useFoundationEnabled, useFoundationOrdering } from '../hooks/useAppFlags'
+import { IS_NATIVE } from '../constants/platformPolicy'
 import { SUPPORT_EMAIL } from '../constants/site'
 
 const TOPICS = [
@@ -48,13 +49,22 @@ export default function HelpScreen({ navigation }) {
   const { colors } = useTheme()
   const { enabled: foundationOpen } = useFoundationEnabled()
   // The Foundation topic is left out while Foundation is closed on iOS and Android.
-  const { enabled: orderingOpen } = useFoundationOrdering()
+  const { enabled: orderingOpen, teaser } = useFoundationOrdering()
+  // iOS and Android never order. The Foundation help there is only about
+  // answering the questions and the saved answers: no order, price or timing.
+  const NATIVE_HIDDEN = new Set(["Standard vs Premium, what's the difference", 'Turnaround times and delivery', 'Requesting revisions on a delivered document'])
   const topics = (foundationOpen ? TOPICS : TOPICS.filter(t => t.title !== 'Foundation Blueprint')).map(t => (
-    orderingOpen ? t : {
+    orderingOpen || t.title !== 'Foundation Blueprint' ? t : {
       ...t,
-      items: t.items?.map(it => (it.label === 'How to submit a document request'
-        ? { ...it, detail: 'Open Foundation Blueprint from the Home screen or sidebar. Tap an envelope and start your answers. They are saved as a draft. Ordering opens in January.' }
-        : it)),
+      items: t.items
+        ?.filter(it => !(IS_NATIVE && NATIVE_HIDDEN.has(it.label)))
+        .map(it => (it.label === 'How to submit a document request'
+          ? {
+              ...it,
+              label: IS_NATIVE ? 'How to start a document' : it.label,
+              detail: `Open Foundation Blueprint from the Home screen or sidebar. Tap an envelope and start your answers. They are saved to your Blueprint, so you can come back to read them and change them.${teaser ? ' Ordering opens in January.' : ''}`,
+            }
+          : it)),
     }
   ))
   const styles = getStyles(colors)

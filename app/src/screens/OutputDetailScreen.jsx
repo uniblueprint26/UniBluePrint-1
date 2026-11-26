@@ -6,6 +6,7 @@ import { envelopePaper } from '../components/foundation/envelopePaper'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 import { fonts, spacing } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
@@ -180,7 +181,9 @@ export default function OutputDetailScreen({ navigation, route }) {
               <Archive size={32} color={colors.muted} />
               <Text style={styles.messageTitle}>This document's content is gone</Text>
               <Text style={styles.messageSub}>
-                Its free-tier wallet storage window ended and the content was cleared before you upgraded to Pro, so it can't be restored. Pro keeps everything delivered from here on.
+                {NATIVE_NEUTRAL_BILLING
+                  ? "Its storage window ended and the content was cleared, so it can't be restored."
+                  : "Its free-tier wallet storage window ended and the content was cleared before you upgraded to Pro, so it can't be restored. Pro keeps everything delivered from here on."}
               </Text>
             </Card>
           ) : (
