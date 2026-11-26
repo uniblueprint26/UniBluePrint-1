@@ -137,7 +137,7 @@ function getStyles(colors, isDark) {
   const card = isDark ? { borderWidth: 1, borderColor: colors.border } : shadows.card
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
-    chipScroll: { flexGrow: 0, marginBottom: 10 },
+    chipScroll: { flexGrow: 0, marginTop: 14, marginBottom: 6 },
     chips: { paddingHorizontal: spacing.md, gap: 8 },
     chip: { paddingHorizontal: 14, height: 36, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.tabFill },
     chipOn: { backgroundColor: colors.accentBg },

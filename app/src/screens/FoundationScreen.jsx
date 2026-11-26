@@ -18,6 +18,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { FOUNDATION_WEBSITE_LINKS, foundationHandoffUrl } from '../constants/site'
+import { IS_NATIVE } from '../constants/platformPolicy'
 import { loadSavedStamps } from '../lib/foundationSaved'
 import { serviceKeyForTitle } from '../constants/foundationServices'
 import { useFoundationOrdering } from '../hooks/useAppFlags'
@@ -409,7 +410,9 @@ export default function FoundationScreen({ navigation, route }) {
             ))}
           </View>
 
-          {/* Fallback contact for anything the services above do not cover. */}
+          {/* Fallback contact for anything the services above do not cover. Not on
+              iOS and Android, where it could read as a way to ask for a paid service. */}
+          {!IS_NATIVE ? (
           <TouchableOpacity
             style={styles.contact}
             activeOpacity={0.7}
@@ -418,6 +421,7 @@ export default function FoundationScreen({ navigation, route }) {
           >
             <Text style={styles.contactText}>Something else in mind? Get in touch</Text>
           </TouchableOpacity>
+          ) : null}
         </View>
       </ScrollView>
 
@@ -451,10 +455,10 @@ function getStyles(colors) {
     topRow: { flexDirection: 'row', gap: 12 },
     topCard: {
       flex: 1, minHeight: 136, backgroundColor: colors.surface, borderRadius: 16, padding: 16,
-      borderWidth: 1, borderColor: colors.border, justifyContent: 'flex-end',
+      borderWidth: 1, borderColor: colors.border, justifyContent: 'flex-start',
     },
     topIcon: {
-      position: 'absolute', top: 16, left: 16, width: 38, height: 38, borderRadius: 12,
+      width: 38, height: 38, borderRadius: 12, marginBottom: 14,
       backgroundColor: colors.tabFill, alignItems: 'center', justifyContent: 'center',
     },
     topTitle: { fontFamily: fonts.serif, fontSize: 19, color: colors.textPrimary },

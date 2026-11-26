@@ -243,7 +243,7 @@ export default function QuestionFlow({ steps: stepsProp, values, onChange, onCom
                 {reviewRows(steps, values).map((r, n, arr) => (
                   <View key={r.index} style={[styles.reviewRow, n < arr.length - 1 && styles.reviewRowBorder]}>
                     <Text style={styles.reviewLabel}>{r.label.toUpperCase()}</Text>
-                    <Text style={styles.reviewValue} numberOfLines={2}>{r.text}</Text>
+                    <Text style={styles.reviewValue} numberOfLines={3}>{r.text}</Text>
                     <TouchableOpacity onPress={() => jumpTo(r.index)} style={styles.reviewEdit} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}`}>
                       <Pencil size={15} color={colors.textPrimary} />
                     </TouchableOpacity>
