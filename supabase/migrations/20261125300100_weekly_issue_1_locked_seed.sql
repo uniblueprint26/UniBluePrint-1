@@ -1,0 +1,1208 @@
+-- Changes: seeds issue 1 of the Weekly Blueprint, "Ireland 2026" (issue_number 1, week_of 2026-12-21), LOCKED: published false. Adds one weekly_issue_content row (page_key 'wrapped') with every page written so far. Destructive: no (insert only, never overwrites a row that already exists). Undo: delete from public.weekly_issues where issue_number = 1; (the content row goes with it).
+--
+-- Issue 1 is the one time Ireland 2026 look back, launching on 26 December 2026. Until the
+-- founder sets published = true it is invisible to members (RLS and get_current_weekly_issue()
+-- both require published = true). Founder and operations can still open and edit it in the
+-- Weekly Blueprint editor. Publishing it is a separate, deliberate step:
+-- docs/release/weekly-issue-1/launch-day-switch.md.
+--
+-- The seed holds the pages written so far (24 of the 100 page plan). The awards pages are NOT
+-- in it: they are added at launch (see launch-day-add-awards.sql). More pages are added
+-- through the editor as they are written.
+--
+-- Safe to run more than once: ON CONFLICT DO NOTHING on both rows. A second run never changes
+-- published and never overwrites edits made in the editor. To reseed the pages, delete the
+-- content row first.
+--
+-- Publishing later fires the "The Weekly Blueprint is out" notification to every member.
+-- That is wanted on launch day, so the trigger is left on here (the row is inserted unpublished,
+-- which sends nothing).
+
+insert into public.weekly_issues (issue_number, week_of, theme, published)
+values (1, date '2026-12-21', 'Ireland 2026', false)
+on conflict (issue_number) do nothing;
+
+insert into public.weekly_issue_content (issue_id, page_key, content)
+select wi.id, 'wrapped', $wrapped${
+ "cover": {
+  "title": "Ireland 2026",
+  "byline": "by UniBlueprint"
+ },
+ "sections": [
+  {
+   "key": "months",
+   "title": "Month by month",
+   "accent": "#C96A42"
+  },
+  {
+   "key": "sport",
+   "title": "On the Pitch",
+   "accent": "#2E7D5B"
+  },
+  {
+   "key": "culture",
+   "title": "Culture, music and film",
+   "accent": "#5B4B8A"
+  },
+  {
+   "key": "give",
+   "title": "Giving Back",
+   "accent": "#D9596B"
+  },
+  {
+   "key": "nums",
+   "title": "Ireland in numbers",
+   "accent": "#2E8FA3"
+  },
+  {
+   "key": "awards",
+   "title": "UBP Awards",
+   "accent": "#8A5A9E"
+  },
+  {
+   "key": "fin",
+   "title": "Finale",
+   "accent": "#3F6FB5"
+  }
+ ],
+ "pages": [
+  {
+   "section": "months",
+   "kind": "timeline",
+   "kicker": "Month by month",
+   "heading": "Ireland 2026 on one page",
+   "items": [
+    {
+     "date": "January",
+     "text": "A 15 year old from Tralee wins the Young Scientist",
+     "page": 4
+    },
+    {
+     "date": "February",
+     "text": "Ben Lynch skis into an Olympic final",
+     "page": 4
+    },
+    {
+     "date": "March",
+     "text": "Jessie Buckley wins Best Actress at the Oscars",
+     "page": 5
+    },
+    {
+     "date": "April",
+     "text": "Rory McIlroy wins the Masters again",
+     "page": 5
+    },
+    {
+     "date": "May",
+     "text": "Irish students win on the world stage",
+     "page": 6
+    },
+    {
+     "date": "June",
+     "text": "Irish creatives take a top prize at Cannes Lions",
+     "page": 6
+    },
+    {
+     "date": "July",
+     "text": "Mayo end a 75 year wait",
+     "page": 7
+    },
+    {
+     "date": "August",
+     "text": "Mark English wins European gold in Birmingham",
+     "page": 7
+    },
+    {
+     "date": "September",
+     "text": "Katie Taylor says goodbye at Croke Park",
+     "page": 8
+    },
+    {
+     "date": "October",
+     "text": "Fontaines D.C. go to number one",
+     "page": 8
+    },
+    {
+     "date": "November",
+     "text": "Youth Night lights up clubs across the country",
+     "page": 9
+    },
+    {
+     "date": "December",
+     "text": "December is already in the diary",
+     "page": 9
+    }
+   ]
+  },
+  {
+   "section": "months",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "January",
+     "heading": "A 15 year old from Tralee wins the Young Scientist",
+     "body": "The year opened with a teenager from Tralee taking the Stripe Young Scientist and Technology Exhibition. Her project, GlioScope, uses AI to spot brain tumour mutations from MRI scans, so doctors can avoid invasive sampling. Almost 2,000 entries came in and 550 reached final judging. She wins 7,500 euro and a trip to Kiel for the EU contest. Fourth year, and already ahead of us.",
+     "source": "The Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/science/2026/01/09/young-scientist-winner-scoops-prize-for-brain-cancer-diagnostic-tool"
+    },
+    {
+     "kicker": "February",
+     "heading": "Ben Lynch skis into an Olympic final",
+     "body": "Ireland is not famous for ski slopes, so this one felt special. On 20 February, Ben Lynch, 23, finished eighth in the halfpipe final at the Winter Olympics in Livigno, with a score of 75.00. He was the first Irish skier to qualify for an Olympic final, and it was his Olympic debut. Jessie Buckley won a BAFTA that month too, but more on her next.",
+     "source": "RTE Sport and The Irish Times",
+     "sourceUrl": "https://www.rte.ie/sport/olympics/2026/0220/1559626-lynch-finishes-eighth-in-halfpipe-at-first-olympics"
+    }
+   ]
+  },
+  {
+   "section": "months",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "March",
+     "heading": "Jessie Buckley wins Best Actress at the Oscars",
+     "body": "On 15 March Jessie Buckley won the Oscar for Best Actress for Hamnet. The Irish Times called her Ireland's first ever best actress winner. Brenda Fricker won in 1990, but that was the supporting category, so this is a fresh first. Richard Baneham also collected a third Oscar that night, for visual effects. A very good night for Irish film.",
+     "source": "The Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+    },
+    {
+     "kicker": "April",
+     "heading": "Rory McIlroy wins the Masters again",
+     "body": "Rory McIlroy, from Holywood in Co. Down, kept the Green Jacket. On Sunday 12 April he won the Masters for the second year in a row, finishing twelve under par after a closing round of 71 and beating Scottie Scheffler by one shot. It is his sixth major. The same month, Dermot Kennedy's album The Weight of the Woods landed at number one in Ireland, his third in a row.",
+     "source": "The National",
+     "sourceUrl": "https://www.thenationalnews.com/sport/2026/04/13/how-2026-masters-champion-rory-mcilroy-won-his-six-majors"
+    }
+   ]
+  },
+  {
+   "section": "months",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "May",
+     "heading": "Irish students win on the world stage",
+     "body": "Two prizes in one week. On 13 May, TU Dublin's SolHex, four third year Product Design students, won the NIBS Worldwide Business Plan Competition online finals with a habit support system called Daylight. Two days before, a Letterkenny Leaving Cert student was named European winner of the Earth Prize for Eco Purge, a plastic that helps break down microplastics.",
+     "source": "TU Dublin",
+     "sourceUrl": "https://www.tudublin.ie/explore/news/tu-dublin-team-solhex-wins-nibs-worldwide-business-plan-competition-2026.php"
+    },
+    {
+     "kicker": "June",
+     "heading": "Irish creatives take a top prize at Cannes Lions",
+     "body": "Ireland's ad people went to Cannes and came home with gold. Publicis Dublin won a Grand Prix for the strategy behind Heineken Ireland's The Pub That Refused To Die, Ireland's third ever. Better still for young talent, two junior creatives at TBWA Ireland won gold in Young Lions Print, with just 24 hours to make a water safety ad.",
+     "source": "The Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/business/2026/06/27/irish-ad-executives-take-top-awards-at-cannes-lions/"
+    }
+   ]
+  },
+  {
+   "section": "months",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "July",
+     "heading": "Mayo end a 75 year wait",
+     "body": "Seventy five years of waiting ended on 26 July. Mayo beat Kerry by one goal and twenty points to one goal and seventeen in the All-Ireland football final at Croke Park. They led from the 37th minute and held on. It is their fourth title and their first since 1951. Limerick won the hurling title a week earlier, on 19 July.",
+     "source": "Irish Echo",
+     "sourceUrl": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+    },
+    {
+     "kicker": "August",
+     "heading": "Mark English wins European gold in Birmingham",
+     "body": "On 13 August at the European Championships in Birmingham, Mark English won the 800m in 1:45.26. He is the first Irish man to win an individual European outdoor gold. A big night for a Donegal runner, and the first of a big week for Irish athletics.",
+     "source": "Athletics Ireland",
+     "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/"
+    }
+   ]
+  },
+  {
+   "section": "months",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "September",
+     "heading": "Katie Taylor says goodbye at Croke Park",
+     "body": "On 5 September Katie Taylor fought her last fight at Croke Park and retired as a three times undisputed world champion. Earlier that week, Met Éireann said the summer had provisionally been the warmest on record, at 16.28 degrees. A warm summer and a warm send off.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+    },
+    {
+     "kicker": "October",
+     "heading": "Fontaines D.C. go to number one",
+     "body": "Dublin band Fontaines D.C. reached number one with their fifth album, Dopamine Chamber, their second chart topper after Skinty Fia. It sold over 70,000 chart units in its first week, the third biggest opening week for an album in 2026. It also topped the Official Record Store Chart and the Official Vinyl Albums Chart.",
+     "source": "Official Charts Company",
+     "sourceUrl": "https://www.officialcharts.com/chart-news/fontaines-dc-dopamine-chamber-number-1-album/"
+    }
+   ]
+  },
+  {
+   "section": "months",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "November",
+     "heading": "Youth Night lights up clubs across the country",
+     "body": "On Friday 13 November, and the evenings either side, youth clubs and projects opened their doors for Oíche na hÓige. There were silent discos, drumming, art, coding, Lego robotics and virtual reality, plus podcasts and music made by young people. Minister Hildegarde Naughton visited Galway and said the atmosphere does not lie.",
+     "source": "Foróige",
+     "sourceUrl": "https://www.foroige.ie/foroige-brings-youth-night-to-life-across-ireland/"
+    },
+    {
+     "kicker": "December",
+     "heading": "December is already in the diary",
+     "body": "December has a few dates already confirmed. Dublin gets a week of film concerts at the RDS from 1 December. The Newgrange sun is due to be livestreamed on 21 December. Ireland's EU Presidency ends on 31 December, and Dublin sees in the new year with a three day festival. We will see you there.",
+     "source": "Heritage Ireland, dublin.ie, Discover Ireland, Visit Dublin, Irish Presidency",
+     "sourceUrl": "https://www.heritageireland.ie/en/east/newgrange"
+    }
+   ],
+   "note": "December text was written on 23 November from confirmed dates. Refresh it before 26 December."
+  },
+  {
+   "section": "sport",
+   "kind": "section",
+   "kicker": "Sport",
+   "heading": "Sport",
+   "body": "Big days at Croke Park, a big year for women's sport and a few firsts. We also remember Ciara Mageean, our European 1500m champion, who died on 1 November, aged 34.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [],
+   "source": "RTE Sport",
+   "sourceUrl": "https://www.rte.ie/sport/athletics/2026/1101/1597514-irish-olympian-and-european-champion-ciara-mageean-dies/",
+   "image": null,
+   "alsoSources": [
+    {
+     "source": "World Athletics",
+     "url": "https://worldathletics.org/news/news/ciara-mageean-obituary"
+    }
+   ],
+   "note": "Mageean mention is in the divider body only. A full tribute page is for the tribute writer."
+  },
+  {
+   "section": "sport",
+   "kind": "story",
+   "kicker": "5 September",
+   "heading": "Katie Taylor says goodbye at Croke Park",
+   "body": "Around 80,000 people filled Croke Park for Katie Taylor's last fight. She beat Flora Pili of France by unanimous decision, with two judges scoring it one hundred points to ninety. Asked for something inspiring afterwards, she said \"Let me just look around.\" She retired as a three time undisputed world champion. What a way to finish.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [],
+   "source": "Irish Times",
+   "sourceUrl": "https://www.irishtimes.com/sport/boxing/2026/09/05/eternal-katie-taylor-does-it-her-own-way-to-the-last-as-she-defeats-pili-in-croke-park-farewell/",
+   "image": {
+    "url": "https://commons.wikimedia.org/wiki/File:Katie_Taylor_2012_(2).jpg",
+    "credit": "Katie Taylor at the 2012 Olympics. Photo: cormac70 from London, CC BY 2.0, via Wikimedia Commons",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "author": "cormac70 from London",
+    "note": ""
+   },
+   "alsoSources": [
+    {
+     "source": "Irish Examiner",
+     "url": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+    },
+    {
+     "source": "The42",
+     "url": "https://www.the42.ie/article.php?id=7061918"
+    }
+   ]
+  },
+  {
+   "section": "sport",
+   "kind": "story",
+   "kicker": "26 July",
+   "heading": "Mayo end 75 years of waiting",
+   "body": "Seventy five years is a long time to wait for a cup. Mayo finally won the Sam Maguire on 26 July, beating Kerry by one goal and twenty points to one goal and seventeen. It is their fourth All-Ireland title. They fought back from seven points down, and Tommy Conroy kicked the last point. The cup is heading west.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [],
+   "source": "RTE Sport",
+   "sourceUrl": "https://www.rte.ie/sport/football/2026/0726/1585135-mayo-end-75-years-of-hurt-by-downing-kerry/",
+   "image": {
+    "url": "https://commons.wikimedia.org/wiki/File:2026_All_Ireland_Football_Final.png",
+    "credit": "The Artane Band leads Mayo and Kerry around Croke Park before the 2026 final. Photo: Seankivlehan, CC BY-SA 4.0, via Wikimedia Commons",
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "author": "Seankivlehan",
+    "note": ""
+   },
+   "alsoSources": [
+    {
+     "source": "Irish Echo",
+     "url": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+    },
+    {
+     "source": "Irish News",
+     "url": "https://www.irishnews.com/gaa/gaelic-football/how-mayo-won-the-all-ireland-the-complete-story-of-how-andy-morans-side-ended-the-countys-75-year-longing-for-sam-maguire-JIJGIFSCS5FEBJL4RIXCHGORQQ/"
+    }
+   ]
+  },
+  {
+   "section": "sport",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "19 July",
+     "heading": "Limerick lift the Liam MacCarthy again",
+     "body": "Limerick beat Galway in the All-Ireland hurling final at Croke Park on 19 July, one goal and twenty nine points to one goal and eighteen. They led by five at half time. Then Cathal O'Neill's goal in the 43rd minute, set up by Aaron Gillane, put the game out of reach. An eleven point win and a very happy Treaty county.",
+     "source": "HoganStand",
+     "sourceUrl": "https://hoganstand.com/Article/Index/341113"
+    },
+    {
+     "kicker": "2 August",
+     "heading": "Galway are ladies football champions at last",
+     "body": "Galway waited 22 years for this one. On 2 August they beat Kerry at Croke Park in the All-Ireland ladies football final, two goals and seven points to twelve points. Leanne Coen scored both goals and Eva Noone kicked the winning point late on. Kerry had a late effort ruled out, so it was nerves right to the whistle.",
+     "source": "HoganStand",
+     "sourceUrl": "https://hoganstand.com/Article/Index/341258"
+    },
+    {
+     "kicker": "9 August",
+     "heading": "A record crowd for camogie",
+     "body": "A crowd of 33,419 came to Croke Park for the camogie final, a record for a camogie match played on its own. They saw Cork edge Galway by two goals and fourteen points to nineteen points. Saoirse McCarthy and Orlaith Cahalane scored second half goals, and the O'Duffy Cup went to Cork for a record 31st time.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/"
+    }
+   ],
+   "heldImages": [
+    {
+     "url": "https://commons.wikimedia.org/wiki/File:LiamMacCarthy_Cup.jpg",
+     "credit": "The Liam MacCarthy Cup, photographed in 2011. Photo: Fti74, CC BY-SA 3.0, via Wikimedia Commons",
+     "licence": "CC BY-SA 3.0",
+     "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+     "author": "Fti74",
+     "note": ""
+    },
+    {
+     "url": "https://commons.wikimedia.org/wiki/File:Croke_park_all_ireland.jpg",
+     "credit": "Croke Park, Dublin. Photo: Tolivero, public domain, via Wikimedia Commons",
+     "licence": "Public domain",
+     "licenceUrl": "https://commons.wikimedia.org/wiki/File:Croke_park_all_ireland.jpg",
+     "author": "Tolivero",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "section": "sport",
+   "kind": "month",
+   "items": [
+    {
+     "kicker": "February and March",
+     "heading": "Triple Crown and a near miss",
+     "body": "Ireland won the Triple Crown, beating Scotland forty three to twenty one in Dublin on 14 March. Earlier they set a Twickenham record, scoring 42 points against England. The title slipped away when France beat England forty eight to forty six, with a Thomas Ramos penalty on the very last kick. Ireland finished second, and Ireland had a Triple Crown to show for it.",
+     "source": "RTE Sport",
+     "sourceUrl": "https://www.rte.ie/sport/six-nations/2026/0314/1563388-impressive-ireland-win-triple-crown-to-stay-in-6n-hunt/"
+    },
+    {
+     "kicker": "17 May",
+     "heading": "Ireland women fill the Aviva",
+     "body": "A record 31,294 people watched Ireland women beat Scotland fifty four points to five at the Aviva Stadium, the first stand alone women's Test played there. Ireland scored eight tries and led forty seven to nil at half time. The win secured third place in the Six Nations and Ireland's first three win championship since 2020.",
+     "source": "RTE Sport",
+     "sourceUrl": "https://www.rte.ie/sport/rugby/2026/0517/1573800-ireland-mark-historic-aviva-appearance-with-dominant-win/"
+    }
+   ],
+   "heldImages": [
+    {
+     "url": "https://commons.wikimedia.org/wiki/File:Aviva_Stadium_and_Dublin_City_at_Dusk.jpg",
+     "credit": "Aviva Stadium, Dublin, at dusk. Photo: David Kernan, CC BY 4.0, via Wikimedia Commons",
+     "licence": "CC BY 4.0",
+     "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+     "author": "David Kernan",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "section": "sport",
+   "kind": "story",
+   "kicker": "August",
+   "heading": "Birmingham: gold, silver and gold",
+   "body": "At the European Championships in Birmingham, Mark English won the 800m in 1:45.26, the first Irish man to win an individual European outdoor title. Twenty two minutes later Rhasidat Adeleke took 200m silver in an Irish record 22.28. Then Kate O'Connor won the heptathlon with 6,751 points. A proper good week for Irish athletics.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [],
+   "source": "Athletics Ireland",
+   "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/",
+   "image": null,
+   "alsoSources": [
+    {
+     "source": "Irish Times",
+     "url": "https://www.irishtimes.com/sport/athletics/2026/08/14/in-22-magical-minutes-mark-english-and-rhasidat-adeleke-had-sealed-their-legacies/"
+    },
+    {
+     "source": "Irish News",
+     "url": "https://www.irishnews.com/sport/kate-oconnor-wins-heptathlon-gold-in-birmingham-after-solid-800m-final-performance-GWICPDNVHFFSTMCROMVJ6VQBAQ/"
+    }
+   ]
+  },
+  {
+   "section": "sport",
+   "kind": "story",
+   "kicker": "Troy Parrott",
+   "heading": "A big year for Troy Parrott",
+   "body": "On 19 April Troy Parrott won his first senior trophy, scoring and setting up a goal as AZ Alkmaar beat NEC five to one in the Dutch Cup final. Before that, Ireland led Czechia two to nil in a World Cup playoff but lost on penalties. Parrott told fans, \"stick with us.\" In August he joined Real Betis for a reported 20 million euro.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [],
+   "source": "RTE Sport",
+   "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0419/1569074-parrott-helps-az-alkmaar-to-dutch-cup-glory/",
+   "image": null,
+   "alsoSources": [
+    {
+     "source": "RTE Sport",
+     "url": "https://www.rte.ie/sport/soccer/2026/0326/1565431-thank-you-stick-with-us-parrott-tells-irish-fans"
+    },
+    {
+     "source": "Irish Times",
+     "url": "https://www.irishtimes.com/sport/soccer/2026/08/20/troy-parrott-shakes-off-setbacks-of-injury-and-burden-of-expectation-with-real-betis-move/"
+    }
+   ]
+  },
+  {
+   "section": "sport",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 sport moments of 2026",
+   "body": "Chosen by UBP from published coverage. Good news only. Not an official ranking.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Katie Taylor says goodbye at Croke Park",
+     "blurb": "Katie Taylor wins her last fight at Croke Park before more than 80,000 fans.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+    },
+    {
+     "rank": 2,
+     "title": "Mayo win the All-Ireland",
+     "blurb": "Mayo beat Kerry to win a fourth All-Ireland title, 75 years after their third.",
+     "source": "Irish Echo",
+     "sourceUrl": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+    },
+    {
+     "rank": 3,
+     "title": "Rory McIlroy retains the Masters",
+     "blurb": "Rory McIlroy retains the Masters, finishing one shot clear of Scottie Scheffler.",
+     "source": "The National",
+     "sourceUrl": "https://www.thenationalnews.com/sport/2026/04/13/how-2026-masters-champion-rory-mcilroy-won-his-six-majors"
+    },
+    {
+     "rank": 4,
+     "title": "Galway win the ladies football final",
+     "blurb": "Galway win the All-Ireland ladies football title for the first time since 2004.",
+     "source": "Hogan Stand",
+     "sourceUrl": "https://hoganstand.com/Article/Index/341258"
+    },
+    {
+     "rank": 5,
+     "title": "Cork win the camogie final",
+     "blurb": "Cork edge Galway by a point before a record 33,419 camogie crowd.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/"
+    },
+    {
+     "rank": 6,
+     "title": "Mark English and Rhasidat Adeleke in Birmingham",
+     "blurb": "Mark English wins European 800m gold and Rhasidat Adeleke 200m silver on one night.",
+     "source": "Athletics Ireland",
+     "sourceUrl": "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/"
+    },
+    {
+     "rank": 7,
+     "title": "Kate O'Connor is European heptathlon champion",
+     "blurb": "Kate O'Connor wins European heptathlon gold in Birmingham with 6,751 points.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/sport/athletics/2026/08/15/kate-oconnor-in-heptathlon-gold-medal-position-with-one-event-left-at-european-championships/"
+    },
+    {
+     "rank": 8,
+     "title": "Limerick win the All-Ireland hurling final",
+     "blurb": "Limerick beat Galway to win the All-Ireland hurling final on 19 July.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/07/20/all-ireland-final-key-moments-dominance-either-side-of-half-time-sees-limerick-to-victory/"
+    },
+    {
+     "rank": 9,
+     "title": "Troy Parrott and the night in Prague",
+     "blurb": "We did not get there, but that flicker of hope brought the nation together.",
+     "source": "RTÉ Sport",
+     "sourceUrl": "https://www.rte.ie/sport/soccer/2026/0419/1569074-parrott-helps-az-alkmaar-to-dutch-cup-glory/"
+    },
+    {
+     "rank": 10,
+     "title": "Ben Lynch reaches an Olympic final",
+     "blurb": "Ben Lynch becomes the first Irish skier in an Olympic final and finishes eighth.",
+     "source": "Olympic Federation of Ireland",
+     "sourceUrl": "https://olympics.ie/eighth-in-olympic-final-for-freestyle-skier-ben-lynch-at-the-winter-olympics/"
+    }
+   ],
+   "source": "Various, see each item",
+   "sourceUrl": "",
+   "image": null
+  },
+  {
+   "section": "sport",
+   "kind": "recap",
+   "kicker": "At a glance",
+   "heading": "Sport in 2026",
+   "items": [
+    {
+     "date": "21 Feb",
+     "text": "Ireland score a record 42 points at Twickenham"
+    },
+    {
+     "date": "14 Mar",
+     "text": "Ireland win the Triple Crown, beating Scotland 43 to 21"
+    },
+    {
+     "date": "17 May",
+     "text": "A record 31,294 watch Ireland women at the Aviva"
+    },
+    {
+     "date": "June",
+     "text": "Ireland beat India at cricket for the first time"
+    },
+    {
+     "date": "19 Jul",
+     "text": "Limerick beat Galway in the All-Ireland hurling final"
+    },
+    {
+     "date": "26 Jul",
+     "text": "Mayo end 75 years of waiting, beating Kerry"
+    },
+    {
+     "date": "9 Aug",
+     "text": "A record 33,419 watch the camogie final at Croke Park"
+    },
+    {
+     "date": "13 Aug",
+     "text": "Mark English wins European gold and Rhasidat Adeleke sets an Irish record"
+    },
+    {
+     "date": "5 Sep",
+     "text": "Katie Taylor says goodbye at Croke Park"
+    }
+   ],
+   "rowSources": [
+    "https://www.skysports.com/rugby-union/england-vs-ireland/110510",
+    "https://www.rte.ie/sport/six-nations/2026/0314/1563388-impressive-ireland-win-triple-crown-to-stay-in-6n-hunt/",
+    "https://www.rte.ie/sport/rugby/2026/0517/1573800-ireland-mark-historic-aviva-appearance-with-dominant-win/",
+    "https://www.irishexaminer.com/sport/othersport/arid-41869968.html",
+    "https://hoganstand.com/Article/Index/341113",
+    "https://www.rte.ie/sport/football/2026/0726/1585135-mayo-end-75-years-of-hurt-by-downing-kerry/",
+    "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/",
+    "https://www.athleticsireland.ie/birmingham-day-4-historic-gold-for-english-as-adeleke-claims-european-silver/",
+    "https://www.irishtimes.com/sport/boxing/2026/09/05/eternal-katie-taylor-does-it-her-own-way-to-the-last-as-she-defeats-pili-in-croke-park-farewell/"
+   ],
+   "note": "The cricket row comes from the sport records list that was folded into this recap. Dates for Mark English and the Twickenham record are on the sport pages and the Months pages."
+  },
+  {
+   "section": "culture",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 Irish songs and albums of 2026",
+   "body": "Built from the weekly IRMA charts up to 20 November 2026. The year end charts are not out yet.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Amble: The Swell",
+     "blurb": "First Irish number one single, ending an eleven week run by Rein Me In.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/amble-score-their-first-irish-1-single-as-the-swell-ends-rein-me-ins-11-week-run/"
+    },
+    {
+     "rank": 2,
+     "title": "Kingfishr: The Sun Will Never Settle",
+     "blurb": "Their second Irish number one single, after Killeagh's 17 weeks on top.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/kingfishr-earn-their-second-1-single-with-the-sun-will-never-settle🌞/"
+    },
+    {
+     "rank": 3,
+     "title": "Fontaines D.C.: Dopamine Chamber",
+     "blurb": "Goes to number one on the Irish albums chart, their second chart topper.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/fontaines-d-c-top-albums-chart-with-dopamine-chamber-as-tate-mcrae-lands-her-first-1-single/"
+    },
+    {
+     "rank": 4,
+     "title": "U2: Carnaval De Luz",
+     "blurb": "Their eleventh Irish number one album, and first new album in nine years.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/carnaval-de-luz-gives-u2-their-eleventh-1-album/"
+    },
+    {
+     "rank": 5,
+     "title": "Dermot Kennedy: The Weight of the Woods",
+     "blurb": "Debuts at number one, his third Irish chart topper in a row.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/dermot-kennedy-achieves-his-third-consecutive-irish-1-album/"
+    },
+    {
+     "rank": 6,
+     "title": "Niall Horan: Dinner Party",
+     "blurb": "Debuts at number one, his fourth Irish number one album in a row.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/niall-horan-lands-his-fourth-irish-1-albu-with-dinner-party/"
+    },
+    {
+     "rank": 7,
+     "title": "CMAT: Euro-Country",
+     "blurb": "Wins the Ivor Novello for Best Album, her first Ivor win.",
+     "source": "RTÉ Entertainment",
+     "sourceUrl": "https://www.rte.ie/entertainment/2026/0521/1574622-cmat-wins-ivor-novello-award-for-best-album/"
+    },
+    {
+     "rank": 8,
+     "title": "Keywest: One More For The Road",
+     "blurb": "Number one on the Irish albums chart as a CD only release.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/keywest-top-the-albums-chart-with-one-more-for-the-road/"
+    },
+    {
+     "rank": 9,
+     "title": "BASHT.: Poor Advice",
+     "blurb": "Debut album tops the Independent chart and enters the main chart at number seven.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/basht-top-the-independent-chart-with-debut-album-poor-advice/"
+    },
+    {
+     "rank": 10,
+     "title": "The Mary Wallopers: Paddywhackery",
+     "blurb": "Trad folk album enters the Irish chart at number four.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/paddywhackery-by-the-mary-wallopers-lands-at-4-this-week-my-body-isnt-ready-by-sombr-reaches-1/"
+    }
+   ],
+   "source": "IRMA",
+   "sourceUrl": "https://www.irma.ie/news/",
+   "image": null
+  },
+  {
+   "section": "culture",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 Irish films and TV of 2026",
+   "body": "Based on the 2026 IFTAs, the Oscars and the Irish Examiner mid year lists. Not an official ranking.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Hamnet",
+     "blurb": "Jessie Buckley wins the Oscar for Hamnet, which also took four IFTAs.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+    },
+    {
+     "rank": 2,
+     "title": "Christy",
+     "blurb": "Christy wins Best Film at the IFTAs, plus Director, Casting and Editing.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41797583.html"
+    },
+    {
+     "rank": 3,
+     "title": "Blue Lights",
+     "blurb": "Blue Lights, in its third series, wins Best Drama at the IFTAs.",
+     "source": "RTÉ Entertainment",
+     "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+    },
+    {
+     "rank": 4,
+     "title": "Saipan",
+     "blurb": "Éanna Hardwicke wins the IFTA for Lead Actor as Roy Keane in Saipan.",
+     "source": "RTÉ Entertainment",
+     "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+    },
+    {
+     "rank": 5,
+     "title": "House of Guinness",
+     "blurb": "Anthony Boyle wins Lead Actor in a Drama at the IFTAs for House of Guinness.",
+     "source": "RTÉ Entertainment",
+     "sourceUrl": "https://rte.ie/entertainment/2026/0220/1559625-christy-and-hamnet-lead-winners-at-ifta-awards/"
+    },
+    {
+     "rank": 6,
+     "title": "Trespasses",
+     "blurb": "Trespasses wins IFTAs for script, lead performance in a drama, and makeup and hair.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/culture/2026/02/20/iftas-2026-jessie-buckley-ciaran-hinds-and-cork-drama-christy-take-prizes/"
+    },
+    {
+     "rank": 7,
+     "title": "Avatar: Fire and Ash",
+     "blurb": "Tallaght's Richard Baneham wins his third Oscar, for the effects in Avatar: Fire and Ash.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+    },
+    {
+     "rank": 8,
+     "title": "Hokum",
+     "blurb": "Damian McCarthy's horror Hokum, shot in West Cork, stars Adam Scott.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41876651.html"
+    },
+    {
+     "rank": 9,
+     "title": "Power Ballad",
+     "blurb": "John Carney's comedy Power Ballad stars Paul Rudd as a wedding singer.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41876651.html"
+    },
+    {
+     "rank": 10,
+     "title": "A Quiet Love",
+     "blurb": "A Quiet Love, told entirely in Irish Sign Language, is on RTÉ Player.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41876651.html"
+    }
+   ],
+   "source": "Various, see each item",
+   "sourceUrl": "",
+   "image": null
+  },
+  {
+   "section": "culture",
+   "kind": "recap",
+   "kicker": "At a glance",
+   "heading": "Culture in 2026",
+   "items": [
+    {
+     "date": "Feb",
+     "text": "Christy wins Best Film at the IFTAs"
+    },
+    {
+     "date": "15 Mar",
+     "text": "Jessie Buckley wins the Best Actress Oscar for Hamnet"
+    },
+    {
+     "date": "15 Mar",
+     "text": "Richard Baneham wins his third Oscar, for visual effects"
+    },
+    {
+     "date": "Apr",
+     "text": "Dermot Kennedy goes to number one with The Weight of the Woods"
+    },
+    {
+     "date": "May",
+     "text": "CMAT wins the Ivor Novello for Best Album"
+    },
+    {
+     "date": "Oct",
+     "text": "Fontaines D.C. take Dopamine Chamber to number one"
+    }
+   ],
+   "rowSources": [
+    "https://www.irishexaminer.com/lifestyle/artsandculture/arid-41797583.html",
+    "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/",
+    "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/",
+    "https://www.irma.ie/news/dermot-kennedy-achieves-his-third-consecutive-irish-1-album/",
+    "https://www.rte.ie/entertainment/2026/0521/1574622-cmat-wins-ivor-novello-award-for-best-album/",
+    "https://www.officialcharts.com/chart-news/fontaines-dc-dopamine-chamber-number-1-album/"
+   ],
+   "note": "The Feb, Apr and May dates are months, because the opened articles give the month and not the day. March and October dates match the Months pages."
+  },
+  {
+   "section": "give",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 positive moments of 2026",
+   "body": "Ten good news moments confirmed in published coverage. Chosen by UBP, not a public ranking.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Rock Choir sings Dreams at the Giant's Causeway",
+     "blurb": "More than 500 singers, over 10 million views, and praise from The Cranberries.",
+     "source": "RTÉ Entertainment",
+     "sourceUrl": "https://www.rte.ie/entertainment/2026/0330/1565968-irish-choir-goes-viral-with-giants-causeway-video/"
+    },
+    {
+     "rank": 2,
+     "title": "Youth Night lights up the country",
+     "blurb": "Youth clubs across Ireland open their doors for Oíche na hÓige on 13 November.",
+     "source": "Foróige",
+     "sourceUrl": "https://www.foroige.ie/foroige-brings-youth-night-to-life-across-ireland/"
+    },
+    {
+     "rank": 3,
+     "title": "Gardiner Brothers keep dancing",
+     "blurb": "Galway dancers who went viral worldwide now have about 4.1M TikTok followers.",
+     "source": "influencer.ie",
+     "sourceUrl": "https://influencer.ie/platform/tiktok/"
+    },
+    {
+     "rank": 4,
+     "title": "Pint of Plane",
+     "blurb": "A Cork woodworker restoring old tools has about 3.5M TikTok followers.",
+     "source": "influencer.ie",
+     "sourceUrl": "https://influencer.ie/influencers/eoin-reardon/"
+    },
+    {
+     "rank": 5,
+     "title": "Jazzy and Calvin Harris",
+     "blurb": "Satisfy reached number nine on the UK Official Trending Chart.",
+     "source": "Hot Press",
+     "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+    },
+    {
+     "rank": 6,
+     "title": "Kettama at Coachella",
+     "blurb": "Irish DJ Kettama played Coachella in 2026 and charted in the UK.",
+     "source": "Hot Press",
+     "sourceUrl": "https://www.hotpress.com/music/jazzy-and-kettama-break-into-uks-official-trending-chart-23149759"
+    },
+    {
+     "rank": 7,
+     "title": "Children of Prague",
+     "blurb": "RTÉ said the fans' singing in Prague became a tourist attraction.",
+     "source": "RTÉ News",
+     "sourceUrl": "https://www.rte.ie/news/2026/0328/1565579-children-of-prague"
+    },
+    {
+     "rank": 8,
+     "title": "Irish students win on the world stage",
+     "blurb": "TU Dublin's SolHex win a world business plan competition in May.",
+     "source": "TU Dublin",
+     "sourceUrl": "https://www.tudublin.ie/explore/news/tu-dublin-team-solhex-wins-nibs-worldwide-business-plan-competition-2026.php"
+    },
+    {
+     "rank": 9,
+     "title": "LauraLynn 24 Hour Challenge",
+     "blurb": "Over 700 people raised 205,995 euro in 24 hours for children's palliative care.",
+     "source": "LauraLynn",
+     "sourceUrl": "https://www.lauralynn.ie/news/24-hour-challenge-raises-over-eur205000"
+    },
+    {
+     "rank": 10,
+     "title": "Athletics Ireland hits a record",
+     "blurb": "Athletics Ireland reaches an all time high of 76,507 registered members.",
+     "source": "Athletics Ireland",
+     "sourceUrl": "https://www.athleticsireland.ie/athletics-ireland-celebrates-record-membership-growth-in-2026/"
+    }
+   ],
+   "source": "Various, see each item",
+   "sourceUrl": "",
+   "image": null
+  },
+  {
+   "section": "nums",
+   "kind": "list",
+   "kicker": "Trophy cabinet",
+   "heading": "Records and firsts: everyday Ireland",
+   "body": "",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [
+    "Jessie Buckley became the first Irish woman to win the Best Actress Oscar, on 15 March.",
+    "Summer was provisionally the hottest on record, at 16.28 degrees. The old record was 16.19, set in 2025.",
+    "July was Dublin Airport's busiest month ever, with 3,839,635 passengers.",
+    "Wind power hit a record 3,898 megawatts on 14 February. Solar passed one gigawatt for the first time on 20 April.",
+    "A record 70,411 students got their Leaving Cert results in August.",
+    "Irish agri-food exports reached a record 20.8 billion euro for 2025."
+   ],
+   "items": [],
+   "source": "RTE",
+   "sourceUrl": "https://www.rte.ie/entertainment/2026/0315/1563605-jessie-buckley-makes-history-with-oscar-win",
+   "image": null,
+   "bulletSources": [
+    {
+     "source": "RTE",
+     "url": "https://www.rte.ie/entertainment/2026/0315/1563605-jessie-buckley-makes-history-with-oscar-win"
+    },
+    {
+     "source": "Irish Times",
+     "url": "https://www.irishtimes.com/ireland/2026/09/02/new-record-in-2026-marks-hottest-irish-summer/"
+    },
+    {
+     "source": "Dublin Airport",
+     "url": "https://www.dublinairport.com/latest-news/2026/08/10/busiest-month-in-dublin-airport-s-history-as-3-8-million-passengers-travelled-in-july"
+    },
+    {
+     "source": "EirGrid",
+     "url": "https://www.eirgrid.ie/news/multiple-renewable-energy-records-ireland-first-half-2026"
+    },
+    {
+     "source": "Echo",
+     "url": "https://www.echolive.ie/nationalnews/arid-41899252.html"
+    },
+    {
+     "source": "Irish Examiner",
+     "url": "https://www.irishexaminer.com/farming/arid-41935236.html"
+    }
+   ],
+   "alsoSources": []
+  },
+  {
+   "section": "awards",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 Irish creators (female)",
+   "body": "Chosen by UBP from published rankings and coverage. In no particular order, so not a ranking. These ten are also the nominees for the UBP Awards creator category. Follower counts are from official profiles on 23 November 2026 unless dated otherwise.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Alice Kelly",
+     "blurb": "Kildare baker with over 2 million followers. Her debut cookbook came out July 2026.",
+     "source": "RTÉ, Dubray Books",
+     "sourceUrl": "https://www.dubraybooks.ie/product/from-scratch-9781068405051"
+    },
+    {
+     "rank": 2,
+     "title": "Fiona Bergin",
+     "blurb": "Kilkenny farming creator with about 458,000 followers. Face of Agri Aware's 2025 farm safety campaign.",
+     "source": "Irish Examiner, influencer.ie",
+     "sourceUrl": "https://www.irishexaminer.com/farming/arid-41707214.html"
+    },
+    {
+     "rank": 3,
+     "title": "Jane Ní Luasa (Gaeilge le Jane)",
+     "blurb": "Raised in the Cork Gaeltacht, she teaches Irish online. 71,900 followers.",
+     "source": "TheJournal.ie",
+     "sourceUrl": "https://www.thejournal.ie/teaching-irish-by-tiktok-6782902-Aug2025/"
+    },
+    {
+     "rank": 4,
+     "title": "Justine Stafford",
+     "blurb": "Meath comedian, writer and presenter known for character sketches. 332,200 followers.",
+     "source": "Wikipedia, influencer.ie",
+     "sourceUrl": "https://en.wikipedia.org/wiki/Justine_Stafford"
+    },
+    {
+     "rank": 5,
+     "title": "Kayleigh Trappe",
+     "blurb": "Monaghan comedian whose lip syncs and skits make Ireland laugh. 217,400 followers.",
+     "source": "Wikipedia",
+     "sourceUrl": "https://en.wikipedia.org/wiki/Kayleigh_Trappe"
+    },
+    {
+     "rank": 6,
+     "title": "Lauren Whelan",
+     "blurb": "Carlow creator of makeup, hair and style videos. 1.7 million followers.",
+     "source": "Irish Times, influencer.ie",
+     "sourceUrl": "https://www.irishtimes.com/health/your-wellness/2022/06/28/influencer-lauren-whelan-says-begrudgery-in-ireland-is-stopping-young-people-from-starting-tiktok-careers"
+    },
+    {
+     "rank": 7,
+     "title": "Mary-Claire Fitzpatrick",
+     "blurb": "Laois comedian and presenter with a new 2026 podcast, Herself and Herself. 199,600 followers.",
+     "source": "Irish Farmers Journal",
+     "sourceUrl": "https://www.farmersjournal.ie/life/features/herself-herself-common-sense-craic-and-no-filter-908404"
+    },
+    {
+     "rank": 8,
+     "title": "Maura Higgins",
+     "blurb": "Longford creator and presenter named to TIME100 Creators 2026. 1.6 million TikTok followers.",
+     "source": "Hot Press",
+     "sourceUrl": "https://www.hotpress.com/film-tv/maura-higgins-makes-prestigious-time100-creators-list-23151502"
+    },
+    {
+     "rank": 9,
+     "title": "Miriam Mullins",
+     "blurb": "Cork comedy skits, lip syncs and lifestyle videos. 2.2 million TikTok followers.",
+     "source": "Irish Examiner, influencer.ie",
+     "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41725938.html"
+    },
+    {
+     "rank": 10,
+     "title": "Roz Purcell",
+     "blurb": "Tipperary broadcaster and Hike Life author who spotlighted her home county for Fáilte Ireland.",
+     "source": "RTÉ",
+     "sourceUrl": "https://www.rte.ie/lifestyle/travel/2026/0508/1572374-roz-purcells-guide-to-a-great-weekend-in-tipperary/"
+    }
+   ],
+   "source": "influencer.ie and Irish coverage",
+   "sourceUrl": "https://influencer.ie/platform/tiktok/",
+   "image": null
+  },
+  {
+   "section": "awards",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 Irish creators (male)",
+   "body": "Chosen by UBP from published rankings and coverage. In no particular order, so not a ranking. These ten are also the nominees for the UBP Awards creator category. Cairde and the Gardiner Brothers are groups of lads, so they sit here. Follower counts are from official profiles on 23 November 2026 unless dated otherwise.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Cairde",
+     "blurb": "Seven Irish dancers from Clare, Cork and Galway. 3.2 million TikTok followers.",
+     "source": "Wikipedia, influencer.ie",
+     "sourceUrl": "https://en.wikipedia.org/wiki/Cairde"
+    },
+    {
+     "rank": 2,
+     "title": "Cian Twomey",
+     "blurb": "Cork sketch comedian famous for his Emily character videos. About 6 million Facebook followers.",
+     "source": "influencer.ie, Irish Examiner",
+     "sourceUrl": "https://influencer.ie/influencers/cian-twomey/"
+    },
+    {
+     "rank": 3,
+     "title": "Ciaran McDonnell",
+     "blurb": "Comedy skits and accent videos. About 967,000 TikTok followers.",
+     "source": "Favikon",
+     "sourceUrl": "https://www.favikon.com/blog/top-tiktokers-ireland"
+    },
+    {
+     "rank": 4,
+     "title": "Eric Roberts",
+     "blurb": "Donegal comedy and lifestyle creator and children's author. 796,000 TikTok followers.",
+     "source": "HerFamily, influencer.ie",
+     "sourceUrl": "https://www.herfamily.ie/news/irish-influencer-eric-roberts-publishes-his-first-childrens-book-458202"
+    },
+    {
+     "rank": 5,
+     "title": "Gardiner Brothers",
+     "blurb": "Irish dancing brothers raised in Galway. 4.1 million TikTok followers.",
+     "source": "Irish Times, RTÉ",
+     "sourceUrl": "https://www.irishtimes.com/life-and-style/people/we-consider-it-a-sport-the-irish-dancing-brothers-taking-over-tiktok-1.4499145"
+    },
+    {
+     "rank": 6,
+     "title": "James Doyle (Protein Bor Papi)",
+     "blurb": "Mullingar fitness creator behind the Protein Bor catchphrase. More than 1.7 million TikTok followers.",
+     "source": "RTÉ, influencer.ie",
+     "sourceUrl": "https://www.rte.ie/lifestyle/living/2022/0802/1313559-protein-bor-meet-the-mullingar-man-behind-tiktoks-viral-trend"
+    },
+    {
+     "rank": 7,
+     "title": "John Nellis",
+     "blurb": "Football creator from Newcastle, County Down, and 2026 Strictly contestant. 2.6 million TikTok followers.",
+     "source": "The Independent, Hello!",
+     "sourceUrl": "https://newswav.com/article/john-nellis-from-youtube-sensation-to-strictly-come-dancing-A2609_za4FgA"
+    },
+    {
+     "rank": 8,
+     "title": "Matthew Weldon",
+     "blurb": "Dublin antique jeweller sharing tips and facts. 216,300 TikTok followers.",
+     "source": "RTÉ",
+     "sourceUrl": "https://www.rte.ie/culture/2025/1219/1545046-10-irish-tiktokers-you-should-follow"
+    },
+    {
+     "rank": 9,
+     "title": "Séaghan Ó Súilleabháin (The Kerry Cowboy)",
+     "blurb": "Kerry farmer sharing farm life and Irish language and culture. 213,700 TikTok followers.",
+     "source": "Irish Farmers Journal, TikTok",
+     "sourceUrl": "https://farmersjournal.ie/the-kerry-cowboy-i-answer-questions-from-all-over-the-world-780555"
+    },
+    {
+     "rank": 10,
+     "title": "Tadhg Fleming",
+     "blurb": "Kerry comedy creator known for skits with his dad. 3.1 million TikTok followers.",
+     "source": "Irish Examiner, influencer.ie",
+     "sourceUrl": "https://www.irishexaminer.com/lifestyle/people/arid-41665034.html"
+    }
+   ],
+   "source": "influencer.ie and Irish coverage",
+   "sourceUrl": "https://influencer.ie/platform/tiktok/",
+   "image": null
+  },
+  {
+   "section": "fin",
+   "kind": "top10",
+   "kicker": "UBP picks",
+   "heading": "Top 10 big moments for the country",
+   "body": "Chosen by UBP from published coverage. Good news only. Not an official ranking.",
+   "stat": "",
+   "statLabel": "",
+   "bullets": [],
+   "items": [
+    {
+     "rank": 1,
+     "title": "Jessie Buckley wins an Oscar",
+     "blurb": "Jessie Buckley becomes the first Irish winner of the Best Actress Oscar for Hamnet.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/culture/film/2026/03/15/oscars-2026-live-updates-jessie-buckley-academy-awards/"
+    },
+    {
+     "rank": 2,
+     "title": "Katie Taylor's farewell",
+     "blurb": "Katie Taylor retires as a three time undisputed world champion at Croke Park.",
+     "source": "Irish Examiner",
+     "sourceUrl": "https://www.irishexaminer.com/sport/othersport/arid-41907256.html"
+    },
+    {
+     "rank": 3,
+     "title": "Mayo end the wait",
+     "blurb": "Mayo win their fourth All-Ireland football title, the first since 1951.",
+     "source": "Irish Echo",
+     "sourceUrl": "https://www.irishecho.com/2026/7/mayo-beat-kerry-to-win-4th-title-75-years-after-3rd-all-ireland"
+    },
+    {
+     "rank": 4,
+     "title": "Solar power surges",
+     "blurb": "Grid solar tops 1 gigawatt in April. Installed solar passes 3 gigawatts by August.",
+     "source": "EirGrid and Anglo Celt",
+     "sourceUrl": "https://www.eirgrid.ie/news/multiple-renewable-energy-records-ireland-first-half-2026"
+    },
+    {
+     "rank": 5,
+     "title": "A record crowd for camogie",
+     "blurb": "A record 33,419 fans watch the camogie final at Croke Park.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/sport/gaelic-games/2026/08/09/cork-edge-out-galway-in-gripping-camogie-final-on-history-making-day/"
+    },
+    {
+     "rank": 6,
+     "title": "A record Leaving Cert year",
+     "blurb": "Leaving Cert participation hits a record 70,411, the highest in the exam's 100 year history.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/ireland/education/2026/08/21/covid-impacts-and-enhanced-grades-five-takeaways-from-2026-leaving-cert-results/"
+    },
+    {
+     "rank": 7,
+     "title": "U2 are back at number one",
+     "blurb": "U2 score their eleventh Irish number one album with Carnaval De Luz.",
+     "source": "IRMA",
+     "sourceUrl": "https://www.irma.ie/news/carnaval-de-luz-gives-u2-their-eleventh-1-album/"
+    },
+    {
+     "rank": 8,
+     "title": "First graduates of an inclusive programme",
+     "blurb": "Twelve students become the first graduates of TU Dublin's Independent Living Skills programme.",
+     "source": "TU Dublin",
+     "sourceUrl": "https://www.tudublin.ie/explore/news/2026-archive/twelve-tu-dublin-students-make-history-as-first-graduates-of-inclusive-education-programme.php"
+    },
+    {
+     "rank": 9,
+     "title": "Student fee cut",
+     "blurb": "Budget 2027 cuts the student contribution by 150 euro, to 2,350 euro.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/your-money/2026/10/06/students-set-for-lower-fees-as-budget-brings-increase-in-education-spending/"
+    },
+    {
+     "rank": 10,
+     "title": "Apprenticeships keep growing",
+     "blurb": "Ireland now has 30,536 apprentices working with 10,191 companies.",
+     "source": "Irish Times",
+     "sourceUrl": "https://www.irishtimes.com/ireland/education/2026/06/26/the-exponential-growth-of-apprenticeships-in-ireland/"
+    }
+   ],
+   "source": "Various, see each item",
+   "sourceUrl": "",
+   "image": null
+  }
+ ]
+}$wrapped$::jsonb
+from public.weekly_issues wi
+where wi.issue_number = 1
+on conflict (issue_id, page_key) do nothing;
