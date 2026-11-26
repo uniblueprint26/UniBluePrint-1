@@ -48,6 +48,7 @@ function RetentionTable() {
   const rows = [
     ['Account data',             'Name, email, profile information',                   'Duration of account, plus 2 years after closure'],
     ['Usage data',               'Page views, feature interactions, session logs',     '26 months'],
+    ['Calendar, Live and notes', 'Calendar events, Live moments, award votes, time capsule notes, Split the bill entries', 'Duration of account, and removed when you delete it. Live moments are visible for 24 hours, then private to you'],
     ['Payment records',          'Transaction amounts, dates, Stripe references',      '7 years (Irish tax and accounting law)'],
     ['Support communications',   'Email threads, in-app support messages',             '3 years after last contact'],
     ['Marketing consent',        'Opt-in records, unsubscribe timestamps',             'Until consent withdrawn, plus 1 year'],
@@ -326,8 +327,13 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Budget goals:</strong> if you use the Budgeting tool, the goals and amounts you choose to save to your account.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Photos and clips:</strong> pictures and short videos you choose from your photo library for your profile, posts or listings. We only access the ones you pick.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Date of birth:</strong> collected at sign up to confirm you are 18 or over.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Location (mobile app, optional):</strong> only when you tap Find Near Me. It is read on your phone to sort partners by distance and is not sent to our servers.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Push notification token (mobile app):</strong> an identifier for your phone so we can send notifications you allow. It is removed when you sign out.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Location (mobile app, optional):</strong> only when you tap Find Near Me, and only while the app is open. It is read on your phone to sort partners by distance and is not sent to our servers or stored.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Calendar:</strong> events you type into the UniBlueprint Calendar, the names of your calendars, and events you bring in from a calendar link are saved to your account and are private to you. If you choose to bring in your phone calendar, the app reads the calendars you pick, only after you say yes, and only to show them to you. It never writes to your phone calendar. Events read from your phone stay on your phone and are not sent to us.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Camera and Live moments (mobile app):</strong> the camera is used only inside Live, after we explain why. The photo you take, and the caption you write, are uploaded as a Live moment and shown to the audience you choose for 24 hours. After that it moves to a private archive that only you can open. We do not record video or sound and the app uses no microphone.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Award votes:</strong> your vote in the UBP Awards, one per category. Votes are used only to count results. Other members cannot see how you voted.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Time capsule notes:</strong> the short private note you write to your future self. It is locked until the capsule opens and only you can read it. It is shared only if you choose to post it as a Take.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Split the bill entries:</strong> the item name, the amount, who paid and who has settled up, for splits you create or are added to by a friend. This is tracking only. UniBlueprint never holds, collects or moves money.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Push notification token and notifications (mobile app):</strong> if you allow notifications, an identifier for your phone so we can send them. You can say no when we ask, and turn them off at any time in your phone settings or in the app. The token is removed when you sign out.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Device and technical data:</strong> browser type, operating system, IP address, and device identifiers (collected automatically when you visit the Platform).</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Marketing preferences:</strong> your opt-in or opt-out status for marketing communications.</li>
               </ul>
@@ -339,7 +345,9 @@ export default function PrivacyPage() {
                 <li style={LI}>Create and manage your Account and provide access to UniBlueprint services;</li>
                 <li style={LI}>Process payments via Stripe for Pro subscriptions and individual services;</li>
                 <li style={LI}>Deliver Foundation Blueprint outputs via Campus Handlers and Elevation Blueprint sessions via Uni Coaches;</li>
-                <li style={LI}>Operate Campus Connect and Course Connect community features;</li>
+                <li style={LI}>Operate Campus Connect and Course Connect community features, including Live moments, award voting, time capsule notes and Split the bill;</li>
+                <li style={LI}>Show you your own calendar, including your phone calendar when you allow it;</li>
+                <li style={LI}>Send notifications you have allowed, such as new posts from people you follow, trending posts and reminders;</li>
                 <li style={LI}>Send transactional emails (order confirmations, delivery notifications, password resets);</li>
                 <li style={LI}>Send marketing communications via Mailchimp, only where you have provided explicit, separate opt-in consent for marketing emails, distinct from your account and transactional emails;</li>
                 <li style={LI}>Analyse usage to improve the Platform and fix issues;</li>
