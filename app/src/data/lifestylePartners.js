@@ -591,47 +591,8 @@ export const PARTNERS = [
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
     howToStart: 'Contact details to be confirmed with the partner before launch.',
   },
-  {
-    id: 'dylanpower',
-    brand: 'Dylan Power',
-    initials: 'DP',
-    initBg: '#374151',
-    filterKey: 'services',
-    county: 'Cork',
-    category: 'Sports Photography',
-    tagline: 'Sports photography, Cork.',
-    // No deal confirmed yet — omitted rather than shown as a "TODO" placeholder.
-    status: 'live',
-    logo: null, // upload via partner-logos bucket when available
-    description: 'Sports photography partner listing, based in Cork. Full description, pricing, and deal details to be confirmed with the partner before launch.',
-    howToStart: 'Contact details to be confirmed with the partner before launch.',
-  },
 
   // ── Live: Sept 2026 Partner Additions ───────────────────────────────────
-  {
-    id: 'secondnature',
-    brand: 'Second Nature',
-    hero: require('../../assets/partners/second_nature/hero.jpg'),
-    initials: 'SN',
-    initBg: '#7C2D12',
-    filterKey: 'fashion',
-    category: 'Fashion/Clothing',
-    status: 'live',
-  },
-  {
-    id: 'njoy',
-    brand: 'N-joy',
-    hero: require('../../assets/partners/njoy/hero.jpg'),
-    gallery: [
-      require('../../assets/partners/njoy/gallery-1.jpg'),
-      require('../../assets/partners/njoy/gallery-2.jpg'),
-    ],
-    initials: 'NJ',
-    initBg: '#B45309',
-    filterKey: 'food',
-    category: 'Food & Drink',
-    status: 'live',
-  },
   // No photos supplied yet for these two — logo/hero/gallery left unset
   // rather than invented; text-only cards until real assets/details land.
   {

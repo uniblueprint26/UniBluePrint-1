@@ -40,8 +40,6 @@ export const FEATURED_DEALS = [
   { id: 'saiemsent',         productLabel: 'Signature Streetwear Drop' },
   { id: 'elect',             productLabel: 'Faith-Led Streetwear' },
   { id: 'pouvoirs',          productLabel: 'Gallery Pieces & Prints' },
-  { id: 'secondnature',      productLabel: 'Signature Clothing Piece' },
-  { id: 'njoy',              productLabel: 'Bar & Drinks Menu' },
   { id: 'styledbybene',      productLabel: 'Personal Styling Session' },
   { id: 'islandsips',        productLabel: 'Tropical Drinks Menu' },
   { id: 'eabakeditt',        productLabel: 'Loaded Brownie Box' },

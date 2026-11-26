@@ -167,20 +167,6 @@ export const COACHES = [
     },
   },
 
-  {
-    id: 6, name: 'Emanuel Tolic', category: 'Personal Training', filter: 'Fitness',
-    heroImage: require('../../assets/coaches/emanuel-tolic/hero.jpg'),
-    location: 'Mayo', from: 'Available on request',
-    services: ['Online Workout Plans', 'Online Diet Plans', 'Weightlifting Coaching', 'Calisthenics Coaching', 'Free Consultation Call'],
-    bio: "I'm a 20-year-old qualified personal trainer with 5+ years of fitness experience. I specialise in weightlifting and calisthenics, and also work with clients in kickboxing and other sports. I provide personalised online workout and diet plans, ensuring every client fully understands why and how to follow their programme, and I'm available in and outside working hours.",
-    package: [
-      'Full 1-month coaching guide with workout and meal plan',
-      'Fully explained and tracked daily',
-      '24/7 WhatsApp availability',
-      'Weekly progress check-in calls',
-    ],
-    pricingNote: 'Pricing discussed during consultation calls and texts.',
-  },
 
   {
     id: 7, name: 'Tadgh Darcy', category: 'Physique Development', filter: 'Fitness',
