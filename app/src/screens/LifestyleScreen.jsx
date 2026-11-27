@@ -1,13 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, Linking, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  Map as MapIcon, Heart, PiggyBank, Phone, ChevronRight,
+  Map as MapIcon, Heart, PiggyBank, Phone, ChevronRight, Search, X, Navigation,
 } from 'lucide-react-native'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
-import PartnerPicture, { hasPicture } from '../components/lifestyle/PartnerPicture'
 import { PILLARS } from '../constants/pillars'
-import { PartnerDetailSheet, PartnerExpandCard } from '../components/lifestyle/PartnerCards'
+import { PartnerDetailSheet, PartnerExpandCard, FILTERS } from '../components/lifestyle/PartnerCards'
+import PartnerWallet, { PartnerSpotlightStrip } from '../components/lifestyle/wallet/PartnerWallet'
+import OpenCard from '../components/lifestyle/wallet/OpenCard'
+import ComingSoonSheet from '../components/ui/ComingSoonSheet'
+import { useComingSoonEnabled } from '../constants/comingSoon'
+import { useWallet } from '../lib/walletStore'
+import { usePartnerUpdates } from '../hooks/usePartnerUpdates'
+import { getCardConfig } from '../data/partnerCards'
+import { pillarTint } from '../constants/pillarTints'
 import {
   FEATURED_DEALS, HERO, GRID, DealTile, ProductPlaceholder, getCollectionStyles,
 } from '../components/lifestyle/CollectionTiles'
@@ -30,9 +37,18 @@ const LIVE_PARTNER_COUNT = PARTNERS.filter(p => p.status === 'live').length
 // 19-item roster inline: a 2-up grid of 4 (2 rows) plus the hero reads as
 // a generous taste of the shop without turning the hub itself into the
 // full storefront — LifestyleFeaturedDealsScreen stays the place for that.
-// Live partners for the swipe rail: those with a picture first, in roster order.
 const LIVE_PARTNERS = PARTNERS.filter(p => p.status === 'live')
-const PARTNER_RAIL = [...LIVE_PARTNERS.filter(hasPicture), ...LIVE_PARTNERS.filter(p => !hasPicture(p))].slice(0, 14)
+const SHELL_PARTNERS = PARTNERS.filter(p => p.status === 'shell')
+
+// Fisher-Yates. The wallet is shuffled every time the screen is opened.
+function shuffled(list) {
+  const copy = [...list]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
 
 const PREVIEW_COUNT = 2
 const PREVIEW_ITEMS = GRID.slice(0, PREVIEW_COUNT)
@@ -88,26 +104,59 @@ export default function LifestyleScreen({ navigation, route }) {
   const detailPartner = PARTNERS.find(p => p.id === detailPartnerId) || null
   const codePartner = PARTNERS.find(p => p.id === codePartnerId) || null
 
-  // A highlight arriving from a deep link (e.g. Elevation Blueprint's
-  // cross-links to Camila/LEVA's partner listing) used to open straight to
-  // that partner's full listing on this same screen's own grid. That grid
-  // now lives on the standalone Explore page, so this hub just forwards the
-  // param there instead of duplicating the grid + detail sheet here too.
+  // Deal wallet: shuffled on every visit, favourites pinned first (see PartnerWallet).
+  const { isDark } = useTheme()
+  const { height: winH } = useWindowDimensions()
+  const wallet = useWallet()
+  const comingSoonOn = useComingSoonEnabled()
+  const order = useMemo(() => shuffled(LIVE_PARTNERS), [])
+  const cfgCache = useRef({})
+  const getCfg = p => (cfgCache.current[p.id] ||= getCardConfig(p))
+  const [filter, setFilter] = useState('all')
+  const [query, setQuery] = useState('')
+  const [soonOpen, setSoonOpen] = useState(false)
+  const [open, setOpen] = useState(null)   // { id, originY }
+  const rootRef = useRef(null)
+  const accent = pillarTint('lifestyle', isDark)
+  const q = query.trim().toLowerCase()
+  const visiblePartners = order.filter(p => (filter === 'all' || p.filterKey === filter) && (!q || p.brand.toLowerCase().includes(q)))
+  const updates = usePartnerUpdates(LIVE_PARTNERS)
+  const openPartner = open ? LIVE_PARTNERS.find(p => p.id === open.id) : null
+
+  // Tapping a card: work out where it sits on the screen so the open card can rise from there.
+  function openCard(partner, cardRef) {
+    const fallback = () => setOpen({ id: partner.id, originY: Math.round(winH * 0.55) })
+    if (!cardRef?.current || !rootRef.current?.measureInWindow) { fallback(); return }
+    try {
+      rootRef.current.measureInWindow((_rx, ry) => {
+        cardRef.current.measureInWindow((_cx, cy) => {
+          if (Number.isFinite(cy) && Number.isFinite(ry)) setOpen({ id: partner.id, originY: Math.round(cy - ry) })
+          else fallback()
+        })
+      })
+    } catch { fallback() }
+  }
+
+  // A highlight arriving from a deep link (a Home Spotlight card, a coach cross-link,
+  // a partner profile's deal card) opens that partner's card in the wallet.
   // Ref-guarded so it only fires once per param, not every re-render.
   const forwardedHighlight = useRef(null)
   useEffect(() => {
     const id = route?.params?.highlightId
     if (id && forwardedHighlight.current !== id) {
       forwardedHighlight.current = id
-      navigation.navigate('LifestylePartners', { highlightId: id })
+      const p = LIVE_PARTNERS.find(x => x.id === id)
+      if (p) openCard(p, null)
+      else navigation.navigate('LifestylePartners', { highlightId: id })
     }
-  }, [route?.params?.highlightId])
+  }, [route?.params?.highlightId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <View style={styles.screen}>
+    <View style={styles.screen} ref={rootRef} collapsable={false}>
       <AppHeader navigation={navigation} showBack />
       <ScrollView
         style={styles.scrollView}
+        scrollEnabled={!open}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 48 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -134,7 +183,7 @@ export default function LifestyleScreen({ navigation, route }) {
             ))}
           </View>
 
-          {/* Crisis support never waits behind a tap. */}
+          {/* Crisis support never waits behind a tap. Kept slim. */}
           <TouchableOpacity
             style={styles.crisisStrip}
             activeOpacity={0.85}
@@ -143,39 +192,100 @@ export default function LifestyleScreen({ navigation, route }) {
             accessibilityLabel="Call Samaritans on 116 123"
           >
             <View style={styles.crisisIconWrap}>
-              <Phone size={18} color="#FFFFFF" />
+              <Phone size={16} color="#FFFFFF" />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.crisisTitle}>Need to talk right now?</Text>
-              <Text style={styles.crisisSub}>Samaritans, 116 123, free 24 hours</Text>
+              <Text style={styles.crisisTitle} numberOfLines={1}>Need to talk right now?</Text>
+              <Text style={styles.crisisSub} numberOfLines={1}>Samaritans, 116 123, free 24 hours</Text>
             </View>
-            <Text style={styles.crisisLink} onPress={() => navigation.navigate('LifestyleWellbeing')}>More</Text>
+            <Text style={styles.crisisLink} onPress={() => navigation.navigate('LifestyleWellbeing')} accessibilityRole="button" accessibilityLabel="More wellbeing support">More</Text>
           </TouchableOpacity>
+        </View>
 
-          {/* Our real partners, with pictures of their places and work. */}
-          <View style={styles.sectionHead}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.sectionTitle}>Our partners</Text>
-              <Text style={styles.sectionSub}>{LIVE_PARTNER_COUNT} real partners, many with local discounts.</Text>
-            </View>
-            <TouchableOpacity onPress={() => navigation.navigate('LifestylePartners')} accessibilityRole="button" accessibilityLabel="See all partners" style={styles.seeAllLink}>
-              <Text style={styles.seeAllLinkText}>See all</Text>
-              <ChevronRight size={16} color={PILLARS.lifestyle.color} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnerRail}>
-            {PARTNER_RAIL.map(p => (
-              <TouchableOpacity key={p.id} style={styles.partnerCard} activeOpacity={0.88} onPress={() => setDetailPartnerId(p.id)} accessibilityRole="button" accessibilityLabel={`${p.brand}, ${p.category}`}>
-                <PartnerPicture partner={p} height={104} />
-                <View style={styles.partnerCaption}>
-                  <Text style={styles.partnerName} numberOfLines={1}>{p.brand}</Text>
-                  <Text style={styles.partnerCat} numberOfLines={1}>{p.category}</Text>
-                  {!!p.deal && <Text style={styles.partnerDeal} numberOfLines={2}>{p.deal}</Text>}
-                </View>
+        {/* Deal wallet header: category chips and a search box. */}
+        <View style={styles.walletHead}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">Your deal wallet</Text>
+          <Text style={styles.sectionSub}>{LIVE_PARTNERS.length} partners. Tap a card to open it.</Text>
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow} style={{ flexGrow: 0 }}>
+          {FILTERS.map(f => {
+            const on = filter === f.key
+            return (
+              <TouchableOpacity
+                key={f.key}
+                onPress={() => setFilter(f.key)}
+                activeOpacity={0.85}
+                style={[styles.filterChip, on && { backgroundColor: colors.accentBg, borderColor: colors.accentBg }]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={`${f.label} partners`}
+              >
+                <Text style={[styles.filterLabel, on && { color: colors.accentFg }]}>{f.label}</Text>
               </TouchableOpacity>
-            ))}
-          </ScrollView>
+            )
+          })}
+          {comingSoonOn && (
+            <TouchableOpacity onPress={() => setSoonOpen(true)} activeOpacity={0.85} style={styles.filterChip} accessibilityRole="button" accessibilityLabel="Near me, coming soon">
+              <Navigation size={14} color={colors.textPrimary} strokeWidth={1.9} />
+              <Text style={styles.filterLabel}>Near me</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
 
+        <View style={styles.searchRow}>
+          <View style={styles.searchBox}>
+            <Search size={17} color={colors.textSecondary} strokeWidth={1.9} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search partners"
+              placeholderTextColor={colors.textTertiary}
+              style={styles.searchInput}
+              returnKeyType="search"
+              autoCorrect={false}
+              accessibilityLabel="Search partners by name"
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery('')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear search" style={styles.clearBtn}>
+                <X size={16} color={colors.textSecondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+          {comingSoonOn && (
+            <TouchableOpacity onPress={() => setSoonOpen(true)} activeOpacity={0.85} style={styles.mapBtn} accessibilityRole="button" accessibilityLabel="Map, coming soon">
+              <MapIcon size={18} color={colors.textPrimary} strokeWidth={1.8} />
+              <Text style={styles.filterLabel}>Map</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {comingSoonOn && (
+          <TouchableOpacity onPress={() => setSoonOpen(true)} activeOpacity={0.9} style={styles.teaser} accessibilityRole="button" accessibilityLabel="Find partners near you. The map is coming soon.">
+            <MapIcon size={20} color={accent} strokeWidth={1.8} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.teaserTitle}>Find partners near you.</Text>
+              <Text style={styles.teaserSub}>The map is coming soon.</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+
+        <PartnerSpotlightStrip updates={updates} getCfg={getCfg} onOpen={openCard} />
+
+        {visiblePartners.length === 0 && comingSoonOn === false ? (
+          <Text style={styles.empty}>No partners match. Try another word or category.</Text>
+        ) : null}
+
+        <PartnerWallet
+          partners={visiblePartners}
+          soon={comingSoonOn && filter === 'all' && !q ? SHELL_PARTNERS : []}
+          getCfg={getCfg}
+          wallet={wallet}
+          hiddenId={open?.id}
+          onOpen={openCard}
+        />
+
+        <View style={styles.content}>
           {/* The Collection */}
           <View style={[styles.sectionHead, { marginTop: spacing.xl }]}>
             <View style={{ flex: 1 }}>
@@ -216,6 +326,18 @@ export default function LifestyleScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {openPartner && (
+        <OpenCard
+          key={openPartner.id}
+          partner={openPartner}
+          cfg={getCfg(openPartner)}
+          originY={open.originY}
+          onClose={() => setOpen(null)}
+          onViewProfile={pid => { setOpen(null); navigation.navigate('PartnerProfile', { partnerId: pid }) }}
+        />
+      )}
+      <ComingSoonSheet visible={soonOpen} onClose={() => setSoonOpen(false)} />
 
       <PartnerExpandCard
         partner={expandPartner}
@@ -258,13 +380,39 @@ function __gs_styles(colors) {
   chipLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
 
   crisisStrip: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: spacing.lg,
-    backgroundColor: colors.surface, borderRadius: radius.card, padding: 14,
-    borderWidth: 1, borderColor: colors.border, ...shadows.card,
+    flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: spacing.md,
+    backgroundColor: colors.surface, borderRadius: radius.card, paddingVertical: 8, paddingHorizontal: 12, minHeight: 56,
+    borderWidth: 1, borderColor: colors.border,
   },
-  crisisIconWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: pink, alignItems: 'center', justifyContent: 'center' },
-  crisisTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
-  crisisSub: { fontFamily: fonts.sans, fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  crisisIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: pink, alignItems: 'center', justifyContent: 'center' },
+  crisisTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary },
+  crisisSub: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textSecondary, marginTop: 1 },
+
+  walletHead: { paddingHorizontal: spacing.md, marginTop: spacing.lg, marginBottom: 12 },
+  filterRow: { paddingHorizontal: spacing.md, gap: 8, paddingBottom: 12 },
+  filterChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 16, borderRadius: 999,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+  },
+  filterLabel: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.textPrimary },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md, marginBottom: 16 },
+  searchBox: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 46, paddingHorizontal: 14, borderRadius: 14,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+  },
+  searchInput: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.textPrimary, paddingVertical: 8, outlineStyle: 'none' },
+  clearBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+  mapBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 46, paddingHorizontal: 14, borderRadius: 14,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+  },
+  teaser: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: spacing.md, marginBottom: 16, padding: 14, borderRadius: 14,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, minHeight: 56,
+  },
+  teaserTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.textPrimary },
+  teaserSub: { fontFamily: fonts.sans, fontSize: 13.5, color: colors.textSecondary, marginTop: 1 },
+  empty: { fontFamily: fonts.sans, fontSize: 14, color: colors.textSecondary, paddingHorizontal: spacing.md, marginBottom: 12 },
   crisisLink: { fontFamily: fonts.sansBold, fontSize: 14, color: colors.textPrimary, paddingHorizontal: 6, paddingVertical: 8 },
 
   sectionHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: spacing.xl, marginBottom: spacing.md },

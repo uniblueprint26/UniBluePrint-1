@@ -15,6 +15,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { useUserType } from '../hooks/useUserType'
 import { useDirectoryProfile } from '../hooks/useDirectoryProfile'
+import WalletStats from '../components/profile/WalletStats'
 import { useReferrals } from '../hooks/useReferrals'
 import { supabase } from '../lib/supabase'
 import { useProFree } from '../hooks/useAppFlags'
@@ -147,6 +148,8 @@ export default function ProfileScreen({ navigation }) {
             </View>
           ))}
         </View>
+
+        <WalletStats />
 
         <View style={[styles.plan, { backgroundColor: colors.chromeBg }]}>
           <View style={{ flex: 1, minWidth: 0 }}>

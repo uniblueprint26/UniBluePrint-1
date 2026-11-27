@@ -42,6 +42,7 @@ const ROUTE_TO_KEY = {
   Lifestyle: 'lifestyle',
   LifestylePartners: 'lifestyle',
   LifestyleFeaturedDeals: 'lifestyle',
+  PartnerProfile: 'lifestyle',
   LifestyleWellbeing: 'lifestyle',
   LifestyleBudgetingPreview: 'lifestyle',
   CampusConnect: 'campus',
