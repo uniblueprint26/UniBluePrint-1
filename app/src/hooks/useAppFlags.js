@@ -18,6 +18,9 @@ import { IS_NATIVE } from '../constants/platformPolicy'
 //                                       and every builder saves answers to the Blueprint.
 //   coming_soon_tiles            false  Coming soon tiles, sheets and labels
 //                                       are hidden while this is false.
+//   partner_follow_enabled       false  The Follow button on partner and coach profiles
+//                                       shows. Turn on once the partner_coach_follows
+//                                       migration has been applied.
 //   priority_enabled             false  Priority events tiles and screens show. Turn on
 //                                       when the Priority tables, checkout function and
 //                                       Stripe Connect account are live.
@@ -33,6 +36,7 @@ const FLAG_DEFAULTS = {
   foundation_visible: true,
   foundation_ordering_enabled: false,
   coming_soon_tiles: false,
+  partner_follow_enabled: false,
   priority_enabled: false,
   awards_results_visible: false,
   pro_free_until: PRO_FREE_UNTIL_DEFAULT,
