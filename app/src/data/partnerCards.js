@@ -51,10 +51,23 @@ export const PARTNER_CARD_OVERRIDES = {
   elect:          { brandColor: '#0D0D0D' },
   jordanskitchen: { brandColor: '#F3E3B4' },
   roomy:          { brandColor: '#54676B', logoBg: '#54676B' },
-  zvisionapparel: { brandColor: '#14110D' },
+  zvisionapparel: { logo: require('../../assets/partners/zvisionapparel/logo.png'), brandColor: '#1FAFB1', logoBg: '#000000' },
   pouvoirs:       { brandColor: '#E2217A' },
   // The JMC Fitness logo came with the coach photos. Same logo, same blue.
   jmc:            { brandColor: '#394875', cardStyle: 'mono' },
+  // Logos the partners sent by email. Brand colours are the colours in each logo.
+  mpfitness:         { logo: require('../../assets/partners/mpfitness/logo.png'), brandColor: '#2CD5F0', logoBg: '#000000' },
+  nyz3ditz:          { logo: require('../../assets/partners/nyz3ditz/logo.png'), brandColor: '#111111', logoBg: '#FFFFFF' },
+  leva:              { logo: require('../../assets/partners/leva/logo.png'), brandColor: '#111111', logoBg: '#FDFCF8' },
+  henrysisters:      { logo: require('../../assets/partners/henrysisters/logo.png'), brandColor: '#E0BAB2', logoBg: '#FFFFFF' },
+  camila:            { logo: require('../../assets/partners/camila/logo.jpg'), brandColor: '#C2A025', logoBg: '#000000' },
+  eabakeditt:        { logo: require('../../assets/partners/eabakeditt/logo.png'), brandColor: '#E0B850', logoBg: '#000000' },
+  ilashedbydiya:     { logo: require('../../assets/partners/ilashedbydiya/logo.jpg'), brandColor: '#D4AF37', logoBg: '#111111' },
+  royaltyproductions:{ logo: require('../../assets/partners/royaltyproductions/logo.png'), brandColor: '#111111', logoBg: '#FFFFFF' },
+  veeslash:          { logo: require('../../assets/partners/veeslash/logo.png'), brandColor: '#FECDE2', logoBg: '#FECDE2' },
+  cutbyire:          { logo: require('../../assets/partners/cutbyire/logo.png'), brandColor: '#99C6EB', logoBg: '#FFFFFF' },
+  poiemadexigns:     { logo: require('../../assets/partners/poiemadexigns/logo.png'), brandColor: '#C6E04B', logoBg: '#000000' },
+  coded69studios:    { logo: require('../../assets/partners/coded69studios/logo.png'), brandColor: '#113D7D', logoBg: '#FFFFFF' },
 }
 
 // ─── Colour helpers ──────────────────────────────────────────────────────────
