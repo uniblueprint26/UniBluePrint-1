@@ -73,6 +73,7 @@ export const PARTNER_CARD_OVERRIDES = {
   islandsips:        { logo: require('../../assets/partners/islandsips/logo.png'), brandColor: '#188C85', logoBg: '#FFFFFF' },
   nailnurse:         { logo: require('../../assets/partners/nailnurse/logo.png'), brandColor: '#5A4521', logoBg: '#5A4521' },
   styledbybene:      { logo: require('../../assets/partners/styledbybene/logo.png'), brandColor: '#D4A21E', logoBg: '#D4A21E' },
+  claras:            { logo: require('../../assets/partners/claras/logo.png'), brandColor: '#D9CEBA', logoBg: '#E4DBCB' },
   coded69studios:    { logo: require('../../assets/partners/coded69studios/logo.png'), brandColor: '#113D7D', logoBg: '#FFFFFF' },
 }
 
