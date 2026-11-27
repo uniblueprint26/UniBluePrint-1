@@ -30,6 +30,14 @@ import OfflineBanner from './src/components/ui/OfflineBanner'
 import { refreshAppFlags } from './src/hooks/useAppFlags'
 import { installWebAlert } from './src/lib/webAlert'
 
+// DEV ONLY card gallery, for screenshots of the real card and coach components on web.
+// Loaded only when this is the web build AND a dev build (__DEV__), so it is never in a
+// release bundle and never part of the native navigator.
+const CardGallery = (__DEV__ && Platform.OS === 'web') ? require('./src/dev/CardGallery').default : null
+function isGalleryPath() {
+  try { return typeof window !== 'undefined' && window.location.pathname.startsWith('/__cards') } catch { return false }
+}
+
 // Alert.alert does nothing on the web build. This gives it a browser fallback.
 installWebAlert()
 
@@ -176,6 +184,9 @@ export default function App() {
 // App(), which renders above that provider.
 function AppChrome() {
   const { colors } = useTheme()
+  if (CardGallery && isGalleryPath()) {
+    return <ReportProvider><CardGallery /></ReportProvider>
+  }
   return (
     <ReportProvider>
       {/* chromeBg is a dark navy (light mode) / near-black (dark mode) in
