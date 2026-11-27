@@ -67,6 +67,8 @@ export const PARTNER_CARD_OVERRIDES = {
   veeslash:          { logo: require('../../assets/partners/veeslash/logo.png'), brandColor: '#FECDE2', logoBg: '#FECDE2' },
   cutbyire:          { logo: require('../../assets/partners/cutbyire/logo.png'), brandColor: '#99C6EB', logoBg: '#FFFFFF' },
   poiemadexigns:     { logo: require('../../assets/partners/poiemadexigns/logo.png'), brandColor: '#C6E04B', logoBg: '#000000' },
+  // Made By Kelan sent a selfie, not a logo. This is a simple UBP made wordmark until he sends his own.
+  kelan:             { logo: require('../../assets/partners/kelan/logo.png'), brandColor: '#16313B', logoBg: '#16313B' },
   coded69studios:    { logo: require('../../assets/partners/coded69studios/logo.png'), brandColor: '#113D7D', logoBg: '#FFFFFF' },
 }
 

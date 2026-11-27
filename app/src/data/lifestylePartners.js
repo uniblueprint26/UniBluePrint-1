@@ -529,7 +529,7 @@ export const PARTNERS = [
     category: 'Lash Tech · Kildare',
     tagline: 'Classic to mega volume lash sets.',
     deal: 'Classics from €35',
-    status: 'live',
+    status: 'paused', // hidden for now (founder, 27 Nov 2026). Set back to 'live' to show again.
     verified: true,
     description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets.',
     pricelist: [
