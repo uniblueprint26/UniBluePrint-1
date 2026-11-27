@@ -321,7 +321,8 @@ export default function PrivacyPage() {
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Account data:</strong> name, email address, and password (stored as a secure hash).</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Profile data:</strong> institution, course, year of study or pathway, and preferences you provide.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Service request data:</strong> CV content, essays, cover letters, application materials, and coaching notes you submit for Foundation Blueprint or Elevation Blueprint services.</li>
-                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Community data:</strong> posts, replies, and messages you create in Campus Connect or Course Connect.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Community data:</strong> posts, replies, and messages you create in Campus Connect or Course Connect, and listings, boards, questions and answers you post.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Safety data:</strong> reports you make about content or people, reports made about you, and the members you block. We use these to keep the community safe and to act on reports.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Payment data:</strong> processed by Stripe on our behalf. We do not store your card number, CVV, or full payment details, only a Stripe customer reference.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Usage data:</strong> pages visited, features used, session duration, and in-app interactions such as which partner offers and cards you open.</li>
                 <li style={LI}><strong style={{ color: '#1E3A5F' }}>Budget goals:</strong> if you use the Budgeting tool, the goals and amounts you choose to save to your account.</li>
@@ -346,6 +347,7 @@ export default function PrivacyPage() {
                 <li style={LI}>Process payments via Stripe for Pro subscriptions and individual services;</li>
                 <li style={LI}>Deliver Foundation Blueprint outputs via Campus Handlers and Elevation Blueprint sessions via Uni Coaches;</li>
                 <li style={LI}>Operate Campus Connect and Course Connect community features, including Live moments, award voting, time capsule notes and Split the bill;</li>
+                <li style={LI}>Review reports, enforce our Community Standards and act against content or accounts that break them;</li>
                 <li style={LI}>Show you your own calendar, including your phone calendar when you allow it;</li>
                 <li style={LI}>Send notifications you have allowed, such as new posts from people you follow, trending posts and reminders;</li>
                 <li style={LI}>Send transactional emails (order confirmations, delivery notifications, password resets);</li>
@@ -382,7 +384,7 @@ export default function PrivacyPage() {
             </Section>
 
             <Section title="6. International Data Transfers">
-              <p style={P}>UniBlueprint stores and processes your data primarily within the European Economic Area (EEA). Where any data is transferred outside the EEA (for example, by Stripe or Google), those transfers are made under appropriate safeguards including Standard Contractual Clauses approved by the European Commission.</p>
+              <p style={P}>UniBlueprint stores and processes your data primarily within the European Economic Area (EEA). Some of our service providers, such as Stripe, Google, Expo, Sentry and Mailchimp, may process limited data outside the EEA. Where any data is transferred outside the EEA, those transfers are made under appropriate safeguards including Standard Contractual Clauses approved by the European Commission.</p>
             </Section>
 
             <Section title="7. Data Retention">

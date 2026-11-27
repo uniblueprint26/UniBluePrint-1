@@ -75,7 +75,7 @@ export default function TermsPage() {
 
             <Section title="3. Eligibility">
               <p style={P}>To use UniBlueprint, you must be at least 18 years of age. By creating an Account, you confirm that you meet this requirement.</p>
-              <p style={P}>UniBlueprint is designed for young people in Ireland who are currently enrolled in, or who have graduated from, a third-level institution, further education programme, or apprenticeship within the previous two years. However, eligibility is not restricted solely to this group and all services are available to any eligible user who accepts these Terms.</p>
+              <p style={P}>UniBlueprint is built for people in Ireland who are getting ready for what comes next, including students, apprentices and workers. Eligibility is not restricted to any one group, and all services are available to any eligible user who accepts these Terms.</p>
               <p style={P}>If you are registering on behalf of an organisation or institution, you represent that you have the authority to bind that organisation to these Terms.</p>
             </Section>
 
@@ -101,6 +101,12 @@ export default function TermsPage() {
 
               <h3 style={H3}>5.4 Free Trial</h3>
               <p style={P}>UniBlueprint may offer a trial pricing period from time to time. The specific terms, pricing, and duration of any trial are set out at the time of sign-up and on the Pricing page. Where a trial converts to a paid subscription, you will be notified in advance and given the opportunity to cancel before any charge is made. Full trial terms are set out in our Refund Policy.</p>
+
+              <h3 style={H3}>5.5 Pro is free until 31 January 2027</h3>
+              <p style={P}>Until 31 January 2027, Pro is free for every account. We take no payment details for it. Before that date ends we will tell you what happens next, and nothing is charged unless you choose a paid plan.</p>
+
+              <h3 style={H3}>5.6 Where plans and services are bought</h3>
+              <p style={P}>Paid plans and services are bought on uniblueprint.ie. The UniBlueprint iOS and Android apps do not sell plans or services. Some services open for ordering on a later date, and we will say so in the app and on the website when they do.</p>
             </Section>
 
             <Section title="6. Foundation Blueprint Service Terms">
@@ -116,7 +122,7 @@ export default function TermsPage() {
             </Section>
 
             <Section title="8. Community Features">
-              <p style={P}>Campus Connect and Course Connect are community features provided free of charge to all UniBlueprint users. These features allow you to post, browse, and engage with content created by other users at your institution or on your course.</p>
+              <p style={P}>Campus Connect and Course Connect are community features provided free of charge to all UniBlueprint users. Campus Connect is your own community in the same situation, such as your campus, your trade or your industry. Course Connect is open to everyone across Ireland. These features allow you to post, browse and engage with content created by other members.</p>
               <h3 style={H3}>8.1 Community Standards</h3>
               <p style={P}>By using community features, you agree to these Community Standards. There is no tolerance for objectionable content or abusive users. You must not post or send:</p>
               <ul style={{ ...P, paddingLeft: '20px' }}>
@@ -131,6 +137,16 @@ export default function TermsPage() {
               <p style={P}>Every post, comment, message, listing and profile has a Report option, and you can block any member. Blocking hides their content from you and stops them messaging you. Reports go to the UniBlueprint team. We aim to review every report within 24 hours. You can also email {SUPPORT_EMAIL}.</p>
               <h3 style={H3}>8.3 What we do</h3>
               <p style={P}>UniBlueprint filters text for the strongest language, reviews reports, and may remove any content that breaks these Community Standards at any time, without notice. Repeated or serious violations may result in temporary suspension or permanent removal of your Account. UniBlueprint is for people aged 18 and over.</p>
+              <h3 style={H3}>8.4 Other features</h3>
+              <ul style={{ ...P, paddingLeft: '20px' }}>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Live:</strong> a Live moment is shown to the audience you choose for 24 hours, then becomes private to you. The Community Standards apply to every moment and caption.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>UBP Awards:</strong> you can cast one vote in each category while voting is open. Nominees are chosen by UniBlueprint from published sources and listed in no particular order. Voting is free and needs no purchase. We may remove votes we reasonably believe are fake, automated or repeated, and our decision on results is final.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Time capsule:</strong> a private note to your future self. It stays locked until it opens and is shared only if you choose to post it.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Split the bill:</strong> a way to keep track of who owes what between friends. UniBlueprint never holds, collects or moves money, and is not responsible for whether a friend pays you.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Calendar:</strong> shows your own events. If you add your phone calendar, we only read the calendars you pick, and never change them.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Listings and boards:</strong> members and businesses may post listings, deals and requests. UniBlueprint is not a party to any sale or arrangement, does not check every listing, and does not guarantee any person, price or outcome. Take sensible care when you deal with anyone.</li>
+                <li style={LI}><strong style={{ color: '#1E3A5F' }}>Weekly Blueprint magazine:</strong> content labelled From UBP is published by UniBlueprint. It is for information and entertainment, and it credits its sources.</li>
+              </ul>
             </Section>
 
             <Section title="9. Campus Ambassadors, Handlers, and Coaches">
@@ -160,7 +176,8 @@ export default function TermsPage() {
             </Section>
 
             <Section title="12. Third-Party Services">
-              <p style={P}>UniBlueprint integrates with third-party services including Stripe (payments), Supabase (infrastructure), Google Analytics (analytics), and Resend (email). Your use of these services is subject to their respective terms and privacy policies. UniBlueprint is not responsible for the practices of third-party providers.</p>
+              <p style={P}>UniBlueprint integrates with third-party services including Stripe (payments), Supabase (infrastructure), Expo (push notifications), Sentry (error reports), Google Analytics (analytics), Mailchimp and Resend (email). Your use of these services is subject to their respective terms and privacy policies. UniBlueprint is not responsible for the practices of third-party providers.</p>
+              <p style={P}>Lifestyle Blueprint partners and Elevation coaches are independent businesses and people. They set their own offers and are responsible for the services they provide. Offers and prices can change, so check the details with them before you commit.</p>
               <p style={P}>The Platform may contain links to third-party websites, including partner businesses listed in the Lifestyle Blueprint. UniBlueprint does not endorse and is not responsible for the content, products, or services of any linked third-party website. You access third-party websites at your own risk.</p>
             </Section>
 
