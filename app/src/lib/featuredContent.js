@@ -69,6 +69,8 @@ async function coach(row) {
     priceLabel: NATIVE_NEUTRAL_BILLING ? null : (c.from || null),
     photoUrl,
     initials: initialsOf(c.name),
+    // Same hero card style as Elevation, with the verified tick.
+    cardCoach: typeof photoUrl === 'string' ? { ...c, cardImage: photoUrl } : c,
     ctaLabel: row.cta_label || 'View coach',
     nav: { screen: 'CoachProfile', params: { coach: c } },
   }
@@ -96,12 +98,15 @@ async function lifestylePartner(row) {
     title: p.brand,
     subtitle: row.caption || p.tagline,
     body: p.deal,
-    priceLabel: p.deal || null,
+    // Euro amounts show on the website only. The card itself says "UBP Discount".
+    priceLabel: NATIVE_NEUTRAL_BILLING ? null : (p.deal || null),
     photoUrl,
     initials: p.initials,
     initBg: p.initBg,
+    // Same brand card as the Lifestyle wallet.
+    cardPartner: p,
     ctaLabel: row.cta_label || 'View deal',
-    nav: { screen: 'LifestylePartners', params: { highlightId: p.id } },
+    nav: { screen: 'Lifestyle', params: { highlightId: p.id } },
   }
 }
 

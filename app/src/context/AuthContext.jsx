@@ -12,7 +12,7 @@ import {
   MAX_CREDENTIALS, MAX_CREDENTIAL_LENGTH,
 } from '../constants/directory'
 
-const AuthContext = createContext({})
+export const AuthContext = createContext({})
 
 const PORTAL_ROLES = ['handler', 'coach', 'business', 'operations', 'founder', 'finance', 'admin']
 

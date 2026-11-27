@@ -1,24 +1,26 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking,
-  Image, Modal, TextInput, KeyboardAvoidingView, Platform,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet, Linking, Share,
+  Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
-import { BlurView } from 'expo-blur'
 import {
-  ChevronLeft, ChevronRight, MapPin, AtSign, Mail, Phone, Link2, User, X, Send, Star,
-  CalendarClock, Lock, ExternalLink,
+  ChevronRight, X, Send, Star, CalendarClock, Lock, ExternalLink, MessageCircle, Share2, Heart,
 } from 'lucide-react-native'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
 import { useTheme } from '../context/ThemeContext'
-import { WEBSITE_LINKS } from '../constants/site'
+import { SITE_URL } from '../constants/site'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { coachSlug } from './ElevationScreen'
 import AppHeader from '../components/ui/AppHeader'
 import { PILLARS } from '../constants/pillars'
-import VerifiedBadge from '../components/ui/VerifiedBadge'
+import BrandProfile, { ProfileButton, Chip, ProfileSection } from '../components/profile/BrandProfile'
+import { coachDisplayName } from '../lib/coachDisplay'
+import { cleanCopy } from '../lib/plainCopy'
+import { pillarTint } from '../constants/pillarTints'
+import { useBrandFollow } from '../hooks/useBrandFollow'
 import SharePrompt from '../components/feed/SharePrompt'
 import Button from '../components/ui/Button'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
@@ -39,93 +41,6 @@ import { formatEuro } from '../lib/coachPricing'
 // coaching there is no booking link and no price list on native, and the
 // person can still send a message. Web keeps the in-app booking flow.
 const NATIVE_BOOKING_LINK = NATIVE_NEUTRAL_BILLING
-
-// ── Photo gallery ────────────────────────────────────────────────────────────
-//
-// Sliding, swipe-paged set of a coach's studio/gym photos (e.g. Milan
-// Piroska, Tadgh Darcy — see COACHES.gallery in ElevationScreen.jsx). Only
-// rendered when a coach actually has a gallery — every other coach's
-// profile renders exactly as before. Each frame uses resizeMode 'contain'
-// on a fixed aspect-ratio box (not 'cover') so these real portrait studio
-// photos are never cropped to fill the slot.
-function PhotoGallery({ photos }) {
-  const { colors } = useTheme()
-  const styles = __gs_styles(colors)
-  const [width, setWidth] = useState(0)
-  const [index, setIndex] = useState(0)
-
-  if (!photos || photos.length === 0) return null
-
-  function onMomentumEnd(e) {
-    if (width === 0) return
-    setIndex(Math.round(e.nativeEvent.contentOffset.x / width))
-  }
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Photos</Text>
-      <View onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-        {width > 0 && (
-          <>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={onMomentumEnd}
-              style={styles.galleryScroller}
-            >
-              {photos.map((photo, i) => (
-                <View key={i} style={[styles.galleryFrame, { width }]}>
-                  <Image source={photo} style={styles.galleryImage} resizeMode="contain" />
-                </View>
-              ))}
-            </ScrollView>
-            {photos.length > 1 && (
-              <View style={styles.galleryDots}>
-                {photos.map((_, i) => (
-                  <View key={i} style={[styles.galleryDot, i === index && styles.galleryDotActive]} />
-                ))}
-              </View>
-            )}
-          </>
-        )}
-      </View>
-    </View>
-  )
-}
-
-// ── Pricing & booking lock, for free (non-Pro) users ────────────────────────
-// Everything ABOVE pricing (photos, bio, services, gallery) stays fully
-// visible to free users, same as before. This wraps just the pricing/booking
-// block: the real content renders underneath, visible but blurred (so a free
-// user can see there's real structure there, not just a placeholder), with a
-// lock card + "Unlock with Elevation Pro" CTA on top. Pro users see the exact
-// same children with no wrapper at all.
-function ProBlurLock({ isPro, children, onUnlock, styles }) {
-  if (isPro) return children
-  return (
-    <View style={styles.lockWrap}>
-      <View pointerEvents="none" style={styles.lockContent}>
-        {children}
-      </View>
-      <BlurView intensity={28} tint="light" style={StyleSheet.absoluteFill} />
-      <View style={styles.lockOverlay}>
-        <View style={styles.lockIconCircle}>
-          <Lock size={19} color="#C9A24B" strokeWidth={2} />
-        </View>
-        <Text style={styles.lockTitle}>See the real pricing</Text>
-        <Text style={styles.lockBody}>
-          Pro members see exact rates and book directly with every coach on Elevation.
-        </Text>
-        {!NATIVE_NEUTRAL_BILLING && (
-          <TouchableOpacity style={styles.lockCta} activeOpacity={0.85} onPress={onUnlock}>
-            <Text style={styles.lockCtaText}>Unlock with Elevation Pro</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  )
-}
 
 // ── Link helper ───────────────────────────────────────────────────────────────
 
@@ -471,7 +386,7 @@ export default function CoachProfileScreen({ route, navigation }) {
   // never assumed. Re-checked on focus so returning from the new booking
   // flow (or after sending a quick enquiry) unlocks it without a reload.
   const [hasEngaged, setHasEngaged] = useState(null)
-  const [tab, setTab] = useState('about')
+  const follow = useBrandFollow('coach', coachSlug(baseCoach?.id ?? 0))
 
   useEffect(() => {
     if (!baseCoach) return
@@ -538,8 +453,8 @@ export default function CoachProfileScreen({ route, navigation }) {
   // Verified is never assumed — only a real coach_profiles.verified = true
   // row earns the badge (see VerifiedBadge's own default of false).
   const coach = !baseCoach ? null : override
-    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto, verified: !!override.verified }
-    : { ...baseCoach, photoUrl: resolvedPhoto, verified: false }
+    ? { ...baseCoach, bio: override.bio || baseCoach.bio, photoUrl: resolvedPhoto, verified: baseCoach.verified || !!override.verified }
+    : { ...baseCoach, photoUrl: resolvedPhoto, verified: !!baseCoach.verified }
 
   // Pricing section data: the coach's existing static pricelist (untouched)
   // plus, when active, their own self-set intro call offer as one more row
@@ -595,237 +510,182 @@ export default function CoachProfileScreen({ route, navigation }) {
     )
   }
 
-  const purple = isDark ? '#B7A3F0' : PILLARS.elevation.color
+  const accent = pillarTint('elevation', isDark)
   const pricelistRows = displayPricelist && displayPricelist.length > 0 && showPricing ? displayPricelist : null
-  const hasServices = coach.services && coach.services.length > 0
-  const hasPrices = !coach.shell && (!!pricelistRows || (coach.pricingNote && showPricing))
-  const hasPricesTab = hasPrices || (NATIVE_NEUTRAL_BILLING && !coach.shell)
-  const tabs = [
-    { key: 'about', label: 'About' },
-    ...(hasServices ? [{ key: 'services', label: 'Services' }] : []),
-    // On iOS and Android there are no euro amounts, so this tab only holds
-    // the coach rating and is called Rating.
-    ...(hasPricesTab ? [{ key: 'prices', label: hasPrices ? 'Prices' : 'Rating' }] : []),
-  ]
-  const activeTab = tabs.some(t => t.key === tab) ? tab : 'about'
-  const pics = [coach.photoUrl, ...(coach.gallery || [])].filter(Boolean)
+  const services = coach.services || []
   const isMoney = v => /€/.test(String(v))
+  const name = coachDisplayName(coach)
+  const heroOrFirst = coach.heroImage || (coach.gallery && coach.gallery[0]) || null
+  const bannerImage = heroOrFirst
+  const avatarSrc = override?.photo_url ? { uri: override.photo_url } : (coach.avatar || coach.heroImage || null)
+  const subtitle = [cleanCopy(coach.cardTag || coach.category), coach.location].filter(Boolean).join(', ')
+  const sections = (coach.sections || [])
 
   function onBook() {
     if (NATIVE_BOOKING_LINK) { Linking.openURL(coachBookingUrl(coach)); return }
     navigation.navigate('CoachBooking', { coach })
   }
 
+  function onShare() {
+    Share.share({
+      message: `Take a look at ${name} on UniBlueprint. ${SITE_URL}`,
+    }).catch(() => {})
+  }
+
   return (
     <View style={styles.screen}>
       <AppHeader navigation={navigation} showBack />
       <ScrollView
+        testID="profile-scroll"
         style={styles.scrollView}
-        contentContainerStyle={[styles.scroll, { paddingBottom: 24 }]}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Swiping pictures sit above the coach name. */}
-        {pics.length > 0 && <CoachPictures photos={pics} />}
-
-        <View style={pb.head}>
-          {pics.length === 0 && (
-            <View style={[pb.ring, { borderColor: purple }]}>
-              <User size={34} color={purple} strokeWidth={1.4} />
-            </View>
+        <BrandProfile
+          banner={{ image: bannerImage, color: coach.bannerBg || accent, fit: coach.bannerFit }}
+          avatar={avatarSrc ? { image: avatarSrc } : { initials: name.slice(0, 1), bg: accent, fg: '#FFFFFF' }}
+          name={name}
+          verified={coach.verified !== false}
+          subtitle={subtitle}
+          chips={[
+            <Chip key="c" label="Coach" accent={accent} strong />,
+            coach.location ? <Chip key="l" label={coach.location} accent={accent} /> : null,
+            coach.badge ? <Chip key="b" label={cleanCopy(coach.badge)} accent={accent} /> : null,
+          ].filter(Boolean)}
+          actions={!coach.shell ? (
+            <>
+              {showBooking && (
+                <ProfileButton
+                  label="Book a session"
+                  Icon={NATIVE_BOOKING_LINK ? ExternalLink : CalendarClock}
+                  onPress={onBook}
+                  style={{ flexBasis: '100%' }}
+                />
+              )}
+              {follow.enabled && (
+                <ProfileButton
+                  label={follow.following ? 'Following' : 'Follow'}
+                  Icon={Heart}
+                  variant="secondary"
+                  onPress={follow.toggle}
+                  accessibilityLabel={follow.following ? `Unfollow ${name}` : `Follow ${name}`}
+                />
+              )}
+              <ProfileButton
+                label="Get in touch"
+                Icon={MessageCircle}
+                variant={showBooking ? 'secondary' : 'primary'}
+                onPress={() => setEnquiryOpen(true)}
+                accessibilityLabel={`Get in touch with ${name}`}
+              />
+              <ProfileButton label="Share" Icon={Share2} variant="secondary" onPress={onShare} accessibilityLabel={`Share ${name}`} />
+            </>
+          ) : null}
+          tagline={coach.tagline ? cleanCopy(coach.tagline) : null}
+          bio={cleanCopy(coach.bio)}
+          gallery={coach.gallery}
+        >
+          {coach.shell && coach.shellMessage && (
+            <ProfileSection>
+              <Text style={styles.shellText}>{coach.shellMessage}</Text>
+            </ProfileSection>
           )}
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={[pb.name, { color: colors.textPrimary }]}>{coach.name}</Text>
-            <Text style={[pb.sub, { color: colors.textSecondary }]}>{[coach.cardTag || coach.category, coach.location].filter(Boolean).join(', ')}</Text>
-            <VerifiedBadge verified={coach.verified} style={{ alignSelf: 'flex-start', marginTop: 6 }} />
-          </View>
-        </View>
 
-        {coach.shell && coach.shellMessage && (
-          <View style={styles.section}>
-            <View style={styles.shellBlock}><Text style={styles.shellText}>{coach.shellMessage}</Text></View>
-          </View>
-        )}
+          {services.length > 0 && (
+            <ProfileSection title="Services">
+              <View style={styles.chipWrap}>{services.map(sv => <Chip key={sv} label={cleanCopy(sv)} accent={accent} />)}</View>
+            </ProfileSection>
+          )}
 
-        {tabs.length > 1 && (
-          <View style={[pb.tabs, { backgroundColor: colors.tabFill }]}>
-            {tabs.map(t => (
+          {!!coach.quote && (
+            <ProfileSection>
+              <View style={[styles.quote, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                <Text style={[styles.quoteText, { color: colors.textPrimary }]}>{'“'}{cleanCopy(coach.quote)}{'”'}</Text>
+              </View>
+            </ProfileSection>
+          )}
+
+          {sections.map(sec => (
+            <ProfileSection key={sec.title} title={cleanCopy(sec.title)}>
+              <Text style={[styles.body, { color: colors.textPrimary }]}>{cleanCopy(sec.body)}</Text>
+            </ProfileSection>
+          ))}
+
+          {coach.package && coach.package.length > 0 && (
+            <ProfileSection title="What's included">
+              <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                {coach.package.map((item, i) => (
+                  <View key={i} style={[pb.row, i < coach.package.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
+                    <View style={[pb.dot, { backgroundColor: accent }]} />
+                    <Text style={[pb.rowText, { color: colors.textPrimary }]}>{cleanCopy(item)}</Text>
+                  </View>
+                ))}
+              </View>
+            </ProfileSection>
+          )}
+
+          {/* Prices show on the website build only. */}
+          {pricelistRows && (
+            <ProfileSection title="Prices">
+              <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                {pricelistRows.map((pl, i) => (
+                  <View key={pl.label} style={[pb.row, i < pricelistRows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
+                    <Text style={[pb.rowText, { color: colors.textPrimary }]}>{pl.label}</Text>
+                    <Text style={[pb.price, { color: isMoney(pl.price) ? colors.goldText : colors.textPrimary }]}>{pl.price}</Text>
+                  </View>
+                ))}
+              </View>
+              {showPricing && !!coach.pricingNote && <Text style={[styles.body, { color: colors.textSecondary, marginTop: 10 }]}>{coach.pricingNote}</Text>}
+            </ProfileSection>
+          )}
+
+          {!!coach.bookingNote && (comingSoonOn || !/coming soon/i.test(coach.bookingNote)) && (
+            <ProfileSection>
+              <Text style={[styles.body, { color: colors.textSecondary }]}>{cleanCopy(coach.bookingNote)}</Text>
+            </ProfileSection>
+          )}
+
+          {coach.crossLink && (
+            <ProfileSection>
               <TouchableOpacity
-                key={t.key}
-                style={[pb.tab, activeTab === t.key && { backgroundColor: colors.surface }]}
-                onPress={() => setTab(t.key)}
-                activeOpacity={0.85}
+                style={[styles.crossLink, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                activeOpacity={0.75}
+                onPress={() => navigation.navigate(coach.crossLink.screen, coach.crossLink.params)}
                 accessibilityRole="button"
-                accessibilityState={{ selected: activeTab === t.key }}
+                accessibilityLabel={cleanCopy(coach.crossLink.label)}
               >
-                <Text style={[pb.tabText, { color: activeTab === t.key ? colors.textPrimary : colors.textSecondary }]}>{t.label}</Text>
+                <Text style={{ flex: 1, fontFamily: fonts.sansMedium, fontSize: 14.5, lineHeight: 20, color: colors.textPrimary }}>{cleanCopy(coach.crossLink.label)}</Text>
+                <ChevronRight size={16} color={accent} strokeWidth={2} />
               </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {activeTab === 'about' && (
-          <>
-            {!!coach.tagline && (
-              <View style={[styles.section, { marginTop: 20 }]}>
-                <Text style={[pb.tagline, { color: colors.textPrimary, borderLeftColor: purple }]}>{coach.tagline}</Text>
-              </View>
-            )}
-            {coach.bio && (
-              <View style={[styles.section, !coach.tagline && { marginTop: 22 }]}>
-                <Text style={styles.sectionLabel}>About</Text>
-                <Text style={styles.bioText}>{coach.bio}</Text>
-              </View>
-            )}
-            {coach.sections && coach.sections.map(sec => (
-              <View key={sec.title} style={styles.section}>
-                <Text style={styles.sectionLabel}>{sec.title}</Text>
-                <Text style={styles.bioText}>{sec.body}</Text>
-              </View>
-            ))}
-            {coach.quote && (
-              <View style={styles.section}>
-                <View style={styles.quoteBlock}><Text style={styles.quoteText}>"{coach.quote}"</Text></View>
-              </View>
-            )}
-            {coach.package && coach.package.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>What's included</Text>
-                <View style={styles.packageCard}>
-                  {coach.package.map((item, i) => (
-                    <View key={i} style={styles.packageRow}>
-                      <View style={styles.packageDot} />
-                      <Text style={styles.packageText}>{item}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-            {coach.bookingNote && (comingSoonOn || !/coming soon/i.test(coach.bookingNote)) && (
-              <View style={styles.section}>
-                <View style={styles.bookingCard}><Text style={styles.bookingText}>{coach.bookingNote}</Text></View>
-              </View>
-            )}
-            {coach.contact && (
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>Get in touch</Text>
-                <View style={styles.contactList}>
-                  {coach.contact.instagram && (
-                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('instagram', coach.contact.instagram)} activeOpacity={0.75}>
-                      <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Instagram</Text><Text style={styles.contactHandle}>@{coach.contact.instagram}</Text></View>
-                      <ChevronRight size={14} color={colors.light} />
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.tiktok && (
-                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('tiktok', coach.contact.tiktok)} activeOpacity={0.75}>
-                      <View style={styles.contactIcon}><AtSign size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>TikTok</Text><Text style={styles.contactHandle}>@{coach.contact.tiktok}</Text></View>
-                      <ChevronRight size={14} color={colors.light} />
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.email && (
-                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('email', coach.contact.email)} activeOpacity={0.75}>
-                      <View style={styles.contactIcon}><Mail size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Email</Text><Text style={styles.contactHandle} numberOfLines={1}>{coach.contact.email}</Text></View>
-                      <ChevronRight size={14} color={colors.light} />
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.phone && (
-                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('phone', coach.contact.phone)} activeOpacity={0.75}>
-                      <View style={styles.contactIcon}><Phone size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Phone or WhatsApp</Text><Text style={styles.contactHandle}>{coach.contact.phone}</Text></View>
-                      <ChevronRight size={14} color={colors.light} />
-                    </TouchableOpacity>
-                  )}
-                  {coach.contact.linktree && (
-                    <TouchableOpacity style={styles.contactRow} onPress={() => openLink('linktree', coach.contact.linktree)} activeOpacity={0.75}>
-                      <View style={styles.contactIcon}><Link2 size={16} color={colors.textPrimary} strokeWidth={1.8} /></View>
-                      <View style={{ flex: 1 }}><Text style={styles.contactPlatform}>Linktree</Text><Text style={styles.contactHandle}>View all links</Text></View>
-                      <ChevronRight size={14} color={colors.light} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            )}
-            {coach.crossLink && (
-              <View style={styles.section}>
-                <TouchableOpacity style={styles.crossLinkCard} activeOpacity={0.75} onPress={() => navigation.navigate(coach.crossLink.screen, coach.crossLink.params)}>
-                  <Text style={styles.crossLinkText}>{coach.crossLink.label}</Text>
-                  <ChevronRight size={14} color="#6D28D9" strokeWidth={2} />
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
-        )}
-
-        {activeTab === 'services' && hasServices && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Services</Text>
-            <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              {coach.services.map((sv, i) => (
-                <View key={sv} style={[pb.row, i < coach.services.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
-                  <View style={[pb.dot, { backgroundColor: purple }]} />
-                  <Text style={[pb.rowText, { color: colors.textPrimary }]}>{sv}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {activeTab === 'prices' && hasPricesTab && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>{hasPrices ? 'Prices and booking' : 'Rating'}</Text>
-            {pricelistRows ? (
-              <ProBlurLock styles={styles} isPro={hasProAccess} onUnlock={() => Linking.openURL(WEBSITE_LINKS.pricing)}>
-                <View style={[pb.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  {pricelistRows.map((pl, i) => (
-                    <View key={pl.label} style={[pb.row, i < pricelistRows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
-                      <Text style={[pb.rowText, { color: colors.textPrimary }]}>{pl.label}</Text>
-                      <Text style={[pb.price, { color: isMoney(pl.price) ? colors.goldText : colors.textPrimary }]}>{pl.price}</Text>
-                    </View>
-                  ))}
-                </View>
-              </ProBlurLock>
-            ) : showPricing && coach.pricingNote ? (
-              <View style={styles.noteCard}><Text style={styles.noteText}>{coach.pricingNote}</Text></View>
-            ) : null}
-            {user?.id && myRating ? (
-              <View style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <View style={[pb.rateIcon, { backgroundColor: purple + '22' }]}><Star size={18} color={purple} fill={purple} /></View>
-                <View style={{ flex: 1 }}><Text style={[pb.rateTitle, { color: colors.textPrimary }]}>You rated this coach {myRating} out of 5</Text></View>
-              </View>
-            ) : user?.id && hasEngaged === true ? (
-              <TouchableOpacity style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border }]} activeOpacity={0.8} onPress={() => setRateOpen(true)} accessibilityRole="button" accessibilityLabel="Rate this coach">
-                <View style={[pb.rateIcon, { backgroundColor: purple + '22' }]}><Star size={18} color={purple} /></View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[pb.rateTitle, { color: colors.textPrimary }]}>Rate this coach</Text>
-                  <Text style={[pb.rateSub, { color: colors.textSecondary }]}>Tell others how it went.</Text>
-                </View>
-                <ChevronRight size={18} color={colors.light} />
-              </TouchableOpacity>
-            ) : user?.id && hasEngaged === false ? (
-              <View style={styles.rateLockedRow}>
-                <Lock size={12} color={colors.light} strokeWidth={2} />
-                <Text style={styles.rateLockedText}>You can rate {coach.name} once you have booked or enquired with them.</Text>
-              </View>
-            ) : null}
-          </View>
-        )}
-      </ScrollView>
-
-      {!coach.shell && (
-        <View style={[pb.footer, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: insets.bottom + 12 }]}>
-          {showBooking && (
-            <TouchableOpacity style={[pb.bookBtn, { backgroundColor: colors.accentBg }]} activeOpacity={0.85} onPress={onBook} accessibilityRole="button" accessibilityLabel="Book a session">
-              {NATIVE_BOOKING_LINK ? <ExternalLink size={18} color={colors.accentFg} /> : <CalendarClock size={18} color={colors.accentFg} />}
-              <Text style={[pb.bookText, { color: colors.accentFg }]}>{NATIVE_BOOKING_LINK ? 'Book on uniblueprint.ie' : 'Book a session'}</Text>
-            </TouchableOpacity>
+            </ProfileSection>
           )}
-          <TouchableOpacity style={pb.msgBtn} activeOpacity={0.75} onPress={() => setEnquiryOpen(true)} accessibilityRole="button">
-            <Text style={[pb.msgText, { color: colors.textPrimary }]}>Send a quick message</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+
+          {!coach.shell && (
+            <ProfileSection>
+              {user?.id && myRating ? (
+                <View style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 0 }]}>
+                  <View style={[pb.rateIcon, { backgroundColor: accent + '22' }]}><Star size={18} color={accent} fill={accent} /></View>
+                  <View style={{ flex: 1 }}><Text style={[pb.rateTitle, { color: colors.textPrimary }]}>You rated this coach {myRating} out of 5</Text></View>
+                </View>
+              ) : user?.id && hasEngaged === true ? (
+                <TouchableOpacity style={[pb.rateRow, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 0 }]} activeOpacity={0.8} onPress={() => setRateOpen(true)} accessibilityRole="button" accessibilityLabel="Rate this coach">
+                  <View style={[pb.rateIcon, { backgroundColor: accent + '22' }]}><Star size={18} color={accent} /></View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[pb.rateTitle, { color: colors.textPrimary }]}>Rate this coach</Text>
+                    <Text style={[pb.rateSub, { color: colors.textSecondary }]}>Tell others how it went.</Text>
+                  </View>
+                  <ChevronRight size={18} color={colors.light} />
+                </TouchableOpacity>
+              ) : user?.id && hasEngaged === false ? (
+                <View style={styles.rateLockedRow}>
+                  <Lock size={12} color={colors.light} strokeWidth={2} />
+                  <Text style={styles.rateLockedText}>You can rate {name} once you have booked or enquired with them.</Text>
+                </View>
+              ) : null}
+            </ProfileSection>
+          )}
+        </BrandProfile>
+      </ScrollView>
 
       <EnquiryModal
         visible={enquiryOpen}
@@ -846,46 +706,7 @@ export default function CoachProfileScreen({ route, navigation }) {
   )
 }
 
-// ── Styles ────────────────────────────────────────────────────────────────────
-
-// Swiping pictures above the coach name. Contain, so logos and portraits are never cropped.
-function CoachPictures({ photos }) {
-  const { colors } = useTheme()
-  const [w, setW] = useState(0)
-  const [i, setI] = useState(0)
-  return (
-    <View style={{ marginHorizontal: 16, marginTop: 14 }} onLayout={e => setW(e.nativeEvent.layout.width)}>
-      <View style={{ height: 230, borderRadius: radius.card, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
-        {w > 0 && (
-          <ScrollView horizontal pagingEnabled nestedScrollEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={e => setI(Math.round(e.nativeEvent.contentOffset.x / w))}>
-            {photos.map((ph, n) => (
-              <View key={n} style={{ width: w, height: 230, alignItems: 'center', justifyContent: 'center' }}>
-                <Image source={typeof ph === 'string' ? { uri: ph } : ph} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
-              </View>
-            ))}
-          </ScrollView>
-        )}
-      </View>
-      {photos.length > 1 && (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 }}>
-          {photos.map((_, n) => (
-            <View key={n} style={{ height: 6, width: n === i ? 16 : 6, borderRadius: 3, backgroundColor: n === i ? colors.textPrimary : colors.border }} />
-          ))}
-        </View>
-      )}
-    </View>
-  )
-}
-
 const pb = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 16 },
-  ring: { width: 76, height: 76, borderRadius: 38, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
-  name: { fontFamily: fonts.serif, fontSize: 30, lineHeight: 34 },
-  sub: { fontFamily: fonts.sans, fontSize: 14, marginTop: 2 },
-  tabs: { flexDirection: 'row', marginHorizontal: 16, marginTop: 18, padding: 4, borderRadius: 14 },
-  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 11, borderRadius: 11 },
-  tabText: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
-  tagline: { fontFamily: fonts.serifItalic, fontSize: 17, lineHeight: 24, borderLeftWidth: 3, paddingLeft: 12 },
   card: { borderRadius: radius.card, borderWidth: 1, paddingHorizontal: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 15 },
   rowText: { flex: 1, fontFamily: fonts.sans, fontSize: 15, lineHeight: 21 },
@@ -895,16 +716,16 @@ const pb = StyleSheet.create({
   rateIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   rateTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15 },
   rateSub: { fontFamily: fonts.sans, fontSize: 13, marginTop: 2 },
-  footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth, gap: 4 },
-  bookBtn: { height: 54, borderRadius: radius.button, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  bookText: { fontFamily: fonts.sansBold, fontSize: 16 },
-  msgBtn: { alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
-  msgText: { fontFamily: fonts.sansSemiBold, fontSize: 14 },
 })
 
 function __gs_styles(colors) {
   return StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
+  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  body: { fontFamily: fonts.sans, fontSize: 15, lineHeight: 23 },
+  quote: { borderWidth: 1, borderRadius: radius.card, padding: 16 },
+  quoteText: { fontFamily: fonts.serifItalic, fontSize: 17, lineHeight: 25 },
+  crossLink: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, borderWidth: 1, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 10 },
   // Explicit flex:1 (not just contentContainerStyle) so the ScrollView
   // reliably fills the space below the fixed navy header on native — without
   // it RN can size the ScrollView to its own content instead of the

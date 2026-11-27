@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { ChevronRight } from 'lucide-react-native'
 import { fonts, radius, shadows } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { PartnerHeroImage } from '../lifestyle/PartnerCards'
+import BankCard from '../lifestyle/wallet/BankCard'
+import { CoachHeroCard } from '../elevation/FeaturedCoaches'
+import { getCardConfig } from '../../data/partnerCards'
 
 // ─── Home dashboard "Trending Right Now" carousel ─────────────────────────
 //
@@ -82,9 +85,44 @@ function SlideHero({ slide }) {
   )
 }
 
+// Partners show the same brand card as the Lifestyle wallet. Coaches show the same hero
+// card as Elevation, with the verified tick. A slim bar underneath says what it is.
+function BrandSlide({ slide, width, onPress }) {
+  const { colors } = useTheme()
+  const styles = __gs_styles(colors)
+  const partner = slide.cardPartner
+  const coach = slide.cardCoach
+  return (
+    <TouchableOpacity
+      activeOpacity={0.92}
+      onPress={onPress}
+      style={[styles.slideOuter, { width }]}
+      accessible
+      accessibilityRole={Platform.OS === 'web' ? undefined : 'button'}
+      accessibilityLabel={`${slide.title}, ${slide.ctaLabel}`}
+    >
+      <View style={styles.slideCard}>
+        {partner ? (
+          <BankCard partner={partner} cfg={getCardConfig(partner)} width={width} variant="static" hideHeart />
+        ) : (
+          <CoachHeroCard coach={coach} width={width} aspect={0.8} style={{ borderRadius: 0, shadowOpacity: 0, elevation: 0 }} />
+        )}
+        <View style={styles.brandBar}>
+          <Text style={styles.brandKicker}>{slide.kicker?.toUpperCase()}</Text>
+          <View style={styles.ctaRow}>
+            <Text style={styles.brandCta}>{slide.ctaLabel}</Text>
+            <ChevronRight size={14} color={colors.cream} strokeWidth={2.4} />
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
 function Slide({ slide, width, onPress }) {
   const { colors } = useTheme()
   const styles = __gs_styles(colors)
+  if (slide.cardPartner || slide.cardCoach) return <BrandSlide slide={slide} width={width} onPress={onPress} />
   return (
     <TouchableOpacity
       activeOpacity={0.92}
@@ -259,6 +297,9 @@ function __gs_styles(colors) {
     fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.goldLight,
     marginTop: 7,
   },
+  brandBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, minHeight: 48 },
+  brandKicker: { fontFamily: fonts.sansSemiBold, fontSize: 10.5, letterSpacing: 1.2, color: 'rgba(245,240,232,0.75)' },
+  brandCta: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.cream },
   ctaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 13 },
   ctaText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.gold },
 

@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  ScrollView, View, Text, TouchableOpacity, StyleSheet, Image,
+  ScrollView, View, Text, TouchableOpacity, StyleSheet,
   Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
-  ChevronRight, MapPin, User, Send, X,
+  Send, X,
   LayoutGrid, Dumbbell, GraduationCap, Wallet, Megaphone,
 } from 'lucide-react-native'
 
-import Card from '../components/ui/Card'
 import AppHeader, { PageTitle } from '../components/ui/AppHeader'
 import { PILLARS } from '../constants/pillars'
-import VerifiedBadge from '../components/ui/VerifiedBadge'
 import Button from '../components/ui/Button'
+import FeaturedCoaches from '../components/elevation/FeaturedCoaches'
+import { orderCoaches } from '../lib/coachDisplay'
+import { pillarTint } from '../constants/pillarTints'
 import ProUpgradeGate from '../components/ui/ProUpgradeGate'
 import SlowLoad from '../components/ui/SlowLoad'
 import { fonts, spacing, radius, shadows } from '../constants/theme'
@@ -24,7 +25,6 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useProAccess } from '../hooks/useProAccess'
 import { useComingSoonEnabled } from '../constants/comingSoon'
-import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
 
 // ─── Filter pills ─────────────────────────────────────────────────────────────
 // Round 2: Fitness + Sports + Yoga merged into one "Fitness" category, and
@@ -78,7 +78,13 @@ export const COACHES = [
   // ── Academic ──
   {
     id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
+    slug: 'eman', verified: true,
     heroImage: require('../../assets/coaches/eman/hero.jpg'),
+    // New profile photo: the round photo on the profile and the featured card picture.
+    // The existing 500+ with Eman logo stays as the banner.
+    avatar: require('../../assets/coaches/eman/pfp.jpg'),
+    cardImage: require('../../assets/coaches/eman/pfp.jpg'),
+    bannerFit: 'contain', bannerBg: '#0E0E10',
     location: 'Dublin', from: 'Available on request',
     tagline: 'From under 400 points to 500+, proven study strategy.',
     services: ['Leaving Cert Maths', 'Leaving Cert Biology', 'Leaving Cert Physics'],
@@ -88,7 +94,22 @@ export const COACHES = [
   // ── Sports ──
   {
     id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Fitness',
+    slug: 'jmc-fitness', verified: true,
     heroImage: require('../../assets/coaches/jmc-fitness/hero.jpg'),
+    // The hero is the JMC Fitness logo on its own blue, so the featured card
+    // shows it whole (contain) on that blue instead of cropping the lettering.
+    cardFit: 'contain', cardBg: '#394875',
+    // Round photo: the arm mark cropped square from logo.jpg (the full logo is too wide for a circle).
+    avatar: require('../../assets/coaches/jmc-fitness/avatar.jpg'),
+    bannerFit: 'contain', bannerBg: '#3F4E80',
+    tagline: 'Transform your body without wasting time. Custom training and nutrition plans.',
+    gallery: [
+      require('../../assets/coaches/jmc-fitness/gallery-1.jpg'),
+      require('../../assets/coaches/jmc-fitness/gallery-2.jpg'),
+      require('../../assets/coaches/jmc-fitness/gallery-3.jpg'),
+      require('../../assets/coaches/jmc-fitness/gallery-4.jpg'),
+      require('../../assets/coaches/jmc-fitness/gallery-5.jpg'),
+    ],
     location: 'Dublin', from: '€50/hr',
     services: ['12-Week Online Plan', 'In-Person Training', 'Football Coaching', 'Analytics Breakdown', 'Dietary Guidance', 'Agent Connections'],
     bio: "I offer elite sports coaching with fully personalised programmes for students serious about performance. In-person sessions run on North Dublin 4G Astro, plus football coaching and professional agent connections.",
@@ -102,8 +123,22 @@ export const COACHES = [
   // ── Creative ──
   {
     id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Marketing',
+    slug: 'nathan-yanzo', verified: true,
     heroImage: require('../../assets/coaches/nathan-yanzo/hero.jpg'),
-    location: 'Dublin', from: '€55/month',
+    // Founder uploaded photos. The hero is the Nyz3ditz Studio logo, so the featured
+    // card uses the portrait (second photo) and the logo stays as the banner.
+    cardImage: require('../../assets/coaches/nathan-yanzo/gallery-2.jpg'),
+    bannerFit: 'contain', bannerBg: '#000000',
+    avatar: require('../../assets/coaches/nathan-yanzo/gallery-2.jpg'),
+    gallery: [
+      require('../../assets/coaches/nathan-yanzo/gallery-1.jpg'),
+      require('../../assets/coaches/nathan-yanzo/gallery-2.jpg'),
+      require('../../assets/coaches/nathan-yanzo/gallery-3.jpg'),
+      require('../../assets/coaches/nathan-yanzo/gallery-4.jpg'),
+      require('../../assets/coaches/nathan-yanzo/gallery-5.jpg'),
+      require('../../assets/coaches/nathan-yanzo/gallery-6.jpg'),
+    ],
+    location: 'Dublin', from: 'Upon request',
     services: ['Monthly Mentorship', '1-1 Shoot Session', 'Editing Guidance', 'Creative Direction'],
     bio: "I'm a professional photographer and videographer offering mentorship and shoot sessions. My monthly subscription includes Zoom calls and editing guidance.",
     pricelist: [
@@ -115,6 +150,7 @@ export const COACHES = [
   // ── Finance ──
   {
     id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing and Finance Coach', filter: 'Finance',
+    slug: 'zainab-adeyemi', verified: true,
     heroImage: require('../../assets/coaches/zainab-adeyemi/hero.jpg'),
     location: 'Ireland', from: 'Available on request',
     title: 'Chartered Accountant · Founder, Soft Life Investing',
@@ -137,6 +173,7 @@ export const COACHES = [
   // ── Fitness ──
   {
     id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga',
+    slug: 'camila-aruk', verified: true,
     heroImage: require('../../assets/coaches/camila-aruk/hero.jpg'),
     // Card-only single specialty tag — the full compound category above still
     // shows on her profile page, but the grid card shows one clear tag per
@@ -170,6 +207,7 @@ export const COACHES = [
 
   {
     id: 7, name: 'Tadgh Darcy', category: 'Physique Development', filter: 'Fitness',
+    slug: 'tadgh-darcy', verified: true,
     location: 'Dublin', from: 'Available on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
@@ -188,6 +226,7 @@ export const COACHES = [
 
   {
     id: 8, name: 'Milan Piroska (MPFitness)', category: 'Personal Training', filter: 'Fitness',
+    slug: 'milan-piroska', verified: true,
     location: 'Kildare', from: '€40/session',
     title: 'Certified Personal Trainer / Advanced Nutrition Coach / International Men\'s Physique Athlete',
     tagline: 'MPFitness. More Than Fitness.',
@@ -200,6 +239,9 @@ export const COACHES = [
     // poses — rather than padding the slider with near-duplicate mirror
     // selfies. heroImage is the designated Spotlight/card image.
     heroImage: require('../../assets/coaches/milan-piroska/hero.jpg'),
+    // The hero is a very dark black and white shot. The featured card and round photo use a brighter gallery shot.
+    cardImage: require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
+    avatar: require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
     gallery: [
       require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
       require('../../assets/coaches/milan-piroska/gallery-2.jpg'),
@@ -226,6 +268,7 @@ export const COACHES = [
 
   {
     id: 9, name: 'Kevin (TrainWitKev)', category: 'Personal Training', filter: 'Fitness',
+    slug: 'kevin-trainwitkev', verified: true,
     heroImage: require('../../assets/coaches/kevin-trainwitkev/hero.jpg'),
     location: 'Dublin', from: '€25/session',
     tagline: 'Strength. Physique. Confidence. Mindset.',
@@ -246,6 +289,7 @@ export const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
+    slug: 'alex-leva', verified: true,
     heroImage: require('../../assets/coaches/alex-leva/hero.jpg'),
     location: 'Mayo',
     // No set price and no pricelist to clarify a number against — a bare
@@ -283,6 +327,7 @@ export const COACHES = [
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
+    slug: 'jayden-reynolds', verified: true,
     heroImage: require('../../assets/coaches/jayden-reynolds/hero.jpg'),
     location: 'Sligo', from: 'Available on request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
@@ -292,6 +337,7 @@ export const COACHES = [
   // ── Yoga ──
   {
     id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Fitness',
+    slug: 'aoife-keogh', verified: true,
     heroImage: require('../../assets/coaches/aoife-keogh/hero.jpg'),
     location: 'Dublin',
     from: 'Available on request',
@@ -315,6 +361,7 @@ export const COACHES = [
 
   {
     id: 18, name: 'Luana Ciweck', category: 'Online Fitness Coaching', filter: 'Fitness',
+    slug: 'luana-ciweck', verified: true,
     heroImage: require('../../assets/coaches/luana-ciweck/hero.jpg'),
     location: 'Mayo', from: 'Available on request',
     tagline: 'Confidence. Strength. Sustainable change.',
@@ -338,96 +385,6 @@ const GROUPS = [
   { label: 'Finance',               filters: ['Finance']                    },
   { label: 'Marketing & Branding',  filters: ['Marketing']                  },
 ]
-
-// ─── Coach Card ───────────────────────────────────────────────────────────────
-
-// Swipe-paged pictures at the top of a coach card. 4:3 frame with 'contain' so
-// logos and portraits are never cropped. Dots show only with 2+ pictures.
-function CoachPhotoStrip({ photos }) {
-  const { colors } = useTheme()
-  const styles = __gs_styles(colors)
-  const [width, setWidth] = useState(0)
-  const [index, setIndex] = useState(0)
-  return (
-    <View onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-      {width > 0 && (
-        <>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            nestedScrollEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={e => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
-            style={styles.photoStrip}
-          >
-            {photos.map((photo, i) => (
-              <View key={i} style={[styles.photoFrame, { width }]}>
-                <Image source={photo} style={styles.photoImage} resizeMode="contain" />
-              </View>
-            ))}
-          </ScrollView>
-          {photos.length > 1 && (
-            <View style={styles.photoDots}>
-              {photos.map((_, i) => (
-                <View key={i} style={[styles.photoDot, i === index && styles.photoDotActive]} />
-              ))}
-            </View>
-          )}
-        </>
-      )}
-    </View>
-  )
-}
-
-// Two column grid card (round three pick). The swipe-paged pictures stay
-// above the coach name, then name, one specialty and the starting price.
-// Services, bio and the full price list live on the coach profile.
-function CoachCard({ coach, navigation }) {
-  const { colors } = useTheme()
-  const styles = __gs_styles(colors)
-  const comingSoonOn = useComingSoonEnabled()
-  if (coach.shell && !comingSoonOn) return null
-  const photos = [coach.heroImage, ...(coach.gallery || [])].filter(Boolean)
-  // Euro amounts show on the website only. On iOS and Android every coach
-  // card reads "On request" (founder decision, neutral billing).
-  const isMoney = !NATIVE_NEUTRAL_BILLING && /€/.test(String(coach.from))
-  return (
-    <TouchableOpacity
-      style={styles.gridSlot}
-      activeOpacity={0.88}
-      onPress={() => navigation.navigate('CoachProfile', { coach })}
-      accessibilityRole="button"
-      accessibilityLabel={`${coach.name}, ${coach.cardTag || coach.category}. View profile`}
-    >
-      <Card style={[styles.gridCard, coach.shell && styles.coachCardShell]}>
-        {photos.length > 0 ? (
-          <CoachPhotoStrip photos={photos} />
-        ) : (
-          <View style={styles.gridAvatar}>
-            <User size={30} color={colors.light} />
-          </View>
-        )}
-        <View style={styles.gridText}>
-          <View style={styles.gridNameRow}>
-            <Text style={styles.gridName} numberOfLines={2}>{coach.name}</Text>
-            <VerifiedBadge verified={coach.verified} compact />
-          </View>
-          <Text style={styles.gridCategory} numberOfLines={2}>{coach.cardTag || coach.category}</Text>
-          {coach.shell ? (
-            <Text style={styles.gridPrice}>Coming Soon</Text>
-          ) : (
-            <Text
-              style={[styles.gridPrice, isMoney && { color: colors.goldText, fontFamily: fonts.sansSemiBold }]}
-              numberOfLines={2}
-            >
-              {isMoney ? coach.from : 'On request'}
-            </Text>
-          )}
-        </View>
-      </Card>
-    </TouchableOpacity>
-  )
-}
 
 // ─── "Find me a coach" enquiry modal ───────────────────────────────────────────
 // Replaces the old mailto: to a personal-style Gmail address — that bypassed
@@ -576,7 +533,7 @@ function GroupHeader({ label, count, first }) {
 
 export default function ElevationScreen({ navigation }) {
   const { colors, isDark } = useTheme()
-  const elevAccent = isDark ? '#B7A3F0' : PILLARS.elevation.color
+  const elevAccent = pillarTint('elevation', isDark)
   const styles = __gs_styles(colors)
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
@@ -589,30 +546,11 @@ export default function ElevationScreen({ navigation }) {
   const [active, setActive] = useState('All')
   const [findCoachOpen, setFindCoachOpen] = useState(false)
 
-  // Real verification, not a blanket claim: coach_profiles.verified is the
-  // only source of truth (see VerifiedBadge's own header comment and
-  // migration 20260926091500_verified_field.sql, not yet applied). Fetched
-  // once as a coach_slug -> verified map and merged onto each static
-  // listing below, so a coach only ever shows "Verified" once the team has
-  // actually set that flag on their row — never by default.
-  const [verifiedSlugs, setVerifiedSlugs] = useState({})
-  useEffect(() => {
-    let cancelled = false
-    supabase.from('coach_profiles').select('coach_slug, verified')
-      .then(({ data }) => {
-        if (cancelled || !data) return
-        const map = {}
-        data.forEach(row => { if (row.coach_slug) map[row.coach_slug] = !!row.verified })
-        setVerifiedSlugs(map)
-      })
-    return () => { cancelled = true }
-  }, [])
-
-  function withVerified(coach) {
-    return { ...coach, verified: verifiedSlugs[coachSlug(coach.id)] ?? false }
-  }
-
-  const visible = (active === 'All' ? COACHES : COACHES.filter(c => c.filter === active)).map(withVerified)
+  // Every coach is verified by UBP (verified: true in the data above). The tick shows
+  // beside the name on the featured cards and on the profile.
+  // Featured order: Milan Piroska first, everyone else shuffled each time the screen opens.
+  const ordered = useMemo(() => orderCoaches(COACHES), [])
+  const visible = active === 'All' ? ordered : ordered.filter(c => c.filter === active)
 
   const academicBanner = (
     <View style={styles.academicBanner}>
@@ -674,22 +612,13 @@ export default function ElevationScreen({ navigation }) {
             />
           ) : (
           <>
-          {/* Find me a coach first, then browse. */}
-          <View style={styles.findCard}>
-            <Text style={styles.findTitle}>Find me a coach</Text>
-            <Text style={styles.findSub}>Tell us what you need and we will match you with a coach.</Text>
-            <TouchableOpacity style={styles.findBtn} activeOpacity={0.85} onPress={() => setFindCoachOpen(true)} accessibilityRole="button" accessibilityLabel="Send a request">
-              <Send size={16} color={colors.accentFg} />
-              <Text style={styles.findBtnText}>Send a request</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.browseTitle}>Browse coaches</Text>
+          {/* Featured coaches: tall cards, swipe sideways, one at a time. Placed lower, with
+              room under the title (the first version sat too high). */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterPillRow}
-            style={styles.filterPillScroll}
+            style={[styles.filterPillScroll, { marginTop: spacing.md, marginBottom: spacing.sm }]}
           >
             {FILTERS.map(({ label, filter, Icon }) => (
               <TouchableOpacity
@@ -698,6 +627,7 @@ export default function ElevationScreen({ navigation }) {
                 activeOpacity={0.85}
                 onPress={() => setActive(filter)}
                 accessibilityRole="button"
+                accessibilityLabel={`${label} coaches`}
                 accessibilityState={{ selected: active === filter }}
               >
                 <Icon size={15} color={active === filter ? colors.accentFg : colors.textPrimary} strokeWidth={2} />
@@ -706,16 +636,20 @@ export default function ElevationScreen({ navigation }) {
             ))}
           </ScrollView>
 
-          <Text style={styles.resultsCount}>
-            {visible.length} coach{visible.length !== 1 ? 'es' : ''}
-          </Text>
-
           {active === 'Academic Grinds' && academicBanner}
 
-          <View style={styles.coachGrid}>
-            {visible.map(coach => (
-              <CoachCard key={coach.id} coach={coach} navigation={navigation} />
-            ))}
+          <View style={{ marginHorizontal: -spacing.md, marginTop: spacing.lg }}>
+            <FeaturedCoaches key={active} coaches={visible} onOpen={coach => navigation.navigate('CoachProfile', { coach })} />
+          </View>
+
+          {/* Find me a coach */}
+          <View style={[styles.findCard, { marginTop: spacing.xl + 8 }]}>
+            <Text style={styles.findTitle}>Find me a coach</Text>
+            <Text style={styles.findSub}>Tell us what you need and we will match you with a coach.</Text>
+            <TouchableOpacity style={styles.findBtn} activeOpacity={0.85} onPress={() => setFindCoachOpen(true)} accessibilityRole="button" accessibilityLabel="Send a request">
+              <Send size={16} color={colors.accentFg} />
+              <Text style={styles.findBtnText}>Send a request</Text>
+            </TouchableOpacity>
           </View>
           </>
           )}

@@ -45,6 +45,7 @@ export const PARTNERS = [
     tagline: 'MPFitness. More Than Fitness.',
     deal: 'Full Client Package from €150/month',
     status: 'live',
+    verified: true,
     credentials: 'Certified Personal Trainer · Advanced Nutrition Coach · International Men\'s Physique Athlete',
     description: 'MPFitness coaching packages built around your goals, lifestyle, and schedule. Milan Piroska brings a competition athlete\'s mindset to every client, combining personalised training with advanced nutrition coaching. Now taking on prep clients.',
     pricelist: [
@@ -69,6 +70,7 @@ export const PARTNERS = [
     tagline: 'Full gym access at a student rate.',
     deal: 'From €37.99/month',
     status: 'live',
+    verified: true,
     description: 'Join Energie Fitness with an exclusive student membership at €37.99/month, compared to the standard rate of €39.99 to €44.99/month. Joining fee is €15 (normally €30). Must be set up in person at the gym.',
     pricelist: [
       { label: 'Student Monthly',    price: '€37.99/month' },
@@ -81,6 +83,7 @@ export const PARTNERS = [
   {
     id: 'jmc',
     brand: 'JMC Fitness',
+    logo: require('../../assets/partners/jmc/logo.jpg'),
     initials: 'JMC',
     initBg: '#166534',
     filterKey: 'fitness',
@@ -89,6 +92,7 @@ export const PARTNERS = [
     tagline: 'Elite sports coaching, fully personalised.',
     deal: 'From €50/hr',
     status: 'live',
+    verified: true,
     description: 'JMC Fitness delivers elite sports coaching with fully personalised programmes: online coaching, in-person training on North Dublin 4G Astro, dietary guidance, specialist football coaching, and connections to professional agents.',
     pricelist: [
       { label: 'In-Person Session (1hr)', price: '€50' },
@@ -110,6 +114,7 @@ export const PARTNERS = [
     tagline: 'Creative mentorship for building your portfolio.',
     deal: 'From €55/month',
     status: 'live',
+    verified: true,
     description: 'Nathan Yanzo (@Nyz3ditz) is a professional photographer and videographer offering mentorship and 1-1 shoot sessions for young people building their creative skills. Monthly subscription includes Zoom calls and editing guidance.',
     pricelist: [
       { label: 'Monthly Subscription', price: '€55/month' },
@@ -130,6 +135,7 @@ export const PARTNERS = [
     tagline: 'Everything automotive in one place, Jonesborough.',
     deal: 'Student-friendly pricing',
     status: 'live',
+    verified: true,
     description: 'Appointment-based automotive specialists based in Jonesborough, near Dundalk. Whip Wizardz covers vehicle sales, sourcing, inspections, repairs, bodywork, detailing, import services, and consignment.',
     services: ['Vehicle Sales & Sourcing', 'Inspections', 'Repairs & Bodywork', 'Detailing', 'Import & Consignment'],
     howToStart: 'Book via WhatsApp, phone, or social media for your appointment.',
@@ -148,6 +154,7 @@ export const PARTNERS = [
     tagline: 'Full nail treatments at student prices.',
     deal: 'Student Discount',
     status: 'live',
+    verified: true,
     description: 'Professional nail technician based in Galway (@theenailnurse__). Full range of nail treatments at student-friendly prices. Student discount available with valid student ID.',
     pricelist: [
       { label: 'Acrylic Full Set',         price: '€25 to €35' },
@@ -177,6 +184,7 @@ export const PARTNERS = [
     tagline: 'Social media, content, and design for small businesses.',
     deal: 'One week free social media trial',
     status: 'live',
+    verified: true,
     description: 'LEVA Impact is a freelance digital marketing and design service run by Alex, helping small businesses build their social media presence, from content creation and UGC coordination to AI-generated video, graphic design, and paid ad campaigns. Based in Co. Mayo, available to work remotely nationwide.',
     services: ['Social Media Management', 'UGC Coordination', 'AI-Generated Video', 'Graphic Design', 'Paid Social Advertising', 'Small Website Builds'],
     howToStart: 'Get in touch by email or phone to enquire about the one week free social media trial (content and post scheduling).',
@@ -196,6 +204,7 @@ export const PARTNERS = [
     tagline: 'Photography, videography, and social media content. County Mayo.',
     deal: '10% off your first content creation booking',
     status: 'live',
+    verified: true,
     description: 'Henry Sisters Co is a creative content studio based in County Mayo, specialising in photography, videography, social media content, Instagram Reels, event coverage, UGC, drone footage, and promotional content. Whether you need content for your brand, business, or event, they bring a creative eye and a professional finish.',
     services: ['Photography', 'Videography', 'Social Media Content', 'Instagram Reels', 'Event Content', 'UGC Content', 'Drone Footage', 'Promotional Content'],
     howToStart: 'Enquire via Instagram DM or email, see Get in Touch below. Pricing on request.',
@@ -212,6 +221,7 @@ export const PARTNERS = [
     tagline: 'Fitness, Muay Thai, and yoga, built around real routines.',
     deal: 'PT from €60/session',
     status: 'live',
+    verified: true,
     credentials: 'Certified Personal Trainer · Sport Nutritionist Coach · Muay Thai · Yoga · Functional Training',
     description: 'With over 10 years of experience in fitness, martial arts, and lifestyle coaching, Camila helps people transform their bodies, mindset, and daily habits through personalised training, nutrition guidance, and realistic routines. Covers physique development, weight loss, muscle building, self-defence, confidence, and pre-contest prep. Based in Dublin 8, online and in person.',
     services: ['Physical Development', 'Muscle Gain', 'Fat Loss', 'Nutrition Coaching', 'Muay Thai Fitness', 'Yoga', 'Functional Training', 'Rehabilitation', 'Pre & Post Birth', 'Body Scan'],
@@ -239,6 +249,7 @@ export const PARTNERS = [
     category: 'Clothing',
     tagline: 'Bold graphics, unique silhouettes, Irish streetwear.',
     status: 'live',
+    verified: true,
     description: 'Independent Irish clothing brand inspired by streetwear, graphic culture, and subcultures, bold graphics, unique silhouettes, and experimental details. Building a new visual identity for Irish fashion rooted in creativity, individuality, and self-expression.',
     pricelist: [
       { label: 'clrfulshirt',              price: '€20.20' },
@@ -278,6 +289,7 @@ export const PARTNERS = [
     tagline: 'Christian streetwear, built around faith and purpose.',
     deal: '10% off with code ELECTXUNIBLUEPRINT',
     status: 'live',
+    verified: true,
     description: 'Irish Christian streetwear brand built around faith, purpose, and individuality, modern, high-quality clothing inspired by Scripture and Christian values. Every piece has a meaning behind it, drawing on themes of identity, strength, purpose, and walking with God.',
     howToStart: 'DM on Instagram or email, see Get in Touch below.',
     hasContact: true,
@@ -293,6 +305,7 @@ export const PARTNERS = [
     tagline: 'Beautifully made treats for every occasion, Mulhuddart.',
     deal: '€5 off every item (cookie pouches to €1.50)',
     status: 'live',
+    verified: true,
     description: 'Home baking business in Mulhuddart, Dublin 15, creating delicious, beautifully made treats for every occasion, from sweet treats to custom bakes, made with love and care. Every item on the menu is customisable; price may change with customisation. DM for cake enquiries not on the price list.',
     pricelist: [
       { label: 'Loaded Brownie Box',   price: '€20' },
@@ -320,6 +333,7 @@ export const PARTNERS = [
     tagline: 'Protein overnight oats, fresh, filling, and delivered to your door.',
     deal: '5 tubs for €31 (UniBlueprint-exclusive)',
     status: 'live',
+    verified: true,
     description: 'Protein overnight oats that make eating clean easy. Fresh, filling & delivered to your door, perfect for getting back into routine. Low-cal flavours: Biscoff, Kinder, White Chocolate, Fudge, Berry, Smores. Standard flavours: Biscoff, Kinder, White Chocolate, Fudge, Berry, XL bulk chocolate oreo.',
     pricelist: [
       { label: '5 Large Tubs (UniBlueprint price)', price: '€31' },
@@ -338,6 +352,7 @@ export const PARTNERS = [
     tagline: 'Classic, hybrid, and volume lash extensions.',
     deal: '10% off first appointment',
     status: 'live',
+    verified: true,
     description: 'Qualified beginner lash technician in Dundalk, Co. Louth, specialising in classic, hybrid, and volume lash extensions, as well as lash lifts.',
     pricelist: [
       { label: 'Classics',   price: '€25' },
@@ -361,6 +376,7 @@ export const PARTNERS = [
     tagline: 'Safe. Simple. Connected.',
     deal: 'Free listings + €5 Priority Request',
     status: 'live',
+    verified: true,
     description: 'Modern housing platform built to make finding a room or home in Ireland simpler, safer, and more transparent, connecting room seekers with landlords and property listers nationwide. Built for students, young professionals, newcomers, and landlords alike.',
     services: ['Property & Room Listings', 'Room Seeker Posts', 'Accommodation Search', 'Priority Requests', 'Flatmate Groups', 'Landlord Onboarding', 'Safety & Scam Awareness Resources'],
     pricelist: [
@@ -382,6 +398,7 @@ export const PARTNERS = [
     tagline: 'Capturing people, experiences, and important moments.',
     deal: '10% off for verified UniBlueprint users',
     status: 'live',
+    verified: true,
     description: 'Dublin-based photography service focused on capturing people, experiences, and important moments in a natural, creative, and professional way, events, graduations, portraits, personal branding, and creative shoots.',
     services: ['Event Photography', 'Graduation Photography', 'Portrait & Lifestyle Photography', 'Professional Headshots', 'Personal Branding & Content', 'Birthday & Celebration Photography', 'Creative Shoots', 'Social Media Content'],
     pricelist: [
@@ -408,6 +425,7 @@ export const PARTNERS = [
     tagline: 'Classic to mega volume lash extensions, Renmore.',
     deal: 'From €40',
     status: 'live',
+    verified: true,
     description: 'Lash technician based in Renmore, Galway, offering classic, hybrid, volume, and mega volume lash extensions.',
     pricelist: [
       { label: 'Classics',     price: '€40' },
@@ -431,6 +449,7 @@ export const PARTNERS = [
     tagline: 'Standard cuts, lineups, and home service.',
     deal: 'From €15',
     status: 'live',
+    verified: true,
     description: 'Barber based in Sligo offering standard cuts, lineups, scissor cuts, and kids cuts, plus a home service depending on distance.',
     pricelist: [
       { label: 'Standard Haircut + Beard',     price: '€25 · 30 min' },
@@ -454,6 +473,7 @@ export const PARTNERS = [
     category: 'Web Design & Branding',
     tagline: 'Modern websites and cohesive visual branding.',
     status: 'live',
+    verified: true,
     description: 'Creative web design and branding studio helping businesses, organisations, and entrepreneurs build strong, professional digital identities. Worked with small businesses, community organisations, churches, and entrepreneurs on everything from website design and redesigns to logos and complete brand identities.',
     services: ['Website Design & Development', 'Website Redesigns', 'E-commerce Design', 'UI/UX Design', 'Logo Design', 'Brand Identity & Visual Branding', 'Brand Style Guides', 'Website Maintenance'],
     pricingNote: 'Pricing upon enquiry, each project is quoted based on scope, requirements, and needs.',
@@ -471,6 +491,7 @@ export const PARTNERS = [
     category: 'Photography & Video · Co. Mayo',
     tagline: 'Events, filming, and promotional content, Co. Mayo.',
     status: 'live',
+    verified: true,
     description: 'Long-time photography and videography enthusiast with experience in events, filming, and promotional content creation, including work with Machenry and the Dogroses folk band, and promotional content for Cadell Bar in Galway City.',
     pricingNote: 'Pricing upon enquiry.',
     howToStart: 'DM on Instagram, see Get in Touch below.',
@@ -487,6 +508,7 @@ export const PARTNERS = [
     tagline: 'Gel extensions, overlay, BIAB, and shellac.',
     deal: 'Gel extensions from €40',
     status: 'live',
+    verified: true,
     description: 'Nail technician based in Mayo offering gel extensions, gel overlay, BIAB, and shellac.',
     pricelist: [
       { label: 'Gel Extensions', price: '€40' },
@@ -508,6 +530,7 @@ export const PARTNERS = [
     tagline: 'Classic to mega volume lash sets.',
     deal: 'Classics from €35',
     status: 'live',
+    verified: true,
     description: 'Lash technician based in Kildare offering classic, hybrid, Russian, and mega volume lash sets.',
     pricelist: [
       { label: 'Classics',     price: '€35' },
@@ -531,6 +554,7 @@ export const PARTNERS = [
     tagline: 'Professional photography, digital printing, and creative space rental.',
     deal: '10% discount for UniBlueprint members',
     status: 'live',
+    verified: true,
     description: 'Coded69 Studios provides a wide range of professional photography and digital printing services, alongside creative space rental. As a photography company, their mission is to serve people, businesses, and communities with images of the highest calibre, constantly challenging themselves, never becoming stagnant, and building a strong connection with clients to truly understand their vision and goals. Based at Unit 2G, Block 2, Killinarden Enterprise Park, Whitestown Way, Tallaght, Dublin, D24 DD74.',
     pricingNote: 'Pricing and full services list available on the studio website.',
     hours: 'Mon to Fri 10am to 7pm · Sat 11am to 6pm · Closed Sundays',
@@ -557,6 +581,7 @@ export const PARTNERS = [
     category: 'Custom Embroidery & Clothing · Co. Mayo',
     tagline: 'Personalised embroidered clothing, Co. Mayo.',
     status: 'live',
+    verified: true,
     description: 'Personalised clothing business based in Co. Mayo, focused mainly on embroidery. Has worked with a number of businesses around Mayo, including McHughs, Angels Garage, and Apache Pizza, along with many other small businesses. Bring a logo or design and have it embroidered onto a shirt or hoodie.',
     howToStart: 'DM on Instagram or email, see Get in Touch below.',
     hasContact: true,
@@ -588,6 +613,7 @@ export const PARTNERS = [
     // to the user; same treatment as Z Vision Apparel, which genuinely has no
     // deal by design. Add a real `deal` string here once one is confirmed.
     status: 'live',
+    verified: true,
     description: 'Fashion partner listing. Full description, pricing, and deal details to be confirmed with the partner before launch.',
     howToStart: 'Contact details to be confirmed with the partner before launch.',
   },
@@ -603,6 +629,7 @@ export const PARTNERS = [
     filterKey: 'food',
     category: 'Food & Drink',
     status: 'live',
+    verified: true,
   },
   {
     id: 'styledbybene',
@@ -612,6 +639,7 @@ export const PARTNERS = [
     filterKey: 'services',
     category: 'Services · Creative Director',
     status: 'live',
+    verified: true,
   },
 
   // ── Coming Soon: confirmed, locked until launch (no separate shell/TBC tiers) ──
