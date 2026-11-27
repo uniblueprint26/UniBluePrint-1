@@ -122,8 +122,8 @@ function BankCardBase({
   const pad = Math.round(14 * s)
   const logoSize = Math.round(52 * s)
   const nameLeft = pad + logoSize + 8 + Math.round(12 * s)
-  const rightCol = Math.round(76 * s)
-  const nameRight = hideHeart ? Math.round(74 * s) : rightCol
+  const rightCol = Math.round(98 * s)
+  const nameRight = rightCol
   const slogan = cleanCopy(cfg.slogan)
   const tileBg = cfg.logo ? cfg.logoBg : (light ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.22)')
   const ringBg = light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.2)'
@@ -133,8 +133,9 @@ function BankCardBase({
       style={[styles.card, { width: w, height: h, borderRadius: radius, backgroundColor: cfg.brandColor }]}
       accessibilityLabel={`${partner.brand}. ${cfg.discountLabel}`}
     >
-      {/* Decoration, clipped to the rounded corners. */}
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: radius, overflow: 'hidden' }]}>
+      {/* Decoration, clipped to the rounded corners. It carries the brand colour itself so the
+          blend modes (multiply, screen) have the colour behind them inside the same group. */}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: radius, overflow: 'hidden', backgroundColor: cfg.brandColor }]}>
         <Pattern cfg={cfg} w={w} h={h} />
         <Watermark cfg={cfg} w={w} h={h} />
         <LinearGradient
@@ -146,13 +147,16 @@ function BankCardBase({
         {open && (
           <Animated.View
             style={[styles.sheen, {
-              width: Math.round(w * 0.55),
-              transform: [{ translateX: sheen ? sheen.interpolate({ inputRange: [-1, 1], outputRange: [-w * 0.15, w * 0.75] }) : Math.round(w * 0.5) }],
+              width: Math.round(w * 0.42), height: Math.round(h * 2), top: -Math.round(h * 0.5),
+              transform: [
+                { translateX: sheen ? sheen.interpolate({ inputRange: [-1, 1], outputRange: [-w * 0.1, w * 0.8] }) : Math.round(w * 0.52) },
+                { rotate: '16deg' },
+              ],
             }]}
           >
             <LinearGradient
-              colors={['rgba(255,255,255,0)', withAlpha(tint(cfg.brandColor, light ? 0.75 : 0.55), light ? 0.55 : 0.4), 'rgba(255,255,255,0)']}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.25 }}
+              colors={['rgba(255,255,255,0)', withAlpha(tint(cfg.brandColor, light ? 0.8 : 0.6), light ? 0.4 : 0.3), 'rgba(255,255,255,0)']}
+              start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
               style={StyleSheet.absoluteFill}
             />
           </Animated.View>
@@ -208,7 +212,7 @@ function BankCardBase({
           )}
         </View>
         {!!slogan && (
-          <Text style={{ fontFamily: fonts.sansMedium, fontSize: 12, lineHeight: 16, color: fg, opacity: 0.92, marginTop: 4 }} numberOfLines={1}>{slogan}</Text>
+          <Text style={{ fontFamily: fonts.sansMedium, fontSize: 12, lineHeight: 16, color: fg, opacity: 0.92, marginTop: 4 }} numberOfLines={open ? 2 : 1}>{slogan}</Text>
         )}
       </View>
 
@@ -266,7 +270,7 @@ const styles = StyleSheet.create({
   card: {
     shadowColor: '#000', shadowOpacity: 0.28, shadowRadius: 9, shadowOffset: { width: 0, height: -3 }, elevation: 4,
   },
-  sheen: { position: 'absolute', top: 0, bottom: 0, left: 0 },
+  sheen: { position: 'absolute', left: 0 },
   secret: { position: 'absolute' },
   secretText: { fontFamily: fonts.serifItalic, textAlign: 'left' },
   ring: { borderWidth: 1 },

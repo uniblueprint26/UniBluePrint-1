@@ -15,6 +15,8 @@ const SHOW_AFTER_RELEASE_MS = 1800
 
 export default function CodeArea({ code, scratched, onScratched, onHoldReveal, color, s = 1, reducedMotion }) {
   const [shown, setShown] = useState(false)
+  // Right after scratching, the code stays visible until the card is closed.
+  const [justScratched, setJustScratched] = useState(false)
   const timers = useRef([])
   const progress = useRef(new Animated.Value(0)).current
   const textStyle = { fontFamily: fonts.sansBold, fontSize: Math.round(16 * s), letterSpacing: 2.2, color }
@@ -57,7 +59,7 @@ export default function CodeArea({ code, scratched, onScratched, onHoldReveal, c
         <View style={{ width: panelW, height: panelH, justifyContent: 'center' }}>
           <Text style={[textStyle, styles.under]} numberOfLines={1}>{code.full}</Text>
           <View style={StyleSheet.absoluteFill}>
-            <ScratchPanel width={panelW} height={panelH} tile={Math.max(7, Math.round(9 * s))} reducedMotion={reducedMotion} onDone={onScratched} />
+            <ScratchPanel width={panelW} height={panelH} tile={Math.max(7, Math.round(9 * s))} reducedMotion={reducedMotion} onDone={() => { setJustScratched(true); onScratched?.() }} />
           </View>
         </View>
       ) : (
@@ -70,7 +72,7 @@ export default function CodeArea({ code, scratched, onScratched, onHoldReveal, c
           onAccessibilityTap={a11yReveal}
           style={{ minHeight: 34, justifyContent: 'center', alignSelf: 'flex-start' }}
         >
-          <Text style={textStyle} numberOfLines={1}>{shown ? code.full : code.masked}</Text>
+          <Text style={textStyle} numberOfLines={1}>{shown || justScratched ? code.full : code.masked}</Text>
           <View style={styles.track}>
             <Animated.View style={{ height: 2, borderRadius: 1, backgroundColor: color, opacity: 0.7, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }} />
           </View>

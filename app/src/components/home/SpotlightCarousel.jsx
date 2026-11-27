@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { ChevronRight } from 'lucide-react-native'
 import { fonts, radius, shadows } from '../../constants/theme'
@@ -97,7 +97,8 @@ function BrandSlide({ slide, width, onPress }) {
       activeOpacity={0.92}
       onPress={onPress}
       style={[styles.slideOuter, { width }]}
-      accessibilityRole="button"
+      accessible
+      accessibilityRole={Platform.OS === 'web' ? undefined : 'button'}
       accessibilityLabel={`${slide.title}, ${slide.ctaLabel}`}
     >
       <View style={styles.slideCard}>

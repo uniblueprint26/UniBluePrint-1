@@ -82,7 +82,8 @@ export function PartnerProfileView({ partner, onOpenCard, forceFollow }) {
       <ProfileSection title="UBP Discount">
         <Pressable
           onPress={() => onOpenCard?.(partner.id)}
-          accessibilityRole="button"
+          accessible
+          accessibilityRole={Platform.OS === 'web' ? undefined : 'button'}
           accessibilityLabel={`${partner.brand} discount card. Open it in your wallet`}
           style={{ alignSelf: 'center' }}
         >

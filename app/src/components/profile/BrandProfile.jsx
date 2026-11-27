@@ -86,7 +86,7 @@ export default function BrandProfile({
     <View>
       <View style={{ height: BANNER_H, backgroundColor: bannerColor, overflow: 'hidden' }}>
         {!!banner?.image && (
-          <Image source={banner.image} resizeMode={banner.fit || 'cover'} style={StyleSheet.absoluteFill} accessibilityIgnoresInvertColors />
+          <Image source={banner.image} resizeMode={banner.fit || 'cover'} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' }} accessibilityIgnoresInvertColors />
         )}
         {!!banner?.image && <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.12)' }]} />}
       </View>

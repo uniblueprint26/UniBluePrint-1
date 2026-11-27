@@ -90,8 +90,7 @@ function ScreenView({ name }) {
   const { colors } = useTheme()
   let initial = 'Lifestyle'
   let params = {}
-  if (name === 'open-pouvoirs') params = { highlightId: 'pouvoirs' }
-  else if (name === 'open-energie') params = { highlightId: 'energie' }
+  if (name.startsWith('open-')) params = { highlightId: name.slice(5) }
   else if (name === 'partner-elect') { initial = 'PartnerProfile'; params = { partnerId: 'elect' } }
   else if (name === 'partner-energie') { initial = 'PartnerProfile'; params = { partnerId: 'energie' } }
   else if (name === 'elevation') initial = 'Elevation'

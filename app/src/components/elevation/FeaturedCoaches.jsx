@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { View, Text, Image, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
+import { View, Text, Image, Pressable, ScrollView, Platform, StyleSheet, useWindowDimensions } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
@@ -13,6 +13,8 @@ import { pillarTint } from '../../constants/pillarTints'
 // the verified tick, and the tagline (the speciality when there is no tagline).
 
 export const HERO_ASPECT = 4.1 / 3
+// An Image must be given an explicit width and height to fill its box on the web build.
+const FILL = { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' }
 
 export function CoachHeroCard({ coach, width, aspect = HERO_ASPECT, onPress, style }) {
   const { isDark } = useTheme()
@@ -30,7 +32,7 @@ export function CoachHeroCard({ coach, width, aspect = HERO_ASPECT, onPress, sty
         <Image
           source={src}
           resizeMode={contain ? 'contain' : 'cover'}
-          style={contain ? { position: 'absolute', left: 0, right: 0, top: '14%', height: '56%', width: '100%' } : StyleSheet.absoluteFill}
+          style={contain ? { position: 'absolute', left: 0, top: '14%', height: '56%', width: '100%' } : FILL}
           accessibilityIgnoresInvertColors
         />
       ) : (
@@ -60,7 +62,7 @@ export function CoachHeroCard({ coach, width, aspect = HERO_ASPECT, onPress, sty
   )
   if (!onPress) return body
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${name}. ${tagline}. View profile`}>
+    <Pressable onPress={onPress} accessible accessibilityRole={Platform.OS === 'web' ? undefined : 'button'} accessibilityLabel={`${name}. ${tagline}. View profile`}>
       {body}
     </Pressable>
   )

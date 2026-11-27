@@ -1,5 +1,5 @@
 import { memo, useRef } from 'react'
-import { View, Text, Image, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
+import { View, Text, Image, Pressable, ScrollView, Platform, StyleSheet, useWindowDimensions } from 'react-native'
 import { fonts } from '../../../constants/theme'
 import { useTheme } from '../../../context/ThemeContext'
 import { maskComingSoonName } from '../../../data/lifestylePartners'
@@ -27,7 +27,8 @@ const StackCard = memo(function StackCard({ partner, cfg, width, first, hidden, 
     >
       <Pressable
         onPress={() => onOpen(partner, ref)}
-        accessibilityRole="button"
+        accessibilityRole={Platform.OS === 'web' ? undefined : 'button'}
+        accessible
         accessibilityLabel={`${partner.brand}, ${cfg.discountLabel}, ${cleanCopy(partner.category)}. Open the card`}
         style={({ pressed }) => ({ opacity: pressed ? 0.94 : 1 })}
       >

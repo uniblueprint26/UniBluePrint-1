@@ -28,7 +28,6 @@ import { PARTNERS, MYSTERY_MAP_COUNTIES } from '../data/lifestylePartners'
 // this screen and the map component don't import each other.
 export { PARTNERS, MYSTERY_MAP_COUNTIES }
 
-const LIVE_PARTNER_COUNT = PARTNERS.filter(p => p.status === 'live').length
 
 // How many grid tiles (beyond the hero) the hub shows inline before handing
 // off to the full "see all" screen — "shouldn't have to open [the shop],
@@ -195,19 +194,13 @@ export default function LifestyleScreen({ navigation, route }) {
               <Phone size={16} color="#FFFFFF" />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.crisisTitle} numberOfLines={1}>Need to talk right now?</Text>
-              <Text style={styles.crisisSub} numberOfLines={1}>Samaritans, 116 123, free 24 hours</Text>
+              <Text style={styles.crisisTitle} numberOfLines={1}>Need to talk? Samaritans 116 123</Text>
             </View>
             <Text style={styles.crisisLink} onPress={() => navigation.navigate('LifestyleWellbeing')} accessibilityRole="button" accessibilityLabel="More wellbeing support">More</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Deal wallet header: category chips and a search box. */}
-        <View style={styles.walletHead}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">Your deal wallet</Text>
-          <Text style={styles.sectionSub}>{LIVE_PARTNERS.length} partners. Tap a card to open it.</Text>
-        </View>
-
+        {/* Deal wallet: category chips and a search box. */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow} style={{ flexGrow: 0 }}>
           {FILTERS.map(f => {
             const on = filter === f.key
@@ -380,16 +373,14 @@ function __gs_styles(colors) {
   chipLabel: { fontFamily: fonts.sansSemiBold, fontSize: 13.5, color: colors.textPrimary },
 
   crisisStrip: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: spacing.md,
-    backgroundColor: colors.surface, borderRadius: radius.card, paddingVertical: 8, paddingHorizontal: 12, minHeight: 56,
-    borderWidth: 1, borderColor: colors.border,
+    flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: spacing.sm, marginBottom: spacing.xs,
+    paddingVertical: 4, paddingHorizontal: 2, minHeight: 44,
   },
-  crisisIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: pink, alignItems: 'center', justifyContent: 'center' },
+  crisisIconWrap: { width: 28, height: 28, borderRadius: 14, backgroundColor: pink, alignItems: 'center', justifyContent: 'center' },
   crisisTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14.5, color: colors.textPrimary },
   crisisSub: { fontFamily: fonts.sans, fontSize: 12.5, color: colors.textSecondary, marginTop: 1 },
 
-  walletHead: { paddingHorizontal: spacing.md, marginTop: spacing.lg, marginBottom: 12 },
-  filterRow: { paddingHorizontal: spacing.md, gap: 8, paddingBottom: 12 },
+  filterRow: { paddingHorizontal: spacing.md, gap: 8, paddingBottom: 12, paddingTop: 4 },
   filterChip: {
     flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 16, borderRadius: 999,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,

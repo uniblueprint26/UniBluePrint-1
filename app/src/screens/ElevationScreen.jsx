@@ -239,6 +239,9 @@ export const COACHES = [
     // poses — rather than padding the slider with near-duplicate mirror
     // selfies. heroImage is the designated Spotlight/card image.
     heroImage: require('../../assets/coaches/milan-piroska/hero.jpg'),
+    // The hero is a very dark black and white shot. The featured card and round photo use a brighter gallery shot.
+    cardImage: require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
+    avatar: require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
     gallery: [
       require('../../assets/coaches/milan-piroska/gallery-1.jpg'),
       require('../../assets/coaches/milan-piroska/gallery-2.jpg'),

@@ -54,7 +54,7 @@ export const PARTNER_CARD_OVERRIDES = {
   zvisionapparel: { brandColor: '#14110D' },
   pouvoirs:       { brandColor: '#E2217A' },
   // The JMC Fitness logo came with the coach photos. Same logo, same blue.
-  jmc:            { brandColor: '#394875', logoBg: '#394875' },
+  jmc:            { brandColor: '#394875', cardStyle: 'mono' },
 }
 
 // ─── Colour helpers ──────────────────────────────────────────────────────────
