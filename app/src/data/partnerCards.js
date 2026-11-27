@@ -70,7 +70,7 @@ export const PARTNER_CARD_OVERRIDES = {
   // Made By Kelan sent a selfie, not a logo. This is a simple UBP made wordmark until he sends his own.
   kelan:             { logo: require('../../assets/partners/kelan/logo.png'), brandColor: '#16313B', logoBg: '#16313B' },
   // Sent by the founder as screenshots and images, cropped to the logo.
-  islandsips:        { logo: require('../../assets/partners/islandsips/logo.png'), brandColor: '#188C85', logoBg: '#FFFFFF' },
+  islandsips:        { logo: require('../../assets/partners/islandsips/logo.png'), brandColor: '#EA6A2A', logoBg: '#FFFFFF' },
   nailnurse:         { logo: require('../../assets/partners/nailnurse/logo.png'), brandColor: '#5A4521', logoBg: '#5A4521' },
   styledbybene:      { logo: require('../../assets/partners/styledbybene/logo.png'), brandColor: '#D4A21E', logoBg: '#D4A21E' },
   claras:            { logo: require('../../assets/partners/claras/logo.png'), brandColor: '#D9CEBA', logoBg: '#E4DBCB' },
