@@ -126,6 +126,8 @@ function BankCardBase({
   const nameRight = rightCol
   const slogan = cleanCopy(cfg.slogan)
   const [logoFailed, setLogoFailed] = useState(false)
+  const [artFailed, setArtFailed] = useState(false)
+  const useArt = !!cfg.art && !artFailed
   const showLogo = !!cfg.logo && !logoFailed
   const tileBg = (cfg.logo && !logoFailed) ? cfg.logoBg : (light ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.22)')
   const ringBg = light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.2)'
@@ -138,14 +140,20 @@ function BankCardBase({
       {/* Decoration, clipped to the rounded corners. It carries the brand colour itself so the
           blend modes (multiply, screen) have the colour behind them inside the same group. */}
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: radius, overflow: 'hidden', backgroundColor: cfg.brandColor }]}>
-        {open && <Pattern cfg={cfg} w={w} h={h} />}
-        <Watermark cfg={cfg} w={w} h={h} />
-        <LinearGradient
-          colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.14)']}
-          locations={[0, 0.45, 1]}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
+        {useArt ? (
+          <Image source={cfg.art} resizeMode="cover" onError={() => setArtFailed(true)} style={StyleSheet.absoluteFill} />
+        ) : (
+          <>
+            {open && <Pattern cfg={cfg} w={w} h={h} />}
+            <Watermark cfg={cfg} w={w} h={h} />
+            <LinearGradient
+              colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.14)']}
+              locations={[0, 0.45, 1]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </>
+        )}
         {open && (
           <Animated.View
             style={[styles.sheen, {

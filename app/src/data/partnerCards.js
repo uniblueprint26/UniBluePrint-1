@@ -133,6 +133,8 @@ export function blendKind(bg) {
 // ─── Resolver ────────────────────────────────────────────────────────────────
 // Returns everything a card needs, merged from defaults, overrides and the
 // partner record. Safe to call for any partner.
+import { CARD_ART } from './partnerCardArt'
+
 export function getCardConfig(partner) {
   const o = PARTNER_CARD_OVERRIDES[partner.id] || {}
   const logo = o.logo ?? partner.logo ?? null
@@ -143,6 +145,7 @@ export function getCardConfig(partner) {
     ...CARD_DEFAULTS,
     ...o,
     logo,
+    art: CARD_ART[partner.id] || null,
     initials: partner.initials || String(partner.brand || '?').slice(0, 2).toUpperCase(),
     brandColor,
     textColor: o.textColor || pickTextColor(brandColor),
