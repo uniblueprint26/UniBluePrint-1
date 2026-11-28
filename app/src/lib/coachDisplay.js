@@ -55,7 +55,7 @@ function tidyChip(raw) {
 }
 
 export function coachChips(coach, limit = 3) {
-  const services = Array.isArray(coach?.services) ? coach.services : []
+  const services = Array.isArray(coach?.chips) && coach.chips.length ? coach.chips : Array.isArray(coach?.services) ? coach.services : []
   let source = services
   if (source.length === 0) {
     source = String(coach?.category || '').split(/\s*(?:[·|,/&]|\band\b)\s*/i)

@@ -166,34 +166,48 @@ function cleanChip(raw) {
     .replace(/[€$]\s*\d[\d.,]*(\s*(to|-)\s*[€$]?\s*\d[\d.,]*)?\+?/g, ' ')
     .replace(/\d+\s*(x|hr|hrs|min|week|weeks)\b\/?\w*/gi, ' ')
     .replace(CHIP_DROP, ' ')
+    .replace(/\+/g, ' ')
     .replace(/[/·]+/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/^[\s\-+,.]+|[\s\-+,.]+$/g, '')
   if (!t || /[€$]|\d/.test(t)) return ''
-  return clipWords(t, CHIP_MAX)
+  return t
 }
 
 export function getServiceChips(partner, o = {}) {
-  const source = Array.isArray(o.serviceChips) && o.serviceChips.length
+  const hand = Array.isArray(o.serviceChips) && o.serviceChips.length > 0
+  const source = hand
     ? o.serviceChips
     : Array.isArray(partner.services) && partner.services.length
       ? partner.services
       : Array.isArray(partner.pricelist) ? partner.pricelist.map(x => x?.label).filter(Boolean) : []
-  const seen = {}
+  // A hand set chip is only checked (no euro amounts, no dashes).
+  const cleaned = source.map(raw => {
+    if (!hand) return cleanChip(raw)
+    const t = plain(String(raw)).trim()
+    return /[€$]/.test(t) ? '' : t
+  }).filter(c => c.length > 1)
+  // Whole phrases first. A chopped phrase only fills a gap, and never when it is just
+  // the start of a chip already chosen.
   const out = []
-  for (const raw of source) {
-    const c = cleanChip(raw)
-    const key = c.toLowerCase()
-    if (c.length < 2 || seen[key]) continue
-    seen[key] = true
+  const seen = {}
+  const add = c => {
+    const k = c.toLowerCase()
+    if (seen[k] || out.length >= 3) return
+    seen[k] = true
     out.push(c)
-    if (out.length === 3) break
+  }
+  cleaned.filter(c => c.length <= CHIP_MAX).forEach(add)
+  for (const c of cleaned.filter(c2 => c2.length > CHIP_MAX)) {
+    const short = clipWords(c, CHIP_MAX)
+    if (short.length < 8 || out.some(o2 => o2.toLowerCase().startsWith(short.toLowerCase()))) continue
+    add(short)
   }
   return out
 }
 
-const ABOUT_MAX = 110
-const PLACEHOLDER = /to be confirmed|coming soon|tbc\b/i
+const ABOUT_MAX = 100
+const PLACEHOLDER = /to be confirmed|coming soon|tbc\b|partner listing/i
 
 export function getAboutLine(partner, o = {}) {
   let text = o.about || partner.description || ''
@@ -210,10 +224,7 @@ export function getAboutLine(partner, o = {}) {
   if (!text || PLACEHOLDER.test(text)) return ''
   if (NATIVE_NEUTRAL_BILLING && /[€$]\s*\d|\d\s*(euro|eur)\b/i.test(text)) return ''
   if (text.length <= ABOUT_MAX) return text
-  // Prefer to stop at a comma when there is one in the second half, else a word boundary.
   const head = text.slice(0, ABOUT_MAX)
-  const comma = head.lastIndexOf(',')
-  if (comma > ABOUT_MAX * 0.55) return `${head.slice(0, comma)}.`
   const at = head.lastIndexOf(' ')
   return `${head.slice(0, at > 20 ? at : ABOUT_MAX).replace(/[\s,.;:]+$/, '')}...`
 }

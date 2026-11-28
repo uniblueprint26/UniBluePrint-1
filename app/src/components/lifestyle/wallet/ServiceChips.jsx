@@ -21,7 +21,7 @@ export default function ServiceChips({ chips, about, style }) {
         </View>
       )}
       {!!about && (
-        <Text style={{ fontFamily: fonts.sans, fontSize: 14, lineHeight: 20, color: colors.textSecondary }} numberOfLines={2}>{about}</Text>
+        <Text style={{ fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 19, color: colors.textSecondary }} numberOfLines={2}>{about}</Text>
       )}
     </View>
   )
