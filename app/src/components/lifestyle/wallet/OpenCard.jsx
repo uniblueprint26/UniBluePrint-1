@@ -20,6 +20,7 @@ import CodeArea from './CodeArea'
 import Confetti from './Confetti'
 import PartnerLinks from './PartnerLinks'
 import QrCode from './QrCode'
+import ServiceChips from './ServiceChips'
 import { useCardMotion } from './useCardMotion'
 import * as haptic from './haptics'
 
@@ -359,6 +360,7 @@ export default function OpenCard({ partner, cfg, originY = 0, onClose, onViewPro
             </View>
           ) : (
             <View style={{ gap: 14, marginTop: 2 }}>
+              <ServiceChips chips={cfg.serviceChips} about={cfg.about} />
               {photos.length > 0 && (
                 <View>
                   <ScrollView

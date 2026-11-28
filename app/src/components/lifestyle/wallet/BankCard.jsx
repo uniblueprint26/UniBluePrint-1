@@ -28,6 +28,13 @@ export function cardSize(width) {
 const web = Platform.OS === 'web'
 const invertFilter = web ? 'invert(1)' : [{ invert: 1 }]
 
+// The offer pill is one line. Longer offers get a slightly smaller font so a word is
+// never cut. On iOS and Android adjustsFontSizeToFit is the safety net.
+function pillFont(label) {
+  const n = String(label).length
+  return n > 20 ? 9.5 : n > 15 ? 10 : 11
+}
+
 function nameFont(name, s) {
   const n = String(name).length
   const px = n <= 13 ? 23 : n <= 17 ? 20 : 17.5
@@ -213,7 +220,13 @@ function BankCardBase({
         />
         <View style={styles.pillRow}>
           <View style={[styles.pill, { borderColor: withAlpha(fg, 0.6) }]}>
-            <Text style={{ fontFamily: fonts.sansBold, fontSize: 11, color: fg, letterSpacing: 0.2 }} numberOfLines={1}>{cfg.discountLabel}</Text>
+            <Text
+              style={{ fontFamily: fonts.sansBold, fontSize: pillFont(cfg.discountLabel), color: fg, letterSpacing: 0.1 }}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              maxFontSizeMultiplier={1.1}
+            >{cfg.discountLabel}</Text>
           </View>
           {!!tag && (
             <View style={[styles.pill, { borderColor: withAlpha(fg, 0.35), backgroundColor: withAlpha(fg, 0.1) }]}>
@@ -286,7 +299,7 @@ const styles = StyleSheet.create({
   ring: { borderWidth: 1 },
   regular: { marginTop: 5, alignSelf: 'center', borderWidth: 1, borderRadius: 99, paddingHorizontal: 7, paddingVertical: 1 },
   pillRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'nowrap' },
-  pill: { borderWidth: 1, borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3, flexShrink: 1 },
+  pill: { borderWidth: 1, borderRadius: 99, paddingHorizontal: 9, paddingVertical: 3, flexShrink: 1 },
   marks: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 8 },
   heart: { position: 'absolute', width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   chipMark: { flexDirection: 'row', alignItems: 'center', gap: 4, borderWidth: 1, paddingHorizontal: 6, paddingVertical: 3 },

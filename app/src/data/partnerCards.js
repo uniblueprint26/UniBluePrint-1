@@ -12,7 +12,12 @@
 //     Until a partner has a logo and a brandColor it keeps its old `initBg` colour
 //     and shows its initials.
 //
-//   A real percentage:        discountLabel: '15% off'   (default is "UBP Discount")
+//   The offer on the card:   discountLabel: '15% off'   (default is "UBP Discount")
+//     Percentages or plain words only. Never a euro amount (iOS and Android show no prices).
+//   Services chips:           serviceChips: ['Gel extensions', 'Gel overlay', 'BIAB']  (up to 3, about 18 characters)
+//     Without it the chips come from the partner services list, then the price list labels.
+//   Short about line:         about: 'One short sentence, up to about 110 characters.'
+//     Without it, the first sentence of the partner description is used.
 //   An end date:              endsOn: '2026-12-24'       (ISO date, hidden when past)
 //   Opening hours:            hours: 'Mon to Fri 9am to 6pm'
 //   Today's special:          todaySpecial: 'Free protein shake with every sign up'
@@ -45,36 +50,36 @@ export const CARD_DEFAULTS = {
 }
 
 export const PARTNER_CARD_OVERRIDES = {
-  energie:        { brandColor: '#6FAE4A', hours: 'Mon to Fri 6am to 10pm, Sat to Sun 9am to 5pm' },
-  whipwizardz:    { brandColor: '#0A6B2F', logoBg: '#111111' },
-  saiemsent:      { brandColor: '#0D0D0D', logoBg: '#000000' },
-  elect:          { brandColor: '#0D0D0D' },
-  jordanskitchen: { brandColor: '#F3E3B4' },
-  roomy:          { brandColor: '#54676B', logoBg: '#54676B' },
-  zvisionapparel: { logo: require('../../assets/partners/zvisionapparel/logo.png'), brandColor: '#1FAFB1', logoBg: '#000000' },
+  energie:        { brandColor: '#6FAE4A', hours: 'Mon to Fri 6am to 10pm, Sat to Sun 9am to 5pm', discountLabel: '50% off joining', serviceChips: ['Gym membership', 'Student rate'], about: 'Full gym access with a student membership. Set up in person at the gym.' },
+  whipwizardz:    { brandColor: '#0A6B2F', logoBg: '#111111', discountLabel: 'UBP Deal', serviceChips: ['Car sales', 'Repairs', 'Detailing'] },
+  saiemsent:      { brandColor: '#0D0D0D', logoBg: '#000000', serviceChips: ['Streetwear', 'Graphic tees', 'Hoodies'] },
+  elect:          { brandColor: '#0D0D0D', discountLabel: '10% off', serviceChips: ['Streetwear', 'Christian brand'] },
+  jordanskitchen: { brandColor: '#F3E3B4', discountLabel: 'UBP Deal', serviceChips: ['Overnight oats', 'Protein oats', 'Delivered'] },
+  roomy:          { brandColor: '#54676B', logoBg: '#54676B', discountLabel: 'Free listings', serviceChips: ['Room listings', 'Room search', 'Flatmate groups'] },
+  zvisionapparel: { logo: require('../../assets/partners/zvisionapparel/logo.png'), brandColor: '#1FAFB1', logoBg: '#000000', serviceChips: ['Embroidery', 'Custom clothing'] },
   pouvoirs:       { brandColor: '#E2217A' },
   // The JMC Fitness logo came with the coach photos. Same logo, same blue.
-  jmc:            { brandColor: '#394875', cardStyle: 'mono' },
+  jmc:            { brandColor: '#394875', cardStyle: 'mono', discountLabel: 'UBP Deal', serviceChips: ['Sports coaching', 'Online plans', 'Football coaching'] },
   // Logos the partners sent by email. Brand colours are the colours in each logo.
-  mpfitness:         { logo: require('../../assets/partners/mpfitness/logo.png'), brandColor: '#2CD5F0', logoBg: '#000000' },
-  nyz3ditz:          { logo: require('../../assets/partners/nyz3ditz/logo.png'), brandColor: '#111111', logoBg: '#FFFFFF' },
-  leva:              { logo: require('../../assets/partners/leva/logo.png'), brandColor: '#111111', logoBg: '#FDFCF8' },
-  henrysisters:      { logo: require('../../assets/partners/henrysisters/logo.png'), brandColor: '#E0BAB2', logoBg: '#FFFFFF' },
-  camila:            { logo: require('../../assets/partners/camila/logo.jpg'), brandColor: '#C2A025', logoBg: '#000000' },
-  eabakeditt:        { logo: require('../../assets/partners/eabakeditt/logo.png'), brandColor: '#E0B850', logoBg: '#000000' },
-  ilashedbydiya:     { logo: require('../../assets/partners/ilashedbydiya/logo.jpg'), brandColor: '#D4AF37', logoBg: '#111111' },
-  royaltyproductions:{ logo: require('../../assets/partners/royaltyproductions/logo.png'), brandColor: '#111111', logoBg: '#FFFFFF' },
-  veeslash:          { logo: require('../../assets/partners/veeslash/logo.png'), brandColor: '#FECDE2', logoBg: '#FECDE2' },
-  cutbyire:          { logo: require('../../assets/partners/cutbyire/logo.png'), brandColor: '#99C6EB', logoBg: '#FFFFFF' },
-  poiemadexigns:     { logo: require('../../assets/partners/poiemadexigns/logo.png'), brandColor: '#C6E04B', logoBg: '#000000' },
+  mpfitness:         { logo: require('../../assets/partners/mpfitness/logo.png'), brandColor: '#2CD5F0', logoBg: '#000000', discountLabel: 'UBP Deal', serviceChips: ['Personal training', 'Nutrition coaching', 'Online calls'] },
+  nyz3ditz:          { logo: require('../../assets/partners/nyz3ditz/logo.png'), brandColor: '#111111', logoBg: '#FFFFFF', discountLabel: 'UBP Deal', serviceChips: ['Photography', 'Videography', 'Mentorship'] },
+  leva:              { logo: require('../../assets/partners/leva/logo.png'), brandColor: '#111111', logoBg: '#FDFCF8', discountLabel: '1 week free trial', serviceChips: ['Social media', 'Graphic design', 'Paid ads'] },
+  henrysisters:      { logo: require('../../assets/partners/henrysisters/logo.png'), brandColor: '#E0BAB2', logoBg: '#FFFFFF', discountLabel: '10% off first booking', serviceChips: ['Photography', 'Videography', 'Reels'] },
+  camila:            { logo: require('../../assets/partners/camila/logo.jpg'), brandColor: '#C2A025', logoBg: '#000000', discountLabel: 'UBP Deal', serviceChips: ['Personal training', 'Muay Thai', 'Yoga'] },
+  eabakeditt:        { logo: require('../../assets/partners/eabakeditt/logo.png'), brandColor: '#E0B850', logoBg: '#000000', discountLabel: 'Up to 33% off', serviceChips: ['Brownie boxes', 'Cookies', 'Cupcakes'] },
+  ilashedbydiya:     { logo: require('../../assets/partners/ilashedbydiya/logo.jpg'), brandColor: '#D4AF37', logoBg: '#111111', discountLabel: '10% off first appointment', serviceChips: ['Classic lashes', 'Volume lashes', 'Lash lifts'] },
+  royaltyproductions:{ logo: require('../../assets/partners/royaltyproductions/logo.png'), brandColor: '#111111', logoBg: '#FFFFFF', discountLabel: '10% off', serviceChips: ['Event photos', 'Graduations', 'Headshots'] },
+  veeslash:          { logo: require('../../assets/partners/veeslash/logo.png'), brandColor: '#FECDE2', logoBg: '#FECDE2', discountLabel: 'UBP Deal', serviceChips: ['Classic lashes', 'Hybrid lashes', 'Volume lashes'] },
+  cutbyire:          { logo: require('../../assets/partners/cutbyire/logo.png'), brandColor: '#99C6EB', logoBg: '#FFFFFF', discountLabel: 'UBP Deal', serviceChips: ['Haircuts', 'Lineups', 'Home service'] },
+  poiemadexigns:     { logo: require('../../assets/partners/poiemadexigns/logo.png'), brandColor: '#C6E04B', logoBg: '#000000', discountLabel: 'UBP Deal', serviceChips: ['Web design', 'Logo design', 'Branding'] },
   // Made By Kelan sent a selfie, not a logo. This is a simple UBP made wordmark until he sends his own.
-  kelan:             { logo: require('../../assets/partners/kelan/logo.png'), brandColor: '#16313B', logoBg: '#16313B' },
+  kelan:             { logo: require('../../assets/partners/kelan/logo.png'), brandColor: '#16313B', logoBg: '#16313B', discountLabel: 'UBP Deal', serviceChips: ['Events', 'Filming', 'Promo content'] },
   // Sent by the founder as screenshots and images, cropped to the logo.
   islandsips:        { logo: require('../../assets/partners/islandsips/logo.png'), brandColor: '#EA6A2A', logoBg: '#FFFFFF' },
-  nailnurse:         { logo: require('../../assets/partners/nailnurse/logo.png'), brandColor: '#5A4521', logoBg: '#5A4521' },
+  nailnurse:         { logo: require('../../assets/partners/nailnurse/logo.png'), brandColor: '#5A4521', logoBg: '#5A4521', serviceChips: ['Acrylic sets', 'Gel polish', 'Manicures'] },
   styledbybene:      { logo: require('../../assets/partners/styledbybene/logo.png'), brandColor: '#D4A21E', logoBg: '#D4A21E' },
-  claras:            { logo: require('../../assets/partners/claras/logo.png'), brandColor: '#D9CEBA', logoBg: '#E4DBCB' },
-  coded69studios:    { logo: require('../../assets/partners/coded69studios/logo.png'), brandColor: '#113D7D', logoBg: '#FFFFFF' },
+  claras:            { logo: require('../../assets/partners/claras/logo.png'), brandColor: '#D9CEBA', logoBg: '#E4DBCB', discountLabel: 'UBP Deal', serviceChips: ['Gel extensions', 'Gel overlay', 'BIAB'] },
+  coded69studios:    { logo: require('../../assets/partners/coded69studios/logo.png'), brandColor: '#113D7D', logoBg: '#FFFFFF', discountLabel: '10% off', serviceChips: ['Photography', 'Printing', 'Studio rental'] },
 }
 
 // ─── Colour helpers ──────────────────────────────────────────────────────────
@@ -134,6 +139,84 @@ export function blendKind(bg) {
 // Returns everything a card needs, merged from defaults, overrides and the
 // partner record. Safe to call for any partner.
 import { CARD_ART } from './partnerCardArt'
+import { cleanCopy, plain } from '../lib/plainCopy'
+import { NATIVE_NEUTRAL_BILLING } from '../constants/platformPolicy'
+
+// ─── Services chips and the short about line ─────────────────────────────────
+// serviceChips: up to three short chips naming what the partner does.
+//   1. the `serviceChips` override above, 2. the partner `services` array,
+//   3. the `pricelist` labels with prices, deposits and plan words stripped.
+// about: one short line for the open card. The `about` override, else the first
+//   sentence of the partner description (euro sentences dropped on native).
+// Neither ever reads a `deal` string, so a euro amount never reaches a native card.
+const CHIP_MAX = 18
+const CHIP_DROP = /\b(deposit|joining fee|standard monthly|student monthly|monthly|per session|session|add on|add-on|subscription|from|student|standard)\b/gi
+
+function clipWords(text, max) {
+  const t = String(text).trim()
+  if (t.length <= max) return t
+  const cut = t.slice(0, max + 1)
+  const at = cut.lastIndexOf(' ')
+  return (at > 6 ? cut.slice(0, at) : t.slice(0, max)).replace(/[\s,&]+$/, '')
+}
+
+function cleanChip(raw) {
+  const t = plain(String(raw))
+    .replace(/\(.*?\)/g, ' ')
+    .replace(/[€$]\s*\d[\d.,]*(\s*(to|-)\s*[€$]?\s*\d[\d.,]*)?\+?/g, ' ')
+    .replace(/\d+\s*(x|hr|hrs|min|week|weeks)\b\/?\w*/gi, ' ')
+    .replace(CHIP_DROP, ' ')
+    .replace(/[/·]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s\-+,.]+|[\s\-+,.]+$/g, '')
+  if (!t || /[€$]|\d/.test(t)) return ''
+  return clipWords(t, CHIP_MAX)
+}
+
+export function getServiceChips(partner, o = {}) {
+  const source = Array.isArray(o.serviceChips) && o.serviceChips.length
+    ? o.serviceChips
+    : Array.isArray(partner.services) && partner.services.length
+      ? partner.services
+      : Array.isArray(partner.pricelist) ? partner.pricelist.map(x => x?.label).filter(Boolean) : []
+  const seen = {}
+  const out = []
+  for (const raw of source) {
+    const c = cleanChip(raw)
+    const key = c.toLowerCase()
+    if (c.length < 2 || seen[key]) continue
+    seen[key] = true
+    out.push(c)
+    if (out.length === 3) break
+  }
+  return out
+}
+
+const ABOUT_MAX = 110
+const PLACEHOLDER = /to be confirmed|coming soon|tbc\b/i
+
+export function getAboutLine(partner, o = {}) {
+  let text = o.about || partner.description || ''
+  if (!text) return ''
+  text = cleanCopy(text)
+    .replace(/\s*\(@[^)]*\)/g, '')
+    .replace(/\bCo\. /g, 'Co\u0001 ')
+    .trim()
+  if (!o.about) {
+    const m = text.match(/^.*?[.!?](?=\s|$)/)
+    text = m ? m[0] : text
+  }
+  text = text.replace(/\u0001/g, '.').replace(/\s+/g, ' ').trim()
+  if (!text || PLACEHOLDER.test(text)) return ''
+  if (NATIVE_NEUTRAL_BILLING && /[€$]\s*\d|\d\s*(euro|eur)\b/i.test(text)) return ''
+  if (text.length <= ABOUT_MAX) return text
+  // Prefer to stop at a comma when there is one in the second half, else a word boundary.
+  const head = text.slice(0, ABOUT_MAX)
+  const comma = head.lastIndexOf(',')
+  if (comma > ABOUT_MAX * 0.55) return `${head.slice(0, comma)}.`
+  const at = head.lastIndexOf(' ')
+  return `${head.slice(0, at > 20 ? at : ABOUT_MAX).replace(/[\s,.;:]+$/, '')}...`
+}
 
 export function getCardConfig(partner) {
   const o = PARTNER_CARD_OVERRIDES[partner.id] || {}
@@ -155,6 +238,8 @@ export function getCardConfig(partner) {
     branded: !!o.brandColor,
     hours: o.hours || partner.hours || null,
     address: o.address || partner.address || null,
+    serviceChips: getServiceChips(partner, o),
+    about: getAboutLine(partner, o),
   }
 }
 

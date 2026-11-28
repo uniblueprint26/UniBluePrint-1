@@ -38,7 +38,8 @@ export function PartnerProfileView({ partner, onOpenCard, forceFollow }) {
   const bio = cleanCopy(partner.description) || cleanCopy(partner.tagline)
   const photos = cfg.photos || []
   const menu = Platform.OS === 'web' && Array.isArray(partner.pricelist) && partner.pricelist.length > 0 ? partner.pricelist : null
-  const services = Array.isArray(partner.services) ? partner.services : []
+  // The full services list when the partner has one, else the three short chips.
+  const services = Array.isArray(partner.services) && partner.services.length ? partner.services : (cfg.serviceChips || [])
   const regular = wallet.isRegular(partner.id)
   const tag = endsTag(cfg.endsOn)
 
@@ -79,7 +80,7 @@ export function PartnerProfileView({ partner, onOpenCard, forceFollow }) {
       links={<PartnerLinks partner={partner} showGetInTouch={false} forceOpen={touchOpen} />}
       gallery={photos}
     >
-      <ProfileSection title="UBP Discount">
+      <ProfileSection title="The offer">
         <Pressable
           onPress={() => onOpenCard?.(partner.id)}
           accessible
