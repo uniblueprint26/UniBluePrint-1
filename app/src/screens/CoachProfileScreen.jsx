@@ -18,6 +18,7 @@ import AppHeader from '../components/ui/AppHeader'
 import { PILLARS } from '../constants/pillars'
 import BrandProfile, { ProfileButton, Chip, ProfileSection } from '../components/profile/BrandProfile'
 import { coachDisplayName } from '../lib/coachDisplay'
+import AvailabilityBadge from '../components/elevation/AvailabilityBadge'
 import { cleanCopy } from '../lib/plainCopy'
 import { pillarTint } from '../constants/pillarTints'
 import { useBrandFollow } from '../hooks/useBrandFollow'
@@ -551,6 +552,7 @@ export default function CoachProfileScreen({ route, navigation }) {
             <Chip key="c" label="Coach" accent={accent} strong />,
             coach.location ? <Chip key="l" label={coach.location} accent={accent} /> : null,
             coach.badge ? <Chip key="b" label={cleanCopy(coach.badge)} accent={accent} /> : null,
+            coach.availability ? <AvailabilityBadge key="a" coach={coach} variant="profile" style={{ paddingVertical: 4.5 }} /> : null,
           ].filter(Boolean)}
           actions={!coach.shell ? (
             <>

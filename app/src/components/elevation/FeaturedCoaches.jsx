@@ -4,7 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { fonts } from '../../constants/theme'
 import { useTheme } from '../../context/ThemeContext'
 import { NameWithTick } from '../ui/VerifiedTick'
-import { coachDisplayName, coachFirstName, coachTagline } from '../../lib/coachDisplay'
+import { coachDisplayName, coachFirstName, coachTagline, coachChips, coachAvailability } from '../../lib/coachDisplay'
+import AvailabilityBadge from './AvailabilityBadge'
 import { pillarTint } from '../../constants/pillarTints'
 
 // Featured coach hero cards: swipe sideways, one coach at a time, snap, the
@@ -25,6 +26,8 @@ export function CoachHeroCard({ coach, width, aspect = HERO_ASPECT, onPress, sty
   const tint = pillarTint('elevation', isDark)
   const name = coachDisplayName(coach)
   const tagline = coachTagline(coach)
+  const chips = coachChips(coach)
+  const status = coachAvailability(coach)
   const big = width >= 220
   const body = (
     <View style={[styles.card, { width, height, borderRadius: 22, backgroundColor: contain ? (coach.cardBg || '#1E1B2E') : '#1E1B2E' }, style]}>
@@ -42,10 +45,11 @@ export function CoachHeroCard({ coach, width, aspect = HERO_ASPECT, onPress, sty
       )}
       <LinearGradient
         pointerEvents="none"
-        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.38)', 'rgba(0,0,0,0.82)']}
-        locations={[0.38, 0.66, 1]}
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.88)']}
+        locations={[0.3, 0.6, 1]}
         style={StyleSheet.absoluteFill}
       />
+      {!!status && <AvailabilityBadge coach={coach} variant="photo" style={styles.status} />}
       <View style={[styles.text, { padding: big ? 18 : 14 }]}>
         <NameWithTick
           name={name}
@@ -55,14 +59,23 @@ export function CoachHeroCard({ coach, width, aspect = HERO_ASPECT, onPress, sty
           textStyle={{ fontFamily: fonts.serif, fontSize: big ? 28 : 22, lineHeight: big ? 32 : 26 }}
         />
         {!!tagline && (
-          <Text style={{ fontFamily: fonts.sansMedium, fontSize: big ? 13.5 : 12.5, lineHeight: big ? 19 : 17, color: 'rgba(255,255,255,0.92)', marginTop: 6 }} numberOfLines={3}>{tagline}</Text>
+          <Text style={{ fontFamily: fonts.sansMedium, fontSize: big ? 13.5 : 12.5, lineHeight: big ? 19 : 17, color: 'rgba(255,255,255,0.94)', marginTop: 6 }} numberOfLines={chips.length ? 2 : 3}>{tagline}</Text>
+        )}
+        {chips.length > 0 && (
+          <View style={styles.chips}>
+            {chips.map(c => (
+              <View key={c} style={styles.chip}>
+                <Text style={{ fontFamily: fonts.sansSemiBold, fontSize: 11, color: '#FFFFFF' }} numberOfLines={1}>{c}</Text>
+              </View>
+            ))}
+          </View>
         )}
       </View>
     </View>
   )
   if (!onPress) return body
   return (
-    <Pressable onPress={onPress} accessible accessibilityRole={Platform.OS === 'web' ? undefined : 'button'} accessibilityLabel={`${name}. ${tagline}. View profile`}>
+    <Pressable onPress={onPress} accessible accessibilityRole={Platform.OS === 'web' ? undefined : 'button'} accessibilityLabel={`${name}. ${tagline}.${status ? ` ${status.label}.` : ""} View profile`}>
       {body}
     </Pressable>
   )
@@ -122,6 +135,9 @@ export default function FeaturedCoaches({ coaches, onOpen }) {
 const styles = StyleSheet.create({
   card: { overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.22, shadowRadius: 14, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
   text: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+  status: { position: 'absolute', top: 12, left: 12 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 9 },
+  chip: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.42)', backgroundColor: 'rgba(0,0,0,0.34)', borderRadius: 99, paddingHorizontal: 8, paddingVertical: 3 },
   dots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 16, minHeight: 10 },
   dot: { height: 6, borderRadius: 3 },
   btn: { alignSelf: 'center', alignItems: 'center', justifyContent: 'center', minHeight: 52, borderRadius: 14, marginTop: 16 },
