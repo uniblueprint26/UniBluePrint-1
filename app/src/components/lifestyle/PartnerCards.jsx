@@ -10,7 +10,12 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import { PictureSwiper } from './PartnerPicture'
-import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView, useWindowDimensions } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, ScrollView, Platform, useWindowDimensions } from 'react-native'
+import { getCardConfig } from '../../data/partnerCards'
+
+// On iPhone and Android the offer is shown as the card label (a percentage or plain words),
+// never the euro deal text. Web keeps the full deal text.
+const dealLabel = p => (Platform.OS === 'web' ? p.deal : (getCardConfig(p).discountLabel || 'UBP Discount'))
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   ChevronRight, ChevronDown, Phone, Mail, AtSign, Link2, HelpCircle, X,
@@ -294,7 +299,7 @@ export function PartnerGridCard({ partner, onPress, highlighted }) {
       <Text style={styles.gridCardCategory} numberOfLines={2}>{partner.category}</Text>
       {partner.deal ? (
         <View style={styles.gridDealPill}>
-          <Text style={styles.gridDealPillText} numberOfLines={2}>{partner.deal}</Text>
+          <Text style={styles.gridDealPillText} numberOfLines={2}>{dealLabel(partner)}</Text>
         </View>
       ) : (
         <View style={styles.gridCardSpacer} />
@@ -323,7 +328,7 @@ export function PartnerListRow({ partner, onPress, highlighted }) {
       </View>
       {partner.deal ? (
         <View style={styles.listRowDealPill}>
-          <Text style={styles.listRowDealText} numberOfLines={1}>{partner.deal}</Text>
+          <Text style={styles.listRowDealText} numberOfLines={1}>{dealLabel(partner)}</Text>
         </View>
       ) : null}
       <ChevronRight size={16} color={colors.light} />
@@ -566,7 +571,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
           {partner.deal && (
             <View style={styles.dealCard}>
               <Text style={styles.dealCardLabel}>LOCAL DEAL</Text>
-              <Text style={styles.dealCardText}>{partner.deal}</Text>
+              <Text style={styles.dealCardText}>{dealLabel(partner)}</Text>
             </View>
           )}
 
@@ -578,7 +583,7 @@ export function PartnerDetailSheet({ partner, visible, onClose, navigation, onSh
               rendered/scrolled into view on a real device. */}
           <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0, marginTop: 10 }}>
             <ScrollView style={styles.detailScroll} contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
-              {partner.pricelist && (
+              {partner.pricelist && Platform.OS === 'web' && (
                 <>
                   <Text style={[styles.expandLabel, { marginTop: 16 }]}>PRICING</Text>
                   <View style={styles.priceTable}>
