@@ -108,7 +108,8 @@ export default function OpenCard({ partner, cfg, originY = 0, onClose, onViewPro
   const used = wallet.uses[partner.id] || 0
   const tag = endsTag(cfg.endsOn)
   const blocks = cfg.openCardBlocks || ['links']
-  const photos = cfg.photos || []
+  const [badPhotos, setBadPhotos] = useState({})
+  const photos = (cfg.photos || []).filter((_, i) => !badPhotos[i])
 
   const [flipped, setFlipped] = useState(false)
   const [till, setTill] = useState(false)
@@ -372,7 +373,7 @@ export default function OpenCard({ partner, cfg, originY = 0, onClose, onViewPro
                     style={{ marginHorizontal: 0 }}
                   >
                     {photos.map((p, i) => (
-                      <Image key={i} source={typeof p === 'string' ? { uri: p } : p} resizeMode="cover" style={{ width: itemW, height: itemH, borderRadius: 14, backgroundColor: colors.surfaceSunk }} />
+                      <Image key={i} onError={() => setBadPhotos(b => ({ ...b, [i]: true }))} source={typeof p === 'string' ? { uri: p } : p} resizeMode="cover" style={{ width: itemW, height: itemH, borderRadius: 14, backgroundColor: colors.surfaceSunk }} />
                     ))}
                   </ScrollView>
                   {photos.length > 1 && (

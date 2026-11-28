@@ -6,13 +6,17 @@ import { Animated, Platform } from 'react-native'
 //   tilt      an Animated.Value from -1 to 1 (left to right) that moves the sheen
 //   onTiltFar fires (at most every 4 seconds) when the phone is tilted a long way
 //   onShake   fires on a firm shake (at most every 1.5 seconds)
+// Tilt and shake are switched off until they have been tested on a real phone.
+// Set this to true to bring them back.
+const SENSORS_ON = false
+
 export function useCardMotion({ enabled, onTiltFar, onShake }) {
   const tilt = useRef(new Animated.Value(0)).current
   const handlers = useRef({ onTiltFar, onShake })
   handlers.current = { onTiltFar, onShake }
 
   useEffect(() => {
-    if (!enabled || Platform.OS === 'web') return undefined
+    if (!SENSORS_ON || !enabled || Platform.OS === 'web') return undefined
     let sub = null
     let alive = true
     let lastFar = 0

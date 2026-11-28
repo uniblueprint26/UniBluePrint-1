@@ -631,7 +631,6 @@ export default function HomeScreen({ navigation }) {
         title="Home"
         right={(
           <View style={styles.titleRight}>
-            {isComplimentaryPro ? <ActiveMemberBadge /> : null}
             <TouchableOpacity
               style={styles.editHome}
               activeOpacity={0.7}
@@ -646,6 +645,12 @@ export default function HomeScreen({ navigation }) {
           </View>
         )}
       />
+
+      {isComplimentaryPro ? (
+        <View style={{ paddingHorizontal: spacing.md, marginBottom: 10 }}>
+          <ActiveMemberBadge />
+        </View>
+      ) : null}
 
       <View style={{ paddingTop: 14, paddingBottom: 26 }}>
         <StoryRail navigation={navigation} name={firstName} />

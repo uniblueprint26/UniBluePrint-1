@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react'
+import { memo, useRef, useState } from 'react'
 import { View, Text, Image, Pressable, Animated, Platform, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Heart } from 'lucide-react-native'
@@ -45,7 +45,7 @@ const Pattern = memo(function Pattern({ cfg, w, h }) {
   const ch = Math.round(h * 1.8)
   const base = { position: 'absolute', width: cw, height: ch, left: -Math.round((cw - w) / 2), top: -Math.round((ch - h) / 2), transform: [{ rotate: '-14deg' }] }
   if (cfg.logo) {
-    const size = Math.round(w * 0.12)
+    const size = Math.round(w * (web ? 0.12 : 0.2))
     const gap = Math.round(size * 0.7)
     const cols = Math.ceil(cw / (size + gap)) + 1
     const rows = Math.ceil(ch / (size + gap)) + 1
@@ -125,7 +125,9 @@ function BankCardBase({
   const rightCol = Math.round(98 * s)
   const nameRight = rightCol
   const slogan = cleanCopy(cfg.slogan)
-  const tileBg = cfg.logo ? cfg.logoBg : (light ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.22)')
+  const [logoFailed, setLogoFailed] = useState(false)
+  const showLogo = !!cfg.logo && !logoFailed
+  const tileBg = (cfg.logo && !logoFailed) ? cfg.logoBg : (light ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.22)')
   const ringBg = light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.2)'
 
   return (
@@ -136,7 +138,7 @@ function BankCardBase({
       {/* Decoration, clipped to the rounded corners. It carries the brand colour itself so the
           blend modes (multiply, screen) have the colour behind them inside the same group. */}
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: radius, overflow: 'hidden', backgroundColor: cfg.brandColor }]}>
-        <Pattern cfg={cfg} w={w} h={h} />
+        {open && <Pattern cfg={cfg} w={w} h={h} />}
         <Watermark cfg={cfg} w={w} h={h} />
         <LinearGradient
           colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.14)']}
@@ -178,8 +180,8 @@ function BankCardBase({
           style={[styles.ring, { padding: 4, borderRadius: Math.round(18 * s), backgroundColor: ringBg, borderColor: withAlpha(fg, 0.28) }]}
         >
           <View style={{ width: logoSize, height: logoSize, borderRadius: Math.round(14 * s), backgroundColor: tileBg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {cfg.logo ? (
-              <Image source={cfg.logo} resizeMode="contain" style={{ width: logoSize - 8, height: logoSize - 8 }} />
+            {showLogo ? (
+              <Image source={cfg.logo} resizeMode="contain" onError={() => setLogoFailed(true)} style={{ width: logoSize - 8, height: logoSize - 8 }} />
             ) : (
               <Text style={{ fontFamily: fonts.serif, fontSize: Math.round(20 * s), color: fg }}>{cfg.initials}</Text>
             )}
